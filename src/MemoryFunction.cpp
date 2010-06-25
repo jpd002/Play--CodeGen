@@ -7,7 +7,7 @@
 
 #include <windows.h>
 
-#ifdef AMD64
+#ifdef _M_X64
 extern "C" void _CMemoryFunction_Execute(void*, void*);
 #endif
 
@@ -60,7 +60,7 @@ void CMemoryFunction::operator()(void* context)
 
 #ifdef WIN32
 	
-	#ifdef AMD64
+	#ifdef _M_X64
 	
 		_CMemoryFunction_Execute(m_code, context);
 	

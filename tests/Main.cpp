@@ -1,6 +1,6 @@
 #ifdef WIN32
 
-	#ifdef AMD64
+	#ifdef _M_X64
 		#include "Jitter_CodeGen_Arm.h"
 		#include "Jitter_CodeGen_x86_64.h"
 	#else
@@ -23,12 +23,12 @@
 #include <boost/lambda/bind.hpp>
 #include <boost/lambda/construct.hpp>
 
-#include "tests/Crc32Test.h"
-#include "tests/MultTest.h"
-#include "tests/RandomAluTest.h"
-#include "tests/RandomAluTest2.h"
-#include "tests/FpuTest.h"
-#include "tests/CompareTest.h"
+#include "Crc32Test.h"
+#include "MultTest.h"
+#include "RandomAluTest.h"
+#include "RandomAluTest2.h"
+#include "FpuTest.h"
+#include "CompareTest.h"
 
 typedef boost::function<CTest* ()> TestFactoryFunction;
 
@@ -50,7 +50,7 @@ int main(int argc, char** argv)
 {
 #ifdef WIN32
 	
-	#ifdef AMD64
+	#ifdef _M_X64
 		Jitter::CJitter jitter(new Jitter::CCodeGen_x86_64());
 	#else
 		Jitter::CJitter jitter(new Jitter::CCodeGen_x86_32());

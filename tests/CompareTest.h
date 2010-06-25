@@ -2,7 +2,7 @@
 #define _COMPARETEST_H_
 
 #include "Test.h"
-#include "../MemoryFunction.h"
+#include "MemoryFunction.h"
 
 class CCompareTest : public CTest
 {

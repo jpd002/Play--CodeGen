@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9.00"
-	Name="CodeGen"
-	ProjectGUID="{20A9D0EF-E1C7-4FF8-8931-76C86CDC8A2B}"
-	RootNamespace="CodeGen"
+	Name="CodeGenTestSuite"
+	ProjectGUID="{99B0C132-AB5D-4A4F-B785-F44834858EDF}"
+	RootNamespace="CodeGenTestSuite"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="196613"
 	>
@@ -21,9 +21,9 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="$(SolutionDir)\$(PlatformName)\$(ConfigurationName)"
+			OutputDirectory="$(SolutionDir)$(PlatformName)\$(ConfigurationName)"
 			IntermediateDirectory="$(PlatformName)\$(ProjectName)\$(ConfigurationName)"
-			ConfigurationType="4"
+			ConfigurationType="1"
 			CharacterSet="1"
 			>
 			<Tool
@@ -44,7 +44,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="$(FrameworkRoot)\include;&quot;$(ProjectDir)/include&quot;"
+				AdditionalIncludeDirectories="$(FrameworkRoot)\include;&quot;$(SolutionDir)/include&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -63,10 +63,17 @@
 				Name="VCPreLinkEventTool"
 			/>
 			<Tool
-				Name="VCLibrarianTool"
+				Name="VCLinkerTool"
+				LinkIncremental="2"
+				GenerateDebugInformation="true"
+				SubSystem="1"
+				TargetMachine="1"
 			/>
 			<Tool
 				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
@@ -78,6 +85,84 @@
 				Name="VCFxCopTool"
 			/>
 			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Release|Win32"
+			OutputDirectory="$(SolutionDir)$(PlatformName)\$(ConfigurationName)"
+			IntermediateDirectory="$(PlatformName)\$(ProjectName)\$(ConfigurationName)"
+			ConfigurationType="1"
+			CharacterSet="1"
+			WholeProgramOptimization="1"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="2"
+				EnableIntrinsicFunctions="true"
+				AdditionalIncludeDirectories="$(FrameworkRoot)\include;&quot;$(SolutionDir)/include&quot;"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
+				RuntimeLibrary="2"
+				EnableFunctionLevelLinking="true"
+				UsePrecompiledHeader="0"
+				WarningLevel="3"
+				DebugInformationFormat="3"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				LinkIncremental="1"
+				GenerateDebugInformation="true"
+				SubSystem="1"
+				OptimizeReferences="2"
+				EnableCOMDATFolding="2"
+				TargetMachine="1"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
 				Name="VCPostBuildEventTool"
 			/>
 		</Configuration>
@@ -85,7 +170,7 @@
 			Name="Debug|x64"
 			OutputDirectory="$(SolutionDir)$(PlatformName)\$(ConfigurationName)"
 			IntermediateDirectory="$(PlatformName)\$(ProjectName)\$(ConfigurationName)"
-			ConfigurationType="4"
+			ConfigurationType="1"
 			CharacterSet="1"
 			>
 			<Tool
@@ -107,7 +192,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="$(FrameworkRoot)\include;&quot;$(ProjectDir)/include&quot;"
+				AdditionalIncludeDirectories="$(FrameworkRoot)\include;&quot;$(SolutionDir)/include&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -126,10 +211,17 @@
 				Name="VCPreLinkEventTool"
 			/>
 			<Tool
-				Name="VCLibrarianTool"
+				Name="VCLinkerTool"
+				LinkIncremental="2"
+				GenerateDebugInformation="true"
+				SubSystem="1"
+				TargetMachine="17"
 			/>
 			<Tool
 				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
@@ -141,67 +233,7 @@
 				Name="VCFxCopTool"
 			/>
 			<Tool
-				Name="VCPostBuildEventTool"
-			/>
-		</Configuration>
-		<Configuration
-			Name="Release|Win32"
-			OutputDirectory="$(SolutionDir)\$(PlatformName)\$(ConfigurationName)"
-			IntermediateDirectory="$(PlatformName)\$(ProjectName)\$(ConfigurationName)"
-			ConfigurationType="4"
-			CharacterSet="1"
-			WholeProgramOptimization="1"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				Optimization="2"
-				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="$(FrameworkRoot)\include;&quot;$(ProjectDir)/include&quot;"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
-				RuntimeLibrary="2"
-				EnableFunctionLevelLinking="true"
-				UsePrecompiledHeader="0"
-				WarningLevel="3"
-				DebugInformationFormat="3"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLibrarianTool"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCFxCopTool"
+				Name="VCAppVerifierTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -211,7 +243,7 @@
 			Name="Release|x64"
 			OutputDirectory="$(SolutionDir)$(PlatformName)\$(ConfigurationName)"
 			IntermediateDirectory="$(PlatformName)\$(ProjectName)\$(ConfigurationName)"
-			ConfigurationType="4"
+			ConfigurationType="1"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>
@@ -235,7 +267,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="$(FrameworkRoot)\include;&quot;$(ProjectDir)/include&quot;"
+				AdditionalIncludeDirectories="$(FrameworkRoot)\include;&quot;$(SolutionDir)/include&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -253,10 +285,19 @@
 				Name="VCPreLinkEventTool"
 			/>
 			<Tool
-				Name="VCLibrarianTool"
+				Name="VCLinkerTool"
+				LinkIncremental="1"
+				GenerateDebugInformation="true"
+				SubSystem="1"
+				OptimizeReferences="2"
+				EnableCOMDATFolding="2"
+				TargetMachine="17"
 			/>
 			<Tool
 				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
@@ -266,6 +307,9 @@
 			/>
 			<Tool
 				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -281,157 +325,61 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath=".\src\ArmAssembler.cpp"
+				RelativePath=".\tests\CompareTest.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\include\ArmAssembler.h"
+				RelativePath=".\tests\CompareTest.h"
 				>
 			</File>
 			<File
-				RelativePath=".\src\MemoryFunction.cpp"
+				RelativePath=".\tests\Crc32Test.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\include\MemoryFunction.h"
+				RelativePath=".\tests\Crc32Test.h"
 				>
 			</File>
 			<File
-				RelativePath=".\src\MemoryFunction_Execute.asm"
-				>
-				<FileConfiguration
-					Name="Debug|x64"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-						CommandLine="ml64 /c /Fo&quot;$(OutDir)\$(InputName).obj&quot; $(InputPath)&#x0D;&#x0A;"
-						Outputs="&quot;$(OutDir)\$(InputName).obj&quot;"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|x64"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-						CommandLine="ml64 /c /Fo&quot;$(OutDir)\$(InputName).obj&quot; $(InputPath)&#x0D;&#x0A;"
-						Outputs="&quot;$(OutDir)\$(InputName).obj&quot;"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath=".\src\X86Assembler.cpp"
+				RelativePath=".\tests\FpuTest.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\include\X86Assembler.h"
+				RelativePath=".\tests\FpuTest.h"
 				>
 			</File>
 			<File
-				RelativePath=".\src\X86Assembler_Fpu.cpp"
+				RelativePath=".\tests\Main.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\src\X86Assembler_Sse.cpp"
+				RelativePath=".\tests\MultTest.cpp"
 				>
 			</File>
-			<Filter
-				Name="Jitter"
+			<File
+				RelativePath=".\tests\MultTest.h"
 				>
-				<File
-					RelativePath=".\include\ArrayStack.h"
-					>
-				</File>
-				<File
-					RelativePath=".\src\Jitter.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\include\Jitter.h"
-					>
-				</File>
-				<File
-					RelativePath=".\src\Jitter_CodeGen.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\include\Jitter_CodeGen.h"
-					>
-				</File>
-				<File
-					RelativePath=".\src\Jitter_CodeGen_Arm.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\include\Jitter_CodeGen_Arm.h"
-					>
-				</File>
-				<File
-					RelativePath=".\src\Jitter_CodeGen_x86.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\include\Jitter_CodeGen_x86.h"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCustomBuildTool"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Debug|x64"
-						>
-						<Tool
-							Name="VCCustomBuildTool"
-						/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath=".\src\Jitter_CodeGen_x86_32.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\include\Jitter_CodeGen_x86_32.h"
-					>
-				</File>
-				<File
-					RelativePath=".\src\Jitter_CodeGen_x86_64.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\include\Jitter_CodeGen_x86_64.h"
-					>
-				</File>
-				<File
-					RelativePath=".\src\Jitter_CodeGen_x86_Fpu.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\src\Jitter_Optimize.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\include\Jitter_Statement.h"
-					>
-				</File>
-				<File
-					RelativePath=".\include\Jitter_Symbol.h"
-					>
-				</File>
-				<File
-					RelativePath=".\include\Jitter_SymbolRef.h"
-					>
-				</File>
-				<File
-					RelativePath=".\src\Jitter_SymbolTable.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\include\Jitter_SymbolTable.h"
-					>
-				</File>
-			</Filter>
+			</File>
+			<File
+				RelativePath=".\tests\RandomAluTest.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\tests\RandomAluTest.h"
+				>
+			</File>
+			<File
+				RelativePath=".\tests\RandomAluTest2.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\tests\RandomAluTest2.h"
+				>
+			</File>
+			<File
+				RelativePath=".\tests\Test.h"
+				>
+			</File>
 		</Filter>
 	</Files>
 	<Globals>

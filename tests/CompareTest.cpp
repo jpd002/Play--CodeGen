@@ -22,7 +22,10 @@ void CCompareTest::Run()
 	(*m_function)(&m_context);
 
 	TEST_VERIFY(m_context.number1 == 0x10000);
+	TEST_VERIFY(m_context.number2 == 0x10);
 	TEST_VERIFY(m_context.number3 == 0);
+	TEST_VERIFY(m_context.number4 == 0xFFFF8000);
+	TEST_VERIFY(m_context.number5 == 1);
 }
 
 void CCompareTest::Compile(Jitter::CJitter& jitter)
@@ -40,11 +43,14 @@ void CCompareTest::Compile(Jitter::CJitter& jitter)
 		jitter.PushRel(offsetof(CONTEXT, number2));
 		jitter.Sra();
 
+		jitter.PushTop();
+		jitter.PullRel(offsetof(CONTEXT, number4));
+
 		jitter.PushCst(0xFFFFFFFF);
 		jitter.Cmp(Jitter::CONDITION_LT);
 
-		//jitter.PushTop();
-		//jitter.PullRel(offsetof(CONTEXT, number4));
+		jitter.PushTop();
+		jitter.PullRel(offsetof(CONTEXT, number5));
 
 		jitter.PushRel(offsetof(CONTEXT, number2));
 		jitter.Shl();

@@ -141,6 +141,8 @@ void CJitter::Compile()
 			{
 				m_currentBlock = &basicBlock;
 
+				//DumpStatementList(m_currentBlock->statements);
+
 				VERSIONED_STATEMENT_LIST versionedStatements = GenerateVersionedStatementList(basicBlock.statements);
 
 				while(1)
@@ -852,7 +854,8 @@ bool CJitter::CopyPropagation(StatementList& statements)
 		//Some operations we can't propagate
 		if(outerStatement.op == OP_RETVAL) continue;
 
-		//Check for all OP_MOVs that uses the result of this operation and propagate
+		//Count number of uses of this symbol
+		unsigned int useCount = 0;
 		for(StatementList::iterator innerStatementIterator(statements.begin());
 			statements.end() != innerStatementIterator; innerStatementIterator++)
 		{
@@ -860,13 +863,33 @@ bool CJitter::CopyPropagation(StatementList& statements)
 
 			STATEMENT& innerStatement(*innerStatementIterator);
 
-			if(innerStatement.op == OP_MOV && innerStatement.src1->Equals(outerStatement.dst.get()))
+			if(
+				(innerStatement.src1 && innerStatement.src1->Equals(outerStatement.dst.get())) || 
+				(innerStatement.src2 && innerStatement.src2->Equals(outerStatement.dst.get()))
+				)
 			{
-				innerStatement.op = outerStatement.op;
-				innerStatement.src1 = outerStatement.src1;
-				innerStatement.src2 = outerStatement.src2;
-				innerStatement.jmpCondition = outerStatement.jmpCondition;
-				changed = true;
+				useCount++;
+			}
+		}
+
+		if(useCount == 1)
+		{
+			//Check for all OP_MOVs that uses the result of this operation and propagate
+			for(StatementList::iterator innerStatementIterator(statements.begin());
+				statements.end() != innerStatementIterator; innerStatementIterator++)
+			{
+				if(outerStatementIterator == innerStatementIterator) continue;
+
+				STATEMENT& innerStatement(*innerStatementIterator);
+
+				if(innerStatement.op == OP_MOV && innerStatement.src1->Equals(outerStatement.dst.get()))
+				{
+					innerStatement.op = outerStatement.op;
+					innerStatement.src1 = outerStatement.src1;
+					innerStatement.src2 = outerStatement.src2;
+					innerStatement.jmpCondition = outerStatement.jmpCondition;
+					changed = true;
+				}
 			}
 		}
 	}

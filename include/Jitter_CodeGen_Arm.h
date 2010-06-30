@@ -67,6 +67,7 @@ namespace Jitter
 
 		//CMP
 		void									Cmp_GetFlag(CArmAssembler::REGISTER, CONDITION);
+		void									Emit_Cmp_RegRegReg(const STATEMENT&);
 		void									Emit_Cmp_RegRegCst(const STATEMENT&);
 
 		static CONSTMATCHER						g_constMatchers[];

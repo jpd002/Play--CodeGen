@@ -9,12 +9,12 @@ namespace Jitter
 	class CCodeGen_Arm : public CCodeGen
 	{
 	public:
-										CCodeGen_Arm();
-		virtual							~CCodeGen_Arm();
+												CCodeGen_Arm();
+		virtual									~CCodeGen_Arm();
 
-		void							GenerateCode(const StatementList&, unsigned int);
-		void							SetStream(Framework::CStream*);
-		unsigned int					GetAvailableRegisterCount() const;
+		void									GenerateCode(const StatementList&, unsigned int);
+		void									SetStream(Framework::CStream*);
+		unsigned int							GetAvailableRegisterCount() const;
 
 	private:
 		typedef std::map<uint32, CArmAssembler::LABEL> LabelMapType;
@@ -41,34 +41,44 @@ namespace Jitter
 
 		struct CONSTMATCHER
 		{
-			OPERATION					op;
-			MATCHTYPE					dstType;
-			MATCHTYPE					src1Type;
-			MATCHTYPE					src2Type;
-			ConstCodeEmitterType		emitter;
+			OPERATION							op;
+			MATCHTYPE							dstType;
+			MATCHTYPE							src1Type;
+			MATCHTYPE							src2Type;
+			ConstCodeEmitterType				emitter;
 		};
 
-		CArmAssembler::LABEL			GetLabel(uint32);
-		void							MarkLabel(const STATEMENT&);
+		CArmAssembler::LABEL					GetLabel(uint32);
+		void									MarkLabel(const STATEMENT&);
 
-		uint32							RotateRight(uint32);
-		uint32							RotateLeft(uint32);
-		void							LoadConstantInRegister(CArmAssembler::REGISTER, uint32);
-		void							DumpLiteralPool();
+		uint32									RotateRight(uint32);
+		uint32									RotateLeft(uint32);
+		void									LoadConstantInRegister(CArmAssembler::REGISTER, uint32);
+		void									DumpLiteralPool();
 
-		void							Emit_Mov_RegCst(const STATEMENT&);
-		void							Emit_Mov_RelReg(const STATEMENT&);
+		//SHIFTOP
+		template <CArmAssembler::SHIFT> void	Emit_Shift_RegRegReg(const STATEMENT&);
 
-		static CONSTMATCHER				g_constMatchers[];
-		static CArmAssembler::REGISTER	g_registers[MAX_REGISTERS];
-		static CArmAssembler::REGISTER	g_baseRegister;
+		//MOV
+		void									Emit_Mov_RegReg(const STATEMENT&);
+		void									Emit_Mov_RegRel(const STATEMENT&);
+		void									Emit_Mov_RegCst(const STATEMENT&);
+		void									Emit_Mov_RelReg(const STATEMENT&);
 
-		Framework::CStream*				m_stream;
-		CArmAssembler					m_assembler;
-		LabelMapType					m_labels;
-		uint32*							m_literalPool;
-		unsigned int					m_lastLiteralPtr;
-		LiteralPoolRefList				m_literalPoolRefs;
+		//CMP
+		void									Cmp_GetFlag(CArmAssembler::REGISTER, CONDITION);
+		void									Emit_Cmp_RegRegCst(const STATEMENT&);
+
+		static CONSTMATCHER						g_constMatchers[];
+		static CArmAssembler::REGISTER			g_registers[MAX_REGISTERS];
+		static CArmAssembler::REGISTER			g_baseRegister;
+
+		Framework::CStream*						m_stream;
+		CArmAssembler							m_assembler;
+		LabelMapType							m_labels;
+		uint32*									m_literalPool;
+		unsigned int							m_lastLiteralPtr;
+		LiteralPoolRefList						m_literalPoolRefs;
 	};
 };
 

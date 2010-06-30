@@ -408,6 +408,14 @@
 					>
 				</File>
 				<File
+					RelativePath=".\src\Jitter_CodeGenFactory.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\include\Jitter_CodeGenFactory.h"
+					>
+				</File>
+				<File
 					RelativePath=".\src\Jitter_Optimize.cpp"
 					>
 				</File>

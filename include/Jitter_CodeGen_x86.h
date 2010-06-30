@@ -123,12 +123,18 @@ namespace Jitter
 		void						Emit_Nop(const STATEMENT&);
 
 		//ALU
+		template <typename> void	Emit_Alu_RegRegReg(const STATEMENT&);
+		template <typename> void	Emit_Alu_RegRegRel(const STATEMENT&);
 		template <typename> void	Emit_Alu_RegRegCst(const STATEMENT&);
 		template <typename> void	Emit_Alu_RegRelReg(const STATEMENT&);
-		template <typename> void	Emit_Alu_RegRegReg(const STATEMENT&);
 		template <typename> void	Emit_Alu_RegTmpTmp(const STATEMENT&);
 		template <typename> void	Emit_Alu_RegTmpCst(const STATEMENT&);
 		template <typename> void	Emit_Alu_RegCstReg(const STATEMENT&);
+		template <typename> void	Emit_Alu_RelRegRel(const STATEMENT&);
+		template <typename> void	Emit_Alu_RelRegCst(const STATEMENT&);
+		template <typename> void	Emit_Alu_RelRelReg(const STATEMENT&);
+		template <typename> void	Emit_Alu_RelRelCst(const STATEMENT&);
+		template <typename> void	Emit_Alu_RelRelRel(const STATEMENT&);
 		template <typename> void	Emit_Alu_TmpRegReg(const STATEMENT&);
 		template <typename> void	Emit_Alu_TmpTmpCst(const STATEMENT&);
 
@@ -149,6 +155,7 @@ namespace Jitter
 		void						Cmp_GetFlag(const CX86Assembler::CAddress&, CONDITION);
 		void						Emit_Cmp_RegRegCst(const STATEMENT&);
 		void						Emit_Cmp_RegRegReg(const STATEMENT&);
+		void						Emit_Cmp_RegRegRel(const STATEMENT&);
 
 		//ADD64
 		void						Emit_Add64_RelRelRel(const STATEMENT&);

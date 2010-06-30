@@ -183,8 +183,8 @@ void CJitter::Compile()
 	BASIC_BLOCK result = ConcatBlocks(m_basicBlocks);
 
 #ifdef DUMP_STATEMENTS
-	DumpStatementList(result.statements);
-	cout << endl;
+//	DumpStatementList(result.statements);
+//	cout << endl;
 #endif
 
 	unsigned int stackSize = AllocateStack(result);
@@ -227,8 +227,14 @@ void CJitter::DumpStatementList(const StatementList& statements)
 			case CONDITION_LT:
 				cout << "LT";
 				break;
+			case CONDITION_EQ:
+				cout << "EQ";
+				break;
 			case CONDITION_NE:
 				cout << "NE";
+				break;
+			case CONDITION_BL:
+				cout << "BL";
 				break;
 			default:
 				cout << "??";
@@ -446,6 +452,17 @@ bool CJitter::FoldConstantOperation(STATEMENT& statement)
 		if(src1cst && src2cst)
 		{
 			uint32 result = static_cast<int32>(src1cst->m_valueLow) >> static_cast<int32>(src2cst->m_valueLow);
+			statement.op = OP_MOV;
+			statement.src1 = MakeSymbolRef(MakeSymbol(SYM_CONSTANT, result));
+			statement.src2.reset();
+			changed = true;
+		}
+	}
+	else if(statement.op == OP_SRL)
+	{
+		if(src1cst && src2cst)
+		{
+			uint32 result = src1cst->m_valueLow >> src2cst->m_valueLow;
 			statement.op = OP_MOV;
 			statement.src1 = MakeSymbolRef(MakeSymbol(SYM_CONSTANT, result));
 			statement.src2.reset();
@@ -932,6 +949,7 @@ bool CJitter::DeadcodeElimination(VERSIONED_STATEMENT_LIST& versionedStatementLi
 		}
 
 		if(candidate == NULL) continue;
+		const SymbolRefPtr& symbolRef(outerStatement.dst);
 
 		//Look for any possible use of this symbol
 		bool used = false;
@@ -944,13 +962,14 @@ bool CJitter::DeadcodeElimination(VERSIONED_STATEMENT_LIST& versionedStatementLi
 
 			if(innerStatement.src1)
 			{
-				SymbolPtr symbol(innerStatement.src1->GetSymbol());
-				if(symbol->Equals(candidate))
+				if(innerStatement.src1->Equals(symbolRef.get()))
 				{
 					used = true;
 					break;
 				}
-				if(symbol->Aliases(candidate))
+
+				SymbolPtr symbol(innerStatement.src1->GetSymbol());
+				if(!symbol->Equals(candidate) && symbol->Aliases(candidate))
 				{
 					used = true;
 					break;
@@ -958,13 +977,13 @@ bool CJitter::DeadcodeElimination(VERSIONED_STATEMENT_LIST& versionedStatementLi
 			}
 			if(innerStatement.src2)
 			{
-				SymbolPtr symbol(innerStatement.src2->GetSymbol());
-				if(symbol->Equals(candidate))
+				if(innerStatement.src2->Equals(symbolRef.get()))
 				{
 					used = true;
 					break;
 				}
-				if(symbol->Aliases(candidate))
+				SymbolPtr symbol(innerStatement.src2->GetSymbol());
+				if(!symbol->Equals(candidate) && symbol->Aliases(candidate))
 				{
 					used = true;
 					break;

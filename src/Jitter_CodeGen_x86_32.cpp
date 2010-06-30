@@ -12,7 +12,7 @@ CX86Assembler::REGISTER CCodeGen_x86_32::g_registers[3] =
 CCodeGen_x86_32::CONSTMATCHER CCodeGen_x86_32::g_constMatchers[] = 
 { 
 	{ OP_PARAM,		MATCH_NIL,			MATCH_CONTEXT,		MATCH_NIL,			&CCodeGen_x86_32::Emit_Param_Ctx		},
-//	{ OP_PARAM,		MATCH_NIL,			MATCH_RELATIVE,		MATCH_NIL,			&CCodeGen_x86_32::Emit_Param_Rel		},
+	{ OP_PARAM,		MATCH_NIL,			MATCH_RELATIVE,		MATCH_NIL,			&CCodeGen_x86_32::Emit_Param_Rel		},
 	{ OP_PARAM,		MATCH_NIL,			MATCH_CONSTANT,		MATCH_NIL,			&CCodeGen_x86_32::Emit_Param_Cst		},
 	{ OP_PARAM,		MATCH_NIL,			MATCH_REGISTER,		MATCH_NIL,			&CCodeGen_x86_32::Emit_Param_Reg		},
 	{ OP_PARAM,		MATCH_NIL,			MATCH_TEMPORARY,	MATCH_NIL,			&CCodeGen_x86_32::Emit_Param_Tmp		},
@@ -68,12 +68,12 @@ unsigned int CCodeGen_x86_32::GetAvailableRegisterCount() const
 	return 3;
 }
 
-//void CCodeGen_x86::Emit_Param_Rel(const STATEMENT& statement)
-//{
-//	CRelativeSymbol* src1 = dynamic_symbolref_cast<CRelativeSymbol>(statement.src1);
-//
-//	cout << "push dword ptr[ebp + " << src1->m_valueLow << "]" << endl;
-//}
+void CCodeGen_x86_32::Emit_Param_Rel(const STATEMENT& statement)
+{
+	CSymbol* src1 = statement.src1->GetSymbol().get();
+	m_assembler.PushEd(CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, src1->m_valueLow));
+	m_stackLevel += 4;
+}
 
 void CCodeGen_x86_32::Emit_Param_Ctx(const STATEMENT& statement)
 {

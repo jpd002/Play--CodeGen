@@ -163,7 +163,6 @@ void CJitter::PullRel(size_t nOffset)
 void CJitter::PullTop()
 {
 	m_Shadow.Pull();
-	m_Shadow.Pull();
 }
 
 void CJitter::Swap()
@@ -618,6 +617,11 @@ void CJitter::FP_Add()
 	m_Shadow.Push(tempSym);
 }
 
+void CJitter::FP_Sub()
+{
+	throw std::exception();
+}
+
 void CJitter::FP_Mul()
 {
 	SymbolPtr tempSym = MakeSymbol(SYM_FP_TMP_SINGLE, m_nextTemporary++);
@@ -646,6 +650,11 @@ void CJitter::FP_Div()
 	m_Shadow.Push(tempSym);
 }
 
+void CJitter::FP_Cmp(Jitter::CONDITION condition)
+{
+	throw std::exception();
+}
+
 void CJitter::FP_Sqrt()
 {
 	SymbolPtr tempSym = MakeSymbol(SYM_FP_TMP_SINGLE, m_nextTemporary++);
@@ -672,6 +681,11 @@ void CJitter::FP_Rcpl()
 	m_Shadow.Push(tempSym);
 }
 
+void CJitter::FP_Abs()
+{
+	throw std::exception();
+}
+
 void CJitter::FP_Neg()
 {
 	SymbolPtr tempSym = MakeSymbol(SYM_FP_TMP_SINGLE, m_nextTemporary++);
@@ -683,6 +697,16 @@ void CJitter::FP_Neg()
 	InsertStatement(statement);
 
 	m_Shadow.Push(tempSym);
+}
+
+void CJitter::FP_Min()
+{
+	throw std::exception();
+}
+
+void CJitter::FP_Max()
+{
+	throw std::exception();
 }
 
 void CJitter::MD_PullRel(size_t)

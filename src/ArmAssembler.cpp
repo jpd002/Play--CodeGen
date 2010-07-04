@@ -151,10 +151,31 @@ void CArmAssembler::And(REGISTER rd, REGISTER rn, REGISTER rm)
 	WriteWord(opcode);
 }
 
+void CArmAssembler::And(REGISTER rd, REGISTER rn, const ImmediateAluOperand& operand)
+{
+	InstructionAlu instruction;
+	instruction.operand = *reinterpret_cast<const unsigned int*>(&operand);
+	instruction.rd = rd;
+	instruction.rn = rn;
+	instruction.setFlags = 0;
+	instruction.opcode = ALU_OPCODE_AND;
+	instruction.immediate = 1;
+	instruction.condition = CONDITION_AL;
+	uint32 opcode = *reinterpret_cast<uint32*>(&instruction);
+	WriteWord(opcode);
+}
+
 void CArmAssembler::BCc(CONDITION condition, LABEL label)
 {
 	CreateLabelReference(label);
 	uint32 opcode = (condition << 28) | (0x0A000000);
+	WriteWord(opcode);
+}
+
+void CArmAssembler::Bx(REGISTER rn)
+{
+	uint32 opcode = 0;
+	opcode = (CONDITION_AL << 28) | (0x12FFF10) | (rn);
 	WriteWord(opcode);
 }
 
@@ -174,6 +195,20 @@ void CArmAssembler::Cmp(REGISTER rn, REGISTER rm)
 	instruction.setFlags = 1;
 	instruction.opcode = ALU_OPCODE_CMP;
 	instruction.immediate = 0;
+	instruction.condition = CONDITION_AL;
+	uint32 opcode = *reinterpret_cast<uint32*>(&instruction);
+	WriteWord(opcode);
+}
+
+void CArmAssembler::Cmp(REGISTER rn, const ImmediateAluOperand& operand)
+{
+	InstructionAlu instruction;
+	instruction.operand = *reinterpret_cast<const unsigned int*>(&operand);
+	instruction.rn = rn;
+	instruction.rd = 0;
+	instruction.setFlags = 1;
+	instruction.opcode = ALU_OPCODE_CMP;
+	instruction.immediate = 1;
 	instruction.condition = CONDITION_AL;
 	uint32 opcode = *reinterpret_cast<uint32*>(&instruction);
 	WriteWord(opcode);
@@ -257,6 +292,20 @@ void CArmAssembler::Mvn(REGISTER rd, REGISTER rm)
 	instruction.condition = CONDITION_AL;
 	uint32 opcode = *reinterpret_cast<uint32*>(&instruction);
 	WriteWord(opcode);
+}
+
+void CArmAssembler::Mvn(REGISTER rd, const ImmediateAluOperand& operand)
+{
+	InstructionAlu instruction;
+	instruction.operand = *reinterpret_cast<const unsigned int*>(&operand);
+	instruction.rd = rd;
+	instruction.rn = 0;
+	instruction.setFlags = 0;
+	instruction.opcode = ALU_OPCODE_MVN;
+	instruction.immediate = 1;
+	instruction.condition = CONDITION_AL;
+	uint32 opcode = *reinterpret_cast<uint32*>(&instruction);
+	WriteWord(opcode);	
 }
 
 void CArmAssembler::Or(REGISTER rd, REGISTER rn, REGISTER rm)

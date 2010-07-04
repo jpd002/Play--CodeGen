@@ -13,6 +13,7 @@ extern "C" void _CMemoryFunction_Execute(void*, void*);
 
 #elif defined(__APPLE__)
 
+#include "TargetConditionals.h"
 #include <mach/mach_init.h>
 #include <mach/vm_map.h>
 extern "C" void __clear_cache(void* begin, void* end);
@@ -90,8 +91,8 @@ void CMemoryFunction::operator()(void* context)
 	
 #elif defined(__APPLE__)
 	
-	#if !(TARGET_IPHONE_SIMULATOR)
-	
+	#if TARGET_CPU_ARM
+		
 		volatile const void* code = m_code;
 		volatile const void* dataPtr = context;
 	

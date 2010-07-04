@@ -11,7 +11,7 @@
 #elif defined(__APPLE__)
 
 	#include "TargetConditionals.h"
-	#if !(TARGET_IPHONE_SIMULATOR)
+	#if TARGET_CPU_ARM
 		#include "Jitter_CodeGen_Arm.h"
 	#else
 		#include "Jitter_CodeGen_x86_64.h"
@@ -31,7 +31,7 @@ Jitter::CCodeGen* Jitter::CreateCodeGen()
 	
 #elif defined(__APPLE__)
 	
-	#if !(TARGET_IPHONE_SIMULATOR)
+	#if TARGET_CPU_ARM
 		return new Jitter::CCodeGen_Arm();
 	#else
 		return new Jitter::CCodeGen_x86_64();

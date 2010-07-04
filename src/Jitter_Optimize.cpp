@@ -183,8 +183,8 @@ void CJitter::Compile()
 	BASIC_BLOCK result = ConcatBlocks(m_basicBlocks);
 
 #ifdef DUMP_STATEMENTS
-//	DumpStatementList(result.statements);
-//	cout << endl;
+	DumpStatementList(result.statements);
+	cout << endl;
 #endif
 
 	unsigned int stackSize = AllocateStack(result);

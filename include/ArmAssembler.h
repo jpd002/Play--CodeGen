@@ -166,9 +166,12 @@ public:
 	void									Add(REGISTER, REGISTER, REGISTER);
 	void									Add(REGISTER, REGISTER, const ImmediateAluOperand&);
 	void									And(REGISTER, REGISTER, REGISTER);
+	void									And(REGISTER, REGISTER, const ImmediateAluOperand&);	
 	void									BCc(CONDITION, LABEL);
+	void									Bx(REGISTER);
 	void									Blx(REGISTER);
 	void									Cmp(REGISTER, REGISTER);
+	void									Cmp(REGISTER, const ImmediateAluOperand&);	
 	void									Eor(REGISTER, REGISTER, REGISTER);
 	void									Ldr(REGISTER, REGISTER, const LdrAddress&);
 	void									Mov(REGISTER, REGISTER);
@@ -176,6 +179,7 @@ public:
 	void									Mov(REGISTER, const ImmediateAluOperand&);
 	void									MovCc(CONDITION, REGISTER, const ImmediateAluOperand&);
 	void									Mvn(REGISTER, REGISTER);
+	void									Mvn(REGISTER, const ImmediateAluOperand&);	
 	void									Or(REGISTER, REGISTER, REGISTER);
 	void									Smull(REGISTER, REGISTER, REGISTER, REGISTER);
 	void									Str(REGISTER, REGISTER, const LdrAddress&);

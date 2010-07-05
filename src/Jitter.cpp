@@ -55,6 +55,9 @@ CONDITION CJitter::GetReverseCondition(CONDITION condition)
 	case CONDITION_EQ:
 		return CONDITION_NE;
 		break;
+	case CONDITION_NE:
+		return CONDITION_EQ;
+		break;
 	default:
 		assert(0);
 		break;

@@ -139,13 +139,14 @@ namespace Jitter
 		template <typename> void	Emit_Alu_TmpTmpCst(const STATEMENT&);
 
 		//SHIFT
-		template <typename> void	Emit_Shift_TmpRegCst(const STATEMENT&);
-		template <typename> void	Emit_Shift_RegRegCst(const STATEMENT&);
-		template <typename> void	Emit_Shift_RegRelCst(const STATEMENT&);
 		template <typename> void	Emit_Shift_RegRegReg(const STATEMENT&);
-		template <typename> void	Emit_Shift_RegRelReg(const STATEMENT&);
-		template <typename> void	Emit_Shift_RelRegReg(const STATEMENT&);
 		template <typename> void	Emit_Shift_RegRegRel(const STATEMENT&);
+		template <typename> void	Emit_Shift_RegRegCst(const STATEMENT&);
+		template <typename> void	Emit_Shift_RegRelReg(const STATEMENT&);
+		template <typename> void	Emit_Shift_RegRelCst(const STATEMENT&);
+		template <typename> void	Emit_Shift_RelRegReg(const STATEMENT&);
+		template <typename> void	Emit_Shift_RelRelCst(const STATEMENT&);
+		template <typename> void	Emit_Shift_TmpRegCst(const STATEMENT&);
 
 		//NOT
 		void						Emit_Not_RegReg(const STATEMENT&);
@@ -153,9 +154,11 @@ namespace Jitter
 
 		//CMP
 		void						Cmp_GetFlag(const CX86Assembler::CAddress&, CONDITION);
-		void						Emit_Cmp_RegRegCst(const STATEMENT&);
 		void						Emit_Cmp_RegRegReg(const STATEMENT&);
 		void						Emit_Cmp_RegRegRel(const STATEMENT&);
+		void						Emit_Cmp_RegRegCst(const STATEMENT&);
+		void						Emit_Cmp_RegRelRel(const STATEMENT&);
+		void						Emit_Cmp_RegRelCst(const STATEMENT&);
 
 		//ADD64
 		void						Emit_Add64_RelRelRel(const STATEMENT&);
@@ -170,8 +173,9 @@ namespace Jitter
 		void						Emit_Mov_RegReg(const STATEMENT&);
 		void						Emit_Mov_RegCst(const STATEMENT&);
 		void						Emit_Mov_RegTmp(const STATEMENT&);
-		void						Emit_Mov_RelCst(const STATEMENT&);
 		void						Emit_Mov_RelReg(const STATEMENT&);
+		void						Emit_Mov_RelRel(const STATEMENT&);
+		void						Emit_Mov_RelCst(const STATEMENT&);
 
 		//JMP
 		void						Emit_Jmp(const STATEMENT&);

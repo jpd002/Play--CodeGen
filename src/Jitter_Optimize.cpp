@@ -191,6 +191,28 @@ void CJitter::Compile()
 	m_codeGen->GenerateCode(result.statements, stackSize);
 }
 
+std::string CJitter::ConditionToString(CONDITION condition)
+{
+	switch(condition)
+	{
+	case CONDITION_LT:
+		return "LT";
+		break;
+	case CONDITION_EQ:
+		return "EQ";
+		break;
+	case CONDITION_NE:
+		return "NE";
+		break;
+	case CONDITION_BL:
+		return "BL";
+		break;
+	default:
+		return "??";
+		break;
+	}
+}
+
 void CJitter::DumpStatementList(const StatementList& statements)
 {
 #ifdef DUMP_STATEMENTS
@@ -221,26 +243,7 @@ void CJitter::DumpStatementList(const StatementList& statements)
 			cout << " - ";
 			break;
 		case OP_CMP:
-			cout << " CMP(";
-			switch(statement.jmpCondition)
-			{
-			case CONDITION_LT:
-				cout << "LT";
-				break;
-			case CONDITION_EQ:
-				cout << "EQ";
-				break;
-			case CONDITION_NE:
-				cout << "NE";
-				break;
-			case CONDITION_BL:
-				cout << "BL";
-				break;
-			default:
-				cout << "??";
-				break;
-			}
-			cout << ") ";
+			cout << " CMP(" << ConditionToString(statement.jmpCondition) << ") ";
 			break;
 		case OP_MUL:
 		case OP_MULS:
@@ -287,10 +290,10 @@ void CJitter::DumpStatementList(const StatementList& statements)
 			cout << " RETURNVALUE ";
 			break;
 		case OP_JMP:
-			cout << " JMP(" << statement.jmpBlock << ") ";
+			cout << " JMP{" << statement.jmpBlock << "} ";
 			break;
 		case OP_CONDJMP:
-			cout << " JMP(" << statement.jmpBlock << ") ";
+			cout << " JMP{" << statement.jmpBlock << "}(" << ConditionToString(statement.jmpCondition) << ") ";
 			break;
 		case OP_LABEL:
 			cout << "LABEL_" << statement.jmpBlock << ":";

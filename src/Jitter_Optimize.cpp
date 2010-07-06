@@ -198,6 +198,9 @@ std::string CJitter::ConditionToString(CONDITION condition)
 	case CONDITION_LT:
 		return "LT";
 		break;
+	case CONDITION_LE:
+		return "LE";
+		break;
 	case CONDITION_EQ:
 		return "EQ";
 		break;
@@ -394,13 +397,20 @@ bool CJitter::FoldConstantOperation(STATEMENT& statement)
 			statement.src2.reset();
 			changed = true;
 		}
-		if(src1cst && src2cst)
+		else if(src1cst && src2cst)
 		{
 			//Adding 2 constants
 			uint32 result = src1cst->m_valueLow + src2cst->m_valueLow;
 			statement.op = OP_MOV;
 			statement.src1 = MakeSymbolRef(MakeSymbol(SYM_CONSTANT, result));
 			statement.src2.reset();
+			changed = true;
+		}
+		else if(src1cst && !src2cst)
+		{
+			//This a commutative operation, move constant to src2
+			assert(0);
+			std::swap(statement.src1, statement.src2);
 			changed = true;
 		}
 	}
@@ -427,6 +437,13 @@ bool CJitter::FoldConstantOperation(STATEMENT& statement)
 			statement.src2.reset();
 			changed = true;
 		}
+		else if(src1cst && !src2cst)
+		{
+			//This a commutative operation, move constant to src2
+			assert(0);
+			std::swap(statement.src1, statement.src2);
+			changed = true;
+		}
 	}
 	else if(statement.op == OP_OR)
 	{
@@ -436,6 +453,26 @@ bool CJitter::FoldConstantOperation(STATEMENT& statement)
 			statement.op = OP_MOV;
 			statement.src1 = MakeSymbolRef(MakeSymbol(SYM_CONSTANT, result));
 			statement.src2.reset();
+			changed = true;
+		}
+		else if(src1cst && !src2cst)
+		{
+			//This a commutative operation, move constant to src2
+			std::swap(statement.src1, statement.src2);
+			changed = true;
+		}
+	}
+	else if(statement.op == OP_XOR)
+	{
+		if(src1cst && src2cst)
+		{
+			assert(0);
+		}
+		else if(src1cst && !src2cst)
+		{
+			//This a commutative operation, move constant to src2
+			assert(0);
+			std::swap(statement.src1, statement.src2);
 			changed = true;
 		}
 	}
@@ -519,6 +556,22 @@ bool CJitter::FoldConstantOperation(STATEMENT& statement)
 		{
 			statement.op = OP_SRL;
 			src2cst->m_valueLow = GetPowerOf2(src2cst->m_valueLow);
+		}
+	}
+	else if(statement.op == OP_CMP)
+	{
+		if(src1cst && src2cst)
+		{
+			assert(0);
+		}
+		else if(src1cst && !src2cst)
+		{
+			if(statement.jmpCondition == CONDITION_EQ || statement.jmpCondition == CONDITION_NE)
+			{
+				//This a commutative operation, move constant to src2
+				std::swap(statement.src1, statement.src2);
+				changed = true;
+			}
 		}
 	}
 	else if(statement.op == OP_CONDJMP)

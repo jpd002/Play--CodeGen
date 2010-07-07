@@ -139,6 +139,8 @@ CCodeGen_Arm::CONSTMATCHER CCodeGen_Arm::g_constMatchers[] =
 	
 	{ OP_RETVAL,	MATCH_REGISTER,		MATCH_NIL,			MATCH_NIL,			&CCodeGen_Arm::Emit_RetVal_Reg						},
 
+	{ OP_JMP,		MATCH_NIL,			MATCH_NIL,			MATCH_NIL,			&CCodeGen_Arm::Emit_Jmp								},
+
 	{ OP_CONDJMP,	MATCH_NIL,			MATCH_REGISTER,		MATCH_CONSTANT,		&CCodeGen_Arm::Emit_CondJmp_RegCst					},
 	
 	{ OP_CMP,		MATCH_REGISTER,		MATCH_REGISTER,		MATCH_REGISTER,		&CCodeGen_Arm::Emit_Cmp_RegRegReg					},
@@ -441,11 +443,18 @@ void CCodeGen_Arm::Emit_Mov_RelReg(const STATEMENT& statement)
 	m_assembler.Str(g_registers[src1->m_valueLow], g_baseRegister, CArmAssembler::MakeImmediateLdrAddress(dst->m_valueLow));
 }
 
+void CCodeGen_Arm::Emit_Jmp(const STATEMENT& statement)
+{
+	m_assembler.BCc(CArmAssembler::CONDITION_AL, GetLabel(statement.jmpBlock));
+}
+
 void CCodeGen_Arm::Emit_CondJmp_RegCst(const STATEMENT& statement)
 {
 	CSymbol* src1 = statement.src1->GetSymbol().get();
 	CSymbol* src2 = statement.src2->GetSymbol().get();	
 	
+	CArmAssembler::LABEL label(GetLabel(statement.jmpBlock));
+
 	assert(src1->m_type == SYM_REGISTER);
 	assert(src2->m_type == SYM_CONSTANT);
 	
@@ -463,9 +472,12 @@ void CCodeGen_Arm::Emit_CondJmp_RegCst(const STATEMENT& statement)
 	
 	switch(statement.jmpCondition)
 	{
-		default:
-			assert(0);
-			break;
+	case CONDITION_NE:
+		m_assembler.BCc(CArmAssembler::CONDITION_NE, label);
+		break;
+	default:
+		assert(0);
+		break;
 	}
 }
 

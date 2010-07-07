@@ -121,6 +121,9 @@ namespace Jitter
 		void									Emit_Cmp_RegRegReg(const STATEMENT&);
 		void									Emit_Cmp_RegRegCst(const STATEMENT&);
 
+		//JMP
+		void									Emit_Jmp(const STATEMENT&);
+
 		//CONDJMP
 		void									Emit_CondJmp_RegCst(const STATEMENT&);
 		

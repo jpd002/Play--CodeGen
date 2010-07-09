@@ -244,6 +244,7 @@ namespace Jitter
 		VERSIONED_STATEMENT_LIST		GenerateVersionedStatementList(const StatementList&);
 		StatementList					CollapseVersionedStatementList(const VERSIONED_STATEMENT_LIST&);
 		void							CoalesceTemporaries(BASIC_BLOCK&);
+		void							RemoveSelfAssignments(BASIC_BLOCK&);
 		void							ComputeLivenessAndPruneSymbols(BASIC_BLOCK&);
 		void							AllocateRegisters(BASIC_BLOCK&);
 		unsigned int					AllocateStack(BASIC_BLOCK&);

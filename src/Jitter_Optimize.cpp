@@ -176,6 +176,7 @@ void CJitter::Compile()
 		m_currentBlock = &basicBlock;
 
 		CoalesceTemporaries(basicBlock);
+		RemoveSelfAssignments(basicBlock);
 		ComputeLivenessAndPruneSymbols(basicBlock);
 		AllocateRegisters(basicBlock);
 	}
@@ -412,7 +413,6 @@ bool CJitter::FoldConstantOperation(STATEMENT& statement)
 		else if(src1cst && !src2cst)
 		{
 			//This a commutative operation, move constant to src2
-			assert(0);
 			std::swap(statement.src1, statement.src2);
 			changed = true;
 		}
@@ -450,7 +450,14 @@ bool CJitter::FoldConstantOperation(STATEMENT& statement)
 	}
 	else if(statement.op == OP_OR)
 	{
-		if(src1cst && src2cst)
+		if(src2cst && src2cst->m_valueLow == 0)
+		{
+			//Oring with zero
+			statement.op = OP_MOV;
+			statement.src2.reset();
+			changed = true;
+		}
+		else if(src1cst && src2cst)
 		{
 			uint32 result = src1cst->m_valueLow | src2cst->m_valueLow;
 			statement.op = OP_MOV;
@@ -1178,6 +1185,24 @@ void CJitter::CoalesceTemporaries(BASIC_BLOCK& basicBlock)
 					}
 				}
 			}
+		}
+	}
+}
+
+void CJitter::RemoveSelfAssignments(BASIC_BLOCK& basicBlock)
+{
+	for(StatementList::iterator outerStatementIterator(basicBlock.statements.begin());
+		basicBlock.statements.end() != outerStatementIterator; )
+	{
+		STATEMENT& outerStatement(*outerStatementIterator);
+
+		if(outerStatement.op == OP_MOV && outerStatement.dst->Equals(outerStatement.src1.get()))
+		{
+			outerStatementIterator = basicBlock.statements.erase(outerStatementIterator);
+		}
+		else
+		{
+			outerStatementIterator++;
 		}
 	}
 }

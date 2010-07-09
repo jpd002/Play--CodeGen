@@ -149,6 +149,7 @@ namespace Jitter
 		template <typename> void	Emit_Shift_RegRelCst(const STATEMENT&);
 		template <typename> void	Emit_Shift_RegCstRel(const STATEMENT&);
 		template <typename> void	Emit_Shift_RelRegReg(const STATEMENT&);
+		template <typename> void	Emit_Shift_RelRelReg(const STATEMENT&);
 		template <typename> void	Emit_Shift_RelRelRel(const STATEMENT&);
 		template <typename> void	Emit_Shift_RelRelCst(const STATEMENT&);
 		template <typename> void	Emit_Shift_TmpRegCst(const STATEMENT&);
@@ -168,6 +169,7 @@ namespace Jitter
 		void						Emit_Cmp_RegCstReg(const STATEMENT&);
 		void						Emit_Cmp_RelRegCst(const STATEMENT&);
 		void						Emit_Cmp_RelRelCst(const STATEMENT&);
+		void						Emit_Cmp_RelCstReg(const STATEMENT&);
 
 		//ADD64
 		void						Emit_Add64_RelRelRel(const STATEMENT&);
@@ -179,6 +181,7 @@ namespace Jitter
 
 		//DIV/DIVS
 		template <bool> void		Emit_DivTmp64RegCst(const STATEMENT&);
+		template <bool> void		Emit_DivTmp64RelReg(const STATEMENT&);
 
 		//MOV
 		void						Emit_Mov_RegRel(const STATEMENT&);

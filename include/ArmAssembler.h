@@ -173,6 +173,7 @@ public:
 	void									Cmp(REGISTER, REGISTER);
 	void									Cmp(REGISTER, const ImmediateAluOperand&);	
 	void									Eor(REGISTER, REGISTER, REGISTER);
+	void									Eor(REGISTER, REGISTER, const ImmediateAluOperand&);	
 	void									Ldr(REGISTER, REGISTER, const LdrAddress&);
 	void									Mov(REGISTER, REGISTER);
 	void									Mov(REGISTER, const RegisterAluOperand&);

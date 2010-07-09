@@ -90,7 +90,13 @@ namespace Jitter
 		{
 			static OpImmType OpImm() { return &CArmAssembler::And; }
 			static OpRegType OpReg() { return &CArmAssembler::And; }
-		};		
+		};
+
+		struct ALUOP_XOR : public ALUOP_BASE
+		{
+			static OpImmType OpImm() { return &CArmAssembler::Eor; }
+			static OpRegType OpReg() { return &CArmAssembler::Eor; }
+		};
 		
 		//ALUOP
 		template <typename> void				Emit_Alu_RegRegReg(const STATEMENT&);

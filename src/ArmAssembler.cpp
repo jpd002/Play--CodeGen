@@ -228,6 +228,20 @@ void CArmAssembler::Eor(REGISTER rd, REGISTER rn, REGISTER rm)
 	WriteWord(opcode);
 }
 
+void CArmAssembler::Eor(REGISTER rd, REGISTER rn, const ImmediateAluOperand& operand)
+{
+	InstructionAlu instruction;
+	instruction.operand = *reinterpret_cast<const unsigned int*>(&operand);
+	instruction.rd = rd;
+	instruction.rn = rn;
+	instruction.setFlags = 0;
+	instruction.opcode = ALU_OPCODE_EOR;
+	instruction.immediate = 1;
+	instruction.condition = CONDITION_AL;
+	uint32 opcode = *reinterpret_cast<uint32*>(&instruction);
+	WriteWord(opcode);
+}
+
 void CArmAssembler::Ldr(REGISTER rd, REGISTER rbase, const LdrAddress& address)
 {
 	uint32 opcode = 0;

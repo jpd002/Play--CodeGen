@@ -404,7 +404,23 @@
 					>
 				</File>
 				<File
+					RelativePath=".\src\Jitter_CodeGen_x86_Alu.h"
+					>
+				</File>
+				<File
+					RelativePath=".\src\Jitter_CodeGen_x86_Div.h"
+					>
+				</File>
+				<File
 					RelativePath=".\src\Jitter_CodeGen_x86_Fpu.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\src\Jitter_CodeGen_x86_Mul.h"
+					>
+				</File>
+				<File
+					RelativePath=".\src\Jitter_CodeGen_x86_Shift.h"
 					>
 				</File>
 				<File

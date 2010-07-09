@@ -104,7 +104,7 @@ void CCodeGen_Arm::Emit_Shift_RegRegCst(const STATEMENT& statement)
 	
 	m_assembler.Mov(g_registers[dst->m_valueLow], 
 					CArmAssembler::MakeRegisterAluOperand(g_registers[src1->m_valueLow], 
-														  CArmAssembler::MakeConstantShift(shiftType, src2->m_valueLow)));
+														  CArmAssembler::MakeConstantShift(shiftType, static_cast<uint8>(src2->m_valueLow))));
 }
 
 #define ALU_CONST_MATCHERS(ALUOP_CST, ALUOP) \

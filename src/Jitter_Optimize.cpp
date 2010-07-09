@@ -201,6 +201,9 @@ std::string CJitter::ConditionToString(CONDITION condition)
 	case CONDITION_LE:
 		return "LE";
 		break;
+	case CONDITION_GT:
+		return "GT";
+		break;
 	case CONDITION_EQ:
 		return "EQ";
 		break;
@@ -546,17 +549,19 @@ bool CJitter::FoldConstantOperation(STATEMENT& statement)
 	{
 		if(src1cst && src2cst)
 		{
-			uint32 result = src1cst->m_valueLow / src2cst->m_valueLow;
+			uint32 quotient = src1cst->m_valueLow / src2cst->m_valueLow;
+			uint32 remainder = src1cst->m_valueLow % src2cst->m_valueLow;
+			uint64 result = static_cast<uint64>(quotient) | (static_cast<uint64>(remainder) << 32);
 			statement.op = OP_MOV;
-			statement.src1 = MakeSymbolRef(MakeSymbol(SYM_CONSTANT, result));
+			statement.src1 = MakeSymbolRef(MakeConstant64(result));
 			statement.src2.reset();
 			changed = true;
 		}
-		else if(src2cst && IsPowerOfTwo(src2cst->m_valueLow))
-		{
-			statement.op = OP_SRL;
-			src2cst->m_valueLow = GetPowerOf2(src2cst->m_valueLow);
-		}
+		//else if(src2cst && IsPowerOfTwo(src2cst->m_valueLow))
+		//{
+		//	statement.op = OP_SRL;
+		//	src2cst->m_valueLow = GetPowerOf2(src2cst->m_valueLow);
+		//}
 	}
 	else if(statement.op == OP_CMP)
 	{

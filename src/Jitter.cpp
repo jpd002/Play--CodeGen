@@ -58,6 +58,9 @@ CONDITION CJitter::GetReverseCondition(CONDITION condition)
 	case CONDITION_NE:
 		return CONDITION_EQ;
 		break;
+	case CONDITION_LE:
+		return CONDITION_GT;
+		break;
 	default:
 		assert(0);
 		break;
@@ -260,7 +263,7 @@ void CJitter::Cmp(CONDITION condition)
 
 void CJitter::Div()
 {
-	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY, m_nextTemporary++);
+	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY64, m_nextTemporary++);
 
 	STATEMENT statement;
 	statement.op	= OP_DIV;

@@ -33,6 +33,7 @@ void CRandomAluTest::Compile(Jitter::CJitter& jitter)
 
 		jitter.PushCst(4);
 		jitter.Div();
+		jitter.ExtLow64();
 
 		jitter.PushCst(34);
 		jitter.Sub();

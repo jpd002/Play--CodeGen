@@ -28,6 +28,7 @@ namespace Jitter
 		OP_MUL,
 		OP_MULS,
 		OP_DIV,
+		OP_DIVS,
 
 		OP_ADD64,
 		OP_EXTLOW64,

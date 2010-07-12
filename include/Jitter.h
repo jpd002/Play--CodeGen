@@ -247,6 +247,7 @@ namespace Jitter
 		void							RemoveSelfAssignments(BASIC_BLOCK&);
 		void							ComputeLivenessAndPruneSymbols(BASIC_BLOCK&);
 		void							AllocateRegisters(BASIC_BLOCK&);
+		void							NormalizeStatements(BASIC_BLOCK&);
 		unsigned int					AllocateStack(BASIC_BLOCK&);
 
 		bool						    m_nBlockStarted;

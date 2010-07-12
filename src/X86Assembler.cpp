@@ -339,6 +339,13 @@ void CX86Assembler::JgJb(LABEL label)
     WriteByte(0x00);	
 }
 
+void CX86Assembler::JleJb(LABEL label)
+{
+    WriteByte(0x7E);
+    CreateLabelReference(label, 1);
+    WriteByte(0x00);	
+}
+
 void CX86Assembler::JmpJb(LABEL label)
 {
     WriteByte(0xEB);

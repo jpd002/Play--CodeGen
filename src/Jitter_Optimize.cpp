@@ -179,6 +179,7 @@ void CJitter::Compile()
 		RemoveSelfAssignments(basicBlock);
 		ComputeLivenessAndPruneSymbols(basicBlock);
 		AllocateRegisters(basicBlock);
+		NormalizeStatements(basicBlock);
 	}
 
 	BASIC_BLOCK result = ConcatBlocks(m_basicBlocks);
@@ -410,12 +411,6 @@ bool CJitter::FoldConstantOperation(STATEMENT& statement)
 			statement.src2.reset();
 			changed = true;
 		}
-		else if(src1cst && !src2cst)
-		{
-			//This a commutative operation, move constant to src2
-			std::swap(statement.src1, statement.src2);
-			changed = true;
-		}
 	}
 	else if(statement.op == OP_SUB)
 	{
@@ -440,24 +435,10 @@ bool CJitter::FoldConstantOperation(STATEMENT& statement)
 			statement.src2.reset();
 			changed = true;
 		}
-		else if(src1cst && !src2cst)
-		{
-			//This a commutative operation, move constant to src2
-			assert(0);
-			std::swap(statement.src1, statement.src2);
-			changed = true;
-		}
 	}
 	else if(statement.op == OP_OR)
 	{
-		if(src2cst && src2cst->m_valueLow == 0)
-		{
-			//Oring with zero
-			statement.op = OP_MOV;
-			statement.src2.reset();
-			changed = true;
-		}
-		else if(src1cst && src2cst)
+		if(src1cst && src2cst)
 		{
 			uint32 result = src1cst->m_valueLow | src2cst->m_valueLow;
 			statement.op = OP_MOV;
@@ -465,10 +446,19 @@ bool CJitter::FoldConstantOperation(STATEMENT& statement)
 			statement.src2.reset();
 			changed = true;
 		}
-		else if(src1cst && !src2cst)
+		else if(src1cst && src1cst->m_valueLow == 0)
 		{
-			//This a commutative operation, move constant to src2
+			//Oring with zero
+			statement.op = OP_MOV;
 			std::swap(statement.src1, statement.src2);
+			statement.src2.reset();
+			changed = true;
+		}
+		else if(src2cst && src2cst->m_valueLow == 0)
+		{
+			//Oring with zero
+			statement.op = OP_MOV;
+			statement.src2.reset();
 			changed = true;
 		}
 	}
@@ -477,13 +467,6 @@ bool CJitter::FoldConstantOperation(STATEMENT& statement)
 		if(src1cst && src2cst)
 		{
 			assert(0);
-		}
-		else if(src1cst && !src2cst)
-		{
-			//This a commutative operation, move constant to src2
-			assert(0);
-			std::swap(statement.src1, statement.src2);
-			changed = true;
 		}
 	}
 	else if(statement.op == OP_NOT)
@@ -575,15 +558,6 @@ bool CJitter::FoldConstantOperation(STATEMENT& statement)
 		if(src1cst && src2cst)
 		{
 			assert(0);
-		}
-		else if(src1cst && !src2cst)
-		{
-			if(statement.jmpCondition == CONDITION_EQ || statement.jmpCondition == CONDITION_NE)
-			{
-				//This a commutative operation, move constant to src2
-				std::swap(statement.src1, statement.src2);
-				changed = true;
-			}
 		}
 	}
 	else if(statement.op == OP_CONDJMP)
@@ -1435,6 +1409,60 @@ void CJitter::AllocateRegisters(BASIC_BLOCK& basicBlock)
 			statement.src1	= SymbolRefPtr(new CSymbolRef(symbolTable.MakeSymbol(SYM_REGISTER, symbol->m_register)));
 
 			statements.insert(endInsertionPoint, statement);
+		}
+	}
+}
+
+void CJitter::NormalizeStatements(BASIC_BLOCK& basicBlock)
+{
+	//Reorganize the commutative statements 
+	//1. Always have registers as the first operand
+	//2. Always have constants as the last operand
+
+	for(StatementList::iterator statementIterator(basicBlock.statements.begin());
+		basicBlock.statements.end() != statementIterator; statementIterator++)
+	{
+		STATEMENT& statement(*statementIterator);
+
+		bool isCommutative = false;
+		switch(statement.op)
+		{
+			case OP_ADD:
+			case OP_AND:
+			case OP_OR:
+			case OP_XOR:
+			case OP_MUL:
+			case OP_MULS:
+				isCommutative = true;
+				break;
+			case OP_CMP:
+			case OP_CONDJMP:
+				isCommutative = (statement.jmpCondition == CONDITION_EQ || statement.jmpCondition == CONDITION_NE);
+				break;
+		}
+
+		if(!isCommutative) continue;
+
+		//Check if constant operand is at the beginning and swap if it is the case
+		{
+			CSymbol* src1cst = dynamic_symbolref_cast(SYM_CONSTANT, statement.src1);
+			CSymbol* src2cst = dynamic_symbolref_cast(SYM_CONSTANT, statement.src2);
+
+			if(src1cst && !src2cst)
+			{
+				std::swap(statement.src1, statement.src2);
+			}
+		}
+
+		//Check if register operand is at the end and swap if it is the case
+		{
+			CSymbol* src1reg = dynamic_symbolref_cast(SYM_REGISTER, statement.src1);
+			CSymbol* src2reg = dynamic_symbolref_cast(SYM_REGISTER, statement.src2);
+
+			if(!src1reg && src2reg)
+			{
+				std::swap(statement.src1, statement.src2);
+			}
 		}
 	}
 }

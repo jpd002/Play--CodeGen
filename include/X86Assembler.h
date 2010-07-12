@@ -131,6 +131,7 @@ public:
     void                                    JcJb(LABEL);
     void                                    JeJb(LABEL);
 	void									JgJb(LABEL);
+	void									JleJb(LABEL);
     void                                    JmpJb(LABEL);
     void                                    JneJb(LABEL);
     void                                    JnoJb(LABEL);

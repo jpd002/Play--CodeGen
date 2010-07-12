@@ -61,6 +61,9 @@ CONDITION CJitter::GetReverseCondition(CONDITION condition)
 	case CONDITION_LE:
 		return CONDITION_GT;
 		break;
+	case CONDITION_GT:
+		return CONDITION_LE;
+		break;
 	default:
 		assert(0);
 		break;
@@ -277,7 +280,16 @@ void CJitter::Div()
 
 void CJitter::DivS()
 {
-	throw std::exception();
+	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY64, m_nextTemporary++);
+
+	STATEMENT statement;
+	statement.op	= OP_DIVS;
+	statement.src2	= MakeSymbolRef(m_Shadow.Pull());
+	statement.src1	= MakeSymbolRef(m_Shadow.Pull());
+	statement.dst	= MakeSymbolRef(tempSym);
+	InsertStatement(statement);
+
+	m_Shadow.Push(tempSym);
 }
 
 void CJitter::Lookup(uint32* table)

@@ -116,6 +116,9 @@ namespace Jitter
 		//RETVAL
 		void									Emit_RetVal_Reg(const STATEMENT&);
 		
+		//DIV/DIVS
+		template <bool> void					Emit_DivTmp64RegCst(const STATEMENT&);
+
 		//MOV
 		void									Emit_Mov_RegReg(const STATEMENT&);
 		void									Emit_Mov_RegRel(const STATEMENT&);

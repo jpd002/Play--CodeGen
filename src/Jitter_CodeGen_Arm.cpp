@@ -22,6 +22,26 @@ CArmAssembler::REGISTER CCodeGen_Arm::g_paramRegs[MAX_PARAMS] =
 	CArmAssembler::r3,
 };
 
+static uint32 div_unsigned(uint32 a, uint32 b)
+{
+	return a / b;
+}
+
+static int32 div_signed(int32 a, int32 b)
+{
+	return a / b;
+}
+
+static uint32 mod_unsigned(uint32 a, uint32 b)
+{
+	return a % b;
+}
+
+static int32 mod_signed(int32 a, int32 b)
+{
+	return a % b;
+}
+
 template <typename ALUOP>
 void CCodeGen_Arm::Emit_Alu_RegRegReg(const STATEMENT& statement)
 {
@@ -107,6 +127,50 @@ void CCodeGen_Arm::Emit_Shift_RegRegCst(const STATEMENT& statement)
 														  CArmAssembler::MakeConstantShift(shiftType, static_cast<uint8>(src2->m_valueLow))));
 }
 
+template <bool isSigned>
+void CCodeGen_Arm::Emit_DivTmp64RegCst(const STATEMENT& statement)
+{
+	CSymbol* dst = statement.dst->GetSymbol().get();
+	CSymbol* src1 = statement.src1->GetSymbol().get();
+	CSymbol* src2 = statement.src2->GetSymbol().get();
+	
+	assert(dst->m_type  == SYM_TEMPORARY64);
+	assert(src1->m_type == SYM_REGISTER);
+	assert(src2->m_type == SYM_CONSTANT);
+
+	//Quotient
+	m_assembler.Mov(CArmAssembler::r0, g_registers[src1->m_valueLow]);
+	LoadConstantInRegister(CArmAssembler::r1, src2->m_valueLow);
+
+	if(isSigned)
+	{
+		LoadConstantInRegister(CArmAssembler::r2, reinterpret_cast<uint32>(&div_signed));
+	}
+	else
+	{
+		LoadConstantInRegister(CArmAssembler::r2, reinterpret_cast<uint32>(&div_unsigned));
+	}
+	m_assembler.Blx(CArmAssembler::r2);
+
+	m_assembler.Str(CArmAssembler::r0, CArmAssembler::rSP, CArmAssembler::MakeImmediateLdrAddress(dst->m_valueLow + 0));
+
+	//Remainder
+	m_assembler.Mov(CArmAssembler::r0, g_registers[src1->m_valueLow]);
+	LoadConstantInRegister(CArmAssembler::r1, src2->m_valueLow);
+
+	if(isSigned)
+	{
+		LoadConstantInRegister(CArmAssembler::r2, reinterpret_cast<uint32>(&mod_signed));
+	}
+	else
+	{
+		LoadConstantInRegister(CArmAssembler::r2, reinterpret_cast<uint32>(&mod_unsigned));
+	}
+	m_assembler.Blx(CArmAssembler::r2);
+
+	m_assembler.Str(CArmAssembler::r0, CArmAssembler::rSP, CArmAssembler::MakeImmediateLdrAddress(dst->m_valueLow + 4));
+}
+
 #define ALU_CONST_MATCHERS(ALUOP_CST, ALUOP) \
 	{ ALUOP_CST,	MATCH_REGISTER,		MATCH_REGISTER,		MATCH_REGISTER,		&CCodeGen_Arm::Emit_Alu_RegRegReg<ALUOP>		}, \
 	{ ALUOP_CST,	MATCH_REGISTER,		MATCH_REGISTER,		MATCH_CONSTANT,		&CCodeGen_Arm::Emit_Alu_RegRegCst<ALUOP>		}, \
@@ -149,6 +213,9 @@ CCodeGen_Arm::CONSTMATCHER CCodeGen_Arm::g_constMatchers[] =
 
 	{ OP_NOT,		MATCH_REGISTER,		MATCH_REGISTER,		MATCH_NIL,			&CCodeGen_Arm::Emit_Not_RegReg						},
 	
+	{ OP_DIV,		MATCH_TEMPORARY64,	MATCH_REGISTER,		MATCH_CONSTANT,		&CCodeGen_Arm::Emit_DivTmp64RegCst<false>			},
+//	{ OP_DIV,		MATCH_TEMPORARY64,	MATCH_RELATIVE,		MATCH_REGISTER,		&CCodeGen_Arm::Emit_DivTmp64RelReg<false>			},
+
 	{ OP_MOV,		MATCH_NIL,			MATCH_NIL,			MATCH_NIL,			NULL												},
 };
 

@@ -466,7 +466,11 @@ bool CJitter::FoldConstantOperation(STATEMENT& statement)
 	{
 		if(src1cst && src2cst)
 		{
-			assert(0);
+			uint32 result = src1cst->m_valueLow ^ src2cst->m_valueLow;
+			statement.op = OP_MOV;
+			statement.src1 = MakeSymbolRef(MakeSymbol(SYM_CONSTANT, result));
+			statement.src2.reset();
+			changed = true;
 		}
 	}
 	else if(statement.op == OP_NOT)

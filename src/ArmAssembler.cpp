@@ -393,6 +393,13 @@ void CArmAssembler::Teq(REGISTER rn, const ImmediateAluOperand& operand)
 	WriteWord(opcode);
 }
 
+void CArmAssembler::Umull(REGISTER rdLow, REGISTER rdHigh, REGISTER rn, REGISTER rm)
+{
+	uint32 opcode = 0;
+	opcode = (CONDITION_AL << 28) | (0x04 << 21) | (rdHigh << 16) | (rdLow << 12) | (rm << 8) | (0x9 << 4) | (rn << 0);
+	WriteWord(opcode);
+}
+
 void CArmAssembler::WriteWord(uint32 value)
 {
 	m_stream->Write32(value);

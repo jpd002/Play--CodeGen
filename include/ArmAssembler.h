@@ -187,7 +187,8 @@ public:
 	void									Sub(REGISTER, REGISTER, REGISTER);
 	void									Sub(REGISTER, REGISTER, const ImmediateAluOperand&);
 	void									Teq(REGISTER, const ImmediateAluOperand&);
-	
+	void									Umull(REGISTER, REGISTER, REGISTER, REGISTER);
+
 	static LdrAddress						MakeImmediateLdrAddress(uint32);
 	static ImmediateAluOperand				MakeImmediateAluOperand(uint8, uint8);
 	static RegisterAluOperand				MakeRegisterAluOperand(CArmAssembler::REGISTER, const AluLdrShift&);

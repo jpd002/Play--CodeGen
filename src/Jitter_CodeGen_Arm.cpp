@@ -128,6 +128,30 @@ void CCodeGen_Arm::Emit_Shift_RegRegCst(const STATEMENT& statement)
 }
 
 template <bool isSigned>
+void CCodeGen_Arm::Emit_MulTmp64RegReg(const STATEMENT& statement)
+{
+	CSymbol* dst = statement.dst->GetSymbol().get();
+	CSymbol* src1 = statement.src1->GetSymbol().get();
+	CSymbol* src2 = statement.src2->GetSymbol().get();
+	
+	assert(dst->m_type  == SYM_TEMPORARY64);
+	assert(src1->m_type == SYM_REGISTER);
+	assert(src2->m_type == SYM_REGISTER);
+
+	if(isSigned)
+	{
+		m_assembler.Smull(CArmAssembler::r0, CArmAssembler::r1, g_registers[src1->m_valueLow], g_registers[src2->m_valueHigh]);
+	}
+	else
+	{
+		m_assembler.Umull(CArmAssembler::r0, CArmAssembler::r1, g_registers[src1->m_valueLow], g_registers[src2->m_valueHigh]);
+	}
+
+	m_assembler.Str(CArmAssembler::r0, CArmAssembler::rSP, CArmAssembler::MakeImmediateLdrAddress(dst->m_stackLocation + 0));
+	m_assembler.Str(CArmAssembler::r1, CArmAssembler::rSP, CArmAssembler::MakeImmediateLdrAddress(dst->m_stackLocation + 4));
+}
+
+template <bool isSigned>
 void CCodeGen_Arm::Emit_DivTmp64RegCst(const STATEMENT& statement)
 {
 	CSymbol* dst = statement.dst->GetSymbol().get();
@@ -152,7 +176,7 @@ void CCodeGen_Arm::Emit_DivTmp64RegCst(const STATEMENT& statement)
 	}
 	m_assembler.Blx(CArmAssembler::r2);
 
-	m_assembler.Str(CArmAssembler::r0, CArmAssembler::rSP, CArmAssembler::MakeImmediateLdrAddress(dst->m_valueLow + 0));
+	m_assembler.Str(CArmAssembler::r0, CArmAssembler::rSP, CArmAssembler::MakeImmediateLdrAddress(dst->m_stackLocation + 0));
 
 	//Remainder
 	m_assembler.Mov(CArmAssembler::r0, g_registers[src1->m_valueLow]);
@@ -168,7 +192,7 @@ void CCodeGen_Arm::Emit_DivTmp64RegCst(const STATEMENT& statement)
 	}
 	m_assembler.Blx(CArmAssembler::r2);
 
-	m_assembler.Str(CArmAssembler::r0, CArmAssembler::rSP, CArmAssembler::MakeImmediateLdrAddress(dst->m_valueLow + 4));
+	m_assembler.Str(CArmAssembler::r0, CArmAssembler::rSP, CArmAssembler::MakeImmediateLdrAddress(dst->m_stackLocation + 4));
 }
 
 #define ALU_CONST_MATCHERS(ALUOP_CST, ALUOP) \
@@ -199,6 +223,7 @@ CCodeGen_Arm::CONSTMATCHER CCodeGen_Arm::g_constMatchers[] =
 	SHIFT_CONST_MATCHERS(OP_SLL, CArmAssembler::SHIFT_LSL)
 	
 	{ OP_PARAM,		MATCH_NIL,			MATCH_CONTEXT,		MATCH_NIL,			&CCodeGen_Arm::Emit_Param_Ctx						},
+	{ OP_PARAM,		MATCH_NIL,			MATCH_REGISTER,		MATCH_NIL,			&CCodeGen_Arm::Emit_Param_Reg						},
 
 	{ OP_CALL,		MATCH_NIL,			MATCH_CONSTANT,		MATCH_CONSTANT,		&CCodeGen_Arm::Emit_Call							},
 	
@@ -211,10 +236,25 @@ CCodeGen_Arm::CONSTMATCHER CCodeGen_Arm::g_constMatchers[] =
 	{ OP_CMP,		MATCH_REGISTER,		MATCH_REGISTER,		MATCH_REGISTER,		&CCodeGen_Arm::Emit_Cmp_RegRegReg					},
 	{ OP_CMP,		MATCH_REGISTER,		MATCH_REGISTER,		MATCH_CONSTANT,		&CCodeGen_Arm::Emit_Cmp_RegRegCst					},
 
+	{ OP_EXTLOW64,	MATCH_REGISTER,		MATCH_TEMPORARY64,	MATCH_NIL,			&CCodeGen_Arm::Emit_ExtLow64RegTmp64				},
+//	{ OP_EXTLOW64,	MATCH_RELATIVE,		MATCH_TEMPORARY64,	MATCH_NIL,			&CCodeGen_Arm::Emit_ExtLow64RelTmp64				},
+
+	{ OP_EXTHIGH64,	MATCH_REGISTER,		MATCH_TEMPORARY64,	MATCH_NIL,			&CCodeGen_Arm::Emit_ExtHigh64RegTmp64				},
+
 	{ OP_NOT,		MATCH_REGISTER,		MATCH_REGISTER,		MATCH_NIL,			&CCodeGen_Arm::Emit_Not_RegReg						},
 	
 	{ OP_DIV,		MATCH_TEMPORARY64,	MATCH_REGISTER,		MATCH_CONSTANT,		&CCodeGen_Arm::Emit_DivTmp64RegCst<false>			},
 //	{ OP_DIV,		MATCH_TEMPORARY64,	MATCH_RELATIVE,		MATCH_REGISTER,		&CCodeGen_Arm::Emit_DivTmp64RelReg<false>			},
+
+	{ OP_MUL,		MATCH_TEMPORARY64,	MATCH_REGISTER,		MATCH_REGISTER,		&CCodeGen_Arm::Emit_MulTmp64RegReg<false>			},
+//	{ OP_MUL,		MATCH_TEMPORARY64,	MATCH_REGISTER,		MATCH_RELATIVE,		&CCodeGen_x86::Emit_MulTmp64RegRel<false>			},
+//	{ OP_MUL,		MATCH_TEMPORARY64,	MATCH_REGISTER,		MATCH_CONSTANT,		&CCodeGen_x86::Emit_MulTmp64RegCst<false>			},
+//	{ OP_MUL,		MATCH_TEMPORARY64,	MATCH_RELATIVE,		MATCH_CONSTANT,		&CCodeGen_x86::Emit_MulTmp64RelCst<false>			},
+
+	{ OP_MULS,		MATCH_TEMPORARY64,	MATCH_REGISTER,		MATCH_REGISTER,		&CCodeGen_Arm::Emit_MulTmp64RegReg<true>			},
+//	{ OP_MULS,		MATCH_TEMPORARY64,	MATCH_REGISTER,		MATCH_RELATIVE,		&CCodeGen_x86::Emit_MulTmp64RegRel<true>			},
+//	{ OP_MULS,		MATCH_TEMPORARY64,	MATCH_REGISTER,		MATCH_CONSTANT,		&CCodeGen_x86::Emit_MulTmp64RegCst<true>			},
+//	{ OP_MULS,		MATCH_TEMPORARY64,	MATCH_RELATIVE,		MATCH_CONSTANT,		&CCodeGen_x86::Emit_MulTmp64RelCst<true>			},
 
 	{ OP_MOV,		MATCH_NIL,			MATCH_NIL,			MATCH_NIL,			NULL												},
 };
@@ -449,6 +489,17 @@ void CCodeGen_Arm::Emit_Param_Ctx(const STATEMENT& statement)
 	m_params.push_back(std::tr1::bind(MovFunction, &m_assembler, std::tr1::placeholders::_1, g_baseRegister));	
 }
 
+void CCodeGen_Arm::Emit_Param_Reg(const STATEMENT& statement)
+{
+	CSymbol* src1 = statement.src1->GetSymbol().get();
+
+	assert(src1->m_type == SYM_REGISTER);
+	assert(m_params.size() < MAX_PARAMS);
+	
+	void (CArmAssembler::*MovFunction)(CArmAssembler::REGISTER, CArmAssembler::REGISTER) = &CArmAssembler::Mov;
+	m_params.push_back(std::tr1::bind(MovFunction, &m_assembler, std::tr1::placeholders::_1, g_registers[src1->m_valueLow]));	
+}
+
 void CCodeGen_Arm::Emit_Call(const STATEMENT& statement)
 {
 	CSymbol* src1 = statement.src1->GetSymbol().get();
@@ -509,6 +560,28 @@ void CCodeGen_Arm::Emit_Mov_RelReg(const STATEMENT& statement)
 	CSymbol* src1 = statement.src1->GetSymbol().get();
 
 	m_assembler.Str(g_registers[src1->m_valueLow], g_baseRegister, CArmAssembler::MakeImmediateLdrAddress(dst->m_valueLow));
+}
+
+void CCodeGen_Arm::Emit_ExtLow64RegTmp64(const STATEMENT& statement)
+{
+	CSymbol* dst = statement.dst->GetSymbol().get();
+	CSymbol* src1 = statement.src1->GetSymbol().get();
+
+	assert(dst->m_type  == SYM_REGISTER);
+	assert(src1->m_type == SYM_TEMPORARY64);
+
+	m_assembler.Ldr(g_registers[dst->m_valueLow], CArmAssembler::rSP, CArmAssembler::MakeImmediateLdrAddress(src1->m_stackLocation + 0));
+}
+
+void CCodeGen_Arm::Emit_ExtHigh64RegTmp64(const STATEMENT& statement)
+{
+	CSymbol* dst = statement.dst->GetSymbol().get();
+	CSymbol* src1 = statement.src1->GetSymbol().get();
+
+	assert(dst->m_type  == SYM_REGISTER);
+	assert(src1->m_type == SYM_TEMPORARY64);
+
+	m_assembler.Ldr(g_registers[dst->m_valueLow], CArmAssembler::rSP, CArmAssembler::MakeImmediateLdrAddress(src1->m_stackLocation + 4));
 }
 
 void CCodeGen_Arm::Emit_Jmp(const STATEMENT& statement)

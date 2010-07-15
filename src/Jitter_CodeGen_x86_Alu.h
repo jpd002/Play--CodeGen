@@ -52,16 +52,12 @@ void CCodeGen_x86::Emit_Alu_RegRelReg(const STATEMENT& statement)
 	assert(src1->m_type == SYM_RELATIVE);
 	assert(src2->m_type == SYM_REGISTER);
 
-	CX86Assembler::REGISTER src2register;
+	CX86Assembler::REGISTER src2register = m_registers[src2->m_valueLow];
 
 	if(dst->Equals(src2))
 	{
 		m_assembler.MovEd(CX86Assembler::rAX, CX86Assembler::MakeRegisterAddress(m_registers[src2->m_valueLow]));
 		src2register = CX86Assembler::rAX;
-	}
-	else
-	{
-		src2register = m_registers[src2->m_valueLow];
 	}
 
 	m_assembler.MovEd(m_registers[dst->m_valueLow], CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, src1->m_valueLow));
@@ -111,8 +107,16 @@ void CCodeGen_x86::Emit_Alu_RegRegReg(const STATEMENT& statement)
 	}
 	else
 	{
+		CX86Assembler::REGISTER src2register = m_registers[src2->m_valueLow];
+
+		if(dst->Equals(src2))
+		{
+			m_assembler.MovEd(CX86Assembler::rAX, CX86Assembler::MakeRegisterAddress(m_registers[src2->m_valueLow]));
+			src2register = CX86Assembler::rAX;
+		}
+
 		m_assembler.MovEd(m_registers[dst->m_valueLow], CX86Assembler::MakeRegisterAddress(m_registers[src1->m_valueLow]));
-		((m_assembler).*(ALUOP::OpEd()))(m_registers[dst->m_valueLow], CX86Assembler::MakeRegisterAddress(m_registers[src2->m_valueLow]));
+		((m_assembler).*(ALUOP::OpEd()))(m_registers[dst->m_valueLow], CX86Assembler::MakeRegisterAddress(src2register));
 	}
 }
 

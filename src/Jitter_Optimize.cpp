@@ -1466,10 +1466,15 @@ void CJitter::NormalizeStatements(BASIC_BLOCK& basicBlock)
 
 		//Check if register operand is at the end and swap if it is the case
 		{
+			CSymbol* dstreg  = dynamic_symbolref_cast(SYM_REGISTER, statement.dst);
 			CSymbol* src1reg = dynamic_symbolref_cast(SYM_REGISTER, statement.src1);
 			CSymbol* src2reg = dynamic_symbolref_cast(SYM_REGISTER, statement.src2);
 
 			if(!src1reg && src2reg)
+			{
+				std::swap(statement.src1, statement.src2);
+			}
+			else if(dstreg && src1reg && src2reg && dstreg->Equals(src2reg))
 			{
 				std::swap(statement.src1, statement.src2);
 			}

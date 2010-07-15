@@ -9,6 +9,7 @@
 #include "MultTest.h"
 #include "RandomAluTest.h"
 #include "RandomAluTest2.h"
+#include "RandomAluTest3.h"
 #include "FpuTest.h"
 #include "CompareTest.h"
 
@@ -21,6 +22,8 @@ TestFactoryFunction s_factories[] =
 	TestFactoryFunction(boost::lambda::bind(boost::lambda::new_ptr<CRandomAluTest>(), false)),
 	TestFactoryFunction(boost::lambda::bind(boost::lambda::new_ptr<CRandomAluTest2>(), true)),
 	TestFactoryFunction(boost::lambda::bind(boost::lambda::new_ptr<CRandomAluTest2>(), false)),
+	TestFactoryFunction(boost::lambda::bind(boost::lambda::new_ptr<CRandomAluTest3>(), true)),
+	TestFactoryFunction(boost::lambda::bind(boost::lambda::new_ptr<CRandomAluTest3>(), false)),
 	TestFactoryFunction(boost::lambda::bind(boost::lambda::new_ptr<CCrc32Test>(), "Hello World!", 0x67FCDACC)),
 	TestFactoryFunction(boost::lambda::bind(boost::lambda::new_ptr<CMultTest>(), true)),
 	TestFactoryFunction(boost::lambda::bind(boost::lambda::new_ptr<CMultTest>(), false)),

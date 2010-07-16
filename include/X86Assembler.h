@@ -288,6 +288,7 @@ private:
     void                                    WriteRexByte(bool, const CAddress&, REGISTER&);
     void                                    WriteEvOp(uint8, uint8, bool, const CAddress&);
     void                                    WriteEvGvOp(uint8, bool, const CAddress&, REGISTER);
+    void                                    WriteEvGvOp0F(uint8, bool, const CAddress&, REGISTER);
     void                                    WriteEvIb(uint8, const CAddress&, uint8);
     void                                    WriteEvId(uint8, const CAddress&, uint32);
     void                                    WriteEvIq(uint8, const CAddress&, uint64);

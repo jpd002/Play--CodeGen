@@ -430,20 +430,17 @@ void CX86Assembler::MovId(const CX86Assembler::CAddress& address, uint32 constan
 
 void CX86Assembler::MovsxEb(REGISTER registerId, const CAddress& address)
 {
-    WriteByte(0x0F);
-    WriteEvGvOp(0xBE, false, address, registerId);
+    WriteEvGvOp0F(0xBE, false, address, registerId);
 }
 
 void CX86Assembler::MovsxEw(REGISTER registerId, const CAddress& address)
 {
-    WriteByte(0x0F);
-    WriteEvGvOp(0xBF, false, address, registerId);
+    WriteEvGvOp0F(0xBF, false, address, registerId);
 }
 
 void CX86Assembler::MovzxEb(REGISTER registerId, const CAddress& address)
 {
-    WriteByte(0x0F);
-    WriteEvGvOp(0xB6, false, address, registerId);
+    WriteEvGvOp0F(0xB6, false, address, registerId);
 }
 
 void CX86Assembler::MulEd(const CAddress& address)
@@ -706,6 +703,16 @@ void CX86Assembler::WriteEvGvOp(uint8 nOp, bool nIs64, const CAddress& Address, 
 {
     WriteRexByte(nIs64, Address, nRegister);
     CAddress NewAddress(Address);
+    NewAddress.ModRm.nFnReg = nRegister;
+    WriteByte(nOp);
+    NewAddress.Write(m_stream);
+}
+
+void CX86Assembler::WriteEvGvOp0F(uint8 nOp, bool nIs64, const CAddress& Address, REGISTER nRegister)
+{
+    WriteRexByte(nIs64, Address, nRegister);
+	WriteByte(0x0F);
+	CAddress NewAddress(Address);
     NewAddress.ModRm.nFnReg = nRegister;
     WriteByte(nOp);
     NewAddress.Write(m_stream);

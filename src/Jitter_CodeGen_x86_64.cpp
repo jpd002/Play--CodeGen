@@ -24,9 +24,11 @@ CX86Assembler::REGISTER CCodeGen_x86_64::g_paramRegs[MAX_PARAMS] =
 CCodeGen_x86_64::CONSTMATCHER CCodeGen_x86_64::g_constMatchers[] = 
 {
 	{ OP_PARAM,		MATCH_NIL,			MATCH_CONTEXT,		MATCH_NIL,			&CCodeGen_x86_64::Emit_Param_Ctx		},
-	{ OP_PARAM,		MATCH_NIL,			MATCH_TEMPORARY,	MATCH_NIL,			&CCodeGen_x86_64::Emit_Param_Tmp		},
 	{ OP_PARAM,		MATCH_NIL,			MATCH_REGISTER,		MATCH_NIL,			&CCodeGen_x86_64::Emit_Param_Reg		},
+	{ OP_PARAM,		MATCH_NIL,			MATCH_RELATIVE,		MATCH_NIL,			&CCodeGen_x86_64::Emit_Param_Rel,		},
+	{ OP_PARAM,		MATCH_NIL,			MATCH_CONSTANT,		MATCH_NIL,			&CCodeGen_x86_64::Emit_Param_Cst		},
 	{ OP_PARAM,		MATCH_NIL,			MATCH_CONSTANT64,	MATCH_NIL,			&CCodeGen_x86_64::Emit_Param_Cst64		},
+	{ OP_PARAM,		MATCH_NIL,			MATCH_TEMPORARY,	MATCH_NIL,			&CCodeGen_x86_64::Emit_Param_Tmp		},
 
 	{ OP_CALL,		MATCH_NIL,			MATCH_CONSTANT64,	MATCH_CONSTANT,		&CCodeGen_x86_64::Emit_Call				},
 
@@ -134,6 +136,25 @@ void CCodeGen_x86_64::Emit_Param_Reg(const STATEMENT& statement)
 
 	m_params.push_back(std::tr1::bind(
 		&CX86Assembler::MovEd, &m_assembler, std::tr1::placeholders::_1, CX86Assembler::MakeRegisterAddress(m_registers[src1->m_valueLow])));
+}
+
+void CCodeGen_x86_64::Emit_Param_Rel(const STATEMENT& statement)
+{
+	assert(m_params.size() < MAX_PARAMS);
+
+	CSymbol* src1 = statement.src1->GetSymbol().get();
+
+	m_params.push_back(std::tr1::bind(&CX86Assembler::MovEd, &m_assembler, std::tr1::placeholders::_1, CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, src1->m_valueLow)));
+}
+
+void CCodeGen_x86_64::Emit_Param_Cst(const STATEMENT& statement)
+{
+	assert(m_params.size() < MAX_PARAMS);
+
+	CSymbol* src1 = statement.src1->GetSymbol().get();
+
+	void (CX86Assembler::*MovFunction)(CX86Assembler::REGISTER, uint32) = &CX86Assembler::MovId;
+	m_params.push_back(std::tr1::bind(MovFunction, &m_assembler, std::tr1::placeholders::_1, src1->m_valueLow));
 }
 
 void CCodeGen_x86_64::Emit_Param_Cst64(const STATEMENT& statement)

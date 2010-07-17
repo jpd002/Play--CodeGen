@@ -140,15 +140,15 @@ void CCodeGen_Arm::Emit_MulTmp64RegReg(const STATEMENT& statement)
 
 	if(isSigned)
 	{
-		m_assembler.Smull(CArmAssembler::r0, CArmAssembler::r1, g_registers[src1->m_valueLow], g_registers[src2->m_valueHigh]);
+		m_assembler.Smull(CArmAssembler::r0, CArmAssembler::r1, g_registers[src1->m_valueLow], g_registers[src2->m_valueLow]);
 	}
 	else
 	{
-		m_assembler.Umull(CArmAssembler::r0, CArmAssembler::r1, g_registers[src1->m_valueLow], g_registers[src2->m_valueHigh]);
+		m_assembler.Umull(CArmAssembler::r0, CArmAssembler::r1, g_registers[src1->m_valueLow], g_registers[src2->m_valueLow]);
 	}
 
-	m_assembler.Str(CArmAssembler::r0, CArmAssembler::rSP, CArmAssembler::MakeImmediateLdrAddress(dst->m_stackLocation + 0));
-	m_assembler.Str(CArmAssembler::r1, CArmAssembler::rSP, CArmAssembler::MakeImmediateLdrAddress(dst->m_stackLocation + 4));
+	m_assembler.Str(CArmAssembler::r0, CArmAssembler::rSP, CArmAssembler::MakeImmediateLdrAddress(dst->m_stackLocation + m_stackLevel + 0));
+	m_assembler.Str(CArmAssembler::r1, CArmAssembler::rSP, CArmAssembler::MakeImmediateLdrAddress(dst->m_stackLocation + m_stackLevel + 4));
 }
 
 template <bool isSigned>
@@ -176,7 +176,7 @@ void CCodeGen_Arm::Emit_DivTmp64RegCst(const STATEMENT& statement)
 	}
 	m_assembler.Blx(CArmAssembler::r2);
 
-	m_assembler.Str(CArmAssembler::r0, CArmAssembler::rSP, CArmAssembler::MakeImmediateLdrAddress(dst->m_stackLocation + 0));
+	m_assembler.Str(CArmAssembler::r0, CArmAssembler::rSP, CArmAssembler::MakeImmediateLdrAddress(dst->m_stackLocation + m_stackLevel + 0));
 
 	//Remainder
 	m_assembler.Mov(CArmAssembler::r0, g_registers[src1->m_valueLow]);
@@ -192,7 +192,7 @@ void CCodeGen_Arm::Emit_DivTmp64RegCst(const STATEMENT& statement)
 	}
 	m_assembler.Blx(CArmAssembler::r2);
 
-	m_assembler.Str(CArmAssembler::r0, CArmAssembler::rSP, CArmAssembler::MakeImmediateLdrAddress(dst->m_stackLocation + 4));
+	m_assembler.Str(CArmAssembler::r0, CArmAssembler::rSP, CArmAssembler::MakeImmediateLdrAddress(dst->m_stackLocation + m_stackLevel + 4));
 }
 
 #define ALU_CONST_MATCHERS(ALUOP_CST, ALUOP) \
@@ -302,9 +302,11 @@ void CCodeGen_Arm::GenerateCode(const StatementList& statements, unsigned int st
 	m_lastLiteralPtr = 0;
 
 	//Save return address
-	m_assembler.Sub(CArmAssembler::rSP, CArmAssembler::rSP, CArmAssembler::MakeImmediateAluOperand(0x04, 0));
+	m_assembler.Sub(CArmAssembler::rSP, CArmAssembler::rSP, CArmAssembler::MakeImmediateAluOperand(0x04 + stackSize, 0));
 	m_assembler.Str(CArmAssembler::rLR, CArmAssembler::rSP, CArmAssembler::MakeImmediateLdrAddress(0x00));
 
+	m_stackLevel = 0x04;
+	
 	for(StatementList::const_iterator statementIterator(statements.begin());
 		statementIterator != statements.end(); statementIterator++)
 	{
@@ -328,7 +330,7 @@ void CCodeGen_Arm::GenerateCode(const StatementList& statements, unsigned int st
 	}
 
 	m_assembler.Ldr(CArmAssembler::rLR, CArmAssembler::rSP, CArmAssembler::MakeImmediateLdrAddress(0x00));
-	m_assembler.Add(CArmAssembler::rSP, CArmAssembler::rSP, CArmAssembler::MakeImmediateAluOperand(0x04, 0));
+	m_assembler.Add(CArmAssembler::rSP, CArmAssembler::rSP, CArmAssembler::MakeImmediateAluOperand(0x04 + stackSize, 0));
 	m_assembler.Bx(CArmAssembler::rLR);
 
 	m_assembler.ResolveLabelReferences();
@@ -570,7 +572,7 @@ void CCodeGen_Arm::Emit_ExtLow64RegTmp64(const STATEMENT& statement)
 	assert(dst->m_type  == SYM_REGISTER);
 	assert(src1->m_type == SYM_TEMPORARY64);
 
-	m_assembler.Ldr(g_registers[dst->m_valueLow], CArmAssembler::rSP, CArmAssembler::MakeImmediateLdrAddress(src1->m_stackLocation + 0));
+	m_assembler.Ldr(g_registers[dst->m_valueLow], CArmAssembler::rSP, CArmAssembler::MakeImmediateLdrAddress(src1->m_stackLocation + m_stackLevel + 0));
 }
 
 void CCodeGen_Arm::Emit_ExtHigh64RegTmp64(const STATEMENT& statement)
@@ -581,7 +583,7 @@ void CCodeGen_Arm::Emit_ExtHigh64RegTmp64(const STATEMENT& statement)
 	assert(dst->m_type  == SYM_REGISTER);
 	assert(src1->m_type == SYM_TEMPORARY64);
 
-	m_assembler.Ldr(g_registers[dst->m_valueLow], CArmAssembler::rSP, CArmAssembler::MakeImmediateLdrAddress(src1->m_stackLocation + 4));
+	m_assembler.Ldr(g_registers[dst->m_valueLow], CArmAssembler::rSP, CArmAssembler::MakeImmediateLdrAddress(src1->m_stackLocation + m_stackLevel + 4));
 }
 
 void CCodeGen_Arm::Emit_Jmp(const STATEMENT& statement)

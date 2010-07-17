@@ -161,6 +161,7 @@ namespace Jitter
 		uint32*									m_literalPool;
 		unsigned int							m_lastLiteralPtr;
 		LiteralPoolRefList						m_literalPoolRefs;
+		uint32									m_stackLevel;
 	};
 };
 

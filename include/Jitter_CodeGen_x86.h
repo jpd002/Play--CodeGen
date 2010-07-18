@@ -130,6 +130,7 @@ namespace Jitter
 		template <typename> void	Emit_Alu_RegRelRel(const STATEMENT&);
 		template <typename> void	Emit_Alu_RegRelCst(const STATEMENT&);
 		template <typename> void	Emit_Alu_RegCstReg(const STATEMENT&);
+		template <typename> void	Emit_Alu_RegCstRel(const STATEMENT&);
 		template <typename> void	Emit_Alu_RegTmpTmp(const STATEMENT&);
 		template <typename> void	Emit_Alu_RegTmpCst(const STATEMENT&);
 		template <typename> void	Emit_Alu_RelRegReg(const STATEMENT&);
@@ -138,8 +139,10 @@ namespace Jitter
 		template <typename> void	Emit_Alu_RelRelReg(const STATEMENT&);
 		template <typename> void	Emit_Alu_RelRelCst(const STATEMENT&);
 		template <typename> void	Emit_Alu_RelRelRel(const STATEMENT&);
+		template <typename> void	Emit_Alu_RelCstReg(const STATEMENT&);
 		template <typename> void	Emit_Alu_TmpRegReg(const STATEMENT&);
 		template <typename> void	Emit_Alu_TmpRegCst(const STATEMENT&);
+		template <typename> void	Emit_Alu_TmpRelCst(const STATEMENT&);
 		template <typename> void	Emit_Alu_TmpTmpCst(const STATEMENT&);
 
 		//SHIFT
@@ -155,6 +158,7 @@ namespace Jitter
 		template <typename> void	Emit_Shift_RelRelReg(const STATEMENT&);
 		template <typename> void	Emit_Shift_RelRelRel(const STATEMENT&);
 		template <typename> void	Emit_Shift_RelRelCst(const STATEMENT&);
+		template <typename> void	Emit_Shift_RelCstRel(const STATEMENT&);
 		template <typename> void	Emit_Shift_TmpRegCst(const STATEMENT&);
 
 		//NOT
@@ -174,6 +178,7 @@ namespace Jitter
 		void						Emit_Cmp_RelRegCst(const STATEMENT&);
 		void						Emit_Cmp_RelRelCst(const STATEMENT&);
 		void						Emit_Cmp_RelCstReg(const STATEMENT&);
+		void						Emit_Cmp_RelCstRel(const STATEMENT&);
 
 		//ADD64
 		void						Emit_Add64_RelRelRel(const STATEMENT&);
@@ -182,6 +187,7 @@ namespace Jitter
 		template<bool> void			Emit_MulTmp64RegRel(const STATEMENT&);
 		template<bool> void			Emit_MulTmp64RegCst(const STATEMENT&);
 		template<bool> void			Emit_MulTmp64RegReg(const STATEMENT&);
+		template<bool> void			Emit_MulTmp64RelRel(const STATEMENT&);
 		template<bool> void			Emit_MulTmp64RelCst(const STATEMENT&);
 
 		//DIV/DIVS
@@ -210,6 +216,7 @@ namespace Jitter
 		void						Emit_CondJmp_RelReg(const STATEMENT&);
 		void						Emit_CondJmp_RelRel(const STATEMENT&);
 		void						Emit_CondJmp_RelCst(const STATEMENT&);
+		void						Emit_CondJmp_TmpCst(const STATEMENT&);
 
 		//EXTLOW64
 		void						Emit_ExtLow64RegTmp64(const STATEMENT&);

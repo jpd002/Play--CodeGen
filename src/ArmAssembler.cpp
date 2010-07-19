@@ -400,13 +400,42 @@ void CArmAssembler::Umull(REGISTER rdLow, REGISTER rdHigh, REGISTER rn, REGISTER
 	WriteWord(opcode);
 }
 
+//////////////////////////////////////////////////
+// VFP Stuff
+//////////////////////////////////////////////////
+
+uint32 CArmAssembler::Vfp_EncodeSd(VFP_REGISTER sd)
+{
+	return ((sd >> 1) << 12) | ((sd & 1) << 22);
+}
+
+uint32 CArmAssembler::Vfp_EncodeSn(VFP_REGISTER sn)
+{
+	return ((sn >> 1) << 16) | ((sn & 1) <<  7);
+}
+
+uint32 CArmAssembler::Vfp_EncodeSm(VFP_REGISTER sm)
+{
+	return ((sm >> 1) <<  0) | ((sm & 1) <<  5);
+}
+
+void CArmAssembler::Flds(VFP_REGISTER sd, REGISTER rbase, const LdrAddress& address)
+{
+	uint32 opcode = 0xD100A00;
+}
+
+void CArmAssembler::Fsts(VFP_REGISTER sd, REGISTER rbase, const LdrAddress& address)
+{
+	uint32 opcode = 0xD000A00;
+}
+
 void CArmAssembler::Fadds(VFP_REGISTER sd, VFP_REGISTER sn, VFP_REGISTER sm)
 {
 	uint32 opcode = 0xE300A00;
 	opcode |= (CONDITION_AL << 28);
-	opcode |= ((sd >> 1) << 12) | ((sd & 1) << 22);
-	opcode |= ((sn >> 1) << 16) | ((sn & 1) <<  7);
-	opcode |= ((sm >> 1) <<  0) | ((sm & 1) <<  5);
+	opcode |= Vfp_EncodeSd(sd);
+	opcode |= Vfp_EncodeSn(sn);
+	opcode |= Vfp_EncodeSm(sm);
 	WriteWord(opcode);
 }
 

@@ -203,6 +203,8 @@ public:
 	void									Umull(REGISTER, REGISTER, REGISTER, REGISTER);
 
 	//VFP
+	void									Flds(VFP_REGISTER, REGISTER, const LdrAddress&);
+	void									Fsts(VFP_REGISTER, REGISTER, const LdrAddress&);
 	void									Fadds(VFP_REGISTER, VFP_REGISTER, VFP_REGISTER);
 	
 	static LdrAddress						MakeImmediateLdrAddress(uint32);
@@ -220,7 +222,11 @@ private:
 	
 	void									CreateLabelReference(LABEL);
 	void									WriteWord(uint32);
-	
+
+	uint32									Vfp_EncodeSd(VFP_REGISTER);
+	uint32									Vfp_EncodeSn(VFP_REGISTER);
+	uint32									Vfp_EncodeSm(VFP_REGISTER);
+
 	unsigned int							m_nextLabelId;
 	LabelMapType							m_labels;
 	LabelReferenceMapType					m_labelReferences;

@@ -274,6 +274,17 @@ CCodeGen_Arm::CCodeGen_Arm()
 		m_matchers.insert(MatcherMapType::value_type(matcher.op, matcher));
 	}
 
+	for(CONSTMATCHER* constMatcher = g_fpuConstMatchers; constMatcher->emitter != NULL; constMatcher++)
+	{
+		MATCHER matcher;
+		matcher.op			= constMatcher->op;
+		matcher.dstType		= constMatcher->dstType;
+		matcher.src1Type	= constMatcher->src1Type;
+		matcher.src2Type	= constMatcher->src2Type;
+		matcher.emitter		= std::tr1::bind(constMatcher->emitter, this, std::tr1::placeholders::_1);
+		m_matchers.insert(MatcherMapType::value_type(matcher.op, matcher));
+	}
+
 	m_literalPool = new uint32[LITERAL_POOL_SIZE];
 }
 

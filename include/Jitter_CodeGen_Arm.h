@@ -98,6 +98,17 @@ namespace Jitter
 			static OpRegType OpReg() { return &CArmAssembler::Eor; }
 		};
 		
+		//FPUOP -----------------------------------------------------------
+		struct FPUOP_BASE
+		{
+			typedef void (CArmAssembler::*OpRegType)(CArmAssembler::VFP_REGISTER, CArmAssembler::VFP_REGISTER, CArmAssembler::VFP_REGISTER);
+		};
+
+		struct FPUOP_ADD : public FPUOP_BASE
+		{
+			static OpRegType OpReg() { return &CArmAssembler::Fadds; }
+		};
+
 		//ALUOP
 		template <typename> void				Emit_Alu_RegRegReg(const STATEMENT&);
 		template <typename> void				Emit_Alu_RegRegCst(const STATEMENT&);
@@ -149,7 +160,12 @@ namespace Jitter
 		//NOT
 		void									Emit_Not_RegReg(const STATEMENT&);
 		
+		//FPUOP
+		template <typename> void				Emit_Fpu_RelRel(const STATEMENT&);
+		template <typename> void				Emit_Fpu_RelRelRel(const STATEMENT&);
+
 		static CONSTMATCHER						g_constMatchers[];
+		static CONSTMATCHER						g_fpuConstMatchers[];
 		static CArmAssembler::REGISTER			g_registers[MAX_REGISTERS];
 		static CArmAssembler::REGISTER			g_paramRegs[MAX_PARAMS];		
 		static CArmAssembler::REGISTER			g_baseRegister;

@@ -158,6 +158,7 @@ namespace Jitter
 		template <typename> void	Emit_Shift_RelRelReg(const STATEMENT&);
 		template <typename> void	Emit_Shift_RelRelRel(const STATEMENT&);
 		template <typename> void	Emit_Shift_RelRelCst(const STATEMENT&);
+		template <typename> void	Emit_Shift_RelCstReg(const STATEMENT&);
 		template <typename> void	Emit_Shift_RelCstRel(const STATEMENT&);
 		template <typename> void	Emit_Shift_TmpRegCst(const STATEMENT&);
 
@@ -165,6 +166,7 @@ namespace Jitter
 		void						Emit_Not_RegReg(const STATEMENT&);
 		void						Emit_Not_RegRel(const STATEMENT&);
 		void						Emit_Not_RelReg(const STATEMENT&);
+		void						Emit_Not_RelTmp(const STATEMENT&);
 
 		//CMP
 		void						Cmp_GetFlag(const CX86Assembler::CAddress&, CONDITION);
@@ -204,6 +206,7 @@ namespace Jitter
 		void						Emit_Mov_RelRel(const STATEMENT&);
 		void						Emit_Mov_RelCst(const STATEMENT&);
 		void						Emit_Mov_RelTmp(const STATEMENT&);
+		void						Emit_Mov_TmpRel(const STATEMENT&);
 
 		//JMP
 		void						Emit_Jmp(const STATEMENT&);

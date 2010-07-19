@@ -189,6 +189,23 @@ void CCodeGen_x86::Emit_Shift_RelRelCst(const STATEMENT& statement)
 }
 
 template <typename SHIFTOP>
+void CCodeGen_x86::Emit_Shift_RelCstReg(const STATEMENT& statement)
+{
+	CSymbol* dst = statement.dst->GetSymbol().get();
+	CSymbol* src1 = statement.src1->GetSymbol().get();
+	CSymbol* src2 = statement.src2->GetSymbol().get();
+
+	assert(dst->m_type  == SYM_RELATIVE);
+	assert(src1->m_type == SYM_CONSTANT);
+	assert(src2->m_type == SYM_REGISTER);
+
+	m_assembler.MovId(CX86Assembler::rAX, src1->m_valueLow);
+	m_assembler.MovEd(CX86Assembler::rCX, CX86Assembler::MakeRegisterAddress(m_registers[src2->m_valueLow]));
+	((m_assembler).*(SHIFTOP::OpVar()))(CX86Assembler::MakeRegisterAddress(CX86Assembler::rAX));
+	m_assembler.MovGd(CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, dst->m_valueLow), CX86Assembler::rAX);
+}
+
+template <typename SHIFTOP>
 void CCodeGen_x86::Emit_Shift_RelCstRel(const STATEMENT& statement)
 {
 	CSymbol* dst = statement.dst->GetSymbol().get();
@@ -229,6 +246,7 @@ void CCodeGen_x86::Emit_Shift_TmpRegCst(const STATEMENT& statement)
 	{ SHIFTOP_CST,	MATCH_RELATIVE,		MATCH_REGISTER,		MATCH_CONSTANT,		&CCodeGen_x86::Emit_Shift_RelRegCst<SHIFTOP>	}, \
 	{ SHIFTOP_CST,	MATCH_RELATIVE,		MATCH_RELATIVE,		MATCH_REGISTER,		&CCodeGen_x86::Emit_Shift_RelRelReg<SHIFTOP>	}, \
 	{ SHIFTOP_CST,	MATCH_RELATIVE,		MATCH_RELATIVE,		MATCH_RELATIVE,		&CCodeGen_x86::Emit_Shift_RelRelRel<SHIFTOP>	}, \
+	{ SHIFTOP_CST,	MATCH_RELATIVE,		MATCH_CONSTANT,		MATCH_REGISTER,		&CCodeGen_x86::Emit_Shift_RelCstReg<SHIFTOP>	}, \
 	{ SHIFTOP_CST,	MATCH_RELATIVE,		MATCH_CONSTANT,		MATCH_RELATIVE,		&CCodeGen_x86::Emit_Shift_RelCstRel<SHIFTOP>	}, \
 	{ SHIFTOP_CST,	MATCH_RELATIVE,		MATCH_RELATIVE,		MATCH_CONSTANT,		&CCodeGen_x86::Emit_Shift_RelRelCst<SHIFTOP>	},
 

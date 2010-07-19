@@ -34,6 +34,19 @@ public:
 		rPC = 15,
 	};
 	
+	enum VFP_REGISTER
+	{
+		s0  = 0,   s1 = 1,  s2  = 2,  s3  = 3,
+		s4  = 4,   s5 = 5,  s6  = 6,  s7  = 7,
+		s8  = 8,   s9 = 9,  s10 = 10, s11 = 11,
+		s12 = 12, s13 = 13, s14 = 14, s15 = 15,
+
+		s16 = 16, s17 = 17, s18 = 18, s19 = 19,
+		s20 = 20, s21 = 21, s22 = 22, s23 = 23,
+		s24 = 24, s25 = 25, s26 = 26, s27 = 27,
+		s28 = 28, s29 = 29, s30 = 30, s31 = 31,
+	};
+	
 	enum ALU_OPCODE
 	{
 		ALU_OPCODE_AND = 0x00,
@@ -189,6 +202,9 @@ public:
 	void									Teq(REGISTER, const ImmediateAluOperand&);
 	void									Umull(REGISTER, REGISTER, REGISTER, REGISTER);
 
+	//VFP
+	void									Fadds(VFP_REGISTER, VFP_REGISTER, VFP_REGISTER);
+	
 	static LdrAddress						MakeImmediateLdrAddress(uint32);
 	static ImmediateAluOperand				MakeImmediateAluOperand(uint8, uint8);
 	static RegisterAluOperand				MakeRegisterAluOperand(CArmAssembler::REGISTER, const AluLdrShift&);

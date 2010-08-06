@@ -530,6 +530,12 @@ void CX86Assembler::SbbId(const CAddress& Address, uint32 nConstant)
     WriteEvId(0x03, Address, nConstant);
 }
 
+void CX86Assembler::SetaEb(const CAddress& address)
+{
+    WriteByte(0x0F);
+    WriteEvOp(0x97, 0x00, false, address);
+}
+
 void CX86Assembler::SetbEb(const CAddress& address)
 {
     WriteByte(0x0F);

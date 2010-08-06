@@ -140,6 +140,7 @@ namespace Jitter
 		template <typename> void	Emit_Alu_RelRelCst(const STATEMENT&);
 		template <typename> void	Emit_Alu_RelRelRel(const STATEMENT&);
 		template <typename> void	Emit_Alu_RelCstReg(const STATEMENT&);
+		template <typename> void	Emit_Alu_RelCstRel(const STATEMENT&);
 		template <typename> void	Emit_Alu_TmpRegReg(const STATEMENT&);
 		template <typename> void	Emit_Alu_TmpRegCst(const STATEMENT&);
 		template <typename> void	Emit_Alu_TmpRelCst(const STATEMENT&);
@@ -150,6 +151,7 @@ namespace Jitter
 		template <typename> void	Emit_Shift_RegRegRel(const STATEMENT&);
 		template <typename> void	Emit_Shift_RegRegCst(const STATEMENT&);
 		template <typename> void	Emit_Shift_RegRelReg(const STATEMENT&);
+		template <typename> void	Emit_Shift_RegRelRel(const STATEMENT&);
 		template <typename> void	Emit_Shift_RegRelCst(const STATEMENT&);
 		template <typename> void	Emit_Shift_RegCstReg(const STATEMENT&);
 		template <typename> void	Emit_Shift_RegCstRel(const STATEMENT&);
@@ -174,13 +176,9 @@ namespace Jitter
 		void						Emit_Cmp_RegRegRel(const STATEMENT&);
 		void						Emit_Cmp_RegRegCst(const STATEMENT&);
 		void						Emit_Cmp_RegRelRel(const STATEMENT&);
-		void						Emit_Cmp_RegRelReg(const STATEMENT&);
 		void						Emit_Cmp_RegRelCst(const STATEMENT&);
-		void						Emit_Cmp_RegCstReg(const STATEMENT&);
 		void						Emit_Cmp_RelRegCst(const STATEMENT&);
 		void						Emit_Cmp_RelRelCst(const STATEMENT&);
-		void						Emit_Cmp_RelCstReg(const STATEMENT&);
-		void						Emit_Cmp_RelCstRel(const STATEMENT&);
 
 		//ADD64
 		void						Emit_Add64_RelRelRel(const STATEMENT&);
@@ -216,7 +214,6 @@ namespace Jitter
 		void						Emit_CondJmp_RegReg(const STATEMENT&);
 		void						Emit_CondJmp_RegRel(const STATEMENT&);
 		void						Emit_CondJmp_RegCst(const STATEMENT&);
-		void						Emit_CondJmp_RelReg(const STATEMENT&);
 		void						Emit_CondJmp_RelRel(const STATEMENT&);
 		void						Emit_CondJmp_RelCst(const STATEMENT&);
 		void						Emit_CondJmp_TmpCst(const STATEMENT&);
@@ -235,6 +232,9 @@ namespace Jitter
 
 		//FPNEG
 		void						Emit_Fp_Neg_RelRel(const STATEMENT&);
+
+		//FP_TOINT_TRUNC
+		void						Emit_Fp_ToIntTrunc_RelRel(const STATEMENT&);
 
 		CX86Assembler				m_assembler;
 		CX86Assembler::REGISTER*	m_registers;

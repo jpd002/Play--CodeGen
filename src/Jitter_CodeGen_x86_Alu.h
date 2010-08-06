@@ -289,6 +289,22 @@ void CCodeGen_x86::Emit_Alu_RelCstReg(const STATEMENT& statement)
 	m_assembler.MovGd(CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, dst->m_valueLow), CX86Assembler::rAX);
 }
 
+template <typename ALUOP> 
+void CCodeGen_x86::Emit_Alu_RelCstRel(const STATEMENT& statement)
+{
+	CSymbol* dst = statement.dst->GetSymbol().get();
+	CSymbol* src1 = statement.src1->GetSymbol().get();
+	CSymbol* src2 = statement.src2->GetSymbol().get();
+
+	assert(dst->m_type  == SYM_RELATIVE);
+	assert(src1->m_type == SYM_CONSTANT);
+	assert(src2->m_type == SYM_RELATIVE);
+
+	m_assembler.MovId(CX86Assembler::MakeRegisterAddress(CX86Assembler::rAX), src1->m_valueLow);
+	((m_assembler).*(ALUOP::OpEd()))(CX86Assembler::rAX, CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, src2->m_valueLow));
+	m_assembler.MovGd(CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, dst->m_valueLow), CX86Assembler::rAX);
+}
+
 template <typename ALUOP>
 void CCodeGen_x86::Emit_Alu_TmpRegReg(const STATEMENT& statement)
 {
@@ -367,6 +383,7 @@ void CCodeGen_x86::Emit_Alu_TmpTmpCst(const STATEMENT& statement)
 	{ ALUOP_CST,	MATCH_RELATIVE,		MATCH_RELATIVE,		MATCH_CONSTANT,		&CCodeGen_x86::Emit_Alu_RelRelCst<ALUOP>		}, \
 	{ ALUOP_CST,	MATCH_RELATIVE,		MATCH_RELATIVE,		MATCH_RELATIVE,		&CCodeGen_x86::Emit_Alu_RelRelRel<ALUOP>		}, \
 	{ ALUOP_CST,	MATCH_RELATIVE,		MATCH_CONSTANT,		MATCH_REGISTER,		&CCodeGen_x86::Emit_Alu_RelCstReg<ALUOP>		}, \
+	{ ALUOP_CST,	MATCH_RELATIVE,		MATCH_CONSTANT,		MATCH_RELATIVE,		&CCodeGen_x86::Emit_Alu_RelCstRel<ALUOP>		}, \
 	{ ALUOP_CST,	MATCH_TEMPORARY,	MATCH_REGISTER,		MATCH_REGISTER,		&CCodeGen_x86::Emit_Alu_TmpRegReg<ALUOP>		}, \
 	{ ALUOP_CST,	MATCH_TEMPORARY,	MATCH_REGISTER,		MATCH_CONSTANT,		&CCodeGen_x86::Emit_Alu_TmpRegCst<ALUOP>		}, \
 	{ ALUOP_CST,	MATCH_TEMPORARY,	MATCH_RELATIVE,		MATCH_CONSTANT,		&CCodeGen_x86::Emit_Alu_TmpRelCst<ALUOP>		}, \

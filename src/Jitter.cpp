@@ -9,6 +9,7 @@ using namespace Jitter;
 CJitter::CJitter(CCodeGen* codeGen)
 : m_nBlockStarted(false)
 , m_codeGen(codeGen)
+, m_nextLabelId(1)
 {
 
 }
@@ -46,6 +47,28 @@ void CJitter::End()
 bool CJitter::IsStackEmpty()
 {
     return m_Shadow.GetCount() == 0;
+}
+
+CJitter::LABEL CJitter::CreateLabel()
+{
+	return m_nextLabelId++;
+}
+
+void CJitter::MarkLabel(LABEL label)
+{
+	uint32 blockId = CreateBlock();
+	m_currentBlock = GetBlock(blockId);
+    m_labels[label] = blockId;
+}
+
+void CJitter::Goto(LABEL label)
+{
+	assert(m_Shadow.GetCount() == 0);
+
+	STATEMENT statement;
+	statement.op		= OP_GOTO;
+	statement.jmpBlock	= label;
+	InsertStatement(statement);
 }
 
 CONDITION CJitter::GetReverseCondition(CONDITION condition)
@@ -616,9 +639,13 @@ void CJitter::FP_PullSingle(size_t offset)
 	assert(GetSymbolSize(statement.src1) == GetSymbolSize(statement.dst));
 }
 
-void CJitter::FP_PullWordTruncate(size_t)
+void CJitter::FP_PullWordTruncate(size_t offset)
 {
-	throw std::exception();
+	STATEMENT statement;
+	statement.op		= OP_FP_TOINT_TRUNC;
+	statement.src1		= MakeSymbolRef(m_Shadow.Pull());
+	statement.dst		= MakeSymbolRef(MakeSymbol(SYM_FP_REL_SINGLE, static_cast<uint32>(offset)));
+	InsertStatement(statement);
 }
 
 void CJitter::FP_Add()

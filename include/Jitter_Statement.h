@@ -41,11 +41,15 @@ namespace Jitter
 		OP_FP_RCPL,
 		OP_FP_NEG,
 
+		OP_FP_TOINT_TRUNC,
+
 		OP_PARAM,
 		OP_CALL,
 		OP_RETVAL,
 		OP_JMP,
 		OP_CONDJMP,
+		OP_GOTO,
+
 		OP_LABEL,
 	};
 

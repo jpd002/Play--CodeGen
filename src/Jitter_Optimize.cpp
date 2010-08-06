@@ -157,6 +157,7 @@ void CJitter::Compile()
 				}
 
 				basicBlock.statements = CollapseVersionedStatementList(versionedStatements);
+				FixFlowControl(basicBlock.statements);
 				basicBlock.optimized = true;
 			}
 		}
@@ -191,6 +192,8 @@ void CJitter::Compile()
 
 	unsigned int stackSize = AllocateStack(result);
 	m_codeGen->GenerateCode(result.statements, stackSize);
+
+	m_labels.clear();
 }
 
 std::string CJitter::ConditionToString(CONDITION condition)
@@ -214,6 +217,9 @@ std::string CJitter::ConditionToString(CONDITION condition)
 		break;
 	case CONDITION_BL:
 		return "BL";
+		break;
+	case CONDITION_AB:
+		return "AB";
 		break;
 	default:
 		return "??";
@@ -321,6 +327,9 @@ void CJitter::DumpStatementList(const StatementList& statements)
 		case OP_FP_RCPL:
 			cout << " RCPL";
 			break;
+		case OP_FP_TOINT_TRUNC:
+			cout << " INT(TRUNC)";
+			break;
 		default:
 			cout << " ?? ";
 			break;
@@ -395,19 +404,25 @@ bool CJitter::FoldConstantOperation(STATEMENT& statement)
 
 	if(statement.op == OP_ADD)
 	{
-		if(src2cst && src2cst->m_valueLow == 0)
-		{
-			//Adding with zero
-			statement.op = OP_MOV;
-			statement.src2.reset();
-			changed = true;
-		}
-		else if(src1cst && src2cst)
+		if(src1cst && src2cst)
 		{
 			//Adding 2 constants
 			uint32 result = src1cst->m_valueLow + src2cst->m_valueLow;
 			statement.op = OP_MOV;
 			statement.src1 = MakeSymbolRef(MakeSymbol(SYM_CONSTANT, result));
+			statement.src2.reset();
+			changed = true;
+		}
+		else if(src1cst && src1cst->m_valueLow == 0)
+		{
+			statement.op = OP_MOV;
+			statement.src1 = statement.src2;
+			statement.src2.reset();
+			changed = true;
+		}
+		else if(src2cst && src2cst->m_valueLow == 0)
+		{
+			statement.op = OP_MOV;
 			statement.src2.reset();
 			changed = true;
 		}
@@ -561,7 +576,20 @@ bool CJitter::FoldConstantOperation(STATEMENT& statement)
 	{
 		if(src1cst && src2cst)
 		{
-			assert(0);
+			bool result = false;
+			switch(statement.jmpCondition)
+			{
+			case CONDITION_BL:
+				result = src1cst->m_valueLow < src2cst->m_valueLow;
+				break;
+			default:
+				assert(0);
+				break;
+			}
+			changed = true;
+			statement.op = OP_MOV;
+			statement.src1 = MakeSymbolRef(MakeSymbol(SYM_CONSTANT, result ? 1 : 0));
+			statement.src2.reset();
 		}
 	}
 	else if(statement.op == OP_CONDJMP)
@@ -573,6 +601,9 @@ bool CJitter::FoldConstantOperation(STATEMENT& statement)
 			{
 			case CONDITION_NE:
 				result = src1cst->m_valueLow != src2cst->m_valueLow;
+				break;
+			case CONDITION_EQ:
+				result = src1cst->m_valueLow == src2cst->m_valueLow;
 				break;
 			default:
 				assert(0);
@@ -641,6 +672,40 @@ bool CJitter::ConstantFolding(StatementList& statements)
 	return changed;
 }
 
+void CJitter::FixFlowControl(StatementList& statements)
+{
+	//Resolve GOTO instructions
+	for(StatementList::iterator statementIterator(statements.begin());
+		statementIterator != statements.end(); statementIterator++)
+	{
+		STATEMENT& statement(*statementIterator);
+
+		if(statement.op == OP_GOTO)
+		{
+			LabelMapType::const_iterator labelIterator = m_labels.find(statement.jmpBlock);
+			assert(labelIterator != m_labels.end());
+			if(labelIterator == m_labels.end()) continue;
+
+			statement.op		= OP_JMP;
+			statement.jmpBlock	= labelIterator->second;
+		}
+	}
+
+	//Remove any excess flow control instructions
+	for(StatementList::const_iterator statementIterator(statements.begin());
+		statementIterator != statements.end(); statementIterator++)
+	{
+		const STATEMENT& statement(*statementIterator);
+
+		if(statement.op == OP_JMP || statement.op == OP_CONDJMP)
+		{
+			statementIterator++;
+			statements.erase(statementIterator, statements.end());
+			break;
+		}
+	}
+}
+
 void CJitter::MergeBasicBlocks(BASIC_BLOCK& dstBlock, const BASIC_BLOCK& srcBlock)
 {
 	const StatementList& srcStatements(srcBlock.statements);
@@ -699,6 +764,7 @@ bool CJitter::PruneBlocks()
 {
 	bool changed = true;
 	int deletedBlocks = 0;
+
 	while(changed)
 	{
 		changed = false;
@@ -1435,6 +1501,8 @@ void CJitter::NormalizeStatements(BASIC_BLOCK& basicBlock)
 		STATEMENT& statement(*statementIterator);
 
 		bool isCommutative = false;
+		bool conditionSwapRequired = false;
+
 		switch(statement.op)
 		{
 			case OP_ADD:
@@ -1447,11 +1515,14 @@ void CJitter::NormalizeStatements(BASIC_BLOCK& basicBlock)
 				break;
 			case OP_CMP:
 			case OP_CONDJMP:
-				isCommutative = (statement.jmpCondition == CONDITION_EQ || statement.jmpCondition == CONDITION_NE);
+				isCommutative = true;
+				conditionSwapRequired = true;
 				break;
 		}
 
 		if(!isCommutative) continue;
+
+		bool swapped = false;
 
 		//Check if constant operand is at the beginning and swap if it is the case
 		{
@@ -1461,6 +1532,7 @@ void CJitter::NormalizeStatements(BASIC_BLOCK& basicBlock)
 			if(src1cst && !src2cst)
 			{
 				std::swap(statement.src1, statement.src2);
+				swapped = true;
 			}
 		}
 
@@ -1473,10 +1545,31 @@ void CJitter::NormalizeStatements(BASIC_BLOCK& basicBlock)
 			if(!src1reg && src2reg)
 			{
 				std::swap(statement.src1, statement.src2);
+				swapped = true;
 			}
 			else if(dstreg && src1reg && src2reg && dstreg->Equals(src2reg))
 			{
 				std::swap(statement.src1, statement.src2);
+				swapped = true;
+			}
+		}
+
+		if(swapped && conditionSwapRequired)
+		{
+			switch(statement.jmpCondition)
+			{
+			case CONDITION_EQ:
+			case CONDITION_NE:
+				break;
+			case CONDITION_BL:
+				statement.jmpCondition = CONDITION_AB;
+				break;
+			case CONDITION_LT:
+				statement.jmpCondition = CONDITION_GT;
+				break;
+			default:
+				assert(0);
+				break;
 			}
 		}
 	}

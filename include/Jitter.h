@@ -31,17 +31,23 @@ namespace Jitter
 			ROUND_TRUNCATE = 3
 		};
 
+		typedef unsigned int LABEL;
+
 										CJitter(CCodeGen*);
 		virtual                         ~CJitter();
 
-		void                            Begin();
-		void                            End();
+		virtual void					Begin();
+		virtual void					End();
 
 		bool                            IsStackEmpty();
 
-		virtual void					BeginIf(CONDITION);
-		virtual void					Else();
-		virtual void					EndIf();
+		void							BeginIf(CONDITION);
+		void							Else();
+		void							EndIf();
+		
+		LABEL							CreateLabel();
+		void							MarkLabel(LABEL);
+		void							Goto(LABEL);
 
 		void							PushCtx();
 		void                            PushCst(uint32);
@@ -56,7 +62,7 @@ namespace Jitter
 
 		void                            Add();
 		void                            And();
-		virtual void                    Call(void*, unsigned int, bool);
+		void							Call(void*, unsigned int, bool);
 		void                            Cmp(CONDITION);
 		void                            Div();
 		void                            DivS();
@@ -168,6 +174,9 @@ namespace Jitter
 		void							PushTmp64(unsigned int);
 
 	private:
+		typedef size_t LABELREF;
+		typedef std::map<LABEL, unsigned int> LabelMapType;
+
 		enum MAX_STACK
 		{
 			MAX_STACK = 0x100,
@@ -216,6 +225,8 @@ namespace Jitter
 		bool							CopyPropagation(StatementList&);
 		bool							DeadcodeElimination(VERSIONED_STATEMENT_LIST&);
 
+		void							FixFlowControl(StatementList&);
+
 		bool							FoldConstantOperation(STATEMENT&);
 		bool							FoldConstant64Operation(STATEMENT&);
 
@@ -258,6 +269,9 @@ namespace Jitter
 		BASIC_BLOCK*					m_currentBlock;
 		BasicBlockList					m_basicBlocks;
 		CCodeGen*						m_codeGen;
+
+		unsigned int					m_nextLabelId;
+		LabelMapType					m_labels;
 	};
 
 }

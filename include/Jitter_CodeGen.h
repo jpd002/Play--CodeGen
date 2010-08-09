@@ -33,6 +33,7 @@ namespace Jitter
 			MATCH_CONSTANT64,
 
 			MATCH_RELATIVE_FP_SINGLE,
+			MATCH_RELATIVE_FP_INT32,
 		};
 
 		typedef std::tr1::function<void (const STATEMENT&)> CodeEmitterType;

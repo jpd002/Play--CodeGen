@@ -254,9 +254,11 @@ void CJitter::DumpStatementList(const StatementList& statements)
 			cout << " + ";
 			break;
 		case OP_SUB:
+		case OP_FP_SUB:
 			cout << " - ";
 			break;
 		case OP_CMP:
+		case OP_FP_CMP:
 			cout << " CMP(" << ConditionToString(statement.jmpCondition) << ") ";
 			break;
 		case OP_MUL:
@@ -847,6 +849,8 @@ void CJitter::HarmonizeBlocks()
 		BASIC_BLOCK& basicBlock(blockIterator->second);
 //		BASIC_BLOCK& nextBlock(nextBlockIterator->second);
 
+		if(basicBlock.statements.size() == 0) continue;
+
 		StatementList::iterator lastStatementIterator(basicBlock.statements.end());
 		lastStatementIterator--;
 		const STATEMENT& statement(*lastStatementIterator);
@@ -1358,6 +1362,10 @@ unsigned int CJitter::AllocateStack(BASIC_BLOCK& basicBlock)
 		}
 		else if(symbol->m_type == SYM_TEMPORARY64)
 		{
+			if((stackAlloc & 7) != 0)
+			{
+				stackAlloc += (8 - (stackAlloc & 7));
+			}
 			assert((stackAlloc & 7) == 0);
 			symbol->m_stackLocation = stackAlloc;
 			stackAlloc += 8;

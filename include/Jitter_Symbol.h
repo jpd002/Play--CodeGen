@@ -22,6 +22,8 @@ namespace Jitter
 
 		SYM_FP_REL_SINGLE,
 		SYM_FP_TMP_SINGLE,
+
+		SYM_FP_REL_INT32,
 	};
 
 	class CSymbol
@@ -78,6 +80,9 @@ namespace Jitter
 			case SYM_FP_REL_SINGLE:
 				return "REL(FP_S)[" + boost::lexical_cast<std::string>(m_valueLow) + "]";
 				break;
+			case SYM_FP_REL_INT32:
+				return "REL(FP_I32)[" + boost::lexical_cast<std::string>(m_valueLow) + "]";
+				break;
 			case SYM_FP_TMP_SINGLE:
 				return "TMP(FP_S)[" + boost::lexical_cast<std::string>(m_valueLow) + "]";
 				break;
@@ -104,6 +109,7 @@ namespace Jitter
 				break;
 			case SYM_FP_REL_SINGLE:
 			case SYM_FP_TMP_SINGLE:
+			case SYM_FP_REL_INT32:
 				return 4;
 				break;
 			default:
@@ -115,7 +121,7 @@ namespace Jitter
 
 		bool IsRelative() const
 		{
-			return (m_type == SYM_RELATIVE) || (m_type == SYM_RELATIVE64) || (m_type == SYM_FP_REL_SINGLE);
+			return (m_type == SYM_RELATIVE) || (m_type == SYM_RELATIVE64) || (m_type == SYM_FP_REL_SINGLE) || (m_type == SYM_FP_REL_INT32);
 		}
 
 		bool IsTemporary() const

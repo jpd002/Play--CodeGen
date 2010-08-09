@@ -35,11 +35,13 @@ namespace Jitter
 		OP_EXTHIGH64,
 
 		OP_FP_ADD,
+		OP_FP_SUB,
 		OP_FP_MUL,
 		OP_FP_DIV,
 		OP_FP_SQRT,
 		OP_FP_RCPL,
 		OP_FP_NEG,
+		OP_FP_CMP,
 
 		OP_FP_TOINT_TRUNC,
 

@@ -91,6 +91,11 @@ namespace Jitter
 			static OpEdType OpEd() { return &CX86Assembler::AddssEd; }
 		};
 
+		struct FPUOP_SUB : public FPUOP_BASE
+		{
+			static OpEdType OpEd() { return &CX86Assembler::SubssEd; }
+		};
+
 		struct FPUOP_MUL : public FPUOP_BASE
 		{
 			static OpEdType OpEd() { return &CX86Assembler::MulssEd; }
@@ -177,6 +182,7 @@ namespace Jitter
 		void						Emit_Cmp_RegRegCst(const STATEMENT&);
 		void						Emit_Cmp_RegRelRel(const STATEMENT&);
 		void						Emit_Cmp_RegRelCst(const STATEMENT&);
+		void						Emit_Cmp_RelRegRel(const STATEMENT&);
 		void						Emit_Cmp_RelRegCst(const STATEMENT&);
 		void						Emit_Cmp_RelRelCst(const STATEMENT&);
 
@@ -230,8 +236,14 @@ namespace Jitter
 		template <typename> void	Emit_Fpu_RelRel(const STATEMENT&);
 		template <typename> void	Emit_Fpu_RelRelRel(const STATEMENT&);
 
+		//FPCMP
+		void						Emit_Fp_Cmp_RegRelRel(const STATEMENT&);
+
 		//FPNEG
 		void						Emit_Fp_Neg_RelRel(const STATEMENT&);
+
+		//FP_MOV
+		void						Emit_Fp_Mov_RelSRelI32(const STATEMENT&);
 
 		//FP_TOINT_TRUNC
 		void						Emit_Fp_ToIntTrunc_RelRel(const STATEMENT&);

@@ -623,9 +623,9 @@ void CJitter::FP_PushSingle(size_t offset)
 	m_Shadow.Push(MakeSymbol(SYM_FP_REL_SINGLE, static_cast<uint32>(offset)));
 }
 
-void CJitter::FP_PushWord(size_t)
+void CJitter::FP_PushWord(size_t offset)
 {
-	throw std::exception();
+	m_Shadow.Push(MakeSymbol(SYM_FP_REL_INT32, static_cast<uint32>(offset)));
 }
 
 void CJitter::FP_PullSingle(size_t offset)
@@ -664,7 +664,16 @@ void CJitter::FP_Add()
 
 void CJitter::FP_Sub()
 {
-	throw std::exception();
+	SymbolPtr tempSym = MakeSymbol(SYM_FP_TMP_SINGLE, m_nextTemporary++);
+
+	STATEMENT statement;
+	statement.op	= OP_FP_SUB;
+	statement.src2	= MakeSymbolRef(m_Shadow.Pull());
+	statement.src1	= MakeSymbolRef(m_Shadow.Pull());
+	statement.dst	= MakeSymbolRef(tempSym);
+	InsertStatement(statement);
+
+	m_Shadow.Push(tempSym);
 }
 
 void CJitter::FP_Mul()
@@ -697,7 +706,17 @@ void CJitter::FP_Div()
 
 void CJitter::FP_Cmp(Jitter::CONDITION condition)
 {
-	throw std::exception();
+	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY, m_nextTemporary++);
+
+	STATEMENT statement;
+	statement.op			= OP_FP_CMP;
+	statement.src2			= MakeSymbolRef(m_Shadow.Pull());
+	statement.src1			= MakeSymbolRef(m_Shadow.Pull());
+	statement.dst			= MakeSymbolRef(tempSym);
+	statement.jmpCondition	= condition;
+	InsertStatement(statement);
+
+	m_Shadow.Push(tempSym);
 }
 
 void CJitter::FP_Sqrt()

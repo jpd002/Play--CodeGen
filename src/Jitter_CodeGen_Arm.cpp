@@ -212,6 +212,7 @@ CCodeGen_Arm::CONSTMATCHER CCodeGen_Arm::g_constMatchers[] =
 	{ OP_MOV,		MATCH_REGISTER,		MATCH_RELATIVE,		MATCH_NIL,			&CCodeGen_Arm::Emit_Mov_RegRel						},
 	{ OP_MOV,		MATCH_REGISTER,		MATCH_CONSTANT,		MATCH_NIL,			&CCodeGen_Arm::Emit_Mov_RegCst						},
 	{ OP_MOV,		MATCH_RELATIVE,		MATCH_REGISTER,		MATCH_NIL,			&CCodeGen_Arm::Emit_Mov_RelReg						},
+	{ OP_MOV,		MATCH_RELATIVE,		MATCH_CONSTANT,		MATCH_NIL,			&CCodeGen_Arm::Emit_Mov_RelCst						},
 
 	ALU_CONST_MATCHERS(OP_ADD, ALUOP_ADD)
 	ALU_CONST_MATCHERS(OP_SUB, ALUOP_SUB)
@@ -224,6 +225,7 @@ CCodeGen_Arm::CONSTMATCHER CCodeGen_Arm::g_constMatchers[] =
 	
 	{ OP_PARAM,		MATCH_NIL,			MATCH_CONTEXT,		MATCH_NIL,			&CCodeGen_Arm::Emit_Param_Ctx						},
 	{ OP_PARAM,		MATCH_NIL,			MATCH_REGISTER,		MATCH_NIL,			&CCodeGen_Arm::Emit_Param_Reg						},
+	{ OP_PARAM,		MATCH_NIL,			MATCH_RELATIVE,		MATCH_NIL,			&CCodeGen_Arm::Emit_Param_Rel						},
 
 	{ OP_CALL,		MATCH_NIL,			MATCH_CONSTANT,		MATCH_CONSTANT,		&CCodeGen_Arm::Emit_Call							},
 	
@@ -231,6 +233,7 @@ CCodeGen_Arm::CONSTMATCHER CCodeGen_Arm::g_constMatchers[] =
 
 	{ OP_JMP,		MATCH_NIL,			MATCH_NIL,			MATCH_NIL,			&CCodeGen_Arm::Emit_Jmp								},
 
+	{ OP_CONDJMP,	MATCH_NIL,			MATCH_REGISTER,		MATCH_REGISTER,		&CCodeGen_Arm::Emit_CondJmp_RegReg					},
 	{ OP_CONDJMP,	MATCH_NIL,			MATCH_REGISTER,		MATCH_CONSTANT,		&CCodeGen_Arm::Emit_CondJmp_RegCst					},
 	
 	{ OP_CMP,		MATCH_REGISTER,		MATCH_REGISTER,		MATCH_REGISTER,		&CCodeGen_Arm::Emit_Cmp_RegRegReg					},
@@ -513,6 +516,16 @@ void CCodeGen_Arm::Emit_Param_Reg(const STATEMENT& statement)
 	m_params.push_back(std::tr1::bind(MovFunction, &m_assembler, std::tr1::placeholders::_1, g_registers[src1->m_valueLow]));	
 }
 
+void CCodeGen_Arm::Emit_Param_Rel(const STATEMENT& statement)
+{
+	CSymbol* src1 = statement.src1->GetSymbol().get();
+	
+	assert(src1->m_type == SYM_RELATIVE);
+	assert(m_params.size() < MAX_PARAMS);
+	
+	m_params.push_back(std::tr1::bind(&CArmAssembler::Ldr, &m_assembler, std::tr1::placeholders::_1, g_baseRegister, CArmAssembler::MakeImmediateLdrAddress(src1->m_valueLow)));	
+}
+
 void CCodeGen_Arm::Emit_Call(const STATEMENT& statement)
 {
 	CSymbol* src1 = statement.src1->GetSymbol().get();
@@ -575,6 +588,18 @@ void CCodeGen_Arm::Emit_Mov_RelReg(const STATEMENT& statement)
 	m_assembler.Str(g_registers[src1->m_valueLow], g_baseRegister, CArmAssembler::MakeImmediateLdrAddress(dst->m_valueLow));
 }
 
+void CCodeGen_Arm::Emit_Mov_RelCst(const STATEMENT& statement)
+{
+	CSymbol* dst = statement.dst->GetSymbol().get();
+	CSymbol* src1 = statement.src1->GetSymbol().get();
+	
+	assert(dst->m_type  == SYM_RELATIVE);
+	assert(src1->m_type == SYM_CONSTANT);
+	
+	LoadConstantInRegister(CArmAssembler::r0, src1->m_valueLow);
+	m_assembler.Str(CArmAssembler::r0, g_baseRegister, CArmAssembler::MakeImmediateLdrAddress(dst->m_valueLow));
+}
+
 void CCodeGen_Arm::Emit_ExtLow64RegTmp64(const STATEMENT& statement)
 {
 	CSymbol* dst = statement.dst->GetSymbol().get();
@@ -602,13 +627,45 @@ void CCodeGen_Arm::Emit_Jmp(const STATEMENT& statement)
 	m_assembler.BCc(CArmAssembler::CONDITION_AL, GetLabel(statement.jmpBlock));
 }
 
+void CCodeGen_Arm::Emit_CondJmp(const STATEMENT& statement)
+{
+	CArmAssembler::LABEL label(GetLabel(statement.jmpBlock));
+	
+	switch(statement.jmpCondition)
+	{
+		case CONDITION_EQ:
+			m_assembler.BCc(CArmAssembler::CONDITION_EQ, label);
+			break;
+		case CONDITION_NE:
+			m_assembler.BCc(CArmAssembler::CONDITION_NE, label);
+			break;
+		case CONDITION_LE:
+			m_assembler.BCc(CArmAssembler::CONDITION_LE, label);
+			break;
+		default:
+			assert(0);
+			break;
+	}
+}
+
+void CCodeGen_Arm::Emit_CondJmp_RegReg(const STATEMENT& statement)
+{
+	CSymbol* src1 = statement.src1->GetSymbol().get();
+	CSymbol* src2 = statement.src2->GetSymbol().get();	
+	
+	assert(src1->m_type == SYM_REGISTER);
+	assert(src2->m_type == SYM_REGISTER);
+	
+	m_assembler.Cmp(g_registers[src1->m_valueLow], g_registers[src2->m_valueLow]);
+	
+	Emit_CondJmp(statement);
+}
+
 void CCodeGen_Arm::Emit_CondJmp_RegCst(const STATEMENT& statement)
 {
 	CSymbol* src1 = statement.src1->GetSymbol().get();
 	CSymbol* src2 = statement.src2->GetSymbol().get();	
 	
-	CArmAssembler::LABEL label(GetLabel(statement.jmpBlock));
-
 	assert(src1->m_type == SYM_REGISTER);
 	assert(src2->m_type == SYM_CONSTANT);
 	
@@ -624,30 +681,26 @@ void CCodeGen_Arm::Emit_CondJmp_RegCst(const STATEMENT& statement)
 		m_assembler.Cmp(g_registers[src1->m_valueLow], CArmAssembler::r0);
 	}
 	
-	switch(statement.jmpCondition)
-	{
-	case CONDITION_NE:
-		m_assembler.BCc(CArmAssembler::CONDITION_NE, label);
-		break;
-	default:
-		assert(0);
-		break;
-	}
+	Emit_CondJmp(statement);
 }
 
 void CCodeGen_Arm::Cmp_GetFlag(CArmAssembler::REGISTER registerId, Jitter::CONDITION condition)
 {
 	switch(condition)
 	{
-	case CONDITION_LT:
-			m_assembler.MovCc(CArmAssembler::CONDITION_GE, registerId, CArmAssembler::MakeImmediateAluOperand(0, 0));
-			m_assembler.MovCc(CArmAssembler::CONDITION_LT, registerId, CArmAssembler::MakeImmediateAluOperand(1, 0));
-			break;
-	case CONDITION_NE:
+		case CONDITION_NE:
 			m_assembler.MovCc(CArmAssembler::CONDITION_EQ, registerId, CArmAssembler::MakeImmediateAluOperand(0, 0));
 			m_assembler.MovCc(CArmAssembler::CONDITION_NE, registerId, CArmAssembler::MakeImmediateAluOperand(1, 0));
 			break;
-	default:
+		case CONDITION_LT:
+			m_assembler.MovCc(CArmAssembler::CONDITION_GE, registerId, CArmAssembler::MakeImmediateAluOperand(0, 0));
+			m_assembler.MovCc(CArmAssembler::CONDITION_LT, registerId, CArmAssembler::MakeImmediateAluOperand(1, 0));
+			break;
+		case CONDITION_BL:
+			m_assembler.MovCc(CArmAssembler::CONDITION_CS, registerId, CArmAssembler::MakeImmediateAluOperand(0, 0));
+			m_assembler.MovCc(CArmAssembler::CONDITION_CC, registerId, CArmAssembler::MakeImmediateAluOperand(1, 0));
+			break;
+		default:
 			assert(0);
 			break;
 	}

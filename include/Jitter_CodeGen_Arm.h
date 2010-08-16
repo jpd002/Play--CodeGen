@@ -121,6 +121,7 @@ namespace Jitter
 		//PARAM
 		void									Emit_Param_Ctx(const STATEMENT&);
 		void									Emit_Param_Reg(const STATEMENT&);
+		void									Emit_Param_Rel(const STATEMENT&);
 		
 		//CALL
 		void									Emit_Call(const STATEMENT&);
@@ -139,6 +140,7 @@ namespace Jitter
 		void									Emit_Mov_RegRel(const STATEMENT&);
 		void									Emit_Mov_RegCst(const STATEMENT&);
 		void									Emit_Mov_RelReg(const STATEMENT&);
+		void									Emit_Mov_RelCst(const STATEMENT&);
 
 		//EXTLOW64
 		void									Emit_ExtLow64RegTmp64(const STATEMENT&);
@@ -155,6 +157,8 @@ namespace Jitter
 		void									Emit_Jmp(const STATEMENT&);
 
 		//CONDJMP
+		void									Emit_CondJmp(const STATEMENT&);
+		void									Emit_CondJmp_RegReg(const STATEMENT&);
 		void									Emit_CondJmp_RegCst(const STATEMENT&);
 		
 		//NOT

@@ -694,7 +694,7 @@ void CJitter::FixFlowControl(StatementList& statements)
 	}
 
 	//Remove any excess flow control instructions
-	for(StatementList::const_iterator statementIterator(statements.begin());
+	for(StatementList::iterator statementIterator(statements.begin());
 		statementIterator != statements.end(); statementIterator++)
 	{
 		const STATEMENT& statement(*statementIterator);
@@ -749,7 +749,7 @@ CJitter::BASIC_BLOCK CJitter::ConcatBlocks(const BasicBlockList& blocks)
 		blockIterator != blocks.end(); blockIterator++)
 	{
 		const BASIC_BLOCK& basicBlock(blockIterator->second);
-		const StatementList& statements(basicBlock.statements);
+		//const StatementList& statements(basicBlock.statements);
 
 		//First, add a mark label statement
 		STATEMENT labelStatement;

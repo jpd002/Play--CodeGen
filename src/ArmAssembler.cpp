@@ -422,11 +422,18 @@ uint32 CArmAssembler::Vfp_EncodeSm(VFP_REGISTER sm)
 void CArmAssembler::Flds(VFP_REGISTER sd, REGISTER rbase, const LdrAddress& address)
 {
 	uint32 opcode = 0xD100A00;
+	opcode |= (CONDITION_AL << 28);
+	opcode |= Vfp_EncodeSd(sd);
+	opcode |= (static_cast<uint32>(rbase) << 16) | (static_cast<uint32>(address.immediate));
+	WriteWord(opcode);
 }
 
 void CArmAssembler::Fsts(VFP_REGISTER sd, REGISTER rbase, const LdrAddress& address)
 {
 	uint32 opcode = 0xD000A00;
+	opcode |= (CONDITION_AL << 28);
+	opcode |= Vfp_EncodeSd(sd);
+	WriteWord(opcode);
 }
 
 void CArmAssembler::Fadds(VFP_REGISTER sd, VFP_REGISTER sn, VFP_REGISTER sm)

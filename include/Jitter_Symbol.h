@@ -38,10 +38,15 @@ namespace Jitter
 			m_rangeEnd = -1;
 			m_firstUse = -1;
 			m_firstDef = -1;
-			m_register = -1;
+			m_lastDef = -1;
 			m_stackLocation = -1;
 			m_useCount = 0;
 			m_aliased = false;
+
+			m_regAlloc_register = -1;
+			m_regAlloc_loadBeforeIdx = -1;
+			m_regAlloc_saveAfterIdx = -1;
+			m_regAlloc_notAllocatedAfterIdx = -1;
 		}
 
 		virtual ~CSymbol()
@@ -158,11 +163,16 @@ namespace Jitter
 		unsigned int			m_useCount;
 		unsigned int			m_firstUse;
 		unsigned int			m_firstDef;
+		unsigned int			m_lastDef;
 		unsigned int			m_rangeBegin;
 		unsigned int			m_rangeEnd;
-		unsigned int			m_register;
 		unsigned int			m_stackLocation;
 		bool					m_aliased;
+
+		unsigned int			m_regAlloc_register;
+		unsigned int			m_regAlloc_loadBeforeIdx;
+		unsigned int			m_regAlloc_saveAfterIdx;
+		unsigned int			m_regAlloc_notAllocatedAfterIdx;
 	};
 
 	typedef std::tr1::shared_ptr<CSymbol> SymbolPtr;

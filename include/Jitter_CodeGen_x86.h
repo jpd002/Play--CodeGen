@@ -160,18 +160,24 @@ namespace Jitter
 		template <typename> void	Emit_Shift_RegRelCst(const STATEMENT&);
 		template <typename> void	Emit_Shift_RegCstReg(const STATEMENT&);
 		template <typename> void	Emit_Shift_RegCstRel(const STATEMENT&);
+		template <typename> void	Emit_Shift_RegTmpCst(const STATEMENT&);
 		template <typename> void	Emit_Shift_RelRegReg(const STATEMENT&);
+		template <typename> void	Emit_Shift_RelRegRel(const STATEMENT&);
 		template <typename> void	Emit_Shift_RelRegCst(const STATEMENT&);
 		template <typename> void	Emit_Shift_RelRelReg(const STATEMENT&);
 		template <typename> void	Emit_Shift_RelRelRel(const STATEMENT&);
 		template <typename> void	Emit_Shift_RelRelCst(const STATEMENT&);
 		template <typename> void	Emit_Shift_RelCstReg(const STATEMENT&);
 		template <typename> void	Emit_Shift_RelCstRel(const STATEMENT&);
-		template <typename> void	Emit_Shift_TmpRegCst(const STATEMENT&);
+		template <typename> void	Emit_Shift_RelTmpCst(const STATEMENT&);
+//		template <typename> void	Emit_Shift_TmpRegCst(const STATEMENT&);
+//		template <typename> void	Emit_Shift_TmpCstReg(const STATEMENT&);
+		template <typename> void	Emit_Shift_TmpTmpCst(const STATEMENT&);
 
 		//NOT
 		void						Emit_Not_RegReg(const STATEMENT&);
 		void						Emit_Not_RegRel(const STATEMENT&);
+		void						Emit_Not_RegTmp(const STATEMENT&);
 		void						Emit_Not_RelReg(const STATEMENT&);
 		void						Emit_Not_RelTmp(const STATEMENT&);
 
@@ -182,6 +188,7 @@ namespace Jitter
 		void						Emit_Cmp_RegRegCst(const STATEMENT&);
 		void						Emit_Cmp_RegRelRel(const STATEMENT&);
 		void						Emit_Cmp_RegRelCst(const STATEMENT&);
+		void						Emit_Cmp_RelRegReg(const STATEMENT&);
 		void						Emit_Cmp_RelRegRel(const STATEMENT&);
 		void						Emit_Cmp_RelRegCst(const STATEMENT&);
 		void						Emit_Cmp_RelRelCst(const STATEMENT&);
@@ -210,6 +217,7 @@ namespace Jitter
 		void						Emit_Mov_RelRel(const STATEMENT&);
 		void						Emit_Mov_RelCst(const STATEMENT&);
 		void						Emit_Mov_RelTmp(const STATEMENT&);
+		void						Emit_Mov_TmpReg(const STATEMENT&);
 		void						Emit_Mov_TmpRel(const STATEMENT&);
 
 		//JMP

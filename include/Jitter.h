@@ -5,6 +5,7 @@
 #include <memory>
 #include <list>
 #include <map>
+#include <deque>
 #include <boost/lexical_cast.hpp>
 #include "ArrayStack.h"
 #include "Stream.h"
@@ -218,6 +219,23 @@ namespace Jitter
 			CRelativeVersionManager		relativeVersions;
 		};
 
+		struct INSERT_COMMAND
+		{
+			StatementList::iterator insertionPoint;
+			STATEMENT statement;
+		};
+		typedef std::vector<INSERT_COMMAND> InsertCommandList;
+
+		typedef std::deque<unsigned int> AvailableRegsSet;
+		typedef std::multimap<unsigned int, CSymbol*> ActiveSymbolList;
+
+		struct REGALLOC_STATE
+		{
+			InsertCommandList	insertCommands;
+			ActiveSymbolList	activeSymbols;
+			AvailableRegsSet	availableRegs;
+		};
+
 		void							Compile();
 
 		bool							ConstantFolding(StatementList&);
@@ -258,6 +276,8 @@ namespace Jitter
 		void							RemoveSelfAssignments(BASIC_BLOCK&);
 		void							ComputeLivenessAndPruneSymbols(BASIC_BLOCK&);
 		void							AllocateRegisters(BASIC_BLOCK&);
+		void							AllocateRegisters_ReplaceOperand(CSymbolTable&, SymbolRefPtr&, unsigned int);
+		void							AllocateRegisters_SpillSymbol(ActiveSymbolList::iterator&, unsigned int = -1);
 		void							NormalizeStatements(BASIC_BLOCK&);
 		unsigned int					AllocateStack(BASIC_BLOCK&);
 
@@ -272,6 +292,8 @@ namespace Jitter
 
 		unsigned int					m_nextLabelId;
 		LabelMapType					m_labels;
+
+		REGALLOC_STATE					m_regAllocState;
 	};
 
 }

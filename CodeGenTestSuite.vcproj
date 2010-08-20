@@ -385,6 +385,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\tests\RegAllocTest.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\tests\RegAllocTest.h"
+				>
+			</File>
+			<File
 				RelativePath=".\tests\Test.h"
 				>
 			</File>

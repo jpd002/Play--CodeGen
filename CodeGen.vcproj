@@ -466,6 +466,18 @@
 						RelativePath=".\include\Jitter_CodeGen_Arm.h"
 						>
 					</File>
+					<File
+						RelativePath=".\src\Jitter_CodeGen_Arm_Alu.h"
+						>
+					</File>
+					<File
+						RelativePath=".\src\Jitter_CodeGen_Arm_Fpu.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\src\Jitter_CodeGen_Arm_Shift.h"
+						>
+					</File>
 				</Filter>
 			</Filter>
 		</Filter>

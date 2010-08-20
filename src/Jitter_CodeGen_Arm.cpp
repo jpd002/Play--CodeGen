@@ -42,90 +42,8 @@ static int32 mod_signed(int32 a, int32 b)
 	return a % b;
 }
 
-template <typename ALUOP>
-void CCodeGen_Arm::Emit_Alu_RegRegReg(const STATEMENT& statement)
-{
-	CSymbol* dst = statement.dst->GetSymbol().get();
-	CSymbol* src1 = statement.src1->GetSymbol().get();
-	CSymbol* src2 = statement.src2->GetSymbol().get();
-	
-	assert(dst->m_type  == SYM_REGISTER);
-	assert(src1->m_type == SYM_REGISTER);
-	assert(src2->m_type == SYM_REGISTER);
-	
-	((m_assembler).*(ALUOP::OpReg()))(g_registers[dst->m_valueLow], g_registers[src1->m_valueLow], g_registers[src2->m_valueLow]);
-}
-
-template <typename ALUOP>
-void CCodeGen_Arm::Emit_Alu_RegRegCst(const STATEMENT& statement)
-{
-	CSymbol* dst = statement.dst->GetSymbol().get();
-	CSymbol* src1 = statement.src1->GetSymbol().get();
-	CSymbol* src2 = statement.src2->GetSymbol().get();
-	
-	assert(dst->m_type  == SYM_REGISTER);
-	assert(src1->m_type == SYM_REGISTER);
-	assert(src2->m_type == SYM_CONSTANT);
-	
-	uint8 immediate = 0;
-	uint8 shiftAmount = 0;
-	if(TryGetAluImmediateParams(src2->m_valueLow, immediate, shiftAmount))
-	{
-		((m_assembler).*(ALUOP::OpImm()))(g_registers[dst->m_valueLow], g_registers[src1->m_valueLow], CArmAssembler::MakeImmediateAluOperand(immediate, shiftAmount));
-	}
-	else
-	{
-		LoadConstantInRegister(CArmAssembler::r0, src2->m_valueLow);
-		((m_assembler).*(ALUOP::OpReg()))(g_registers[dst->m_valueLow], g_registers[src1->m_valueLow], CArmAssembler::r0);
-	}
-}
-
-template <typename ALUOP>
-void CCodeGen_Arm::Emit_Alu_RegCstReg(const STATEMENT& statement)
-{
-	CSymbol* dst = statement.dst->GetSymbol().get();
-	CSymbol* src1 = statement.src1->GetSymbol().get();
-	CSymbol* src2 = statement.src2->GetSymbol().get();
-	
-	assert(dst->m_type  == SYM_REGISTER);
-	assert(src1->m_type == SYM_CONSTANT);
-	assert(src2->m_type == SYM_REGISTER);
-	
-	LoadConstantInRegister(CArmAssembler::r0, src1->m_valueLow);
-	((m_assembler).*(ALUOP::OpReg()))(g_registers[dst->m_valueLow], CArmAssembler::r0, g_registers[src2->m_valueLow]);
-}
-
-template <CArmAssembler::SHIFT shiftType> 
-void CCodeGen_Arm::Emit_Shift_RegRegReg(const STATEMENT& statement)
-{
-	CSymbol* dst = statement.dst->GetSymbol().get();
-	CSymbol* src1 = statement.src1->GetSymbol().get();
-	CSymbol* src2 = statement.src2->GetSymbol().get();
-
-	assert(dst->m_type  == SYM_REGISTER);
-	assert(src1->m_type == SYM_REGISTER);
-	assert(src2->m_type == SYM_REGISTER);
-	
-	m_assembler.Mov(g_registers[dst->m_valueLow], 
-		CArmAssembler::MakeRegisterAluOperand(g_registers[src1->m_valueLow], 
-		CArmAssembler::MakeVariableShift(shiftType, g_registers[src2->m_valueLow])));
-}
-
-template <CArmAssembler::SHIFT shiftType> 
-void CCodeGen_Arm::Emit_Shift_RegRegCst(const STATEMENT& statement)
-{
-	CSymbol* dst = statement.dst->GetSymbol().get();
-	CSymbol* src1 = statement.src1->GetSymbol().get();
-	CSymbol* src2 = statement.src2->GetSymbol().get();
-	
-	assert(dst->m_type  == SYM_REGISTER);
-	assert(src1->m_type == SYM_REGISTER);
-	assert(src2->m_type == SYM_CONSTANT);
-	
-	m_assembler.Mov(g_registers[dst->m_valueLow], 
-					CArmAssembler::MakeRegisterAluOperand(g_registers[src1->m_valueLow], 
-														  CArmAssembler::MakeConstantShift(shiftType, static_cast<uint8>(src2->m_valueLow))));
-}
+#include "Jitter_CodeGen_Arm_Alu.h"
+#include "Jitter_CodeGen_Arm_Shift.h"
 
 template <bool isSigned>
 void CCodeGen_Arm::Emit_MulTmp64RegReg(const STATEMENT& statement)
@@ -198,27 +116,34 @@ void CCodeGen_Arm::Emit_DivTmp64RegCst(const STATEMENT& statement)
 #define ALU_CONST_MATCHERS(ALUOP_CST, ALUOP) \
 	{ ALUOP_CST,	MATCH_REGISTER,		MATCH_REGISTER,		MATCH_REGISTER,		&CCodeGen_Arm::Emit_Alu_RegRegReg<ALUOP>		}, \
 	{ ALUOP_CST,	MATCH_REGISTER,		MATCH_REGISTER,		MATCH_CONSTANT,		&CCodeGen_Arm::Emit_Alu_RegRegCst<ALUOP>		}, \
+	{ ALUOP_CST,	MATCH_REGISTER,		MATCH_RELATIVE,		MATCH_CONSTANT,		&CCodeGen_Arm::Emit_Alu_RegRelCst<ALUOP>		}, \
 	{ ALUOP_CST,	MATCH_REGISTER,		MATCH_CONSTANT,		MATCH_REGISTER,		&CCodeGen_Arm::Emit_Alu_RegCstReg<ALUOP>		},
 
 #define SHIFT_CONST_MATCHERS(SHIFTOP_CST, SHIFTOP) \
 	{ SHIFTOP_CST,	MATCH_REGISTER,		MATCH_REGISTER,		MATCH_REGISTER,		&CCodeGen_Arm::Emit_Shift_RegRegReg<SHIFTOP>	}, \
-	{ SHIFTOP_CST,	MATCH_REGISTER,		MATCH_REGISTER,		MATCH_CONSTANT,		&CCodeGen_Arm::Emit_Shift_RegRegCst<SHIFTOP>	},
+	{ SHIFTOP_CST,	MATCH_REGISTER,		MATCH_REGISTER,		MATCH_CONSTANT,		&CCodeGen_Arm::Emit_Shift_RegRegCst<SHIFTOP>	}, \
+	{ SHIFTOP_CST,	MATCH_REGISTER,		MATCH_CONSTANT,		MATCH_RELATIVE,		&CCodeGen_Arm::Emit_Shift_RegCstRel<SHIFTOP>	}, \
+	{ SHIFTOP_CST,	MATCH_RELATIVE,		MATCH_REGISTER,		MATCH_CONSTANT,		&CCodeGen_Arm::Emit_Shift_RelRegCst<SHIFTOP>	},
 
 CCodeGen_Arm::CONSTMATCHER CCodeGen_Arm::g_constMatchers[] = 
 { 
 	{ OP_LABEL,		MATCH_NIL,			MATCH_NIL,			MATCH_NIL,			&CCodeGen_Arm::MarkLabel							},
 
+	{ OP_NOP,		MATCH_NIL,			MATCH_NIL,			MATCH_NIL,			&CCodeGen_Arm::Emit_Nop								},
+	
 	{ OP_MOV,		MATCH_REGISTER,		MATCH_REGISTER,		MATCH_NIL,			&CCodeGen_Arm::Emit_Mov_RegReg						},
 	{ OP_MOV,		MATCH_REGISTER,		MATCH_RELATIVE,		MATCH_NIL,			&CCodeGen_Arm::Emit_Mov_RegRel						},
 	{ OP_MOV,		MATCH_REGISTER,		MATCH_CONSTANT,		MATCH_NIL,			&CCodeGen_Arm::Emit_Mov_RegCst						},
+	{ OP_MOV,		MATCH_RELATIVE,		MATCH_RELATIVE,		MATCH_NIL,			&CCodeGen_Arm::Emit_Mov_RelRel						},
 	{ OP_MOV,		MATCH_RELATIVE,		MATCH_REGISTER,		MATCH_NIL,			&CCodeGen_Arm::Emit_Mov_RelReg						},
 	{ OP_MOV,		MATCH_RELATIVE,		MATCH_CONSTANT,		MATCH_NIL,			&CCodeGen_Arm::Emit_Mov_RelCst						},
 
 	ALU_CONST_MATCHERS(OP_ADD, ALUOP_ADD)
 	ALU_CONST_MATCHERS(OP_SUB, ALUOP_SUB)
 	ALU_CONST_MATCHERS(OP_AND, ALUOP_AND)
+	ALU_CONST_MATCHERS(OP_OR,  ALUOP_OR)
 	ALU_CONST_MATCHERS(OP_XOR, ALUOP_XOR)
-		
+	
 	SHIFT_CONST_MATCHERS(OP_SRL, CArmAssembler::SHIFT_LSR)
 	SHIFT_CONST_MATCHERS(OP_SRA, CArmAssembler::SHIFT_ASR)
 	SHIFT_CONST_MATCHERS(OP_SLL, CArmAssembler::SHIFT_LSL)
@@ -226,6 +151,7 @@ CCodeGen_Arm::CONSTMATCHER CCodeGen_Arm::g_constMatchers[] =
 	{ OP_PARAM,		MATCH_NIL,			MATCH_CONTEXT,		MATCH_NIL,			&CCodeGen_Arm::Emit_Param_Ctx						},
 	{ OP_PARAM,		MATCH_NIL,			MATCH_REGISTER,		MATCH_NIL,			&CCodeGen_Arm::Emit_Param_Reg						},
 	{ OP_PARAM,		MATCH_NIL,			MATCH_RELATIVE,		MATCH_NIL,			&CCodeGen_Arm::Emit_Param_Rel						},
+	{ OP_PARAM,		MATCH_NIL,			MATCH_CONSTANT,		MATCH_NIL,			&CCodeGen_Arm::Emit_Param_Cst						},
 
 	{ OP_CALL,		MATCH_NIL,			MATCH_CONSTANT,		MATCH_CONSTANT,		&CCodeGen_Arm::Emit_Call							},
 	
@@ -451,6 +377,20 @@ void CCodeGen_Arm::LoadConstantInRegister(CArmAssembler::REGISTER registerId, ui
 	}
 }
 
+void CCodeGen_Arm::LoadRelativeInRegister(CArmAssembler::REGISTER registerId, CSymbol* src)
+{
+	assert(src->m_type == SYM_RELATIVE);
+	assert((src->m_valueLow & 0x03) == 0x00);
+	m_assembler.Ldr(registerId, g_baseRegister, CArmAssembler::MakeImmediateLdrAddress(src->m_valueLow));
+}
+
+void CCodeGen_Arm::StoreRegisterInRelative(CSymbol* dst, CArmAssembler::REGISTER registerId)
+{
+	assert(dst->m_type == SYM_RELATIVE);
+	assert((dst->m_valueLow & 0x03) == 0x00);
+	m_assembler.Str(registerId, g_baseRegister, CArmAssembler::MakeImmediateLdrAddress(dst->m_valueLow));
+}
+
 void CCodeGen_Arm::DumpLiteralPool()
 {
 	if(m_lastLiteralPtr)
@@ -494,6 +434,11 @@ void CCodeGen_Arm::MarkLabel(const STATEMENT& statement)
 	m_assembler.MarkLabel(label);
 }
 
+void CCodeGen_Arm::Emit_Nop(const STATEMENT& statement)
+{
+	
+}
+
 void CCodeGen_Arm::Emit_Param_Ctx(const STATEMENT& statement)
 {
 	CSymbol* src1 = statement.src1->GetSymbol().get();
@@ -524,6 +469,17 @@ void CCodeGen_Arm::Emit_Param_Rel(const STATEMENT& statement)
 	assert(m_params.size() < MAX_PARAMS);
 	
 	m_params.push_back(std::tr1::bind(&CArmAssembler::Ldr, &m_assembler, std::tr1::placeholders::_1, g_baseRegister, CArmAssembler::MakeImmediateLdrAddress(src1->m_valueLow)));	
+}
+
+
+void CCodeGen_Arm::Emit_Param_Cst(const STATEMENT& statement)
+{
+	CSymbol* src1 = statement.src1->GetSymbol().get();
+	
+	assert(src1->m_type == SYM_CONSTANT);
+	assert(m_params.size() < MAX_PARAMS);
+	
+	m_params.push_back(std::tr1::bind(&CCodeGen_Arm::LoadConstantInRegister, this, std::tr1::placeholders::_1, src1->m_valueLow));
 }
 
 void CCodeGen_Arm::Emit_Call(const STATEMENT& statement)
@@ -588,6 +544,18 @@ void CCodeGen_Arm::Emit_Mov_RelReg(const STATEMENT& statement)
 	m_assembler.Str(g_registers[src1->m_valueLow], g_baseRegister, CArmAssembler::MakeImmediateLdrAddress(dst->m_valueLow));
 }
 
+void CCodeGen_Arm::Emit_Mov_RelRel(const STATEMENT& statement)
+{
+	CSymbol* dst = statement.dst->GetSymbol().get();
+	CSymbol* src1 = statement.src1->GetSymbol().get();
+	
+	assert(dst->m_type  == SYM_RELATIVE);
+	assert(src1->m_type == SYM_RELATIVE);
+	
+	LoadRelativeInRegister(CArmAssembler::r0, src1);
+	StoreRegisterInRelative(dst, CArmAssembler::r0);
+}
+
 void CCodeGen_Arm::Emit_Mov_RelCst(const STATEMENT& statement)
 {
 	CSymbol* dst = statement.dst->GetSymbol().get();
@@ -597,7 +565,7 @@ void CCodeGen_Arm::Emit_Mov_RelCst(const STATEMENT& statement)
 	assert(src1->m_type == SYM_CONSTANT);
 	
 	LoadConstantInRegister(CArmAssembler::r0, src1->m_valueLow);
-	m_assembler.Str(CArmAssembler::r0, g_baseRegister, CArmAssembler::MakeImmediateLdrAddress(dst->m_valueLow));
+	StoreRegisterInRelative(dst, CArmAssembler::r0);
 }
 
 void CCodeGen_Arm::Emit_ExtLow64RegTmp64(const STATEMENT& statement)

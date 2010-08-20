@@ -61,6 +61,9 @@ namespace Jitter
 		CArmAssembler::LABEL					GetLabel(uint32);
 		void									MarkLabel(const STATEMENT&);
 
+		void									LoadRelativeInRegister(CArmAssembler::REGISTER, CSymbol*);
+		void									StoreRegisterInRelative(CSymbol*, CArmAssembler::REGISTER);
+		
 		uint32									RotateRight(uint32);
 		uint32									RotateLeft(uint32);
 		bool									TryGetAluImmediateParams(uint32, uint8&, uint8&);
@@ -92,6 +95,12 @@ namespace Jitter
 			static OpRegType OpReg() { return &CArmAssembler::And; }
 		};
 
+		struct ALUOP_OR : public ALUOP_BASE
+		{
+			static OpImmType OpImm() { return &CArmAssembler::Or; }
+			static OpRegType OpReg() { return &CArmAssembler::Or; }
+		};
+		
 		struct ALUOP_XOR : public ALUOP_BASE
 		{
 			static OpImmType OpImm() { return &CArmAssembler::Eor; }
@@ -112,16 +121,20 @@ namespace Jitter
 		//ALUOP
 		template <typename> void				Emit_Alu_RegRegReg(const STATEMENT&);
 		template <typename> void				Emit_Alu_RegRegCst(const STATEMENT&);
+		template <typename> void				Emit_Alu_RegRelCst(const STATEMENT&);
 		template <typename> void				Emit_Alu_RegCstReg(const STATEMENT&);
 		
 		//SHIFTOP
 		template <CArmAssembler::SHIFT> void	Emit_Shift_RegRegReg(const STATEMENT&);
 		template <CArmAssembler::SHIFT> void	Emit_Shift_RegRegCst(const STATEMENT&);
+		template <CArmAssembler::SHIFT> void	Emit_Shift_RegCstRel(const STATEMENT&);
+		template <CArmAssembler::SHIFT> void	Emit_Shift_RelRegCst(const STATEMENT&);
 
 		//PARAM
 		void									Emit_Param_Ctx(const STATEMENT&);
 		void									Emit_Param_Reg(const STATEMENT&);
 		void									Emit_Param_Rel(const STATEMENT&);
+		void									Emit_Param_Cst(const STATEMENT&);
 		
 		//CALL
 		void									Emit_Call(const STATEMENT&);
@@ -140,8 +153,12 @@ namespace Jitter
 		void									Emit_Mov_RegRel(const STATEMENT&);
 		void									Emit_Mov_RegCst(const STATEMENT&);
 		void									Emit_Mov_RelReg(const STATEMENT&);
+		void									Emit_Mov_RelRel(const STATEMENT&);
 		void									Emit_Mov_RelCst(const STATEMENT&);
 
+		//NOP
+		void									Emit_Nop(const STATEMENT&);
+		
 		//EXTLOW64
 		void									Emit_ExtLow64RegTmp64(const STATEMENT&);
 

@@ -195,6 +195,7 @@ public:
 	void									Mvn(REGISTER, REGISTER);
 	void									Mvn(REGISTER, const ImmediateAluOperand&);	
 	void									Or(REGISTER, REGISTER, REGISTER);
+	void									Or(REGISTER, REGISTER, const ImmediateAluOperand&);
 	void									Smull(REGISTER, REGISTER, REGISTER, REGISTER);
 	void									Str(REGISTER, REGISTER, const LdrAddress&);
 	void									Sub(REGISTER, REGISTER, REGISTER);

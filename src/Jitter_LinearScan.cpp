@@ -161,7 +161,8 @@ void CJitter::AllocateRegisters(BASIC_BLOCK& basicBlock)
 	//Expire all remaining ranges
 	while(state.activeSymbols.size() != 0)
 	{
-		AllocateRegisters_SpillSymbol(state.activeSymbols.begin());
+		ActiveSymbolList::iterator symbolIterator = state.activeSymbols.begin();
+		AllocateRegisters_SpillSymbol(symbolIterator);
 	}
 
 	//Issue insert commands

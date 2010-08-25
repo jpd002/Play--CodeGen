@@ -6,6 +6,7 @@
 #include <list>
 #include <map>
 #include <deque>
+#include <vector>
 #include <boost/lexical_cast.hpp>
 #include "ArrayStack.h"
 #include "Stream.h"

@@ -192,6 +192,20 @@ CX86Assembler::LABEL CCodeGen_x86::GetLabel(uint32 blockId)
 	return result;
 }
 
+CX86Assembler::CAddress CCodeGen_x86::MakeTemporarySymbolAddress(CSymbol* symbol)
+{
+	assert(symbol->m_type == SYM_TEMPORARY);
+	assert(((symbol->m_stackLocation + m_stackLevel) & 3) == 0);
+	return CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rSP, symbol->m_stackLocation + m_stackLevel);
+}
+
+CX86Assembler::CAddress CCodeGen_x86::MakeRelativeSymbolAddress(CSymbol* symbol)
+{
+	assert(symbol->m_type == SYM_RELATIVE);
+	assert((symbol->m_valueLow & 3) == 0);
+	return CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, symbol->m_valueLow);
+}
+
 void CCodeGen_x86::MarkLabel(const STATEMENT& statement)
 {
 	CX86Assembler::LABEL label = GetLabel(statement.jmpBlock);

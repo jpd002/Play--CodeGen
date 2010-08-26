@@ -121,6 +121,9 @@ namespace Jitter
 
 		CX86Assembler::LABEL		GetLabel(uint32);
 
+		CX86Assembler::CAddress		MakeTemporarySymbolAddress(CSymbol*);
+		CX86Assembler::CAddress		MakeRelativeSymbolAddress(CSymbol*);
+
 		//LABEL
 		void						MarkLabel(const STATEMENT&);
 
@@ -131,6 +134,7 @@ namespace Jitter
 		template <typename> void	Emit_Alu_RegRegReg(const STATEMENT&);
 		template <typename> void	Emit_Alu_RegRegRel(const STATEMENT&);
 		template <typename> void	Emit_Alu_RegRegCst(const STATEMENT&);
+		template <typename> void	Emit_Alu_RegRegTmp(const STATEMENT&);
 		template <typename> void	Emit_Alu_RegRelReg(const STATEMENT&);
 		template <typename> void	Emit_Alu_RegRelRel(const STATEMENT&);
 		template <typename> void	Emit_Alu_RegRelCst(const STATEMENT&);
@@ -141,11 +145,13 @@ namespace Jitter
 		template <typename> void	Emit_Alu_RelRegReg(const STATEMENT&);
 		template <typename> void	Emit_Alu_RelRegRel(const STATEMENT&);
 		template <typename> void	Emit_Alu_RelRegCst(const STATEMENT&);
+		template <typename> void	Emit_Alu_RelRegTmp(const STATEMENT&);
 		template <typename> void	Emit_Alu_RelRelReg(const STATEMENT&);
 		template <typename> void	Emit_Alu_RelRelCst(const STATEMENT&);
 		template <typename> void	Emit_Alu_RelRelRel(const STATEMENT&);
 		template <typename> void	Emit_Alu_RelCstReg(const STATEMENT&);
 		template <typename> void	Emit_Alu_RelCstRel(const STATEMENT&);
+		template <typename> void	Emit_Alu_RelTmpCst(const STATEMENT&);
 		template <typename> void	Emit_Alu_TmpRegReg(const STATEMENT&);
 		template <typename> void	Emit_Alu_TmpRegCst(const STATEMENT&);
 		template <typename> void	Emit_Alu_TmpRelCst(const STATEMENT&);
@@ -170,7 +176,8 @@ namespace Jitter
 		template <typename> void	Emit_Shift_RelCstReg(const STATEMENT&);
 		template <typename> void	Emit_Shift_RelCstRel(const STATEMENT&);
 		template <typename> void	Emit_Shift_RelTmpCst(const STATEMENT&);
-//		template <typename> void	Emit_Shift_TmpRegCst(const STATEMENT&);
+		template <typename> void	Emit_Shift_TmpRegCst(const STATEMENT&);
+		template <typename> void	Emit_Shift_TmpRelCst(const STATEMENT&);
 //		template <typename> void	Emit_Shift_TmpCstReg(const STATEMENT&);
 		template <typename> void	Emit_Shift_TmpTmpCst(const STATEMENT&);
 

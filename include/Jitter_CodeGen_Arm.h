@@ -123,10 +123,12 @@ namespace Jitter
 		template <typename> void				Emit_Alu_RegRegCst(const STATEMENT&);
 		template <typename> void				Emit_Alu_RegRelCst(const STATEMENT&);
 		template <typename> void				Emit_Alu_RegCstReg(const STATEMENT&);
+		template <typename> void				Emit_Alu_RelRelCst(const STATEMENT&);
 		
 		//SHIFTOP
 		template <CArmAssembler::SHIFT> void	Emit_Shift_RegRegReg(const STATEMENT&);
 		template <CArmAssembler::SHIFT> void	Emit_Shift_RegRegCst(const STATEMENT&);
+		template <CArmAssembler::SHIFT> void	Emit_Shift_RegCstReg(const STATEMENT&);
 		template <CArmAssembler::SHIFT> void	Emit_Shift_RegCstRel(const STATEMENT&);
 		template <CArmAssembler::SHIFT> void	Emit_Shift_RelRegCst(const STATEMENT&);
 

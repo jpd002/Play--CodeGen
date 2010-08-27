@@ -113,15 +113,10 @@ void CCodeGen_Arm::Emit_DivTmp64RegCst(const STATEMENT& statement)
 	m_assembler.Str(CArmAssembler::r0, CArmAssembler::rSP, CArmAssembler::MakeImmediateLdrAddress(dst->m_stackLocation + m_stackLevel + 4));
 }
 
-#define ALU_CONST_MATCHERS(ALUOP_CST, ALUOP) \
-	{ ALUOP_CST,	MATCH_REGISTER,		MATCH_REGISTER,		MATCH_REGISTER,		&CCodeGen_Arm::Emit_Alu_RegRegReg<ALUOP>		}, \
-	{ ALUOP_CST,	MATCH_REGISTER,		MATCH_REGISTER,		MATCH_CONSTANT,		&CCodeGen_Arm::Emit_Alu_RegRegCst<ALUOP>		}, \
-	{ ALUOP_CST,	MATCH_REGISTER,		MATCH_RELATIVE,		MATCH_CONSTANT,		&CCodeGen_Arm::Emit_Alu_RegRelCst<ALUOP>		}, \
-	{ ALUOP_CST,	MATCH_REGISTER,		MATCH_CONSTANT,		MATCH_REGISTER,		&CCodeGen_Arm::Emit_Alu_RegCstReg<ALUOP>		},
-
 #define SHIFT_CONST_MATCHERS(SHIFTOP_CST, SHIFTOP) \
 	{ SHIFTOP_CST,	MATCH_REGISTER,		MATCH_REGISTER,		MATCH_REGISTER,		&CCodeGen_Arm::Emit_Shift_RegRegReg<SHIFTOP>	}, \
 	{ SHIFTOP_CST,	MATCH_REGISTER,		MATCH_REGISTER,		MATCH_CONSTANT,		&CCodeGen_Arm::Emit_Shift_RegRegCst<SHIFTOP>	}, \
+	{ SHIFTOP_CST,	MATCH_REGISTER,		MATCH_CONSTANT,		MATCH_REGISTER,		&CCodeGen_Arm::Emit_Shift_RegCstReg<SHIFTOP>	}, \
 	{ SHIFTOP_CST,	MATCH_REGISTER,		MATCH_CONSTANT,		MATCH_RELATIVE,		&CCodeGen_Arm::Emit_Shift_RegCstRel<SHIFTOP>	}, \
 	{ SHIFTOP_CST,	MATCH_RELATIVE,		MATCH_REGISTER,		MATCH_CONSTANT,		&CCodeGen_Arm::Emit_Shift_RelRegCst<SHIFTOP>	},
 
@@ -609,6 +604,9 @@ void CCodeGen_Arm::Emit_CondJmp(const STATEMENT& statement)
 			break;
 		case CONDITION_LE:
 			m_assembler.BCc(CArmAssembler::CONDITION_LE, label);
+			break;
+		case CONDITION_GT:
+			m_assembler.BCc(CArmAssembler::CONDITION_GT, label);
 			break;
 		default:
 			assert(0);

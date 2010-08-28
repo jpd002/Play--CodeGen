@@ -22,28 +22,9 @@ CArmAssembler::REGISTER CCodeGen_Arm::g_paramRegs[MAX_PARAMS] =
 	CArmAssembler::r3,
 };
 
-static uint32 div_unsigned(uint32 a, uint32 b)
-{
-	return a / b;
-}
-
-static int32 div_signed(int32 a, int32 b)
-{
-	return a / b;
-}
-
-static uint32 mod_unsigned(uint32 a, uint32 b)
-{
-	return a % b;
-}
-
-static int32 mod_signed(int32 a, int32 b)
-{
-	return a % b;
-}
-
 #include "Jitter_CodeGen_Arm_Alu.h"
 #include "Jitter_CodeGen_Arm_Shift.h"
+#include "Jitter_CodeGen_Arm_Div.h"
 
 template <bool isSigned>
 void CCodeGen_Arm::Emit_MulTmp64RegReg(const STATEMENT& statement)
@@ -68,57 +49,6 @@ void CCodeGen_Arm::Emit_MulTmp64RegReg(const STATEMENT& statement)
 	m_assembler.Str(CArmAssembler::r0, CArmAssembler::rSP, CArmAssembler::MakeImmediateLdrAddress(dst->m_stackLocation + m_stackLevel + 0));
 	m_assembler.Str(CArmAssembler::r1, CArmAssembler::rSP, CArmAssembler::MakeImmediateLdrAddress(dst->m_stackLocation + m_stackLevel + 4));
 }
-
-template <bool isSigned>
-void CCodeGen_Arm::Emit_DivTmp64RegCst(const STATEMENT& statement)
-{
-	CSymbol* dst = statement.dst->GetSymbol().get();
-	CSymbol* src1 = statement.src1->GetSymbol().get();
-	CSymbol* src2 = statement.src2->GetSymbol().get();
-	
-	assert(dst->m_type  == SYM_TEMPORARY64);
-	assert(src1->m_type == SYM_REGISTER);
-	assert(src2->m_type == SYM_CONSTANT);
-
-	//Quotient
-	m_assembler.Mov(CArmAssembler::r0, g_registers[src1->m_valueLow]);
-	LoadConstantInRegister(CArmAssembler::r1, src2->m_valueLow);
-
-	if(isSigned)
-	{
-		LoadConstantInRegister(CArmAssembler::r2, reinterpret_cast<uint32>(&div_signed));
-	}
-	else
-	{
-		LoadConstantInRegister(CArmAssembler::r2, reinterpret_cast<uint32>(&div_unsigned));
-	}
-	m_assembler.Blx(CArmAssembler::r2);
-
-	m_assembler.Str(CArmAssembler::r0, CArmAssembler::rSP, CArmAssembler::MakeImmediateLdrAddress(dst->m_stackLocation + m_stackLevel + 0));
-
-	//Remainder
-	m_assembler.Mov(CArmAssembler::r0, g_registers[src1->m_valueLow]);
-	LoadConstantInRegister(CArmAssembler::r1, src2->m_valueLow);
-
-	if(isSigned)
-	{
-		LoadConstantInRegister(CArmAssembler::r2, reinterpret_cast<uint32>(&mod_signed));
-	}
-	else
-	{
-		LoadConstantInRegister(CArmAssembler::r2, reinterpret_cast<uint32>(&mod_unsigned));
-	}
-	m_assembler.Blx(CArmAssembler::r2);
-
-	m_assembler.Str(CArmAssembler::r0, CArmAssembler::rSP, CArmAssembler::MakeImmediateLdrAddress(dst->m_stackLocation + m_stackLevel + 4));
-}
-
-#define SHIFT_CONST_MATCHERS(SHIFTOP_CST, SHIFTOP) \
-	{ SHIFTOP_CST,	MATCH_REGISTER,		MATCH_REGISTER,		MATCH_REGISTER,		&CCodeGen_Arm::Emit_Shift_RegRegReg<SHIFTOP>	}, \
-	{ SHIFTOP_CST,	MATCH_REGISTER,		MATCH_REGISTER,		MATCH_CONSTANT,		&CCodeGen_Arm::Emit_Shift_RegRegCst<SHIFTOP>	}, \
-	{ SHIFTOP_CST,	MATCH_REGISTER,		MATCH_CONSTANT,		MATCH_REGISTER,		&CCodeGen_Arm::Emit_Shift_RegCstReg<SHIFTOP>	}, \
-	{ SHIFTOP_CST,	MATCH_REGISTER,		MATCH_CONSTANT,		MATCH_RELATIVE,		&CCodeGen_Arm::Emit_Shift_RegCstRel<SHIFTOP>	}, \
-	{ SHIFTOP_CST,	MATCH_RELATIVE,		MATCH_REGISTER,		MATCH_CONSTANT,		&CCodeGen_Arm::Emit_Shift_RelRegCst<SHIFTOP>	},
 
 CCodeGen_Arm::CONSTMATCHER CCodeGen_Arm::g_constMatchers[] = 
 { 
@@ -156,9 +86,11 @@ CCodeGen_Arm::CONSTMATCHER CCodeGen_Arm::g_constMatchers[] =
 
 	{ OP_CONDJMP,	MATCH_NIL,			MATCH_REGISTER,		MATCH_REGISTER,		&CCodeGen_Arm::Emit_CondJmp_RegReg					},
 	{ OP_CONDJMP,	MATCH_NIL,			MATCH_REGISTER,		MATCH_CONSTANT,		&CCodeGen_Arm::Emit_CondJmp_RegCst					},
+	{ OP_CONDJMP,	MATCH_NIL,			MATCH_RELATIVE,		MATCH_CONSTANT,		&CCodeGen_Arm::Emit_CondJmp_RelCst					},
 	
 	{ OP_CMP,		MATCH_REGISTER,		MATCH_REGISTER,		MATCH_REGISTER,		&CCodeGen_Arm::Emit_Cmp_RegRegReg					},
 	{ OP_CMP,		MATCH_REGISTER,		MATCH_REGISTER,		MATCH_CONSTANT,		&CCodeGen_Arm::Emit_Cmp_RegRegCst					},
+	{ OP_CMP,		MATCH_RELATIVE,		MATCH_REGISTER,		MATCH_CONSTANT,		&CCodeGen_Arm::Emit_Cmp_RelRegCst					},
 
 	{ OP_EXTLOW64,	MATCH_REGISTER,		MATCH_TEMPORARY64,	MATCH_NIL,			&CCodeGen_Arm::Emit_ExtLow64RegTmp64				},
 //	{ OP_EXTLOW64,	MATCH_RELATIVE,		MATCH_TEMPORARY64,	MATCH_NIL,			&CCodeGen_Arm::Emit_ExtLow64RelTmp64				},
@@ -167,6 +99,7 @@ CCodeGen_Arm::CONSTMATCHER CCodeGen_Arm::g_constMatchers[] =
 
 	{ OP_NOT,		MATCH_REGISTER,		MATCH_REGISTER,		MATCH_NIL,			&CCodeGen_Arm::Emit_Not_RegReg						},
 	
+	{ OP_DIV,		MATCH_TEMPORARY64,	MATCH_REGISTER,		MATCH_REGISTER,		&CCodeGen_Arm::Emit_DivTmp64RegReg<false>			},
 	{ OP_DIV,		MATCH_TEMPORARY64,	MATCH_REGISTER,		MATCH_CONSTANT,		&CCodeGen_Arm::Emit_DivTmp64RegCst<false>			},
 //	{ OP_DIV,		MATCH_TEMPORARY64,	MATCH_RELATIVE,		MATCH_REGISTER,		&CCodeGen_Arm::Emit_DivTmp64RelReg<false>			},
 
@@ -635,40 +568,70 @@ void CCodeGen_Arm::Emit_CondJmp_RegCst(const STATEMENT& statement)
 	assert(src1->m_type == SYM_REGISTER);
 	assert(src2->m_type == SYM_CONSTANT);
 	
-	uint8 immediate = 0;
-	uint8 shiftAmount = 0;
-	if(TryGetAluImmediateParams(src2->m_valueLow, immediate, shiftAmount))
-	{
-		m_assembler.Cmp(g_registers[src1->m_valueLow], CArmAssembler::MakeImmediateAluOperand(immediate, shiftAmount));
-	}
-	else
-	{
-		LoadConstantInRegister(CArmAssembler::r0, src2->m_valueLow);
-		m_assembler.Cmp(g_registers[src1->m_valueLow], CArmAssembler::r0);
-	}
+	Cmp_GenericRegCst(g_registers[src1->m_valueLow], src2->m_valueLow);
+	Emit_CondJmp(statement);
+}
+
+void CCodeGen_Arm::Emit_CondJmp_RelCst(const STATEMENT& statement)
+{
+	CSymbol* src1 = statement.src1->GetSymbol().get();
+	CSymbol* src2 = statement.src2->GetSymbol().get();	
 	
+	assert(src1->m_type == SYM_RELATIVE);
+	assert(src2->m_type == SYM_CONSTANT);
+	
+	CArmAssembler::REGISTER tmpReg = CArmAssembler::r1;
+	LoadRelativeInRegister(tmpReg, src1);
+	Cmp_GenericRegCst(tmpReg, src2->m_valueLow);
 	Emit_CondJmp(statement);
 }
 
 void CCodeGen_Arm::Cmp_GetFlag(CArmAssembler::REGISTER registerId, Jitter::CONDITION condition)
 {
+	CArmAssembler::ImmediateAluOperand falseOperand(CArmAssembler::MakeImmediateAluOperand(0, 0));
+	CArmAssembler::ImmediateAluOperand trueOperand(CArmAssembler::MakeImmediateAluOperand(1, 0));
 	switch(condition)
 	{
 		case CONDITION_NE:
-			m_assembler.MovCc(CArmAssembler::CONDITION_EQ, registerId, CArmAssembler::MakeImmediateAluOperand(0, 0));
-			m_assembler.MovCc(CArmAssembler::CONDITION_NE, registerId, CArmAssembler::MakeImmediateAluOperand(1, 0));
+			m_assembler.MovCc(CArmAssembler::CONDITION_EQ, registerId, falseOperand);
+			m_assembler.MovCc(CArmAssembler::CONDITION_NE, registerId, trueOperand);
 			break;
 		case CONDITION_LT:
-			m_assembler.MovCc(CArmAssembler::CONDITION_GE, registerId, CArmAssembler::MakeImmediateAluOperand(0, 0));
-			m_assembler.MovCc(CArmAssembler::CONDITION_LT, registerId, CArmAssembler::MakeImmediateAluOperand(1, 0));
+			m_assembler.MovCc(CArmAssembler::CONDITION_GE, registerId, falseOperand);
+			m_assembler.MovCc(CArmAssembler::CONDITION_LT, registerId, trueOperand);
 			break;
 		case CONDITION_BL:
-			m_assembler.MovCc(CArmAssembler::CONDITION_CS, registerId, CArmAssembler::MakeImmediateAluOperand(0, 0));
-			m_assembler.MovCc(CArmAssembler::CONDITION_CC, registerId, CArmAssembler::MakeImmediateAluOperand(1, 0));
+			m_assembler.MovCc(CArmAssembler::CONDITION_CS, registerId, falseOperand);
+			m_assembler.MovCc(CArmAssembler::CONDITION_CC, registerId, trueOperand);
+			break;
+		case CONDITION_AB:
+			m_assembler.MovCc(CArmAssembler::CONDITION_LS, registerId, falseOperand);
+			m_assembler.MovCc(CArmAssembler::CONDITION_HI, registerId, trueOperand);
 			break;
 		default:
 			assert(0);
 			break;
+	}
+}
+
+void CCodeGen_Arm::Cmp_GenericRegCst(CArmAssembler::REGISTER src1, uint32 src2)
+{
+	uint8 immediate = 0;
+	uint8 shiftAmount = 0;
+	if(TryGetAluImmediateParams(src2, immediate, shiftAmount))
+	{
+		m_assembler.Cmp(src1, CArmAssembler::MakeImmediateAluOperand(immediate, shiftAmount));
+	}
+	else if(TryGetAluImmediateParams(-src2, immediate, shiftAmount))
+	{
+		m_assembler.Cmn(src1, CArmAssembler::MakeImmediateAluOperand(immediate, shiftAmount));
+	}
+	else
+	{
+		CArmAssembler::REGISTER cstReg = CArmAssembler::r0;
+		assert(cstReg != src1);
+		LoadConstantInRegister(cstReg, src2);
+		m_assembler.Cmp(src1, cstReg);
 	}
 }
 
@@ -688,9 +651,28 @@ void CCodeGen_Arm::Emit_Cmp_RegRegCst(const STATEMENT& statement)
 	CSymbol* src1 = statement.src1->GetSymbol().get();
 	CSymbol* src2 = statement.src2->GetSymbol().get();
 
-	LoadConstantInRegister(CArmAssembler::r0, src2->m_valueLow);
-	m_assembler.Cmp(g_registers[src1->m_valueLow], CArmAssembler::r0);
+	assert(dst->m_type  == SYM_REGISTER);
+	assert(src1->m_type == SYM_REGISTER);
+	assert(src2->m_type == SYM_CONSTANT);
+	
+	Cmp_GenericRegCst(g_registers[src1->m_valueLow], src2->m_valueLow);
 	Cmp_GetFlag(g_registers[dst->m_valueLow], statement.jmpCondition);
+}
+
+void CCodeGen_Arm::Emit_Cmp_RelRegCst(const STATEMENT& statement)
+{
+	CSymbol* dst = statement.dst->GetSymbol().get();
+	CSymbol* src1 = statement.src1->GetSymbol().get();
+	CSymbol* src2 = statement.src2->GetSymbol().get();
+	
+	assert(dst->m_type  == SYM_RELATIVE);
+	assert(src1->m_type == SYM_REGISTER);
+	assert(src2->m_type == SYM_CONSTANT);
+	
+	CArmAssembler::REGISTER tmpReg = CArmAssembler::r1;
+	Cmp_GenericRegCst(g_registers[src1->m_valueLow], src2->m_valueLow);
+	Cmp_GetFlag(tmpReg, statement.jmpCondition);
+	StoreRegisterInRelative(dst, tmpReg);
 }
 
 void CCodeGen_Arm::Emit_Not_RegReg(const STATEMENT& statement)

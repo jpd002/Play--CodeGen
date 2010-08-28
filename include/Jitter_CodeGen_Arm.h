@@ -37,7 +37,7 @@ namespace Jitter
 
 		enum
 		{
-			LITERAL_POOL_SIZE = 0x40,
+			LITERAL_POOL_SIZE = 0x80,
 		};
 		
 		struct LITERAL_POOL_REF
@@ -75,36 +75,54 @@ namespace Jitter
 		{
 			typedef void (CArmAssembler::*OpImmType)(CArmAssembler::REGISTER, CArmAssembler::REGISTER, const CArmAssembler::ImmediateAluOperand&);
 			typedef void (CArmAssembler::*OpRegType)(CArmAssembler::REGISTER, CArmAssembler::REGISTER, CArmAssembler::REGISTER);
+			
+			typedef void (CArmAssembler::*OpImmNegType)(CArmAssembler::REGISTER, CArmAssembler::REGISTER, const CArmAssembler::ImmediateAluOperand&);
+			typedef void (CArmAssembler::*OpImmNotType)(CArmAssembler::REGISTER, CArmAssembler::REGISTER, const CArmAssembler::ImmediateAluOperand&);
 		};
 		
 		struct ALUOP_ADD : public ALUOP_BASE
 		{
-			static OpImmType OpImm() { return &CArmAssembler::Add; }
-			static OpRegType OpReg() { return &CArmAssembler::Add; }
+			static OpImmType	OpImm()		{ return &CArmAssembler::Add; }
+			static OpRegType	OpReg()		{ return &CArmAssembler::Add; }
+			
+			static OpImmNegType OpImmNeg()	{ return &CArmAssembler::Sub; }
+			static OpImmNotType OpImmNot()	{ return NULL; }
 		};
 		
 		struct ALUOP_SUB : public ALUOP_BASE
 		{
-			static OpImmType OpImm() { return &CArmAssembler::Sub; }
-			static OpRegType OpReg() { return &CArmAssembler::Sub; }
+			static OpImmType	OpImm()		{ return &CArmAssembler::Sub; }
+			static OpRegType	OpReg()		{ return &CArmAssembler::Sub; }
+			
+			static OpImmNegType OpImmNeg()	{ return &CArmAssembler::Add; }
+			static OpImmNotType OpImmNot()	{ return NULL; }
 		};
 		
 		struct ALUOP_AND : public ALUOP_BASE
 		{
-			static OpImmType OpImm() { return &CArmAssembler::And; }
-			static OpRegType OpReg() { return &CArmAssembler::And; }
+			static OpImmType	OpImm()		{ return &CArmAssembler::And; }
+			static OpRegType	OpReg()		{ return &CArmAssembler::And; }
+			
+			static OpImmNegType OpImmNeg()	{ return NULL; }
+			static OpImmNotType OpImmNot()	{ return &CArmAssembler::Bic; }
 		};
 
 		struct ALUOP_OR : public ALUOP_BASE
 		{
-			static OpImmType OpImm() { return &CArmAssembler::Or; }
-			static OpRegType OpReg() { return &CArmAssembler::Or; }
+			static OpImmType	OpImm()		{ return &CArmAssembler::Or; }
+			static OpRegType	OpReg()		{ return &CArmAssembler::Or; }
+			
+			static OpImmNegType OpImmNeg()	{ return NULL; }
+			static OpImmNotType OpImmNot()	{ return NULL; }
 		};
 		
 		struct ALUOP_XOR : public ALUOP_BASE
 		{
-			static OpImmType OpImm() { return &CArmAssembler::Eor; }
-			static OpRegType OpReg() { return &CArmAssembler::Eor; }
+			static OpImmType	OpImm()		{ return &CArmAssembler::Eor; }
+			static OpRegType	OpReg()		{ return &CArmAssembler::Eor; }
+			
+			static OpImmNegType OpImmNeg()	{ return NULL; }
+			static OpImmNotType OpImmNot()	{ return NULL; }
 		};
 		
 		//FPUOP -----------------------------------------------------------
@@ -119,10 +137,12 @@ namespace Jitter
 		};
 
 		//ALUOP
+		template <typename> void				Alu_GenericRegRegCst(CArmAssembler::REGISTER, CArmAssembler::REGISTER, uint32);
 		template <typename> void				Emit_Alu_RegRegReg(const STATEMENT&);
 		template <typename> void				Emit_Alu_RegRegCst(const STATEMENT&);
 		template <typename> void				Emit_Alu_RegRelCst(const STATEMENT&);
 		template <typename> void				Emit_Alu_RegCstReg(const STATEMENT&);
+		template <typename> void				Emit_Alu_RelRegReg(const STATEMENT&);
 		template <typename> void				Emit_Alu_RelRelCst(const STATEMENT&);
 		
 		//SHIFTOP
@@ -148,6 +168,9 @@ namespace Jitter
 		template<bool> void						Emit_MulTmp64RegReg(const STATEMENT&);
 
 		//DIV/DIVS
+		template<bool> void						Div_GenericTmp64RegReg_Quotient(CSymbol*);
+		template<bool> void						Div_GenericTmp64RegReg_Remainder(CSymbol*);
+		template<bool> void						Emit_DivTmp64RegReg(const STATEMENT&);
 		template<bool> void						Emit_DivTmp64RegCst(const STATEMENT&);
 
 		//MOV
@@ -169,8 +192,10 @@ namespace Jitter
 
 		//CMP
 		void									Cmp_GetFlag(CArmAssembler::REGISTER, CONDITION);
+		void									Cmp_GenericRegCst(CArmAssembler::REGISTER, uint32);
 		void									Emit_Cmp_RegRegReg(const STATEMENT&);
 		void									Emit_Cmp_RegRegCst(const STATEMENT&);
+		void									Emit_Cmp_RelRegCst(const STATEMENT&);
 
 		//JMP
 		void									Emit_Jmp(const STATEMENT&);
@@ -179,6 +204,7 @@ namespace Jitter
 		void									Emit_CondJmp(const STATEMENT&);
 		void									Emit_CondJmp_RegReg(const STATEMENT&);
 		void									Emit_CondJmp_RegCst(const STATEMENT&);
+		void									Emit_CondJmp_RelCst(const STATEMENT&);
 		
 		//NOT
 		void									Emit_Not_RegReg(const STATEMENT&);

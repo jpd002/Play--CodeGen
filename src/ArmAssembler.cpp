@@ -172,6 +172,20 @@ void CArmAssembler::BCc(CONDITION condition, LABEL label)
 	WriteWord(opcode);
 }
 
+void CArmAssembler::Bic(REGISTER rd, REGISTER rn, const ImmediateAluOperand& operand)
+{
+	InstructionAlu instruction;
+	instruction.operand = *reinterpret_cast<const unsigned int*>(&operand);
+	instruction.rd = rd;
+	instruction.rn = rn;
+	instruction.setFlags = 0;
+	instruction.opcode = ALU_OPCODE_BIC;
+	instruction.immediate = 1;
+	instruction.condition = CONDITION_AL;
+	uint32 opcode = *reinterpret_cast<uint32*>(&instruction);
+	WriteWord(opcode);
+}
+
 void CArmAssembler::Bx(REGISTER rn)
 {
 	uint32 opcode = 0;
@@ -183,6 +197,20 @@ void CArmAssembler::Blx(REGISTER rn)
 {
 	uint32 opcode = 0;
 	opcode = (CONDITION_AL << 28) | (0x12FFF30) | (rn);
+	WriteWord(opcode);
+}
+
+void CArmAssembler::Cmn(REGISTER rn, const ImmediateAluOperand& operand)
+{
+	InstructionAlu instruction;
+	instruction.operand = *reinterpret_cast<const unsigned int*>(&operand);
+	instruction.rn = rn;
+	instruction.rd = 0;
+	instruction.setFlags = 1;
+	instruction.opcode = ALU_OPCODE_CMN;
+	instruction.immediate = 1;
+	instruction.condition = CONDITION_AL;
+	uint32 opcode = *reinterpret_cast<uint32*>(&instruction);
 	WriteWord(opcode);
 }
 

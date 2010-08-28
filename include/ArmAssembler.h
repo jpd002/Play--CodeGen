@@ -179,12 +179,14 @@ public:
 	void									Add(REGISTER, REGISTER, REGISTER);
 	void									Add(REGISTER, REGISTER, const ImmediateAluOperand&);
 	void									And(REGISTER, REGISTER, REGISTER);
-	void									And(REGISTER, REGISTER, const ImmediateAluOperand&);	
+	void									And(REGISTER, REGISTER, const ImmediateAluOperand&);
 	void									BCc(CONDITION, LABEL);
+	void									Bic(REGISTER, REGISTER, const ImmediateAluOperand&);
 	void									Bx(REGISTER);
 	void									Blx(REGISTER);
+	void									Cmn(REGISTER, const ImmediateAluOperand&);
 	void									Cmp(REGISTER, REGISTER);
-	void									Cmp(REGISTER, const ImmediateAluOperand&);	
+	void									Cmp(REGISTER, const ImmediateAluOperand&);
 	void									Eor(REGISTER, REGISTER, REGISTER);
 	void									Eor(REGISTER, REGISTER, const ImmediateAluOperand&);	
 	void									Ldr(REGISTER, REGISTER, const LdrAddress&);

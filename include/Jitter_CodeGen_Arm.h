@@ -142,12 +142,15 @@ namespace Jitter
 		//ALUOP
 		template <typename> void				Alu_GenericRegRegCst(CArmAssembler::REGISTER, CArmAssembler::REGISTER, uint32);
 		template <typename> void				Emit_Alu_RegRegReg(const STATEMENT&);
+		template <typename> void				Emit_Alu_RegRegRel(const STATEMENT&);
 		template <typename> void				Emit_Alu_RegRegCst(const STATEMENT&);
 		template <typename> void				Emit_Alu_RegRelCst(const STATEMENT&);
 		template <typename> void				Emit_Alu_RegCstReg(const STATEMENT&);
 		template <typename> void				Emit_Alu_RelRegReg(const STATEMENT&);
 		template <typename> void				Emit_Alu_RelRegRel(const STATEMENT&);
 		template <typename> void				Emit_Alu_RelRegCst(const STATEMENT&);
+		template <typename> void				Emit_Alu_RelRelReg(const STATEMENT&);
+		template <typename> void				Emit_Alu_RelRelRel(const STATEMENT&);
 		template <typename> void				Emit_Alu_RelRelCst(const STATEMENT&);
 		template <typename> void				Emit_Alu_TmpRegCst(const STATEMENT&);
 		template <typename> void				Emit_Alu_TmpRelCst(const STATEMENT&);
@@ -214,6 +217,7 @@ namespace Jitter
 		void									Emit_Cmp_RegRegReg(const STATEMENT&);
 		void									Emit_Cmp_RegRegCst(const STATEMENT&);
 		void									Emit_Cmp_RelRegCst(const STATEMENT&);
+		void									Emit_Cmp_RelRelRel(const STATEMENT&);
 
 		//JMP
 		void									Emit_Jmp(const STATEMENT&);
@@ -226,6 +230,7 @@ namespace Jitter
 		
 		//NOT
 		void									Emit_Not_RegReg(const STATEMENT&);
+		void									Emit_Not_RelReg(const STATEMENT&);
 		
 		//FPUOP
 		template <typename> void				Emit_Fpu_RelRel(const STATEMENT&);

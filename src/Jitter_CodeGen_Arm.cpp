@@ -72,6 +72,7 @@ CCodeGen_Arm::CONSTMATCHER CCodeGen_Arm::g_constMatchers[] =
 	{ OP_CMP,		MATCH_REGISTER,		MATCH_REGISTER,		MATCH_REGISTER,		&CCodeGen_Arm::Emit_Cmp_RegRegReg					},
 	{ OP_CMP,		MATCH_REGISTER,		MATCH_REGISTER,		MATCH_CONSTANT,		&CCodeGen_Arm::Emit_Cmp_RegRegCst					},
 	{ OP_CMP,		MATCH_RELATIVE,		MATCH_REGISTER,		MATCH_CONSTANT,		&CCodeGen_Arm::Emit_Cmp_RelRegCst					},
+	{ OP_CMP,		MATCH_RELATIVE,		MATCH_RELATIVE,		MATCH_RELATIVE,		&CCodeGen_Arm::Emit_Cmp_RelRelRel					},
 
 	{ OP_EXTLOW64,	MATCH_REGISTER,		MATCH_TEMPORARY64,	MATCH_NIL,			&CCodeGen_Arm::Emit_ExtLow64RegTmp64				},
 //	{ OP_EXTLOW64,	MATCH_RELATIVE,		MATCH_TEMPORARY64,	MATCH_NIL,			&CCodeGen_Arm::Emit_ExtLow64RelTmp64				},
@@ -79,11 +80,16 @@ CCodeGen_Arm::CONSTMATCHER CCodeGen_Arm::g_constMatchers[] =
 	{ OP_EXTHIGH64,	MATCH_REGISTER,		MATCH_TEMPORARY64,	MATCH_NIL,			&CCodeGen_Arm::Emit_ExtHigh64RegTmp64				},
 
 	{ OP_NOT,		MATCH_REGISTER,		MATCH_REGISTER,		MATCH_NIL,			&CCodeGen_Arm::Emit_Not_RegReg						},
+	{ OP_NOT,		MATCH_RELATIVE,		MATCH_REGISTER,		MATCH_NIL,			&CCodeGen_Arm::Emit_Not_RelReg						},
 	
 	{ OP_DIV,		MATCH_TEMPORARY64,	MATCH_REGISTER,		MATCH_REGISTER,		&CCodeGen_Arm::Emit_DivTmp64RegReg<false>			},
 	{ OP_DIV,		MATCH_TEMPORARY64,	MATCH_REGISTER,		MATCH_CONSTANT,		&CCodeGen_Arm::Emit_DivTmp64RegCst<false>			},
 //	{ OP_DIV,		MATCH_TEMPORARY64,	MATCH_RELATIVE,		MATCH_REGISTER,		&CCodeGen_Arm::Emit_DivTmp64RelReg<false>			},
 
+	{ OP_DIVS,		MATCH_TEMPORARY64,	MATCH_REGISTER,		MATCH_REGISTER,		&CCodeGen_Arm::Emit_DivTmp64RegReg<true>			},
+	{ OP_DIVS,		MATCH_TEMPORARY64,	MATCH_REGISTER,		MATCH_CONSTANT,		&CCodeGen_Arm::Emit_DivTmp64RegCst<true>			},
+//	{ OP_DIVS,		MATCH_TEMPORARY64,	MATCH_RELATIVE,		MATCH_REGISTER,		&CCodeGen_Arm::Emit_DivTmp64RelReg<true>			},
+	
 	{ OP_MUL,		MATCH_TEMPORARY64,	MATCH_REGISTER,		MATCH_REGISTER,		&CCodeGen_Arm::Emit_MulTmp64RegReg<false>			},
 	{ OP_MUL,		MATCH_TEMPORARY64,	MATCH_REGISTER,		MATCH_CONSTANT,		&CCodeGen_Arm::Emit_MulTmp64RegCst<false>			},
 	{ OP_MUL,		MATCH_TEMPORARY64,	MATCH_REGISTER,		MATCH_RELATIVE,		&CCodeGen_Arm::Emit_MulTmp64RegRel<false>			},
@@ -684,6 +690,10 @@ void CCodeGen_Arm::Emit_Cmp_RegRegReg(const STATEMENT& statement)
 	CSymbol* src1 = statement.src1->GetSymbol().get();
 	CSymbol* src2 = statement.src2->GetSymbol().get();
 
+	assert(dst->m_type  == SYM_REGISTER);
+	assert(src1->m_type == SYM_REGISTER);
+	assert(src2->m_type == SYM_REGISTER);
+	
 	m_assembler.Cmp(g_registers[src1->m_valueLow], g_registers[src2->m_valueLow]);
 	Cmp_GetFlag(g_registers[dst->m_valueLow], statement.jmpCondition);
 }
@@ -718,6 +728,26 @@ void CCodeGen_Arm::Emit_Cmp_RelRegCst(const STATEMENT& statement)
 	StoreRegisterInRelative(dst, tmpReg);
 }
 
+void CCodeGen_Arm::Emit_Cmp_RelRelRel(const STATEMENT& statement)
+{
+	CSymbol* dst = statement.dst->GetSymbol().get();
+	CSymbol* src1 = statement.src1->GetSymbol().get();
+	CSymbol* src2 = statement.src2->GetSymbol().get();
+	
+	assert(dst->m_type  == SYM_RELATIVE);
+	assert(src1->m_type == SYM_RELATIVE);
+	assert(src2->m_type == SYM_RELATIVE);
+	
+	CArmAssembler::REGISTER src1Reg = CArmAssembler::r0;
+	CArmAssembler::REGISTER src2Reg = CArmAssembler::r1;
+	
+	LoadRelativeInRegister(src1Reg, src1);
+	LoadRelativeInRegister(src2Reg, src2);
+	m_assembler.Cmp(src1Reg, src2Reg);
+	Cmp_GetFlag(src1Reg, statement.jmpCondition);
+	StoreRegisterInRelative(dst, src1Reg);
+}
+
 void CCodeGen_Arm::Emit_Not_RegReg(const STATEMENT& statement)
 {
 	CSymbol* dst = statement.dst->GetSymbol().get();
@@ -727,4 +757,17 @@ void CCodeGen_Arm::Emit_Not_RegReg(const STATEMENT& statement)
 	assert(src1->m_type == SYM_REGISTER);
 
 	m_assembler.Mvn(g_registers[dst->m_valueLow], g_registers[src1->m_valueLow]);
+}
+
+void CCodeGen_Arm::Emit_Not_RelReg(const STATEMENT& statement)
+{
+	CSymbol* dst = statement.dst->GetSymbol().get();
+	CSymbol* src1 = statement.src1->GetSymbol().get();
+	
+	assert(dst->m_type  == SYM_RELATIVE);
+	assert(src1->m_type == SYM_REGISTER);
+	
+	CArmAssembler::REGISTER tmpReg = CArmAssembler::r1;
+	m_assembler.Mvn(tmpReg, g_registers[src1->m_valueLow]);
+	StoreRegisterInRelative(dst, tmpReg);
 }

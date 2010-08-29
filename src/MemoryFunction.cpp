@@ -98,10 +98,10 @@ void CMemoryFunction::operator()(void* context)
 	
 		__asm__ ("mov r1, %0" : : "r"(dataPtr) : "r1");
 		__asm__ ("mov r0, %0" : : "r"(code) : "r0");
-		__asm__ ("stmdb sp!, {r2, r3, r4, r5, r6, r7, r11, ip}");
+		__asm__ ("stmdb sp!, {r2, r3, r4, r5, r6, r7, r11, ip, lr}");
 		__asm__ ("mov r11, r1");
 		__asm__ ("blx r0");
-		__asm__ ("ldmia sp!, {r2, r3, r4, r5, r6, r7, r11, ip}");
+		__asm__ ("ldmia sp!, {r2, r3, r4, r5, r6, r7, r11, ip, lr}");
 	
 	#else
 	

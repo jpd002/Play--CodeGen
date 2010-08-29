@@ -64,6 +64,9 @@ namespace Jitter
 		void									LoadRelativeInRegister(CArmAssembler::REGISTER, CSymbol*);
 		void									StoreRegisterInRelative(CSymbol*, CArmAssembler::REGISTER);
 		
+		void									LoadTemporaryInRegister(CArmAssembler::REGISTER, CSymbol*);
+		void									StoreRegisterInTemporary(CSymbol*, CArmAssembler::REGISTER);
+		
 		uint32									RotateRight(uint32);
 		uint32									RotateLeft(uint32);
 		bool									TryGetAluImmediateParams(uint32, uint8&, uint8&);
@@ -143,7 +146,12 @@ namespace Jitter
 		template <typename> void				Emit_Alu_RegRelCst(const STATEMENT&);
 		template <typename> void				Emit_Alu_RegCstReg(const STATEMENT&);
 		template <typename> void				Emit_Alu_RelRegReg(const STATEMENT&);
+		template <typename> void				Emit_Alu_RelRegRel(const STATEMENT&);
+		template <typename> void				Emit_Alu_RelRegCst(const STATEMENT&);
 		template <typename> void				Emit_Alu_RelRelCst(const STATEMENT&);
+		template <typename> void				Emit_Alu_TmpRegCst(const STATEMENT&);
+		template <typename> void				Emit_Alu_TmpRelCst(const STATEMENT&);
+		template <typename> void				Emit_Alu_TmpTmpCst(const STATEMENT&);
 		
 		//SHIFTOP
 		template <CArmAssembler::SHIFT> void	Emit_Shift_RegRegReg(const STATEMENT&);
@@ -151,21 +159,29 @@ namespace Jitter
 		template <CArmAssembler::SHIFT> void	Emit_Shift_RegCstReg(const STATEMENT&);
 		template <CArmAssembler::SHIFT> void	Emit_Shift_RegCstRel(const STATEMENT&);
 		template <CArmAssembler::SHIFT> void	Emit_Shift_RelRegCst(const STATEMENT&);
+		template <CArmAssembler::SHIFT> void	Emit_Shift_RelRelCst(const STATEMENT&);
+		template <CArmAssembler::SHIFT> void	Emit_Shift_RelTmpCst(const STATEMENT&);
+		template <CArmAssembler::SHIFT> void	Emit_Shift_TmpTmpCst(const STATEMENT&);
 
 		//PARAM
 		void									Emit_Param_Ctx(const STATEMENT&);
 		void									Emit_Param_Reg(const STATEMENT&);
 		void									Emit_Param_Rel(const STATEMENT&);
 		void									Emit_Param_Cst(const STATEMENT&);
+		void									Emit_Param_Tmp(const STATEMENT&);
 		
 		//CALL
 		void									Emit_Call(const STATEMENT&);
 		
 		//RETVAL
 		void									Emit_RetVal_Reg(const STATEMENT&);
+		void									Emit_RetVal_Tmp(const STATEMENT&);
 		
 		//MUL/MULS
+		template<bool> void						Mul_GenericTmp64RegReg(CSymbol*, CArmAssembler::REGISTER, CArmAssembler::REGISTER);
 		template<bool> void						Emit_MulTmp64RegReg(const STATEMENT&);
+		template<bool> void						Emit_MulTmp64RegCst(const STATEMENT&);
+		template<bool> void						Emit_MulTmp64RegRel(const STATEMENT&);
 
 		//DIV/DIVS
 		template<bool> void						Div_GenericTmp64RegReg_Quotient(CSymbol*);
@@ -180,6 +196,8 @@ namespace Jitter
 		void									Emit_Mov_RelReg(const STATEMENT&);
 		void									Emit_Mov_RelRel(const STATEMENT&);
 		void									Emit_Mov_RelCst(const STATEMENT&);
+		void									Emit_Mov_RelTmp(const STATEMENT&);
+		void									Emit_Mov_TmpReg(const STATEMENT&);
 
 		//NOP
 		void									Emit_Nop(const STATEMENT&);

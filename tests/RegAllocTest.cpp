@@ -1,5 +1,6 @@
 #include "RegAllocTest.h"
 #include "MemStream.h"
+#include "offsetof_def.h"
 
 #define TEST_NUMBER1 (0xDEADDEAD)
 #define TEST_NUMBER2 (0xCAFECAFE)

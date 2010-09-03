@@ -72,6 +72,8 @@ namespace Jitter
 		void                            Lzc();
 		void                            Mult();
 		void                            MultS();
+		void							MultSHL();
+		void							MultSHH();
 		void                            Not();
 		void                            Or();
 		void                            SignExt();
@@ -131,7 +133,9 @@ namespace Jitter
 		virtual void                    MD_PullRel(size_t, bool, bool, bool, bool);
 
 		void                            MD_AbsS();
+		void                            MD_AddB();
 		void                            MD_AddH();
+		void							MD_AddW();
 		void                            MD_AddWSS();
 		void                            MD_AddWUS();
 		void                            MD_AddS();
@@ -151,9 +155,11 @@ namespace Jitter
 		void                            MD_PackHB();
 		void                            MD_PackWH();
 		void                            MD_SllH(uint8);
+		void							MD_SllW(uint8);
 		void                            MD_SraH(uint8);
 		void                            MD_SraW(uint8);
 		void                            MD_SrlH(uint8);
+		void							MD_SrlW(uint8);
 		void                            MD_Srl256();
 		void                            MD_SubB();
 		void                            MD_SubW();

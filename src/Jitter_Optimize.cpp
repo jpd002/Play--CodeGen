@@ -257,6 +257,7 @@ void CJitter::DumpStatementList(const StatementList& statements)
 			cout << " - ";
 			break;
 		case OP_CMP:
+		case OP_CMP64:
 		case OP_FP_CMP:
 			cout << " CMP(" << ConditionToString(statement.jmpCondition) << ") ";
 			break;
@@ -282,12 +283,14 @@ void CJitter::DumpStatementList(const StatementList& statements)
 			cout << " ! ";
 			break;
 		case OP_SRL:
+		case OP_SRL64:
 			cout << " >> ";
 			break;
 		case OP_SRA:
 			cout << " >>A ";
 			break;
 		case OP_SLL:
+		case OP_SLL64:
 			cout << " << ";
 			break;
 		case OP_NOP:

@@ -353,6 +353,16 @@ void CJitter::MultS()
 	m_Shadow.Push(tempSym);
 }
 
+void CJitter::MultSHL()
+{
+	throw std::exception();
+}
+
+void CJitter::MultSHH()
+{
+	throw std::exception();
+}
+
 void CJitter::Not()
 {
 	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY, m_nextTemporary++);
@@ -382,7 +392,7 @@ void CJitter::Or()
 
 void CJitter::SignExt()
 {
-	throw std::exception();
+	Sra(31);
 }
 
 void CJitter::SignExt8()
@@ -573,12 +583,31 @@ void CJitter::Add64()
 
 void CJitter::And64()
 {
-	throw std::exception();
+	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY64, m_nextTemporary++);
+
+	STATEMENT statement;
+	statement.op	= OP_AND64;
+	statement.src2	= MakeSymbolRef(m_Shadow.Pull());
+	statement.src1	= MakeSymbolRef(m_Shadow.Pull());
+	statement.dst	= MakeSymbolRef(tempSym);
+	InsertStatement(statement);
+
+	m_Shadow.Push(tempSym);
 }
 
-void CJitter::Cmp64(CONDITION nCondition)
+void CJitter::Cmp64(CONDITION condition)
 {
-	throw std::exception();
+	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY, m_nextTemporary++);
+
+	STATEMENT statement;
+	statement.op			= OP_CMP64;
+	statement.src2			= MakeSymbolRef(m_Shadow.Pull());
+	statement.src1			= MakeSymbolRef(m_Shadow.Pull());
+	statement.jmpCondition	= condition;
+	statement.dst			= MakeSymbolRef(tempSym);
+	InsertStatement(statement);
+
+	m_Shadow.Push(tempSym);
 }
 
 void CJitter::Sub64()
@@ -593,7 +622,16 @@ void CJitter::Srl64()
 
 void CJitter::Srl64(uint8 nAmount)
 {
-	throw std::exception();
+	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY64, m_nextTemporary++);
+
+	STATEMENT statement;
+	statement.op	= OP_SRL64;
+	statement.src2	= MakeSymbolRef(MakeSymbol(SYM_CONSTANT, nAmount));
+	statement.src1	= MakeSymbolRef(m_Shadow.Pull());
+	statement.dst	= MakeSymbolRef(tempSym);
+	InsertStatement(statement);
+
+	m_Shadow.Push(tempSym);
 }
 
 void CJitter::Sra64(uint8 nAmount)
@@ -608,7 +646,16 @@ void CJitter::Shl64()
 
 void CJitter::Shl64(uint8 nAmount)
 {
-	throw std::exception();
+	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY64, m_nextTemporary++);
+
+	STATEMENT statement;
+	statement.op	= OP_SLL64;
+	statement.src2	= MakeSymbolRef(MakeSymbol(SYM_CONSTANT, nAmount));
+	statement.src1	= MakeSymbolRef(m_Shadow.Pull());
+	statement.dst	= MakeSymbolRef(tempSym);
+	InsertStatement(statement);
+
+	m_Shadow.Push(tempSym);
 }
 
 //Floating-Point
@@ -732,6 +779,11 @@ void CJitter::FP_Sqrt()
 	m_Shadow.Push(tempSym);
 }
 
+void CJitter::FP_Rsqrt()
+{
+	throw std::exception();
+}
+
 void CJitter::FP_Rcpl()
 {
 	SymbolPtr tempSym = MakeSymbol(SYM_FP_TMP_SINGLE, m_nextTemporary++);
@@ -773,6 +825,8 @@ void CJitter::FP_Max()
 	throw std::exception();
 }
 
+//SIMD
+//------------------------------------------------
 void CJitter::MD_PullRel(size_t)
 {
 	throw std::exception();
@@ -794,6 +848,211 @@ void CJitter::MD_PushRel(size_t)
 }
 
 void CJitter::MD_PushRelExpand(size_t)
+{
+	throw std::exception();
+}
+
+void CJitter::MD_AddB()
+{
+	throw std::exception();
+}
+
+void CJitter::MD_AddH()
+{
+	throw std::exception();
+}
+
+void CJitter::MD_AddW()
+{
+	throw std::exception();
+}
+
+void CJitter::MD_AddWSS()
+{
+	throw std::exception();
+}
+
+void CJitter::MD_AddWUS()
+{
+	throw std::exception();
+}
+
+void CJitter::MD_SubB()
+{
+	throw std::exception();
+}
+
+void CJitter::MD_SubW()
+{
+	throw std::exception();
+}
+
+void CJitter::MD_And()
+{
+	throw std::exception();
+}
+
+void CJitter::MD_Or()
+{
+	throw std::exception();
+}
+
+void CJitter::MD_Xor()
+{
+	throw std::exception();
+}
+
+void CJitter::MD_Not()
+{
+	throw std::exception();
+}
+
+void CJitter::MD_SllH(uint8 amount)
+{
+	throw std::exception();
+}
+
+void CJitter::MD_SllW(uint8 amount)
+{
+	throw std::exception();
+}
+
+void CJitter::MD_SrlH(uint8 amount)
+{
+	throw std::exception();
+}
+
+void CJitter::MD_SrlW(uint8 amount)
+{
+	throw std::exception();
+}
+
+void CJitter::MD_SraH(uint8 amount)
+{
+	throw std::exception();
+}
+
+void CJitter::MD_SraW(uint8 amount)
+{
+	throw std::exception();
+}
+
+void CJitter::MD_Srl256()
+{
+	throw std::exception();
+}
+
+void CJitter::MD_MinH()
+{
+	throw std::exception();
+}
+
+void CJitter::MD_MaxH()
+{
+	throw std::exception();
+}
+
+void CJitter::MD_CmpEqW()
+{
+	throw std::exception();
+}
+
+void CJitter::MD_CmpGtH()
+{
+	throw std::exception();
+}
+
+void CJitter::MD_UnpackLowerBH()
+{
+	throw std::exception();
+}
+
+void CJitter::MD_UnpackLowerHW()
+{
+	throw std::exception();
+}
+
+void CJitter::MD_UnpackLowerWD()
+{
+	throw std::exception();
+}
+
+void CJitter::MD_UnpackUpperBH()
+{
+	throw std::exception();
+}
+
+void CJitter::MD_UnpackUpperWD()
+{
+	throw std::exception();
+}
+
+void CJitter::MD_PackHB()
+{
+	throw std::exception();
+}
+
+void CJitter::MD_PackWH()
+{
+	throw std::exception();
+}
+
+void CJitter::MD_PushCstExpand(float value)
+{
+	throw std::exception();
+}
+
+void CJitter::MD_AddS()
+{
+	throw std::exception();
+}
+
+void CJitter::MD_SubS()
+{
+	throw std::exception();
+}
+
+void CJitter::MD_MulS()
+{
+	throw std::exception();
+}
+
+void CJitter::MD_DivS()
+{
+	throw std::exception();
+}
+
+void CJitter::MD_AbsS()
+{
+	throw std::exception();
+}
+
+void CJitter::MD_MinS()
+{
+	throw std::exception();
+}
+
+void CJitter::MD_MaxS()
+{
+	throw std::exception();
+}
+
+void CJitter::MD_IsZero()
+{
+	throw std::exception();
+}
+
+void CJitter::MD_IsNegative()
+{
+	throw std::exception();
+}
+
+void CJitter::MD_ToWordTruncate()
+{
+	throw std::exception();
+}
+
+void CJitter::MD_ToSingle()
 {
 	throw std::exception();
 }

@@ -201,9 +201,6 @@ namespace Jitter
 		void						Emit_Cmp_RelRelRel(const STATEMENT&);
 		void						Emit_Cmp_RelRelCst(const STATEMENT&);
 
-		//ADD64
-		void						Emit_Add64_RelRelRel(const STATEMENT&);
-
 		//MUL/MULS
 		template<bool> void			Emit_MulTmp64RegRel(const STATEMENT&);
 		template<bool> void			Emit_MulTmp64RegCst(const STATEMENT&);
@@ -247,6 +244,7 @@ namespace Jitter
 		//EXTHIGH64
 		void						Emit_ExtHigh64RegTmp64(const STATEMENT&);
 		void						Emit_ExtHigh64RelTmp64(const STATEMENT&);
+		void						Emit_ExtHigh64TmpTmp64(const STATEMENT&);
 
 		//FPUOP
 		template <typename> void	Emit_Fpu_RelRel(const STATEMENT&);

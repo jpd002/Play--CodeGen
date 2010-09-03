@@ -34,6 +34,8 @@ CCodeGen_x86_64::CONSTMATCHER CCodeGen_x86_64::g_constMatchers[] =
 
 	{ OP_RETVAL,	MATCH_TEMPORARY,	MATCH_NIL,			MATCH_NIL,			&CCodeGen_x86_64::Emit_RetVal_Tmp		},
 	{ OP_RETVAL,	MATCH_REGISTER,		MATCH_NIL,			MATCH_NIL,			&CCodeGen_x86_64::Emit_RetVal_Reg		},
+
+	{ OP_MOV,		MATCH_NIL,			MATCH_NIL,			MATCH_NIL,			NULL									},
 };
 
 static uint64 CombineConstant64(uint32 cstLow, uint32 cstHigh)

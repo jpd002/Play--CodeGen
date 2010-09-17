@@ -31,10 +31,12 @@ namespace Jitter
 		OP_DIVS,
 
 		OP_ADD64,
+		OP_SUB64,
 		OP_AND64,
 		OP_CMP64,
 		OP_EXTLOW64,
 		OP_EXTHIGH64,
+		OP_SRA64,
 		OP_SRL64,
 		OP_SLL64,
 

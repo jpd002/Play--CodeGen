@@ -31,8 +31,16 @@ namespace Jitter
 		void								Emit_RetVal_Tmp(const STATEMENT&);
 		void								Emit_RetVal_Reg(const STATEMENT&);
 
+		//MOV
+		void								Emit_Mov_Rel64Rel64(const STATEMENT&);
+		void								Emit_Mov_Rel64Cst64(const STATEMENT&);
+
 		//ADD64
 		void								Emit_Add64_RelRelRel(const STATEMENT&);
+		void								Emit_Add64_RelRelCst(const STATEMENT&);
+
+		//SUB64
+		void								Emit_Sub64_RelRelRel(const STATEMENT&);
 
 		//AND64
 		void								Emit_And64_RelRelRel(const STATEMENT&);
@@ -40,16 +48,21 @@ namespace Jitter
 		//SRL64
 		void								Emit_Srl64_RelRelCst(const STATEMENT&);
 
+		//SRA64
+		void								Emit_Sra64_RelRelCst(const STATEMENT&);
+
 		//SLL64
 		void								Emit_Sll64_RelRelCst(const STATEMENT&);
 
 		//CMP64
 		void								Cmp64_Equal(const STATEMENT&);
 		void								Cmp64_LessThan(const STATEMENT&);
-		void								Cmp64_GenericRelRel(const STATEMENT&);
+		void								Cmp64_GenericRel(const STATEMENT&);
 		void								Emit_Cmp64_RegRelRel(const STATEMENT&);
 		void								Emit_Cmp64_RelRelRel(const STATEMENT&);
-		void								Emit_Cmp64_TmpRelRel(const STATEMENT&);
+		void								Emit_Cmp64_RegRelCst(const STATEMENT&);
+		void								Emit_Cmp64_RelRelCst(const STATEMENT&);
+		void								Emit_Cmp64_TmpRelRoc(const STATEMENT&);
 
 	private:
 		typedef void (CCodeGen_x86_32::*ConstCodeEmitterType)(const STATEMENT&);

@@ -253,6 +253,7 @@ void CJitter::DumpStatementList(const StatementList& statements)
 			cout << " + ";
 			break;
 		case OP_SUB:
+		case OP_SUB64:
 		case OP_FP_SUB:
 			cout << " - ";
 			break;
@@ -271,6 +272,7 @@ void CJitter::DumpStatementList(const StatementList& statements)
 			cout << " / ";
 			break;
 		case OP_AND:
+		case OP_AND64:
 			cout << " & ";
 			break;
 		case OP_OR:
@@ -287,6 +289,7 @@ void CJitter::DumpStatementList(const StatementList& statements)
 			cout << " >> ";
 			break;
 		case OP_SRA:
+		case OP_SRA64:
 			cout << " >>A ";
 			break;
 		case OP_SLL:
@@ -661,6 +664,38 @@ bool CJitter::FoldConstant64Operation(STATEMENT& statement)
 			changed = true;
 		}
 	}
+	else if(statement.op == OP_ADD64)
+	{
+		if(src2cst && (src2cst->m_valueLow == 0) && (src2cst->m_valueHigh == 0))
+		{
+			statement.op = OP_MOV;
+			statement.src2.reset();
+			changed = true;
+		}
+	}
+	else if(statement.op == OP_CMP64)
+	{
+		if(src1cst && src2cst)
+		{
+			bool result = false;
+			switch(statement.jmpCondition)
+			{
+			case CONDITION_NE:
+				result = !(
+							(src1cst->m_valueLow  == src2cst->m_valueLow) && 
+							(src1cst->m_valueHigh == src2cst->m_valueHigh)
+							);
+				break;
+			default:
+				assert(0);
+				break;
+			}
+			changed = true;
+			statement.op = OP_MOV;
+			statement.src1 = MakeSymbolRef(MakeSymbol(SYM_CONSTANT, result ? 1 : 0));
+			statement.src2.reset();
+		}
+	}
 
 	return changed;
 }
@@ -996,7 +1031,13 @@ bool CJitter::CopyPropagation(StatementList& statements)
 		if(outerDstSymbol == NULL) continue;
 
 		//Don't mess with relatives
-		if(outerDstSymbol->GetSymbol()->m_type == SYM_RELATIVE) continue;
+		if(
+			(outerDstSymbol->GetSymbol()->m_type == SYM_RELATIVE) ||
+			(outerDstSymbol->GetSymbol()->m_type == SYM_RELATIVE64)
+			) 
+		{
+			continue;
+		}
 
 		//Count number of uses of this symbol
 		unsigned int useCount = 0;

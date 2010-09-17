@@ -89,8 +89,11 @@ namespace Jitter
 		void                            Xor();
 
 		//64-bits
-		void							PushRel64(size_t);
+		virtual void					PushRel64(size_t);
+		void							PushCst64(uint64);
+
 		void							PullRel64(size_t);
+
 		void							ExtLow64();
 		void							ExtHigh64();
 

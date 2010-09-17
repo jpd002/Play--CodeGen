@@ -526,6 +526,11 @@ void CJitter::PushRel64(size_t offset)
 	m_Shadow.Push(MakeSymbol(SYM_RELATIVE64, static_cast<uint32>(offset)));
 }
 
+void CJitter::PushCst64(uint64 constant)
+{
+	m_Shadow.Push(MakeConstant64(constant));
+}
+
 void CJitter::PullRel64(size_t offset)
 {
 	STATEMENT statement;
@@ -612,7 +617,16 @@ void CJitter::Cmp64(CONDITION condition)
 
 void CJitter::Sub64()
 {
-	throw std::exception();
+	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY64, m_nextTemporary++);
+
+	STATEMENT statement;
+	statement.op	= OP_SUB64;
+	statement.src2	= MakeSymbolRef(m_Shadow.Pull());
+	statement.src1	= MakeSymbolRef(m_Shadow.Pull());
+	statement.dst	= MakeSymbolRef(tempSym);
+	InsertStatement(statement);
+
+	m_Shadow.Push(tempSym);
 }
 
 void CJitter::Srl64()
@@ -636,7 +650,16 @@ void CJitter::Srl64(uint8 nAmount)
 
 void CJitter::Sra64(uint8 nAmount)
 {
-	throw std::exception();
+	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY64, m_nextTemporary++);
+
+	STATEMENT statement;
+	statement.op	= OP_SRA64;
+	statement.src2	= MakeSymbolRef(MakeSymbol(SYM_CONSTANT, nAmount));
+	statement.src1	= MakeSymbolRef(m_Shadow.Pull());
+	statement.dst	= MakeSymbolRef(tempSym);
+	InsertStatement(statement);
+
+	m_Shadow.Push(tempSym);
 }
 
 void CJitter::Shl64()

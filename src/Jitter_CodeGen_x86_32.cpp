@@ -29,6 +29,7 @@ CCodeGen_x86_32::CONSTMATCHER CCodeGen_x86_32::g_constMatchers[] =
 	{ OP_ADD64,		MATCH_RELATIVE64,	MATCH_RELATIVE64,	MATCH_CONSTANT64,	&CCodeGen_x86_32::Emit_Add64_RelRelCst	},
 
 	{ OP_SUB64,		MATCH_RELATIVE64,	MATCH_RELATIVE64,	MATCH_RELATIVE64,	&CCodeGen_x86_32::Emit_Sub64_RelRelRel	},
+	{ OP_SUB64,		MATCH_RELATIVE64,	MATCH_CONSTANT64,	MATCH_RELATIVE64,	&CCodeGen_x86_32::Emit_Sub64_RelCstRel	},
 
 	{ OP_AND64,		MATCH_RELATIVE64,	MATCH_RELATIVE64,	MATCH_RELATIVE64,	&CCodeGen_x86_32::Emit_And64_RelRelRel	},
 
@@ -234,6 +235,26 @@ void CCodeGen_x86_32::Emit_Sub64_RelRelRel(const STATEMENT& statement)
 
 	m_assembler.MovEd(CX86Assembler::rAX, CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, src1->m_valueLow + 0));
 	m_assembler.MovEd(CX86Assembler::rDX, CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, src1->m_valueLow + 4));
+
+	m_assembler.SubEd(CX86Assembler::rAX, CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, src2->m_valueLow + 0));
+	m_assembler.SbbEd(CX86Assembler::rDX, CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, src2->m_valueLow + 4));
+
+	m_assembler.MovGd(CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, dst->m_valueLow + 0), CX86Assembler::rAX);
+	m_assembler.MovGd(CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, dst->m_valueLow + 4), CX86Assembler::rDX);
+}
+
+void CCodeGen_x86_32::Emit_Sub64_RelCstRel(const STATEMENT& statement)
+{
+	CSymbol* dst = statement.dst->GetSymbol().get();
+	CSymbol* src1 = statement.src1->GetSymbol().get();
+	CSymbol* src2 = statement.src2->GetSymbol().get();
+
+	assert(dst->m_type  == SYM_RELATIVE64);
+	assert(src1->m_type == SYM_CONSTANT64);
+	assert(src2->m_type == SYM_RELATIVE64);
+
+	m_assembler.MovId(CX86Assembler::rAX, src1->m_valueLow);
+	m_assembler.MovId(CX86Assembler::rDX, src1->m_valueHigh);
 
 	m_assembler.SubEd(CX86Assembler::rAX, CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, src2->m_valueLow + 0));
 	m_assembler.SbbEd(CX86Assembler::rDX, CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, src2->m_valueLow + 4));
@@ -508,10 +529,74 @@ void CCodeGen_x86_32::Cmp64_Equal(const STATEMENT& statement)
 	m_assembler.MovzxEb(res1Reg, CX86Assembler::MakeRegisterAddress(res1Reg));
 }
 
-void CCodeGen_x86_32::Cmp64_LessThan(const STATEMENT& statement)
+struct CompareOrder64Less
+{
+	typedef void (CX86Assembler::*OrderCheckFunction)(const CX86Assembler::CAddress&);
+
+	static bool IsSigned(Jitter::CONDITION condition)
+	{
+		return (condition == CONDITION_LE) || (condition == CONDITION_LT); 
+	}
+
+	static bool OrEqual(Jitter::CONDITION condition)
+	{
+		return (condition == CONDITION_LE) || (condition == CONDITION_BE);
+	}
+
+	static OrderCheckFunction CheckOrderSigned()
+	{
+		return &CX86Assembler::SetlEb;		
+	}
+
+	static OrderCheckFunction CheckOrderUnsigned()
+	{
+		return &CX86Assembler::SetbEb;
+	}
+
+	static OrderCheckFunction CheckOrderOrEqualUnsigned()
+	{
+		return &CX86Assembler::SetbeEb;
+	}
+};
+
+struct CompareOrder64Greater
+{
+	typedef void (CX86Assembler::*OrderCheckFunction)(const CX86Assembler::CAddress&);
+
+	static bool IsSigned(Jitter::CONDITION condition)
+	{
+		return (condition == CONDITION_GE) || (condition == CONDITION_GT);
+	}
+
+	static bool OrEqual(Jitter::CONDITION condition)
+	{
+		return (condition == CONDITION_GE) || (condition == CONDITION_AE);
+	}
+
+	static OrderCheckFunction CheckOrderSigned()
+	{
+		return &CX86Assembler::SetgEb;		
+	}
+
+	static OrderCheckFunction CheckOrderUnsigned()
+	{
+		return &CX86Assembler::SetaEb;
+	}
+
+	static OrderCheckFunction CheckOrderOrEqualUnsigned()
+	{
+		return &CX86Assembler::SetaeEb;
+	}
+};
+
+template <typename CompareTraits>
+void CCodeGen_x86_32::Cmp64_Order(const STATEMENT& statement)
 {
 	CSymbol* src1 = statement.src1->GetSymbol().get();
 	CSymbol* src2 = statement.src2->GetSymbol().get();
+
+	CompareTraits compareTraits;
+	(void)compareTraits;
 
 	struct CmpLo
 	{
@@ -556,8 +641,8 @@ void CCodeGen_x86_32::Cmp64_LessThan(const STATEMENT& statement)
 	CX86Assembler::REGISTER regLo = CX86Assembler::rAX;
 	CX86Assembler::REGISTER regHi = CX86Assembler::rDX;
 
-	bool isSigned	= (statement.jmpCondition == CONDITION_LE) || (statement.jmpCondition == CONDITION_LT); 
-	bool orEqual	= (statement.jmpCondition == CONDITION_LE) || (statement.jmpCondition == CONDITION_BE);
+	bool isSigned	= compareTraits.IsSigned(statement.jmpCondition);
+	bool orEqual	= compareTraits.OrEqual(statement.jmpCondition);
 
     CX86Assembler::LABEL highOrderEqualLabel = m_assembler.CreateLabel();
     CX86Assembler::LABEL doneLabel = m_assembler.CreateLabel();
@@ -577,11 +662,11 @@ void CCodeGen_x86_32::Cmp64_LessThan(const STATEMENT& statement)
 	//setb/l reg[l]
     if(isSigned)
     {
-        m_assembler.SetlEb(CX86Assembler::MakeByteRegisterAddress(regLo));
+		((m_assembler).*(compareTraits.CheckOrderSigned()))(CX86Assembler::MakeByteRegisterAddress(regLo));
     }
     else
     {
-        m_assembler.SetbEb(CX86Assembler::MakeByteRegisterAddress(regLo));
+		((m_assembler).*(compareTraits.CheckOrderUnsigned()))(CX86Assembler::MakeByteRegisterAddress(regLo));
     }
 
 	//movzx reg, reg[l]
@@ -600,11 +685,11 @@ void CCodeGen_x86_32::Cmp64_LessThan(const STATEMENT& statement)
     //setb/be reg[l]
     if(orEqual)
     {
-        m_assembler.SetbeEb(CX86Assembler::MakeByteRegisterAddress(regLo));
+		((m_assembler).*(compareTraits.CheckOrderOrEqualUnsigned()))(CX86Assembler::MakeByteRegisterAddress(regLo));
     }
     else
     {
-        m_assembler.SetbEb(CX86Assembler::MakeByteRegisterAddress(regLo));
+		((m_assembler).*(compareTraits.CheckOrderUnsigned()))(CX86Assembler::MakeByteRegisterAddress(regLo));
     }
 
 	//movzx reg, reg[l]
@@ -621,7 +706,12 @@ void CCodeGen_x86_32::Cmp64_GenericRel(const STATEMENT& statement)
 	case CONDITION_BL:
 	case CONDITION_LT:
 	case CONDITION_LE:
-		Cmp64_LessThan(statement);
+		Cmp64_Order<CompareOrder64Less>(statement);
+		break;
+	case CONDITION_AB:
+	case CONDITION_GT:
+	case CONDITION_GE:
+		Cmp64_Order<CompareOrder64Greater>(statement);
 		break;
 	case CONDITION_NE:
 	case CONDITION_EQ:

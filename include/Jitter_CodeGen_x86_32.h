@@ -41,6 +41,7 @@ namespace Jitter
 
 		//SUB64
 		void								Emit_Sub64_RelRelRel(const STATEMENT&);
+		void								Emit_Sub64_RelCstRel(const STATEMENT&);
 
 		//AND64
 		void								Emit_And64_RelRelRel(const STATEMENT&);
@@ -56,7 +57,7 @@ namespace Jitter
 
 		//CMP64
 		void								Cmp64_Equal(const STATEMENT&);
-		void								Cmp64_LessThan(const STATEMENT&);
+		template <typename> void			Cmp64_Order(const STATEMENT&);
 		void								Cmp64_GenericRel(const STATEMENT&);
 		void								Emit_Cmp64_RegRelRel(const STATEMENT&);
 		void								Emit_Cmp64_RelRelRel(const STATEMENT&);

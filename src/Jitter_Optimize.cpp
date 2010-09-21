@@ -1591,6 +1591,7 @@ void CJitter::NormalizeStatements(BASIC_BLOCK& basicBlock)
 				isCommutative = true;
 				break;
 			case OP_CMP:
+			case OP_CMP64:
 			case OP_CONDJMP:
 				isCommutative = true;
 				conditionSwapRequired = true;
@@ -1603,8 +1604,8 @@ void CJitter::NormalizeStatements(BASIC_BLOCK& basicBlock)
 
 		//Check if constant operand is at the beginning and swap if it is the case
 		{
-			CSymbol* src1cst = dynamic_symbolref_cast(SYM_CONSTANT, statement.src1);
-			CSymbol* src2cst = dynamic_symbolref_cast(SYM_CONSTANT, statement.src2);
+			bool src1cst = statement.src1->GetSymbol()->IsConstant();
+			bool src2cst = statement.src2->GetSymbol()->IsConstant();
 
 			if(src1cst && !src2cst)
 			{

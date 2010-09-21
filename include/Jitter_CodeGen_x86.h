@@ -155,6 +155,7 @@ namespace Jitter
 		template <typename> void	Emit_Alu_TmpRegReg(const STATEMENT&);
 		template <typename> void	Emit_Alu_TmpRegRel(const STATEMENT&);
 		template <typename> void	Emit_Alu_TmpRegCst(const STATEMENT&);
+		template <typename> void	Emit_Alu_TmpRelReg(const STATEMENT&);
 		template <typename> void	Emit_Alu_TmpRelRel(const STATEMENT&);
 		template <typename> void	Emit_Alu_TmpRelCst(const STATEMENT&);
 		template <typename> void	Emit_Alu_TmpTmpCst(const STATEMENT&);
@@ -243,6 +244,7 @@ namespace Jitter
 		//EXTLOW64
 		void						Emit_ExtLow64RegTmp64(const STATEMENT&);
 		void						Emit_ExtLow64RelTmp64(const STATEMENT&);
+		void						Emit_ExtLow64TmpTmp64(const STATEMENT&);
 
 		//EXTHIGH64
 		void						Emit_ExtHigh64RegTmp64(const STATEMENT&);

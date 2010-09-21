@@ -536,6 +536,11 @@ void CX86Assembler::SetaEb(const CAddress& address)
     WriteEvOp(0x97, 0x00, false, address);
 }
 
+void CX86Assembler::SetaeEb(const CAddress& address)
+{
+	throw std::exception();
+}
+
 void CX86Assembler::SetbEb(const CAddress& address)
 {
     WriteByte(0x0F);

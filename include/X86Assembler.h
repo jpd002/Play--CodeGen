@@ -164,6 +164,7 @@ public:
     void                                    SbbEd(REGISTER, const CAddress&);
     void                                    SbbId(const CAddress&, uint32);
 	void									SetaEb(const CAddress&);
+	void									SetaeEb(const CAddress&);
     void                                    SetbEb(const CAddress&);
     void                                    SetbeEb(const CAddress&);
     void                                    SeteEb(const CAddress&);

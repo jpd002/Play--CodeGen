@@ -129,6 +129,11 @@ namespace Jitter
 			return (m_type == SYM_RELATIVE) || (m_type == SYM_RELATIVE64) || (m_type == SYM_FP_REL_SINGLE) || (m_type == SYM_FP_REL_INT32);
 		}
 
+		bool IsConstant() const
+		{
+			return (m_type == SYM_CONSTANT) || (m_type == SYM_CONSTANT64);
+		}
+
 		bool IsTemporary() const
 		{
 			return (m_type == SYM_TEMPORARY) || (m_type == SYM_TEMPORARY64) || (m_type == SYM_FP_TMP_SINGLE);

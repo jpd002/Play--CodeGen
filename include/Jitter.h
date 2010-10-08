@@ -94,6 +94,7 @@ namespace Jitter
 
 		void							PullRel64(size_t);
 
+		void							MergeTo64();
 		void							ExtLow64();
 		void							ExtHigh64();
 

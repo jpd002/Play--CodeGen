@@ -141,6 +141,37 @@ void CCodeGen_x86::Emit_Shift_RegTmpCst(const STATEMENT& statement)
 }
 
 template <typename SHIFTOP>
+void CCodeGen_x86::Emit_Shift_MemRegMem(const STATEMENT& statement)
+{
+	CSymbol* dst = statement.dst->GetSymbol().get();
+	CSymbol* src1 = statement.src1->GetSymbol().get();
+	CSymbol* src2 = statement.src2->GetSymbol().get();
+
+	assert(src1->m_type == SYM_REGISTER);
+
+	m_assembler.MovEd(CX86Assembler::rAX, CX86Assembler::MakeRegisterAddress(m_registers[src1->m_valueLow]));
+	m_assembler.MovEd(CX86Assembler::rCX, MakeMemorySymbolAddress(src2));
+	((m_assembler).*(SHIFTOP::OpVar()))(CX86Assembler::MakeRegisterAddress(CX86Assembler::rAX));
+	m_assembler.MovGd(MakeMemorySymbolAddress(dst), CX86Assembler::rAX);
+}
+
+template <typename SHIFTOP>
+void CCodeGen_x86::Emit_Shift_MemCstReg(const STATEMENT& statement)
+{
+	CSymbol* dst = statement.dst->GetSymbol().get();
+	CSymbol* src1 = statement.src1->GetSymbol().get();
+	CSymbol* src2 = statement.src2->GetSymbol().get();
+
+	assert(src1->m_type == SYM_CONSTANT);
+	assert(src2->m_type == SYM_REGISTER);
+
+	m_assembler.MovId(CX86Assembler::rAX, src1->m_valueLow);
+	m_assembler.MovEd(CX86Assembler::rCX, CX86Assembler::MakeRegisterAddress(m_registers[src2->m_valueLow]));
+	((m_assembler).*(SHIFTOP::OpVar()))(CX86Assembler::MakeRegisterAddress(CX86Assembler::rAX));
+	m_assembler.MovGd(MakeMemorySymbolAddress(dst), CX86Assembler::rAX);
+}
+
+template <typename SHIFTOP>
 void CCodeGen_x86::Emit_Shift_RelRegReg(const STATEMENT& statement)
 {
 	CSymbol* dst = statement.dst->GetSymbol().get();
@@ -148,23 +179,6 @@ void CCodeGen_x86::Emit_Shift_RelRegReg(const STATEMENT& statement)
 	CSymbol* src2 = statement.src2->GetSymbol().get();
 
 	m_assembler.MovEd(CX86Assembler::rCX, CX86Assembler::MakeRegisterAddress(m_registers[src2->m_valueLow]));
-	m_assembler.MovEd(CX86Assembler::rAX, CX86Assembler::MakeRegisterAddress(m_registers[src1->m_valueLow]));
-	((m_assembler).*(SHIFTOP::OpVar()))(CX86Assembler::MakeRegisterAddress(CX86Assembler::rAX));
-	m_assembler.MovGd(CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, dst->m_valueLow), CX86Assembler::rAX);
-}
-
-template <typename SHIFTOP>
-void CCodeGen_x86::Emit_Shift_RelRegRel(const STATEMENT& statement)
-{
-	CSymbol* dst = statement.dst->GetSymbol().get();
-	CSymbol* src1 = statement.src1->GetSymbol().get();
-	CSymbol* src2 = statement.src2->GetSymbol().get();
-
-	assert(dst->m_type  == SYM_RELATIVE);
-	assert(src1->m_type == SYM_REGISTER);
-	assert(src2->m_type == SYM_RELATIVE);
-
-	m_assembler.MovEd(CX86Assembler::rCX, CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, src2->m_valueLow));
 	m_assembler.MovEd(CX86Assembler::rAX, CX86Assembler::MakeRegisterAddress(m_registers[src1->m_valueLow]));
 	((m_assembler).*(SHIFTOP::OpVar()))(CX86Assembler::MakeRegisterAddress(CX86Assembler::rAX));
 	m_assembler.MovGd(CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, dst->m_valueLow), CX86Assembler::rAX);
@@ -237,23 +251,6 @@ void CCodeGen_x86::Emit_Shift_RelRelCst(const STATEMENT& statement)
 }
 
 template <typename SHIFTOP>
-void CCodeGen_x86::Emit_Shift_RelCstReg(const STATEMENT& statement)
-{
-	CSymbol* dst = statement.dst->GetSymbol().get();
-	CSymbol* src1 = statement.src1->GetSymbol().get();
-	CSymbol* src2 = statement.src2->GetSymbol().get();
-
-	assert(dst->m_type  == SYM_RELATIVE);
-	assert(src1->m_type == SYM_CONSTANT);
-	assert(src2->m_type == SYM_REGISTER);
-
-	m_assembler.MovId(CX86Assembler::rAX, src1->m_valueLow);
-	m_assembler.MovEd(CX86Assembler::rCX, CX86Assembler::MakeRegisterAddress(m_registers[src2->m_valueLow]));
-	((m_assembler).*(SHIFTOP::OpVar()))(CX86Assembler::MakeRegisterAddress(CX86Assembler::rAX));
-	m_assembler.MovGd(CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, dst->m_valueLow), CX86Assembler::rAX);
-}
-
-template <typename SHIFTOP>
 void CCodeGen_x86::Emit_Shift_RelCstRel(const STATEMENT& statement)
 {
 	CSymbol* dst = statement.dst->GetSymbol().get();
@@ -284,6 +281,23 @@ void CCodeGen_x86::Emit_Shift_RelTmpCst(const STATEMENT& statement)
 	m_assembler.MovEd(CX86Assembler::rAX, MakeTemporarySymbolAddress(src1));
 	((m_assembler).*(SHIFTOP::OpCst()))(CX86Assembler::MakeRegisterAddress(CX86Assembler::rAX), static_cast<uint8>(src2->m_valueLow));
 	m_assembler.MovGd(MakeRelativeSymbolAddress(dst), CX86Assembler::rAX);
+}
+
+template <typename SHIFTOP>
+void CCodeGen_x86::Emit_Shift_TmpRegReg(const STATEMENT& statement)
+{
+	CSymbol* dst = statement.dst->GetSymbol().get();
+	CSymbol* src1 = statement.src1->GetSymbol().get();
+	CSymbol* src2 = statement.src2->GetSymbol().get();
+
+	assert(dst->m_type  == SYM_TEMPORARY);
+	assert(src1->m_type == SYM_REGISTER);
+	assert(src2->m_type == SYM_REGISTER);
+
+	m_assembler.MovEd(CX86Assembler::rAX, CX86Assembler::MakeRegisterAddress(m_registers[src1->m_valueLow]));
+	m_assembler.MovEd(CX86Assembler::rCX, CX86Assembler::MakeRegisterAddress(m_registers[src2->m_valueLow]));
+	((m_assembler).*(SHIFTOP::OpVar()))(CX86Assembler::MakeRegisterAddress(CX86Assembler::rAX));
+	m_assembler.MovGd(MakeTemporarySymbolAddress(dst), CX86Assembler::rAX);
 }
 
 template <typename SHIFTOP>
@@ -319,6 +333,40 @@ void CCodeGen_x86::Emit_Shift_TmpRelCst(const STATEMENT& statement)
 }
 
 template <typename SHIFTOP>
+void CCodeGen_x86::Emit_Shift_TmpRelReg(const STATEMENT& statement)
+{
+	CSymbol* dst = statement.dst->GetSymbol().get();
+	CSymbol* src1 = statement.src1->GetSymbol().get();
+	CSymbol* src2 = statement.src2->GetSymbol().get();
+
+	assert(dst->m_type  == SYM_TEMPORARY);
+	assert(src1->m_type == SYM_RELATIVE);
+	assert(src2->m_type == SYM_REGISTER);
+
+	m_assembler.MovEd(CX86Assembler::rAX, MakeRelativeSymbolAddress(src1));
+	m_assembler.MovEd(CX86Assembler::rCX, CX86Assembler::MakeRegisterAddress(m_registers[src2->m_valueLow]));
+	((m_assembler).*(SHIFTOP::OpVar()))(CX86Assembler::MakeRegisterAddress(CX86Assembler::rAX));
+	m_assembler.MovGd(MakeTemporarySymbolAddress(dst), CX86Assembler::rAX);
+}
+
+template <typename SHIFTOP>
+void CCodeGen_x86::Emit_Shift_TmpRelRel(const STATEMENT& statement)
+{
+	CSymbol* dst = statement.dst->GetSymbol().get();
+	CSymbol* src1 = statement.src1->GetSymbol().get();
+	CSymbol* src2 = statement.src2->GetSymbol().get();
+
+	assert(dst->m_type  == SYM_TEMPORARY);
+	assert(src1->m_type == SYM_RELATIVE);
+	assert(src2->m_type == SYM_RELATIVE);
+
+	m_assembler.MovEd(CX86Assembler::rAX, MakeRelativeSymbolAddress(src1));
+	m_assembler.MovEd(CX86Assembler::rCX, MakeRelativeSymbolAddress(src2));
+	((m_assembler).*(SHIFTOP::OpVar()))(CX86Assembler::MakeRegisterAddress(CX86Assembler::rAX));
+	m_assembler.MovGd(MakeTemporarySymbolAddress(dst), CX86Assembler::rAX);
+}
+
+template <typename SHIFTOP>
 void CCodeGen_x86::Emit_Shift_TmpCstRel(const STATEMENT& statement)
 {
 	CSymbol* dst = statement.dst->GetSymbol().get();
@@ -334,23 +382,6 @@ void CCodeGen_x86::Emit_Shift_TmpCstRel(const STATEMENT& statement)
 	((m_assembler).*(SHIFTOP::OpVar()))(CX86Assembler::MakeRegisterAddress(CX86Assembler::rAX));
 	m_assembler.MovGd(MakeTemporarySymbolAddress(dst), CX86Assembler::rAX);
 }
-
-//template <typename SHIFTOP>
-//void CCodeGen_x86::Emit_Shift_TmpCstReg(const STATEMENT& statement)
-//{
-//	CSymbol* dst = statement.dst->GetSymbol().get();
-//	CSymbol* src1 = statement.src1->GetSymbol().get();
-//	CSymbol* src2 = statement.src2->GetSymbol().get();
-//
-//	assert(dst->m_type  == SYM_TEMPORARY);
-//	assert(src1->m_type == SYM_CONSTANT);
-//	assert(src2->m_type == SYM_REGISTER);
-//
-//	m_assembler.MovId(CX86Assembler::rAX, src1->m_valueLow);
-//	m_assembler.MovEd(CX86Assembler::rCX, CX86Assembler::MakeRegisterAddress(m_registers[src2->m_valueLow]));
-//	((m_assembler).*(SHIFTOP::OpVar()))(CX86Assembler::MakeRegisterAddress(CX86Assembler::rAX));
-//	m_assembler.MovGd(CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rSP, dst->m_stackLocation + m_stackLevel), CX86Assembler::rAX);
-//}
 
 template <typename SHIFTOP>
 void CCodeGen_x86::Emit_Shift_TmpTmpCst(const STATEMENT& statement)
@@ -386,16 +417,21 @@ void CCodeGen_x86::Emit_Shift_TmpTmpCst(const STATEMENT& statement)
 	{ SHIFTOP_CST,	MATCH_REGISTER,		MATCH_CONSTANT,		MATCH_REGISTER,		&CCodeGen_x86::Emit_Shift_RegCstReg<SHIFTOP>	}, \
 	{ SHIFTOP_CST,	MATCH_REGISTER,		MATCH_CONSTANT,		MATCH_RELATIVE,		&CCodeGen_x86::Emit_Shift_RegCstRel<SHIFTOP>	}, \
 	{ SHIFTOP_CST,	MATCH_REGISTER,		MATCH_TEMPORARY,	MATCH_CONSTANT,		&CCodeGen_x86::Emit_Shift_RegTmpCst<SHIFTOP>	}, \
+\
+	{ SHIFTOP_CST,	MATCH_MEMORY,		MATCH_REGISTER,		MATCH_MEMORY,		&CCodeGen_x86::Emit_Shift_MemRegMem<SHIFTOP>	}, \
+	{ SHIFTOP_CST,	MATCH_MEMORY,		MATCH_CONSTANT,		MATCH_REGISTER,		&CCodeGen_x86::Emit_Shift_MemCstReg<SHIFTOP>	}, \
+\
 	{ SHIFTOP_CST,	MATCH_RELATIVE,		MATCH_REGISTER,		MATCH_REGISTER,		&CCodeGen_x86::Emit_Shift_RelRegReg<SHIFTOP>	}, \
-	{ SHIFTOP_CST,	MATCH_RELATIVE,		MATCH_REGISTER,		MATCH_RELATIVE,		&CCodeGen_x86::Emit_Shift_RelRegRel<SHIFTOP>	}, \
 	{ SHIFTOP_CST,	MATCH_RELATIVE,		MATCH_REGISTER,		MATCH_CONSTANT,		&CCodeGen_x86::Emit_Shift_RelRegCst<SHIFTOP>	}, \
 	{ SHIFTOP_CST,	MATCH_RELATIVE,		MATCH_RELATIVE,		MATCH_REGISTER,		&CCodeGen_x86::Emit_Shift_RelRelReg<SHIFTOP>	}, \
 	{ SHIFTOP_CST,	MATCH_RELATIVE,		MATCH_RELATIVE,		MATCH_RELATIVE,		&CCodeGen_x86::Emit_Shift_RelRelRel<SHIFTOP>	}, \
-	{ SHIFTOP_CST,	MATCH_RELATIVE,		MATCH_CONSTANT,		MATCH_REGISTER,		&CCodeGen_x86::Emit_Shift_RelCstReg<SHIFTOP>	}, \
 	{ SHIFTOP_CST,	MATCH_RELATIVE,		MATCH_CONSTANT,		MATCH_RELATIVE,		&CCodeGen_x86::Emit_Shift_RelCstRel<SHIFTOP>	}, \
 	{ SHIFTOP_CST,	MATCH_RELATIVE,		MATCH_RELATIVE,		MATCH_CONSTANT,		&CCodeGen_x86::Emit_Shift_RelRelCst<SHIFTOP>	}, \
 	{ SHIFTOP_CST,	MATCH_RELATIVE,		MATCH_TEMPORARY,	MATCH_CONSTANT,		&CCodeGen_x86::Emit_Shift_RelTmpCst<SHIFTOP>	}, \
+	{ SHIFTOP_CST,	MATCH_TEMPORARY,	MATCH_REGISTER,		MATCH_REGISTER,		&CCodeGen_x86::Emit_Shift_TmpRegReg<SHIFTOP>	}, \
 	{ SHIFTOP_CST,	MATCH_TEMPORARY,	MATCH_REGISTER,		MATCH_CONSTANT,		&CCodeGen_x86::Emit_Shift_TmpRegCst<SHIFTOP>	}, \
+	{ SHIFTOP_CST,	MATCH_TEMPORARY,	MATCH_RELATIVE,		MATCH_REGISTER,		&CCodeGen_x86::Emit_Shift_TmpRelReg<SHIFTOP>	}, \
+	{ SHIFTOP_CST,	MATCH_TEMPORARY,	MATCH_RELATIVE,		MATCH_RELATIVE,		&CCodeGen_x86::Emit_Shift_TmpRelRel<SHIFTOP>	}, \
 	{ SHIFTOP_CST,	MATCH_TEMPORARY,	MATCH_RELATIVE,		MATCH_CONSTANT,		&CCodeGen_x86::Emit_Shift_TmpRelCst<SHIFTOP>	}, \
 	{ SHIFTOP_CST,	MATCH_TEMPORARY,	MATCH_CONSTANT,		MATCH_RELATIVE,		&CCodeGen_x86::Emit_Shift_TmpCstRel<SHIFTOP>	}, \
 	{ SHIFTOP_CST,	MATCH_TEMPORARY,	MATCH_TEMPORARY,	MATCH_CONSTANT,		&CCodeGen_x86::Emit_Shift_TmpTmpCst<SHIFTOP>	},

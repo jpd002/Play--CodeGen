@@ -11,6 +11,7 @@
 #include "RandomAluTest2.h"
 #include "RandomAluTest3.h"
 #include "FpuTest.h"
+#include "FpIntMixTest.h"
 #include "CompareTest.h"
 #include "RegAllocTest.h"
 
@@ -30,6 +31,7 @@ TestFactoryFunction s_factories[] =
 	TestFactoryFunction(boost::lambda::bind(boost::lambda::new_ptr<CMultTest>(), true)),
 	TestFactoryFunction(boost::lambda::bind(boost::lambda::new_ptr<CMultTest>(), false)),
 	TestFactoryFunction(boost::lambda::bind(boost::lambda::new_ptr<CFpuTest>())),
+	TestFactoryFunction(boost::lambda::bind(boost::lambda::new_ptr<CFpIntMixTest>())),
 	TestFactoryFunction(),
 };
 

@@ -1,14 +1,14 @@
-#ifndef _FPUTEST_H_
-#define _FPUTEST_H_
+#ifndef _FPINTMIXTEST_H_
+#define _FPINTMIXTEST_H_
 
 #include "Test.h"
 #include "MemoryFunction.h"
 
-class CFpuTest : public CTest
+class CFpIntMixTest : public CTest
 {
 public:
-						CFpuTest();
-	virtual				~CFpuTest();
+						CFpIntMixTest();
+	virtual				~CFpIntMixTest();
 
 	void				Compile(Jitter::CJitter&);
 	void				Run();
@@ -18,7 +18,7 @@ private:
 	{
 		float number1;
 		float number2;
-		float number3;
+		uint32 result;
 	};
 
 	CONTEXT				m_context;

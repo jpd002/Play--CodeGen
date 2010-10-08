@@ -10,25 +10,31 @@ bool CCodeGen::SymbolMatches(MATCHTYPE match, const SymbolRefPtr& symbolRef)
 	switch(match)
 	{
 	case MATCH_RELATIVE:
-		return symbol->m_type == SYM_RELATIVE;
+		return (symbol->m_type == SYM_RELATIVE);
 	case MATCH_CONSTANT:
-		return symbol->m_type == SYM_CONSTANT;
+		return (symbol->m_type == SYM_CONSTANT);
 	case MATCH_REGISTER:
-		return symbol->m_type == SYM_REGISTER;
+		return (symbol->m_type == SYM_REGISTER);
 	case MATCH_TEMPORARY:
-		return symbol->m_type == SYM_TEMPORARY;
+		return (symbol->m_type == SYM_TEMPORARY);
+	case MATCH_MEMORY:
+		return (symbol->m_type == SYM_RELATIVE) || (symbol->m_type == SYM_TEMPORARY);
 	case MATCH_RELATIVE64:
-		return symbol->m_type == SYM_RELATIVE64;
+		return (symbol->m_type == SYM_RELATIVE64);
 	case MATCH_TEMPORARY64:
-		return symbol->m_type == SYM_TEMPORARY64;
+		return (symbol->m_type == SYM_TEMPORARY64);
 	case MATCH_CONSTANT64:
-		return symbol->m_type == SYM_CONSTANT64;
+		return (symbol->m_type == SYM_CONSTANT64);
 	case MATCH_RELATIVE_FP_SINGLE:
-		return symbol->m_type == SYM_FP_REL_SINGLE;
+		return (symbol->m_type == SYM_FP_REL_SINGLE);
 	case MATCH_RELATIVE_FP_INT32:
-		return symbol->m_type == SYM_FP_REL_INT32;
+		return (symbol->m_type == SYM_FP_REL_INT32);
+	case MATCH_RELATIVE128:
+		return (symbol->m_type == SYM_RELATIVE128);
+	case MATCH_TEMPORARY128:
+		return (symbol->m_type == SYM_TEMPORARY128);
 	case MATCH_CONTEXT:
-		return symbol->m_type == SYM_CONTEXT;
+		return (symbol->m_type == SYM_CONTEXT);
 	}
 	return false;
 }

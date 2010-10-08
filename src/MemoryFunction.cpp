@@ -76,11 +76,20 @@ void CMemoryFunction::operator()(void* context)
 			push ebx
 			push esi
 			push edi
-		
+
 			mov eax, code
 			mov ebp, dataPtr
+
+			mov edi, esp
+			sub esp, 0x10
+			and esp, ~0xF
+			sub esp, 0x08
+			push edi
+
 			call eax
-		
+
+			pop esp
+
 			pop edi
 			pop esi
 			pop ebx

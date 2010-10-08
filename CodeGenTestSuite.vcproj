@@ -341,6 +341,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\tests\FpIntMixTest.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\tests\FpIntMixTest.h"
+				>
+			</File>
+			<File
 				RelativePath=".\tests\FpuTest.cpp"
 				>
 			</File>

@@ -116,13 +116,51 @@ namespace Jitter
 			static OpEdType OpEd() { return &CX86Assembler::RcpssEd; }
 		};
 
+		//MDOP -----------------------------------------------------------
+		struct MDOP_BASE
+		{
+			typedef void (CX86Assembler::*OpVoType)(CX86Assembler::XMMREGISTER, const CX86Assembler::CAddress&);
+		};
+
+		struct MDOP_SUBB : public MDOP_BASE
+		{
+			static OpVoType OpVo() { return &CX86Assembler::PsubbVo; }
+		};
+
+		struct MDOP_SUBW : public MDOP_BASE
+		{
+			static OpVoType OpVo() { return &CX86Assembler::PsubdVo; }
+		};
+
+		struct MDOP_AND : public MDOP_BASE
+		{
+			static OpVoType OpVo() { return &CX86Assembler::PandVo; }
+		};
+
+		struct MDOP_OR : public MDOP_BASE
+		{
+			static OpVoType OpVo() { return &CX86Assembler::PorVo; }
+		};
+
+		struct MDOP_XOR : public MDOP_BASE
+		{
+			static OpVoType OpVo() { return &CX86Assembler::PxorVo; }
+		};
+
 		virtual void				Emit_Prolog(unsigned int, uint32) = 0;
 		virtual void				Emit_Epilog(unsigned int, uint32) = 0;
 
 		CX86Assembler::LABEL		GetLabel(uint32);
 
-		CX86Assembler::CAddress		MakeTemporarySymbolAddress(CSymbol*);
 		CX86Assembler::CAddress		MakeRelativeSymbolAddress(CSymbol*);
+		CX86Assembler::CAddress		MakeTemporarySymbolAddress(CSymbol*);
+		CX86Assembler::CAddress		MakeMemorySymbolAddress(CSymbol*);
+
+		CX86Assembler::CAddress		MakeTemporary64SymbolLoAddress(CSymbol*);
+		CX86Assembler::CAddress		MakeTemporary64SymbolHiAddress(CSymbol*);
+
+		CX86Assembler::CAddress		MakeRelative128SymbolAddress(CSymbol*);
+		CX86Assembler::CAddress		MakeTemporary128SymbolAddress(CSymbol*);
 
 		//LABEL
 		void						MarkLabel(const STATEMENT&);
@@ -142,6 +180,9 @@ namespace Jitter
 		template <typename> void	Emit_Alu_RegCstRel(const STATEMENT&);
 		template <typename> void	Emit_Alu_RegTmpTmp(const STATEMENT&);
 		template <typename> void	Emit_Alu_RegTmpCst(const STATEMENT&);
+
+		template <typename> void	Emit_Alu_MemCstRel(const STATEMENT&);
+
 		template <typename> void	Emit_Alu_RelRegReg(const STATEMENT&);
 		template <typename> void	Emit_Alu_RelRegRel(const STATEMENT&);
 		template <typename> void	Emit_Alu_RelRegCst(const STATEMENT&);
@@ -150,14 +191,16 @@ namespace Jitter
 		template <typename> void	Emit_Alu_RelRelCst(const STATEMENT&);
 		template <typename> void	Emit_Alu_RelRelRel(const STATEMENT&);
 		template <typename> void	Emit_Alu_RelCstReg(const STATEMENT&);
-		template <typename> void	Emit_Alu_RelCstRel(const STATEMENT&);
+//		template <typename> void	Emit_Alu_RelCstRel(const STATEMENT&);
 		template <typename> void	Emit_Alu_RelTmpCst(const STATEMENT&);
+
 		template <typename> void	Emit_Alu_TmpRegReg(const STATEMENT&);
 		template <typename> void	Emit_Alu_TmpRegRel(const STATEMENT&);
 		template <typename> void	Emit_Alu_TmpRegCst(const STATEMENT&);
 		template <typename> void	Emit_Alu_TmpRelReg(const STATEMENT&);
 		template <typename> void	Emit_Alu_TmpRelRel(const STATEMENT&);
 		template <typename> void	Emit_Alu_TmpRelCst(const STATEMENT&);
+		template <typename> void	Emit_Alu_TmpCstReg(const STATEMENT&);
 		template <typename> void	Emit_Alu_TmpTmpCst(const STATEMENT&);
 
 		//SHIFT
@@ -170,19 +213,24 @@ namespace Jitter
 		template <typename> void	Emit_Shift_RegCstReg(const STATEMENT&);
 		template <typename> void	Emit_Shift_RegCstRel(const STATEMENT&);
 		template <typename> void	Emit_Shift_RegTmpCst(const STATEMENT&);
+
+		template <typename> void	Emit_Shift_MemRegMem(const STATEMENT&);
+		template <typename> void	Emit_Shift_MemCstReg(const STATEMENT&);
+
 		template <typename> void	Emit_Shift_RelRegReg(const STATEMENT&);
-		template <typename> void	Emit_Shift_RelRegRel(const STATEMENT&);
 		template <typename> void	Emit_Shift_RelRegCst(const STATEMENT&);
 		template <typename> void	Emit_Shift_RelRelReg(const STATEMENT&);
 		template <typename> void	Emit_Shift_RelRelRel(const STATEMENT&);
 		template <typename> void	Emit_Shift_RelRelCst(const STATEMENT&);
-		template <typename> void	Emit_Shift_RelCstReg(const STATEMENT&);
 		template <typename> void	Emit_Shift_RelCstRel(const STATEMENT&);
 		template <typename> void	Emit_Shift_RelTmpCst(const STATEMENT&);
+
+		template <typename> void	Emit_Shift_TmpRegReg(const STATEMENT&);
 		template <typename> void	Emit_Shift_TmpRegCst(const STATEMENT&);
+		template <typename> void	Emit_Shift_TmpRelReg(const STATEMENT&);
+		template <typename> void	Emit_Shift_TmpRelRel(const STATEMENT&);
 		template <typename> void	Emit_Shift_TmpRelCst(const STATEMENT&);
 		template <typename> void	Emit_Shift_TmpCstRel(const STATEMENT&);
-//		template <typename> void	Emit_Shift_TmpCstReg(const STATEMENT&);
 		template <typename> void	Emit_Shift_TmpTmpCst(const STATEMENT&);
 
 		//NOT
@@ -241,6 +289,9 @@ namespace Jitter
 		void						Emit_CondJmp_RelCst(const STATEMENT&);
 		void						Emit_CondJmp_TmpCst(const STATEMENT&);
 
+		//MERGETO64
+		void						Emit_MergeTo64_Tmp64CstReg(const STATEMENT&);
+
 		//EXTLOW64
 		void						Emit_ExtLow64RegTmp64(const STATEMENT&);
 		void						Emit_ExtLow64RelTmp64(const STATEMENT&);
@@ -256,7 +307,8 @@ namespace Jitter
 		template <typename> void	Emit_Fpu_RelRelRel(const STATEMENT&);
 
 		//FPCMP
-		void						Emit_Fp_Cmp_RegRelRel(const STATEMENT&);
+		void						Emit_Fp_Cmp_RelRel(CX86Assembler::REGISTER, const STATEMENT&);
+		void						Emit_Fp_Cmp_SymRelRel(const STATEMENT&);
 
 		//FPNEG
 		void						Emit_Fp_Neg_RelRel(const STATEMENT&);
@@ -266,6 +318,10 @@ namespace Jitter
 
 		//FP_TOINT_TRUNC
 		void						Emit_Fp_ToIntTrunc_RelRel(const STATEMENT&);
+
+		//MDOP
+		template <typename> void	Emit_Md_SymSymSym(const STATEMENT&);
+		void						Emit_Md_Not_RelTmp(const STATEMENT&);
 
 		CX86Assembler				m_assembler;
 		CX86Assembler::REGISTER*	m_registers;
@@ -286,6 +342,7 @@ namespace Jitter
 
 		static CONSTMATCHER			g_constMatchers[];
 		static CONSTMATCHER			g_fpuConstMatchers[];
+		static CONSTMATCHER			g_mdConstMatchers[];
 	};
 }
 

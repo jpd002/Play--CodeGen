@@ -12,13 +12,18 @@ namespace Jitter
 	enum SYM_TYPE
 	{
 		SYM_CONTEXT,
+
 		SYM_CONSTANT,
 		SYM_RELATIVE,
 		SYM_TEMPORARY,
 		SYM_REGISTER,
+
 		SYM_RELATIVE64,
 		SYM_TEMPORARY64,
 		SYM_CONSTANT64,
+
+		SYM_RELATIVE128,
+		SYM_TEMPORARY128,
 
 		SYM_FP_REL_SINGLE,
 		SYM_FP_TMP_SINGLE,
@@ -91,6 +96,12 @@ namespace Jitter
 			case SYM_FP_TMP_SINGLE:
 				return "TMP(FP_S)[" + boost::lexical_cast<std::string>(m_valueLow) + "]";
 				break;
+			case SYM_RELATIVE128:
+				return "REL128[" + boost::lexical_cast<std::string>(m_valueLow) + "]";
+				break;
+			case SYM_TEMPORARY128:
+				return "TMP128[" + boost::lexical_cast<std::string>(m_valueLow) + "]";
+				break;
 			default:
 				return "";
 				break;
@@ -112,6 +123,10 @@ namespace Jitter
 			case SYM_CONSTANT64:
 				return 8;
 				break;
+			case SYM_RELATIVE128:
+			case SYM_TEMPORARY128:
+				return 16;
+				break;
 			case SYM_FP_REL_SINGLE:
 			case SYM_FP_TMP_SINGLE:
 			case SYM_FP_REL_INT32:
@@ -126,7 +141,12 @@ namespace Jitter
 
 		bool IsRelative() const
 		{
-			return (m_type == SYM_RELATIVE) || (m_type == SYM_RELATIVE64) || (m_type == SYM_FP_REL_SINGLE) || (m_type == SYM_FP_REL_INT32);
+			return 
+				(m_type == SYM_RELATIVE) || 
+				(m_type == SYM_RELATIVE64) || 
+				(m_type == SYM_RELATIVE128) || 
+				(m_type == SYM_FP_REL_SINGLE) || 
+				(m_type == SYM_FP_REL_INT32);
 		}
 
 		bool IsConstant() const
@@ -136,7 +156,11 @@ namespace Jitter
 
 		bool IsTemporary() const
 		{
-			return (m_type == SYM_TEMPORARY) || (m_type == SYM_TEMPORARY64) || (m_type == SYM_FP_TMP_SINGLE);
+			return 
+				(m_type == SYM_TEMPORARY) || 
+				(m_type == SYM_TEMPORARY64) || 
+				(m_type == SYM_TEMPORARY128) || 
+				(m_type == SYM_FP_TMP_SINGLE);
 		}
 
 		bool Equals(CSymbol* symbol) const

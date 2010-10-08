@@ -82,6 +82,8 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_constMatchers[] =
 	{ OP_MULS,		MATCH_TEMPORARY64,	MATCH_RELATIVE,		MATCH_RELATIVE,		&CCodeGen_x86::Emit_MulTmp64RelRel<true>			},
 	{ OP_MULS,		MATCH_TEMPORARY64,	MATCH_RELATIVE,		MATCH_CONSTANT,		&CCodeGen_x86::Emit_MulTmp64RelCst<true>			},
 
+	{ OP_MERGETO64,	MATCH_TEMPORARY64,	MATCH_CONSTANT,		MATCH_REGISTER,		&CCodeGen_x86::Emit_MergeTo64_Tmp64CstReg			},
+
 	{ OP_EXTLOW64,	MATCH_REGISTER,		MATCH_TEMPORARY64,	MATCH_NIL,			&CCodeGen_x86::Emit_ExtLow64RegTmp64				},
 	{ OP_EXTLOW64,	MATCH_RELATIVE,		MATCH_TEMPORARY64,	MATCH_NIL,			&CCodeGen_x86::Emit_ExtLow64RelTmp64				},
 	{ OP_EXTLOW64,	MATCH_TEMPORARY,	MATCH_TEMPORARY64,	MATCH_NIL,			&CCodeGen_x86::Emit_ExtLow64TmpTmp64				},
@@ -117,6 +119,17 @@ CCodeGen_x86::CCodeGen_x86()
 		matcher.emitter		= std::tr1::bind(constMatcher->emitter, this, std::tr1::placeholders::_1);
 		m_matchers.insert(MatcherMapType::value_type(matcher.op, matcher));
 	}
+
+	for(CONSTMATCHER* constMatcher = g_mdConstMatchers; constMatcher->emitter != NULL; constMatcher++)
+	{
+		MATCHER matcher;
+		matcher.op			= constMatcher->op;
+		matcher.dstType		= constMatcher->dstType;
+		matcher.src1Type	= constMatcher->src1Type;
+		matcher.src2Type	= constMatcher->src2Type;
+		matcher.emitter		= std::tr1::bind(constMatcher->emitter, this, std::tr1::placeholders::_1);
+		m_matchers.insert(MatcherMapType::value_type(matcher.op, matcher));
+	}
 }
 
 CCodeGen_x86::~CCodeGen_x86()
@@ -138,6 +151,9 @@ void CCodeGen_x86::GenerateCode(const StatementList& statements, unsigned int st
 			registerUsage |= (1 << dst->m_valueLow);
 		}
 	}
+
+	//Align stacksize
+	stackSize = (stackSize + 0xF) & ~0xF;
 
 	m_stackLevel = 0;
 	Emit_Prolog(stackSize, registerUsage);
@@ -204,6 +220,36 @@ CX86Assembler::CAddress CCodeGen_x86::MakeRelativeSymbolAddress(CSymbol* symbol)
 	assert(symbol->m_type == SYM_RELATIVE);
 	assert((symbol->m_valueLow & 3) == 0);
 	return CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, symbol->m_valueLow);
+}
+
+CX86Assembler::CAddress CCodeGen_x86::MakeMemorySymbolAddress(CSymbol* symbol)
+{
+	switch(symbol->m_type)
+	{
+	case SYM_RELATIVE:
+		return MakeRelativeSymbolAddress(symbol);
+		break;
+	case SYM_TEMPORARY:
+		return MakeTemporarySymbolAddress(symbol);
+		break;
+	default:
+		throw std::exception();
+		break;
+	}
+}
+
+CX86Assembler::CAddress CCodeGen_x86::MakeTemporary64SymbolLoAddress(CSymbol* symbol)
+{
+	assert(symbol->m_type == SYM_TEMPORARY64);
+	assert(((symbol->m_stackLocation + m_stackLevel) & 7) == 0);
+	return CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rSP, symbol->m_stackLocation + m_stackLevel + 0);
+}
+
+CX86Assembler::CAddress CCodeGen_x86::MakeTemporary64SymbolHiAddress(CSymbol* symbol)
+{
+	assert(symbol->m_type == SYM_TEMPORARY64);
+	assert(((symbol->m_stackLocation + m_stackLevel) & 7) == 0);
+	return CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rSP, symbol->m_stackLocation + m_stackLevel + 4);
 }
 
 void CCodeGen_x86::MarkLabel(const STATEMENT& statement)
@@ -392,10 +438,29 @@ void CCodeGen_x86::Emit_Jmp(const STATEMENT& statement)
 	m_assembler.JmpJb(GetLabel(statement.jmpBlock));
 }
 
+void CCodeGen_x86::Emit_MergeTo64_Tmp64CstReg(const STATEMENT& statement)
+{
+	CSymbol* dst = statement.dst->GetSymbol().get();
+	CSymbol* src1 = statement.src1->GetSymbol().get();
+	CSymbol* src2 = statement.src2->GetSymbol().get();
+
+	assert(dst->m_type  == SYM_TEMPORARY64);
+	assert(src1->m_type == SYM_CONSTANT);
+	assert(src2->m_type == SYM_REGISTER);
+
+	m_assembler.MovId(CX86Assembler::rAX, src1->m_valueLow);
+
+	m_assembler.MovGd(MakeTemporary64SymbolLoAddress(dst), CX86Assembler::rAX);
+	m_assembler.MovGd(MakeTemporary64SymbolHiAddress(dst), m_registers[src2->m_valueLow]);
+}
+
 void CCodeGen_x86::Emit_ExtLow64RegTmp64(const STATEMENT& statement)
 {
 	CSymbol* dst = statement.dst->GetSymbol().get();
 	CSymbol* src1 = statement.src1->GetSymbol().get();
+
+	assert(dst->m_type  == SYM_REGISTER);
+	assert(src1->m_type == SYM_TEMPORARY64);
 
 	m_assembler.MovEd(m_registers[dst->m_valueLow], CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rSP, src1->m_stackLocation + m_stackLevel + 0));
 }

@@ -86,12 +86,26 @@ CJitter::VERSIONED_STATEMENT_LIST CJitter::GenerateVersionedStatementList(const 
 			unsigned int nextVersion = result.relativeVersions.IncrementRelativeVersion(dst->m_valueLow);
 			newStatement.dst = SymbolRefPtr(new CVersionedSymbolRef(newStatement.dst->GetSymbol(), nextVersion));
 		}
-
-		if(CSymbol* dst = dynamic_symbolref_cast(SYM_RELATIVE64, newStatement.dst))
+		//Increment relative versions to prevent some optimization problems
+		else if(CSymbol* dst = dynamic_symbolref_cast(SYM_FP_REL_SINGLE, newStatement.dst))
 		{
-			//Increment both relative versions to prevent some optimization problems
+			result.relativeVersions.IncrementRelativeVersion(dst->m_valueLow);
+		}
+		else if(CSymbol* dst = dynamic_symbolref_cast(SYM_FP_REL_INT32, newStatement.dst))
+		{
+			result.relativeVersions.IncrementRelativeVersion(dst->m_valueLow);
+		}
+		else if(CSymbol* dst = dynamic_symbolref_cast(SYM_RELATIVE64, newStatement.dst))
+		{
 			result.relativeVersions.IncrementRelativeVersion(dst->m_valueLow + 0);
 			result.relativeVersions.IncrementRelativeVersion(dst->m_valueLow + 4);
+		}
+		else if(CSymbol* dst = dynamic_symbolref_cast(SYM_RELATIVE128, newStatement.dst))
+		{
+			result.relativeVersions.IncrementRelativeVersion(dst->m_valueLow + 0);
+			result.relativeVersions.IncrementRelativeVersion(dst->m_valueLow + 4);
+			result.relativeVersions.IncrementRelativeVersion(dst->m_valueLow + 8);
+			result.relativeVersions.IncrementRelativeVersion(dst->m_valueLow + 12);
 		}
 
 		result.statements.push_back(newStatement);
@@ -268,20 +282,25 @@ void CJitter::DumpStatementList(const StatementList& statements)
 			cout << " * ";
 			break;
 		case OP_DIV:
+		case OP_DIVS:
 		case OP_FP_DIV:
 			cout << " / ";
 			break;
 		case OP_AND:
 		case OP_AND64:
+		case OP_MD_AND:
 			cout << " & ";
 			break;
 		case OP_OR:
+		case OP_MD_OR:
 			cout << " | ";
 			break;
 		case OP_XOR:
+		case OP_MD_XOR:
 			cout << " ^ ";
 			break;
 		case OP_NOT:
+		case OP_MD_NOT:
 			cout << " ! ";
 			break;
 		case OP_SRL:
@@ -336,6 +355,9 @@ void CJitter::DumpStatementList(const StatementList& statements)
 			break;
 		case OP_FP_TOINT_TRUNC:
 			cout << " INT(TRUNC)";
+			break;
+		case OP_MD_SUB_B:
+			cout << " SUB(B) ";
 			break;
 		default:
 			cout << " ?? ";
@@ -491,6 +513,21 @@ bool CJitter::FoldConstantOperation(STATEMENT& statement)
 			uint32 result = src1cst->m_valueLow ^ src2cst->m_valueLow;
 			statement.op = OP_MOV;
 			statement.src1 = MakeSymbolRef(MakeSymbol(SYM_CONSTANT, result));
+			statement.src2.reset();
+			changed = true;
+		}
+		else if(src1cst && src1cst->m_valueLow == 0)
+		{
+			//Xoring with zero
+			statement.op = OP_MOV;
+			std::swap(statement.src1, statement.src2);
+			statement.src2.reset();
+			changed = true;
+		}
+		else if(src2cst && src2cst->m_valueLow == 0)
+		{
+			//Xoring with zero
+			statement.op = OP_MOV;
 			statement.src2.reset();
 			changed = true;
 		}
@@ -1031,10 +1068,7 @@ bool CJitter::CopyPropagation(StatementList& statements)
 		if(outerDstSymbol == NULL) continue;
 
 		//Don't mess with relatives
-		if(
-			(outerDstSymbol->GetSymbol()->m_type == SYM_RELATIVE) ||
-			(outerDstSymbol->GetSymbol()->m_type == SYM_RELATIVE64)
-			) 
+		if(outerDstSymbol->GetSymbol()->IsRelative()) 
 		{
 			continue;
 		}
@@ -1094,17 +1128,9 @@ bool CJitter::DeadcodeElimination(VERSIONED_STATEMENT_LIST& versionedStatementLi
 		STATEMENT& outerStatement(*outerStatementIterator);
 
 		CSymbol* candidate = NULL;
-		if(CSymbol* tempSymbol = dynamic_symbolref_cast(SYM_TEMPORARY, outerStatement.dst))
+		if(outerStatement.dst && outerStatement.dst->GetSymbol()->IsTemporary())
 		{
-			candidate = tempSymbol;
-		}
-		else if(CSymbol* tempSymbol = dynamic_symbolref_cast(SYM_TEMPORARY64, outerStatement.dst))
-		{
-			candidate = tempSymbol;
-		}
-		else if(CSymbol* tempSymbol = dynamic_symbolref_cast(SYM_FP_TMP_SINGLE, outerStatement.dst))
-		{
-			candidate = tempSymbol;
+			candidate = outerStatement.dst->GetSymbol().get();
 		}
 		else if(CSymbol* relativeSymbol = dynamic_symbolref_cast(SYM_RELATIVE, outerStatement.dst))
 		{
@@ -1439,132 +1465,19 @@ unsigned int CJitter::AllocateStack(BASIC_BLOCK& basicBlock)
 			symbol->m_stackLocation = stackAlloc;
 			stackAlloc += 8;
 		}
+		else if(symbol->m_type == SYM_TEMPORARY128)
+		{
+			if((stackAlloc & 15) != 0)
+			{
+				stackAlloc += (16 - (stackAlloc & 15));
+			}
+			assert((stackAlloc & 15) == 0);
+			symbol->m_stackLocation = stackAlloc;
+			stackAlloc += 16;
+		}
 	}
 	return stackAlloc;
 }
-
-//static bool UseCountSymbolComparator(const CSymbol* symbol1, const CSymbol* symbol2)
-//{
-//	return symbol1->m_useCount > symbol2->m_useCount;
-//}
-//
-//void CJitter::AllocateRegisters(BASIC_BLOCK& basicBlock)
-//{
-//	if(basicBlock.statements.size() == 0) return;
-//
-//	unsigned int regCount = m_codeGen->GetAvailableRegisterCount();
-//	unsigned int currentRegister = 0;
-//	CSymbolTable& symbolTable(basicBlock.symbolTable);
-//	StatementList& statements(basicBlock.statements);
-//
-//	typedef std::list<CSymbol*> UseCountSymbolSortedList;
-//
-//	UseCountSymbolSortedList sortedSymbols;
-//	for(CSymbolTable::SymbolIterator symbolIterator(symbolTable.GetSymbolsBegin());
-//		symbolIterator != symbolTable.GetSymbolsEnd(); symbolIterator++)
-//	{
-//		sortedSymbols.push_back(symbolIterator->get());
-//	}
-//	sortedSymbols.sort(UseCountSymbolComparator);
-//
-//	for(unsigned int i = 0; i < regCount; i++)
-//	{
-//		symbolTable.MakeSymbol(SYM_REGISTER, i);
-//	}
-//
-//	UseCountSymbolSortedList::iterator symbolIterator = sortedSymbols.begin();
-//	while(1)
-//	{
-//		if(symbolIterator == sortedSymbols.end())
-//		{
-//			//We're done
-//			break;
-//		}
-//
-//		if(currentRegister == regCount)
-//		{
-//			//We're done
-//			break;
-//		}
-//
-//		CSymbol* symbol(*symbolIterator);
-//		if(
-//			((symbol->m_type == SYM_RELATIVE) && (symbol->m_useCount != 0) && (!symbol->m_aliased)) ||
-//			((symbol->m_type == SYM_TEMPORARY) && (symbol->m_useCount != 0))
-//			)
-//		{
-//			symbol->m_register = currentRegister;
-//
-//			//Replace all uses of this symbol with register
-//			for(StatementList::iterator statementIterator(statements.begin());
-//				statementIterator != statements.end(); statementIterator++)
-//			{
-//				STATEMENT& statement(*statementIterator);
-//				if(statement.dst && statement.dst->GetSymbol()->Equals(symbol))
-//				{
-//					statement.dst = MakeSymbolRef(symbolTable.MakeSymbol(SYM_REGISTER, currentRegister));
-//				}
-//
-//				if(statement.src1 && statement.src1->GetSymbol()->Equals(symbol))
-//				{
-//					statement.src1 = MakeSymbolRef(symbolTable.MakeSymbol(SYM_REGISTER, currentRegister));
-//				}
-//
-//				if(statement.src2 && statement.src2->GetSymbol()->Equals(symbol))
-//				{
-//					statement.src2 = MakeSymbolRef(symbolTable.MakeSymbol(SYM_REGISTER, currentRegister));
-//				}
-//			}
-//
-//			currentRegister++;
-//		}
-//
-//		symbolIterator++;
-//	}
-//
-//	//Find the final instruction where to dump registers to
-//	StatementList::iterator endInsertionPoint(statements.end());
-//	{
-//		StatementList::const_iterator endInstructionIterator(statements.end());
-//		endInstructionIterator--;
-//		const STATEMENT& statement(*endInstructionIterator);
-//		if(statement.op == OP_CONDJMP || statement.op == OP_JMP)
-//		{
-//			endInsertionPoint--;
-//		}
-//	}
-//
-//	//Emit copies to registers
-//	for(CSymbolTable::SymbolIterator symbolIterator(symbolTable.GetSymbolsBegin());
-//		symbolIterator != symbolTable.GetSymbolsEnd(); symbolIterator++)
-//	{
-//		const SymbolPtr& symbol(*symbolIterator);
-//		if(symbol->m_register == -1) continue;
-//		if(symbol->m_type == SYM_TEMPORARY) continue;
-//
-//		//We use this symbol before we define it, so we need to load it first
-//		if(symbol->m_firstUse != -1 && symbol->m_firstUse <= symbol->m_firstDef)
-//		{
-//			STATEMENT statement;
-//			statement.op	= OP_MOV;
-//			statement.dst	= SymbolRefPtr(new CSymbolRef(symbolTable.MakeSymbol(SYM_REGISTER, symbol->m_register)));
-//			statement.src1	= SymbolRefPtr(new CSymbolRef(symbol));
-//
-//			statements.push_front(statement);
-//		}
-//
-//		//If symbol is defined, we need to save it at the end
-//		if(symbol->m_firstDef != -1)
-//		{
-//			STATEMENT statement;
-//			statement.op	= OP_MOV;
-//			statement.dst	= SymbolRefPtr(new CSymbolRef(symbol));
-//			statement.src1	= SymbolRefPtr(new CSymbolRef(symbolTable.MakeSymbol(SYM_REGISTER, symbol->m_register)));
-//
-//			statements.insert(endInsertionPoint, statement);
-//		}
-//	}
-//}
 
 void CJitter::NormalizeStatements(BASIC_BLOCK& basicBlock)
 {

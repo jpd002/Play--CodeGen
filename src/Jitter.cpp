@@ -186,7 +186,7 @@ void CJitter::PullRel(size_t nOffset)
 	STATEMENT statement;
 	statement.op		= OP_MOV;
 	statement.src1		= MakeSymbolRef(m_Shadow.Pull());
-	statement.dst		= MakeSymbolRef(MakeSymbol(SYM_RELATIVE, nOffset));
+	statement.dst		= MakeSymbolRef(MakeSymbol(SYM_RELATIVE, static_cast<uint32>(nOffset)));
 	InsertStatement(statement);
 
 	assert(GetSymbolSize(statement.src1) == GetSymbolSize(statement.dst));
@@ -536,10 +536,24 @@ void CJitter::PullRel64(size_t offset)
 	STATEMENT statement;
 	statement.op		= OP_MOV;
 	statement.src1		= MakeSymbolRef(m_Shadow.Pull());
-	statement.dst		= MakeSymbolRef(MakeSymbol(SYM_RELATIVE64, offset));
+	statement.dst		= MakeSymbolRef(MakeSymbol(SYM_RELATIVE64, static_cast<uint32>(offset)));
 	InsertStatement(statement);
 
 	assert(GetSymbolSize(statement.src1) == GetSymbolSize(statement.dst));
+}
+
+void CJitter::MergeTo64()
+{
+	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY64, m_nextTemporary++);
+
+	STATEMENT statement;
+	statement.op	= OP_MERGETO64;
+	statement.src2	= MakeSymbolRef(m_Shadow.Pull());
+	statement.src1	= MakeSymbolRef(m_Shadow.Pull());
+	statement.dst	= MakeSymbolRef(tempSym);
+	InsertStatement(statement);
+
+	m_Shadow.Push(tempSym);
 }
 
 void CJitter::ExtLow64()
@@ -631,7 +645,16 @@ void CJitter::Sub64()
 
 void CJitter::Srl64()
 {
-	throw std::exception();
+	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY64, m_nextTemporary++);
+
+	STATEMENT statement;
+	statement.op	= OP_SRL64;
+	statement.src2	= MakeSymbolRef(m_Shadow.Pull());
+	statement.src1	= MakeSymbolRef(m_Shadow.Pull());
+	statement.dst	= MakeSymbolRef(tempSym);
+	InsertStatement(statement);
+
+	m_Shadow.Push(tempSym);
 }
 
 void CJitter::Srl64(uint8 nAmount)
@@ -850,9 +873,15 @@ void CJitter::FP_Max()
 
 //SIMD
 //------------------------------------------------
-void CJitter::MD_PullRel(size_t)
+void CJitter::MD_PullRel(size_t offset)
 {
-	throw std::exception();
+	STATEMENT statement;
+	statement.op		= OP_MOV;
+	statement.src1		= MakeSymbolRef(m_Shadow.Pull());
+	statement.dst		= MakeSymbolRef(MakeSymbol(SYM_RELATIVE128, static_cast<uint32>(offset)));
+	InsertStatement(statement);
+
+	assert(GetSymbolSize(statement.src1) == GetSymbolSize(statement.dst));
 }
 
 void CJitter::MD_PullRel(size_t, bool, bool, bool, bool)
@@ -865,9 +894,9 @@ void CJitter::MD_PullRel(size_t, size_t, size_t, size_t)
 	throw std::exception();
 }
 
-void CJitter::MD_PushRel(size_t)
+void CJitter::MD_PushRel(size_t offset)
 {
-	throw std::exception();
+	m_Shadow.Push(MakeSymbol(SYM_RELATIVE128, static_cast<uint32>(offset)));
 }
 
 void CJitter::MD_PushRelExpand(size_t)
@@ -902,32 +931,85 @@ void CJitter::MD_AddWUS()
 
 void CJitter::MD_SubB()
 {
-	throw std::exception();
+	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY128, m_nextTemporary++);
+
+	STATEMENT statement;
+	statement.op	= OP_MD_SUB_B;
+	statement.src2	= MakeSymbolRef(m_Shadow.Pull());
+	statement.src1	= MakeSymbolRef(m_Shadow.Pull());
+	statement.dst	= MakeSymbolRef(tempSym);
+	InsertStatement(statement);
+
+	m_Shadow.Push(tempSym);
 }
 
 void CJitter::MD_SubW()
 {
-	throw std::exception();
+	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY128, m_nextTemporary++);
+
+	STATEMENT statement;
+	statement.op	= OP_MD_SUB_W;
+	statement.src2	= MakeSymbolRef(m_Shadow.Pull());
+	statement.src1	= MakeSymbolRef(m_Shadow.Pull());
+	statement.dst	= MakeSymbolRef(tempSym);
+	InsertStatement(statement);
+
+	m_Shadow.Push(tempSym);
 }
 
 void CJitter::MD_And()
 {
-	throw std::exception();
+	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY128, m_nextTemporary++);
+
+	STATEMENT statement;
+	statement.op	= OP_MD_AND;
+	statement.src2	= MakeSymbolRef(m_Shadow.Pull());
+	statement.src1	= MakeSymbolRef(m_Shadow.Pull());
+	statement.dst	= MakeSymbolRef(tempSym);
+	InsertStatement(statement);
+
+	m_Shadow.Push(tempSym);
 }
 
 void CJitter::MD_Or()
 {
-	throw std::exception();
+	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY128, m_nextTemporary++);
+
+	STATEMENT statement;
+	statement.op	= OP_MD_OR;
+	statement.src2	= MakeSymbolRef(m_Shadow.Pull());
+	statement.src1	= MakeSymbolRef(m_Shadow.Pull());
+	statement.dst	= MakeSymbolRef(tempSym);
+	InsertStatement(statement);
+
+	m_Shadow.Push(tempSym);
 }
 
 void CJitter::MD_Xor()
 {
-	throw std::exception();
+	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY128, m_nextTemporary++);
+
+	STATEMENT statement;
+	statement.op	= OP_MD_XOR;
+	statement.src2	= MakeSymbolRef(m_Shadow.Pull());
+	statement.src1	= MakeSymbolRef(m_Shadow.Pull());
+	statement.dst	= MakeSymbolRef(tempSym);
+	InsertStatement(statement);
+
+	m_Shadow.Push(tempSym);
 }
 
 void CJitter::MD_Not()
 {
-	throw std::exception();
+	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY128, m_nextTemporary++);
+
+	STATEMENT statement;
+	statement.op	= OP_MD_NOT;
+	statement.src1	= MakeSymbolRef(m_Shadow.Pull());
+	statement.dst	= MakeSymbolRef(tempSym);
+	InsertStatement(statement);
+
+	m_Shadow.Push(tempSym);
 }
 
 void CJitter::MD_SllH(uint8 amount)

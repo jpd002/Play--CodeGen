@@ -170,68 +170,41 @@ namespace Jitter
 
 		//ALU
 		template <typename> void	Emit_Alu_RegRegReg(const STATEMENT&);
-		template <typename> void	Emit_Alu_RegRegRel(const STATEMENT&);
+		template <typename> void	Emit_Alu_RegRegMem(const STATEMENT&);
 		template <typename> void	Emit_Alu_RegRegCst(const STATEMENT&);
-		template <typename> void	Emit_Alu_RegRegTmp(const STATEMENT&);
-		template <typename> void	Emit_Alu_RegRelReg(const STATEMENT&);
-		template <typename> void	Emit_Alu_RegRelRel(const STATEMENT&);
-		template <typename> void	Emit_Alu_RegRelCst(const STATEMENT&);
+		template <typename> void	Emit_Alu_RegMemReg(const STATEMENT&);
+		template <typename> void	Emit_Alu_RegMemMem(const STATEMENT&);
+		template <typename> void	Emit_Alu_RegMemCst(const STATEMENT&);
 		template <typename> void	Emit_Alu_RegCstReg(const STATEMENT&);
-		template <typename> void	Emit_Alu_RegCstRel(const STATEMENT&);
-		template <typename> void	Emit_Alu_RegTmpTmp(const STATEMENT&);
-		template <typename> void	Emit_Alu_RegTmpCst(const STATEMENT&);
+		template <typename> void	Emit_Alu_RegCstMem(const STATEMENT&);
 
-		template <typename> void	Emit_Alu_MemCstRel(const STATEMENT&);
-
-		template <typename> void	Emit_Alu_RelRegReg(const STATEMENT&);
-		template <typename> void	Emit_Alu_RelRegRel(const STATEMENT&);
-		template <typename> void	Emit_Alu_RelRegCst(const STATEMENT&);
-		template <typename> void	Emit_Alu_RelRegTmp(const STATEMENT&);
-		template <typename> void	Emit_Alu_RelRelReg(const STATEMENT&);
-		template <typename> void	Emit_Alu_RelRelCst(const STATEMENT&);
-		template <typename> void	Emit_Alu_RelRelRel(const STATEMENT&);
-		template <typename> void	Emit_Alu_RelCstReg(const STATEMENT&);
-//		template <typename> void	Emit_Alu_RelCstRel(const STATEMENT&);
-		template <typename> void	Emit_Alu_RelTmpCst(const STATEMENT&);
-
-		template <typename> void	Emit_Alu_TmpRegReg(const STATEMENT&);
-		template <typename> void	Emit_Alu_TmpRegRel(const STATEMENT&);
-		template <typename> void	Emit_Alu_TmpRegCst(const STATEMENT&);
-		template <typename> void	Emit_Alu_TmpRelReg(const STATEMENT&);
-		template <typename> void	Emit_Alu_TmpRelRel(const STATEMENT&);
-		template <typename> void	Emit_Alu_TmpRelCst(const STATEMENT&);
-		template <typename> void	Emit_Alu_TmpCstReg(const STATEMENT&);
-		template <typename> void	Emit_Alu_TmpTmpCst(const STATEMENT&);
+		template <typename> void	Emit_Alu_MemRegReg(const STATEMENT&);
+		template <typename> void	Emit_Alu_MemRegMem(const STATEMENT&);
+		template <typename> void	Emit_Alu_MemRegCst(const STATEMENT&);
+		template <typename> void	Emit_Alu_MemMemReg(const STATEMENT&);
+		template <typename> void	Emit_Alu_MemMemCst(const STATEMENT&);
+		template <typename> void	Emit_Alu_MemMemMem(const STATEMENT&);
+		template <typename> void	Emit_Alu_MemCstReg(const STATEMENT&);
+		template <typename> void	Emit_Alu_MemCstMem(const STATEMENT&);
 
 		//SHIFT
 		template <typename> void	Emit_Shift_RegRegReg(const STATEMENT&);
-		template <typename> void	Emit_Shift_RegRegRel(const STATEMENT&);
+		template <typename> void	Emit_Shift_RegRegMem(const STATEMENT&);
 		template <typename> void	Emit_Shift_RegRegCst(const STATEMENT&);
-		template <typename> void	Emit_Shift_RegRelReg(const STATEMENT&);
-		template <typename> void	Emit_Shift_RegRelRel(const STATEMENT&);
-		template <typename> void	Emit_Shift_RegRelCst(const STATEMENT&);
+		template <typename> void	Emit_Shift_RegMemReg(const STATEMENT&);
+		template <typename> void	Emit_Shift_RegMemMem(const STATEMENT&);
+		template <typename> void	Emit_Shift_RegMemCst(const STATEMENT&);
 		template <typename> void	Emit_Shift_RegCstReg(const STATEMENT&);
-		template <typename> void	Emit_Shift_RegCstRel(const STATEMENT&);
-		template <typename> void	Emit_Shift_RegTmpCst(const STATEMENT&);
+		template <typename> void	Emit_Shift_RegCstMem(const STATEMENT&);
 
+		template <typename> void	Emit_Shift_MemRegReg(const STATEMENT&);
 		template <typename> void	Emit_Shift_MemRegMem(const STATEMENT&);
+		template <typename> void	Emit_Shift_MemRegCst(const STATEMENT&);
+		template <typename> void	Emit_Shift_MemMemReg(const STATEMENT&);
+		template <typename> void	Emit_Shift_MemMemMem(const STATEMENT&);
+		template <typename> void	Emit_Shift_MemMemCst(const STATEMENT&);
 		template <typename> void	Emit_Shift_MemCstReg(const STATEMENT&);
-
-		template <typename> void	Emit_Shift_RelRegReg(const STATEMENT&);
-		template <typename> void	Emit_Shift_RelRegCst(const STATEMENT&);
-		template <typename> void	Emit_Shift_RelRelReg(const STATEMENT&);
-		template <typename> void	Emit_Shift_RelRelRel(const STATEMENT&);
-		template <typename> void	Emit_Shift_RelRelCst(const STATEMENT&);
-		template <typename> void	Emit_Shift_RelCstRel(const STATEMENT&);
-		template <typename> void	Emit_Shift_RelTmpCst(const STATEMENT&);
-
-		template <typename> void	Emit_Shift_TmpRegReg(const STATEMENT&);
-		template <typename> void	Emit_Shift_TmpRegCst(const STATEMENT&);
-		template <typename> void	Emit_Shift_TmpRelReg(const STATEMENT&);
-		template <typename> void	Emit_Shift_TmpRelRel(const STATEMENT&);
-		template <typename> void	Emit_Shift_TmpRelCst(const STATEMENT&);
-		template <typename> void	Emit_Shift_TmpCstRel(const STATEMENT&);
-		template <typename> void	Emit_Shift_TmpTmpCst(const STATEMENT&);
+		template <typename> void	Emit_Shift_MemCstMem(const STATEMENT&);
 
 		//NOT
 		void						Emit_Not_RegReg(const STATEMENT&);

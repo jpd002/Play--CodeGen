@@ -291,6 +291,9 @@ void CJitter::DumpStatementList(const StatementList& statements)
 		case OP_MD_AND:
 			cout << " & ";
 			break;
+		case OP_LZC:
+			cout << " LZC";
+			break;
 		case OP_OR:
 		case OP_MD_OR:
 			cout << " | ";
@@ -344,6 +347,9 @@ void CJitter::DumpStatementList(const StatementList& statements)
 		case OP_EXTHIGH64:
 			cout << " EXTHIGH64";
 			break;
+		case OP_MERGETO64:
+			cout << " MERGETO64 ";
+			break;
 		case OP_FP_NEG:
 			cout << " NEG";
 			break;
@@ -358,6 +364,9 @@ void CJitter::DumpStatementList(const StatementList& statements)
 			break;
 		case OP_MD_SUB_B:
 			cout << " SUB(B) ";
+			break;
+		case OP_MD_SUB_W:
+			cout << " SUB(W) ";
 			break;
 		default:
 			cout << " ?? ";

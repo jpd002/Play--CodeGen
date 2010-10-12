@@ -322,7 +322,15 @@ void CJitter::Lookup(uint32* table)
 
 void CJitter::Lzc()
 {
-	throw std::exception();
+	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY, m_nextTemporary++);
+
+	STATEMENT statement;
+	statement.op	= OP_LZC;
+	statement.src1	= MakeSymbolRef(m_Shadow.Pull());
+	statement.dst	= MakeSymbolRef(tempSym);
+	InsertStatement(statement);
+
+	m_Shadow.Push(tempSym);
 }
 
 void CJitter::Mult()

@@ -213,6 +213,9 @@ namespace Jitter
 		void						Emit_Not_RelReg(const STATEMENT&);
 		void						Emit_Not_RelTmp(const STATEMENT&);
 
+		//LZC
+		void						Emit_Lzc_RegMem(const STATEMENT&);
+
 		//CMP
 		void						Cmp_GetFlag(const CX86Assembler::CAddress&, CONDITION);
 		void						Emit_Cmp_RegRegReg(const STATEMENT&);
@@ -263,6 +266,7 @@ namespace Jitter
 		void						Emit_CondJmp_TmpCst(const STATEMENT&);
 
 		//MERGETO64
+		void						Emit_MergeTo64_Tmp64RegReg(const STATEMENT&);
 		void						Emit_MergeTo64_Tmp64CstReg(const STATEMENT&);
 
 		//EXTLOW64

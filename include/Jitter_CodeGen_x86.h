@@ -156,8 +156,11 @@ namespace Jitter
 		CX86Assembler::CAddress		MakeTemporarySymbolAddress(CSymbol*);
 		CX86Assembler::CAddress		MakeMemorySymbolAddress(CSymbol*);
 
+		CX86Assembler::CAddress		MakeRelative64SymbolAddress(CSymbol*);
+		CX86Assembler::CAddress		MakeTemporary64SymbolAddress(CSymbol*);
 		CX86Assembler::CAddress		MakeTemporary64SymbolLoAddress(CSymbol*);
 		CX86Assembler::CAddress		MakeTemporary64SymbolHiAddress(CSymbol*);
+		CX86Assembler::CAddress		MakeMemory64SymbolAddress(CSymbol*);
 
 		CX86Assembler::CAddress		MakeRelative128SymbolAddress(CSymbol*);
 		CX86Assembler::CAddress		MakeTemporary128SymbolAddress(CSymbol*);
@@ -214,7 +217,9 @@ namespace Jitter
 		void						Emit_Not_RelTmp(const STATEMENT&);
 
 		//LZC
+		void						Lzc_RegMem(CX86Assembler::REGISTER, const CX86Assembler::CAddress&);
 		void						Emit_Lzc_RegMem(const STATEMENT&);
+		void						Emit_Lzc_MemMem(const STATEMENT&);
 
 		//CMP
 		void						Cmp_GetFlag(const CX86Assembler::CAddress&, CONDITION);
@@ -238,8 +243,13 @@ namespace Jitter
 
 		//DIV/DIVS
 		template <bool> void		Emit_DivTmp64RegReg(const STATEMENT&);
+		template <bool> void		Emit_DivTmp64RegMem(const STATEMENT&);
 		template <bool> void		Emit_DivTmp64RegCst(const STATEMENT&);
 		template <bool> void		Emit_DivTmp64RelReg(const STATEMENT&);
+		template <bool> void		Emit_DivTmp64MemMem(const STATEMENT&);
+		template <bool> void		Emit_DivTmp64MemCst(const STATEMENT&);
+		template <bool> void		Emit_DivTmp64CstReg(const STATEMENT&);
+		template <bool> void		Emit_DivTmp64CstMem(const STATEMENT&);
 
 		//MOV
 		void						Emit_Mov_RegRel(const STATEMENT&);
@@ -267,7 +277,10 @@ namespace Jitter
 
 		//MERGETO64
 		void						Emit_MergeTo64_Tmp64RegReg(const STATEMENT&);
+		void						Emit_MergeTo64_Tmp64RegMem(const STATEMENT&);
+		void						Emit_MergeTo64_Tmp64MemMem(const STATEMENT&);
 		void						Emit_MergeTo64_Tmp64CstReg(const STATEMENT&);
+		void						Emit_MergeTo64_Tmp64CstMem(const STATEMENT&);
 
 		//EXTLOW64
 		void						Emit_ExtLow64RegTmp64(const STATEMENT&);

@@ -366,11 +366,11 @@
 					>
 				</File>
 				<File
-					RelativePath=".\src\Jitter_LinearScan.cpp"
+					RelativePath=".\src\Jitter_Optimize.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\src\Jitter_Optimize.cpp"
+					RelativePath=".\src\Jitter_RegAlloc.cpp"
 					>
 				</File>
 				<File

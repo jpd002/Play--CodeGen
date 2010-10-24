@@ -15,15 +15,64 @@ namespace Jitter
 		unsigned int	GetAvailableRegisterCount() const;
 
 	protected:
+		//ALUOP64 ----------------------------------------------------------
+		struct ALUOP64_BASE
+		{
+			typedef void (CX86Assembler::*OpIqType)(const CX86Assembler::CAddress&, uint64);
+			typedef void (CX86Assembler::*OpEqType)(CX86Assembler::REGISTER, const CX86Assembler::CAddress&);
+		};
+
+		struct ALUOP64_ADD : public ALUOP64_BASE
+		{
+			static OpIqType OpIq() { return &CX86Assembler::AddIq; }
+			static OpEqType OpEq() { return &CX86Assembler::AddEq; }
+		};
+
+		struct ALUOP64_SUB : public ALUOP64_BASE
+		{
+			static OpIqType OpIq() { return &CX86Assembler::SubIq; }
+			static OpEqType OpEq() { return &CX86Assembler::SubEq; }
+		};
+
+		struct ALUOP64_AND : public ALUOP64_BASE
+		{
+			static OpIqType OpIq() { return &CX86Assembler::AndIq; }
+			static OpEqType OpEq() { return &CX86Assembler::AndEq; }
+		};
+
+		//SHIFTOP64 ----------------------------------------------------------
+		struct SHIFTOP64_BASE
+		{
+			typedef void (CX86Assembler::*OpCstType)(const CX86Assembler::CAddress&, uint8);
+			typedef void (CX86Assembler::*OpVarType)(const CX86Assembler::CAddress&);
+		};
+
+		struct SHIFTOP64_SLL : public SHIFTOP64_BASE
+		{
+			static OpCstType OpCst() { return &CX86Assembler::ShlEq; }
+//			static OpVarType OpVar() { return &CX86Assembler::ShlEq; }
+		};
+
+		struct SHIFTOP64_SRL : public SHIFTOP64_BASE
+		{
+			static OpCstType OpCst() { return &CX86Assembler::ShrEq; }
+			static OpVarType OpVar() { return &CX86Assembler::ShrEq; }
+		};
+
+		struct SHIFTOP64_SRA : public SHIFTOP64_BASE
+		{
+			static OpCstType OpCst() { return &CX86Assembler::SarEq; }
+//			static OpVarType OpVar() { return &CX86Assembler::SarEq; }
+		};
+
 		virtual void						Emit_Prolog(unsigned int, uint32);
 		virtual void						Emit_Epilog(unsigned int, uint32);
 
 		//PARAM
 		void								Emit_Param_Ctx(const STATEMENT&);
-		void								Emit_Param_Rel(const STATEMENT&);
 		void								Emit_Param_Reg(const STATEMENT&);
+		void								Emit_Param_Mem(const STATEMENT&);
 		void								Emit_Param_Cst(const STATEMENT&);
-		void								Emit_Param_Tmp(const STATEMENT&);
 		void								Emit_Param_Cst64(const STATEMENT&);
 
 		//CALL
@@ -32,6 +81,29 @@ namespace Jitter
 		//RETURNVALUE
 		void								Emit_RetVal_Tmp(const STATEMENT&);
 		void								Emit_RetVal_Reg(const STATEMENT&);
+
+		//MOV
+		void								Emit_Mov_Rel64Rel64(const STATEMENT&);
+		void								Emit_Mov_Rel64Cst64(const STATEMENT&);
+
+		//ALU64
+		template <typename> void			Emit_Alu64_MemMemMem(const STATEMENT&);
+		template <typename> void			Emit_Alu64_MemMemCst(const STATEMENT&);
+		template <typename> void			Emit_Alu64_MemCstMem(const STATEMENT&);
+
+		//SHIFT64
+		template <typename> void			Emit_Shift64_RelRelMem(const STATEMENT&);
+		template <typename> void			Emit_Shift64_RelRelCst(const STATEMENT&);
+
+		//CMP64
+		void								Cmp64_RelRel(CX86Assembler::REGISTER, const STATEMENT&);
+		void								Cmp64_RelCst(CX86Assembler::REGISTER, const STATEMENT&);
+
+		void								Emit_Cmp64_RegRelRel(const STATEMENT&);
+		void								Emit_Cmp64_RegRelCst(const STATEMENT&);
+
+		void								Emit_Cmp64_MemRelRel(const STATEMENT&);
+		void								Emit_Cmp64_MemRelCst(const STATEMENT&);
 
 	private:
 		typedef void (CCodeGen_x86_64::*ConstCodeEmitterType)(const STATEMENT&);

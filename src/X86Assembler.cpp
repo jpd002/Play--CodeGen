@@ -212,6 +212,11 @@ void CX86Assembler::AddEd(REGISTER registerId, const CAddress& address)
     WriteEvGvOp(0x03, false, address, registerId);
 }
 
+void CX86Assembler::AddEq(REGISTER registerId, const CAddress& address)
+{
+    WriteEvGvOp(0x03, true, address, registerId);
+}
+
 void CX86Assembler::AddId(const CAddress& Address, uint32 nConstant)
 {
     WriteEvId(0x00, Address, nConstant);
@@ -227,6 +232,11 @@ void CX86Assembler::AndEd(REGISTER registerId, const CAddress& address)
     WriteEvGvOp(0x23, false, address, registerId);
 }
 
+void CX86Assembler::AndEq(REGISTER registerId, const CAddress& address)
+{
+    WriteEvGvOp(0x23, true, address, registerId);
+}
+
 void CX86Assembler::AndIb(const CAddress& address, uint8 constant)
 {
     WriteEvIb(0x04, address, constant);
@@ -235,6 +245,11 @@ void CX86Assembler::AndIb(const CAddress& address, uint8 constant)
 void CX86Assembler::AndId(const CAddress& address, uint32 constant)
 {
     WriteEvId(0x04, address, constant);
+}
+
+void CX86Assembler::AndIq(const CAddress& address, uint64 constant)
+{
+	assert(0);
 }
 
 void CX86Assembler::BsrEd(REGISTER registerId, const CAddress& address)
@@ -400,6 +415,11 @@ void CX86Assembler::MovGd(const CAddress& Address, REGISTER nRegister)
     WriteEvGvOp(0x89, false, Address, nRegister);
 }
 
+void CX86Assembler::MovGq(const CAddress& Address, REGISTER nRegister)
+{
+    WriteEvGvOp(0x89, true, Address, nRegister);
+}
+
 void CX86Assembler::MovId(REGISTER nRegister, uint32 nConstant)
 {
     CAddress Address(MakeRegisterAddress(nRegister));
@@ -520,6 +540,12 @@ void CX86Assembler::SarEd(const CAddress& address, uint8 amount)
     WriteByte(amount);
 }
 
+void CX86Assembler::SarEq(const CAddress& address, uint8 amount)
+{
+    WriteEvOp(0xC1, 0x07, true, address);
+    WriteByte(amount);
+}
+
 void CX86Assembler::SbbEd(REGISTER registerId, const CAddress& address)
 {
     WriteEvGvOp(0x1B, false, address, registerId);
@@ -594,6 +620,12 @@ void CX86Assembler::ShlEd(const CAddress& address, uint8 amount)
     WriteByte(amount);
 }
 
+void CX86Assembler::ShlEq(const CAddress& address, uint8 amount)
+{
+    WriteEvOp(0xC1, 0x04, true, address);
+    WriteByte(amount);
+}
+
 void CX86Assembler::ShrEd(const CAddress& address)
 {
     WriteEvOp(0xD3, 0x05, false, address);
@@ -602,6 +634,17 @@ void CX86Assembler::ShrEd(const CAddress& address)
 void CX86Assembler::ShrEd(const CAddress& address, uint8 amount)
 {
     WriteEvOp(0xC1, 0x05, false, address);
+    WriteByte(amount);
+}
+
+void CX86Assembler::ShrEq(const CAddress& address)
+{
+    WriteEvOp(0xD3, 0x05, true, address);
+}
+
+void CX86Assembler::ShrEq(const CAddress& address, uint8 amount)
+{
+    WriteEvOp(0xC1, 0x05, true, address);
     WriteByte(amount);
 }
 
@@ -634,6 +677,11 @@ void CX86Assembler::ShrdEd(const CAddress& address, REGISTER registerId, uint8 a
 void CX86Assembler::SubEd(REGISTER nRegister, const CAddress& Address)
 {
     WriteEvGvOp(0x2B, false, Address, nRegister);
+}
+
+void CX86Assembler::SubEq(REGISTER nRegister, const CAddress& Address)
+{
+    WriteEvGvOp(0x2B, true, Address, nRegister);
 }
 
 void CX86Assembler::SubId(const CAddress& Address, uint32 nConstant)

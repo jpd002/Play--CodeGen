@@ -60,6 +60,126 @@ void CJitter::AllocateRegisters_SpillSymbol(ActiveSymbolList::iterator& symbolIt
 	state.activeSymbols.erase(symbolIterator);
 }
 
+void CJitter::AllocateRegisters_ComputeCallRanges(const BASIC_BLOCK& basicBlock)
+{
+	REGALLOC_STATE& state(m_regAllocState);
+
+	state.callRanges.clear();
+
+	unsigned int statementIdx = 0;
+	unsigned int rangeBegin = -1;
+	unsigned int rangeEnd = -1;
+	
+	for(StatementList::const_iterator statementIterator(basicBlock.statements.begin());
+		statementIterator != basicBlock.statements.end(); statementIterator++, statementIdx++)
+	{
+		const STATEMENT& statement(*statementIterator);
+		if(statement.op == OP_PARAM)
+		{
+			if(rangeBegin != -1 && rangeEnd != -1)
+			{
+				state.callRanges[rangeBegin] = rangeEnd;
+				rangeBegin = -1;
+				rangeEnd = -1;
+			}
+			if(rangeBegin == -1)
+			{
+				rangeBegin = statementIdx;
+			}
+		}
+		else if(statement.op == OP_CALL)
+		{
+			if(rangeBegin != -1 && rangeEnd != -1)
+			{
+				state.callRanges[rangeBegin] = rangeEnd;
+				rangeBegin = -1;
+				rangeEnd = -1;
+			}
+			if(rangeBegin == -1)
+			{
+				rangeBegin = statementIdx;
+			}
+			rangeEnd = statementIdx;
+		}
+		else if(statement.op == OP_RETVAL)
+		{
+			assert(rangeBegin != -1);
+			rangeEnd = statementIdx;
+			state.callRanges[rangeBegin] = rangeEnd;
+			rangeBegin = -1;
+			rangeEnd = -1;
+		}
+	}
+
+	if(rangeBegin != -1)
+	{
+		assert(rangeEnd != -1);
+		state.callRanges[rangeBegin] = rangeEnd;
+		rangeBegin = -1;
+		rangeEnd = -1;
+	}
+}
+
+#ifdef _DEBUG
+
+void CJitter::AllocateRegisters_VerifyProperCallSequence(const BASIC_BLOCK& basicBlock)
+{
+	enum BLOCK_STATE
+	{
+		BLOCK_STATE_IDLE,
+		BLOCK_STATE_PARAM,
+		BLOCK_STATE_CHECK_RETVAL,
+	};
+
+	BLOCK_STATE blockState = BLOCK_STATE_IDLE;
+	unsigned int retValOpCount = 0;
+	//Sanity check... Make sure that nothing is present between the param...call...retval pattern
+	for(StatementList::const_iterator statementIterator(basicBlock.statements.begin());
+		statementIterator != basicBlock.statements.end(); statementIterator++)
+	{
+		const STATEMENT& statement(*statementIterator);
+		if(blockState == BLOCK_STATE_IDLE || blockState == BLOCK_STATE_CHECK_RETVAL)
+		{
+			if(statement.op == OP_RETVAL)
+			{
+				assert(retValOpCount == 0);
+				blockState = BLOCK_STATE_IDLE;
+			}
+			else if(statement.op == OP_PARAM)
+			{
+				blockState = BLOCK_STATE_PARAM;
+			}
+			else if(statement.op == OP_CALL)
+			{
+				blockState = BLOCK_STATE_CHECK_RETVAL;
+				retValOpCount = 0;
+			}
+			else
+			{
+				retValOpCount++;
+			}
+		}
+		else if(blockState == BLOCK_STATE_PARAM)
+		{
+			if(statement.op == OP_CALL)
+			{
+				blockState = BLOCK_STATE_CHECK_RETVAL;
+				retValOpCount = 0;
+			}
+			else if(statement.op == OP_PARAM)
+			{
+				blockState = BLOCK_STATE_PARAM;
+			}
+			else
+			{
+				assert(0);
+			}
+		}
+	}
+}
+
+#endif
+
 void CJitter::AllocateRegisters(BASIC_BLOCK& basicBlock)
 {
 	if(basicBlock.statements.size() == 0) return;
@@ -68,14 +188,49 @@ void CJitter::AllocateRegisters(BASIC_BLOCK& basicBlock)
 
 	assert(state.activeSymbols.size() == 0);
 
+#ifdef _DEBUG
+//	AllocateRegisters_VerifyProperCallSequence(basicBlock);
+#endif
+
+//	AllocateRegisters_ComputeCallRanges(basicBlock);
+
 	unsigned int regCount = m_codeGen->GetAvailableRegisterCount();
 	CSymbolTable& symbolTable(basicBlock.symbolTable);
 	StatementList& statements(basicBlock.statements);
+
+	//for(CallRangeMap::const_iterator callRangeIterator(state.callRanges.begin());
+	//	callRangeIterator != state.callRanges.end(); callRangeIterator++)
+	//{
+	//	printf("Range (%d, %d).\r\n", callRangeIterator->first, callRangeIterator->second);
+	//}
 
 	SortedSymbolList sortedSymbols;
 	for(CSymbolTable::SymbolIterator symbolIterator(symbolTable.GetSymbolsBegin());
 		symbolIterator != symbolTable.GetSymbolsEnd(); symbolIterator++)
 	{
+		////Extend or shorten ranges so that register spilling doesn't occur in
+		////the call ranges
+		//SymbolPtr& symbol(*symbolIterator);
+		//printf("Symbol (%d, %d).", symbol->m_rangeBegin, symbol->m_rangeEnd);
+		//if(symbol->m_rangeBegin != -1)
+		//{
+		//	CallRangeMap::const_iterator callRangeIterator = state.callRanges.lower_bound(symbol->m_rangeBegin);
+		//	if(callRangeIterator != state.callRanges.end() && (symbol->m_rangeBegin < callRangeIterator->second))
+		//	{
+		//		printf("Replacing begin with %d.", callRangeIterator->first);
+		//		symbol->m_rangeBegin = callRangeIterator->first;
+		//	}
+		//}
+		//if(symbol->m_rangeEnd != -1)
+		//{
+		//	CallRangeMap::const_iterator callRangeIterator = state.callRanges.lower_bound(symbol->m_rangeEnd);
+		//	if(callRangeIterator != state.callRanges.end() && (symbol->m_rangeEnd < callRangeIterator->second))
+		//	{
+		//		printf("Replacing end with %d.", callRangeIterator->first);
+		//		symbol->m_rangeEnd = callRangeIterator->first;
+		//	}
+		//}
+		//printf("\r\n");
 		sortedSymbols.push_back(*symbolIterator);
 	}
 	sortedSymbols.sort(LiveRangeSymbolComparator);
@@ -219,4 +374,9 @@ void CJitter::AllocateRegisters(BASIC_BLOCK& basicBlock)
 	}
 
 	state.insertCommands.clear();
+
+#ifdef _DEBUG
+//	AllocateRegisters_VerifyProperCallSequence(basicBlock);
+#endif
+
 }

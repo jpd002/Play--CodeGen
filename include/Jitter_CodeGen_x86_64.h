@@ -50,7 +50,7 @@ namespace Jitter
 		struct SHIFTOP64_SLL : public SHIFTOP64_BASE
 		{
 			static OpCstType OpCst() { return &CX86Assembler::ShlEq; }
-//			static OpVarType OpVar() { return &CX86Assembler::ShlEq; }
+			static OpVarType OpVar() { return &CX86Assembler::ShlEq; }
 		};
 
 		struct SHIFTOP64_SRL : public SHIFTOP64_BASE
@@ -62,7 +62,7 @@ namespace Jitter
 		struct SHIFTOP64_SRA : public SHIFTOP64_BASE
 		{
 			static OpCstType OpCst() { return &CX86Assembler::SarEq; }
-//			static OpVarType OpVar() { return &CX86Assembler::SarEq; }
+			static OpVarType OpVar() { return &CX86Assembler::SarEq; }
 		};
 
 		virtual void						Emit_Prolog(unsigned int, uint32);
@@ -92,6 +92,7 @@ namespace Jitter
 		template <typename> void			Emit_Alu64_MemCstMem(const STATEMENT&);
 
 		//SHIFT64
+		template <typename> void			Emit_Shift64_RelRelReg(const STATEMENT&);
 		template <typename> void			Emit_Shift64_RelRelMem(const STATEMENT&);
 		template <typename> void			Emit_Shift64_RelRelCst(const STATEMENT&);
 

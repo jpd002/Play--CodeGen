@@ -695,7 +695,16 @@ void CJitter::Sra64(uint8 nAmount)
 
 void CJitter::Shl64()
 {
-	throw std::exception();
+	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY64, m_nextTemporary++);
+
+	STATEMENT statement;
+	statement.op	= OP_SLL64;
+	statement.src2	= MakeSymbolRef(m_Shadow.Pull());
+	statement.src1	= MakeSymbolRef(m_Shadow.Pull());
+	statement.dst	= MakeSymbolRef(tempSym);
+	InsertStatement(statement);
+
+	m_Shadow.Push(tempSym);
 }
 
 void CJitter::Shl64(uint8 nAmount)
@@ -1082,7 +1091,16 @@ void CJitter::MD_UnpackLowerBH()
 
 void CJitter::MD_UnpackLowerHW()
 {
-	throw std::exception();
+	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY128, m_nextTemporary++);
+
+	STATEMENT statement;
+	statement.op	= OP_MD_UNPACK_LOWER_HW;
+	statement.src2	= MakeSymbolRef(m_Shadow.Pull());
+	statement.src1	= MakeSymbolRef(m_Shadow.Pull());
+	statement.dst	= MakeSymbolRef(tempSym);
+	InsertStatement(statement);
+
+	m_Shadow.Push(tempSym);
 }
 
 void CJitter::MD_UnpackLowerWD()

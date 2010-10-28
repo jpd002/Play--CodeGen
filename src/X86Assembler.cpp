@@ -540,6 +540,13 @@ void CX86Assembler::SarEd(const CAddress& address, uint8 amount)
     WriteByte(amount);
 }
 
+void CX86Assembler::SarEq(const CAddress& address)
+{
+	//Need to test that
+	assert(0);
+    WriteEvOp(0xD3, 0x07, true, address);
+}
+
 void CX86Assembler::SarEq(const CAddress& address, uint8 amount)
 {
     WriteEvOp(0xC1, 0x07, true, address);
@@ -618,6 +625,11 @@ void CX86Assembler::ShlEd(const CAddress& address, uint8 amount)
 {
     WriteEvOp(0xC1, 0x04, false, address);
     WriteByte(amount);
+}
+
+void CX86Assembler::ShlEq(const CAddress& address)
+{
+    WriteEvOp(0xD3, 0x04, true, address);
 }
 
 void CX86Assembler::ShlEq(const CAddress& address, uint8 amount)

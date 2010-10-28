@@ -165,6 +165,7 @@ public:
     void                                    Ret();
     void                                    SarEd(const CAddress&);
     void                                    SarEd(const CAddress&, uint8);
+    void                                    SarEq(const CAddress&);
 	void									SarEq(const CAddress&, uint8);
     void                                    SbbEd(REGISTER, const CAddress&);
     void                                    SbbId(const CAddress&, uint32);
@@ -184,7 +185,8 @@ public:
     void                                    ShrdEd(const CAddress&, REGISTER);
     void                                    ShrdEd(const CAddress&, REGISTER, uint8);
     void                                    ShlEd(const CAddress&);
-    void                                    ShlEd(const CAddress&, uint8);
+	void                                    ShlEd(const CAddress&, uint8);
+    void                                    ShlEq(const CAddress&);
 	void									ShlEq(const CAddress&, uint8);
     void                                    ShldEd(const CAddress&, REGISTER);
     void                                    ShldEd(const CAddress&, REGISTER, uint8);

@@ -50,6 +50,8 @@ namespace Jitter
 		OP_MD_XOR,
 		OP_MD_NOT,
 
+		OP_MD_UNPACK_LOWER_HW,
+
 		OP_FP_ADD,
 		OP_FP_SUB,
 		OP_FP_MUL,

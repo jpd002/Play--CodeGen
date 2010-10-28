@@ -147,6 +147,11 @@ namespace Jitter
 			static OpVoType OpVo() { return &CX86Assembler::PxorVo; }
 		};
 
+		struct MDOP_UNPACK_LOWER_HW : public MDOP_BASE
+		{
+			static OpVoType OpVo() { return &CX86Assembler::PunpcklwdVo; }
+		};
+
 		virtual void				Emit_Prolog(unsigned int, uint32) = 0;
 		virtual void				Emit_Epilog(unsigned int, uint32) = 0;
 
@@ -311,6 +316,7 @@ namespace Jitter
 
 		//MDOP
 		template <typename> void	Emit_Md_SymSymSym(const STATEMENT&);
+		template <typename> void	Emit_Md_SymSymSymRev(const STATEMENT&);
 		void						Emit_Md_Not_RelTmp(const STATEMENT&);
 
 		CX86Assembler				m_assembler;

@@ -24,7 +24,9 @@ __attribute__((aligned(16)))
 		uint8			src0[16];
 		uint8			src1[16];
 
-		uint8			dst0[16];
+		uint8			dstUnpackLowerHW[16];
+		uint8			dstUnpackLowerWD[16];
+		uint8			dstUnpackUpperWD[16];
 	};
 
 	CMemoryFunction*	m_function;

@@ -361,6 +361,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\tests\MdFpTest.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\tests\MdFpTest.h"
+				>
+			</File>
+			<File
 				RelativePath=".\tests\MdTest.cpp"
 				>
 			</File>

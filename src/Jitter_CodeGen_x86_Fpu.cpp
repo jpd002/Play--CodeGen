@@ -2,6 +2,36 @@
 
 using namespace Jitter;
 
+CX86Assembler::CAddress CCodeGen_x86::MakeRelativeFpSingleSymbolAddress(CSymbol* symbol)
+{
+	assert(symbol->m_type == SYM_FP_REL_SINGLE);
+	assert((symbol->m_valueLow & 0x3) == 0);
+	return CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, symbol->m_valueLow);
+}
+
+CX86Assembler::CAddress CCodeGen_x86::MakeTemporaryFpSingleSymbolAddress(CSymbol* symbol)
+{
+	assert(symbol->m_type == SYM_FP_TMP_SINGLE);
+	assert(((symbol->m_stackLocation + m_stackLevel) & 0x3) == 0);
+	return CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rSP, symbol->m_stackLocation + m_stackLevel);
+}
+
+CX86Assembler::CAddress CCodeGen_x86::MakeMemoryFpSingleSymbolAddress(CSymbol* symbol)
+{
+	switch(symbol->m_type)
+	{
+	case SYM_FP_REL_SINGLE:
+		return MakeRelativeFpSingleSymbolAddress(symbol);
+		break;
+	case SYM_FP_TMP_SINGLE:
+		return MakeTemporaryFpSingleSymbolAddress(symbol);
+		break;
+	default:
+		throw std::exception();
+		break;
+	}
+}
+
 template <typename FPUOP>
 void CCodeGen_x86::Emit_Fpu_RelRel(const STATEMENT& statement)
 {
@@ -13,15 +43,15 @@ void CCodeGen_x86::Emit_Fpu_RelRel(const STATEMENT& statement)
 }
 
 template <typename FPUOP>
-void CCodeGen_x86::Emit_Fpu_RelRelRel(const STATEMENT& statement)
+void CCodeGen_x86::Emit_Fpu_MemMemMem(const STATEMENT& statement)
 {
 	CSymbol* dst = statement.dst->GetSymbol().get();
 	CSymbol* src1 = statement.src1->GetSymbol().get();
 	CSymbol* src2 = statement.src2->GetSymbol().get();
 
-	m_assembler.MovssEd(CX86Assembler::xMM0, CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, src1->m_valueLow));
-	((m_assembler).*(FPUOP::OpEd()))(CX86Assembler::xMM0, CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, src2->m_valueLow));
-	m_assembler.MovssEd(CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, dst->m_valueLow), CX86Assembler::xMM0);
+	m_assembler.MovssEd(CX86Assembler::xMM0, MakeMemoryFpSingleSymbolAddress(src1));
+	((m_assembler).*(FPUOP::OpEd()))(CX86Assembler::xMM0, MakeMemoryFpSingleSymbolAddress(src2));
+	m_assembler.MovssEd(MakeMemoryFpSingleSymbolAddress(dst), CX86Assembler::xMM0);
 }
 
 void CCodeGen_x86::Emit_Fp_Cmp_RelRel(CX86Assembler::REGISTER dstReg, const STATEMENT& statement)
@@ -116,13 +146,13 @@ void CCodeGen_x86::Emit_Fp_ToIntTrunc_RelRel(const STATEMENT& statement)
 
 CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_fpuConstMatchers[] = 
 { 
-	{ OP_FP_ADD,			MATCH_RELATIVE_FP_SINGLE,	MATCH_RELATIVE_FP_SINGLE,		MATCH_RELATIVE_FP_SINGLE,	&CCodeGen_x86::Emit_Fpu_RelRelRel<FPUOP_ADD>		},
+	{ OP_FP_ADD,			MATCH_MEMORY_FP_SINGLE,		MATCH_MEMORY_FP_SINGLE,			MATCH_MEMORY_FP_SINGLE,		&CCodeGen_x86::Emit_Fpu_MemMemMem<FPUOP_ADD>		},
 
-	{ OP_FP_SUB,			MATCH_RELATIVE_FP_SINGLE,	MATCH_RELATIVE_FP_SINGLE,		MATCH_RELATIVE_FP_SINGLE,	&CCodeGen_x86::Emit_Fpu_RelRelRel<FPUOP_SUB>		},
+	{ OP_FP_SUB,			MATCH_MEMORY_FP_SINGLE,		MATCH_MEMORY_FP_SINGLE,			MATCH_MEMORY_FP_SINGLE,		&CCodeGen_x86::Emit_Fpu_MemMemMem<FPUOP_SUB>		},
 
-	{ OP_FP_MUL,			MATCH_RELATIVE_FP_SINGLE,	MATCH_RELATIVE_FP_SINGLE,		MATCH_RELATIVE_FP_SINGLE,	&CCodeGen_x86::Emit_Fpu_RelRelRel<FPUOP_MUL>		},
+	{ OP_FP_MUL,			MATCH_MEMORY_FP_SINGLE,		MATCH_MEMORY_FP_SINGLE,			MATCH_MEMORY_FP_SINGLE,		&CCodeGen_x86::Emit_Fpu_MemMemMem<FPUOP_MUL>		},
 
-	{ OP_FP_DIV,			MATCH_RELATIVE_FP_SINGLE,	MATCH_RELATIVE_FP_SINGLE,		MATCH_RELATIVE_FP_SINGLE,	&CCodeGen_x86::Emit_Fpu_RelRelRel<FPUOP_DIV>		},
+	{ OP_FP_DIV,			MATCH_MEMORY_FP_SINGLE,		MATCH_MEMORY_FP_SINGLE,			MATCH_MEMORY_FP_SINGLE,		&CCodeGen_x86::Emit_Fpu_MemMemMem<FPUOP_DIV>		},
 
 	{ OP_FP_CMP,			MATCH_REGISTER,				MATCH_RELATIVE_FP_SINGLE,		MATCH_RELATIVE_FP_SINGLE,	&CCodeGen_x86::Emit_Fp_Cmp_SymRelRel				},
 

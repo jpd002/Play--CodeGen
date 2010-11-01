@@ -43,6 +43,8 @@ namespace Jitter
 		OP_SRL64,
 		OP_SLL64,
 
+		OP_MD_MOV_MASKED,
+
 		OP_MD_SUB_B,
 		OP_MD_SUB_W,
 		OP_MD_AND,
@@ -50,7 +52,17 @@ namespace Jitter
 		OP_MD_XOR,
 		OP_MD_NOT,
 
+		OP_MD_ISNEGATIVE,
+		OP_MD_ISZERO,
+
+		OP_MD_EXPAND,
 		OP_MD_UNPACK_LOWER_HW,
+		OP_MD_UNPACK_LOWER_WD,
+		OP_MD_UNPACK_UPPER_WD,
+
+		OP_MD_ADD_S,
+		OP_MD_SUB_S,
+		OP_MD_MUL_S,
 
 		OP_FP_ADD,
 		OP_FP_SUB,

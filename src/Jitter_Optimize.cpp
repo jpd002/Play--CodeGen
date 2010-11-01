@@ -362,11 +362,20 @@ void CJitter::DumpStatementList(const StatementList& statements)
 		case OP_FP_TOINT_TRUNC:
 			cout << " INT(TRUNC)";
 			break;
+		case OP_MD_MOV_MASKED:
+			cout << " MOVMSK ";
+			break;
 		case OP_MD_SUB_B:
-			cout << " SUB(B) ";
+			cout << " -(B) ";
 			break;
 		case OP_MD_SUB_W:
-			cout << " SUB(W) ";
+			cout << " -(W) ";
+			break;
+		case OP_MD_ADD_S:
+			cout << " +(S) ";
+			break;
+		case OP_MD_SUB_S:
+			cout << " -(S) ";
 			break;
 		default:
 			cout << " ?? ";
@@ -1459,7 +1468,7 @@ unsigned int CJitter::AllocateStack(BASIC_BLOCK& basicBlock)
 
 		if(symbol->m_regAlloc_register != -1 && (symbol->m_regAlloc_notAllocatedAfterIdx == symbol->m_rangeEnd)) continue;
 
-		if(symbol->m_type == SYM_TEMPORARY)
+		if(symbol->m_type == SYM_TEMPORARY || symbol->m_type == SYM_FP_TMP_SINGLE)
 		{
 			symbol->m_stackLocation = stackAlloc;
 			stackAlloc += 4;

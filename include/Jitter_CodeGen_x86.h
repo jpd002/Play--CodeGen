@@ -152,6 +152,31 @@ namespace Jitter
 			static OpVoType OpVo() { return &CX86Assembler::PunpcklwdVo; }
 		};
 
+		struct MDOP_UNPACK_LOWER_WD : public MDOP_BASE
+		{
+			static OpVoType OpVo() { return &CX86Assembler::PunpckldqVo; }
+		};
+
+		struct MDOP_UNPACK_UPPER_WD : public MDOP_BASE
+		{
+			static OpVoType OpVo() { return &CX86Assembler::PunpckhdqVo; }
+		};
+
+		struct MDOP_ADDS : public MDOP_BASE
+		{
+			static OpVoType OpVo() { return &CX86Assembler::AddpsVo; }
+		};
+
+		struct MDOP_SUBS : public MDOP_BASE
+		{
+			static OpVoType OpVo() { return &CX86Assembler::SubpsVo; }
+		};
+
+		struct MDOP_MULS : public MDOP_BASE
+		{
+			static OpVoType OpVo() { return &CX86Assembler::MulpsVo; }
+		};
+
 		virtual void				Emit_Prolog(unsigned int, uint32) = 0;
 		virtual void				Emit_Epilog(unsigned int, uint32) = 0;
 
@@ -167,8 +192,15 @@ namespace Jitter
 		CX86Assembler::CAddress		MakeTemporary64SymbolHiAddress(CSymbol*);
 		CX86Assembler::CAddress		MakeMemory64SymbolAddress(CSymbol*);
 
-		CX86Assembler::CAddress		MakeRelative128SymbolAddress(CSymbol*);
-		CX86Assembler::CAddress		MakeTemporary128SymbolAddress(CSymbol*);
+		CX86Assembler::CAddress		MakeRelativeFpSingleSymbolAddress(CSymbol*);
+		CX86Assembler::CAddress		MakeTemporaryFpSingleSymbolAddress(CSymbol*);
+		CX86Assembler::CAddress		MakeMemoryFpSingleSymbolAddress(CSymbol*);
+
+		CX86Assembler::CAddress		MakeRelative128SymbolElementAddress(CSymbol*, unsigned int);
+		CX86Assembler::CAddress		MakeTemporary128SymbolElementAddress(CSymbol*, unsigned int);
+
+		CX86Assembler::CAddress		MakeMemory128SymbolAddress(CSymbol*);
+		CX86Assembler::CAddress		MakeMemory128SymbolElementAddress(CSymbol*, unsigned int);
 
 		//LABEL
 		void						MarkLabel(const STATEMENT&);
@@ -299,7 +331,7 @@ namespace Jitter
 
 		//FPUOP
 		template <typename> void	Emit_Fpu_RelRel(const STATEMENT&);
-		template <typename> void	Emit_Fpu_RelRelRel(const STATEMENT&);
+		template <typename> void	Emit_Fpu_MemMemMem(const STATEMENT&);
 
 		//FPCMP
 		void						Emit_Fp_Cmp_RelRel(CX86Assembler::REGISTER, const STATEMENT&);
@@ -315,9 +347,15 @@ namespace Jitter
 		void						Emit_Fp_ToIntTrunc_RelRel(const STATEMENT&);
 
 		//MDOP
-		template <typename> void	Emit_Md_SymSymSym(const STATEMENT&);
-		template <typename> void	Emit_Md_SymSymSymRev(const STATEMENT&);
+		template <typename> void	Emit_Md_MemMemMem(const STATEMENT&);
+		template <typename> void	Emit_Md_MemMemMemRev(const STATEMENT&);
 		void						Emit_Md_Not_RelTmp(const STATEMENT&);
+		void						Emit_Md_MovMasked_MemMemCst(const STATEMENT&);
+		void						Emit_Md_IsNegative_MemMem(const STATEMENT&);
+		void						Emit_Md_IsZero_MemMem(const STATEMENT&);
+		void						Emit_Md_Expand_MemReg(const STATEMENT&);
+		void						Emit_Md_Expand_MemMem(const STATEMENT&);
+		void						Emit_Md_Expand_MemCst(const STATEMENT&);
 
 		CX86Assembler				m_assembler;
 		CX86Assembler::REGISTER*	m_registers;

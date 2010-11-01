@@ -109,9 +109,7 @@ void CX86Assembler::Cvttss2siEd(REGISTER registerId, const CAddress& address)
 
 void CX86Assembler::MovdVo(XMMREGISTER registerId, const CAddress& address)
 {
-    WriteByte(0x66);
-    WriteByte(0x0F);
-    WriteEdVdOp(0x6E, address, registerId);
+    WriteEdVdOp_66_0F(0x6E, address, registerId);
 }
 
 void CX86Assembler::MovdquVo(XMMREGISTER registerId, const CAddress& address)
@@ -392,6 +390,18 @@ void CX86Assembler::WriteEdVdOp(uint8 opcode, const CAddress& address, XMMREGIST
 {
     REGISTER registerId = static_cast<REGISTER>(xmmRegisterId);
     WriteRexByte(false, address, registerId);
+    CAddress NewAddress(address);
+    NewAddress.ModRm.nFnReg = registerId;
+    WriteByte(opcode);
+    NewAddress.Write(m_stream);
+}
+
+void CX86Assembler::WriteEdVdOp_66_0F(uint8 opcode, const CAddress& address, XMMREGISTER xmmRegisterId)
+{
+    REGISTER registerId = static_cast<REGISTER>(xmmRegisterId);
+	WriteByte(0x66);
+    WriteRexByte(false, address, registerId);
+	WriteByte(0x0F);
     CAddress NewAddress(address);
     NewAddress.ModRm.nFnReg = registerId;
     WriteByte(opcode);

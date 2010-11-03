@@ -111,6 +111,11 @@ namespace Jitter
 			static OpEdType OpEd() { return &CX86Assembler::SqrtssEd; }
 		};
 
+		struct FPUOP_RSQRT : public FPUOP_BASE
+		{
+			static OpEdType OpEd() { return &CX86Assembler::RsqrtssEd; }
+		};
+
 		struct FPUOP_RCPL : public FPUOP_BASE
 		{
 			static OpEdType OpEd() { return &CX86Assembler::RcpssEd; }
@@ -175,6 +180,11 @@ namespace Jitter
 		struct MDOP_MULS : public MDOP_BASE
 		{
 			static OpVoType OpVo() { return &CX86Assembler::MulpsVo; }
+		};
+
+		struct MDOP_TOWORD_TRUNCATE : public MDOP_BASE
+		{
+			static OpVoType OpVo() { return &CX86Assembler::Cvttps2dqVo; }
 		};
 
 		virtual void				Emit_Prolog(unsigned int, uint32) = 0;
@@ -330,15 +340,18 @@ namespace Jitter
 		void						Emit_ExtHigh64TmpTmp64(const STATEMENT&);
 
 		//FPUOP
-		template <typename> void	Emit_Fpu_RelRel(const STATEMENT&);
+		template <typename> void	Emit_Fpu_MemMem(const STATEMENT&);
 		template <typename> void	Emit_Fpu_MemMemMem(const STATEMENT&);
 
 		//FPCMP
 		void						Emit_Fp_Cmp_RelRel(CX86Assembler::REGISTER, const STATEMENT&);
 		void						Emit_Fp_Cmp_SymRelRel(const STATEMENT&);
 
+		//FPABS
+		void						Emit_Fp_Abs_MemMem(const STATEMENT&);
+
 		//FPNEG
-		void						Emit_Fp_Neg_RelRel(const STATEMENT&);
+		void						Emit_Fp_Neg_MemMem(const STATEMENT&);
 
 		//FP_MOV
 		void						Emit_Fp_Mov_RelSRelI32(const STATEMENT&);
@@ -347,6 +360,7 @@ namespace Jitter
 		void						Emit_Fp_ToIntTrunc_RelRel(const STATEMENT&);
 
 		//MDOP
+		template <typename> void	Emit_Md_MemMem(const STATEMENT&);
 		template <typename> void	Emit_Md_MemMemMem(const STATEMENT&);
 		template <typename> void	Emit_Md_MemMemMemRev(const STATEMENT&);
 		void						Emit_Md_Not_RelTmp(const STATEMENT&);

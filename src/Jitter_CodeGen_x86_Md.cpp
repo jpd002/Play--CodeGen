@@ -49,6 +49,16 @@ CX86Assembler::CAddress CCodeGen_x86::MakeMemory128SymbolElementAddress(CSymbol*
 }
 
 template <typename MDOP>
+void CCodeGen_x86::Emit_Md_MemMem(const STATEMENT& statement)
+{
+	CSymbol* dst = statement.dst->GetSymbol().get();
+	CSymbol* src1 = statement.src1->GetSymbol().get();
+
+	((m_assembler).*(MDOP::OpVo()))(CX86Assembler::xMM0, MakeMemory128SymbolAddress(src1));
+	m_assembler.MovapsVo(MakeMemory128SymbolAddress(dst), CX86Assembler::xMM0);
+}
+
+template <typename MDOP>
 void CCodeGen_x86::Emit_Md_MemMemMem(const STATEMENT& statement)
 {
 	CSymbol* dst = statement.dst->GetSymbol().get();
@@ -208,6 +218,7 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdConstMatchers[] =
 
 	{ OP_MD_ISNEGATIVE,			MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_NIL,				&CCodeGen_x86::Emit_Md_IsNegative_MemMem					},
 	{ OP_MD_ISZERO,				MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_NIL,				&CCodeGen_x86::Emit_Md_IsZero_MemMem						},
+	{ OP_MD_TOWORD_TRUNCATE,	MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_NIL,				&CCodeGen_x86::Emit_Md_MemMem<MDOP_TOWORD_TRUNCATE>			},
 
 	{ OP_MD_MOV_MASKED,			MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_CONSTANT,			&CCodeGen_x86::Emit_Md_MovMasked_MemMemCst					},
 

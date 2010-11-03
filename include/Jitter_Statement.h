@@ -55,6 +55,8 @@ namespace Jitter
 		OP_MD_ISNEGATIVE,
 		OP_MD_ISZERO,
 
+		OP_MD_TOWORD_TRUNCATE,
+
 		OP_MD_EXPAND,
 		OP_MD_UNPACK_LOWER_HW,
 		OP_MD_UNPACK_LOWER_WD,
@@ -69,7 +71,9 @@ namespace Jitter
 		OP_FP_MUL,
 		OP_FP_DIV,
 		OP_FP_SQRT,
+		OP_FP_RSQRT,
 		OP_FP_RCPL,
+		OP_FP_ABS,
 		OP_FP_NEG,
 		OP_FP_CMP,
 

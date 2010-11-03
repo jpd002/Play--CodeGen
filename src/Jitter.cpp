@@ -844,7 +844,15 @@ void CJitter::FP_Sqrt()
 
 void CJitter::FP_Rsqrt()
 {
-	throw std::exception();
+	SymbolPtr tempSym = MakeSymbol(SYM_FP_TMP_SINGLE, m_nextTemporary++);
+
+	STATEMENT statement;
+	statement.op	= OP_FP_RSQRT;
+	statement.src1	= MakeSymbolRef(m_Shadow.Pull());
+	statement.dst	= MakeSymbolRef(tempSym);
+	InsertStatement(statement);
+
+	m_Shadow.Push(tempSym);
 }
 
 void CJitter::FP_Rcpl()
@@ -862,7 +870,15 @@ void CJitter::FP_Rcpl()
 
 void CJitter::FP_Abs()
 {
-	throw std::exception();
+	SymbolPtr tempSym = MakeSymbol(SYM_FP_TMP_SINGLE, m_nextTemporary++);
+
+	STATEMENT statement;
+	statement.op	= OP_FP_ABS;
+	statement.src1	= MakeSymbolRef(m_Shadow.Pull());
+	statement.dst	= MakeSymbolRef(tempSym);
+	InsertStatement(statement);
+
+	m_Shadow.Push(tempSym);
 }
 
 void CJitter::FP_Neg()
@@ -1276,7 +1292,15 @@ void CJitter::MD_IsNegative()
 
 void CJitter::MD_ToWordTruncate()
 {
-	throw std::exception();
+	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY128, m_nextTemporary++);
+
+	STATEMENT statement;
+	statement.op	= OP_MD_TOWORD_TRUNCATE;
+	statement.src1	= MakeSymbolRef(m_Shadow.Pull());
+	statement.dst	= MakeSymbolRef(tempSym);
+	InsertStatement(statement);
+
+	m_Shadow.Push(tempSym);
 }
 
 void CJitter::MD_ToSingle()

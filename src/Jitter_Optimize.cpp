@@ -485,6 +485,12 @@ bool CJitter::FoldConstantOperation(STATEMENT& statement)
 			statement.src2.reset();
 			changed = true;
 		}
+		else if(src2cst && src2cst->m_valueLow == 0)
+		{
+			statement.op = OP_MOV;
+			statement.src2.reset();
+			changed = true;
+		}
 	}
 	else if(statement.op == OP_AND)
 	{

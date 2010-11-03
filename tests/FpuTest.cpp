@@ -37,6 +37,10 @@ void CFpuTest::Compile(Jitter::CJitter& jitter)
 		jitter.FP_PullSingle(offsetof(CONTEXT, number2));
 
 		jitter.FP_PushSingle(offsetof(CONTEXT, number2));
+		jitter.FP_Abs();
+		jitter.FP_PullSingle(offsetof(CONTEXT, resAbs));
+
+		jitter.FP_PushSingle(offsetof(CONTEXT, number2));
 		jitter.FP_PushSingle(offsetof(CONTEXT, number2));
 		jitter.FP_Mul();
 		jitter.FP_PullSingle(offsetof(CONTEXT, number3));
@@ -44,6 +48,10 @@ void CFpuTest::Compile(Jitter::CJitter& jitter)
 		jitter.FP_PushSingle(offsetof(CONTEXT, number3));
 		jitter.FP_Sqrt();
 		jitter.FP_PullSingle(offsetof(CONTEXT, number3));
+
+		jitter.FP_PushSingle(offsetof(CONTEXT, number4));
+		jitter.FP_Rsqrt();
+		jitter.FP_PullSingle(offsetof(CONTEXT, resRsqrt));
 	}
 	jitter.End();
 
@@ -55,8 +63,12 @@ void CFpuTest::Run()
 	memset(&m_context, 0, sizeof(CONTEXT));
 	m_context.number1 = 1.0;
 	m_context.number2 = 2.0;
+	m_context.number4 = 16.0f;
 	(*m_function)(&m_context);
 	TEST_VERIFY(m_context.number1 ==  1.5f);
 	TEST_VERIFY(m_context.number2 == -1.5f);
 	TEST_VERIFY(m_context.number1 == m_context.number3);
+	TEST_VERIFY(m_context.resAbs == 1.5f);
+	//Result is not exact
+	TEST_VERIFY(fabs(0.25f - m_context.resRsqrt) < 0.001f);
 }

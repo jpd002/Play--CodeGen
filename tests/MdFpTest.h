@@ -23,6 +23,7 @@ __attribute__((aligned(16)))
 #endif
 		float			src0[4];
 		float			src1[4];
+		float			src2[4];
 
 		float			dstAdd[4];
 		float			dstSub[4];
@@ -35,6 +36,8 @@ __attribute__((aligned(16)))
 
 		float			dstExpandRel[4];
 		float			dstExpandCst[4];
+
+		uint32			dstCvtWord[4];
 	};
 
 	CMemoryFunction*	m_function;

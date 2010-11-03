@@ -19,6 +19,10 @@ private:
 		float number1;
 		float number2;
 		float number3;
+		float number4;
+		
+		float resAbs;
+		float resRsqrt;
 	};
 
 	CONTEXT				m_context;

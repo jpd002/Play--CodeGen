@@ -82,6 +82,33 @@ void CCodeGen_x86::Emit_Md_MemMemMemRev(const STATEMENT& statement)
 	m_assembler.MovapsVo(MakeMemory128SymbolAddress(dst), CX86Assembler::xMM0);
 }
 
+void CCodeGen_x86::Emit_Md_AddSSW_MemMemMem(const STATEMENT& statement)
+{
+	CSymbol* dst = statement.dst->GetSymbol().get();
+	CSymbol* src1 = statement.src1->GetSymbol().get();
+	CSymbol* src2 = statement.src2->GetSymbol().get();
+
+	CX86Assembler::REGISTER overflowReg = CX86Assembler::rAX;
+	CX86Assembler::REGISTER underflowReg = CX86Assembler::rDX;
+	CX86Assembler::REGISTER resultRegister = CX86Assembler::rCX;
+
+	//Prepare registers
+	m_assembler.MovId(overflowReg, 0x7FFFFFFF);
+	m_assembler.MovId(underflowReg, 0x80000000);
+
+	for(int i = 0; i < 4; i++)
+	{
+		CX86Assembler::LABEL doneLabel = m_assembler.CreateLabel();
+		m_assembler.MovEd(resultRegister, MakeMemory128SymbolElementAddress(src1, i));
+		m_assembler.AddEd(resultRegister, MakeMemory128SymbolElementAddress(src2, i));
+		m_assembler.JnoJb(doneLabel);
+		m_assembler.CmovsEd(resultRegister, CX86Assembler::MakeRegisterAddress(overflowReg));
+		m_assembler.CmovnsEd(resultRegister, CX86Assembler::MakeRegisterAddress(underflowReg));
+		m_assembler.MarkLabel(doneLabel);
+		m_assembler.MovGd(MakeMemory128SymbolElementAddress(dst, i), resultRegister);
+	}
+}
+
 void CCodeGen_x86::Emit_Md_Not_RelTmp(const STATEMENT& statement)
 {
 	CSymbol* dst = statement.dst->GetSymbol().get();
@@ -196,6 +223,8 @@ void CCodeGen_x86::Emit_Md_Expand_MemCst(const STATEMENT& statement)
 
 CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdConstMatchers[] = 
 {
+	{ OP_MD_ADDSS_W,			MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_x86::Emit_Md_AddSSW_MemMemMem						},
+
 	{ OP_MD_SUB_B,				MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_x86::Emit_Md_MemMemMem<MDOP_SUBB>					},
 	{ OP_MD_SUB_W,				MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_x86::Emit_Md_MemMemMem<MDOP_SUBW>					},
 

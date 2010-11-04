@@ -18,6 +18,11 @@ void CMdTest::Compile(Jitter::CJitter& jitter)
 
 	jitter.Begin();
 	{
+		jitter.MD_PushRel(offsetof(CONTEXT, src1));
+		jitter.MD_PushRel(offsetof(CONTEXT, src1));
+		jitter.MD_AddWSS();
+		jitter.MD_PullRel(offsetof(CONTEXT, dstAddWSS));
+
 		jitter.MD_PushRel(offsetof(CONTEXT, src0));
 		jitter.MD_PushRel(offsetof(CONTEXT, src1));
 		jitter.MD_UnpackLowerHW();
@@ -36,6 +41,22 @@ void CMdTest::Compile(Jitter::CJitter& jitter)
 	jitter.End();
 
 	m_function = new CMemoryFunction(codeStream.GetBuffer(), codeStream.GetSize());
+}
+
+uint32 CMdTest::ComputeWordSignedSaturation(uint32 value0, uint32 value1)
+{
+	int64 value0ext = static_cast<int32>(value0);
+	int64 value1ext = static_cast<int32>(value1);
+	int64 result = value0ext + value1ext;
+	if(result > 0x7FFFFFFF)
+	{
+		result = 0x7FFFFFFF;
+	}
+	else if(result < static_cast<int32>(0x80000000))
+	{
+		result = static_cast<int32>(0x80000000);
+	}
+	return static_cast<uint32>(result);
 }
 
 void CMdTest::Run()
@@ -89,5 +110,12 @@ void CMdTest::Run()
 		TEST_VERIFY(dstUnpackLowerHWRes[i] == context.dstUnpackLowerHW[i]);
 		TEST_VERIFY(dstUnpackLowerWDRes[i] == context.dstUnpackLowerWD[i]);
 		TEST_VERIFY(dstUnpackUpperWDRes[i] == context.dstUnpackUpperWD[i]);
+	}
+
+	for(unsigned int i = 0; i < 4; i++)
+	{
+		uint32 value = *reinterpret_cast<uint32*>(&context.src1[i * 4]);
+		uint32 result = *reinterpret_cast<uint32*>(&context.dstAddWSS[i * 4]);
+		TEST_VERIFY(result == ComputeWordSignedSaturation(value, value));
 	}
 }

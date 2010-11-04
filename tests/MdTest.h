@@ -23,11 +23,15 @@ __attribute__((aligned(16)))
 #endif
 		uint8			src0[16];
 		uint8			src1[16];
+		uint8			src2[16];
 
+		uint8			dstAddWSS[16];
 		uint8			dstUnpackLowerHW[16];
 		uint8			dstUnpackLowerWD[16];
 		uint8			dstUnpackUpperWD[16];
 	};
+
+	uint32				ComputeWordSignedSaturation(uint32, uint32);
 
 	CMemoryFunction*	m_function;
 };

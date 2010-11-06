@@ -18,38 +18,59 @@ void CMdFpTest::Compile(Jitter::CJitter& jitter)
 
 	jitter.Begin();
 	{
+		//Add
 		jitter.MD_PushRel(offsetof(CONTEXT, src0));
 		jitter.MD_PushRel(offsetof(CONTEXT, src1));
 		jitter.MD_AddS();
 		jitter.MD_PullRel(offsetof(CONTEXT, dstAdd));
 
+		//Sub
 		jitter.MD_PushRel(offsetof(CONTEXT, src0));
 		jitter.MD_PushRel(offsetof(CONTEXT, src1));
 		jitter.MD_SubS();
 		jitter.MD_PullRel(offsetof(CONTEXT, dstSub));
 
+		//Mul
 		jitter.MD_PushRel(offsetof(CONTEXT, src0));
 		jitter.MD_PushRel(offsetof(CONTEXT, src1));
 		jitter.MD_MulS();
 		jitter.MD_PullRel(offsetof(CONTEXT, dstMul));
 
+		//Max
+		jitter.MD_PushRel(offsetof(CONTEXT, src0));
+		jitter.MD_PushRel(offsetof(CONTEXT, src1));
+		jitter.MD_MaxS();
+		jitter.MD_PullRel(offsetof(CONTEXT, dstMax));
+
+		//Min
+		jitter.MD_PushRel(offsetof(CONTEXT, src0));
+		jitter.MD_PushRel(offsetof(CONTEXT, src1));
+		jitter.MD_MinS();
+		jitter.MD_PullRel(offsetof(CONTEXT, dstMin));
+
+		//Masked Mov
 		jitter.MD_PushRel(offsetof(CONTEXT, dstSub));
 		jitter.MD_PullRel(offsetof(CONTEXT, dstMasked), false, true, true, false);
 
+		//Is Negative
 		jitter.MD_PushRel(offsetof(CONTEXT, dstMasked));
 		jitter.MD_IsNegative();
 		jitter.MD_PullRel(offsetof(CONTEXT, dstIsNegative));
 
+		//Is Zero
 		jitter.MD_PushRel(offsetof(CONTEXT, dstMasked));
 		jitter.MD_IsZero();
 		jitter.MD_PullRel(offsetof(CONTEXT, dstIsZero));
 
+		//Push Rel Expand
 		jitter.MD_PushRelExpand(offsetof(CONTEXT, src0[1]));
 		jitter.MD_PullRel(offsetof(CONTEXT, dstExpandRel));
 
+		//Push Cst Expand
 		jitter.MD_PushCstExpand(31415);
 		jitter.MD_PullRel(offsetof(CONTEXT, dstExpandCst));
 
+		//ToWord Truncate
 		jitter.MD_PushRel(offsetof(CONTEXT, src2));
 		jitter.MD_ToWordTruncate();
 		jitter.MD_PullRel(offsetof(CONTEXT, dstCvtWord));
@@ -95,6 +116,16 @@ void CMdFpTest::Run()
 	TEST_VERIFY(context.dstMul[1] == 30000.f);
 	TEST_VERIFY(context.dstMul[2] == 30000.f);
 	TEST_VERIFY(context.dstMul[3] == 30000.f);
+
+	TEST_VERIFY(context.dstMax[0] ==  6000.f);
+	TEST_VERIFY(context.dstMax[1] ==   600.f);
+	TEST_VERIFY(context.dstMax[2] ==   500.f);
+	TEST_VERIFY(context.dstMax[3] ==  5000.f);
+
+	TEST_VERIFY(context.dstMin[0] ==     5.f);
+	TEST_VERIFY(context.dstMin[1] ==    50.f);
+	TEST_VERIFY(context.dstMin[2] ==    60.f);
+	TEST_VERIFY(context.dstMin[3] ==     6.f);
 
 	TEST_VERIFY(context.dstMasked[0] ==    0.f);
 	TEST_VERIFY(context.dstMasked[1] == -550.f);

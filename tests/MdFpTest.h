@@ -28,6 +28,8 @@ __attribute__((aligned(16)))
 		float			dstAdd[4];
 		float			dstSub[4];
 		float			dstMul[4];
+		float			dstMax[4];
+		float			dstMin[4];
 
 		float			dstMasked[4];
 

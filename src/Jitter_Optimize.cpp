@@ -350,11 +350,17 @@ void CJitter::DumpStatementList(const StatementList& statements)
 		case OP_MERGETO64:
 			cout << " MERGETO64 ";
 			break;
+		case OP_FP_ABS:
+			cout << " ABS";
+			break;
 		case OP_FP_NEG:
 			cout << " NEG";
 			break;
 		case OP_FP_SQRT:
 			cout << " SQRT";
+			break;
+		case OP_FP_RSQRT:
+			cout << " RSQRT";
 			break;
 		case OP_FP_RCPL:
 			cout << " RCPL";
@@ -364,6 +370,18 @@ void CJitter::DumpStatementList(const StatementList& statements)
 			break;
 		case OP_MD_MOV_MASKED:
 			cout << " MOVMSK ";
+			break;
+		case OP_MD_UNPACK_LOWER_HW:
+			cout << " UNPACK_LOWER_HW ";
+			break;
+		case OP_MD_UNPACK_LOWER_WD:
+			cout << " UNPACK_LOWER_WD ";
+			break;
+		case OP_MD_UNPACK_UPPER_WD:
+			cout << " UNPACK_UPPER_WD ";
+			break;
+		case OP_MD_ADDSS_W:
+			cout << " +(SSW) ";
 			break;
 		case OP_MD_SUB_B:
 			cout << " -(B) ";
@@ -376,6 +394,27 @@ void CJitter::DumpStatementList(const StatementList& statements)
 			break;
 		case OP_MD_SUB_S:
 			cout << " -(S) ";
+			break;
+		case OP_MD_MUL_S:
+			cout << " *(S) ";
+			break;
+		case OP_MD_MIN_S:
+			cout << " MIN(S) ";
+			break;
+		case OP_MD_MAX_S:
+			cout << " MAX(S) ";
+			break;
+		case OP_MD_ISNEGATIVE:
+			cout << " ISNEGATIVE";
+			break;
+		case OP_MD_ISZERO:
+			cout << " ISZERO";
+			break;
+		case OP_MD_EXPAND:
+			cout << " EXPAND";
+			break;
+		case OP_MD_TOWORD_TRUNCATE:
+			cout << " TOWORD_TRUNCATE";
 			break;
 		default:
 			cout << " ?? ";

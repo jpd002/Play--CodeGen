@@ -66,6 +66,8 @@ namespace Jitter
 		OP_MD_ADD_S,
 		OP_MD_SUB_S,
 		OP_MD_MUL_S,
+		OP_MD_MIN_S,
+		OP_MD_MAX_S,
 
 		OP_FP_ADD,
 		OP_FP_SUB,

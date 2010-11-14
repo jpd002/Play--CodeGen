@@ -137,6 +137,11 @@ namespace Jitter
 			static OpVoType OpVo() { return &CX86Assembler::PsubdVo; }
 		};
 
+		struct MDOP_CMPEQW : public MDOP_BASE
+		{
+			static OpVoType OpVo() { return &CX86Assembler::PcmpeqdVo; }
+		};
+
 		struct MDOP_AND : public MDOP_BASE
 		{
 			static OpVoType OpVo() { return &CX86Assembler::PandVo; }
@@ -195,6 +200,11 @@ namespace Jitter
 		struct MDOP_TOWORD_TRUNCATE : public MDOP_BASE
 		{
 			static OpVoType OpVo() { return &CX86Assembler::Cvttps2dqVo; }
+		};
+
+		struct MDOP_TOSINGLE : public MDOP_BASE
+		{
+			static OpVoType OpVo() { return &CX86Assembler::Cvtdq2psVo; }
 		};
 
 		virtual void				Emit_Prolog(unsigned int, uint32) = 0;
@@ -354,8 +364,12 @@ namespace Jitter
 		template <typename> void	Emit_Fpu_MemMemMem(const STATEMENT&);
 
 		//FPCMP
-		void						Emit_Fp_Cmp_RelRel(CX86Assembler::REGISTER, const STATEMENT&);
-		void						Emit_Fp_Cmp_SymRelRel(const STATEMENT&);
+		CX86Assembler::SSE_CMP_TYPE	GetSseConditionCode(Jitter::CONDITION);
+		void						Emit_Fp_Cmp_MemMem(CX86Assembler::REGISTER, const STATEMENT&);
+		void						Emit_Fp_Cmp_MemCst(CX86Assembler::REGISTER, const STATEMENT&);
+
+		void						Emit_Fp_Cmp_SymMemMem(const STATEMENT&);
+		void						Emit_Fp_Cmp_SymMemCst(const STATEMENT&);
 
 		//FPABS
 		void						Emit_Fp_Abs_MemMem(const STATEMENT&);
@@ -374,7 +388,9 @@ namespace Jitter
 		template <typename> void	Emit_Md_MemMemMem(const STATEMENT&);
 		template <typename> void	Emit_Md_MemMemMemRev(const STATEMENT&);
 		void						Emit_Md_AddSSW_MemMemMem(const STATEMENT&);
+		void						Emit_Md_PackWH_MemMemMem(const STATEMENT&);
 		void						Emit_Md_Not_RelTmp(const STATEMENT&);
+		void						Emit_Md_Mov_MemMem(const STATEMENT&);
 		void						Emit_Md_MovMasked_MemMemCst(const STATEMENT&);
 		void						Emit_Md_IsNegative_MemMem(const STATEMENT&);
 		void						Emit_Md_IsZero_MemMem(const STATEMENT&);

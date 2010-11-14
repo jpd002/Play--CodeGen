@@ -5,6 +5,7 @@
 #include <memory>
 #include <list>
 #include <map>
+#include <unordered_map>
 #include <deque>
 #include <vector>
 #include <boost/lexical_cast.hpp>
@@ -207,7 +208,7 @@ namespace Jitter
 			unsigned int				IncrementRelativeVersion(uint32);
 
 		private:
-			typedef std::map<uint32, unsigned int> RelativeVersionMap;
+			typedef std::tr1::unordered_map<uint32, unsigned int> RelativeVersionMap;
 
 			RelativeVersionMap			m_relativeVersions;
 		};

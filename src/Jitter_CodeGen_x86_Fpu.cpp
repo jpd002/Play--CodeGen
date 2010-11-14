@@ -54,16 +54,10 @@ void CCodeGen_x86::Emit_Fpu_MemMemMem(const STATEMENT& statement)
 	m_assembler.MovssEd(MakeMemoryFpSingleSymbolAddress(dst), CX86Assembler::xMM0);
 }
 
-void CCodeGen_x86::Emit_Fp_Cmp_RelRel(CX86Assembler::REGISTER dstReg, const STATEMENT& statement)
+CX86Assembler::SSE_CMP_TYPE CCodeGen_x86::GetSseConditionCode(Jitter::CONDITION condition)
 {
-	CSymbol* src1 = statement.src1->GetSymbol().get();
-	CSymbol* src2 = statement.src2->GetSymbol().get();
-
-	assert(src1->m_type == SYM_FP_REL_SINGLE);
-	assert(src2->m_type == SYM_FP_REL_SINGLE);
-
-    CX86Assembler::SSE_CMP_TYPE conditionCode;
-    switch(statement.jmpCondition)
+    CX86Assembler::SSE_CMP_TYPE conditionCode = CX86Assembler::SSE_CMP_EQ;
+    switch(condition)
     {
     case CONDITION_EQ:
         conditionCode = CX86Assembler::SSE_CMP_EQ;
@@ -81,27 +75,80 @@ void CCodeGen_x86::Emit_Fp_Cmp_RelRel(CX86Assembler::REGISTER dstReg, const STAT
         assert(0);
         break;
     }
-
-    //Can't move directly to register using MOVSS, so we use CVTTSS2SI
-    //0x00000000 -- CVT -> zero
-    //0xFFFFFFFF -- CVT -> not zero
-	m_assembler.MovssEd(CX86Assembler::xMM0, CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, src1->m_valueLow));
-	m_assembler.CmpssEd(CX86Assembler::xMM0, CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, src2->m_valueLow), conditionCode);
-    m_assembler.Cvttss2siEd(dstReg, CX86Assembler::MakeXmmRegisterAddress(CX86Assembler::xMM0));
+	return conditionCode;
 }
 
-void CCodeGen_x86::Emit_Fp_Cmp_SymRelRel(const STATEMENT& statement)
+void CCodeGen_x86::Emit_Fp_Cmp_MemMem(CX86Assembler::REGISTER dstReg, const STATEMENT& statement)
+{
+	CSymbol* src1 = statement.src1->GetSymbol().get();
+	CSymbol* src2 = statement.src2->GetSymbol().get();
+
+    CX86Assembler::SSE_CMP_TYPE conditionCode(GetSseConditionCode(statement.jmpCondition));
+	m_assembler.MovssEd(CX86Assembler::xMM0, MakeMemoryFpSingleSymbolAddress(src1));
+	m_assembler.CmpssEd(CX86Assembler::xMM0, MakeMemoryFpSingleSymbolAddress(src2), conditionCode);
+ 	m_assembler.MovdVo(CX86Assembler::MakeRegisterAddress(dstReg), CX86Assembler::xMM0);
+}
+
+void CCodeGen_x86::Emit_Fp_Cmp_MemCst(CX86Assembler::REGISTER dstReg, const STATEMENT& statement)
+{
+	CSymbol* src1 = statement.src1->GetSymbol().get();
+	CSymbol* src2 = statement.src2->GetSymbol().get();
+
+	assert(src2->m_type == SYM_CONSTANT);
+
+    CX86Assembler::SSE_CMP_TYPE conditionCode(GetSseConditionCode(statement.jmpCondition));
+	CX86Assembler::XMMREGISTER src1Reg = CX86Assembler::xMM0;
+	CX86Assembler::XMMREGISTER src2Reg = CX86Assembler::xMM1;
+
+	if(src2->m_valueLow == 0)
+	{
+		m_assembler.PxorVo(src2Reg, CX86Assembler::MakeXmmRegisterAddress(src2Reg));
+	}
+	else
+	{
+		CX86Assembler::REGISTER cstReg = CX86Assembler::rDX;
+		assert(dstReg != cstReg);
+		m_assembler.MovId(cstReg, src2->m_valueLow);
+		m_assembler.MovdVo(src2Reg, CX86Assembler::MakeRegisterAddress(cstReg));
+	}
+
+	m_assembler.MovssEd(src1Reg, MakeMemoryFpSingleSymbolAddress(src1));
+	m_assembler.CmpssEd(src1Reg, CX86Assembler::MakeXmmRegisterAddress(src2Reg), conditionCode);
+	m_assembler.MovdVo(CX86Assembler::MakeRegisterAddress(dstReg), src1Reg);
+}
+
+void CCodeGen_x86::Emit_Fp_Cmp_SymMemMem(const STATEMENT& statement)
 {
 	CSymbol* dst = statement.dst->GetSymbol().get();
 
 	switch(dst->m_type)
 	{
 	case SYM_REGISTER:
-		Emit_Fp_Cmp_RelRel(m_registers[dst->m_valueLow], statement);
+		Emit_Fp_Cmp_MemMem(m_registers[dst->m_valueLow], statement);
 		break;
 	case SYM_RELATIVE:
 	case SYM_TEMPORARY:
-		Emit_Fp_Cmp_RelRel(CX86Assembler::rAX, statement);
+		Emit_Fp_Cmp_MemMem(CX86Assembler::rAX, statement);
+		m_assembler.MovGd(MakeMemorySymbolAddress(dst), CX86Assembler::rAX);
+		break;
+	default:
+		assert(0);
+		break;
+	}
+}
+
+void CCodeGen_x86::Emit_Fp_Cmp_SymMemCst(const STATEMENT& statement)
+{
+	CSymbol* dst = statement.dst->GetSymbol().get();
+
+	switch(dst->m_type)
+	{
+	case SYM_REGISTER:
+		Emit_Fp_Cmp_MemCst(m_registers[dst->m_valueLow], statement);
+		break;
+	case SYM_RELATIVE:
+	case SYM_TEMPORARY:
+		Emit_Fp_Cmp_MemCst(CX86Assembler::rAX, statement);
 		m_assembler.MovGd(MakeMemorySymbolAddress(dst), CX86Assembler::rAX);
 		break;
 	default:
@@ -157,31 +204,23 @@ void CCodeGen_x86::Emit_Fp_ToIntTrunc_RelRel(const STATEMENT& statement)
 CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_fpuConstMatchers[] = 
 { 
 	{ OP_FP_ADD,			MATCH_MEMORY_FP_SINGLE,		MATCH_MEMORY_FP_SINGLE,			MATCH_MEMORY_FP_SINGLE,		&CCodeGen_x86::Emit_Fpu_MemMemMem<FPUOP_ADD>		},
-
 	{ OP_FP_SUB,			MATCH_MEMORY_FP_SINGLE,		MATCH_MEMORY_FP_SINGLE,			MATCH_MEMORY_FP_SINGLE,		&CCodeGen_x86::Emit_Fpu_MemMemMem<FPUOP_SUB>		},
-
 	{ OP_FP_MUL,			MATCH_MEMORY_FP_SINGLE,		MATCH_MEMORY_FP_SINGLE,			MATCH_MEMORY_FP_SINGLE,		&CCodeGen_x86::Emit_Fpu_MemMemMem<FPUOP_MUL>		},
-
 	{ OP_FP_DIV,			MATCH_MEMORY_FP_SINGLE,		MATCH_MEMORY_FP_SINGLE,			MATCH_MEMORY_FP_SINGLE,		&CCodeGen_x86::Emit_Fpu_MemMemMem<FPUOP_DIV>		},
 
-	{ OP_FP_CMP,			MATCH_REGISTER,				MATCH_RELATIVE_FP_SINGLE,		MATCH_RELATIVE_FP_SINGLE,	&CCodeGen_x86::Emit_Fp_Cmp_SymRelRel				},
-
-	{ OP_FP_CMP,			MATCH_RELATIVE,				MATCH_RELATIVE_FP_SINGLE,		MATCH_RELATIVE_FP_SINGLE,	&CCodeGen_x86::Emit_Fp_Cmp_SymRelRel				},
-
-	{ OP_FP_CMP,			MATCH_TEMPORARY,			MATCH_RELATIVE_FP_SINGLE,		MATCH_RELATIVE_FP_SINGLE,	&CCodeGen_x86::Emit_Fp_Cmp_SymRelRel				},
+	{ OP_FP_CMP,			MATCH_REGISTER,				MATCH_MEMORY_FP_SINGLE,			MATCH_MEMORY_FP_SINGLE,		&CCodeGen_x86::Emit_Fp_Cmp_SymMemMem				},
+	{ OP_FP_CMP,			MATCH_MEMORY,				MATCH_MEMORY_FP_SINGLE,			MATCH_MEMORY_FP_SINGLE,		&CCodeGen_x86::Emit_Fp_Cmp_SymMemMem				},
+	{ OP_FP_CMP,			MATCH_REGISTER,				MATCH_MEMORY_FP_SINGLE,			MATCH_CONSTANT,				&CCodeGen_x86::Emit_Fp_Cmp_SymMemCst				},
+	{ OP_FP_CMP,			MATCH_MEMORY,				MATCH_MEMORY_FP_SINGLE,			MATCH_CONSTANT,				&CCodeGen_x86::Emit_Fp_Cmp_SymMemCst				},
 
 	{ OP_FP_SQRT,			MATCH_MEMORY_FP_SINGLE,		MATCH_MEMORY_FP_SINGLE,			MATCH_NIL,					&CCodeGen_x86::Emit_Fpu_MemMem<FPUOP_SQRT>			},
-
 	{ OP_FP_RSQRT,			MATCH_MEMORY_FP_SINGLE,		MATCH_MEMORY_FP_SINGLE,			MATCH_NIL,					&CCodeGen_x86::Emit_Fpu_MemMem<FPUOP_RSQRT>			},
-
 	{ OP_FP_RCPL,			MATCH_MEMORY_FP_SINGLE,		MATCH_MEMORY_FP_SINGLE,			MATCH_NIL,					&CCodeGen_x86::Emit_Fpu_MemMem<FPUOP_RCPL>			},
 
 	{ OP_FP_ABS,			MATCH_MEMORY_FP_SINGLE,		MATCH_MEMORY_FP_SINGLE,			MATCH_NIL,					&CCodeGen_x86::Emit_Fp_Abs_MemMem					},
-
 	{ OP_FP_NEG,			MATCH_MEMORY_FP_SINGLE,		MATCH_MEMORY_FP_SINGLE,			MATCH_NIL,					&CCodeGen_x86::Emit_Fp_Neg_MemMem					},
 
 	{ OP_MOV,				MATCH_RELATIVE_FP_SINGLE,	MATCH_RELATIVE_FP_INT32,		MATCH_NIL,					&CCodeGen_x86::Emit_Fp_Mov_RelSRelI32				},
-
 	{ OP_FP_TOINT_TRUNC,	MATCH_RELATIVE_FP_SINGLE,	MATCH_RELATIVE_FP_SINGLE,		MATCH_NIL,					&CCodeGen_x86::Emit_Fp_ToIntTrunc_RelRel			},
 
 	{ OP_MOV,				MATCH_NIL,					MATCH_NIL,						MATCH_NIL,					NULL												},

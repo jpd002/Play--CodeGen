@@ -25,7 +25,12 @@ __attribute__((aligned(16)))
 		uint8			src1[16];
 		uint8			src2[16];
 
+		uint8			dstMov[16];
 		uint8			dstAddWSS[16];
+		uint8			dstCmpEqW[16];
+
+		uint8			dstPackWH[16];
+
 		uint8			dstUnpackLowerHW[16];
 		uint8			dstUnpackLowerWD[16];
 		uint8			dstUnpackUpperWD[16];

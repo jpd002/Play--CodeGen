@@ -74,6 +74,11 @@ void CMdFpTest::Compile(Jitter::CJitter& jitter)
 		jitter.MD_PushRel(offsetof(CONTEXT, src2));
 		jitter.MD_ToWordTruncate();
 		jitter.MD_PullRel(offsetof(CONTEXT, dstCvtWord));
+
+		//ToSingle
+		jitter.MD_PushRel(offsetof(CONTEXT, dstCvtWord));
+		jitter.MD_ToSingle();
+		jitter.MD_PullRel(offsetof(CONTEXT, dstCvtSingle));
 	}
 	jitter.End();
 
@@ -156,4 +161,9 @@ void CMdFpTest::Run()
 	TEST_VERIFY(context.dstCvtWord[1] == 6);
 	TEST_VERIFY(context.dstCvtWord[2] == 7);
 	TEST_VERIFY(context.dstCvtWord[3] == 8);
+
+	TEST_VERIFY(context.dstCvtSingle[0] == 5.0f);
+	TEST_VERIFY(context.dstCvtSingle[1] == 6.0f);
+	TEST_VERIFY(context.dstCvtSingle[2] == 7.0f);
+	TEST_VERIFY(context.dstCvtSingle[3] == 8.0f);
 }

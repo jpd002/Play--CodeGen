@@ -64,22 +64,30 @@ CJitter::VERSIONED_STATEMENT_LIST CJitter::GenerateVersionedStatementList(const 
 {
 	VERSIONED_STATEMENT_LIST result;
 
+	struct ReplaceUse
+	{
+		void operator() (SymbolRefPtr& symbolRef, CRelativeVersionManager& relativeVersions) const
+		{
+			if(CSymbol* symbol = dynamic_symbolref_cast(SYM_RELATIVE, symbolRef))
+			{
+				unsigned int currentVersion = relativeVersions.GetRelativeVersion(symbol->m_valueLow);
+				symbolRef = SymbolRefPtr(new CVersionedSymbolRef(symbolRef->GetSymbol(), currentVersion));
+			}
+			if(CSymbol* symbol = dynamic_symbolref_cast(SYM_RELATIVE64, symbolRef))
+			{
+				unsigned int currentVersion = relativeVersions.GetRelativeVersion(symbol->m_valueLow);
+				symbolRef = SymbolRefPtr(new CVersionedSymbolRef(symbolRef->GetSymbol(), currentVersion));
+			}
+		}
+	};
+
 	for(StatementList::const_iterator statementIterator(statements.begin());
 		statements.end() != statementIterator; statementIterator++)
 	{
 		STATEMENT newStatement(*statementIterator);
 
-		if(CSymbol* src1 = dynamic_symbolref_cast(SYM_RELATIVE, newStatement.src1))
-		{
-			unsigned int currentVersion = result.relativeVersions.GetRelativeVersion(src1->m_valueLow);
-			newStatement.src1 = SymbolRefPtr(new CVersionedSymbolRef(newStatement.src1->GetSymbol(), currentVersion));
-		}
-
-		if(CSymbol* src2 = dynamic_symbolref_cast(SYM_RELATIVE, newStatement.src2))
-		{
-			unsigned int currentVersion = result.relativeVersions.GetRelativeVersion(src2->m_valueLow);
-			newStatement.src2 = SymbolRefPtr(new CVersionedSymbolRef(newStatement.src2->GetSymbol(), currentVersion));
-		}
+		ReplaceUse()(newStatement.src1, result.relativeVersions);
+		ReplaceUse()(newStatement.src2, result.relativeVersions);
 
 		if(CSymbol* dst = dynamic_symbolref_cast(SYM_RELATIVE, newStatement.dst))
 		{
@@ -102,10 +110,16 @@ CJitter::VERSIONED_STATEMENT_LIST CJitter::GenerateVersionedStatementList(const 
 		}
 		else if(CSymbol* dst = dynamic_symbolref_cast(SYM_RELATIVE128, newStatement.dst))
 		{
-			result.relativeVersions.IncrementRelativeVersion(dst->m_valueLow + 0);
-			result.relativeVersions.IncrementRelativeVersion(dst->m_valueLow + 4);
-			result.relativeVersions.IncrementRelativeVersion(dst->m_valueLow + 8);
-			result.relativeVersions.IncrementRelativeVersion(dst->m_valueLow + 12);
+			uint8 mask = 0xF;
+			if(newStatement.op == OP_MD_MOV_MASKED)
+			{
+				mask = newStatement.src2->GetSymbol()->m_valueLow;
+			}
+
+			if(mask & 0x01) result.relativeVersions.IncrementRelativeVersion(dst->m_valueLow + 0);
+			if(mask & 0x02) result.relativeVersions.IncrementRelativeVersion(dst->m_valueLow + 4);
+			if(mask & 0x04) result.relativeVersions.IncrementRelativeVersion(dst->m_valueLow + 8);
+			if(mask & 0x08) result.relativeVersions.IncrementRelativeVersion(dst->m_valueLow + 12);
 		}
 
 		result.statements.push_back(newStatement);

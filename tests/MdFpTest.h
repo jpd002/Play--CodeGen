@@ -40,6 +40,7 @@ __attribute__((aligned(16)))
 		float			dstExpandCst[4];
 
 		uint32			dstCvtWord[4];
+		float			dstCvtSingle[4];
 	};
 
 	CMemoryFunction*	m_function;

@@ -231,6 +231,7 @@ public:
     };
 
     void                                    MovdVo(XMMREGISTER, const CAddress&);
+	void									MovdVo(const CAddress&, XMMREGISTER);
     void                                    MovdquVo(const CAddress&, XMMREGISTER);
     void                                    MovdquVo(XMMREGISTER, const CAddress&);
     void                                    MovapsVo(const CAddress&, XMMREGISTER);

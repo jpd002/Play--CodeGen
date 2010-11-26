@@ -26,6 +26,7 @@ __attribute__((aligned(16)))
 		uint8			src2[16];
 
 		uint8			dstMov[16];
+		uint8			dstAddWUS[16];
 		uint8			dstAddWSS[16];
 		uint8			dstCmpEqW[16];
 
@@ -36,6 +37,7 @@ __attribute__((aligned(16)))
 		uint8			dstUnpackUpperWD[16];
 	};
 
+	uint32				ComputeWordUnsignedSaturation(uint32, uint32);
 	uint32				ComputeWordSignedSaturation(uint32, uint32);
 
 	CMemoryFunction*	m_function;

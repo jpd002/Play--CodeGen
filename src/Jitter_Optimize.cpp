@@ -46,6 +46,12 @@ static uint32 GetPowerOf2(uint32 x)
 	return ones32(x >> 1);
 }
 
+static uint64 MergeConstant64(uint32 lo, uint32 hi)
+{
+	uint64 result = static_cast<uint64>(lo) | (static_cast<uint64>(hi) >> 32);
+	return result;
+}
+
 unsigned int CJitter::CRelativeVersionManager::GetRelativeVersion(uint32 relativeId)
 {
 	RelativeVersionMap::const_iterator versionIterator(m_relativeVersions.find(relativeId));
@@ -113,7 +119,7 @@ CJitter::VERSIONED_STATEMENT_LIST CJitter::GenerateVersionedStatementList(const 
 			uint8 mask = 0xF;
 			if(newStatement.op == OP_MD_MOV_MASKED)
 			{
-				mask = newStatement.src2->GetSymbol()->m_valueLow;
+				mask = static_cast<uint8>(newStatement.src2->GetSymbol()->m_valueLow);
 			}
 
 			if(mask & 0x01) result.relativeVersions.IncrementRelativeVersion(dst->m_valueLow + 0);
@@ -780,6 +786,16 @@ bool CJitter::FoldConstant64Operation(STATEMENT& statement)
 	}
 	else if(statement.op == OP_ADD64)
 	{
+		if(src1cst && src2cst)
+		{
+			uint64 cst1 = MergeConstant64(src1cst->m_valueLow, src1cst->m_valueHigh);
+			uint64 cst2 = MergeConstant64(src2cst->m_valueLow, src2cst->m_valueHigh);
+			uint64 result = cst1 + cst2;
+			statement.op = OP_MOV;
+			statement.src1 = MakeSymbolRef(MakeConstant64(result));
+			statement.src2.reset();
+			changed = true;
+		}
 		if(src2cst && (src2cst->m_valueLow == 0) && (src2cst->m_valueHigh == 0))
 		{
 			statement.op = OP_MOV;

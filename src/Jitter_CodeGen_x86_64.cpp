@@ -21,6 +21,11 @@ CX86Assembler::REGISTER CCodeGen_x86_64::g_paramRegs[MAX_PARAMS] =
 	CX86Assembler::r9,
 };
 
+static uint64 CombineConstant64(uint32 cstLow, uint32 cstHigh)
+{
+	return (static_cast<uint64>(cstHigh) << 32) | static_cast<uint64>(cstLow);
+}
+
 //ALUOP
 //-------------------------------------------------------------------
 
@@ -173,11 +178,6 @@ CCodeGen_x86_64::CONSTMATCHER CCodeGen_x86_64::g_constMatchers[] =
 
 	{ OP_MOV,		MATCH_NIL,			MATCH_NIL,			MATCH_NIL,			NULL														},
 };
-
-static uint64 CombineConstant64(uint32 cstLow, uint32 cstHigh)
-{
-	return (static_cast<uint64>(cstHigh) << 32) | static_cast<uint64>(cstLow);
-}
 
 CCodeGen_x86_64::CCodeGen_x86_64()
 {

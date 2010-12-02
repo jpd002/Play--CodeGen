@@ -827,6 +827,8 @@ bool CJitter::FoldConstant64Operation(STATEMENT& statement)
 		}
 	}
 
+	assert(!(src1cst && src2cst && !changed));
+
 	return changed;
 }
 

@@ -27,6 +27,8 @@ namespace Jitter
 
 		OP_MUL,
 		OP_MULS,
+		OP_MULSHL,
+		OP_MULSHH,
 		OP_DIV,
 		OP_DIVS,
 
@@ -45,6 +47,7 @@ namespace Jitter
 
 		OP_MD_MOV_MASKED,
 
+		OP_MD_ADD_W,
 		OP_MD_ADDSS_W,
 		OP_MD_ADDUS_W,
 		OP_MD_SUB_B,
@@ -71,6 +74,7 @@ namespace Jitter
 		OP_MD_ADD_S,
 		OP_MD_SUB_S,
 		OP_MD_MUL_S,
+		OP_MD_DIV_S,
 		OP_MD_MIN_S,
 		OP_MD_MAX_S,
 

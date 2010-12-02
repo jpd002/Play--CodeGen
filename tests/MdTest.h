@@ -26,6 +26,7 @@ __attribute__((aligned(16)))
 		uint8			src2[16];
 
 		uint8			dstMov[16];
+		uint8			dstAddW[16];
 		uint8			dstAddWUS[16];
 		uint8			dstAddWSS[16];
 		uint8			dstCmpEqW[16];

@@ -127,6 +127,11 @@ namespace Jitter
 			typedef void (CX86Assembler::*OpVoType)(CX86Assembler::XMMREGISTER, const CX86Assembler::CAddress&);
 		};
 
+		struct MDOP_ADDW : public MDOP_BASE
+		{
+			static OpVoType OpVo() { return &CX86Assembler::PadddVo; }
+		};
+
 		struct MDOP_SUBB : public MDOP_BASE
 		{
 			static OpVoType OpVo() { return &CX86Assembler::PsubbVo; }
@@ -185,6 +190,11 @@ namespace Jitter
 		struct MDOP_MULS : public MDOP_BASE
 		{
 			static OpVoType OpVo() { return &CX86Assembler::MulpsVo; }
+		};
+
+		struct MDOP_DIVS : public MDOP_BASE
+		{
+			static OpVoType OpVo() { return &CX86Assembler::DivpsVo; }
 		};
 
 		struct MDOP_MINS : public MDOP_BASE
@@ -341,6 +351,18 @@ namespace Jitter
 		void						Emit_CondJmp_RelRel(const STATEMENT&);
 		void						Emit_CondJmp_RelCst(const STATEMENT&);
 		void						Emit_CondJmp_TmpCst(const STATEMENT&);
+
+		//MULSHL
+		void						Emit_MulSHL(const CX86Assembler::CAddress&, const CX86Assembler::CAddress&, const CX86Assembler::CAddress&);
+		void						Emit_MulSHL_RegRegReg(const STATEMENT&);
+		void						Emit_MulSHL_MemMemReg(const STATEMENT&);
+		void						Emit_MulSHL_MemMemMem(const STATEMENT&);
+
+		//MULSHH
+		void						Emit_MulSHH(const CX86Assembler::CAddress&, const CX86Assembler::CAddress&, const CX86Assembler::CAddress&);
+		void						Emit_MulSHH_MemRegReg(const STATEMENT&);
+		void						Emit_MulSHH_MemMemReg(const STATEMENT&);
+		void						Emit_MulSHH_MemMemMem(const STATEMENT&);
 
 		//MERGETO64
 		void						Emit_MergeTo64_Tmp64RegReg(const STATEMENT&);

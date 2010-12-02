@@ -891,9 +891,11 @@ void CX86Assembler::WriteDWord(uint32 nDWord)
 
 CX86Assembler::CAddress::CAddress()
 {
+	nOffset = 0;
     ModRm.nByte = 0;
     sib.byteValue = 0;
     nIsExtendedModRM = false;
+	nIsExtendedSib = false;
 }
 
 void CX86Assembler::CAddress::Write(Framework::CStream* stream)

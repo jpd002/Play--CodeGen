@@ -24,6 +24,9 @@ private:
 
 		uint32			relResultLo;
 		uint32			relResultHi;
+
+		uint32			multHalfLoResult;
+		uint32			multHalfHiResult;
 	};
 
 	bool				m_isSigned;

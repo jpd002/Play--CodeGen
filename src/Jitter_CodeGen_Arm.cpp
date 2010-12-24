@@ -66,11 +66,14 @@ CCodeGen_Arm::CONSTMATCHER CCodeGen_Arm::g_constMatchers[] =
 	{ OP_JMP,		MATCH_NIL,			MATCH_NIL,			MATCH_NIL,			&CCodeGen_Arm::Emit_Jmp								},
 
 	{ OP_CONDJMP,	MATCH_NIL,			MATCH_REGISTER,		MATCH_REGISTER,		&CCodeGen_Arm::Emit_CondJmp_RegReg					},
+	{ OP_CONDJMP,	MATCH_NIL,			MATCH_REGISTER,		MATCH_RELATIVE,		&CCodeGen_Arm::Emit_CondJmp_RegRel					},	
 	{ OP_CONDJMP,	MATCH_NIL,			MATCH_REGISTER,		MATCH_CONSTANT,		&CCodeGen_Arm::Emit_CondJmp_RegCst					},
 	{ OP_CONDJMP,	MATCH_NIL,			MATCH_RELATIVE,		MATCH_CONSTANT,		&CCodeGen_Arm::Emit_CondJmp_RelCst					},
 	
 	{ OP_CMP,		MATCH_REGISTER,		MATCH_REGISTER,		MATCH_REGISTER,		&CCodeGen_Arm::Emit_Cmp_RegRegReg					},
+	{ OP_CMP,		MATCH_REGISTER,		MATCH_REGISTER,		MATCH_RELATIVE,		&CCodeGen_Arm::Emit_Cmp_RegRegRel					},
 	{ OP_CMP,		MATCH_REGISTER,		MATCH_REGISTER,		MATCH_CONSTANT,		&CCodeGen_Arm::Emit_Cmp_RegRegCst					},
+	{ OP_CMP,		MATCH_REGISTER,		MATCH_RELATIVE,		MATCH_CONSTANT,		&CCodeGen_Arm::Emit_Cmp_RegRelCst					},	
 	{ OP_CMP,		MATCH_RELATIVE,		MATCH_REGISTER,		MATCH_CONSTANT,		&CCodeGen_Arm::Emit_Cmp_RelRegCst					},
 	{ OP_CMP,		MATCH_RELATIVE,		MATCH_RELATIVE,		MATCH_RELATIVE,		&CCodeGen_Arm::Emit_Cmp_RelRelRel					},
 
@@ -78,6 +81,7 @@ CCodeGen_Arm::CONSTMATCHER CCodeGen_Arm::g_constMatchers[] =
 	{ OP_EXTLOW64,	MATCH_RELATIVE,		MATCH_TEMPORARY64,	MATCH_NIL,			&CCodeGen_Arm::Emit_ExtLow64RelTmp64				},
 
 	{ OP_EXTHIGH64,	MATCH_REGISTER,		MATCH_TEMPORARY64,	MATCH_NIL,			&CCodeGen_Arm::Emit_ExtHigh64RegTmp64				},
+	{ OP_EXTHIGH64,	MATCH_RELATIVE,		MATCH_TEMPORARY64,	MATCH_NIL,			&CCodeGen_Arm::Emit_ExtHigh64RelTmp64				},
 
 	{ OP_NOT,		MATCH_REGISTER,		MATCH_REGISTER,		MATCH_NIL,			&CCodeGen_Arm::Emit_Not_RegReg						},
 	{ OP_NOT,		MATCH_RELATIVE,		MATCH_REGISTER,		MATCH_NIL,			&CCodeGen_Arm::Emit_Not_RelReg						},
@@ -93,10 +97,12 @@ CCodeGen_Arm::CONSTMATCHER CCodeGen_Arm::g_constMatchers[] =
 	{ OP_MUL,		MATCH_TEMPORARY64,	MATCH_REGISTER,		MATCH_REGISTER,		&CCodeGen_Arm::Emit_MulTmp64RegReg<false>			},
 	{ OP_MUL,		MATCH_TEMPORARY64,	MATCH_REGISTER,		MATCH_CONSTANT,		&CCodeGen_Arm::Emit_MulTmp64RegCst<false>			},
 	{ OP_MUL,		MATCH_TEMPORARY64,	MATCH_REGISTER,		MATCH_RELATIVE,		&CCodeGen_Arm::Emit_MulTmp64RegRel<false>			},
+	{ OP_MUL,		MATCH_TEMPORARY64,	MATCH_RELATIVE,		MATCH_RELATIVE,		&CCodeGen_Arm::Emit_MulTmp64RelRel<false>			},
 
 	{ OP_MULS,		MATCH_TEMPORARY64,	MATCH_REGISTER,		MATCH_REGISTER,		&CCodeGen_Arm::Emit_MulTmp64RegReg<true>			},
 	{ OP_MULS,		MATCH_TEMPORARY64,	MATCH_REGISTER,		MATCH_CONSTANT,		&CCodeGen_Arm::Emit_MulTmp64RegCst<true>			},
 	{ OP_MULS,		MATCH_TEMPORARY64,	MATCH_REGISTER,		MATCH_RELATIVE,		&CCodeGen_Arm::Emit_MulTmp64RegRel<true>			},
+	{ OP_MULS,		MATCH_TEMPORARY64,	MATCH_RELATIVE,		MATCH_RELATIVE,		&CCodeGen_Arm::Emit_MulTmp64RelRel<true>			},
 
 	{ OP_MOV,		MATCH_NIL,			MATCH_NIL,			MATCH_NIL,			NULL												},
 };
@@ -576,6 +582,19 @@ void CCodeGen_Arm::Emit_ExtHigh64RegTmp64(const STATEMENT& statement)
 	m_assembler.Ldr(g_registers[dst->m_valueLow], CArmAssembler::rSP, CArmAssembler::MakeImmediateLdrAddress(src1->m_stackLocation + m_stackLevel + 4));
 }
 
+void CCodeGen_Arm::Emit_ExtHigh64RelTmp64(const STATEMENT& statement)
+{
+	CSymbol* dst = statement.dst->GetSymbol().get();
+	CSymbol* src1 = statement.src1->GetSymbol().get();
+	
+	assert(dst->m_type  == SYM_RELATIVE);
+	assert(src1->m_type == SYM_TEMPORARY64);
+	
+	CArmAssembler::REGISTER dstReg = CArmAssembler::r0;
+	m_assembler.Ldr(dstReg, CArmAssembler::rSP, CArmAssembler::MakeImmediateLdrAddress(src1->m_stackLocation + m_stackLevel + 4));
+	StoreRegisterInRelative(dst, dstReg);
+}
+
 void CCodeGen_Arm::Emit_Jmp(const STATEMENT& statement)
 {
 	m_assembler.BCc(CArmAssembler::CONDITION_AL, GetLabel(statement.jmpBlock));
@@ -614,6 +633,22 @@ void CCodeGen_Arm::Emit_CondJmp_RegReg(const STATEMENT& statement)
 	assert(src2->m_type == SYM_REGISTER);
 	
 	m_assembler.Cmp(g_registers[src1->m_valueLow], g_registers[src2->m_valueLow]);
+	
+	Emit_CondJmp(statement);
+}
+
+void CCodeGen_Arm::Emit_CondJmp_RegRel(const STATEMENT& statement)
+{
+	CSymbol* src1 = statement.src1->GetSymbol().get();
+	CSymbol* src2 = statement.src2->GetSymbol().get();	
+	
+	assert(src1->m_type == SYM_REGISTER);
+	assert(src2->m_type == SYM_RELATIVE);
+	
+	CArmAssembler::REGISTER tmpReg = CArmAssembler::r1;
+	LoadRelativeInRegister(tmpReg, src2);
+	
+	m_assembler.Cmp(g_registers[src1->m_valueLow], tmpReg);
 	
 	Emit_CondJmp(statement);
 }
@@ -711,6 +746,23 @@ void CCodeGen_Arm::Emit_Cmp_RegRegReg(const STATEMENT& statement)
 	Cmp_GetFlag(g_registers[dst->m_valueLow], statement.jmpCondition);
 }
 
+void CCodeGen_Arm::Emit_Cmp_RegRegRel(const STATEMENT& statement)
+{
+	CSymbol* dst = statement.dst->GetSymbol().get();
+	CSymbol* src1 = statement.src1->GetSymbol().get();
+	CSymbol* src2 = statement.src2->GetSymbol().get();
+	
+	assert(dst->m_type  == SYM_REGISTER);
+	assert(src1->m_type == SYM_REGISTER);
+	assert(src2->m_type == SYM_RELATIVE);
+	
+	CArmAssembler::REGISTER tmpReg = CArmAssembler::r1;
+	LoadRelativeInRegister(tmpReg, src2);
+	
+	m_assembler.Cmp(g_registers[src1->m_valueLow], tmpReg);
+	Cmp_GetFlag(g_registers[dst->m_valueLow], statement.jmpCondition);
+}
+
 void CCodeGen_Arm::Emit_Cmp_RegRegCst(const STATEMENT& statement)
 {
 	CSymbol* dst = statement.dst->GetSymbol().get();
@@ -722,6 +774,23 @@ void CCodeGen_Arm::Emit_Cmp_RegRegCst(const STATEMENT& statement)
 	assert(src2->m_type == SYM_CONSTANT);
 	
 	Cmp_GenericRegCst(g_registers[src1->m_valueLow], src2->m_valueLow);
+	Cmp_GetFlag(g_registers[dst->m_valueLow], statement.jmpCondition);
+}
+
+void CCodeGen_Arm::Emit_Cmp_RegRelCst(const STATEMENT& statement)
+{
+	CSymbol* dst = statement.dst->GetSymbol().get();
+	CSymbol* src1 = statement.src1->GetSymbol().get();
+	CSymbol* src2 = statement.src2->GetSymbol().get();
+	
+	assert(dst->m_type  == SYM_REGISTER);
+	assert(src1->m_type == SYM_RELATIVE);
+	assert(src2->m_type == SYM_CONSTANT);
+	
+	CArmAssembler::REGISTER tmpReg = CArmAssembler::r0;
+	LoadRelativeInRegister(tmpReg, src1);
+	
+	Cmp_GenericRegCst(tmpReg, src2->m_valueLow);
 	Cmp_GetFlag(g_registers[dst->m_valueLow], statement.jmpCondition);
 }
 

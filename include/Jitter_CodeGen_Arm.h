@@ -160,8 +160,9 @@ namespace Jitter
 		
 		//SHIFTOP
 		template <CArmAssembler::SHIFT> void	Emit_Shift_RegRegReg(const STATEMENT&);
+		template <CArmAssembler::SHIFT> void	Emit_Shift_RegRegRel(const STATEMENT&);		
 		template <CArmAssembler::SHIFT> void	Emit_Shift_RegRegCst(const STATEMENT&);
-		template <CArmAssembler::SHIFT> void	Emit_Shift_RegRelReg(const STATEMENT&);		
+		template <CArmAssembler::SHIFT> void	Emit_Shift_RegRelReg(const STATEMENT&);
 		template <CArmAssembler::SHIFT> void	Emit_Shift_RegRelCst(const STATEMENT&);
 		template <CArmAssembler::SHIFT> void	Emit_Shift_RegCstReg(const STATEMENT&);
 		template <CArmAssembler::SHIFT> void	Emit_Shift_RegCstRel(const STATEMENT&);
@@ -189,6 +190,7 @@ namespace Jitter
 		template<bool> void						Emit_MulTmp64RegReg(const STATEMENT&);
 		template<bool> void						Emit_MulTmp64RegCst(const STATEMENT&);
 		template<bool> void						Emit_MulTmp64RegRel(const STATEMENT&);
+		template<bool> void						Emit_MulTmp64RelRel(const STATEMENT&);
 
 		//DIV/DIVS
 		template<bool> void						Div_GenericTmp64RegReg_Quotient(CSymbol*);
@@ -215,12 +217,15 @@ namespace Jitter
 
 		//EXTHIGH64
 		void									Emit_ExtHigh64RegTmp64(const STATEMENT&);
+		void									Emit_ExtHigh64RelTmp64(const STATEMENT&);
 
 		//CMP
 		void									Cmp_GetFlag(CArmAssembler::REGISTER, CONDITION);
 		void									Cmp_GenericRegCst(CArmAssembler::REGISTER, uint32);
 		void									Emit_Cmp_RegRegReg(const STATEMENT&);
+		void									Emit_Cmp_RegRegRel(const STATEMENT&);		
 		void									Emit_Cmp_RegRegCst(const STATEMENT&);
+		void									Emit_Cmp_RegRelCst(const STATEMENT&);
 		void									Emit_Cmp_RelRegCst(const STATEMENT&);
 		void									Emit_Cmp_RelRelRel(const STATEMENT&);
 
@@ -230,6 +235,7 @@ namespace Jitter
 		//CONDJMP
 		void									Emit_CondJmp(const STATEMENT&);
 		void									Emit_CondJmp_RegReg(const STATEMENT&);
+		void									Emit_CondJmp_RegRel(const STATEMENT&);
 		void									Emit_CondJmp_RegCst(const STATEMENT&);
 		void									Emit_CondJmp_RelCst(const STATEMENT&);
 		

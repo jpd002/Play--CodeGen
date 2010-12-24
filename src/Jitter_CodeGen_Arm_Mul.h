@@ -70,4 +70,24 @@ void CCodeGen_Arm::Emit_MulTmp64RegRel(const STATEMENT& statement)
 	Mul_GenericTmp64RegReg<isSigned>(dst, g_registers[src1->m_valueLow], tmpReg);
 }
 
+template <bool isSigned>
+void CCodeGen_Arm::Emit_MulTmp64RelRel(const STATEMENT& statement)
+{
+	CSymbol* dst = statement.dst->GetSymbol().get();
+	CSymbol* src1 = statement.src1->GetSymbol().get();
+	CSymbol* src2 = statement.src2->GetSymbol().get();
+	
+	assert(dst->m_type  == SYM_TEMPORARY64);
+	assert(src1->m_type == SYM_RELATIVE);
+	assert(src2->m_type == SYM_RELATIVE);
+	
+	CArmAssembler::REGISTER tmpReg1 = CArmAssembler::r2;
+	CArmAssembler::REGISTER tmpReg2 = CArmAssembler::r3;
+	
+	LoadRelativeInRegister(tmpReg1, src1);
+	LoadRelativeInRegister(tmpReg2, src2);
+	
+	Mul_GenericTmp64RegReg<isSigned>(dst, tmpReg1, tmpReg2);
+}
+
 #endif

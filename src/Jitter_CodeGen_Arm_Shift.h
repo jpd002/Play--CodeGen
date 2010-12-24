@@ -18,6 +18,25 @@ void CCodeGen_Arm::Emit_Shift_RegRegReg(const STATEMENT& statement)
 }
 
 template <CArmAssembler::SHIFT shiftType> 
+void CCodeGen_Arm::Emit_Shift_RegRegRel(const STATEMENT& statement)
+{
+	CSymbol* dst = statement.dst->GetSymbol().get();
+	CSymbol* src1 = statement.src1->GetSymbol().get();
+	CSymbol* src2 = statement.src2->GetSymbol().get();
+	
+	assert(dst->m_type  == SYM_REGISTER);
+	assert(src1->m_type == SYM_REGISTER);
+	assert(src2->m_type == SYM_RELATIVE);
+	
+	CArmAssembler::REGISTER tmpReg = CArmAssembler::r1;
+	LoadRelativeInRegister(tmpReg, src2);
+	
+	m_assembler.Mov(g_registers[dst->m_valueLow], 
+					CArmAssembler::MakeRegisterAluOperand(g_registers[src1->m_valueLow], 
+														  CArmAssembler::MakeVariableShift(shiftType, tmpReg)));
+}
+
+template <CArmAssembler::SHIFT shiftType> 
 void CCodeGen_Arm::Emit_Shift_RegRegCst(const STATEMENT& statement)
 {
 	CSymbol* dst = statement.dst->GetSymbol().get();
@@ -195,6 +214,7 @@ void CCodeGen_Arm::Emit_Shift_TmpTmpCst(const STATEMENT& statement)
 
 #define SHIFT_CONST_MATCHERS(SHIFTOP_CST, SHIFTOP) \
 	{ SHIFTOP_CST,	MATCH_REGISTER,		MATCH_REGISTER,		MATCH_REGISTER,		&CCodeGen_Arm::Emit_Shift_RegRegReg<SHIFTOP>	}, \
+	{ SHIFTOP_CST,	MATCH_REGISTER,		MATCH_REGISTER,		MATCH_RELATIVE,		&CCodeGen_Arm::Emit_Shift_RegRegRel<SHIFTOP>	}, \
 	{ SHIFTOP_CST,	MATCH_REGISTER,		MATCH_REGISTER,		MATCH_CONSTANT,		&CCodeGen_Arm::Emit_Shift_RegRegCst<SHIFTOP>	}, \
 	{ SHIFTOP_CST,	MATCH_REGISTER,		MATCH_RELATIVE,		MATCH_REGISTER,		&CCodeGen_Arm::Emit_Shift_RegRelReg<SHIFTOP>	}, \
 	{ SHIFTOP_CST,	MATCH_REGISTER,		MATCH_RELATIVE,		MATCH_CONSTANT,		&CCodeGen_Arm::Emit_Shift_RegRelCst<SHIFTOP>	}, \

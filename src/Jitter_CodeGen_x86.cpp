@@ -263,6 +263,22 @@ CX86Assembler::CAddress CCodeGen_x86::MakeMemorySymbolAddress(CSymbol* symbol)
 	}
 }
 
+CX86Assembler::CAddress CCodeGen_x86::MakeRelativeReferenceSymbolAddress(CSymbol* symbol)
+{
+	size_t symbolMask = sizeof(void*) - 1;
+	assert(symbol->m_type == SYM_REL_REFERENCE);
+	assert((symbol->m_valueLow & symbolMask) == 0);
+	return CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, symbol->m_valueLow);
+}
+
+CX86Assembler::CAddress CCodeGen_x86::MakeTemporaryReferenceSymbolAddress(CSymbol* symbol)
+{
+	size_t symbolMask = sizeof(void*) - 1;
+	assert(symbol->m_type == SYM_TMP_REFERENCE);
+	assert(((symbol->m_stackLocation + m_stackLevel) & symbolMask) == 0);
+	return CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rSP, symbol->m_stackLocation + m_stackLevel);
+}
+
 CX86Assembler::CAddress CCodeGen_x86::MakeRelative64SymbolAddress(CSymbol* symbol)
 {
 	assert(symbol->m_type == SYM_RELATIVE64);

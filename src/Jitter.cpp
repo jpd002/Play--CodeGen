@@ -38,6 +38,7 @@ void CJitter::Begin()
 
 void CJitter::End()
 {
+	assert(m_Shadow.GetCount() == 0);
 	assert(m_nBlockStarted == true);
 	m_nBlockStarted = false;
 
@@ -147,23 +148,6 @@ void CJitter::PushCtx()
 void CJitter::PushCst(uint32 nValue)
 {
 	m_Shadow.Push(MakeSymbol(SYM_CONSTANT, nValue));
-}
-
-void CJitter::PushRef(void* pAddr)
-{
-	size_t addrSize = sizeof(pAddr);
-	if(addrSize == 4)
-	{
-		m_Shadow.Push(MakeSymbol(SYM_CONSTANT, *reinterpret_cast<uint32*>(&pAddr)));
-	}
-	else if(addrSize == 8)
-	{
-		m_Shadow.Push(MakeConstant64(*reinterpret_cast<uint64*>(&pAddr)));
-	}
-	else
-	{
-		assert(0);
-	}
 }
 
 void CJitter::PushRel(size_t nOffset)
@@ -543,6 +527,49 @@ void CJitter::Xor()
 	InsertStatement(statement);
 
 	m_Shadow.Push(tempSym);
+}
+
+//Memory Functions
+//------------------------------------------------
+void CJitter::PushRelRef(size_t offset)
+{
+	m_Shadow.Push(MakeSymbol(SYM_REL_REFERENCE, static_cast<uint32>(offset)));
+}
+
+void CJitter::AddRef()
+{
+	SymbolPtr tempSym = MakeSymbol(SYM_TMP_REFERENCE, m_nextTemporary++);
+
+	STATEMENT statement;
+	statement.op	= OP_ADDREF;
+	statement.src2	= MakeSymbolRef(m_Shadow.Pull());
+	statement.src1	= MakeSymbolRef(m_Shadow.Pull());
+	statement.dst	= MakeSymbolRef(tempSym);
+	InsertStatement(statement);
+
+	m_Shadow.Push(tempSym);
+}
+
+void CJitter::LoadFromRef()
+{
+	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY, m_nextTemporary++);
+
+	STATEMENT statement;
+	statement.op	= OP_LOADFROMREF;
+	statement.src1	= MakeSymbolRef(m_Shadow.Pull());
+	statement.dst	= MakeSymbolRef(tempSym);
+	InsertStatement(statement);
+
+	m_Shadow.Push(tempSym);
+}
+
+void CJitter::StoreAtRef()
+{
+	STATEMENT statement;
+	statement.op	= OP_STOREATREF;
+	statement.src2	= MakeSymbolRef(m_Shadow.Pull());
+	statement.src1	= MakeSymbolRef(m_Shadow.Pull());
+	InsertStatement(statement);
 }
 
 //64-bits

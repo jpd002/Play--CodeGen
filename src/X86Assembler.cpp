@@ -2,8 +2,6 @@
 #include <stdexcept>
 #include "X86Assembler.h"
 
-using namespace std;
-
 CX86Assembler::CX86Assembler() :
 m_stream(NULL),
 m_nextLabelId(1)
@@ -46,7 +44,7 @@ CX86Assembler::CAddress CX86Assembler::MakeByteRegisterAddress(REGISTER register
 {
     if(registerId > 3)
     {
-        throw runtime_error("Unsupported byte register index.");
+		throw std::runtime_error("Unsupported byte register index.");
     }
 
     return MakeRegisterAddress(registerId);
@@ -54,23 +52,23 @@ CX86Assembler::CAddress CX86Assembler::MakeByteRegisterAddress(REGISTER register
 
 CX86Assembler::CAddress CX86Assembler::MakeIndRegAddress(REGISTER registerId)
 {
-    CAddress Address;
+    CAddress address;
+
+	//Cannot be done with rSP
+	assert(registerId != rBP);
+	assert(registerId < 8);
 
     if(registerId == rSP)
     {
         registerId = static_cast<REGISTER>(4);
-        Address.sib.scale = 0;
-        Address.sib.index = 4;
-        Address.sib.base = 4;
-    }
-    else
-    {
-        assert(0);
+        address.sib.scale = 0;
+        address.sib.index = 4;
+        address.sib.base = 4;
     }
 
-    Address.ModRm.nMod = 0;
-    Address.ModRm.nRM = registerId;
-    return Address;
+    address.ModRm.nMod = 0;
+    address.ModRm.nRM = registerId;
+    return address;
 }
 
 CX86Assembler::CAddress CX86Assembler::MakeIndRegOffAddress(REGISTER nRegister, uint32 nOffset)
@@ -113,11 +111,11 @@ CX86Assembler::CAddress CX86Assembler::MakeBaseIndexScaleAddress(REGISTER base, 
     address.ModRm.nRM = 4;
     if(base == rBP || base == r13)
     {
-        throw runtime_error("Invalid base.");
+        throw std::runtime_error("Invalid base.");
     }
     if(index == rSP)
     {
-        throw runtime_error("Invalid index.");
+        throw std::runtime_error("Invalid index.");
     }
     if(base > 7)
     {
@@ -146,7 +144,7 @@ CX86Assembler::CAddress CX86Assembler::MakeBaseIndexScaleAddress(REGISTER base, 
         address.sib.scale = 3;
         break;
     default:
-        throw runtime_error("Invalid scale.");
+        throw std::runtime_error("Invalid scale.");
         break;
     }
 
@@ -176,7 +174,7 @@ void CX86Assembler::ResolveLabelReferences()
         LabelMapType::iterator label(m_labels.find(labelRef->first));
         if(label == m_labels.end())
         {
-            throw runtime_error("Invalid label.");
+            throw std::runtime_error("Invalid label.");
         }
         size_t referencePos = labelRef->second.address;
         size_t labelPos = label->second;
@@ -186,7 +184,7 @@ void CX86Assembler::ResolveLabelReferences()
         {
             if(offset > 127 || offset < -128)
             {
-                throw runtime_error("Label reference too small.");
+                throw std::runtime_error("Label reference too small.");
             }
 
 			m_stream->Seek(referencePos, Framework::STREAM_SEEK_SET);
@@ -710,7 +708,7 @@ void CX86Assembler::TestEb(REGISTER registerId, const CAddress& address)
 {
     if(registerId > 3)
     {
-        throw runtime_error("Unsupported byte register index.");
+        throw std::runtime_error("Unsupported byte register index.");
     }
     WriteEvGvOp(0x84, false, address, registerId);
 }

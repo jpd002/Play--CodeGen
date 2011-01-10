@@ -283,6 +283,7 @@ void CJitter::DumpStatementList(const StatementList& statements)
 		{
 		case OP_ADD:
 		case OP_ADD64:
+		case OP_ADDREF:
 		case OP_FP_ADD:
 			cout << " + ";
 			break;
@@ -342,6 +343,9 @@ void CJitter::DumpStatementList(const StatementList& statements)
 			cout << " NOP ";
 			break;
 		case OP_MOV:
+			break;
+		case OP_STOREATREF:
+			cout << " <- ";
 			break;
 		case OP_PARAM:
 			cout << " PARAM ";
@@ -1549,6 +1553,18 @@ unsigned int CJitter::AllocateStack(BASIC_BLOCK& basicBlock)
 		{
 			symbol->m_stackLocation = stackAlloc;
 			stackAlloc += 4;
+		}
+		else if(symbol->m_type == SYM_TMP_REFERENCE)
+		{
+			size_t symbolSize = sizeof(void*);
+			size_t symbolMask = symbolSize - 1;
+			if((stackAlloc & symbolMask) != 0)
+			{
+				stackAlloc += (symbolSize - (stackAlloc & symbolMask));
+			}
+			assert((stackAlloc & symbolMask) == 0);
+			symbol->m_stackLocation = stackAlloc;
+			stackAlloc += symbolSize;
 		}
 		else if(symbol->m_type == SYM_TEMPORARY64)
 		{

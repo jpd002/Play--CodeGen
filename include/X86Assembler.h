@@ -4,6 +4,7 @@
 #include "Types.h"
 #include "Stream.h"
 #include <map>
+#include <unordered_map>
 
 class CX86Assembler
 {
@@ -295,7 +296,7 @@ private:
         unsigned int offsetSize;
     };
 
-    typedef std::map<LABEL, size_t> LabelMapType;
+	typedef std::tr1::unordered_map<LABEL, size_t> LabelMapType;
     typedef std::multimap<LABEL, LABELREF> LabelReferenceMapType;
 
     void                                    WriteRexByte(bool, const CAddress&);

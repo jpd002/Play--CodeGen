@@ -34,6 +34,10 @@ namespace Jitter
 
 		OP_LZC,
 
+		OP_ADDREF,
+		OP_LOADFROMREF,
+		OP_STOREATREF,
+
 		OP_ADD64,
 		OP_SUB64,
 		OP_AND64,

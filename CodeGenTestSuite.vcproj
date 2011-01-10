@@ -385,6 +385,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\tests\MemAccessTest.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\tests\MemAccessTest.h"
+				>
+			</File>
+			<File
 				RelativePath=".\tests\MultTest.cpp"
 				>
 			</File>

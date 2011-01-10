@@ -17,11 +17,13 @@
 #include "MdFpTest.h"
 #include "CompareTest.h"
 #include "RegAllocTest.h"
+#include "MemAccessTest.h"
 
 typedef boost::function<CTest* ()> TestFactoryFunction;
 
 TestFactoryFunction s_factories[] =
 {
+	TestFactoryFunction(boost::lambda::bind(boost::lambda::new_ptr<CMemAccessTest>())),
 	TestFactoryFunction(boost::lambda::bind(boost::lambda::new_ptr<CCompareTest>())),
 	TestFactoryFunction(boost::lambda::bind(boost::lambda::new_ptr<CRegAllocTest>())),
 	TestFactoryFunction(boost::lambda::bind(boost::lambda::new_ptr<CRandomAluTest>(), true)),

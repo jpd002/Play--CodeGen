@@ -54,7 +54,6 @@ namespace Jitter
 
 		void							PushCtx();
 		void                            PushCst(uint32);
-		void                            PushRef(void*);
 		virtual void                    PushRel(size_t);
 		void                            PushTop();
 		void                            PushIdx(unsigned int);
@@ -88,6 +87,12 @@ namespace Jitter
 		void                            Srl(uint8);
 		void                            Sub();
 		void                            Xor();
+
+		//Memory operations
+		void							PushRelRef(size_t);
+		void							AddRef();
+		void							LoadFromRef();
+		void							StoreAtRef();
 
 		//64-bits
 		virtual void					PushRel64(size_t);

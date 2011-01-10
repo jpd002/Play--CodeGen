@@ -18,6 +18,9 @@ namespace Jitter
 		SYM_TEMPORARY,
 		SYM_REGISTER,
 
+		SYM_REL_REFERENCE,
+		SYM_TMP_REFERENCE,
+
 		SYM_RELATIVE64,
 		SYM_TEMPORARY64,
 		SYM_CONSTANT64,
@@ -74,6 +77,12 @@ namespace Jitter
 				break;
 			case SYM_TEMPORARY:
 				return "TMP[" + boost::lexical_cast<std::string>(m_valueLow) + "]";
+				break;
+			case SYM_REL_REFERENCE:
+				return "REL&[" + boost::lexical_cast<std::string>(m_valueLow) + "]";
+				break;
+			case SYM_TMP_REFERENCE:
+				return "TMP&[" + boost::lexical_cast<std::string>(m_valueLow) + "]";
 				break;
 			case SYM_CONSTANT64:
 				return "CST64[" + boost::lexical_cast<std::string>(m_valueLow) + ", " + boost::lexical_cast<std::string>(m_valueHigh) + "]";
@@ -132,6 +141,10 @@ namespace Jitter
 			case SYM_FP_REL_INT32:
 				return 4;
 				break;
+			case SYM_REL_REFERENCE:
+			case SYM_TMP_REFERENCE:
+				return sizeof(void*);
+				break;
 			default:
 				assert(0);
 				return 4;
@@ -145,6 +158,7 @@ namespace Jitter
 				(m_type == SYM_RELATIVE) || 
 				(m_type == SYM_RELATIVE64) || 
 				(m_type == SYM_RELATIVE128) || 
+				(m_type == SYM_REL_REFERENCE) ||
 				(m_type == SYM_FP_REL_SINGLE) || 
 				(m_type == SYM_FP_REL_INT32);
 		}
@@ -160,6 +174,7 @@ namespace Jitter
 				(m_type == SYM_TEMPORARY) || 
 				(m_type == SYM_TEMPORARY64) || 
 				(m_type == SYM_TEMPORARY128) || 
+				(m_type == SYM_TMP_REFERENCE) ||
 				(m_type == SYM_FP_TMP_SINGLE);
 		}
 

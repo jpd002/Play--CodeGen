@@ -1,6 +1,12 @@
 #include "MdTest.h"
 #include "MemStream.h"
 
+#ifdef _MSVC
+#define ALIGN16 __declspec(align(16))
+#else
+#define ALIGN16 __attribute__((aligned(16)))
+#endif
+
 CMdTest::CMdTest()
 {
 
@@ -96,7 +102,7 @@ uint32 CMdTest::ComputeWordSignedSaturation(uint32 value0, uint32 value1)
 
 void CMdTest::Run()
 {
-	CONTEXT __declspec(align(16)) context;
+	CONTEXT ALIGN16 context;
 	memset(&context, 0, sizeof(CONTEXT));
 	
 	for(unsigned int i = 0; i < 16; i++)

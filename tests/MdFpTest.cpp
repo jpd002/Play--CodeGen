@@ -1,6 +1,12 @@
 #include "MdFpTest.h"
 #include "MemStream.h"
 
+#ifdef _MSVC
+#define ALIGN16 __declspec(align(16))
+#else
+#define ALIGN16 __attribute__((aligned(16)))
+#endif
+
 CMdFpTest::CMdFpTest()
 {
 
@@ -93,7 +99,7 @@ void CMdFpTest::Compile(Jitter::CJitter& jitter)
 
 void CMdFpTest::Run()
 {
-	CONTEXT __declspec(align(16)) context;
+	CONTEXT ALIGN16 context;
 	memset(&context, 0, sizeof(CONTEXT));
 	
 	context.src0[0] = 5.f;

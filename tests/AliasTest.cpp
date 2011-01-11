@@ -1,5 +1,6 @@
 #include "AliasTest.h"
 #include "MemStream.h"
+#include "offsetof_def.h"
 
 #define CONSTANT_1	(0x5400)
 #define CONSTANT_2	(0xFFFF)

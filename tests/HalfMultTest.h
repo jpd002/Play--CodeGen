@@ -1,14 +1,14 @@
-#ifndef _MULTTEST_H_
-#define _MULTTEST_H_
+#ifndef _HALFMULTTEST_H_
+#define _HALFMULTTEST_H_
 
 #include "Test.h"
 #include "MemoryFunction.h"
 
-class CMultTest : public CTest
+class CHalfMultTest : public CTest
 {
 public:
-						CMultTest(bool);
-	virtual				~CMultTest();
+						CHalfMultTest();
+	virtual				~CHalfMultTest();
 			
 	void				Run();
 	void				Compile(Jitter::CJitter&);
@@ -16,17 +16,13 @@ public:
 private:
 	struct CONTEXT
 	{
-		uint32			cstResultLo;
-		uint32			cstResultHi;
-
 		uint32			relArg0;
 		uint32			relArg1;
 
-		uint32			relResultLo;
-		uint32			relResultHi;
+		uint32			multLoResult;
+		uint32			multHiResult;
 	};
 
-	bool				m_isSigned;
 	CONTEXT				m_context;
 	CMemoryFunction*	m_function;
 };

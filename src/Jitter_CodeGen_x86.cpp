@@ -99,6 +99,7 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_constMatchers[] =
 	{ OP_MULSHL,	MATCH_MEMORY,		MATCH_MEMORY,		MATCH_REGISTER,		&CCodeGen_x86::Emit_MulSHL_MemMemReg				},
 	{ OP_MULSHL,	MATCH_MEMORY,		MATCH_MEMORY,		MATCH_MEMORY,		&CCodeGen_x86::Emit_MulSHL_MemMemMem				},
 
+	{ OP_MULSHH,	MATCH_REGISTER,		MATCH_REGISTER,		MATCH_MEMORY,		&CCodeGen_x86::Emit_MulSHH_RegRegMem				},
 	{ OP_MULSHH,	MATCH_MEMORY,		MATCH_REGISTER,		MATCH_REGISTER,		&CCodeGen_x86::Emit_MulSHH_MemRegReg				},
 	{ OP_MULSHH,	MATCH_MEMORY,		MATCH_MEMORY,		MATCH_REGISTER,		&CCodeGen_x86::Emit_MulSHH_MemMemReg				},
 	{ OP_MULSHH,	MATCH_MEMORY,		MATCH_MEMORY,		MATCH_MEMORY,		&CCodeGen_x86::Emit_MulSHH_MemMemMem				},
@@ -1087,6 +1088,22 @@ void CCodeGen_x86::Emit_MulSHH(const CX86Assembler::CAddress& dst, const CX86Ass
 	m_assembler.OrEd(lowRegister, CX86Assembler::MakeRegisterAddress(highRegister));
 
 	m_assembler.MovGd(dst, lowRegister);
+}
+
+void CCodeGen_x86::Emit_MulSHH_RegRegMem(const STATEMENT& statement)
+{
+	CSymbol* dst = statement.dst->GetSymbol().get();
+	CSymbol* src1 = statement.src1->GetSymbol().get();
+	CSymbol* src2 = statement.src2->GetSymbol().get();
+
+	assert(dst->m_type  == SYM_REGISTER);
+	assert(src1->m_type == SYM_REGISTER);
+
+	Emit_MulSHH(
+		CX86Assembler::MakeRegisterAddress(m_registers[dst->m_valueLow]),
+		CX86Assembler::MakeRegisterAddress(m_registers[src1->m_valueLow]),
+		MakeMemorySymbolAddress(src2)
+		);
 }
 
 void CCodeGen_x86::Emit_MulSHH_MemRegReg(const STATEMENT& statement)

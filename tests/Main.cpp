@@ -18,6 +18,15 @@
 #include "CompareTest.h"
 #include "RegAllocTest.h"
 #include "MemAccessTest.h"
+#include "HalfMultTest.h"
+
+#ifdef __APPLE__
+#include "TargetConditionals.h"
+#endif
+
+#ifndef TARGET_CPU_ARM
+#define HAS_ADVANCED_OPS
+#endif
 
 typedef boost::function<CTest* ()> TestFactoryFunction;
 
@@ -36,6 +45,7 @@ TestFactoryFunction s_factories[] =
 	TestFactoryFunction(boost::lambda::bind(boost::lambda::new_ptr<CMultTest>(), true)),
 	TestFactoryFunction(boost::lambda::bind(boost::lambda::new_ptr<CMultTest>(), false)),
 #ifdef HAS_ADVANCED_OPS
+	TestFactoryFunction(boost::lambda::bind(boost::lambda::new_ptr<CHalfMultTest>())),
 	TestFactoryFunction(boost::lambda::bind(boost::lambda::new_ptr<CAliasTest>())),
 	TestFactoryFunction(boost::lambda::bind(boost::lambda::new_ptr<CFpuTest>())),
 	TestFactoryFunction(boost::lambda::bind(boost::lambda::new_ptr<CFpIntMixTest>())),

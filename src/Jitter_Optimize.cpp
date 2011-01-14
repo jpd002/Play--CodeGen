@@ -1612,6 +1612,8 @@ void CJitter::NormalizeStatements(BASIC_BLOCK& basicBlock)
 			case OP_XOR:
 			case OP_MUL:
 			case OP_MULS:
+			case OP_MULSHL:
+			case OP_MULSHH:
 				isCommutative = true;
 				break;
 			case OP_CMP:

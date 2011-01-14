@@ -38,11 +38,6 @@ void CMultTest::Run()
 		TEST_VERIFY(m_context.relResultLo == 0x80008000);
 		TEST_VERIFY(m_context.relResultHi == 0x00003FFF);
 	}
-
-#ifdef HAS_ADVANCED_OPS
-	TEST_VERIFY(m_context.multHalfLoResult == 0x40000000);
-	TEST_VERIFY(m_context.multHalfHiResult == 0x00008000);
-#endif
 }
 
 void CMultTest::Compile(Jitter::CJitter& jitter)
@@ -95,20 +90,6 @@ void CMultTest::Compile(Jitter::CJitter& jitter)
 
 		jitter.ExtHigh64();
 		jitter.PullRel(offsetof(CONTEXT, relResultHi));
-
-#ifdef HAS_ADVANCED_OPS
-		//Mult Halfword Lo
-		jitter.PushRel(offsetof(CONTEXT, relArg0));
-		jitter.PushRel(offsetof(CONTEXT, relArg0));
-		jitter.MultSHL();
-		jitter.PullRel(offsetof(CONTEXT, multHalfLoResult));
-
-		//Mult Halfword Hi
-		jitter.PushRel(offsetof(CONTEXT, relArg0));
-		jitter.PushRel(offsetof(CONTEXT, relArg1));
-		jitter.MultSHH();
-		jitter.PullRel(offsetof(CONTEXT, multHalfHiResult));
-#endif
 	}
 	jitter.End();
 

@@ -363,6 +363,7 @@ namespace Jitter
 
 		//MULSHH
 		void						Emit_MulSHH(const CX86Assembler::CAddress&, const CX86Assembler::CAddress&, const CX86Assembler::CAddress&);
+		void						Emit_MulSHH_RegRegMem(const STATEMENT&);
 		void						Emit_MulSHH_MemRegReg(const STATEMENT&);
 		void						Emit_MulSHH_MemMemReg(const STATEMENT&);
 		void						Emit_MulSHH_MemMemMem(const STATEMENT&);

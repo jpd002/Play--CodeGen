@@ -67,6 +67,11 @@ namespace Jitter
 		void									LoadTemporaryInRegister(CArmAssembler::REGISTER, CSymbol*);
 		void									StoreRegisterInTemporary(CSymbol*, CArmAssembler::REGISTER);
 		
+		void									LoadRelativeReferenceInRegister(CArmAssembler::REGISTER, CSymbol*);
+
+		void									LoadTemporaryReferenceInRegister(CArmAssembler::REGISTER, CSymbol*);
+		void									StoreInRegisterTemporaryReference(CSymbol*, CArmAssembler::REGISTER);
+		
 		uint32									RotateRight(uint32);
 		uint32									RotateLeft(uint32);
 		bool									TryGetAluImmediateParams(uint32, uint8&, uint8&);
@@ -242,6 +247,16 @@ namespace Jitter
 		//NOT
 		void									Emit_Not_RegReg(const STATEMENT&);
 		void									Emit_Not_RelReg(const STATEMENT&);
+		
+		//ADDREF
+		void									Emit_AddRef_TmpRelReg(const STATEMENT&);
+		void									Emit_AddRef_TmpRelCst(const STATEMENT&);
+		
+		//LOADFROMREF
+		void									Emit_LoadFromRef_RegTmp(const STATEMENT&);
+		
+		//STOREATREF
+		void									Emit_StoreAtRef_TmpCst(const STATEMENT&);
 		
 		//FPUOP
 		template <typename> void				Emit_Fpu_RelRel(const STATEMENT&);

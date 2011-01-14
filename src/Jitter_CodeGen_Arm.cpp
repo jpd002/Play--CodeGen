@@ -29,18 +29,18 @@ CArmAssembler::REGISTER CCodeGen_Arm::g_paramRegs[MAX_PARAMS] =
 
 CCodeGen_Arm::CONSTMATCHER CCodeGen_Arm::g_constMatchers[] = 
 { 
-	{ OP_LABEL,		MATCH_NIL,			MATCH_NIL,			MATCH_NIL,			&CCodeGen_Arm::MarkLabel							},
+	{ OP_LABEL,			MATCH_NIL,			MATCH_NIL,			MATCH_NIL,			&CCodeGen_Arm::MarkLabel							},
 
-	{ OP_NOP,		MATCH_NIL,			MATCH_NIL,			MATCH_NIL,			&CCodeGen_Arm::Emit_Nop								},
+	{ OP_NOP,			MATCH_NIL,			MATCH_NIL,			MATCH_NIL,			&CCodeGen_Arm::Emit_Nop								},
 	
-	{ OP_MOV,		MATCH_REGISTER,		MATCH_REGISTER,		MATCH_NIL,			&CCodeGen_Arm::Emit_Mov_RegReg						},
-	{ OP_MOV,		MATCH_REGISTER,		MATCH_RELATIVE,		MATCH_NIL,			&CCodeGen_Arm::Emit_Mov_RegRel						},
-	{ OP_MOV,		MATCH_REGISTER,		MATCH_CONSTANT,		MATCH_NIL,			&CCodeGen_Arm::Emit_Mov_RegCst						},
-	{ OP_MOV,		MATCH_RELATIVE,		MATCH_RELATIVE,		MATCH_NIL,			&CCodeGen_Arm::Emit_Mov_RelRel						},
-	{ OP_MOV,		MATCH_RELATIVE,		MATCH_REGISTER,		MATCH_NIL,			&CCodeGen_Arm::Emit_Mov_RelReg						},
-	{ OP_MOV,		MATCH_RELATIVE,		MATCH_CONSTANT,		MATCH_NIL,			&CCodeGen_Arm::Emit_Mov_RelCst						},
-	{ OP_MOV,		MATCH_RELATIVE,		MATCH_TEMPORARY,	MATCH_NIL,			&CCodeGen_Arm::Emit_Mov_RelTmp						},
-	{ OP_MOV,		MATCH_TEMPORARY,	MATCH_REGISTER,		MATCH_NIL,			&CCodeGen_Arm::Emit_Mov_TmpReg						},
+	{ OP_MOV,			MATCH_REGISTER,		MATCH_REGISTER,		MATCH_NIL,			&CCodeGen_Arm::Emit_Mov_RegReg						},
+	{ OP_MOV,			MATCH_REGISTER,		MATCH_RELATIVE,		MATCH_NIL,			&CCodeGen_Arm::Emit_Mov_RegRel						},
+	{ OP_MOV,			MATCH_REGISTER,		MATCH_CONSTANT,		MATCH_NIL,			&CCodeGen_Arm::Emit_Mov_RegCst						},
+	{ OP_MOV,			MATCH_RELATIVE,		MATCH_RELATIVE,		MATCH_NIL,			&CCodeGen_Arm::Emit_Mov_RelRel						},
+	{ OP_MOV,			MATCH_RELATIVE,		MATCH_REGISTER,		MATCH_NIL,			&CCodeGen_Arm::Emit_Mov_RelReg						},
+	{ OP_MOV,			MATCH_RELATIVE,		MATCH_CONSTANT,		MATCH_NIL,			&CCodeGen_Arm::Emit_Mov_RelCst						},
+	{ OP_MOV,			MATCH_RELATIVE,		MATCH_TEMPORARY,	MATCH_NIL,			&CCodeGen_Arm::Emit_Mov_RelTmp						},
+	{ OP_MOV,			MATCH_TEMPORARY,	MATCH_REGISTER,		MATCH_NIL,			&CCodeGen_Arm::Emit_Mov_TmpReg						},
 
 	ALU_CONST_MATCHERS(OP_ADD, ALUOP_ADD)
 	ALU_CONST_MATCHERS(OP_SUB, ALUOP_SUB)
@@ -52,59 +52,66 @@ CCodeGen_Arm::CONSTMATCHER CCodeGen_Arm::g_constMatchers[] =
 	SHIFT_CONST_MATCHERS(OP_SRA, CArmAssembler::SHIFT_ASR)
 	SHIFT_CONST_MATCHERS(OP_SLL, CArmAssembler::SHIFT_LSL)
 	
-	{ OP_PARAM,		MATCH_NIL,			MATCH_CONTEXT,		MATCH_NIL,			&CCodeGen_Arm::Emit_Param_Ctx						},
-	{ OP_PARAM,		MATCH_NIL,			MATCH_REGISTER,		MATCH_NIL,			&CCodeGen_Arm::Emit_Param_Reg						},
-	{ OP_PARAM,		MATCH_NIL,			MATCH_RELATIVE,		MATCH_NIL,			&CCodeGen_Arm::Emit_Param_Rel						},
-	{ OP_PARAM,		MATCH_NIL,			MATCH_CONSTANT,		MATCH_NIL,			&CCodeGen_Arm::Emit_Param_Cst						},
-	{ OP_PARAM,		MATCH_NIL,			MATCH_TEMPORARY,	MATCH_NIL,			&CCodeGen_Arm::Emit_Param_Tmp						},
+	{ OP_PARAM,			MATCH_NIL,			MATCH_CONTEXT,		MATCH_NIL,			&CCodeGen_Arm::Emit_Param_Ctx						},
+	{ OP_PARAM,			MATCH_NIL,			MATCH_REGISTER,		MATCH_NIL,			&CCodeGen_Arm::Emit_Param_Reg						},
+	{ OP_PARAM,			MATCH_NIL,			MATCH_RELATIVE,		MATCH_NIL,			&CCodeGen_Arm::Emit_Param_Rel						},
+	{ OP_PARAM,			MATCH_NIL,			MATCH_CONSTANT,		MATCH_NIL,			&CCodeGen_Arm::Emit_Param_Cst						},
+	{ OP_PARAM,			MATCH_NIL,			MATCH_TEMPORARY,	MATCH_NIL,			&CCodeGen_Arm::Emit_Param_Tmp						},
 
-	{ OP_CALL,		MATCH_NIL,			MATCH_CONSTANT,		MATCH_CONSTANT,		&CCodeGen_Arm::Emit_Call							},
+	{ OP_CALL,			MATCH_NIL,			MATCH_CONSTANT,		MATCH_CONSTANT,		&CCodeGen_Arm::Emit_Call							},
 	
-	{ OP_RETVAL,	MATCH_REGISTER,		MATCH_NIL,			MATCH_NIL,			&CCodeGen_Arm::Emit_RetVal_Reg						},
-	{ OP_RETVAL,	MATCH_TEMPORARY,	MATCH_NIL,			MATCH_NIL,			&CCodeGen_Arm::Emit_RetVal_Tmp						},
+	{ OP_RETVAL,		MATCH_REGISTER,		MATCH_NIL,			MATCH_NIL,			&CCodeGen_Arm::Emit_RetVal_Reg						},
+	{ OP_RETVAL,		MATCH_TEMPORARY,	MATCH_NIL,			MATCH_NIL,			&CCodeGen_Arm::Emit_RetVal_Tmp						},
 
-	{ OP_JMP,		MATCH_NIL,			MATCH_NIL,			MATCH_NIL,			&CCodeGen_Arm::Emit_Jmp								},
+	{ OP_JMP,			MATCH_NIL,			MATCH_NIL,			MATCH_NIL,			&CCodeGen_Arm::Emit_Jmp								},
 
-	{ OP_CONDJMP,	MATCH_NIL,			MATCH_REGISTER,		MATCH_REGISTER,		&CCodeGen_Arm::Emit_CondJmp_RegReg					},
-	{ OP_CONDJMP,	MATCH_NIL,			MATCH_REGISTER,		MATCH_RELATIVE,		&CCodeGen_Arm::Emit_CondJmp_RegRel					},	
-	{ OP_CONDJMP,	MATCH_NIL,			MATCH_REGISTER,		MATCH_CONSTANT,		&CCodeGen_Arm::Emit_CondJmp_RegCst					},
-	{ OP_CONDJMP,	MATCH_NIL,			MATCH_RELATIVE,		MATCH_CONSTANT,		&CCodeGen_Arm::Emit_CondJmp_RelCst					},
+	{ OP_CONDJMP,		MATCH_NIL,			MATCH_REGISTER,		MATCH_REGISTER,		&CCodeGen_Arm::Emit_CondJmp_RegReg					},
+	{ OP_CONDJMP,		MATCH_NIL,			MATCH_REGISTER,		MATCH_RELATIVE,		&CCodeGen_Arm::Emit_CondJmp_RegRel					},	
+	{ OP_CONDJMP,		MATCH_NIL,			MATCH_REGISTER,		MATCH_CONSTANT,		&CCodeGen_Arm::Emit_CondJmp_RegCst					},
+	{ OP_CONDJMP,		MATCH_NIL,			MATCH_RELATIVE,		MATCH_CONSTANT,		&CCodeGen_Arm::Emit_CondJmp_RelCst					},
 	
-	{ OP_CMP,		MATCH_REGISTER,		MATCH_REGISTER,		MATCH_REGISTER,		&CCodeGen_Arm::Emit_Cmp_RegRegReg					},
-	{ OP_CMP,		MATCH_REGISTER,		MATCH_REGISTER,		MATCH_RELATIVE,		&CCodeGen_Arm::Emit_Cmp_RegRegRel					},
-	{ OP_CMP,		MATCH_REGISTER,		MATCH_REGISTER,		MATCH_CONSTANT,		&CCodeGen_Arm::Emit_Cmp_RegRegCst					},
-	{ OP_CMP,		MATCH_REGISTER,		MATCH_RELATIVE,		MATCH_CONSTANT,		&CCodeGen_Arm::Emit_Cmp_RegRelCst					},	
-	{ OP_CMP,		MATCH_RELATIVE,		MATCH_REGISTER,		MATCH_CONSTANT,		&CCodeGen_Arm::Emit_Cmp_RelRegCst					},
-	{ OP_CMP,		MATCH_RELATIVE,		MATCH_RELATIVE,		MATCH_RELATIVE,		&CCodeGen_Arm::Emit_Cmp_RelRelRel					},
+	{ OP_CMP,			MATCH_REGISTER,		MATCH_REGISTER,		MATCH_REGISTER,		&CCodeGen_Arm::Emit_Cmp_RegRegReg					},
+	{ OP_CMP,			MATCH_REGISTER,		MATCH_REGISTER,		MATCH_RELATIVE,		&CCodeGen_Arm::Emit_Cmp_RegRegRel					},
+	{ OP_CMP,			MATCH_REGISTER,		MATCH_REGISTER,		MATCH_CONSTANT,		&CCodeGen_Arm::Emit_Cmp_RegRegCst					},
+	{ OP_CMP,			MATCH_REGISTER,		MATCH_RELATIVE,		MATCH_CONSTANT,		&CCodeGen_Arm::Emit_Cmp_RegRelCst					},	
+	{ OP_CMP,			MATCH_RELATIVE,		MATCH_REGISTER,		MATCH_CONSTANT,		&CCodeGen_Arm::Emit_Cmp_RelRegCst					},
+	{ OP_CMP,			MATCH_RELATIVE,		MATCH_RELATIVE,		MATCH_RELATIVE,		&CCodeGen_Arm::Emit_Cmp_RelRelRel					},
 
-	{ OP_EXTLOW64,	MATCH_REGISTER,		MATCH_TEMPORARY64,	MATCH_NIL,			&CCodeGen_Arm::Emit_ExtLow64RegTmp64				},
-	{ OP_EXTLOW64,	MATCH_RELATIVE,		MATCH_TEMPORARY64,	MATCH_NIL,			&CCodeGen_Arm::Emit_ExtLow64RelTmp64				},
+	{ OP_EXTLOW64,		MATCH_REGISTER,		MATCH_TEMPORARY64,	MATCH_NIL,			&CCodeGen_Arm::Emit_ExtLow64RegTmp64				},
+	{ OP_EXTLOW64,		MATCH_RELATIVE,		MATCH_TEMPORARY64,	MATCH_NIL,			&CCodeGen_Arm::Emit_ExtLow64RelTmp64				},
 
-	{ OP_EXTHIGH64,	MATCH_REGISTER,		MATCH_TEMPORARY64,	MATCH_NIL,			&CCodeGen_Arm::Emit_ExtHigh64RegTmp64				},
-	{ OP_EXTHIGH64,	MATCH_RELATIVE,		MATCH_TEMPORARY64,	MATCH_NIL,			&CCodeGen_Arm::Emit_ExtHigh64RelTmp64				},
+	{ OP_EXTHIGH64,		MATCH_REGISTER,		MATCH_TEMPORARY64,	MATCH_NIL,			&CCodeGen_Arm::Emit_ExtHigh64RegTmp64				},
+	{ OP_EXTHIGH64,		MATCH_RELATIVE,		MATCH_TEMPORARY64,	MATCH_NIL,			&CCodeGen_Arm::Emit_ExtHigh64RelTmp64				},
 
-	{ OP_NOT,		MATCH_REGISTER,		MATCH_REGISTER,		MATCH_NIL,			&CCodeGen_Arm::Emit_Not_RegReg						},
-	{ OP_NOT,		MATCH_RELATIVE,		MATCH_REGISTER,		MATCH_NIL,			&CCodeGen_Arm::Emit_Not_RelReg						},
+	{ OP_NOT,			MATCH_REGISTER,		MATCH_REGISTER,		MATCH_NIL,			&CCodeGen_Arm::Emit_Not_RegReg						},
+	{ OP_NOT,			MATCH_RELATIVE,		MATCH_REGISTER,		MATCH_NIL,			&CCodeGen_Arm::Emit_Not_RelReg						},
 	
-	{ OP_DIV,		MATCH_TEMPORARY64,	MATCH_REGISTER,		MATCH_REGISTER,		&CCodeGen_Arm::Emit_DivTmp64RegReg<false>			},
-	{ OP_DIV,		MATCH_TEMPORARY64,	MATCH_REGISTER,		MATCH_CONSTANT,		&CCodeGen_Arm::Emit_DivTmp64RegCst<false>			},
-//	{ OP_DIV,		MATCH_TEMPORARY64,	MATCH_RELATIVE,		MATCH_REGISTER,		&CCodeGen_Arm::Emit_DivTmp64RelReg<false>			},
+	{ OP_DIV,			MATCH_TEMPORARY64,	MATCH_REGISTER,		MATCH_REGISTER,		&CCodeGen_Arm::Emit_DivTmp64RegReg<false>			},
+	{ OP_DIV,			MATCH_TEMPORARY64,	MATCH_REGISTER,		MATCH_CONSTANT,		&CCodeGen_Arm::Emit_DivTmp64RegCst<false>			},
+//	{ OP_DIV,			MATCH_TEMPORARY64,	MATCH_RELATIVE,		MATCH_REGISTER,		&CCodeGen_Arm::Emit_DivTmp64RelReg<false>			},
 
-	{ OP_DIVS,		MATCH_TEMPORARY64,	MATCH_REGISTER,		MATCH_REGISTER,		&CCodeGen_Arm::Emit_DivTmp64RegReg<true>			},
-	{ OP_DIVS,		MATCH_TEMPORARY64,	MATCH_REGISTER,		MATCH_CONSTANT,		&CCodeGen_Arm::Emit_DivTmp64RegCst<true>			},
-//	{ OP_DIVS,		MATCH_TEMPORARY64,	MATCH_RELATIVE,		MATCH_REGISTER,		&CCodeGen_Arm::Emit_DivTmp64RelReg<true>			},
+	{ OP_DIVS,			MATCH_TEMPORARY64,	MATCH_REGISTER,		MATCH_REGISTER,		&CCodeGen_Arm::Emit_DivTmp64RegReg<true>			},
+	{ OP_DIVS,			MATCH_TEMPORARY64,	MATCH_REGISTER,		MATCH_CONSTANT,		&CCodeGen_Arm::Emit_DivTmp64RegCst<true>			},
+//	{ OP_DIVS,			MATCH_TEMPORARY64,	MATCH_RELATIVE,		MATCH_REGISTER,		&CCodeGen_Arm::Emit_DivTmp64RelReg<true>			},
 	
-	{ OP_MUL,		MATCH_TEMPORARY64,	MATCH_REGISTER,		MATCH_REGISTER,		&CCodeGen_Arm::Emit_MulTmp64RegReg<false>			},
-	{ OP_MUL,		MATCH_TEMPORARY64,	MATCH_REGISTER,		MATCH_CONSTANT,		&CCodeGen_Arm::Emit_MulTmp64RegCst<false>			},
-	{ OP_MUL,		MATCH_TEMPORARY64,	MATCH_REGISTER,		MATCH_RELATIVE,		&CCodeGen_Arm::Emit_MulTmp64RegRel<false>			},
-	{ OP_MUL,		MATCH_TEMPORARY64,	MATCH_RELATIVE,		MATCH_RELATIVE,		&CCodeGen_Arm::Emit_MulTmp64RelRel<false>			},
+	{ OP_MUL,			MATCH_TEMPORARY64,	MATCH_REGISTER,		MATCH_REGISTER,		&CCodeGen_Arm::Emit_MulTmp64RegReg<false>			},
+	{ OP_MUL,			MATCH_TEMPORARY64,	MATCH_REGISTER,		MATCH_CONSTANT,		&CCodeGen_Arm::Emit_MulTmp64RegCst<false>			},
+	{ OP_MUL,			MATCH_TEMPORARY64,	MATCH_REGISTER,		MATCH_RELATIVE,		&CCodeGen_Arm::Emit_MulTmp64RegRel<false>			},
+	{ OP_MUL,			MATCH_TEMPORARY64,	MATCH_RELATIVE,		MATCH_RELATIVE,		&CCodeGen_Arm::Emit_MulTmp64RelRel<false>			},
 
-	{ OP_MULS,		MATCH_TEMPORARY64,	MATCH_REGISTER,		MATCH_REGISTER,		&CCodeGen_Arm::Emit_MulTmp64RegReg<true>			},
-	{ OP_MULS,		MATCH_TEMPORARY64,	MATCH_REGISTER,		MATCH_CONSTANT,		&CCodeGen_Arm::Emit_MulTmp64RegCst<true>			},
-	{ OP_MULS,		MATCH_TEMPORARY64,	MATCH_REGISTER,		MATCH_RELATIVE,		&CCodeGen_Arm::Emit_MulTmp64RegRel<true>			},
-	{ OP_MULS,		MATCH_TEMPORARY64,	MATCH_RELATIVE,		MATCH_RELATIVE,		&CCodeGen_Arm::Emit_MulTmp64RelRel<true>			},
+	{ OP_MULS,			MATCH_TEMPORARY64,	MATCH_REGISTER,		MATCH_REGISTER,		&CCodeGen_Arm::Emit_MulTmp64RegReg<true>			},
+	{ OP_MULS,			MATCH_TEMPORARY64,	MATCH_REGISTER,		MATCH_CONSTANT,		&CCodeGen_Arm::Emit_MulTmp64RegCst<true>			},
+	{ OP_MULS,			MATCH_TEMPORARY64,	MATCH_REGISTER,		MATCH_RELATIVE,		&CCodeGen_Arm::Emit_MulTmp64RegRel<true>			},
+	{ OP_MULS,			MATCH_TEMPORARY64,	MATCH_RELATIVE,		MATCH_RELATIVE,		&CCodeGen_Arm::Emit_MulTmp64RelRel<true>			},
 
-	{ OP_MOV,		MATCH_NIL,			MATCH_NIL,			MATCH_NIL,			NULL												},
+	{ OP_ADDREF,		MATCH_TMP_REF,		MATCH_REL_REF,		MATCH_REGISTER,		&CCodeGen_Arm::Emit_AddRef_TmpRelReg				},
+	{ OP_ADDREF,		MATCH_TMP_REF,		MATCH_REL_REF,		MATCH_CONSTANT,		&CCodeGen_Arm::Emit_AddRef_TmpRelCst				},
+	
+	{ OP_LOADFROMREF,	MATCH_REGISTER,		MATCH_TMP_REF,		MATCH_NIL,			&CCodeGen_Arm::Emit_LoadFromRef_RegTmp				},
+
+	{ OP_STOREATREF,	MATCH_NIL,			MATCH_TMP_REF,		MATCH_CONSTANT,		&CCodeGen_Arm::Emit_StoreAtRef_TmpCst				},
+	
+	{ OP_MOV,			MATCH_NIL,			MATCH_NIL,			MATCH_NIL,			NULL												},
 };
 
 CCodeGen_Arm::CCodeGen_Arm()
@@ -313,12 +320,31 @@ void CCodeGen_Arm::StoreRegisterInRelative(CSymbol* dst, CArmAssembler::REGISTER
 void CCodeGen_Arm::LoadTemporaryInRegister(CArmAssembler::REGISTER registerId, CSymbol* src)
 {
 	assert(src->m_type == SYM_TEMPORARY);
-	m_assembler.Str(registerId, CArmAssembler::rSP, CArmAssembler::MakeImmediateLdrAddress(src->m_stackLocation + m_stackLevel));
+	m_assembler.Ldr(registerId, CArmAssembler::rSP, CArmAssembler::MakeImmediateLdrAddress(src->m_stackLocation + m_stackLevel));
 }
 
 void CCodeGen_Arm::StoreRegisterInTemporary(CSymbol* dst, CArmAssembler::REGISTER registerId)
 {
 	assert(dst->m_type == SYM_TEMPORARY);
+	m_assembler.Str(registerId, CArmAssembler::rSP, CArmAssembler::MakeImmediateLdrAddress(dst->m_stackLocation + m_stackLevel));
+}
+
+void CCodeGen_Arm::LoadRelativeReferenceInRegister(CArmAssembler::REGISTER registerId, CSymbol* src)
+{
+	assert(src->m_type == SYM_REL_REFERENCE);
+	assert((src->m_valueLow & 0x03) == 0x00);
+	m_assembler.Ldr(registerId, g_baseRegister, CArmAssembler::MakeImmediateLdrAddress(src->m_valueLow));
+}
+
+void CCodeGen_Arm::LoadTemporaryReferenceInRegister(CArmAssembler::REGISTER registerId, CSymbol* src)
+{
+	assert(src->m_type == SYM_TMP_REFERENCE);
+	m_assembler.Ldr(registerId, CArmAssembler::rSP, CArmAssembler::MakeImmediateLdrAddress(src->m_stackLocation + m_stackLevel));
+}
+
+void CCodeGen_Arm::StoreInRegisterTemporaryReference(CSymbol* dst, CArmAssembler::REGISTER registerId)
+{
+	assert(dst->m_type == SYM_TMP_REFERENCE);
 	m_assembler.Str(registerId, CArmAssembler::rSP, CArmAssembler::MakeImmediateLdrAddress(dst->m_stackLocation + m_stackLevel));
 }
 
@@ -852,4 +878,69 @@ void CCodeGen_Arm::Emit_Not_RelReg(const STATEMENT& statement)
 	CArmAssembler::REGISTER tmpReg = CArmAssembler::r1;
 	m_assembler.Mvn(tmpReg, g_registers[src1->m_valueLow]);
 	StoreRegisterInRelative(dst, tmpReg);
+}
+
+void CCodeGen_Arm::Emit_AddRef_TmpRelReg(const STATEMENT& statement)
+{
+	CSymbol* dst = statement.dst->GetSymbol().get();
+	CSymbol* src1 = statement.src1->GetSymbol().get();
+	CSymbol* src2 = statement.src2->GetSymbol().get();
+	
+	assert(dst->m_type  == SYM_TMP_REFERENCE);
+	assert(src1->m_type == SYM_REL_REFERENCE);
+	assert(src2->m_type == SYM_REGISTER);
+	
+	CArmAssembler::REGISTER tmpReg = CArmAssembler::r0;
+	
+	LoadRelativeReferenceInRegister(tmpReg, src1);
+	m_assembler.Add(tmpReg, tmpReg, g_registers[src2->m_valueLow]);
+	StoreInRegisterTemporaryReference(dst, tmpReg);
+}
+
+void CCodeGen_Arm::Emit_AddRef_TmpRelCst(const STATEMENT& statement)
+{
+	CSymbol* dst = statement.dst->GetSymbol().get();
+	CSymbol* src1 = statement.src1->GetSymbol().get();
+	CSymbol* src2 = statement.src2->GetSymbol().get();
+	
+	assert(dst->m_type  == SYM_TMP_REFERENCE);
+	assert(src1->m_type == SYM_REL_REFERENCE);
+	assert(src2->m_type == SYM_CONSTANT);
+	
+	CArmAssembler::REGISTER tmpReg0 = CArmAssembler::r0;
+	CArmAssembler::REGISTER tmpReg1 = CArmAssembler::r1;
+	
+	LoadRelativeReferenceInRegister(tmpReg0, src1);
+	LoadConstantInRegister(tmpReg1, src2->m_valueLow);
+	m_assembler.Add(tmpReg0, tmpReg0, tmpReg1);
+	StoreInRegisterTemporaryReference(dst, tmpReg0);
+}
+
+void CCodeGen_Arm::Emit_LoadFromRef_RegTmp(const STATEMENT& statement)
+{
+	CSymbol* dst = statement.dst->GetSymbol().get();
+	CSymbol* src1 = statement.src1->GetSymbol().get();
+	
+	assert(dst->m_type  == SYM_REGISTER);
+	assert(src1->m_type == SYM_TMP_REFERENCE);
+	
+	CArmAssembler::REGISTER addressReg = CArmAssembler::r0;
+	LoadTemporaryReferenceInRegister(addressReg, src1);
+	m_assembler.Ldr(g_registers[dst->m_valueLow], addressReg, CArmAssembler::MakeImmediateLdrAddress(0));
+}
+
+void CCodeGen_Arm::Emit_StoreAtRef_TmpCst(const STATEMENT& statement)
+{
+	CSymbol* src1 = statement.src1->GetSymbol().get();
+	CSymbol* src2 = statement.src2->GetSymbol().get();
+	
+	assert(src1->m_type == SYM_TMP_REFERENCE);
+	assert(src2->m_type == SYM_CONSTANT);
+	
+	CArmAssembler::REGISTER addressReg = CArmAssembler::r0;
+	CArmAssembler::REGISTER valueReg = CArmAssembler::r1;
+	
+	LoadTemporaryReferenceInRegister(addressReg, src1);
+	LoadConstantInRegister(valueReg, src2->m_valueLow);
+	m_assembler.Str(valueReg, addressReg, CArmAssembler::MakeImmediateLdrAddress(0));
 }

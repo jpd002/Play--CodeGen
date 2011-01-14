@@ -32,14 +32,16 @@ TestFactoryFunction s_factories[] =
 	TestFactoryFunction(boost::lambda::bind(boost::lambda::new_ptr<CRandomAluTest2>(), false)),
 	TestFactoryFunction(boost::lambda::bind(boost::lambda::new_ptr<CRandomAluTest3>(), true)),
 	TestFactoryFunction(boost::lambda::bind(boost::lambda::new_ptr<CRandomAluTest3>(), false)),
-	TestFactoryFunction(boost::lambda::bind(boost::lambda::new_ptr<CAliasTest>())),
 	TestFactoryFunction(boost::lambda::bind(boost::lambda::new_ptr<CCrc32Test>(), "Hello World!", 0x67FCDACC)),
 	TestFactoryFunction(boost::lambda::bind(boost::lambda::new_ptr<CMultTest>(), true)),
 	TestFactoryFunction(boost::lambda::bind(boost::lambda::new_ptr<CMultTest>(), false)),
+#ifdef HAS_ADVANCED_OPS
+	TestFactoryFunction(boost::lambda::bind(boost::lambda::new_ptr<CAliasTest>())),
 	TestFactoryFunction(boost::lambda::bind(boost::lambda::new_ptr<CFpuTest>())),
 	TestFactoryFunction(boost::lambda::bind(boost::lambda::new_ptr<CFpIntMixTest>())),
 	TestFactoryFunction(boost::lambda::bind(boost::lambda::new_ptr<CMdTest>())),
 	TestFactoryFunction(boost::lambda::bind(boost::lambda::new_ptr<CMdFpTest>())),
+#endif
 	TestFactoryFunction(),
 };
 

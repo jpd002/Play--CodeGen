@@ -256,6 +256,8 @@ namespace Jitter
 		void									Emit_LoadFromRef_RegTmp(const STATEMENT&);
 		
 		//STOREATREF
+		void									Emit_StoreAtRef_TmpReg(const STATEMENT&);
+		void									Emit_StoreAtRef_TmpRel(const STATEMENT&);
 		void									Emit_StoreAtRef_TmpCst(const STATEMENT&);
 		
 		//FPUOP

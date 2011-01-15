@@ -109,6 +109,8 @@ CCodeGen_Arm::CONSTMATCHER CCodeGen_Arm::g_constMatchers[] =
 	
 	{ OP_LOADFROMREF,	MATCH_REGISTER,		MATCH_TMP_REF,		MATCH_NIL,			&CCodeGen_Arm::Emit_LoadFromRef_RegTmp				},
 
+	{ OP_STOREATREF,	MATCH_NIL,			MATCH_TMP_REF,		MATCH_REGISTER,		&CCodeGen_Arm::Emit_StoreAtRef_TmpReg				},
+	{ OP_STOREATREF,	MATCH_NIL,			MATCH_TMP_REF,		MATCH_RELATIVE,		&CCodeGen_Arm::Emit_StoreAtRef_TmpRel				},
 	{ OP_STOREATREF,	MATCH_NIL,			MATCH_TMP_REF,		MATCH_CONSTANT,		&CCodeGen_Arm::Emit_StoreAtRef_TmpCst				},
 	
 	{ OP_MOV,			MATCH_NIL,			MATCH_NIL,			MATCH_NIL,			NULL												},
@@ -927,6 +929,36 @@ void CCodeGen_Arm::Emit_LoadFromRef_RegTmp(const STATEMENT& statement)
 	CArmAssembler::REGISTER addressReg = CArmAssembler::r0;
 	LoadTemporaryReferenceInRegister(addressReg, src1);
 	m_assembler.Ldr(g_registers[dst->m_valueLow], addressReg, CArmAssembler::MakeImmediateLdrAddress(0));
+}
+
+void CCodeGen_Arm::Emit_StoreAtRef_TmpReg(const STATEMENT& statement)
+{
+	CSymbol* src1 = statement.src1->GetSymbol().get();
+	CSymbol* src2 = statement.src2->GetSymbol().get();
+	
+	assert(src1->m_type == SYM_TMP_REFERENCE);
+	assert(src2->m_type == SYM_REGISTER);
+	
+	CArmAssembler::REGISTER addressReg = CArmAssembler::r0;
+	
+	LoadTemporaryReferenceInRegister(addressReg, src1);
+	m_assembler.Str(g_registers[src2->m_valueLow], addressReg, CArmAssembler::MakeImmediateLdrAddress(0));
+}
+
+void CCodeGen_Arm::Emit_StoreAtRef_TmpRel(const STATEMENT& statement)
+{
+	CSymbol* src1 = statement.src1->GetSymbol().get();
+	CSymbol* src2 = statement.src2->GetSymbol().get();
+	
+	assert(src1->m_type == SYM_TMP_REFERENCE);
+	assert(src2->m_type == SYM_RELATIVE);
+	
+	CArmAssembler::REGISTER addressReg = CArmAssembler::r0;
+	CArmAssembler::REGISTER valueReg = CArmAssembler::r1;
+	
+	LoadTemporaryReferenceInRegister(addressReg, src1);
+	LoadRelativeInRegister(valueReg, src2);
+	m_assembler.Str(valueReg, addressReg, CArmAssembler::MakeImmediateLdrAddress(0));
 }
 
 void CCodeGen_Arm::Emit_StoreAtRef_TmpCst(const STATEMENT& statement)

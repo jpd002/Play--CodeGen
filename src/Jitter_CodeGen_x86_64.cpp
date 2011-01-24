@@ -149,19 +149,19 @@ void CCodeGen_x86_64::Emit_Shift64_RelRelCst(const STATEMENT& statement)
 
 CCodeGen_x86_64::CONSTMATCHER CCodeGen_x86_64::g_constMatchers[] = 
 {
-	{ OP_PARAM,		MATCH_NIL,			MATCH_CONTEXT,		MATCH_NIL,			&CCodeGen_x86_64::Emit_Param_Ctx							},
-	{ OP_PARAM,		MATCH_NIL,			MATCH_REGISTER,		MATCH_NIL,			&CCodeGen_x86_64::Emit_Param_Reg							},
-	{ OP_PARAM,		MATCH_NIL,			MATCH_MEMORY,		MATCH_NIL,			&CCodeGen_x86_64::Emit_Param_Mem							},
-	{ OP_PARAM,		MATCH_NIL,			MATCH_CONSTANT,		MATCH_NIL,			&CCodeGen_x86_64::Emit_Param_Cst							},
-	{ OP_PARAM,		MATCH_NIL,			MATCH_CONSTANT64,	MATCH_NIL,			&CCodeGen_x86_64::Emit_Param_Cst64							},
+	{ OP_PARAM,			MATCH_NIL,			MATCH_CONTEXT,		MATCH_NIL,			&CCodeGen_x86_64::Emit_Param_Ctx							},
+	{ OP_PARAM,			MATCH_NIL,			MATCH_REGISTER,		MATCH_NIL,			&CCodeGen_x86_64::Emit_Param_Reg							},
+	{ OP_PARAM,			MATCH_NIL,			MATCH_MEMORY,		MATCH_NIL,			&CCodeGen_x86_64::Emit_Param_Mem							},
+	{ OP_PARAM,			MATCH_NIL,			MATCH_CONSTANT,		MATCH_NIL,			&CCodeGen_x86_64::Emit_Param_Cst							},
+	{ OP_PARAM,			MATCH_NIL,			MATCH_CONSTANT64,	MATCH_NIL,			&CCodeGen_x86_64::Emit_Param_Cst64							},
 
-	{ OP_CALL,		MATCH_NIL,			MATCH_CONSTANT64,	MATCH_CONSTANT,		&CCodeGen_x86_64::Emit_Call									},
+	{ OP_CALL,			MATCH_NIL,			MATCH_CONSTANT64,	MATCH_CONSTANT,		&CCodeGen_x86_64::Emit_Call									},
 
-	{ OP_RETVAL,	MATCH_TEMPORARY,	MATCH_NIL,			MATCH_NIL,			&CCodeGen_x86_64::Emit_RetVal_Tmp							},
-	{ OP_RETVAL,	MATCH_REGISTER,		MATCH_NIL,			MATCH_NIL,			&CCodeGen_x86_64::Emit_RetVal_Reg							},
+	{ OP_RETVAL,		MATCH_TEMPORARY,	MATCH_NIL,			MATCH_NIL,			&CCodeGen_x86_64::Emit_RetVal_Tmp							},
+	{ OP_RETVAL,		MATCH_REGISTER,		MATCH_NIL,			MATCH_NIL,			&CCodeGen_x86_64::Emit_RetVal_Reg							},
 
-	{ OP_MOV,		MATCH_RELATIVE64,	MATCH_RELATIVE64,	MATCH_NIL,			&CCodeGen_x86_64::Emit_Mov_Rel64Rel64						},
-	{ OP_MOV,		MATCH_RELATIVE64,	MATCH_CONSTANT64,	MATCH_NIL,			&CCodeGen_x86_64::Emit_Mov_Rel64Cst64						},
+	{ OP_MOV,			MATCH_RELATIVE64,	MATCH_RELATIVE64,	MATCH_NIL,			&CCodeGen_x86_64::Emit_Mov_Rel64Rel64						},
+	{ OP_MOV,			MATCH_RELATIVE64,	MATCH_CONSTANT64,	MATCH_NIL,			&CCodeGen_x86_64::Emit_Mov_Rel64Cst64						},
 
 	ALU64_CONST_MATCHERS(OP_ADD64, ALUOP64_ADD)
 	ALU64_CONST_MATCHERS(OP_SUB64, ALUOP64_SUB)
@@ -171,12 +171,19 @@ CCodeGen_x86_64::CONSTMATCHER CCodeGen_x86_64::g_constMatchers[] =
 	SHIFT64_CONST_MATCHERS(OP_SRL64, SHIFTOP64_SRL)
 	SHIFT64_CONST_MATCHERS(OP_SRA64, SHIFTOP64_SRA)
 
-	{ OP_CMP64,		MATCH_REGISTER,		MATCH_RELATIVE64,	MATCH_RELATIVE64,	&CCodeGen_x86_64::Emit_Cmp64_RegRelRel						},
-	{ OP_CMP64,		MATCH_REGISTER,		MATCH_RELATIVE64,	MATCH_CONSTANT64,	&CCodeGen_x86_64::Emit_Cmp64_RegRelCst						},
-	{ OP_CMP64,		MATCH_MEMORY,		MATCH_RELATIVE64,	MATCH_RELATIVE64,	&CCodeGen_x86_64::Emit_Cmp64_MemRelRel						},
-	{ OP_CMP64,		MATCH_MEMORY,		MATCH_RELATIVE64,	MATCH_CONSTANT64,	&CCodeGen_x86_64::Emit_Cmp64_MemRelCst						},
+	{ OP_CMP64,			MATCH_REGISTER,		MATCH_RELATIVE64,	MATCH_RELATIVE64,	&CCodeGen_x86_64::Emit_Cmp64_RegRelRel						},
+	{ OP_CMP64,			MATCH_REGISTER,		MATCH_RELATIVE64,	MATCH_CONSTANT64,	&CCodeGen_x86_64::Emit_Cmp64_RegRelCst						},
+	{ OP_CMP64,			MATCH_MEMORY,		MATCH_RELATIVE64,	MATCH_RELATIVE64,	&CCodeGen_x86_64::Emit_Cmp64_MemRelRel						},
+	{ OP_CMP64,			MATCH_MEMORY,		MATCH_RELATIVE64,	MATCH_CONSTANT64,	&CCodeGen_x86_64::Emit_Cmp64_MemRelCst						},
 
-	{ OP_MOV,		MATCH_NIL,			MATCH_NIL,			MATCH_NIL,			NULL														},
+	{ OP_ADDREF,		MATCH_TMP_REF,		MATCH_REL_REF,		MATCH_REGISTER,		&CCodeGen_x86_64::Emit_AddRef_TmpRelReg						},
+	{ OP_ADDREF,		MATCH_TMP_REF,		MATCH_REL_REF,		MATCH_CONSTANT,		&CCodeGen_x86_64::Emit_AddRef_TmpRelCst						},
+
+	{ OP_LOADFROMREF,	MATCH_REGISTER,		MATCH_TMP_REF,		MATCH_NIL,			&CCodeGen_x86_64::Emit_LoadFromRef_RegTmp					},
+
+	{ OP_STOREATREF,	MATCH_NIL,			MATCH_TMP_REF,		MATCH_CONSTANT,		&CCodeGen_x86_64::Emit_StoreAtRef_TmpCst					},
+
+	{ OP_MOV,			MATCH_NIL,			MATCH_NIL,			MATCH_NIL,			NULL														},
 };
 
 CCodeGen_x86_64::CCodeGen_x86_64()
@@ -434,4 +441,62 @@ void CCodeGen_x86_64::Emit_Cmp64_MemRelCst(const STATEMENT& statement)
 	CX86Assembler::REGISTER tmpReg = CX86Assembler::rAX;
 	Cmp64_RelCst(tmpReg, statement);
 	m_assembler.MovGd(MakeMemorySymbolAddress(dst), tmpReg);
+}
+
+void CCodeGen_x86_64::Emit_AddRef_TmpRelReg(const STATEMENT& statement)
+{
+	CSymbol* dst = statement.dst->GetSymbol().get();
+	CSymbol* src1 = statement.src1->GetSymbol().get();
+	CSymbol* src2 = statement.src2->GetSymbol().get();
+
+	assert(dst->m_type  == SYM_TMP_REFERENCE);
+	assert(src1->m_type == SYM_REL_REFERENCE);
+	assert(src2->m_type == SYM_REGISTER);
+
+	CX86Assembler::REGISTER tmpReg = CX86Assembler::rAX;
+	m_assembler.MovEq(tmpReg, MakeRelativeReferenceSymbolAddress(src1));
+	m_assembler.AddEq(tmpReg, CX86Assembler::MakeRegisterAddress(m_registers[src2->m_valueLow]));
+	m_assembler.MovGq(MakeTemporaryReferenceSymbolAddress(dst), tmpReg);
+}
+
+void CCodeGen_x86_64::Emit_AddRef_TmpRelCst(const STATEMENT& statement)
+{
+	CSymbol* dst = statement.dst->GetSymbol().get();
+	CSymbol* src1 = statement.src1->GetSymbol().get();
+	CSymbol* src2 = statement.src2->GetSymbol().get();
+
+	assert(dst->m_type  == SYM_TMP_REFERENCE);
+	assert(src1->m_type == SYM_REL_REFERENCE);
+	assert(src2->m_type == SYM_CONSTANT);
+
+	CX86Assembler::REGISTER tmpReg = CX86Assembler::rAX;
+	m_assembler.MovEq(tmpReg, MakeRelativeReferenceSymbolAddress(src1));
+	m_assembler.AddIq(CX86Assembler::MakeRegisterAddress(tmpReg), src2->m_valueLow);
+	m_assembler.MovGq(MakeTemporaryReferenceSymbolAddress(dst), tmpReg);
+}
+
+void CCodeGen_x86_64::Emit_LoadFromRef_RegTmp(const STATEMENT& statement)
+{
+	CSymbol* dst = statement.dst->GetSymbol().get();
+	CSymbol* src1 = statement.src1->GetSymbol().get();
+
+	assert(dst->m_type  == SYM_REGISTER);
+	assert(src1->m_type == SYM_TMP_REFERENCE);
+
+	CX86Assembler::REGISTER tmpReg = CX86Assembler::rAX;
+	m_assembler.MovEq(tmpReg, MakeTemporaryReferenceSymbolAddress(src1));
+	m_assembler.MovEd(m_registers[dst->m_valueLow], CX86Assembler::MakeIndRegAddress(tmpReg));
+}
+
+void CCodeGen_x86_64::Emit_StoreAtRef_TmpCst(const STATEMENT& statement)
+{
+	CSymbol* src1 = statement.src1->GetSymbol().get();
+	CSymbol* src2 = statement.src2->GetSymbol().get();
+
+	assert(src1->m_type == SYM_TMP_REFERENCE);
+	assert(src2->m_type == SYM_CONSTANT);
+
+	CX86Assembler::REGISTER tmpReg = CX86Assembler::rAX;
+	m_assembler.MovEq(tmpReg, MakeTemporaryReferenceSymbolAddress(src1));
+	m_assembler.MovId(CX86Assembler::MakeIndRegAddress(tmpReg), src2->m_valueLow);
 }

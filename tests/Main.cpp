@@ -19,6 +19,7 @@
 #include "RegAllocTest.h"
 #include "MemAccessTest.h"
 #include "HalfMultTest.h"
+#include "HugeJumpTest.h"
 
 #ifdef __APPLE__
 #include "TargetConditionals.h"
@@ -32,7 +33,6 @@ typedef boost::function<CTest* ()> TestFactoryFunction;
 
 TestFactoryFunction s_factories[] =
 {
-	TestFactoryFunction(boost::lambda::bind(boost::lambda::new_ptr<CMemAccessTest>())),
 	TestFactoryFunction(boost::lambda::bind(boost::lambda::new_ptr<CCompareTest>())),
 	TestFactoryFunction(boost::lambda::bind(boost::lambda::new_ptr<CRegAllocTest>())),
 	TestFactoryFunction(boost::lambda::bind(boost::lambda::new_ptr<CRandomAluTest>(), true)),
@@ -44,6 +44,8 @@ TestFactoryFunction s_factories[] =
 	TestFactoryFunction(boost::lambda::bind(boost::lambda::new_ptr<CCrc32Test>(), "Hello World!", 0x67FCDACC)),
 	TestFactoryFunction(boost::lambda::bind(boost::lambda::new_ptr<CMultTest>(), true)),
 	TestFactoryFunction(boost::lambda::bind(boost::lambda::new_ptr<CMultTest>(), false)),
+	TestFactoryFunction(boost::lambda::bind(boost::lambda::new_ptr<CMemAccessTest>())),
+	TestFactoryFunction(boost::lambda::bind(boost::lambda::new_ptr<CHugeJumpTest>())),
 #ifdef HAS_ADVANCED_OPS
 	TestFactoryFunction(boost::lambda::bind(boost::lambda::new_ptr<CHalfMultTest>())),
 	TestFactoryFunction(boost::lambda::bind(boost::lambda::new_ptr<CAliasTest>())),

@@ -373,6 +373,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\tests\HugeJumpTest.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\tests\HugeJumpTest.h"
+				>
+			</File>
+			<File
 				RelativePath=".\tests\Main.cpp"
 				>
 			</File>

@@ -3,8 +3,9 @@
 
 #include "Types.h"
 #include "Stream.h"
+#include "MemStream.h"
 #include <map>
-#include <unordered_map>
+#include <vector>
 
 class CX86Assembler
 {
@@ -92,6 +93,9 @@ public:
                                             CX86Assembler();
     virtual                                 ~CX86Assembler();
 
+	void									Begin();
+	void									End();
+
 	void									SetStream(Framework::CStream*);
 
     static CAddress                         MakeRegisterAddress(REGISTER);
@@ -103,8 +107,6 @@ public:
 
     LABEL                                   CreateLabel();
     void                                    MarkLabel(LABEL);
-	void									ClearLabels();
-    void                                    ResolveLabelReferences();
 
     void                                    AdcEd(REGISTER, const CAddress&);
 	void									AdcId(const CAddress&, uint32);
@@ -131,15 +133,15 @@ public:
     void                                    IdivEd(const CAddress&);
     void                                    ImulEw(const CAddress&);
     void                                    ImulEd(const CAddress&);
-    void                                    JaeJb(LABEL);
-    void                                    JcJb(LABEL);
-    void                                    JeJb(LABEL);
-	void									JgJb(LABEL);
-	void									JleJb(LABEL);
-    void                                    JmpJb(LABEL);
-    void                                    JneJb(LABEL);
-    void                                    JnoJb(LABEL);
-    void                                    JnsJb(LABEL);
+    void                                    JbJx(LABEL);
+	void                                    JnbJx(LABEL);
+    void                                    JzJx(LABEL);
+	void									JnleJx(LABEL);
+	void									JleJx(LABEL);
+    void                                    JmpJx(LABEL);
+    void                                    JnzJx(LABEL);
+    void                                    JnoJx(LABEL);
+    void                                    JnsJx(LABEL);
     void                                    LeaGd(REGISTER, const CAddress&);
     void                                    MovEw(REGISTER, const CAddress&);
     void                                    MovEd(REGISTER, const CAddress&);
@@ -290,14 +292,74 @@ public:
     void                                    ShufpsVo(XMMREGISTER, const CAddress&, uint8);
 
 private:
+	enum JMP_TYPE
+	{
+		JMP_O	= 0,
+		JMP_NO	= 1,
+		JMP_B	= 2,
+		JMP_NB	= 3,
+		JMP_Z	= 4,
+		JMP_NZ	= 5,
+		JMP_BE	= 6,
+		JMP_NBE	= 7,
+
+		JMP_S	= 8,
+		JMP_NS	= 9,
+		JMP_P	= 10,
+		JMP_NP	= 11,
+		JMP_L	= 12,
+		JMP_NL	= 13,
+		JMP_LE	= 14,
+		JMP_NLE	= 15,
+
+		JMP_ALWAYS,
+	};
+
+	enum JMP_LENGTH
+	{
+		JMP_NOTSET,
+		JMP_NEAR,
+		JMP_FAR
+	};
+
     struct LABELREF
     {
-        uint64 address;
-        unsigned int offsetSize;
+		LABELREF()
+			: label(0)
+			, offset(0)
+			, type(JMP_ALWAYS)
+			, length(JMP_NOTSET)
+		{
+
+		}
+
+		LABEL		label;
+		uint32		offset;
+		JMP_TYPE	type;
+		JMP_LENGTH	length;
     };
 
-	typedef std::tr1::unordered_map<LABEL, size_t> LabelMapType;
-    typedef std::multimap<LABEL, LABELREF> LabelReferenceMapType;
+	typedef std::vector<LABELREF> LabelRefArray;
+
+	struct LABELINFO
+	{
+		LABELINFO()
+			: start(0)
+			, size(0)
+			, projectedStart(0)
+		{
+
+		}
+
+		uint32			start;
+		uint32			size;
+		uint32			projectedStart;
+		LabelRefArray	labelRefs;
+	};
+
+	typedef std::map<LABEL, LABELINFO> LabelMap;
+	typedef std::vector<LABEL> LabelArray;
+	typedef std::vector<uint8> ByteArray;
 
     void                                    WriteRexByte(bool, const CAddress&);
     void                                    WriteRexByte(bool, const CAddress&, REGISTER&);
@@ -312,18 +374,26 @@ private:
 	void                                    WriteVrOp(uint8, uint8, XMMREGISTER);
     void                                    WriteStOp(uint8, uint8, uint8);
 
-    void                                    CreateLabelReference(LABEL, unsigned int);
+    void                                    CreateLabelReference(LABEL, JMP_TYPE);
+
+	void									IncrementJumpOffsetsLocal(LABELINFO&, LabelRefArray::iterator, unsigned int);
+	void									IncrementJumpOffsets(LabelArray::const_iterator, unsigned int);
 
     static unsigned int                     GetMinimumConstantSize(uint32);
     static unsigned int                     GetMinimumConstantSize64(uint64);
+	static unsigned int						GetJumpSize(JMP_TYPE, JMP_LENGTH);
+	static void								WriteJump(Framework::CStream*, JMP_TYPE, JMP_LENGTH, uint32);
 
     void                                    WriteByte(uint8);
     void                                    WriteDWord(uint32);
 
-	LabelMapType                            m_labels;
-    LabelReferenceMapType                   m_labelReferences;
+	LabelMap								m_labels;
+	LabelArray								m_labelOrder;
     LABEL                                   m_nextLabelId;
-	Framework::CStream*						m_stream;
+	LABELINFO*								m_currentLabel;
+	Framework::CStream*						m_outputStream;
+	Framework::CMemStream					m_tmpStream;
+	ByteArray								m_copyBuffer;
 };
 
 #endif

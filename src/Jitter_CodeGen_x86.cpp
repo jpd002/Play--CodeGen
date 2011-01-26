@@ -96,11 +96,14 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_constMatchers[] =
 	{ OP_MULS,		MATCH_TEMPORARY64,	MATCH_RELATIVE,		MATCH_CONSTANT,		&CCodeGen_x86::Emit_MulTmp64RelCst<true>			},
 
 	{ OP_MULSHL,	MATCH_REGISTER,		MATCH_REGISTER,		MATCH_REGISTER,		&CCodeGen_x86::Emit_MulSHL_RegRegReg				},
+	{ OP_MULSHL,	MATCH_MEMORY,		MATCH_REGISTER,		MATCH_MEMORY,		&CCodeGen_x86::Emit_MulSHL_MemRegMem				},
 	{ OP_MULSHL,	MATCH_MEMORY,		MATCH_MEMORY,		MATCH_REGISTER,		&CCodeGen_x86::Emit_MulSHL_MemMemReg				},
 	{ OP_MULSHL,	MATCH_MEMORY,		MATCH_MEMORY,		MATCH_MEMORY,		&CCodeGen_x86::Emit_MulSHL_MemMemMem				},
 
+	{ OP_MULSHH,	MATCH_REGISTER,		MATCH_REGISTER,		MATCH_REGISTER,		&CCodeGen_x86::Emit_MulSHH_RegRegReg				},
 	{ OP_MULSHH,	MATCH_REGISTER,		MATCH_REGISTER,		MATCH_MEMORY,		&CCodeGen_x86::Emit_MulSHH_RegRegMem				},
 	{ OP_MULSHH,	MATCH_MEMORY,		MATCH_REGISTER,		MATCH_REGISTER,		&CCodeGen_x86::Emit_MulSHH_MemRegReg				},
+	{ OP_MULSHH,	MATCH_MEMORY,		MATCH_REGISTER,		MATCH_MEMORY,		&CCodeGen_x86::Emit_MulSHH_MemRegMem				},
 	{ OP_MULSHH,	MATCH_MEMORY,		MATCH_MEMORY,		MATCH_REGISTER,		&CCodeGen_x86::Emit_MulSHH_MemMemReg				},
 	{ OP_MULSHH,	MATCH_MEMORY,		MATCH_MEMORY,		MATCH_MEMORY,		&CCodeGen_x86::Emit_MulSHH_MemMemMem				},
 
@@ -180,37 +183,42 @@ void CCodeGen_x86::GenerateCode(const StatementList& statements, unsigned int st
 
 	//Align stacksize
 	stackSize = (stackSize + 0xF) & ~0xF;
-
 	m_stackLevel = 0;
-	Emit_Prolog(stackSize, registerUsage);
 
-	for(StatementList::const_iterator statementIterator(statements.begin());
-		statementIterator != statements.end(); statementIterator++)
+	m_assembler.Begin();
 	{
-		const STATEMENT& statement(*statementIterator);
+		CX86Assembler::LABEL rootLabel = m_assembler.CreateLabel();
+		m_assembler.MarkLabel(rootLabel);
 
-		bool found = false;
-		MatcherMapType::const_iterator begin = m_matchers.lower_bound(statement.op);
-		MatcherMapType::const_iterator end = m_matchers.upper_bound(statement.op);
+		Emit_Prolog(stackSize, registerUsage);
 
-		for(MatcherMapType::const_iterator matchIterator(begin); matchIterator != end; matchIterator++)
+		for(StatementList::const_iterator statementIterator(statements.begin());
+			statementIterator != statements.end(); statementIterator++)
 		{
-			const MATCHER& matcher(matchIterator->second);
-			if(!SymbolMatches(matcher.dstType, statement.dst)) continue;
-			if(!SymbolMatches(matcher.src1Type, statement.src1)) continue;
-			if(!SymbolMatches(matcher.src2Type, statement.src2)) continue;
-			matcher.emitter(statement);
-			found = true;
-			break;
+			const STATEMENT& statement(*statementIterator);
+
+			bool found = false;
+			MatcherMapType::const_iterator begin = m_matchers.lower_bound(statement.op);
+			MatcherMapType::const_iterator end = m_matchers.upper_bound(statement.op);
+
+			for(MatcherMapType::const_iterator matchIterator(begin); matchIterator != end; matchIterator++)
+			{
+				const MATCHER& matcher(matchIterator->second);
+				if(!SymbolMatches(matcher.dstType, statement.dst)) continue;
+				if(!SymbolMatches(matcher.src1Type, statement.src1)) continue;
+				if(!SymbolMatches(matcher.src2Type, statement.src2)) continue;
+				matcher.emitter(statement);
+				found = true;
+				break;
+			}
+			assert(found);
 		}
-		assert(found);
+
+		Emit_Epilog(stackSize, registerUsage);
 	}
+	m_assembler.End();
 
-	m_assembler.ResolveLabelReferences();
-	m_assembler.ClearLabels();
 	m_labels.clear();
-
-	Emit_Epilog(stackSize, registerUsage);
 }
 
 void CCodeGen_x86::SetStream(Framework::CStream* stream)
@@ -408,20 +416,20 @@ void CCodeGen_x86::Lzc_RegMem(CX86Assembler::REGISTER dstRegister, const CX86Ass
 
 	m_assembler.MovEd(tmpRegister, srcAddress);
 	m_assembler.TestEd(tmpRegister, CX86Assembler::MakeRegisterAddress(tmpRegister));
-	m_assembler.JeJb(set32Label);
-	m_assembler.JnsJb(startCountLabel);
+	m_assembler.JzJx(set32Label);
+	m_assembler.JnsJx(startCountLabel);
 
 	//reverse:
 	m_assembler.NotEd(CX86Assembler::MakeRegisterAddress(tmpRegister));
 	m_assembler.TestEd(tmpRegister, CX86Assembler::MakeRegisterAddress(tmpRegister));
-	m_assembler.JeJb(set32Label);
+	m_assembler.JzJx(set32Label);
 
 	//startCount:
 	m_assembler.MarkLabel(startCountLabel);
     m_assembler.BsrEd(dstRegister, CX86Assembler::MakeRegisterAddress(tmpRegister));
     m_assembler.NegEd(CX86Assembler::MakeRegisterAddress(dstRegister));
     m_assembler.AddId(CX86Assembler::MakeRegisterAddress(dstRegister), 0x1E);
-    m_assembler.JmpJb(doneLabel);
+    m_assembler.JmpJx(doneLabel);
 
     //set32
     m_assembler.MarkLabel(set32Label);
@@ -559,7 +567,7 @@ void CCodeGen_x86::Emit_Mov_TmpRel(const STATEMENT& statement)
 
 void CCodeGen_x86::Emit_Jmp(const STATEMENT& statement)
 {
-	m_assembler.JmpJb(GetLabel(statement.jmpBlock));
+	m_assembler.JmpJx(GetLabel(statement.jmpBlock));
 }
 
 void CCodeGen_x86::Emit_MergeTo64_Tmp64RegReg(const STATEMENT& statement)
@@ -889,16 +897,16 @@ void CCodeGen_x86::CondJmp_JumpTo(CX86Assembler::LABEL label, Jitter::CONDITION 
 	switch(condition)
 	{
 	case CONDITION_EQ:
-		m_assembler.JeJb(label);
+		m_assembler.JzJx(label);
 		break;
 	case CONDITION_NE:
-		m_assembler.JneJb(label);
-		break;
-	case CONDITION_GT:
-		m_assembler.JgJb(label);
+		m_assembler.JnzJx(label);
 		break;
 	case CONDITION_LE:
-		m_assembler.JleJb(label);
+		m_assembler.JleJx(label);
+		break;
+	case CONDITION_GT:
+		m_assembler.JnleJx(label);
 		break;
 	default:
 		assert(0);
@@ -1042,6 +1050,21 @@ void CCodeGen_x86::Emit_MulSHL_RegRegReg(const STATEMENT& statement)
 		);
 }
 
+void CCodeGen_x86::Emit_MulSHL_MemRegMem(const STATEMENT& statement)
+{
+	CSymbol* dst = statement.dst->GetSymbol().get();
+	CSymbol* src1 = statement.src1->GetSymbol().get();
+	CSymbol* src2 = statement.src2->GetSymbol().get();
+
+	assert(src1->m_type == SYM_REGISTER);
+
+	Emit_MulSHL(
+		MakeMemorySymbolAddress(dst), 
+		CX86Assembler::MakeRegisterAddress(m_registers[src1->m_valueLow]),
+		MakeMemorySymbolAddress(src2)
+		);
+}
+
 void CCodeGen_x86::Emit_MulSHL_MemMemReg(const STATEMENT& statement)
 {
 	CSymbol* dst = statement.dst->GetSymbol().get();
@@ -1090,6 +1113,23 @@ void CCodeGen_x86::Emit_MulSHH(const CX86Assembler::CAddress& dst, const CX86Ass
 	m_assembler.MovGd(dst, lowRegister);
 }
 
+void CCodeGen_x86::Emit_MulSHH_RegRegReg(const STATEMENT& statement)
+{
+	CSymbol* dst = statement.dst->GetSymbol().get();
+	CSymbol* src1 = statement.src1->GetSymbol().get();
+	CSymbol* src2 = statement.src2->GetSymbol().get();
+
+	assert(dst->m_type  == SYM_REGISTER);
+	assert(src1->m_type == SYM_REGISTER);
+	assert(src2->m_type == SYM_REGISTER);
+
+	Emit_MulSHH(
+		CX86Assembler::MakeRegisterAddress(m_registers[dst->m_valueLow]),
+		CX86Assembler::MakeRegisterAddress(m_registers[src1->m_valueLow]),
+		CX86Assembler::MakeRegisterAddress(m_registers[src2->m_valueLow])
+		);
+}
+
 void CCodeGen_x86::Emit_MulSHH_RegRegMem(const STATEMENT& statement)
 {
 	CSymbol* dst = statement.dst->GetSymbol().get();
@@ -1119,6 +1159,21 @@ void CCodeGen_x86::Emit_MulSHH_MemRegReg(const STATEMENT& statement)
 		MakeMemorySymbolAddress(dst), 
 		CX86Assembler::MakeRegisterAddress(m_registers[src1->m_valueLow]), 
 		CX86Assembler::MakeRegisterAddress(m_registers[src2->m_valueLow])
+		);
+}
+
+void CCodeGen_x86::Emit_MulSHH_MemRegMem(const STATEMENT& statement)
+{
+	CSymbol* dst = statement.dst->GetSymbol().get();
+	CSymbol* src1 = statement.src1->GetSymbol().get();
+	CSymbol* src2 = statement.src2->GetSymbol().get();
+
+	assert(src1->m_type == SYM_REGISTER);
+
+	Emit_MulSHH(
+		MakeMemorySymbolAddress(dst), 
+		CX86Assembler::MakeRegisterAddress(m_registers[src1->m_valueLow]), 
+		MakeMemorySymbolAddress(src2)
 		);
 }
 

@@ -398,7 +398,7 @@ void CX86Assembler::WriteEdVdOp(uint8 opcode, const CAddress& address, XMMREGIST
     CAddress NewAddress(address);
     NewAddress.ModRm.nFnReg = registerId;
     WriteByte(opcode);
-    NewAddress.Write(m_stream);
+    NewAddress.Write(&m_tmpStream);
 }
 
 void CX86Assembler::WriteEdVdOp_66_0F(uint8 opcode, const CAddress& address, XMMREGISTER xmmRegisterId)
@@ -410,7 +410,7 @@ void CX86Assembler::WriteEdVdOp_66_0F(uint8 opcode, const CAddress& address, XMM
     CAddress NewAddress(address);
     NewAddress.ModRm.nFnReg = registerId;
     WriteByte(opcode);
-    NewAddress.Write(m_stream);
+    NewAddress.Write(&m_tmpStream);
 }
 
 void CX86Assembler::WriteVrOp(uint8 opcode, uint8 subOpcode, XMMREGISTER registerId)
@@ -419,5 +419,5 @@ void CX86Assembler::WriteVrOp(uint8 opcode, uint8 subOpcode, XMMREGISTER registe
     WriteRexByte(false, address);
     address.ModRm.nFnReg = subOpcode;
     WriteByte(opcode);
-    address.Write(m_stream);
+    address.Write(&m_tmpStream);
 }

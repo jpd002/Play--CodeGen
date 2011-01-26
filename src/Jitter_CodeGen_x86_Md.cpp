@@ -101,7 +101,7 @@ void CCodeGen_x86::Emit_Md_AddSSW_MemMemMem(const STATEMENT& statement)
 		CX86Assembler::LABEL doneLabel = m_assembler.CreateLabel();
 		m_assembler.MovEd(resultRegister, MakeMemory128SymbolElementAddress(src1, i));
 		m_assembler.AddEd(resultRegister, MakeMemory128SymbolElementAddress(src2, i));
-		m_assembler.JnoJb(doneLabel);
+		m_assembler.JnoJx(doneLabel);
 		m_assembler.CmovsEd(resultRegister, CX86Assembler::MakeRegisterAddress(overflowReg));
 		m_assembler.CmovnsEd(resultRegister, CX86Assembler::MakeRegisterAddress(underflowReg));
 		m_assembler.MarkLabel(doneLabel);
@@ -126,7 +126,7 @@ void CCodeGen_x86::Emit_Md_AddUSW_MemMemMem(const STATEMENT& statement)
 		CX86Assembler::LABEL doneLabel = m_assembler.CreateLabel();
 		m_assembler.MovEd(resultRegister, MakeMemory128SymbolElementAddress(src1, i));
 		m_assembler.AddEd(resultRegister, MakeMemory128SymbolElementAddress(src2, i));
-		m_assembler.JaeJb(doneLabel);
+		m_assembler.JnbJx(doneLabel);
 
 		//overflow:
 		m_assembler.MovGd(CX86Assembler::MakeRegisterAddress(resultRegister), overflowReg);

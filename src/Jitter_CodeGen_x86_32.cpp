@@ -388,7 +388,7 @@ void CCodeGen_x86_32::Emit_Srl64_RelRelRel(const STATEMENT& statement)
 	m_assembler.MovEd(regSa, MakeRelativeSymbolAddress(src2));
 	m_assembler.CmpId(CX86Assembler::MakeRegisterAddress(regSa), 32);
 
-	m_assembler.JcJb(lessThan32Label);
+	m_assembler.JbJx(lessThan32Label);
 
 	//greaterOrEqual:
 	//---------------------------------------------
@@ -397,7 +397,7 @@ void CCodeGen_x86_32::Emit_Srl64_RelRelRel(const STATEMENT& statement)
 	m_assembler.ShrEd(CX86Assembler::MakeRegisterAddress(regLo));
 	m_assembler.XorEd(regHi, CX86Assembler::MakeRegisterAddress(regHi));
 
-	m_assembler.JmpJb(endLabel);
+	m_assembler.JmpJx(endLabel);
 
 	//lessThan:
 	//---------------------------------------------
@@ -751,7 +751,7 @@ void CCodeGen_x86_32::Cmp64_Order(const STATEMENT& statement)
 	CmpHi()(m_assembler, regHi, src2);
 
     //je highOrderEqual
-    m_assembler.JeJb(highOrderEqualLabel);
+    m_assembler.JzJx(highOrderEqualLabel);
 
 	///////////////////////////////////////////////////////////
 	//If they aren't equal, this comparaison decides of result
@@ -770,7 +770,7 @@ void CCodeGen_x86_32::Cmp64_Order(const STATEMENT& statement)
     m_assembler.MovzxEb(regLo, CX86Assembler::MakeByteRegisterAddress(regLo));
 
 	//jmp done
-    m_assembler.JmpJb(doneLabel);
+    m_assembler.JmpJx(doneLabel);
 
 	//highOrderEqual: /////////////////////////////////////
     m_assembler.MarkLabel(highOrderEqualLabel);

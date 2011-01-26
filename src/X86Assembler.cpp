@@ -3,10 +3,11 @@
 #include "X86Assembler.h"
 
 CX86Assembler::CX86Assembler() :
-m_stream(NULL),
+m_outputStream(NULL),
+m_currentLabel(NULL),
 m_nextLabelId(1)
 {
-    
+
 }
 
 CX86Assembler::~CX86Assembler()
@@ -14,9 +15,153 @@ CX86Assembler::~CX86Assembler()
 
 }
 
+void CX86Assembler::Begin()
+{
+	m_nextLabelId = 1;
+	m_currentLabel = NULL;
+	m_tmpStream.ResetBuffer();
+}
+
+void CX86Assembler::End()
+{
+	//Mark last label
+	if(m_currentLabel != NULL)
+	{
+		uint32 currentPos = static_cast<uint32>(m_tmpStream.Tell());
+		m_currentLabel->size = currentPos - m_currentLabel->start;
+	}
+
+	//Initialize
+	for(LabelMap::iterator labelIterator(m_labels.begin());
+		labelIterator != m_labels.end(); labelIterator++)
+	{
+		LABELINFO& label = labelIterator->second;
+		label.projectedStart = label.start;
+	}
+
+	while(1)
+	{
+		bool changed = false;
+
+		for(LabelArray::const_iterator labelIterator(m_labelOrder.begin());
+			labelIterator != m_labelOrder.end(); labelIterator++)
+		{
+			LABELINFO& label = m_labels[*labelIterator];
+
+			for(LabelRefArray::iterator labelRefIterator(label.labelRefs.begin());
+				labelRefIterator != label.labelRefs.end(); labelRefIterator++)
+			{
+				LABELREF& labelRef(*labelRefIterator);
+				switch(labelRef.length)
+				{
+					case JMP_NOTSET:
+						{
+							//Assume a short jump first.
+							unsigned int jumpSize = GetJumpSize(labelRef.type, JMP_NEAR);
+							labelRef.length = JMP_NEAR;
+							IncrementJumpOffsetsLocal(label, labelRefIterator + 1, jumpSize);
+							IncrementJumpOffsets(labelIterator + 1, jumpSize);
+							changed = true;
+						}
+						break;
+					case JMP_NEAR:
+						{
+							//We need to verify if the jump is still good for us, since sizes might have changed
+							LABELINFO& referencedLabel(m_labels[labelRef.label]);
+							unsigned int smallJumpSize = GetJumpSize(labelRef.type, JMP_NEAR);
+							uint32 offset = referencedLabel.projectedStart - (labelRef.offset + smallJumpSize);
+							uint32 offsetSize = GetMinimumConstantSize(offset);
+							if(offsetSize != 1)
+							{
+								//Doesn't fit, recompute offsets
+								labelRef.length = JMP_FAR;
+								unsigned int longJumpSize = GetJumpSize(labelRef.type, JMP_FAR);
+								unsigned int incrementAmount = longJumpSize - smallJumpSize;
+								IncrementJumpOffsetsLocal(label, labelRefIterator + 1, incrementAmount);
+								IncrementJumpOffsets(labelIterator + 1, incrementAmount);
+								changed = true;
+							}
+						}
+						break;
+				}
+			}
+		}
+
+		if(!changed) break;
+	}
+
+	assert(m_outputStream != NULL);
+	m_tmpStream.Seek(0, Framework::STREAM_SEEK_SET);
+
+	for(LabelArray::const_iterator labelIterator(m_labelOrder.begin());
+		labelIterator != m_labelOrder.end(); labelIterator++)
+	{
+		LABELINFO& label = m_labels[*labelIterator];
+
+		unsigned int currentPos = label.start;
+		unsigned int currentProjectedPos = label.projectedStart;
+		unsigned int endPos = label.start + label.size;
+
+		for(LabelRefArray::iterator labelRefIterator(label.labelRefs.begin());
+			labelRefIterator != label.labelRefs.end(); labelRefIterator++)
+		{
+			LABELREF& labelRef(*labelRefIterator);
+			LABELINFO& referencedLabel(m_labels[labelRef.label]);
+
+			unsigned int readSize = labelRef.offset - currentProjectedPos;
+			if(readSize != 0)
+			{
+				m_copyBuffer.resize(readSize);
+				m_tmpStream.Read(&m_copyBuffer[0], readSize);
+				m_outputStream->Write(&m_copyBuffer[0], readSize);
+			}
+
+			//Write our jump here.
+			unsigned int jumpSize = GetJumpSize(labelRef.type, labelRef.length);
+			uint32 distance = referencedLabel.projectedStart - (labelRef.offset + jumpSize);
+			WriteJump(m_outputStream, labelRef.type, labelRef.length, distance);
+
+			currentProjectedPos += readSize + jumpSize;
+			currentPos += readSize;
+		}
+
+		unsigned int lastCopySize = endPos - currentPos;
+		if(lastCopySize != 0)
+		{
+			m_copyBuffer.resize(lastCopySize);
+			m_tmpStream.Read(&m_copyBuffer[0], lastCopySize);
+			m_outputStream->Write(&m_copyBuffer[0], lastCopySize);
+		}
+	}
+
+	m_labels.clear();
+	m_labelOrder.clear();
+}
+
+void CX86Assembler::IncrementJumpOffsets(LabelArray::const_iterator startLabel, unsigned int amount)
+{
+	for(LabelArray::const_iterator labelIterator(startLabel);
+		labelIterator != m_labelOrder.end(); labelIterator++)
+	{
+		LABELINFO& label = m_labels[*labelIterator];
+		label.projectedStart += amount;
+		IncrementJumpOffsetsLocal(label, label.labelRefs.begin(), amount);
+	}
+}
+
+void CX86Assembler::IncrementJumpOffsetsLocal(LABELINFO& label, LabelRefArray::iterator startJump, unsigned int amount)
+{
+	for(LabelRefArray::iterator labelRefIterator(startJump);
+		labelRefIterator != label.labelRefs.end(); labelRefIterator++)
+	{
+		LABELREF& labelRef(*labelRefIterator);
+		labelRef.offset += amount;
+	}
+}
+
 void CX86Assembler::SetStream(Framework::CStream* stream)
 {
-	m_stream = stream;
+	m_outputStream = stream;
 }
 
 CX86Assembler::CAddress CX86Assembler::MakeRegisterAddress(REGISTER nRegister)
@@ -153,46 +298,25 @@ CX86Assembler::CAddress CX86Assembler::MakeBaseIndexScaleAddress(REGISTER base, 
 
 CX86Assembler::LABEL CX86Assembler::CreateLabel()
 {
-    return m_nextLabelId++;
+	LABEL newLabelId = m_nextLabelId++;
+	m_labels[newLabelId] = LABELINFO();
+    return newLabelId;
 }
 
 void CX86Assembler::MarkLabel(LABEL label)
 {
-    m_labels[label] = static_cast<uint32>(m_stream->Tell());
-}
+	uint32 currentPos = static_cast<uint32>(m_tmpStream.Tell());
+	if(m_currentLabel != NULL)
+	{
+		m_currentLabel->size = currentPos - m_currentLabel->start;
+	}
 
-void CX86Assembler::ClearLabels()
-{
-	m_labels.clear();
-}
-
-void CX86Assembler::ResolveLabelReferences()
-{
-    for(LabelReferenceMapType::iterator labelRef(m_labelReferences.begin());
-        m_labelReferences.end() != labelRef; labelRef++)
-    {
-        LabelMapType::iterator label(m_labels.find(labelRef->first));
-        if(label == m_labels.end())
-        {
-            throw std::runtime_error("Invalid label.");
-        }
-        size_t referencePos = labelRef->second.address;
-        size_t labelPos = label->second;
-        unsigned int referenceSize = labelRef->second.offsetSize;
-        int offset = static_cast<int>(labelPos - referencePos - referenceSize);
-        if(referenceSize == 1)
-        {
-            if(offset > 127 || offset < -128)
-            {
-                throw std::runtime_error("Label reference too small.");
-            }
-
-			m_stream->Seek(referencePos, Framework::STREAM_SEEK_SET);
-			m_stream->Write8(static_cast<uint8>(offset));
-			m_stream->Seek(0, Framework::STREAM_SEEK_END);
-        }
-    }
-    m_labelReferences.clear();
+	LabelMap::iterator labelIterator(m_labels.find(label));
+	assert(labelIterator != m_labels.end());
+	LABELINFO& labelInfo(labelIterator->second);
+	labelInfo.start = currentPos;
+	m_currentLabel = &labelInfo;
+	m_labelOrder.push_back(label);
 }
 
 void CX86Assembler::AdcEd(REGISTER registerId, const CAddress& address)
@@ -324,67 +448,49 @@ void CX86Assembler::ImulEd(const CAddress& address)
     WriteEvOp(0xF7, 0x05, false, address);
 }
 
-void CX86Assembler::JaeJb(LABEL label)
+void CX86Assembler::JbJx(LABEL label)
 {
-    WriteByte(0x73);
-    CreateLabelReference(label, 1);
-    WriteByte(0x00);
+	CreateLabelReference(label, JMP_B);
 }
 
-void CX86Assembler::JcJb(LABEL label)
+void CX86Assembler::JnbJx(LABEL label)
 {
-    WriteByte(0x72);
-    CreateLabelReference(label, 1);
-    WriteByte(0x00);
+	CreateLabelReference(label, JMP_NB);
 }
 
-void CX86Assembler::JeJb(LABEL label)
+void CX86Assembler::JleJx(LABEL label)
 {
-    WriteByte(0x74);
-    CreateLabelReference(label, 1);
-    WriteByte(0x00);
+	CreateLabelReference(label, JMP_LE);
 }
 
-void CX86Assembler::JgJb(LABEL label)
+void CX86Assembler::JnleJx(LABEL label)
 {
-    WriteByte(0x7F);
-    CreateLabelReference(label, 1);
-    WriteByte(0x00);	
+	CreateLabelReference(label, JMP_NLE);
 }
 
-void CX86Assembler::JleJb(LABEL label)
+void CX86Assembler::JmpJx(LABEL label)
 {
-    WriteByte(0x7E);
-    CreateLabelReference(label, 1);
-    WriteByte(0x00);	
+	CreateLabelReference(label, JMP_ALWAYS);
 }
 
-void CX86Assembler::JmpJb(LABEL label)
+void CX86Assembler::JzJx(LABEL label)
 {
-    WriteByte(0xEB);
-    CreateLabelReference(label, 1);
-    WriteByte(0x00);
+	CreateLabelReference(label, JMP_Z);
 }
 
-void CX86Assembler::JneJb(LABEL label)
+void CX86Assembler::JnzJx(LABEL label)
 {
-    WriteByte(0x75);
-    CreateLabelReference(label, 1);
-    WriteByte(0x00);
+	CreateLabelReference(label, JMP_NZ);
 }
 
-void CX86Assembler::JnoJb(LABEL label)
+void CX86Assembler::JnoJx(LABEL label)
 {
-    WriteByte(0x71);
-    CreateLabelReference(label, 1);
-    WriteByte(0x00);
+	CreateLabelReference(label, JMP_NO);
 }
 
-void CX86Assembler::JnsJb(LABEL label)
+void CX86Assembler::JnsJx(LABEL label)
 {
-    WriteByte(0x79);
-    CreateLabelReference(label, 1);
-    WriteByte(0x00);
+	CreateLabelReference(label, JMP_NS);
 }
 
 void CX86Assembler::LeaGd(REGISTER registerId, const CAddress& address)
@@ -442,7 +548,7 @@ void CX86Assembler::MovId(const CX86Assembler::CAddress& address, uint32 constan
     newAddress.ModRm.nFnReg = 0x00;
 
     WriteByte(0xC7);
-    newAddress.Write(m_stream);
+    newAddress.Write(&m_tmpStream);
     WriteDWord(constant);
 }
 
@@ -765,7 +871,7 @@ void CX86Assembler::WriteEvOp(uint8 opcode, uint8 subOpcode, bool is64, const CA
     CAddress newAddress(address);
     newAddress.ModRm.nFnReg = subOpcode;
     WriteByte(opcode);
-    newAddress.Write(m_stream);
+    newAddress.Write(&m_tmpStream);
 }
 
 void CX86Assembler::WriteEvGvOp(uint8 nOp, bool nIs64, const CAddress& Address, REGISTER nRegister)
@@ -774,7 +880,7 @@ void CX86Assembler::WriteEvGvOp(uint8 nOp, bool nIs64, const CAddress& Address, 
     CAddress NewAddress(Address);
     NewAddress.ModRm.nFnReg = nRegister;
     WriteByte(nOp);
-    NewAddress.Write(m_stream);
+    NewAddress.Write(&m_tmpStream);
 }
 
 void CX86Assembler::WriteEvGvOp0F(uint8 nOp, bool nIs64, const CAddress& Address, REGISTER nRegister)
@@ -784,7 +890,7 @@ void CX86Assembler::WriteEvGvOp0F(uint8 nOp, bool nIs64, const CAddress& Address
 	CAddress NewAddress(Address);
     NewAddress.ModRm.nFnReg = nRegister;
     WriteByte(nOp);
-    NewAddress.Write(m_stream);
+    NewAddress.Write(&m_tmpStream);
 }
 
 void CX86Assembler::WriteEvIb(uint8 op, const CAddress& address, uint8 constant)
@@ -793,7 +899,7 @@ void CX86Assembler::WriteEvIb(uint8 op, const CAddress& address, uint8 constant)
     CAddress newAddress(address);
     newAddress.ModRm.nFnReg = op;
     WriteByte(0x80);
-    newAddress.Write(m_stream);
+    newAddress.Write(&m_tmpStream);
     WriteByte(constant);
 }
 
@@ -809,13 +915,13 @@ void CX86Assembler::WriteEvId(uint8 nOp, const CAddress& Address, uint32 nConsta
     if(GetMinimumConstantSize(nConstant) == 1)
     {
         WriteByte(0x83);
-        NewAddress.Write(m_stream);
+        NewAddress.Write(&m_tmpStream);
         WriteByte(static_cast<uint8>(nConstant));
     }
     else
     {
         WriteByte(0x81);
-        NewAddress.Write(m_stream);
+        NewAddress.Write(&m_tmpStream);
         WriteDWord(nConstant);
     }
 }
@@ -832,23 +938,27 @@ void CX86Assembler::WriteEvIq(uint8 nOp, const CAddress& Address, uint64 nConsta
     if(nConstantSize == 1)
     {
         WriteByte(0x83);
-        NewAddress.Write(m_stream);
+        NewAddress.Write(&m_tmpStream);
         WriteByte(static_cast<uint8>(nConstant));
     }
     else
     {
         WriteByte(0x81);
-        NewAddress.Write(m_stream);
+        NewAddress.Write(&m_tmpStream);
         WriteDWord(static_cast<uint32>(nConstant));
     }
 }
 
-void CX86Assembler::CreateLabelReference(LABEL label, unsigned int size)
+void CX86Assembler::CreateLabelReference(LABEL label, JMP_TYPE type)
 {
+	assert(m_currentLabel != NULL);
+
     LABELREF reference;
-    reference.address = m_stream->Tell();
-    reference.offsetSize = size;
-    m_labelReferences.insert(LabelReferenceMapType::value_type(label, reference));
+	reference.label			= label;
+	reference.offset		= static_cast<uint32>(m_tmpStream.Tell());
+	reference.type			= type;
+	
+	m_currentLabel->labelRefs.push_back(reference);
 }
 
 unsigned int CX86Assembler::GetMinimumConstantSize(uint32 nConstant)
@@ -873,15 +983,65 @@ unsigned int CX86Assembler::GetMinimumConstantSize64(uint64 nConstant)
     return 8;
 }
 
+unsigned int CX86Assembler::GetJumpSize(JMP_TYPE type, JMP_LENGTH length)
+{
+	if(length == JMP_NEAR)
+	{
+		return 2;
+	}
+	else
+	{
+		if(type == JMP_ALWAYS)
+		{
+			return 5;
+		}
+		else
+		{
+			return 6;
+		}
+	}
+}
+
+void CX86Assembler::WriteJump(Framework::CStream* stream, JMP_TYPE type, JMP_LENGTH length, uint32 offset)
+{
+	if(length == JMP_FAR)
+	{
+		switch(type)
+		{
+		case JMP_ALWAYS:
+			stream->Write8(0xE9);
+			break;
+		default:
+			stream->Write8(0x0F);
+			stream->Write8(0x80 | static_cast<uint8>(type));
+			break;
+		}
+		stream->Write32(offset);
+	}
+	else
+	{
+		switch(type)
+		{
+		case JMP_ALWAYS:
+			stream->Write8(0xEB);
+			break;
+		default:
+			stream->Write8(0x70 | static_cast<uint8>(type));
+			break;
+		}
+		stream->Write8(static_cast<uint8>(offset));
+	}
+}
+
 void CX86Assembler::WriteByte(uint8 nByte)
 {
-    m_stream->Write8(nByte);
+    m_tmpStream.Write8(nByte);
 }
 
 void CX86Assembler::WriteDWord(uint32 nDWord)
 {
 	//Endianess should be good, unless we target a different processor...
-	m_stream->Write32(nDWord);
+	m_tmpStream.Write32(nDWord);
 }
 
 /////////////////////////////////////////////////

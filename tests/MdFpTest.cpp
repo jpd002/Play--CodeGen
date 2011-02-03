@@ -48,17 +48,22 @@ void CMdFpTest::Compile(Jitter::CJitter& jitter)
 		jitter.MD_DivS();
 		jitter.MD_PullRel(offsetof(CONTEXT, dstDiv));
 
-		//Max
-		jitter.MD_PushRel(offsetof(CONTEXT, src0));
-		jitter.MD_PushRel(offsetof(CONTEXT, src1));
-		jitter.MD_MaxS();
-		jitter.MD_PullRel(offsetof(CONTEXT, dstMax));
+		//Abs
+		jitter.MD_PushRel(offsetof(CONTEXT, dstSub));
+		jitter.MD_AbsS();
+		jitter.MD_PullRel(offsetof(CONTEXT, dstAbs));
 
 		//Min
 		jitter.MD_PushRel(offsetof(CONTEXT, src0));
 		jitter.MD_PushRel(offsetof(CONTEXT, src1));
 		jitter.MD_MinS();
 		jitter.MD_PullRel(offsetof(CONTEXT, dstMin));
+
+		//Max
+		jitter.MD_PushRel(offsetof(CONTEXT, src0));
+		jitter.MD_PushRel(offsetof(CONTEXT, src1));
+		jitter.MD_MaxS();
+		jitter.MD_PullRel(offsetof(CONTEXT, dstMax));
 
 		//Masked Mov
 		jitter.MD_PushRel(offsetof(CONTEXT, dstSub));
@@ -139,15 +144,20 @@ void CMdFpTest::Run()
 	TEST_VERIFY(fabs(8.333f    - context.dstDiv[2]) < 0.001f);
 	TEST_VERIFY(fabs(833.3f    - context.dstDiv[3]) < 0.1f);
 
-	TEST_VERIFY(context.dstMax[0] ==  6000.f);
-	TEST_VERIFY(context.dstMax[1] ==   600.f);
-	TEST_VERIFY(context.dstMax[2] ==   500.f);
-	TEST_VERIFY(context.dstMax[3] ==  5000.f);
+	TEST_VERIFY(context.dstAbs[0] ==  5995.f);
+	TEST_VERIFY(context.dstAbs[1] ==   550.f);
+	TEST_VERIFY(context.dstAbs[2] ==   440.f);
+	TEST_VERIFY(context.dstAbs[3] ==  4994.f);
 
 	TEST_VERIFY(context.dstMin[0] ==     5.f);
 	TEST_VERIFY(context.dstMin[1] ==    50.f);
 	TEST_VERIFY(context.dstMin[2] ==    60.f);
 	TEST_VERIFY(context.dstMin[3] ==     6.f);
+
+	TEST_VERIFY(context.dstMax[0] ==  6000.f);
+	TEST_VERIFY(context.dstMax[1] ==   600.f);
+	TEST_VERIFY(context.dstMax[2] ==   500.f);
+	TEST_VERIFY(context.dstMax[3] ==  5000.f);
 
 	TEST_VERIFY(context.dstMasked[0] ==    0.f);
 	TEST_VERIFY(context.dstMasked[1] == -550.f);

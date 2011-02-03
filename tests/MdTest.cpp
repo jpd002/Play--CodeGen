@@ -29,6 +29,11 @@ void CMdTest::Compile(Jitter::CJitter& jitter)
 
 		jitter.MD_PushRel(offsetof(CONTEXT, src1));
 		jitter.MD_PushRel(offsetof(CONTEXT, src1));
+		jitter.MD_AddH();
+		jitter.MD_PullRel(offsetof(CONTEXT, dstAddH));
+
+		jitter.MD_PushRel(offsetof(CONTEXT, src1));
+		jitter.MD_PushRel(offsetof(CONTEXT, src1));
 		jitter.MD_AddW();
 		jitter.MD_PullRel(offsetof(CONTEXT, dstAddW));
 
@@ -47,10 +52,41 @@ void CMdTest::Compile(Jitter::CJitter& jitter)
 		jitter.MD_CmpEqW();
 		jitter.MD_PullRel(offsetof(CONTEXT, dstCmpEqW));
 
+		//Shifts
+		jitter.MD_PushRel(offsetof(CONTEXT, src0));
+		jitter.MD_SrlW(15);
+		jitter.MD_PullRel(offsetof(CONTEXT, dstSrlW));
+
+		jitter.MD_PushRel(offsetof(CONTEXT, src1));
+		jitter.MD_SraW(12);
+		jitter.MD_PullRel(offsetof(CONTEXT, dstSraW));
+
+		jitter.MD_PushRel(offsetof(CONTEXT, src0));
+		jitter.MD_SllW(12);
+		jitter.MD_PullRel(offsetof(CONTEXT, dstSllW));
+
+		jitter.MD_PushRel(offsetof(CONTEXT, src0));
+		jitter.MD_PushRel(offsetof(CONTEXT, src1));
+		jitter.PushCst(48);
+		jitter.MD_Srl256();
+		jitter.MD_PullRel(offsetof(CONTEXT, dstSrl256));
+
+		//Packs
+		jitter.MD_PushRel(offsetof(CONTEXT, src0));
+		jitter.MD_PushRel(offsetof(CONTEXT, src1));
+		jitter.MD_PackHB();
+		jitter.MD_PullRel(offsetof(CONTEXT, dstPackHB));
+
 		jitter.MD_PushRel(offsetof(CONTEXT, src0));
 		jitter.MD_PushRel(offsetof(CONTEXT, src1));
 		jitter.MD_PackWH();
 		jitter.MD_PullRel(offsetof(CONTEXT, dstPackWH));
+
+		//Unpacks
+		jitter.MD_PushRel(offsetof(CONTEXT, src0));
+		jitter.MD_PushRel(offsetof(CONTEXT, src1));
+		jitter.MD_UnpackLowerBH();
+		jitter.MD_PullRel(offsetof(CONTEXT, dstUnpackLowerBH));
 
 		jitter.MD_PushRel(offsetof(CONTEXT, src0));
 		jitter.MD_PushRel(offsetof(CONTEXT, src1));
@@ -129,6 +165,21 @@ void CMdTest::Run()
 		0xC0, 0xD0, 0xE0, 0xF0
 	};
 
+	static const uint8 dstAddHRes[16] =
+	{
+		0x00, 0x20, 
+		0x40, 0x60,
+		
+		0x80, 0xA0, 
+		0xC0, 0xE0,
+		
+		0x00, 0x21, 
+		0x40, 0x61,
+		
+		0x80, 0xA1, 
+		0xC0, 0xE1
+	};
+
 	static const uint8 dstAddWRes[16] =
 	{
 		0x00, 0x20, 0x40, 0x60,
@@ -145,6 +196,51 @@ void CMdTest::Run()
 		0x00, 0x00, 0x00, 0x00,
 	};
 
+	static const uint8 dstSrlW[16] =
+	{
+		0x04, 0x06, 0x00, 0x00,
+		0x0C, 0x0E, 0x00, 0x00,
+		0x14, 0x16, 0x00, 0x00,
+		0x1C, 0x1E, 0x00, 0x00,
+	};
+
+	static const uint8 dstSraW[16] =
+	{
+		0x01, 0x02, 0x03, 0x00,
+		0x05, 0x06, 0x07, 0x00,
+		0x09, 0x0A, 0xFB, 0xFF,
+		0x0D, 0x0E, 0xFF, 0xFF,
+	};
+
+	static const uint8 dstSllW[16] =
+	{
+		0x00, 0x00, 0x10, 0x20,
+		0x00, 0x40, 0x50, 0x60,
+		0x00, 0x80, 0x90, 0xA0,
+		0x00, 0xC0, 0xD0, 0xE0
+	};
+
+	static const uint8 dstSrl256[16] =
+	{
+		0x60, 0x70, 0x80, 0x90,
+		0xA0, 0xB0, 0xC0, 0xD0,
+		0xE0, 0xF0, 0x00, 0x01,
+		0x02, 0x03, 0x04, 0x05
+	};
+
+	static const uint8 dstPackHBRes[16] =
+	{
+		0x00, 0x20, 
+		0x40, 0x60,
+		0x80, 0xA0,
+		0xC0, 0xE0,
+
+		0x00, 0x02,
+		0x04, 0x06,
+		0x08, 0x0A,
+		0x0C, 0x0E,
+	};
+
 	static const uint8 dstPackWHRes[16] =
 	{
 		0x00, 0x10, 
@@ -156,6 +252,21 @@ void CMdTest::Run()
 		0x04, 0x05,
 		0x08, 0x09,
 		0x0C, 0x0D,
+	};
+
+	static const uint8 dstUnpackLowerBHRes[16] = 
+	{
+		0x00, 0x00, 
+		0x10, 0x01, 
+		
+		0x20, 0x02, 
+		0x30, 0x03, 
+		
+		0x40, 0x04, 
+		0x50, 0x05, 
+		
+		0x60, 0x06, 
+		0x70, 0x07, 
 	};
 
 	static const uint8 dstUnpackLowerHWRes[16] = 
@@ -194,9 +305,16 @@ void CMdTest::Run()
 	for(unsigned int i = 0; i < 16; i++)
 	{
 		TEST_VERIFY(dstMovRes[i]			== context.dstMov[i]);
+		TEST_VERIFY(dstAddHRes[i]			== context.dstAddH[i]);
 		TEST_VERIFY(dstAddWRes[i]			== context.dstAddW[i]);
 		TEST_VERIFY(dstCmpEqWRes[i]			== context.dstCmpEqW[i]);
+		TEST_VERIFY(dstSrlW[i]				== context.dstSrlW[i]);
+		TEST_VERIFY(dstSraW[i]				== context.dstSraW[i]);
+		TEST_VERIFY(dstSllW[i]				== context.dstSllW[i]);
+		TEST_VERIFY(dstSrl256[i]			== context.dstSrl256[i]);
+		TEST_VERIFY(dstPackHBRes[i]			== context.dstPackHB[i]);
 		TEST_VERIFY(dstPackWHRes[i]			== context.dstPackWH[i]);
+		TEST_VERIFY(dstUnpackLowerBHRes[i]	== context.dstUnpackLowerBH[i]);
 		TEST_VERIFY(dstUnpackLowerHWRes[i]	== context.dstUnpackLowerHW[i]);
 		TEST_VERIFY(dstUnpackLowerWDRes[i]	== context.dstUnpackLowerWD[i]);
 		TEST_VERIFY(dstUnpackUpperWDRes[i]	== context.dstUnpackUpperWD[i]);

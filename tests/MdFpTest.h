@@ -29,6 +29,7 @@ __attribute__((aligned(16)))
 		float			dstSub[4];
 		float			dstMul[4];
 		float			dstDiv[4];
+		float			dstAbs[4];
 		float			dstMax[4];
 		float			dstMin[4];
 

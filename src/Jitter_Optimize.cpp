@@ -302,6 +302,12 @@ void CJitter::DumpStatementList(const StatementList& statements)
 		case OP_FP_MUL:
 			cout << " * ";
 			break;
+		case OP_MULSHL:
+			cout << " *(HL) ";
+			break;
+		case OP_MULSHH:
+			cout << " *(HH) ";
+			break;
 		case OP_DIV:
 		case OP_DIVS:
 		case OP_FP_DIV:
@@ -347,6 +353,9 @@ void CJitter::DumpStatementList(const StatementList& statements)
 		case OP_STOREATREF:
 			cout << " <- ";
 			break;
+		case OP_LOADFROMREF:
+			cout << " LOADFROM ";
+			break;
 		case OP_PARAM:
 			cout << " PARAM ";
 			break;
@@ -374,6 +383,9 @@ void CJitter::DumpStatementList(const StatementList& statements)
 		case OP_MERGETO64:
 			cout << " MERGETO64 ";
 			break;
+		case OP_MERGETO256:
+			cout << " MERGETO256 ";
+			break;
 		case OP_FP_ABS:
 			cout << " ABS";
 			break;
@@ -395,6 +407,15 @@ void CJitter::DumpStatementList(const StatementList& statements)
 		case OP_MD_MOV_MASKED:
 			cout << " MOVMSK ";
 			break;
+		case OP_MD_PACK_HB:
+			cout << " PACK_HB ";
+			break;
+		case OP_MD_PACK_WH:
+			cout << " PACK_WH ";
+			break;
+		case OP_MD_UNPACK_LOWER_BH:
+			cout << " UNPACK_LOWER_BH ";
+			break;
 		case OP_MD_UNPACK_LOWER_HW:
 			cout << " UNPACK_LOWER_HW ";
 			break;
@@ -403,6 +424,15 @@ void CJitter::DumpStatementList(const StatementList& statements)
 			break;
 		case OP_MD_UNPACK_UPPER_WD:
 			cout << " UNPACK_UPPER_WD ";
+			break;
+		case OP_MD_ADD_H:
+			cout << " +(H) ";
+			break;
+		case OP_MD_ADD_W:
+			cout << " +(W) ";
+			break;
+		case OP_MD_ADDUS_W:
+			cout << " +(USW) ";
 			break;
 		case OP_MD_ADDSS_W:
 			cout << " +(SSW) ";
@@ -413,6 +443,18 @@ void CJitter::DumpStatementList(const StatementList& statements)
 		case OP_MD_SUB_W:
 			cout << " -(W) ";
 			break;
+		case OP_MD_SLLW:
+			cout << " <<(W) ";
+			break;
+		case OP_MD_SRLW:
+			cout << " >>(W) ";
+			break;
+		case OP_MD_SRL256:
+			cout << " >>(256) ";
+			break;
+		case OP_MD_CMPEQ_W:
+			cout << " CMP(EQ,W) ";
+			break;
 		case OP_MD_ADD_S:
 			cout << " +(S) ";
 			break;
@@ -421,6 +463,9 @@ void CJitter::DumpStatementList(const StatementList& statements)
 			break;
 		case OP_MD_MUL_S:
 			cout << " *(S) ";
+			break;
+		case OP_MD_DIV_S:
+			cout << " /(S) ";
 			break;
 		case OP_MD_MIN_S:
 			cout << " MIN(S) ";
@@ -1585,6 +1630,16 @@ unsigned int CJitter::AllocateStack(BASIC_BLOCK& basicBlock)
 			assert((stackAlloc & 15) == 0);
 			symbol->m_stackLocation = stackAlloc;
 			stackAlloc += 16;
+		}
+		else if(symbol->m_type == SYM_TEMPORARY256)
+		{
+			if((stackAlloc & 31) != 0)
+			{
+				stackAlloc += (32 - (stackAlloc & 31));
+			}
+			assert((stackAlloc & 31) == 0);
+			symbol->m_stackLocation = stackAlloc;
+			stackAlloc += 32;
 		}
 	}
 	return stackAlloc;

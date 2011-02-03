@@ -127,6 +127,11 @@ namespace Jitter
 			typedef void (CX86Assembler::*OpVoType)(CX86Assembler::XMMREGISTER, const CX86Assembler::CAddress&);
 		};
 
+		struct MDOP_ADDH : public MDOP_BASE
+		{
+			static OpVoType OpVo() { return &CX86Assembler::PaddwVo; }
+		};
+
 		struct MDOP_ADDW : public MDOP_BASE
 		{
 			static OpVoType OpVo() { return &CX86Assembler::PadddVo; }
@@ -160,6 +165,11 @@ namespace Jitter
 		struct MDOP_XOR : public MDOP_BASE
 		{
 			static OpVoType OpVo() { return &CX86Assembler::PxorVo; }
+		};
+
+		struct MDOP_UNPACK_LOWER_BH : public MDOP_BASE
+		{
+			static OpVoType OpVo() { return &CX86Assembler::PunpcklbwVo; }
 		};
 
 		struct MDOP_UNPACK_LOWER_HW : public MDOP_BASE
@@ -217,6 +227,27 @@ namespace Jitter
 			static OpVoType OpVo() { return &CX86Assembler::Cvtdq2psVo; }
 		};
 
+		//MDOP -----------------------------------------------------------
+		struct MDOP_SHIFT_BASE
+		{
+			typedef void (CX86Assembler::*OpVoType)(CX86Assembler::XMMREGISTER, uint8);
+		};
+		
+		struct MDOP_SRLW : public MDOP_SHIFT_BASE
+		{
+			static OpVoType OpVo() { return &CX86Assembler::PsrldVo; }
+		};
+
+		struct MDOP_SRAW : public MDOP_SHIFT_BASE
+		{
+			static OpVoType OpVo() { return &CX86Assembler::PsradVo; }
+		};
+
+		struct MDOP_SLLW : public MDOP_SHIFT_BASE
+		{
+			static OpVoType OpVo() { return &CX86Assembler::PslldVo; }
+		};
+
 		virtual void				Emit_Prolog(unsigned int, uint32) = 0;
 		virtual void				Emit_Epilog(unsigned int, uint32) = 0;
 
@@ -244,6 +275,8 @@ namespace Jitter
 
 		CX86Assembler::CAddress		MakeMemory128SymbolAddress(CSymbol*);
 		CX86Assembler::CAddress		MakeMemory128SymbolElementAddress(CSymbol*, unsigned int);
+
+		CX86Assembler::CAddress		MakeTemporary256SymbolElementAddress(CSymbol*, unsigned int);
 
 		//LABEL
 		void						MarkLabel(const STATEMENT&);
@@ -355,21 +388,32 @@ namespace Jitter
 		void						Emit_CondJmp_RelCst(const STATEMENT&);
 		void						Emit_CondJmp_TmpCst(const STATEMENT&);
 
-		//MULSHL
+		//MULSH
 		void						Emit_MulSHL(const CX86Assembler::CAddress&, const CX86Assembler::CAddress&, const CX86Assembler::CAddress&);
-		void						Emit_MulSHL_RegRegReg(const STATEMENT&);
-		void						Emit_MulSHL_MemRegMem(const STATEMENT&);
-		void						Emit_MulSHL_MemMemReg(const STATEMENT&);
-		void						Emit_MulSHL_MemMemMem(const STATEMENT&);
-
-		//MULSHH
 		void						Emit_MulSHH(const CX86Assembler::CAddress&, const CX86Assembler::CAddress&, const CX86Assembler::CAddress&);
-		void						Emit_MulSHH_RegRegReg(const STATEMENT&);
-		void						Emit_MulSHH_RegRegMem(const STATEMENT&);
-		void						Emit_MulSHH_MemRegReg(const STATEMENT&);
-		void						Emit_MulSHH_MemRegMem(const STATEMENT&);
-		void						Emit_MulSHH_MemMemReg(const STATEMENT&);
-		void						Emit_MulSHH_MemMemMem(const STATEMENT&);
+		
+		struct MULTSHOP_BASE
+		{
+			typedef void (CCodeGen_x86::*OpType)(const CX86Assembler::CAddress&, const CX86Assembler::CAddress&, const CX86Assembler::CAddress&);
+		};
+
+		struct MULTSHOP_LOW : public MULTSHOP_BASE
+		{
+			static OpType Op() { return &CCodeGen_x86::Emit_MulSHL; }
+		};
+
+		struct MULTSHOP_HIGH : public MULTSHOP_BASE
+		{
+			static OpType Op() { return &CCodeGen_x86::Emit_MulSHH; }
+		};
+
+		template <typename>	void	Emit_MulSH_RegRegReg(const STATEMENT&);
+		template <typename>	void	Emit_MulSH_RegRegMem(const STATEMENT&);
+		template <typename>	void	Emit_MulSH_RegMemMem(const STATEMENT&);
+		template <typename>	void	Emit_MulSH_MemRegMem(const STATEMENT&);
+		template <typename>	void	Emit_MulSH_MemRegReg(const STATEMENT&);
+		template <typename>	void	Emit_MulSH_MemMemReg(const STATEMENT&);
+		template <typename> void	Emit_MulSH_MemMemMem(const STATEMENT&);
 
 		//MERGETO64
 		void						Emit_MergeTo64_Tmp64RegReg(const STATEMENT&);
@@ -416,17 +460,23 @@ namespace Jitter
 		template <typename> void	Emit_Md_MemMem(const STATEMENT&);
 		template <typename> void	Emit_Md_MemMemMem(const STATEMENT&);
 		template <typename> void	Emit_Md_MemMemMemRev(const STATEMENT&);
+		template <typename> void	Emit_Md_Shift_MemMemCst(const STATEMENT&);
 		void						Emit_Md_AddSSW_MemMemMem(const STATEMENT&);
 		void						Emit_Md_AddUSW_MemMemMem(const STATEMENT&);
+		void						Emit_Md_PackHB_MemMemMem(const STATEMENT&);
 		void						Emit_Md_PackWH_MemMemMem(const STATEMENT&);
 		void						Emit_Md_Not_RelTmp(const STATEMENT&);
 		void						Emit_Md_Mov_MemMem(const STATEMENT&);
 		void						Emit_Md_MovMasked_MemMemCst(const STATEMENT&);
+		void						Emit_Md_Abs_MemMem(const STATEMENT&);
 		void						Emit_Md_IsNegative_MemMem(const STATEMENT&);
 		void						Emit_Md_IsZero_MemMem(const STATEMENT&);
 		void						Emit_Md_Expand_MemReg(const STATEMENT&);
 		void						Emit_Md_Expand_MemMem(const STATEMENT&);
 		void						Emit_Md_Expand_MemCst(const STATEMENT&);
+
+		void						Emit_MergeTo256_MemMemMem(const STATEMENT&);
+		void						Emit_Md_Srl256_MemMemCst(const STATEMENT&);
 
 		CX86Assembler				m_assembler;
 		CX86Assembler::REGISTER*	m_registers;

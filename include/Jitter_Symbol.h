@@ -28,6 +28,8 @@ namespace Jitter
 		SYM_RELATIVE128,
 		SYM_TEMPORARY128,
 
+		SYM_TEMPORARY256,
+
 		SYM_FP_REL_SINGLE,
 		SYM_FP_TMP_SINGLE,
 
@@ -111,6 +113,9 @@ namespace Jitter
 			case SYM_TEMPORARY128:
 				return "TMP128[" + boost::lexical_cast<std::string>(m_valueLow) + "]";
 				break;
+			case SYM_TEMPORARY256:
+				return "TMP256[" + boost::lexical_cast<std::string>(m_valueLow) + "]";
+				break;
 			default:
 				return "";
 				break;
@@ -135,6 +140,9 @@ namespace Jitter
 			case SYM_RELATIVE128:
 			case SYM_TEMPORARY128:
 				return 16;
+				break;
+			case SYM_TEMPORARY256:
+				return 32;
 				break;
 			case SYM_FP_REL_SINGLE:
 			case SYM_FP_TMP_SINGLE:
@@ -174,6 +182,7 @@ namespace Jitter
 				(m_type == SYM_TEMPORARY) || 
 				(m_type == SYM_TEMPORARY64) || 
 				(m_type == SYM_TEMPORARY128) || 
+				(m_type == SYM_TEMPORARY256) ||
 				(m_type == SYM_TMP_REFERENCE) ||
 				(m_type == SYM_FP_TMP_SINGLE);
 		}

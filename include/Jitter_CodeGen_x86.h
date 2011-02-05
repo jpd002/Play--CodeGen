@@ -127,6 +127,11 @@ namespace Jitter
 			typedef void (CX86Assembler::*OpVoType)(CX86Assembler::XMMREGISTER, const CX86Assembler::CAddress&);
 		};
 
+		struct MDOP_ADDB : public MDOP_BASE
+		{
+			static OpVoType OpVo() { return &CX86Assembler::PaddbVo; }
+		};
+
 		struct MDOP_ADDH : public MDOP_BASE
 		{
 			static OpVoType OpVo() { return &CX86Assembler::PaddwVo; }

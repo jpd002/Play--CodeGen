@@ -326,6 +326,10 @@ void CCodeGen_x86::GenerateCode(const StatementList& statements, unsigned int st
 				break;
 			}
 			assert(found);
+			if(!found)
+			{
+				throw std::exception();
+			}
 		}
 
 		Emit_Epilog(stackSize, registerUsage);

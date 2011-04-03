@@ -498,6 +498,11 @@ void CX86Assembler::LeaGd(REGISTER registerId, const CAddress& address)
     WriteEvGvOp(0x8D, false, address, registerId);
 }
 
+void CX86Assembler::LeaGq(REGISTER registerId, const CAddress& address)
+{
+    WriteEvGvOp(0x8D, true, address, registerId);
+}
+
 void CX86Assembler::MovEw(REGISTER registerId, const CAddress& address)
 {
     WriteByte(0x66);
@@ -620,6 +625,12 @@ void CX86Assembler::PushId(uint32 value)
 {
     WriteByte(0x68);
     WriteDWord(value);
+}
+
+void CX86Assembler::RclEd(const CAddress& address, uint8 amount)
+{
+    WriteEvOp(0xC1, 0x02, false, address);
+    WriteByte(amount);
 }
 
 void CX86Assembler::RepMovsb()

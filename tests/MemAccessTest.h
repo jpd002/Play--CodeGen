@@ -18,7 +18,9 @@ private:
 	{
 		void*			memory;
 		uint32			offset;
-		uint32			result;
+		uint32			result0;
+		uint32			result1;
+		uint32			array0[0x10];
 	};
 
 	CONTEXT				m_context;

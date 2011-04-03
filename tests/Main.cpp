@@ -15,6 +15,7 @@
 #include "FpIntMixTest.h"
 #include "MdTest.h"
 #include "MdFpTest.h"
+#include "MdFpFlagTest.h"
 #include "CompareTest.h"
 #include "RegAllocTest.h"
 #include "MemAccessTest.h"
@@ -53,6 +54,7 @@ TestFactoryFunction s_factories[] =
 	TestFactoryFunction(boost::lambda::bind(boost::lambda::new_ptr<CFpIntMixTest>())),
 	TestFactoryFunction(boost::lambda::bind(boost::lambda::new_ptr<CMdTest>())),
 	TestFactoryFunction(boost::lambda::bind(boost::lambda::new_ptr<CMdFpTest>())),
+	TestFactoryFunction(boost::lambda::bind(boost::lambda::new_ptr<CMdFpFlagTest>())),
 #endif
 	TestFactoryFunction(),
 };

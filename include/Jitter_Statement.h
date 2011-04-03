@@ -34,6 +34,7 @@ namespace Jitter
 
 		OP_LZC,
 
+		OP_RELTOREF,
 		OP_ADDREF,
 		OP_LOADFROMREF,
 		OP_STOREATREF,

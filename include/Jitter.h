@@ -90,6 +90,8 @@ namespace Jitter
 
 		//Memory operations
 		void							PushRelRef(size_t);
+		void							PushRelAddrRef(size_t);
+
 		void							AddRef();
 		void							LoadFromRef();
 		void							StoreAtRef();

@@ -48,8 +48,10 @@ CCodeGen_x86_32::CONSTMATCHER CCodeGen_x86_32::g_constMatchers[] =
 	{ OP_CMP64,			MATCH_TEMPORARY,	MATCH_RELATIVE64,	MATCH_RELATIVE64,	&CCodeGen_x86_32::Emit_Cmp64_TmpRelRoc		},
 	{ OP_CMP64,			MATCH_TEMPORARY,	MATCH_RELATIVE64,	MATCH_CONSTANT64,	&CCodeGen_x86_32::Emit_Cmp64_TmpRelRoc		},
 
-	{ OP_ADDREF,		MATCH_TMP_REF,		MATCH_REL_REF,		MATCH_REGISTER,		&CCodeGen_x86_32::Emit_AddRef_TmpRelReg		},
-	{ OP_ADDREF,		MATCH_TMP_REF,		MATCH_REL_REF,		MATCH_CONSTANT,		&CCodeGen_x86_32::Emit_AddRef_TmpRelCst		},
+	{ OP_RELTOREF,		MATCH_TMP_REF,		MATCH_CONSTANT,		MATCH_NIL,			&CCodeGen_x86_32::Emit_RelToRef_TmpCst		},
+
+	{ OP_ADDREF,		MATCH_MEM_REF,		MATCH_MEM_REF,		MATCH_REGISTER,		&CCodeGen_x86_32::Emit_AddRef_MemMemReg		},
+	{ OP_ADDREF,		MATCH_MEM_REF,		MATCH_MEM_REF,		MATCH_CONSTANT,		&CCodeGen_x86_32::Emit_AddRef_MemMemCst		},
 
 	{ OP_LOADFROMREF,	MATCH_REGISTER,		MATCH_TMP_REF,		MATCH_NIL,			&CCodeGen_x86_32::Emit_LoadFromRef_RegTmp	},
 	{ OP_LOADFROMREF,	MATCH_MEMORY,		MATCH_TMP_REF,		MATCH_NIL,			&CCodeGen_x86_32::Emit_LoadFromRef_MemTmp	},
@@ -870,36 +872,45 @@ void CCodeGen_x86_32::Emit_Cmp64_TmpRelRoc(const STATEMENT& statement)
 	m_assembler.MovGd(MakeTemporarySymbolAddress(dst), CX86Assembler::rAX);
 }
 
-void CCodeGen_x86_32::Emit_AddRef_TmpRelReg(const STATEMENT& statement)
+void CCodeGen_x86_32::Emit_RelToRef_TmpCst(const STATEMENT& statement)
 {
 	CSymbol* dst = statement.dst->GetSymbol().get();
 	CSymbol* src1 = statement.src1->GetSymbol().get();
-	CSymbol* src2 = statement.src2->GetSymbol().get();
 
 	assert(dst->m_type  == SYM_TMP_REFERENCE);
-	assert(src1->m_type == SYM_REL_REFERENCE);
-	assert(src2->m_type == SYM_REGISTER);
+	assert(src1->m_type == SYM_CONSTANT);
 
 	CX86Assembler::REGISTER tmpReg = CX86Assembler::rAX;
-	m_assembler.MovEd(tmpReg, MakeRelativeReferenceSymbolAddress(src1));
-	m_assembler.AddEd(tmpReg, CX86Assembler::MakeRegisterAddress(m_registers[src2->m_valueLow]));
+	m_assembler.LeaGd(tmpReg, CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, src1->m_valueLow));
 	m_assembler.MovGd(MakeTemporaryReferenceSymbolAddress(dst), tmpReg);
 }
 
-void CCodeGen_x86_32::Emit_AddRef_TmpRelCst(const STATEMENT& statement)
+void CCodeGen_x86_32::Emit_AddRef_MemMemReg(const STATEMENT& statement)
 {
 	CSymbol* dst = statement.dst->GetSymbol().get();
 	CSymbol* src1 = statement.src1->GetSymbol().get();
 	CSymbol* src2 = statement.src2->GetSymbol().get();
 
-	assert(dst->m_type  == SYM_TMP_REFERENCE);
-	assert(src1->m_type == SYM_REL_REFERENCE);
+	assert(src2->m_type == SYM_REGISTER);
+
+	CX86Assembler::REGISTER tmpReg = CX86Assembler::rAX;
+	m_assembler.MovEd(tmpReg, MakeMemoryReferenceSymbolAddress(src1));
+	m_assembler.AddEd(tmpReg, CX86Assembler::MakeRegisterAddress(m_registers[src2->m_valueLow]));
+	m_assembler.MovGd(MakeMemoryReferenceSymbolAddress(dst), tmpReg);
+}
+
+void CCodeGen_x86_32::Emit_AddRef_MemMemCst(const STATEMENT& statement)
+{
+	CSymbol* dst = statement.dst->GetSymbol().get();
+	CSymbol* src1 = statement.src1->GetSymbol().get();
+	CSymbol* src2 = statement.src2->GetSymbol().get();
+
 	assert(src2->m_type == SYM_CONSTANT);
 
 	CX86Assembler::REGISTER tmpReg = CX86Assembler::rAX;
-	m_assembler.MovEd(tmpReg, MakeRelativeReferenceSymbolAddress(src1));
+	m_assembler.MovEd(tmpReg, MakeMemoryReferenceSymbolAddress(src1));
 	m_assembler.AddId(CX86Assembler::MakeRegisterAddress(tmpReg), src2->m_valueLow);
-	m_assembler.MovGd(MakeTemporaryReferenceSymbolAddress(dst), tmpReg);
+	m_assembler.MovGd(MakeMemoryReferenceSymbolAddress(dst), tmpReg);
 }
 
 void CCodeGen_x86_32::Emit_LoadFromRef_RegTmp(const STATEMENT& statement)

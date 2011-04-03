@@ -385,6 +385,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\tests\MdFpFlagTest.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\tests\MdFpFlagTest.h"
+				>
+			</File>
+			<File
 				RelativePath=".\tests\MdFpTest.cpp"
 				>
 			</File>

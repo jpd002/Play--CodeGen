@@ -406,6 +406,22 @@ CX86Assembler::CAddress CCodeGen_x86::MakeTemporaryReferenceSymbolAddress(CSymbo
 	return CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rSP, symbol->m_stackLocation + m_stackLevel);
 }
 
+CX86Assembler::CAddress CCodeGen_x86::MakeMemoryReferenceSymbolAddress(CSymbol* symbol)
+{
+	switch(symbol->m_type)
+	{
+	case SYM_REL_REFERENCE:
+		return MakeRelativeReferenceSymbolAddress(symbol);
+		break;
+	case SYM_TMP_REFERENCE:
+		return MakeTemporaryReferenceSymbolAddress(symbol);
+		break;
+	default:
+		throw std::exception();
+		break;
+	}
+}
+
 CX86Assembler::CAddress CCodeGen_x86::MakeRelative64SymbolAddress(CSymbol* symbol)
 {
 	assert(symbol->m_type == SYM_RELATIVE64);

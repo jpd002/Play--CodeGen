@@ -143,6 +143,7 @@ public:
     void                                    JnoJx(LABEL);
     void                                    JnsJx(LABEL);
     void                                    LeaGd(REGISTER, const CAddress&);
+	void									LeaGq(REGISTER, const CAddress&);
     void                                    MovEw(REGISTER, const CAddress&);
     void                                    MovEd(REGISTER, const CAddress&);
     void                                    MovEq(REGISTER, const CAddress&);
@@ -164,6 +165,7 @@ public:
     void                                    Push(REGISTER);
     void                                    PushEd(const CAddress&);
     void                                    PushId(uint32);
+	void									RclEd(const CAddress&, uint8);
     void                                    RepMovsb();
     void                                    Ret();
     void                                    SarEd(const CAddress&);
@@ -250,7 +252,8 @@ public:
     void                                    PcmpgtwVo(XMMREGISTER, const CAddress&);
     void                                    PmaxswVo(XMMREGISTER, const CAddress&);
     void                                    PminswVo(XMMREGISTER, const CAddress&);
-    void                                    PorVo(XMMREGISTER, const CAddress&);
+	void									PmovmskbVo(REGISTER, XMMREGISTER);
+	void                                    PorVo(XMMREGISTER, const CAddress&);
     void                                    PsllwVo(XMMREGISTER, uint8);
     void                                    PslldVo(XMMREGISTER, uint8);
     void                                    PsrawVo(XMMREGISTER, uint8);

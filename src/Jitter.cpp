@@ -183,7 +183,10 @@ void CJitter::PullTop()
 
 void CJitter::Swap()
 {
-	throw std::exception();
+	SymbolPtr symbol1 = m_Shadow.Pull();
+	SymbolPtr symbol2 = m_Shadow.Pull();
+	m_Shadow.Push(symbol1);
+	m_Shadow.Push(symbol2);
 }
 
 void CJitter::Add()
@@ -534,6 +537,19 @@ void CJitter::Xor()
 void CJitter::PushRelRef(size_t offset)
 {
 	m_Shadow.Push(MakeSymbol(SYM_REL_REFERENCE, static_cast<uint32>(offset)));
+}
+
+void CJitter::PushRelAddrRef(size_t offset)
+{
+	SymbolPtr tempSym = MakeSymbol(SYM_TMP_REFERENCE, m_nextTemporary++);
+
+	STATEMENT statement;
+	statement.op	= OP_RELTOREF;
+	statement.src1	= MakeSymbolRef(MakeSymbol(SYM_CONSTANT, static_cast<uint32>(offset)));
+	statement.dst	= MakeSymbolRef(tempSym);
+	InsertStatement(statement);
+
+	m_Shadow.Push(tempSym);
 }
 
 void CJitter::AddRef()
@@ -1483,7 +1499,7 @@ void CJitter::MD_MaxS()
 
 void CJitter::MD_IsZero()
 {
-	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY128, m_nextTemporary++);
+	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY, m_nextTemporary++);
 
 	STATEMENT statement;
 	statement.op	= OP_MD_ISZERO;
@@ -1496,7 +1512,7 @@ void CJitter::MD_IsZero()
 
 void CJitter::MD_IsNegative()
 {
-	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY128, m_nextTemporary++);
+	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY, m_nextTemporary++);
 
 	STATEMENT statement;
 	statement.op	= OP_MD_ISNEGATIVE;

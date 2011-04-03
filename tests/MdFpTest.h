@@ -16,6 +16,9 @@ public:
 private:
 	struct CONTEXT
 	{
+		uint32			dstIsNegative;
+		uint32			dstIsZero;
+
 #ifdef WIN32
 __declspec(align(16))
 #else
@@ -34,9 +37,6 @@ __attribute__((aligned(16)))
 		float			dstMin[4];
 
 		float			dstMasked[4];
-
-		uint32			dstIsNegative[4];
-		uint32			dstIsZero[4];
 
 		float			dstExpandRel[4];
 		float			dstExpandCst[4];

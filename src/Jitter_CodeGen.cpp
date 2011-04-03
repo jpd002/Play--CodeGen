@@ -26,6 +26,9 @@ bool CCodeGen::SymbolMatches(MATCHTYPE match, const SymbolRefPtr& symbolRef)
 	case MATCH_TMP_REF:
 		return (symbol->m_type == SYM_TMP_REFERENCE);
 		break;
+	case MATCH_MEM_REF:
+		return (symbol->m_type == SYM_REL_REFERENCE) || (symbol->m_type == SYM_TMP_REFERENCE);
+		break;
 
 	case MATCH_RELATIVE64:
 		return (symbol->m_type == SYM_RELATIVE64);

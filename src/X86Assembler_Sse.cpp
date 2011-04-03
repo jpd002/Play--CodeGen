@@ -194,9 +194,7 @@ void CX86Assembler::PandnVo(XMMREGISTER registerId, const CAddress& address)
 
 void CX86Assembler::PcmpeqdVo(XMMREGISTER registerId, const CAddress& address)
 {
-    WriteByte(0x66);
-    WriteByte(0x0F);
-    WriteEdVdOp(0x76, address, registerId);
+	WriteEdVdOp_66_0F(0x76, address, registerId);
 }
 
 void CX86Assembler::PcmpgtwVo(XMMREGISTER registerId, const CAddress& address)
@@ -218,6 +216,11 @@ void CX86Assembler::PminswVo(XMMREGISTER registerId, const CAddress& address)
     WriteByte(0x66);
     WriteByte(0x0F);
     WriteEdVdOp(0xEA, address, registerId);
+}
+
+void CX86Assembler::PmovmskbVo(REGISTER srcReg, XMMREGISTER dstReg)
+{
+	WriteEdVdOp_66_0F(0xD7, CX86Assembler::MakeRegisterAddress(static_cast<REGISTER>(dstReg)), static_cast<XMMREGISTER>(srcReg));
 }
 
 void CX86Assembler::PorVo(XMMREGISTER registerId, const CAddress& address)

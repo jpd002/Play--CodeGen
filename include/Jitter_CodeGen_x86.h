@@ -264,6 +264,7 @@ namespace Jitter
 
 		CX86Assembler::CAddress		MakeRelativeReferenceSymbolAddress(CSymbol*);
 		CX86Assembler::CAddress		MakeTemporaryReferenceSymbolAddress(CSymbol*);
+		CX86Assembler::CAddress		MakeMemoryReferenceSymbolAddress(CSymbol*);
 
 		CX86Assembler::CAddress		MakeRelative64SymbolAddress(CSymbol*);
 		CX86Assembler::CAddress		MakeTemporary64SymbolAddress(CSymbol*);
@@ -474,7 +475,9 @@ namespace Jitter
 		void						Emit_Md_Mov_MemMem(const STATEMENT&);
 		void						Emit_Md_MovMasked_MemMemCst(const STATEMENT&);
 		void						Emit_Md_Abs_MemMem(const STATEMENT&);
+		void						Emit_Md_IsNegative_RegMem(const STATEMENT&);
 		void						Emit_Md_IsNegative_MemMem(const STATEMENT&);
+		void						Emit_Md_IsZero_RegMem(const STATEMENT&);
 		void						Emit_Md_IsZero_MemMem(const STATEMENT&);
 		void						Emit_Md_Expand_MemReg(const STATEMENT&);
 		void						Emit_Md_Expand_MemMem(const STATEMENT&);
@@ -482,6 +485,9 @@ namespace Jitter
 
 		void						Emit_MergeTo256_MemMemMem(const STATEMENT&);
 		void						Emit_Md_Srl256_MemMemCst(const STATEMENT&);
+
+		void						Emit_Md_IsZero(CX86Assembler::REGISTER, const CX86Assembler::CAddress&);
+		void						Emit_Md_IsNegative(CX86Assembler::REGISTER, const CX86Assembler::CAddress&);
 
 		CX86Assembler				m_assembler;
 		CX86Assembler::REGISTER*	m_registers;

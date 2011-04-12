@@ -68,9 +68,12 @@ namespace Jitter
 		OP_MD_XOR,
 		OP_MD_NOT,
 
+		OP_MD_SRLH,
+
 		OP_MD_SRLW,
 		OP_MD_SRAW,
 		OP_MD_SLLW,
+
 		OP_MD_SRL256,
 
 		OP_MD_ISNEGATIVE,
@@ -105,6 +108,8 @@ namespace Jitter
 		OP_FP_RCPL,
 		OP_FP_ABS,
 		OP_FP_NEG,
+		OP_FP_MAX,
+		OP_FP_MIN,
 		OP_FP_CMP,
 
 		OP_FP_TOINT_TRUNC,

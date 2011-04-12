@@ -106,6 +106,16 @@ namespace Jitter
 			static OpEdType OpEd() { return &CX86Assembler::DivssEd; }
 		};
 		
+		struct FPUOP_MAX : public FPUOP_BASE
+		{
+			static OpEdType OpEd() { return &CX86Assembler::MaxssEd; }
+		};
+
+		struct FPUOP_MIN : public FPUOP_BASE
+		{
+			static OpEdType OpEd() { return &CX86Assembler::MinssEd; }
+		};
+
 		struct FPUOP_SQRT : public FPUOP_BASE
 		{
 			static OpEdType OpEd() { return &CX86Assembler::SqrtssEd; }
@@ -232,12 +242,17 @@ namespace Jitter
 			static OpVoType OpVo() { return &CX86Assembler::Cvtdq2psVo; }
 		};
 
-		//MDOP -----------------------------------------------------------
+		//MDOP SHIFT -----------------------------------------------------
 		struct MDOP_SHIFT_BASE
 		{
 			typedef void (CX86Assembler::*OpVoType)(CX86Assembler::XMMREGISTER, uint8);
 		};
 		
+		struct MDOP_SRLH : public MDOP_SHIFT_BASE
+		{
+			static OpVoType OpVo() { return &CX86Assembler::PsrlwVo; }
+		};
+
 		struct MDOP_SRLW : public MDOP_SHIFT_BASE
 		{
 			static OpVoType OpVo() { return &CX86Assembler::PsrldVo; }

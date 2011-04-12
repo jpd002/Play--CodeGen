@@ -23,6 +23,9 @@ private:
 		
 		float resAbs;
 		float resRsqrt;
+
+		float resMax;
+		float resMin;
 	};
 
 	CONTEXT				m_context;

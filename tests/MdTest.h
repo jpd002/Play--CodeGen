@@ -33,6 +33,7 @@ __attribute__((aligned(16)))
 		uint8			dstAddWSS[16];
 		uint8			dstCmpEqW[16];
 
+		uint8			dstSrlH[16];
 		uint8			dstSrlW[16];
 		uint8			dstSraW[16];
 		uint8			dstSllW[16];

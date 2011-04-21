@@ -246,6 +246,23 @@ void CCodeGen_Arm::Emit_Alu_RelRelCst(const STATEMENT& statement)
 }
 
 template <typename ALUOP>
+void CCodeGen_Arm::Emit_Alu_RelCstReg(const STATEMENT& statement)
+{
+	CSymbol* dst = statement.dst->GetSymbol().get();
+	CSymbol* src1 = statement.src1->GetSymbol().get();
+	CSymbol* src2 = statement.src2->GetSymbol().get();
+	
+	assert(dst->m_type  == SYM_RELATIVE);
+	assert(src1->m_type == SYM_CONSTANT);
+	assert(src2->m_type == SYM_REGISTER);
+	
+	CArmAssembler::REGISTER dstReg = CArmAssembler::r1;
+    LoadConstantInRegister(dstReg, src1->m_valueLow);
+	((m_assembler).*(ALUOP::OpReg()))(dstReg, dstReg, g_registers[src2->m_valueLow]);    
+	StoreRegisterInRelative(dst, dstReg);
+}
+
+template <typename ALUOP>
 void CCodeGen_Arm::Emit_Alu_TmpRegCst(const STATEMENT& statement)
 {
 	CSymbol* dst = statement.dst->GetSymbol().get();
@@ -309,6 +326,7 @@ void CCodeGen_Arm::Emit_Alu_TmpTmpCst(const STATEMENT& statement)
 	{ ALUOP_CST,	MATCH_RELATIVE,		MATCH_RELATIVE,		MATCH_REGISTER,		&CCodeGen_Arm::Emit_Alu_RelRelReg<ALUOP>		}, \
 	{ ALUOP_CST,	MATCH_RELATIVE,		MATCH_RELATIVE,		MATCH_RELATIVE,		&CCodeGen_Arm::Emit_Alu_RelRelRel<ALUOP>		}, \
 	{ ALUOP_CST,	MATCH_RELATIVE,		MATCH_RELATIVE,		MATCH_CONSTANT,		&CCodeGen_Arm::Emit_Alu_RelRelCst<ALUOP>		}, \
+    { ALUOP_CST,	MATCH_RELATIVE,		MATCH_CONSTANT,		MATCH_REGISTER,		&CCodeGen_Arm::Emit_Alu_RelCstReg<ALUOP>		}, \
 	{ ALUOP_CST,	MATCH_TEMPORARY,	MATCH_REGISTER,		MATCH_CONSTANT,		&CCodeGen_Arm::Emit_Alu_TmpRegCst<ALUOP>		}, \
 	{ ALUOP_CST,	MATCH_TEMPORARY,	MATCH_RELATIVE,		MATCH_CONSTANT,		&CCodeGen_Arm::Emit_Alu_TmpRelCst<ALUOP>		}, \
 	{ ALUOP_CST,	MATCH_TEMPORARY,	MATCH_TEMPORARY,	MATCH_CONSTANT,		&CCodeGen_Arm::Emit_Alu_TmpTmpCst<ALUOP>		},

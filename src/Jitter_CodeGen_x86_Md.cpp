@@ -436,6 +436,42 @@ void CCodeGen_x86::Emit_Md_Expand_MemCst(const STATEMENT& statement)
 	m_assembler.MovapsVo(MakeMemory128SymbolAddress(dst), resultRegister);
 }
 
+void CCodeGen_x86::Emit_Md_Srl256_MemMem(CSymbol* dst, CSymbol* src1, const CX86Assembler::CAddress& offsetAddress)
+{
+	CX86Assembler::REGISTER offsetRegister = CX86Assembler::rAX;
+	CX86Assembler::XMMREGISTER resultRegister = CX86Assembler::xMM0;
+
+	assert(src1->m_type == SYM_TEMPORARY256);
+
+	m_assembler.MovEd(offsetRegister, offsetAddress);
+	m_assembler.AndId(CX86Assembler::MakeRegisterAddress(offsetRegister), 0x7F);
+	m_assembler.ShrEd(CX86Assembler::MakeRegisterAddress(offsetRegister), 3);
+	m_assembler.AddId(CX86Assembler::MakeRegisterAddress(offsetRegister), src1->m_stackLocation + m_stackLevel);
+
+	m_assembler.MovdquVo(resultRegister, CX86Assembler::MakeBaseIndexScaleAddress(CX86Assembler::rSP, offsetRegister, 1));
+	m_assembler.MovapsVo(MakeMemory128SymbolAddress(dst), resultRegister);
+}
+
+void CCodeGen_x86::Emit_Md_Srl256_MemMemReg(const STATEMENT& statement)
+{
+	CSymbol* dst = statement.dst->GetSymbol().get();
+	CSymbol* src1 = statement.src1->GetSymbol().get();
+	CSymbol* src2 = statement.src2->GetSymbol().get();
+
+	assert(src2->m_type == SYM_REGISTER);
+
+	Emit_Md_Srl256_MemMem(dst, src1, CX86Assembler::MakeRegisterAddress(m_registers[src2->m_valueLow]));
+}
+
+void CCodeGen_x86::Emit_Md_Srl256_MemMemMem(const STATEMENT& statement)
+{
+	CSymbol* dst = statement.dst->GetSymbol().get();
+	CSymbol* src1 = statement.src1->GetSymbol().get();
+	CSymbol* src2 = statement.src2->GetSymbol().get();
+
+	Emit_Md_Srl256_MemMem(dst, src1, MakeMemorySymbolAddress(src2));
+}
+
 void CCodeGen_x86::Emit_Md_Srl256_MemMemCst(const STATEMENT& statement)
 {
 	CSymbol* dst = statement.dst->GetSymbol().get();
@@ -481,18 +517,27 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdConstMatchers[] =
 
 	{ OP_MD_SUB_B,				MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_x86::Emit_Md_MemMemMem<MDOP_SUBB>					},
 	{ OP_MD_SUB_W,				MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_x86::Emit_Md_MemMemMem<MDOP_SUBW>					},
+
 	{ OP_MD_CMPEQ_W,			MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_x86::Emit_Md_MemMemMem<MDOP_CMPEQW>				},
+	{ OP_MD_CMPGT_H,			MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_x86::Emit_Md_MemMemMem<MDOP_CMPGTH>				},
+
+	{ OP_MD_MIN_H,				MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_x86::Emit_Md_MemMemMem<MDOP_MINH>					},
+	{ OP_MD_MAX_H,				MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_x86::Emit_Md_MemMemMem<MDOP_MAXH>					},
 
 	{ OP_MD_AND,				MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_x86::Emit_Md_MemMemMem<MDOP_AND>					},
 	{ OP_MD_OR,					MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_x86::Emit_Md_MemMemMem<MDOP_OR>					},
 	{ OP_MD_XOR,				MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_x86::Emit_Md_MemMemMem<MDOP_XOR>					},
 
 	{ OP_MD_SRLH,				MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_CONSTANT,			&CCodeGen_x86::Emit_Md_Shift_MemMemCst<MDOP_SRLH>			},
+	{ OP_MD_SRAH,				MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_CONSTANT,			&CCodeGen_x86::Emit_Md_Shift_MemMemCst<MDOP_SRAH>			},
+	{ OP_MD_SLLH,				MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_CONSTANT,			&CCodeGen_x86::Emit_Md_Shift_MemMemCst<MDOP_SLLH>			},
 
 	{ OP_MD_SRLW,				MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_CONSTANT,			&CCodeGen_x86::Emit_Md_Shift_MemMemCst<MDOP_SRLW>			},
 	{ OP_MD_SRAW,				MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_CONSTANT,			&CCodeGen_x86::Emit_Md_Shift_MemMemCst<MDOP_SRAW>			},
 	{ OP_MD_SLLW,				MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_CONSTANT,			&CCodeGen_x86::Emit_Md_Shift_MemMemCst<MDOP_SLLW>			},
 
+	{ OP_MD_SRL256,				MATCH_MEMORY128,			MATCH_MEMORY256,			MATCH_REGISTER,			&CCodeGen_x86::Emit_Md_Srl256_MemMemReg						},
+	{ OP_MD_SRL256,				MATCH_MEMORY128,			MATCH_MEMORY256,			MATCH_MEMORY,			&CCodeGen_x86::Emit_Md_Srl256_MemMemMem						},
 	{ OP_MD_SRL256,				MATCH_MEMORY128,			MATCH_MEMORY256,			MATCH_CONSTANT,			&CCodeGen_x86::Emit_Md_Srl256_MemMemCst						},
 
 	{ OP_MD_EXPAND,				MATCH_MEMORY128,			MATCH_REGISTER,				MATCH_NIL,				&CCodeGen_x86::Emit_Md_Expand_MemReg						},
@@ -500,9 +545,12 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdConstMatchers[] =
 	{ OP_MD_EXPAND,				MATCH_MEMORY128,			MATCH_CONSTANT,				MATCH_NIL,				&CCodeGen_x86::Emit_Md_Expand_MemCst						},
 	{ OP_MD_PACK_HB,			MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_x86::Emit_Md_PackHB_MemMemMem,					},
 	{ OP_MD_PACK_WH,			MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_x86::Emit_Md_PackWH_MemMemMem,					},
+
 	{ OP_MD_UNPACK_LOWER_BH,	MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_x86::Emit_Md_MemMemMemRev<MDOP_UNPACK_LOWER_BH>	},
 	{ OP_MD_UNPACK_LOWER_HW,	MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_x86::Emit_Md_MemMemMemRev<MDOP_UNPACK_LOWER_HW>	},
 	{ OP_MD_UNPACK_LOWER_WD,	MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_x86::Emit_Md_MemMemMemRev<MDOP_UNPACK_LOWER_WD>	},
+
+	{ OP_MD_UNPACK_UPPER_BH,	MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_x86::Emit_Md_MemMemMemRev<MDOP_UNPACK_UPPER_BH>	},
 	{ OP_MD_UNPACK_UPPER_WD,	MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_x86::Emit_Md_MemMemMemRev<MDOP_UNPACK_UPPER_WD>	},
 
 	{ OP_MD_ADD_S,				MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_x86::Emit_Md_MemMemMem<MDOP_ADDS>					},

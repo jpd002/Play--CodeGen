@@ -53,6 +53,10 @@ void CFpuTest::Compile(Jitter::CJitter& jitter)
 		jitter.FP_Rsqrt();
 		jitter.FP_PullSingle(offsetof(CONTEXT, resRsqrt));
 
+		jitter.FP_PushCst(4);
+		jitter.FP_Sqrt();
+		jitter.FP_PullSingle(offsetof(CONTEXT, resSqrtCst));
+
 		jitter.FP_PushSingle(offsetof(CONTEXT, number1));
 		jitter.FP_PushSingle(offsetof(CONTEXT, number2));
 		jitter.FP_Max();
@@ -79,6 +83,7 @@ void CFpuTest::Run()
 	TEST_VERIFY(m_context.number2 == -1.5f);
 	TEST_VERIFY(m_context.number1 == m_context.number3);
 	TEST_VERIFY(m_context.resAbs == 1.5f);
+	TEST_VERIFY(m_context.resSqrtCst == 2.0f);
 	//Result is not exact
 	TEST_VERIFY(fabs(0.25f - m_context.resRsqrt) < 0.001f);
 	TEST_VERIFY(m_context.resMax == 1.5f);

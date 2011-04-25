@@ -201,6 +201,20 @@ void CCodeGen_x86::Emit_Fp_ToIntTrunc_RelRel(const STATEMENT& statement)
 	m_assembler.MovGd(CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, dst->m_valueLow), CX86Assembler::rAX);
 }
 
+void CCodeGen_x86::Emit_Fp_LdCst_MemCst(const STATEMENT& statement)
+{
+	CSymbol* dst = statement.dst->GetSymbol().get();
+	CSymbol* src1 = statement.src1->GetSymbol().get();
+
+	assert(src1->m_type == SYM_CONSTANT);
+
+	CX86Assembler::XMMREGISTER valueRegister = CX86Assembler::xMM0;
+	CX86Assembler::REGISTER tmpRegister = CX86Assembler::rAX;
+
+	m_assembler.MovId(tmpRegister, src1->m_valueLow);
+	m_assembler.MovGd(MakeMemoryFpSingleSymbolAddress(dst), tmpRegister);
+}
+
 CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_fpuConstMatchers[] = 
 { 
 	{ OP_FP_ADD,			MATCH_MEMORY_FP_SINGLE,		MATCH_MEMORY_FP_SINGLE,			MATCH_MEMORY_FP_SINGLE,		&CCodeGen_x86::Emit_Fpu_MemMemMem<FPUOP_ADD>		},
@@ -224,6 +238,8 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_fpuConstMatchers[] =
 
 	{ OP_MOV,				MATCH_RELATIVE_FP_SINGLE,	MATCH_RELATIVE_FP_INT32,		MATCH_NIL,					&CCodeGen_x86::Emit_Fp_Mov_RelSRelI32				},
 	{ OP_FP_TOINT_TRUNC,	MATCH_RELATIVE_FP_SINGLE,	MATCH_RELATIVE_FP_SINGLE,		MATCH_NIL,					&CCodeGen_x86::Emit_Fp_ToIntTrunc_RelRel			},
+
+	{ OP_FP_LDCST,			MATCH_MEMORY_FP_SINGLE,		MATCH_CONSTANT,					MATCH_NIL,					&CCodeGen_x86::Emit_Fp_LdCst_MemCst					},
 
 	{ OP_MOV,				MATCH_NIL,					MATCH_NIL,						MATCH_NIL,					NULL												},
 };

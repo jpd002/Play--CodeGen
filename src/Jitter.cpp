@@ -784,9 +784,17 @@ void CJitter::Shl64(uint8 nAmount)
 
 //Floating-Point
 //------------------------------------------------
-void CJitter::FP_PushCst(float)
+void CJitter::FP_PushCst(float constant)
 {
-	throw std::exception();
+	SymbolPtr tempSym = MakeSymbol(SYM_FP_TMP_SINGLE, m_nextTemporary++);
+
+	STATEMENT statement;
+	statement.op	= OP_FP_LDCST;
+	statement.src1	= MakeSymbolRef(MakeSymbol(SYM_CONSTANT, *reinterpret_cast<uint32*>(&constant)));
+	statement.dst	= MakeSymbolRef(tempSym);
+	InsertStatement(statement);
+
+	m_Shadow.Push(tempSym);
 }
 
 void CJitter::FP_PushSingle(size_t offset)
@@ -1211,7 +1219,16 @@ void CJitter::MD_Not()
 
 void CJitter::MD_SllH(uint8 amount)
 {
-	throw std::exception();
+	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY128, m_nextTemporary++);
+
+	STATEMENT statement;
+	statement.op	= OP_MD_SLLH;
+	statement.src2	= MakeSymbolRef(MakeSymbol(SYM_CONSTANT, amount));
+	statement.src1	= MakeSymbolRef(m_Shadow.Pull());
+	statement.dst	= MakeSymbolRef(tempSym);
+	InsertStatement(statement);
+
+	m_Shadow.Push(tempSym);
 }
 
 void CJitter::MD_SllW(uint8 amount)
@@ -1258,7 +1275,16 @@ void CJitter::MD_SrlW(uint8 amount)
 
 void CJitter::MD_SraH(uint8 amount)
 {
-	throw std::exception();
+	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY128, m_nextTemporary++);
+
+	STATEMENT statement;
+	statement.op	= OP_MD_SRAH;
+	statement.src2	= MakeSymbolRef(MakeSymbol(SYM_CONSTANT, amount));
+	statement.src1	= MakeSymbolRef(m_Shadow.Pull());
+	statement.dst	= MakeSymbolRef(tempSym);
+	InsertStatement(statement);
+
+	m_Shadow.Push(tempSym);
 }
 
 void CJitter::MD_SraW(uint8 amount)
@@ -1311,12 +1337,30 @@ void CJitter::MD_Srl256()
 
 void CJitter::MD_MinH()
 {
-	throw std::exception();
+	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY128, m_nextTemporary++);
+
+	STATEMENT statement;
+	statement.op	= OP_MD_MIN_H;
+	statement.src2	= MakeSymbolRef(m_Shadow.Pull());
+	statement.src1	= MakeSymbolRef(m_Shadow.Pull());
+	statement.dst	= MakeSymbolRef(tempSym);
+	InsertStatement(statement);
+
+	m_Shadow.Push(tempSym);
 }
 
 void CJitter::MD_MaxH()
 {
-	throw std::exception();
+	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY128, m_nextTemporary++);
+
+	STATEMENT statement;
+	statement.op	= OP_MD_MAX_H;
+	statement.src2	= MakeSymbolRef(m_Shadow.Pull());
+	statement.src1	= MakeSymbolRef(m_Shadow.Pull());
+	statement.dst	= MakeSymbolRef(tempSym);
+	InsertStatement(statement);
+
+	m_Shadow.Push(tempSym);
 }
 
 void CJitter::MD_CmpEqW()
@@ -1335,7 +1379,16 @@ void CJitter::MD_CmpEqW()
 
 void CJitter::MD_CmpGtH()
 {
-	throw std::exception();
+	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY128, m_nextTemporary++);
+
+	STATEMENT statement;
+	statement.op	= OP_MD_CMPGT_H;
+	statement.src2	= MakeSymbolRef(m_Shadow.Pull());
+	statement.src1	= MakeSymbolRef(m_Shadow.Pull());
+	statement.dst	= MakeSymbolRef(tempSym);
+	InsertStatement(statement);
+
+	m_Shadow.Push(tempSym);
 }
 
 void CJitter::MD_UnpackLowerBH()
@@ -1382,7 +1435,16 @@ void CJitter::MD_UnpackLowerWD()
 
 void CJitter::MD_UnpackUpperBH()
 {
-	throw std::exception();
+	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY128, m_nextTemporary++);
+
+	STATEMENT statement;
+	statement.op	= OP_MD_UNPACK_UPPER_BH;
+	statement.src2	= MakeSymbolRef(m_Shadow.Pull());
+	statement.src1	= MakeSymbolRef(m_Shadow.Pull());
+	statement.dst	= MakeSymbolRef(tempSym);
+	InsertStatement(statement);
+
+	m_Shadow.Push(tempSym);
 }
 
 void CJitter::MD_UnpackUpperWD()

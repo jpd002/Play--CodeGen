@@ -3,7 +3,7 @@
 #include "Jitter.h"
 
 #ifdef _DEBUG
-#define DUMP_STATEMENTS
+//#define DUMP_STATEMENTS
 #endif
 
 #ifdef DUMP_STATEMENTS
@@ -356,6 +356,9 @@ void CJitter::DumpStatementList(const StatementList& statements)
 		case OP_LOADFROMREF:
 			cout << " LOADFROM ";
 			break;
+		case OP_RELTOREF:
+			cout << " TOREF ";
+			break;
 		case OP_PARAM:
 			cout << " PARAM ";
 			break;
@@ -392,6 +395,12 @@ void CJitter::DumpStatementList(const StatementList& statements)
 		case OP_FP_NEG:
 			cout << " NEG";
 			break;
+		case OP_FP_MIN:
+			cout << " MIN ";
+			break;
+		case OP_FP_MAX:
+			cout << " MAX ";
+			break;
 		case OP_FP_SQRT:
 			cout << " SQRT";
 			break;
@@ -403,6 +412,9 @@ void CJitter::DumpStatementList(const StatementList& statements)
 			break;
 		case OP_FP_TOINT_TRUNC:
 			cout << " INT(TRUNC)";
+			break;
+		case OP_FP_LDCST:
+			cout << " LOAD ";
 			break;
 		case OP_MD_MOV_MASKED:
 			cout << " MOVMSK ";

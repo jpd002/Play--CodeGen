@@ -167,6 +167,21 @@ namespace Jitter
 			static OpVoType OpVo() { return &CX86Assembler::PcmpeqdVo; }
 		};
 
+		struct MDOP_CMPGTH : public MDOP_BASE
+		{
+			static OpVoType OpVo() { return &CX86Assembler::PcmpgtwVo; }
+		};
+
+		struct MDOP_MINH : public MDOP_BASE
+		{
+			static OpVoType OpVo() { return &CX86Assembler::PminswVo; }
+		};
+
+		struct MDOP_MAXH : public MDOP_BASE
+		{
+			static OpVoType OpVo() { return &CX86Assembler::PmaxswVo; }
+		};
+
 		struct MDOP_AND : public MDOP_BASE
 		{
 			static OpVoType OpVo() { return &CX86Assembler::PandVo; }
@@ -195,6 +210,11 @@ namespace Jitter
 		struct MDOP_UNPACK_LOWER_WD : public MDOP_BASE
 		{
 			static OpVoType OpVo() { return &CX86Assembler::PunpckldqVo; }
+		};
+
+		struct MDOP_UNPACK_UPPER_BH : public MDOP_BASE
+		{
+			static OpVoType OpVo() { return &CX86Assembler::PunpckhbwVo; }
 		};
 
 		struct MDOP_UNPACK_UPPER_WD : public MDOP_BASE
@@ -251,6 +271,16 @@ namespace Jitter
 		struct MDOP_SRLH : public MDOP_SHIFT_BASE
 		{
 			static OpVoType OpVo() { return &CX86Assembler::PsrlwVo; }
+		};
+
+		struct MDOP_SRAH : public MDOP_SHIFT_BASE
+		{
+			static OpVoType OpVo() { return &CX86Assembler::PsrawVo; }
+		};
+
+		struct MDOP_SLLH : public MDOP_SHIFT_BASE
+		{
+			static OpVoType OpVo() { return &CX86Assembler::PsllwVo; }
 		};
 
 		struct MDOP_SRLW : public MDOP_SHIFT_BASE
@@ -477,6 +507,9 @@ namespace Jitter
 		//FP_TOINT_TRUNC
 		void						Emit_Fp_ToIntTrunc_RelRel(const STATEMENT&);
 
+		//FP_LDCST
+		void						Emit_Fp_LdCst_MemCst(const STATEMENT&);
+
 		//MDOP
 		template <typename> void	Emit_Md_MemMem(const STATEMENT&);
 		template <typename> void	Emit_Md_MemMemMem(const STATEMENT&);
@@ -499,6 +532,10 @@ namespace Jitter
 		void						Emit_Md_Expand_MemCst(const STATEMENT&);
 
 		void						Emit_MergeTo256_MemMemMem(const STATEMENT&);
+
+		void						Emit_Md_Srl256_MemMem(CSymbol*, CSymbol*, const CX86Assembler::CAddress&);
+		void						Emit_Md_Srl256_MemMemReg(const STATEMENT&);
+		void						Emit_Md_Srl256_MemMemMem(const STATEMENT&);
 		void						Emit_Md_Srl256_MemMemCst(const STATEMENT&);
 
 		void						Emit_Md_IsZero(CX86Assembler::REGISTER, const CX86Assembler::CAddress&);

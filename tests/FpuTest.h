@@ -23,6 +23,7 @@ private:
 		
 		float resAbs;
 		float resRsqrt;
+		float resSqrtCst;
 
 		float resMax;
 		float resMin;

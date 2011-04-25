@@ -62,6 +62,10 @@ namespace Jitter
 		OP_MD_SUB_B,
 		OP_MD_SUB_W,
 		OP_MD_CMPEQ_W,
+		OP_MD_CMPGT_H,
+
+		OP_MD_MIN_H,
+		OP_MD_MAX_H,
 
 		OP_MD_AND,
 		OP_MD_OR,
@@ -69,6 +73,8 @@ namespace Jitter
 		OP_MD_NOT,
 
 		OP_MD_SRLH,
+		OP_MD_SRAH,
+		OP_MD_SLLH,
 
 		OP_MD_SRLW,
 		OP_MD_SRAW,
@@ -86,6 +92,8 @@ namespace Jitter
 		OP_MD_UNPACK_LOWER_BH,
 		OP_MD_UNPACK_LOWER_HW,
 		OP_MD_UNPACK_LOWER_WD,
+
+		OP_MD_UNPACK_UPPER_BH,
 		OP_MD_UNPACK_UPPER_WD,
 
 		OP_MD_PACK_HB,
@@ -112,6 +120,7 @@ namespace Jitter
 		OP_FP_MIN,
 		OP_FP_CMP,
 
+		OP_FP_LDCST,
 		OP_FP_TOINT_TRUNC,
 
 		OP_PARAM,

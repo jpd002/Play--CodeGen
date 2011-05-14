@@ -218,6 +218,14 @@ void CX86Assembler::PminswVo(XMMREGISTER registerId, const CAddress& address)
     WriteEdVdOp(0xEA, address, registerId);
 }
 
+void CX86Assembler::PminsdVo(XMMREGISTER registerId, const CAddress& address)
+{
+    WriteByte(0x66);
+    WriteByte(0x0F);
+	WriteByte(0x38);
+    WriteEdVdOp(0x39, address, registerId);
+}
+
 void CX86Assembler::PmovmskbVo(REGISTER srcReg, XMMREGISTER dstReg)
 {
 	WriteEdVdOp_66_0F(0xD7, CX86Assembler::MakeRegisterAddress(static_cast<REGISTER>(dstReg)), static_cast<XMMREGISTER>(srcReg));

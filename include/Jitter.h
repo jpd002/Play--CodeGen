@@ -159,6 +159,7 @@ namespace Jitter
 		void                            MD_MaxH();
 		void                            MD_MaxS();
 		void                            MD_MinH();
+		void							MD_MinW();
 		void                            MD_MinS();
 		void                            MD_MulS();
 		void                            MD_Not();

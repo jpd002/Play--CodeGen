@@ -36,9 +36,8 @@ namespace Jitter
 		void								Emit_Mov_Rel64Cst64(const STATEMENT&);
 
 		//ADD64
-		void								Emit_Add64_RelRelRel(const STATEMENT&);
+		void								Emit_Add64_MemMemMem(const STATEMENT&);
 		void								Emit_Add64_RelRelCst(const STATEMENT&);
-		void								Emit_Add64_TmpTmpTmp(const STATEMENT&);
 
 		//SUB64
 		void								Emit_Sub64_RelRelRel(const STATEMENT&);
@@ -48,13 +47,18 @@ namespace Jitter
 		void								Emit_And64_RelRelRel(const STATEMENT&);
 
 		//SRL64
+		void								Emit_Srl64_MemMemVar(const STATEMENT&, CX86Assembler::REGISTER);
+		void								Emit_Srl64_MemMemReg(const STATEMENT&);
+		void								Emit_Srl64_MemMemMem(const STATEMENT&);
 		void								Emit_Srl64_RelRelCst(const STATEMENT&);
-		void								Emit_Srl64_RelRelRel(const STATEMENT&);
 
 		//SRA64
 		void								Emit_Sra64_RelRelCst(const STATEMENT&);
 
 		//SLL64
+		void								Emit_Sll64_MemMemVar(const STATEMENT&, CX86Assembler::REGISTER);
+		void								Emit_Sll64_MemMemReg(const STATEMENT&);
+		void								Emit_Sll64_MemMemMem(const STATEMENT&);
 		void								Emit_Sll64_RelRelCst(const STATEMENT&);
 
 		//CMP64

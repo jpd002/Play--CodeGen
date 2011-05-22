@@ -21,6 +21,8 @@
 #include "MemAccessTest.h"
 #include "HalfMultTest.h"
 #include "HugeJumpTest.h"
+#include "Alu64Test.h"
+#include "Shift64Test.h"
 
 #ifdef __APPLE__
 #include "TargetConditionals.h"
@@ -55,6 +57,8 @@ TestFactoryFunction s_factories[] =
 	TestFactoryFunction(boost::lambda::bind(boost::lambda::new_ptr<CMdTest>())),
 	TestFactoryFunction(boost::lambda::bind(boost::lambda::new_ptr<CMdFpTest>())),
 	TestFactoryFunction(boost::lambda::bind(boost::lambda::new_ptr<CMdFpFlagTest>())),
+	TestFactoryFunction(boost::lambda::bind(boost::lambda::new_ptr<CAlu64Test>())),
+	TestFactoryFunction(boost::lambda::bind(boost::lambda::new_ptr<CShift64Test>())),
 #endif
 	TestFactoryFunction(),
 };

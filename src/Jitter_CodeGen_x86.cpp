@@ -429,6 +429,20 @@ CX86Assembler::CAddress CCodeGen_x86::MakeRelative64SymbolAddress(CSymbol* symbo
 	return CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, symbol->m_valueLow);
 }
 
+CX86Assembler::CAddress CCodeGen_x86::MakeRelative64SymbolLoAddress(CSymbol* symbol)
+{
+	assert(symbol->m_type == SYM_RELATIVE64);
+	assert((symbol->m_valueLow & 7) == 0);
+	return CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, symbol->m_valueLow + 0);
+}
+
+CX86Assembler::CAddress CCodeGen_x86::MakeRelative64SymbolHiAddress(CSymbol* symbol)
+{
+	assert(symbol->m_type == SYM_RELATIVE64);
+	assert((symbol->m_valueLow & 7) == 0);
+	return CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, symbol->m_valueLow + 4);
+}
+
 CX86Assembler::CAddress CCodeGen_x86::MakeTemporary64SymbolAddress(CSymbol* symbol)
 {
 	assert(symbol->m_type == SYM_TEMPORARY64);
@@ -459,6 +473,38 @@ CX86Assembler::CAddress CCodeGen_x86::MakeMemory64SymbolAddress(CSymbol* symbol)
 		break;
 	case SYM_TEMPORARY64:
 		return MakeTemporary64SymbolAddress(symbol);
+		break;
+	default:
+		throw std::exception();
+		break;
+	}
+}
+
+CX86Assembler::CAddress CCodeGen_x86::MakeMemory64SymbolLoAddress(CSymbol* symbol)
+{
+	switch(symbol->m_type)
+	{
+	case SYM_RELATIVE64:
+		return MakeRelative64SymbolLoAddress(symbol);
+		break;
+	case SYM_TEMPORARY64:
+		return MakeTemporary64SymbolLoAddress(symbol);
+		break;
+	default:
+		throw std::exception();
+		break;
+	}
+}
+
+CX86Assembler::CAddress CCodeGen_x86::MakeMemory64SymbolHiAddress(CSymbol* symbol)
+{
+	switch(symbol->m_type)
+	{
+	case SYM_RELATIVE64:
+		return MakeRelative64SymbolHiAddress(symbol);
+		break;
+	case SYM_TEMPORARY64:
+		return MakeTemporary64SymbolHiAddress(symbol);
 		break;
 	default:
 		throw std::exception();

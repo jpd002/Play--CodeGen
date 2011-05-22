@@ -333,6 +333,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\tests\Alu64Test.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\tests\Alu64Test.h"
+				>
+			</File>
+			<File
 				RelativePath=".\tests\CompareTest.cpp"
 				>
 			</File>
@@ -454,6 +462,14 @@
 			</File>
 			<File
 				RelativePath=".\tests\RegAllocTest.h"
+				>
+			</File>
+			<File
+				RelativePath=".\tests\Shift64Test.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\tests\Shift64Test.h"
 				>
 			</File>
 			<File

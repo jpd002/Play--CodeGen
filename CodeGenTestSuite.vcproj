@@ -333,11 +333,23 @@
 				>
 			</File>
 			<File
+				RelativePath=".\tests\Align16.h"
+				>
+			</File>
+			<File
 				RelativePath=".\tests\Alu64Test.cpp"
 				>
 			</File>
 			<File
 				RelativePath=".\tests\Alu64Test.h"
+				>
+			</File>
+			<File
+				RelativePath=".\tests\Call64Test.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\tests\Call64Test.h"
 				>
 			</File>
 			<File
@@ -390,6 +402,14 @@
 			</File>
 			<File
 				RelativePath=".\tests\Main.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\tests\MdCallTest.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\tests\MdCallTest.h"
 				>
 			</File>
 			<File

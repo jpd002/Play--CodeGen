@@ -72,7 +72,7 @@ void CCrc32Test::CompileTestFunction(Jitter::CJitter& jitter)
 	jitter.Begin();
 	{
 		jitter.PushCtx();
-		jitter.Call(reinterpret_cast<void*>(&CCrc32Test::GetNextByte), 1, true);
+		jitter.Call(reinterpret_cast<void*>(&CCrc32Test::GetNextByte), 1, Jitter::CJitter::RETURN_VALUE_32);
 		jitter.PullRel(offsetof(CONTEXT, nextByte));
 
 		jitter.PushRel(offsetof(CONTEXT, nextByte));
@@ -112,7 +112,7 @@ void CCrc32Test::CompileComputeFunction(Jitter::CJitter& jitter)
 		jitter.PushRel(offsetof(CONTEXT, currentCrc));
 		jitter.Xor();
 
-		jitter.Call(reinterpret_cast<void*>(&CCrc32Test::GetTableValue), 1, true);
+		jitter.Call(reinterpret_cast<void*>(&CCrc32Test::GetTableValue), 1, Jitter::CJitter::RETURN_VALUE_32);
 
 		jitter.PushRel(offsetof(CONTEXT, currentCrc));
 		jitter.Srl(8);

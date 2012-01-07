@@ -2,6 +2,7 @@
 #define _MDFPTEST_H_
 
 #include "Test.h"
+#include "Align16.h"
 #include "MemoryFunction.h"
 
 class CMdFpTest : public CTest
@@ -19,11 +20,8 @@ private:
 		uint32			dstIsNegative;
 		uint32			dstIsZero;
 
-#ifdef WIN32
-__declspec(align(16))
-#else
-__attribute__((aligned(16)))
-#endif
+		ALIGN16
+
 		float			src0[4];
 		float			src1[4];
 		float			src2[4];

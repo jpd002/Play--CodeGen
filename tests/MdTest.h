@@ -2,6 +2,7 @@
 #define _MDTEST_H_
 
 #include "Test.h"
+#include "Align16.h"
 #include "MemoryFunction.h"
 
 class CMdTest : public CTest
@@ -16,11 +17,8 @@ public:
 private:
 	struct CONTEXT
 	{
-#ifdef WIN32
-__declspec(align(16))
-#else
-__attribute__((aligned(16)))
-#endif
+		ALIGN16
+
 		uint8			src0[16];
 		uint8			src1[16];
 		uint8			src2[16];

@@ -12,7 +12,7 @@ CX86Assembler::CAddress CCodeGen_x86::MakeRelative128SymbolElementAddress(CSymbo
 CX86Assembler::CAddress CCodeGen_x86::MakeTemporary128SymbolElementAddress(CSymbol* symbol, unsigned int elementIdx)
 {
 	assert(symbol->m_type == SYM_TEMPORARY128);
-	assert(((symbol->m_stackLocation + m_stackLevel) & 0xF) == 0);
+//	assert(((symbol->m_stackLocation + m_stackLevel) & 0xF) == 0);
 	return CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rSP, symbol->m_stackLocation + m_stackLevel + (elementIdx * 4));
 }
 

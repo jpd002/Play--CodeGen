@@ -19,10 +19,11 @@ namespace Jitter
 
 		//PARAM
 		void								Emit_Param_Ctx(const STATEMENT&);
-		void								Emit_Param_Rel(const STATEMENT&);
+		void								Emit_Param_Mem(const STATEMENT&);
 		void								Emit_Param_Cst(const STATEMENT&);
 		void								Emit_Param_Reg(const STATEMENT&);
-		void								Emit_Param_Tmp(const STATEMENT&);
+		void								Emit_Param_Mem64(const STATEMENT&);
+		void								Emit_Param_Mem128(const STATEMENT&);
 
 		//CALL
 		void								Emit_Call(const STATEMENT&);
@@ -30,9 +31,10 @@ namespace Jitter
 		//RETURNVALUE
 		void								Emit_RetVal_Tmp(const STATEMENT&);
 		void								Emit_RetVal_Reg(const STATEMENT&);
+		void								Emit_RetVal_Mem64(const STATEMENT&);
 
 		//MOV
-		void								Emit_Mov_Rel64Rel64(const STATEMENT&);
+		void								Emit_Mov_Mem64Mem64(const STATEMENT&);
 		void								Emit_Mov_Rel64Cst64(const STATEMENT&);
 
 		//ADD64

@@ -119,3 +119,13 @@ void CMemoryFunction::operator()(void* context)
 #endif
 
 }
+
+void* CMemoryFunction::GetCode() const
+{
+	return m_code;
+}
+
+size_t CMemoryFunction::GetSize() const
+{
+	return m_size;
+}

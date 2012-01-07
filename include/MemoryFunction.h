@@ -7,14 +7,17 @@
 class CMemoryFunction : public boost::noncopyable
 {
 public:
-				CMemoryFunction(const void*, size_t);
-	virtual		~CMemoryFunction();
+					CMemoryFunction(const void*, size_t);
+	virtual			~CMemoryFunction();
 
-	void		operator()(void*);
+	void			operator()(void*);
+
+	void*			GetCode() const;
+	size_t			GetSize() const;
 
 private:
-	void*		m_code;
-	size_t		m_size;
+	void*			m_code;
+	size_t			m_size;
 };
 
 #endif

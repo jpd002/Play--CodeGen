@@ -34,6 +34,14 @@ namespace Jitter
 			ROUND_TRUNCATE = 3
 		};
 
+		enum RETURN_VALUE_TYPE
+		{
+			RETURN_VALUE_NONE,
+			RETURN_VALUE_32,
+			RETURN_VALUE_64,
+			RETURN_VALUE_128,
+		};
+
 		typedef unsigned int LABEL;
 
 										CJitter(CCodeGen*);
@@ -65,6 +73,7 @@ namespace Jitter
 		void                            Add();
 		void                            And();
 		void							Call(void*, unsigned int, bool);
+		void							Call(void*, unsigned int, RETURN_VALUE_TYPE);
 		void                            Cmp(CONDITION);
 		void                            Div();
 		void                            DivS();

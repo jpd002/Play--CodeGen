@@ -217,9 +217,14 @@ void CJitter::And()
 	m_Shadow.Push(tempSym);
 }
 
-void CJitter::Call(void* pFunc, unsigned int nParamCount, bool nKeepRet)
+void CJitter::Call(void* func, unsigned int paramCount, bool keepRet)
 {
-	for(unsigned int i = 0; i < nParamCount; i++)
+	Call(func, paramCount, keepRet ? RETURN_VALUE_32 : RETURN_VALUE_NONE);
+}
+
+void CJitter::Call(void* func, unsigned int paramCount, RETURN_VALUE_TYPE returnValue)
+{
+	for(unsigned int i = 0; i < paramCount; i++)
 	{
 		STATEMENT paramStatement;
 		paramStatement.src1	= MakeSymbolRef(m_Shadow.Pull());
@@ -227,35 +232,59 @@ void CJitter::Call(void* pFunc, unsigned int nParamCount, bool nKeepRet)
 		InsertStatement(paramStatement);
 	}
 
-	size_t addrSize = sizeof(pFunc);
+	bool hasImplicitReturnValueParam = false;
+	SymbolPtr returnValueSym;
+	switch(returnValue)
+	{
+	case RETURN_VALUE_32:
+		returnValueSym = MakeSymbol(SYM_TEMPORARY, m_nextTemporary++);
+		break;
+	case RETURN_VALUE_64:
+		returnValueSym = MakeSymbol(SYM_TEMPORARY64, m_nextTemporary++);
+		break;
+	case RETURN_VALUE_128:
+		returnValueSym = MakeSymbol(SYM_TEMPORARY128, m_nextTemporary++);
+		{
+			STATEMENT paramStatement;
+			paramStatement.src1	= MakeSymbolRef(returnValueSym);
+			paramStatement.op	= OP_PARAM;
+			InsertStatement(paramStatement);
+			paramCount++;
+			hasImplicitReturnValueParam = true;
+		}
+		break;
+	}
+
+	size_t addrSize = sizeof(func);
 
 	STATEMENT callStatement;
 	if(addrSize == 4)
 	{
-		callStatement.src1 = MakeSymbolRef(MakeSymbol(SYM_CONSTANT, reinterpret_cast<uint32>(pFunc)));
+		callStatement.src1 = MakeSymbolRef(MakeSymbol(SYM_CONSTANT, reinterpret_cast<uint32>(func)));
 	}
 	else if(addrSize == 8)
 	{
-		callStatement.src1 = MakeSymbolRef(MakeConstant64(reinterpret_cast<uint64>(pFunc)));
+		callStatement.src1 = MakeSymbolRef(MakeConstant64(reinterpret_cast<uint64>(func)));
 	}
 	else
 	{
 		assert(0);
 	}
-	callStatement.src2 = MakeSymbolRef(MakeSymbol(SYM_CONSTANT, nParamCount));
+	callStatement.src2 = MakeSymbolRef(MakeSymbol(SYM_CONSTANT, paramCount));
 	callStatement.op = OP_CALL;
 	InsertStatement(callStatement);
 
-	if(nKeepRet)
+	if(returnValue != RETURN_VALUE_NONE)
 	{
-		SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY, m_nextTemporary++);
+		if(!hasImplicitReturnValueParam)
+		{
+			STATEMENT returnStatement;
+			returnStatement.dst = MakeSymbolRef(returnValueSym);
+			returnStatement.op	= OP_RETVAL;
+			InsertStatement(returnStatement);
+		}
 
-		STATEMENT returnStatement;
-		returnStatement.dst = MakeSymbolRef(tempSym);
-		returnStatement.op	= OP_RETVAL;
-		InsertStatement(returnStatement);
-
-		m_Shadow.Push(tempSym);
+		m_Shadow.Push(returnValueSym);
 	}
 }
 

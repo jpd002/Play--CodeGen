@@ -1,0 +1,142 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="tests\AliasTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tests\Alu64Test.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tests\Call64Test.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tests\CompareTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tests\Crc32Test.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tests\FpIntMixTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tests\FpuTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tests\HalfMultTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tests\HugeJumpTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tests\Main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tests\MdCallTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tests\MdFpFlagTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tests\MdFpTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tests\MdTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tests\MemAccessTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tests\MultTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tests\RandomAluTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tests\RandomAluTest2.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tests\RandomAluTest3.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tests\RegAllocTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tests\Shift64Test.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="tests\AliasTest.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tests\Align16.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tests\Alu64Test.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tests\Call64Test.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tests\CompareTest.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tests\Crc32Test.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tests\FpIntMixTest.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tests\FpuTest.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tests\HalfMultTest.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tests\HugeJumpTest.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tests\MdCallTest.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tests\MdFpFlagTest.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tests\MdFpTest.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tests\MdTest.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tests\MemAccessTest.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tests\MultTest.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tests\RandomAluTest.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tests\RandomAluTest2.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tests\RandomAluTest3.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tests\RegAllocTest.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tests\Shift64Test.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tests\Test.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

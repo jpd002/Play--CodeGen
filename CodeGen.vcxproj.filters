@@ -1,0 +1,147 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Source Files\x86">
+      <UniqueIdentifier>{92c79547-6b58-42ea-8a7f-ec76f70c3bf3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\arm">
+      <UniqueIdentifier>{95ac34a4-202e-4670-8593-a340cbfd46f2}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\Jitter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Jitter_CodeGen.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Jitter_CodeGenFactory.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Jitter_Optimize.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Jitter_RegAlloc.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Jitter_SymbolTable.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MemoryFunction.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\X86Assembler_Sse.cpp">
+      <Filter>Source Files\x86</Filter>
+    </ClCompile>
+    <ClCompile Include="src\X86Assembler.cpp">
+      <Filter>Source Files\x86</Filter>
+    </ClCompile>
+    <ClCompile Include="src\X86Assembler_Fpu.cpp">
+      <Filter>Source Files\x86</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Jitter_CodeGen_x86_Md.cpp">
+      <Filter>Source Files\x86</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Jitter_CodeGen_x86_Fpu.cpp">
+      <Filter>Source Files\x86</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Jitter_CodeGen_x86_64.cpp">
+      <Filter>Source Files\x86</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Jitter_CodeGen_x86_32.cpp">
+      <Filter>Source Files\x86</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Jitter_CodeGen_x86.cpp">
+      <Filter>Source Files\x86</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ArmAssembler.cpp">
+      <Filter>Source Files\arm</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Jitter_CodeGen_Arm.cpp">
+      <Filter>Source Files\arm</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Jitter_CodeGen_Arm_Fpu.cpp">
+      <Filter>Source Files\arm</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\ArrayStack.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Jitter.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Jitter_CodeGen.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Jitter_CodeGenFactory.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Jitter_Statement.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Jitter_Symbol.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Jitter_SymbolRef.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Jitter_SymbolTable.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\MemoryFunction.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\X86Assembler.h">
+      <Filter>Source Files\x86</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Jitter_CodeGen_x86_Shift.h">
+      <Filter>Source Files\x86</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Jitter_CodeGen_x86_Mul.h">
+      <Filter>Source Files\x86</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Jitter_CodeGen_x86_Div.h">
+      <Filter>Source Files\x86</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Jitter_CodeGen_x86_Alu.h">
+      <Filter>Source Files\x86</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Jitter_CodeGen_x86_64.h">
+      <Filter>Source Files\x86</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Jitter_CodeGen_x86_32.h">
+      <Filter>Source Files\x86</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Jitter_CodeGen_x86.h">
+      <Filter>Source Files\x86</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ArmAssembler.h">
+      <Filter>Source Files\arm</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Jitter_CodeGen_Arm.h">
+      <Filter>Source Files\arm</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Jitter_CodeGen_Arm_Alu.h">
+      <Filter>Source Files\arm</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Jitter_CodeGen_Arm_Div.h">
+      <Filter>Source Files\arm</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Jitter_CodeGen_Arm_Mul.h">
+      <Filter>Source Files\arm</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Jitter_CodeGen_Arm_Shift.h">
+      <Filter>Source Files\arm</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="src\MemoryFunction_Execute.asm">
+      <Filter>Source Files</Filter>
+    </CustomBuild>
+  </ItemGroup>
+</Project>

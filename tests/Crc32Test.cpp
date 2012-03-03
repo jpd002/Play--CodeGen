@@ -135,7 +135,7 @@ uint32 CCrc32Test::GetNextByte(CONTEXT* context)
 
 uint32 CCrc32Test::GetNextByteImpl()
 {
-	return m_input[m_inputPtr++];
+	return m_input.c_str()[m_inputPtr++];
 }
 
 uint32 CCrc32Test::GetTableValue(uint32 index)

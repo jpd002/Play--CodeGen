@@ -54,7 +54,7 @@ void CMdCallTest::Compile(Jitter::CJitter& jitter)
 			jitter.MD_PushRel(offsetof(CONTEXT, value0));
 			jitter.PushCst(FUNCTION_MASK);
 
-			jitter.Call(&CMdCallTest::MdInputFunction, 2, Jitter::CJitter::RETURN_VALUE_32);
+			jitter.Call(reinterpret_cast<void*>(&CMdCallTest::MdInputFunction), 2, Jitter::CJitter::RETURN_VALUE_32);
 			jitter.PullRel(offsetof(CONTEXT, result0));
 		}
 
@@ -66,14 +66,14 @@ void CMdCallTest::Compile(Jitter::CJitter& jitter)
 
 			jitter.PushCst(FUNCTION_MASK);
 
-			jitter.Call(&CMdCallTest::MdInputFunction, 2, Jitter::CJitter::RETURN_VALUE_32);
+			jitter.Call(reinterpret_cast<void*>(&CMdCallTest::MdInputFunction), 2, Jitter::CJitter::RETURN_VALUE_32);
 			jitter.PullRel(offsetof(CONTEXT, result1));
 		}
 
 		//Result 2
 		{
 			jitter.PushCst(FUNCTION_MASK);
-			jitter.Call(&CMdCallTest::MdOutputFunction, 1, Jitter::CJitter::RETURN_VALUE_128);
+			jitter.Call(reinterpret_cast<void*>(&CMdCallTest::MdOutputFunction), 1, Jitter::CJitter::RETURN_VALUE_128);
 			jitter.MD_PullRel(offsetof(CONTEXT, result2));
 		}
 	}

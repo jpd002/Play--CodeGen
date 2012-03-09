@@ -30,7 +30,7 @@
 #include "TargetConditionals.h"
 #endif
 
-#ifndef TARGET_CPU_ARM
+#if !TARGET_CPU_ARM
 #define HAS_ADVANCED_OPS
 #endif
 

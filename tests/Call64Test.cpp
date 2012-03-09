@@ -1,6 +1,5 @@
 #include "Call64Test.h"
 #include "MemStream.h"
-#include <windows.h>
 
 #define CONSTANT_1		(0x0000084108302989ull)
 #define CONSTANT_2		(0x0017227878892871ull)
@@ -31,7 +30,7 @@ void CCall64Test::Compile(Jitter::CJitter& jitter)
 		{
 			jitter.PushRel64(offsetof(CONTEXT, value0));
 			jitter.PushRel64(offsetof(CONTEXT, value1));
-			jitter.Call(&CCall64Test::Add64, 2, Jitter::CJitter::RETURN_VALUE_64);
+			jitter.Call(reinterpret_cast<void*>(&CCall64Test::Add64), 2, Jitter::CJitter::RETURN_VALUE_64);
 			jitter.PullRel64(offsetof(CONTEXT, result));
 		}
 	}

@@ -33,7 +33,7 @@ namespace Jitter
 		WeakSymbolPtr symbol;
 	};
 
-	typedef std::tr1::shared_ptr<CSymbolRef> SymbolRefPtr;
+	typedef std::shared_ptr<CSymbolRef> SymbolRefPtr;
 
 	class CVersionedSymbolRef : public CSymbolRef
 	{
@@ -62,7 +62,7 @@ namespace Jitter
 		int version;
 	};
 
-	typedef std::tr1::shared_ptr<CVersionedSymbolRef> VersionedSymbolRefPtr;
+	typedef std::shared_ptr<CVersionedSymbolRef> VersionedSymbolRefPtr;
 
 	static CSymbol* dynamic_symbolref_cast(SYM_TYPE type, const SymbolRefPtr& symbolRef)
 	{

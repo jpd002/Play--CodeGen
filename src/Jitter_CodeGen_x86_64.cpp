@@ -203,7 +203,7 @@ CCodeGen_x86_64::CCodeGen_x86_64()
 		matcher.dstType		= constMatcher->dstType;
 		matcher.src1Type	= constMatcher->src1Type;
 		matcher.src2Type	= constMatcher->src2Type;
-		matcher.emitter		= std::tr1::bind(constMatcher->emitter, this, std::tr1::placeholders::_1);
+		matcher.emitter		= std::bind(constMatcher->emitter, this, std::placeholders::_1);
 		m_matchers.insert(MatcherMapType::value_type(matcher.op, matcher));
 	}
 }
@@ -265,8 +265,8 @@ void CCodeGen_x86_64::Emit_Param_Ctx(const STATEMENT& statement)
 {
 	assert(m_params.size() < MAX_PARAMS);
 
-	m_params.push_back(std::tr1::bind(
-		&CX86Assembler::MovEq, &m_assembler, std::tr1::placeholders::_1, CX86Assembler::MakeRegisterAddress(CX86Assembler::rBP)));
+	m_params.push_back(std::bind(
+		&CX86Assembler::MovEq, &m_assembler, std::placeholders::_1, CX86Assembler::MakeRegisterAddress(CX86Assembler::rBP)));
 }
 
 void CCodeGen_x86_64::Emit_Param_Reg(const STATEMENT& statement)
@@ -275,8 +275,8 @@ void CCodeGen_x86_64::Emit_Param_Reg(const STATEMENT& statement)
 
 	CSymbol* src1 = statement.src1->GetSymbol().get();
 
-	m_params.push_back(std::tr1::bind(
-		&CX86Assembler::MovEd, &m_assembler, std::tr1::placeholders::_1, CX86Assembler::MakeRegisterAddress(m_registers[src1->m_valueLow])));
+	m_params.push_back(std::bind(
+		&CX86Assembler::MovEd, &m_assembler, std::placeholders::_1, CX86Assembler::MakeRegisterAddress(m_registers[src1->m_valueLow])));
 }
 
 void CCodeGen_x86_64::Emit_Param_Mem(const STATEMENT& statement)
@@ -285,7 +285,7 @@ void CCodeGen_x86_64::Emit_Param_Mem(const STATEMENT& statement)
 
 	CSymbol* src1 = statement.src1->GetSymbol().get();
 
-	m_params.push_back(std::tr1::bind(&CX86Assembler::MovEd, &m_assembler, std::tr1::placeholders::_1, MakeMemorySymbolAddress(src1)));
+	m_params.push_back(std::bind(&CX86Assembler::MovEd, &m_assembler, std::placeholders::_1, MakeMemorySymbolAddress(src1)));
 }
 
 void CCodeGen_x86_64::Emit_Param_Cst(const STATEMENT& statement)
@@ -295,7 +295,7 @@ void CCodeGen_x86_64::Emit_Param_Cst(const STATEMENT& statement)
 	CSymbol* src1 = statement.src1->GetSymbol().get();
 
 	void (CX86Assembler::*MovFunction)(CX86Assembler::REGISTER, uint32) = &CX86Assembler::MovId;
-	m_params.push_back(std::tr1::bind(MovFunction, &m_assembler, std::tr1::placeholders::_1, src1->m_valueLow));
+	m_params.push_back(std::bind(MovFunction, &m_assembler, std::placeholders::_1, src1->m_valueLow));
 }
 
 void CCodeGen_x86_64::Emit_Param_Mem64(const STATEMENT& statement)
@@ -304,8 +304,8 @@ void CCodeGen_x86_64::Emit_Param_Mem64(const STATEMENT& statement)
 
 	CSymbol* src1 = statement.src1->GetSymbol().get();
 
-	m_params.push_back(std::tr1::bind(
-		&CX86Assembler::MovEq, &m_assembler, std::tr1::placeholders::_1, MakeMemory64SymbolAddress(src1)));
+	m_params.push_back(std::bind(
+		&CX86Assembler::MovEq, &m_assembler, std::placeholders::_1, MakeMemory64SymbolAddress(src1)));
 }
 
 void CCodeGen_x86_64::Emit_Param_Cst64(const STATEMENT& statement)
@@ -314,8 +314,8 @@ void CCodeGen_x86_64::Emit_Param_Cst64(const STATEMENT& statement)
 
 	CSymbol* src1 = statement.src1->GetSymbol().get();
 
-	m_params.push_back(std::tr1::bind(
-		&CX86Assembler::MovIq, &m_assembler, std::tr1::placeholders::_1, CombineConstant64(src1->m_valueLow, src1->m_valueHigh)));
+	m_params.push_back(std::bind(
+		&CX86Assembler::MovIq, &m_assembler, std::placeholders::_1, CombineConstant64(src1->m_valueLow, src1->m_valueHigh)));
 }
 
 void CCodeGen_x86_64::Emit_Param_Mem128(const STATEMENT& statement)
@@ -324,8 +324,8 @@ void CCodeGen_x86_64::Emit_Param_Mem128(const STATEMENT& statement)
 
 	CSymbol* src1 = statement.src1->GetSymbol().get();
 
-	m_params.push_back(std::tr1::bind(
-		&CX86Assembler::LeaGq, &m_assembler, std::tr1::placeholders::_1, MakeMemory128SymbolAddress(src1)));
+	m_params.push_back(std::bind(
+		&CX86Assembler::LeaGq, &m_assembler, std::placeholders::_1, MakeMemory128SymbolAddress(src1)));
 }
 
 void CCodeGen_x86_64::Emit_Call(const STATEMENT& statement)

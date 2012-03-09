@@ -126,7 +126,7 @@ namespace Jitter
 	private:
 		typedef void (CCodeGen_x86_64::*ConstCodeEmitterType)(const STATEMENT&);
 
-		typedef std::tr1::function<void (CX86Assembler::REGISTER)> ParamEmitterFunction;
+		typedef std::function<void (CX86Assembler::REGISTER)> ParamEmitterFunction;
 		typedef std::deque<ParamEmitterFunction> ParamStack;
 
 		struct CONSTMATCHER

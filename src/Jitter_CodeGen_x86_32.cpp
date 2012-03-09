@@ -18,6 +18,8 @@ CCodeGen_x86_32::CONSTMATCHER CCodeGen_x86_32::g_constMatchers[] =
 	{ OP_PARAM,			MATCH_NIL,			MATCH_MEMORY64,		MATCH_NIL,			&CCodeGen_x86_32::Emit_Param_Mem64			},
 	{ OP_PARAM,			MATCH_NIL,			MATCH_MEMORY128,	MATCH_NIL,			&CCodeGen_x86_32::Emit_Param_Mem128			},
 
+	{ OP_PARAM_RET,		MATCH_NIL,			MATCH_MEMORY128,	MATCH_NIL,			&CCodeGen_x86_32::Emit_ParamRet_Mem128		},
+	
 	{ OP_CALL,			MATCH_NIL,			MATCH_CONSTANT,		MATCH_CONSTANT,		&CCodeGen_x86_32::Emit_Call					},
 
 	{ OP_RETVAL,		MATCH_TEMPORARY,	MATCH_NIL,			MATCH_NIL,			&CCodeGen_x86_32::Emit_RetVal_Tmp			},
@@ -68,6 +70,7 @@ CCodeGen_x86_32::CONSTMATCHER CCodeGen_x86_32::g_constMatchers[] =
 };
 
 CCodeGen_x86_32::CCodeGen_x86_32()
+: m_hasImplicitRetValueParam(false)
 {
 	CCodeGen_x86::m_registers = g_registers;
 
@@ -78,7 +81,7 @@ CCodeGen_x86_32::CCodeGen_x86_32()
 		matcher.dstType		= constMatcher->dstType;
 		matcher.src1Type	= constMatcher->src1Type;
 		matcher.src2Type	= constMatcher->src2Type;
-		matcher.emitter		= std::tr1::bind(constMatcher->emitter, this, std::tr1::placeholders::_1);
+		matcher.emitter		= std::bind(constMatcher->emitter, this, std::placeholders::_1);
 		m_matchers.insert(MatcherMapType::value_type(matcher.op, matcher));
 	}
 }
@@ -155,6 +158,16 @@ void CCodeGen_x86_32::Emit_Param_Mem128(const STATEMENT& statement)
 	m_stackLevel += 4;
 }
 
+void CCodeGen_x86_32::Emit_ParamRet_Mem128(const STATEMENT& statement)
+{
+	//Basically the same as Param_Mem128, but special care must be taken
+	//as System V ABI automatically cleans up that extra parameter that's
+	//used as return value
+	Emit_Param_Mem128(statement);
+	assert(!m_hasImplicitRetValueParam);
+	m_hasImplicitRetValueParam = true;
+}
+
 void CCodeGen_x86_32::Emit_Call(const STATEMENT& statement)
 {
 	CSymbol* src1 = statement.src1->GetSymbol().get();
@@ -162,9 +175,21 @@ void CCodeGen_x86_32::Emit_Call(const STATEMENT& statement)
 
 	m_assembler.MovId(CX86Assembler::rAX, src1->m_valueLow);
 	m_assembler.CallEd(CX86Assembler::MakeRegisterAddress(CX86Assembler::rAX));
+	
+#ifdef __APPLE__
+	if(m_hasImplicitRetValueParam)
+	{
+		//Allocated stack space for the extra parameter is already cleaned up
+		//by the callee. So adjust the amount of stack space we free up after
+		//the call
+		m_stackLevel -= 4;
+	}
+#endif
+	
 	m_assembler.AddId(CX86Assembler::MakeRegisterAddress(CX86Assembler::rSP), m_stackLevel);
 
 	m_stackLevel = 0;
+	m_hasImplicitRetValueParam = false;	
 }
 
 void CCodeGen_x86_32::Emit_RetVal_Tmp(const STATEMENT& statement)

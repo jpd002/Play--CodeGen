@@ -127,7 +127,7 @@ CCodeGen_Arm::CCodeGen_Arm()
 		matcher.dstType		= constMatcher->dstType;
 		matcher.src1Type	= constMatcher->src1Type;
 		matcher.src2Type	= constMatcher->src2Type;
-		matcher.emitter		= std::tr1::bind(constMatcher->emitter, this, std::tr1::placeholders::_1);
+		matcher.emitter		= std::bind(constMatcher->emitter, this, std::placeholders::_1);
 		m_matchers.insert(MatcherMapType::value_type(matcher.op, matcher));
 	}
 
@@ -138,7 +138,7 @@ CCodeGen_Arm::CCodeGen_Arm()
 		matcher.dstType		= constMatcher->dstType;
 		matcher.src1Type	= constMatcher->src1Type;
 		matcher.src2Type	= constMatcher->src2Type;
-		matcher.emitter		= std::tr1::bind(constMatcher->emitter, this, std::tr1::placeholders::_1);
+		matcher.emitter		= std::bind(constMatcher->emitter, this, std::placeholders::_1);
 		m_matchers.insert(MatcherMapType::value_type(matcher.op, matcher));
 	}
 
@@ -406,7 +406,7 @@ void CCodeGen_Arm::Emit_Param_Ctx(const STATEMENT& statement)
 	assert(m_params.size() < MAX_PARAMS);
 	
 	void (CArmAssembler::*MovFunction)(CArmAssembler::REGISTER, CArmAssembler::REGISTER) = &CArmAssembler::Mov;
-	m_params.push_back(std::tr1::bind(MovFunction, &m_assembler, std::tr1::placeholders::_1, g_baseRegister));	
+	m_params.push_back(std::bind(MovFunction, &m_assembler, std::placeholders::_1, g_baseRegister));	
 }
 
 void CCodeGen_Arm::Emit_Param_Reg(const STATEMENT& statement)
@@ -417,7 +417,7 @@ void CCodeGen_Arm::Emit_Param_Reg(const STATEMENT& statement)
 	assert(m_params.size() < MAX_PARAMS);
 	
 	void (CArmAssembler::*MovFunction)(CArmAssembler::REGISTER, CArmAssembler::REGISTER) = &CArmAssembler::Mov;
-	m_params.push_back(std::tr1::bind(MovFunction, &m_assembler, std::tr1::placeholders::_1, g_registers[src1->m_valueLow]));	
+	m_params.push_back(std::bind(MovFunction, &m_assembler, std::placeholders::_1, g_registers[src1->m_valueLow]));	
 }
 
 void CCodeGen_Arm::Emit_Param_Rel(const STATEMENT& statement)
@@ -427,7 +427,7 @@ void CCodeGen_Arm::Emit_Param_Rel(const STATEMENT& statement)
 	assert(src1->m_type == SYM_RELATIVE);
 	assert(m_params.size() < MAX_PARAMS);
 	
-	m_params.push_back(std::tr1::bind(&CArmAssembler::Ldr, &m_assembler, std::tr1::placeholders::_1, g_baseRegister, CArmAssembler::MakeImmediateLdrAddress(src1->m_valueLow)));	
+	m_params.push_back(std::bind(&CArmAssembler::Ldr, &m_assembler, std::placeholders::_1, g_baseRegister, CArmAssembler::MakeImmediateLdrAddress(src1->m_valueLow)));	
 }
 
 
@@ -438,7 +438,7 @@ void CCodeGen_Arm::Emit_Param_Cst(const STATEMENT& statement)
 	assert(src1->m_type == SYM_CONSTANT);
 	assert(m_params.size() < MAX_PARAMS);
 	
-	m_params.push_back(std::tr1::bind(&CCodeGen_Arm::LoadConstantInRegister, this, std::tr1::placeholders::_1, src1->m_valueLow));
+	m_params.push_back(std::bind(&CCodeGen_Arm::LoadConstantInRegister, this, std::placeholders::_1, src1->m_valueLow));
 }
 
 void CCodeGen_Arm::Emit_Param_Tmp(const STATEMENT& statement)
@@ -448,7 +448,7 @@ void CCodeGen_Arm::Emit_Param_Tmp(const STATEMENT& statement)
 	assert(src1->m_type == SYM_TEMPORARY);
 	assert(m_params.size() < MAX_PARAMS);
 	
-	m_params.push_back(std::tr1::bind(&CArmAssembler::Ldr, &m_assembler, std::tr1::placeholders::_1, CArmAssembler::rSP, CArmAssembler::MakeImmediateLdrAddress(src1->m_stackLocation + m_stackLevel)));	
+	m_params.push_back(std::bind(&CArmAssembler::Ldr, &m_assembler, std::placeholders::_1, CArmAssembler::rSP, CArmAssembler::MakeImmediateLdrAddress(src1->m_stackLocation + m_stackLevel)));	
 }
 
 void CCodeGen_Arm::Emit_Call(const STATEMENT& statement)

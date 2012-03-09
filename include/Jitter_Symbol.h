@@ -228,8 +228,8 @@ namespace Jitter
 		unsigned int			m_regAlloc_notAllocatedAfterIdx;
 	};
 
-	typedef std::tr1::shared_ptr<CSymbol> SymbolPtr;
-	typedef std::tr1::weak_ptr<CSymbol> WeakSymbolPtr;
+	typedef std::shared_ptr<CSymbol> SymbolPtr;
+	typedef std::weak_ptr<CSymbol> WeakSymbolPtr;
 }
 
 #endif

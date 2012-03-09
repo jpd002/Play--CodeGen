@@ -50,7 +50,7 @@ namespace Jitter
 			MATCH_RELATIVE_FP_INT32,
 		};
 
-		typedef std::tr1::function<void (const STATEMENT&)> CodeEmitterType;
+		typedef std::function<void (const STATEMENT&)> CodeEmitterType;
 
 		struct MATCHER
 		{

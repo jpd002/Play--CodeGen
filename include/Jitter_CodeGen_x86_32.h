@@ -24,6 +24,9 @@ namespace Jitter
 		void								Emit_Param_Reg(const STATEMENT&);
 		void								Emit_Param_Mem64(const STATEMENT&);
 		void								Emit_Param_Mem128(const STATEMENT&);
+		
+		//PARAM_RET
+		void								Emit_ParamRet_Mem128(const STATEMENT&);
 
 		//CALL
 		void								Emit_Call(const STATEMENT&);
@@ -103,6 +106,8 @@ namespace Jitter
 
 		static CONSTMATCHER					g_constMatchers[];
 		static CX86Assembler::REGISTER		g_registers[];
+		
+		bool								m_hasImplicitRetValueParam;
 	};
 }
 

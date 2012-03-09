@@ -22,7 +22,7 @@ namespace Jitter
 		typedef std::map<uint32, CArmAssembler::LABEL> LabelMapType;
 		typedef void (CCodeGen_Arm::*ConstCodeEmitterType)(const STATEMENT&);
 
-		typedef std::tr1::function<void (CArmAssembler::REGISTER)> ParamEmitterFunction;
+		typedef std::function<void (CArmAssembler::REGISTER)> ParamEmitterFunction;
 		typedef std::deque<ParamEmitterFunction> ParamStack;
 
 		enum MAX_PARAMS
@@ -172,6 +172,7 @@ namespace Jitter
 		template <CArmAssembler::SHIFT> void	Emit_Shift_RegRelCst(const STATEMENT&);
 		template <CArmAssembler::SHIFT> void	Emit_Shift_RegCstReg(const STATEMENT&);
 		template <CArmAssembler::SHIFT> void	Emit_Shift_RegCstRel(const STATEMENT&);
+		template <CArmAssembler::SHIFT> void	Emit_Shift_RelRegReg(const STATEMENT&);
 		template <CArmAssembler::SHIFT> void	Emit_Shift_RelRegCst(const STATEMENT&);
 		template <CArmAssembler::SHIFT> void	Emit_Shift_RelRelCst(const STATEMENT&);
 		template <CArmAssembler::SHIFT> void	Emit_Shift_RelTmpCst(const STATEMENT&);

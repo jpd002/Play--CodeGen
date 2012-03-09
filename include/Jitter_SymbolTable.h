@@ -33,7 +33,7 @@ namespace Jitter
 			}
 		};
 
-		typedef std::tr1::unordered_set<SymbolPtr, SymbolHasher, SymbolComparator> SymbolSet;
+		typedef std::unordered_set<SymbolPtr, SymbolHasher, SymbolComparator> SymbolSet;
 		typedef SymbolSet::iterator SymbolIterator;
 
 								CSymbolTable();

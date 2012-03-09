@@ -142,17 +142,17 @@ StatementList CJitter::CollapseVersionedStatementList(const VERSIONED_STATEMENT_
 	{
 		STATEMENT newStatement(*statementIterator);
 
-		if(VersionedSymbolRefPtr src1 = std::tr1::dynamic_pointer_cast<CVersionedSymbolRef>(newStatement.src1))
+		if(VersionedSymbolRefPtr src1 = std::dynamic_pointer_cast<CVersionedSymbolRef>(newStatement.src1))
 		{
 			newStatement.src1 = SymbolRefPtr(new CSymbolRef(src1->GetSymbol()));
 		}
 
-		if(VersionedSymbolRefPtr src2 = std::tr1::dynamic_pointer_cast<CVersionedSymbolRef>(newStatement.src2))
+		if(VersionedSymbolRefPtr src2 = std::dynamic_pointer_cast<CVersionedSymbolRef>(newStatement.src2))
 		{
 			newStatement.src2 = SymbolRefPtr(new CSymbolRef(src2->GetSymbol()));
 		}
 
-		if(VersionedSymbolRefPtr dst = std::tr1::dynamic_pointer_cast<CVersionedSymbolRef>(newStatement.dst))
+		if(VersionedSymbolRefPtr dst = std::dynamic_pointer_cast<CVersionedSymbolRef>(newStatement.dst))
 		{
 			newStatement.dst = SymbolRefPtr(new CSymbolRef(dst->GetSymbol()));
 		}
@@ -360,6 +360,7 @@ void CJitter::DumpStatementList(const StatementList& statements)
 			cout << " TOREF ";
 			break;
 		case OP_PARAM:
+		case OP_PARAM_RET:
 			cout << " PARAM ";
 			break;
 		case OP_CALL:
@@ -1293,7 +1294,7 @@ bool CJitter::DeadcodeElimination(VERSIONED_STATEMENT_LIST& versionedStatementLi
 		}
 		else if(CSymbol* relativeSymbol = dynamic_symbolref_cast(SYM_RELATIVE, outerStatement.dst))
 		{
-			VersionedSymbolRefPtr versionedSymbolRef = std::tr1::dynamic_pointer_cast<CVersionedSymbolRef>(outerStatement.dst);
+			VersionedSymbolRefPtr versionedSymbolRef = std::dynamic_pointer_cast<CVersionedSymbolRef>(outerStatement.dst);
 			assert(versionedSymbolRef);
 			if(versionedSymbolRef->version != versionedStatementList.relativeVersions.GetRelativeVersion(relativeSymbol->m_valueLow))
 			{

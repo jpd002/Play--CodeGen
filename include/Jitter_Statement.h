@@ -125,6 +125,7 @@ namespace Jitter
 		OP_FP_TOINT_TRUNC,
 
 		OP_PARAM,
+		OP_PARAM_RET,
 		OP_CALL,
 		OP_RETVAL,
 		OP_JMP,
@@ -167,7 +168,7 @@ namespace Jitter
 		uint32			jmpBlock;
 		CONDITION		jmpCondition;
 
-		typedef std::tr1::function<void (const SymbolRefPtr&, bool)> OperandVisitor;
+		typedef std::function<void (const SymbolRefPtr&, bool)> OperandVisitor;
 
 		void VisitOperands(const OperandVisitor& visitor)
 		{

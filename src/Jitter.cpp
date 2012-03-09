@@ -247,7 +247,7 @@ void CJitter::Call(void* func, unsigned int paramCount, RETURN_VALUE_TYPE return
 		{
 			STATEMENT paramStatement;
 			paramStatement.src1	= MakeSymbolRef(returnValueSym);
-			paramStatement.op	= OP_PARAM;
+			paramStatement.op	= OP_PARAM_RET;
 			InsertStatement(paramStatement);
 			paramCount++;
 			hasImplicitReturnValueParam = true;

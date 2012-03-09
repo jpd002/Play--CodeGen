@@ -225,7 +225,7 @@ namespace Jitter
 			unsigned int				IncrementRelativeVersion(uint32);
 
 		private:
-			typedef std::tr1::unordered_map<uint32, unsigned int> RelativeVersionMap;
+			typedef std::unordered_map<uint32, unsigned int> RelativeVersionMap;
 
 			RelativeVersionMap			m_relativeVersions;
 		};

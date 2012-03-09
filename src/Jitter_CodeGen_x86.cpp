@@ -248,7 +248,7 @@ CCodeGen_x86::CCodeGen_x86()
 		matcher.dstType		= constMatcher->dstType;
 		matcher.src1Type	= constMatcher->src1Type;
 		matcher.src2Type	= constMatcher->src2Type;
-		matcher.emitter		= std::tr1::bind(constMatcher->emitter, this, std::tr1::placeholders::_1);
+		matcher.emitter		= std::bind(constMatcher->emitter, this, std::placeholders::_1);
 		m_matchers.insert(MatcherMapType::value_type(matcher.op, matcher));
 	}
 
@@ -259,7 +259,7 @@ CCodeGen_x86::CCodeGen_x86()
 		matcher.dstType		= constMatcher->dstType;
 		matcher.src1Type	= constMatcher->src1Type;
 		matcher.src2Type	= constMatcher->src2Type;
-		matcher.emitter		= std::tr1::bind(constMatcher->emitter, this, std::tr1::placeholders::_1);
+		matcher.emitter		= std::bind(constMatcher->emitter, this, std::placeholders::_1);
 		m_matchers.insert(MatcherMapType::value_type(matcher.op, matcher));
 	}
 
@@ -270,7 +270,7 @@ CCodeGen_x86::CCodeGen_x86()
 		matcher.dstType		= constMatcher->dstType;
 		matcher.src1Type	= constMatcher->src1Type;
 		matcher.src2Type	= constMatcher->src2Type;
-		matcher.emitter		= std::tr1::bind(constMatcher->emitter, this, std::tr1::placeholders::_1);
+		matcher.emitter		= std::bind(constMatcher->emitter, this, std::placeholders::_1);
 		m_matchers.insert(MatcherMapType::value_type(matcher.op, matcher));
 	}
 }

@@ -130,6 +130,23 @@ void CCodeGen_Arm::Emit_Shift_RegCstRel(const STATEMENT& statement)
 }
 
 template <CArmAssembler::SHIFT shiftType> 
+void CCodeGen_Arm::Emit_Shift_RelRegReg(const STATEMENT& statement)
+{
+	CSymbol* dst = statement.dst->GetSymbol().get();
+	CSymbol* src1 = statement.src1->GetSymbol().get();
+	CSymbol* src2 = statement.src2->GetSymbol().get();
+	
+	assert(dst->m_type  == SYM_RELATIVE);
+	assert(src1->m_type == SYM_REGISTER);
+	assert(src2->m_type == SYM_REGISTER);
+    
+	m_assembler.Mov(CArmAssembler::r0, 
+					CArmAssembler::MakeRegisterAluOperand(g_registers[src1->m_valueLow], 
+														  CArmAssembler::MakeVariableShift(shiftType, g_registers[src2->m_valueLow])));
+	StoreRegisterInRelative(dst, CArmAssembler::r0);
+}
+
+template <CArmAssembler::SHIFT shiftType> 
 void CCodeGen_Arm::Emit_Shift_RelRegCst(const STATEMENT& statement)
 {
 	CSymbol* dst = statement.dst->GetSymbol().get();
@@ -220,7 +237,8 @@ void CCodeGen_Arm::Emit_Shift_TmpTmpCst(const STATEMENT& statement)
 	{ SHIFTOP_CST,	MATCH_REGISTER,		MATCH_RELATIVE,		MATCH_CONSTANT,		&CCodeGen_Arm::Emit_Shift_RegRelCst<SHIFTOP>	}, \
 	{ SHIFTOP_CST,	MATCH_REGISTER,		MATCH_CONSTANT,		MATCH_REGISTER,		&CCodeGen_Arm::Emit_Shift_RegCstReg<SHIFTOP>	}, \
 	{ SHIFTOP_CST,	MATCH_REGISTER,		MATCH_CONSTANT,		MATCH_RELATIVE,		&CCodeGen_Arm::Emit_Shift_RegCstRel<SHIFTOP>	}, \
-	{ SHIFTOP_CST,	MATCH_RELATIVE,		MATCH_REGISTER,		MATCH_CONSTANT,		&CCodeGen_Arm::Emit_Shift_RelRegCst<SHIFTOP>	}, \
+    { SHIFTOP_CST,	MATCH_RELATIVE,		MATCH_REGISTER,		MATCH_REGISTER,		&CCodeGen_Arm::Emit_Shift_RelRegReg<SHIFTOP>	}, \
+    { SHIFTOP_CST,	MATCH_RELATIVE,		MATCH_REGISTER,		MATCH_CONSTANT,		&CCodeGen_Arm::Emit_Shift_RelRegCst<SHIFTOP>	}, \
 	{ SHIFTOP_CST,	MATCH_RELATIVE,		MATCH_RELATIVE,		MATCH_CONSTANT,		&CCodeGen_Arm::Emit_Shift_RelRelCst<SHIFTOP>	}, \
 	{ SHIFTOP_CST,	MATCH_RELATIVE,		MATCH_TEMPORARY,	MATCH_CONSTANT,		&CCodeGen_Arm::Emit_Shift_RelTmpCst<SHIFTOP>	}, \
 	{ SHIFTOP_CST,	MATCH_TEMPORARY,	MATCH_TEMPORARY,	MATCH_CONSTANT,		&CCodeGen_Arm::Emit_Shift_TmpTmpCst<SHIFTOP>	},

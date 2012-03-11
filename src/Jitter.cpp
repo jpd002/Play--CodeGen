@@ -47,7 +47,7 @@ void CJitter::End()
 
 bool CJitter::IsStackEmpty()
 {
-    return m_Shadow.GetCount() == 0;
+	return m_Shadow.GetCount() == 0;
 }
 
 CJitter::LABEL CJitter::CreateLabel()
@@ -59,7 +59,7 @@ void CJitter::MarkLabel(LABEL label)
 {
 	uint32 blockId = CreateBlock();
 	m_currentBlock = GetBlock(blockId);
-    m_labels[label] = blockId;
+	m_labels[label] = blockId;
 }
 
 void CJitter::Goto(LABEL label)

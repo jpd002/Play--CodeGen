@@ -46,14 +46,14 @@ CMemoryFunction::CMemoryFunction(const void* code, size_t size)
 
 CMemoryFunction::~CMemoryFunction()
 {
-    if(m_code != NULL)
-    {
+	if(m_code != NULL)
+	{
 #ifdef WIN32
 		free(m_code);
 #elif defined(__APPLE__)
 		vm_deallocate(mach_task_self(), reinterpret_cast<vm_address_t>(m_code), m_size); 
 #endif
-    }
+	}
 }
 
 void CMemoryFunction::operator()(void* context)

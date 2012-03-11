@@ -208,7 +208,6 @@ void CCodeGen_x86::Emit_Fp_LdCst_MemCst(const STATEMENT& statement)
 
 	assert(src1->m_type == SYM_CONSTANT);
 
-	CX86Assembler::XMMREGISTER valueRegister = CX86Assembler::xMM0;
 	CX86Assembler::REGISTER tmpRegister = CX86Assembler::rAX;
 
 	m_assembler.MovId(tmpRegister, src1->m_valueLow);

@@ -45,12 +45,12 @@ namespace Jitter
 		typedef unsigned int LABEL;
 
 										CJitter(CCodeGen*);
-		virtual                         ~CJitter();
+		virtual							~CJitter();
 
 		virtual void					Begin();
 		virtual void					End();
-
-		bool                            IsStackEmpty();
+		
+		bool							IsStackEmpty();
 
 		void							BeginIf(CONDITION);
 		void							Else();
@@ -61,41 +61,41 @@ namespace Jitter
 		void							Goto(LABEL);
 
 		void							PushCtx();
-		void                            PushCst(uint32);
-		virtual void                    PushRel(size_t);
-		void                            PushTop();
-		void                            PushIdx(unsigned int);
+		void							PushCst(uint32);
+		virtual void					PushRel(size_t);
+		void							PushTop();
+		void							PushIdx(unsigned int);
 
-		virtual void                    PullRel(size_t);
-		void                            PullTop();
-		void                            Swap();
+		virtual void					PullRel(size_t);
+		void							PullTop();
+		void							Swap();
 
-		void                            Add();
-		void                            And();
+		void							Add();
+		void							And();
 		void							Call(void*, unsigned int, bool);
 		void							Call(void*, unsigned int, RETURN_VALUE_TYPE);
-		void                            Cmp(CONDITION);
-		void                            Div();
-		void                            DivS();
-		void                            Lookup(uint32*);
-		void                            Lzc();
-		void                            Mult();
-		void                            MultS();
+		void							Cmp(CONDITION);
+		void							Div();
+		void							DivS();
+		void							Lookup(uint32*);
+		void							Lzc();
+		void							Mult();
+		void							MultS();
 		void							MultSHL();
 		void							MultSHH();
-		void                            Not();
-		void                            Or();
-		void                            SignExt();
-		void                            SignExt8();
-		void                            SignExt16();
-		void                            Shl();
-		void                            Shl(uint8);
-		void                            Sra();
-		void                            Sra(uint8);
-		void                            Srl();
-		void                            Srl(uint8);
-		void                            Sub();
-		void                            Xor();
+		void							Not();
+		void							Or();
+		void							SignExt();
+		void							SignExt8();
+		void							SignExt16();
+		void							Shl();
+		void							Shl(uint8);
+		void							Sra();
+		void							Sra(uint8);
+		void							Srl();
+		void							Srl(uint8);
+		void							Sub();
+		void							Xor();
 
 		//Memory operations
 		void							PushRelRef(size_t);
@@ -116,85 +116,85 @@ namespace Jitter
 		void							ExtHigh64();
 
 		void							Add64();
-		void                            Sub64();
-		void                            And64();
-		void                            Cmp64(CONDITION);
-		void                            Srl64();
-		void                            Srl64(uint8);
-		void                            Sra64(uint8);
-		void                            Shl64();
-		void                            Shl64(uint8);
+		void							Sub64();
+		void							And64();
+		void							Cmp64(CONDITION);
+		void							Srl64();
+		void							Srl64(uint8);
+		void							Sra64(uint8);
+		void							Shl64();
+		void							Shl64(uint8);
 
 		//FPU
-		virtual void                    FP_PushWord(size_t);
-		virtual void                    FP_PushSingle(size_t);
-		virtual void                    FP_PullWordTruncate(size_t);
-		virtual void                    FP_PullSingle(size_t);
-		virtual void                    FP_PushCst(float);
+		virtual void					FP_PushWord(size_t);
+		virtual void					FP_PushSingle(size_t);
+		virtual void					FP_PullWordTruncate(size_t);
+		virtual void					FP_PullSingle(size_t);
+		virtual void					FP_PushCst(float);
 
-		void                            FP_Add();
-		void                            FP_Abs();
-		void                            FP_Sub();
-		void                            FP_Max();
-		void                            FP_Min();
-		void                            FP_Mul();
-		void                            FP_Div();
-		void                            FP_Cmp(CONDITION);
-		void                            FP_Neg();
-		void                            FP_Rcpl();
-		void                            FP_Sqrt();
-		void                            FP_Rsqrt();
+		void							FP_Add();
+		void							FP_Abs();
+		void							FP_Sub();
+		void							FP_Max();
+		void							FP_Min();
+		void							FP_Mul();
+		void							FP_Div();
+		void							FP_Cmp(CONDITION);
+		void							FP_Neg();
+		void							FP_Rcpl();
+		void							FP_Sqrt();
+		void							FP_Rsqrt();
 
 		//SIMD (128-bits only)
-		virtual void                    MD_PushRel(size_t);
-		virtual void                    MD_PushRelExpand(size_t);
-		void                            MD_PushCstExpand(float);
-		virtual void                    MD_PullRel(size_t);
-		virtual void                    MD_PullRel(size_t, bool, bool, bool, bool);
+		virtual void					MD_PushRel(size_t);
+		virtual void					MD_PushRelExpand(size_t);
+		void							MD_PushCstExpand(float);
+		virtual void					MD_PullRel(size_t);
+		virtual void					MD_PullRel(size_t, bool, bool, bool, bool);
 
-		void                            MD_AbsS();
-		void                            MD_AddB();
-		void                            MD_AddH();
+		void							MD_AbsS();
+		void							MD_AddB();
+		void							MD_AddH();
 		void							MD_AddW();
-		void                            MD_AddWSS();
-		void                            MD_AddWUS();
-		void                            MD_AddS();
-		void                            MD_And();
-		void                            MD_CmpEqW();
-		void                            MD_CmpGtH();
-		void                            MD_DivS();
-		void                            MD_IsNegative();
-		void                            MD_IsZero();
-		void                            MD_MaxH();
-		void                            MD_MaxS();
-		void                            MD_MinH();
+		void							MD_AddWSS();
+		void							MD_AddWUS();
+		void							MD_AddS();
+		void							MD_And();
+		void							MD_CmpEqW();
+		void							MD_CmpGtH();
+		void							MD_DivS();
+		void							MD_IsNegative();
+		void							MD_IsZero();
+		void							MD_MaxH();
+		void							MD_MaxS();
+		void							MD_MinH();
 		void							MD_MinW();
-		void                            MD_MinS();
-		void                            MD_MulS();
-		void                            MD_Not();
-		void                            MD_Or();
-		void                            MD_PackHB();
-		void                            MD_PackWH();
-		void                            MD_SllH(uint8);
+		void							MD_MinS();
+		void							MD_MulS();
+		void							MD_Not();
+		void							MD_Or();
+		void							MD_PackHB();
+		void							MD_PackWH();
+		void							MD_SllH(uint8);
 		void							MD_SllW(uint8);
-		void                            MD_SraH(uint8);
-		void                            MD_SraW(uint8);
-		void                            MD_SrlH(uint8);
+		void							MD_SraH(uint8);
+		void							MD_SraW(uint8);
+		void							MD_SrlH(uint8);
 		void							MD_SrlW(uint8);
-		void                            MD_Srl256();
-		void                            MD_SubB();
-		void                            MD_SubW();
-		void                            MD_SubS();
-		void                            MD_ToSingle();
-		void                            MD_ToWordTruncate();
-		void                            MD_UnpackLowerBH();
-		void                            MD_UnpackLowerHW();
-		void                            MD_UnpackLowerWD();
-		void                            MD_UnpackUpperBH();
-		void                            MD_UnpackUpperWD();
-		void                            MD_Xor();
+		void							MD_Srl256();
+		void							MD_SubB();
+		void							MD_SubW();
+		void							MD_SubS();
+		void							MD_ToSingle();
+		void							MD_ToWordTruncate();
+		void							MD_UnpackLowerBH();
+		void							MD_UnpackLowerHW();
+		void							MD_UnpackLowerWD();
+		void							MD_UnpackUpperBH();
+		void							MD_UnpackUpperWD();
+		void							MD_Xor();
 
-		void                            SetStream(Framework::CStream*);
+		void							SetStream(Framework::CStream*);
 
 	protected:
 		CArrayStack<SymbolPtr>			m_Shadow;
@@ -315,7 +315,7 @@ namespace Jitter
 		void							NormalizeStatements(BASIC_BLOCK&);
 		unsigned int					AllocateStack(BASIC_BLOCK&);
 
-		bool						    m_nBlockStarted;
+		bool							m_nBlockStarted;
 
 		unsigned int					m_nextTemporary;
 		unsigned int					m_nextBlockId;

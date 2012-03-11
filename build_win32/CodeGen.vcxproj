@@ -19,52 +19,52 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\ArmAssembler.cpp" />
-    <ClCompile Include="src\Jitter.cpp" />
-    <ClCompile Include="src\Jitter_CodeGen.cpp" />
-    <ClCompile Include="src\Jitter_CodeGenFactory.cpp" />
-    <ClCompile Include="src\Jitter_CodeGen_Arm.cpp" />
-    <ClCompile Include="src\Jitter_CodeGen_Arm_Fpu.cpp" />
-    <ClCompile Include="src\Jitter_CodeGen_x86.cpp" />
-    <ClCompile Include="src\Jitter_CodeGen_x86_32.cpp" />
-    <ClCompile Include="src\Jitter_CodeGen_x86_64.cpp" />
-    <ClCompile Include="src\Jitter_CodeGen_x86_Fpu.cpp" />
-    <ClCompile Include="src\Jitter_CodeGen_x86_Md.cpp" />
-    <ClCompile Include="src\Jitter_Optimize.cpp" />
-    <ClCompile Include="src\Jitter_RegAlloc.cpp" />
-    <ClCompile Include="src\Jitter_SymbolTable.cpp" />
-    <ClCompile Include="src\MemoryFunction.cpp" />
-    <ClCompile Include="src\X86Assembler.cpp" />
-    <ClCompile Include="src\X86Assembler_Fpu.cpp" />
-    <ClCompile Include="src\X86Assembler_Sse.cpp" />
+    <ClCompile Include="..\src\ArmAssembler.cpp" />
+    <ClCompile Include="..\src\Jitter.cpp" />
+    <ClCompile Include="..\src\Jitter_CodeGen.cpp" />
+    <ClCompile Include="..\src\Jitter_CodeGenFactory.cpp" />
+    <ClCompile Include="..\src\Jitter_CodeGen_Arm.cpp" />
+    <ClCompile Include="..\src\Jitter_CodeGen_Arm_Fpu.cpp" />
+    <ClCompile Include="..\src\Jitter_CodeGen_x86.cpp" />
+    <ClCompile Include="..\src\Jitter_CodeGen_x86_32.cpp" />
+    <ClCompile Include="..\src\Jitter_CodeGen_x86_64.cpp" />
+    <ClCompile Include="..\src\Jitter_CodeGen_x86_Fpu.cpp" />
+    <ClCompile Include="..\src\Jitter_CodeGen_x86_Md.cpp" />
+    <ClCompile Include="..\src\Jitter_Optimize.cpp" />
+    <ClCompile Include="..\src\Jitter_RegAlloc.cpp" />
+    <ClCompile Include="..\src\Jitter_SymbolTable.cpp" />
+    <ClCompile Include="..\src\MemoryFunction.cpp" />
+    <ClCompile Include="..\src\X86Assembler.cpp" />
+    <ClCompile Include="..\src\X86Assembler_Fpu.cpp" />
+    <ClCompile Include="..\src\X86Assembler_Sse.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\ArmAssembler.h" />
-    <ClInclude Include="include\ArrayStack.h" />
-    <ClInclude Include="include\Jitter.h" />
-    <ClInclude Include="include\Jitter_CodeGen.h" />
-    <ClInclude Include="include\Jitter_CodeGenFactory.h" />
-    <ClInclude Include="include\Jitter_CodeGen_Arm.h" />
-    <ClInclude Include="include\Jitter_CodeGen_x86.h" />
-    <ClInclude Include="include\Jitter_CodeGen_x86_32.h" />
-    <ClInclude Include="include\Jitter_CodeGen_x86_64.h" />
-    <ClInclude Include="include\Jitter_Statement.h" />
-    <ClInclude Include="include\Jitter_Symbol.h" />
-    <ClInclude Include="include\Jitter_SymbolRef.h" />
-    <ClInclude Include="include\Jitter_SymbolTable.h" />
-    <ClInclude Include="include\MemoryFunction.h" />
-    <ClInclude Include="include\X86Assembler.h" />
-    <ClInclude Include="src\Jitter_CodeGen_Arm_Alu.h" />
-    <ClInclude Include="src\Jitter_CodeGen_Arm_Div.h" />
-    <ClInclude Include="src\Jitter_CodeGen_Arm_Mul.h" />
-    <ClInclude Include="src\Jitter_CodeGen_Arm_Shift.h" />
-    <ClInclude Include="src\Jitter_CodeGen_x86_Alu.h" />
-    <ClInclude Include="src\Jitter_CodeGen_x86_Div.h" />
-    <ClInclude Include="src\Jitter_CodeGen_x86_Mul.h" />
-    <ClInclude Include="src\Jitter_CodeGen_x86_Shift.h" />
+    <ClInclude Include="..\include\ArmAssembler.h" />
+    <ClInclude Include="..\include\ArrayStack.h" />
+    <ClInclude Include="..\include\Jitter.h" />
+    <ClInclude Include="..\include\Jitter_CodeGen.h" />
+    <ClInclude Include="..\include\Jitter_CodeGenFactory.h" />
+    <ClInclude Include="..\include\Jitter_CodeGen_Arm.h" />
+    <ClInclude Include="..\include\Jitter_CodeGen_x86.h" />
+    <ClInclude Include="..\include\Jitter_CodeGen_x86_32.h" />
+    <ClInclude Include="..\include\Jitter_CodeGen_x86_64.h" />
+    <ClInclude Include="..\include\Jitter_Statement.h" />
+    <ClInclude Include="..\include\Jitter_Symbol.h" />
+    <ClInclude Include="..\include\Jitter_SymbolRef.h" />
+    <ClInclude Include="..\include\Jitter_SymbolTable.h" />
+    <ClInclude Include="..\include\MemoryFunction.h" />
+    <ClInclude Include="..\include\X86Assembler.h" />
+    <ClInclude Include="..\src\Jitter_CodeGen_Arm_Alu.h" />
+    <ClInclude Include="..\src\Jitter_CodeGen_Arm_Div.h" />
+    <ClInclude Include="..\src\Jitter_CodeGen_Arm_Mul.h" />
+    <ClInclude Include="..\src\Jitter_CodeGen_Arm_Shift.h" />
+    <ClInclude Include="..\src\Jitter_CodeGen_x86_Alu.h" />
+    <ClInclude Include="..\src\Jitter_CodeGen_x86_Div.h" />
+    <ClInclude Include="..\src\Jitter_CodeGen_x86_Mul.h" />
+    <ClInclude Include="..\src\Jitter_CodeGen_x86_Shift.h" />
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="src\MemoryFunction_Execute.asm">
+    <CustomBuild Include="..\src\MemoryFunction_Execute.asm">
       <FileType>Document</FileType>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ml64 /c /Fo"$(IntDir)\%(Filename).obj" %(Identity)</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)\%(Filename).obj</Outputs>
@@ -141,7 +141,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(FrameworkRoot)\include;$(ProjectDir)/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(FrameworkRoot)\include;$(ProjectDir)/../include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -155,7 +155,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(FrameworkRoot)\include;$(ProjectDir)/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(FrameworkRoot)\include;$(ProjectDir)/../include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -171,7 +171,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(FrameworkRoot)\include;$(ProjectDir)/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(FrameworkRoot)\include;$(ProjectDir)/../include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -189,7 +189,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(FrameworkRoot)\include;$(ProjectDir)/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(FrameworkRoot)\include;$(ProjectDir)/../include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

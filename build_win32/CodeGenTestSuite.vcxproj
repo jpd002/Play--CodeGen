@@ -89,7 +89,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(FrameworkRoot)\include;$(ProjectDir)/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(FrameworkRoot)\include;$(ProjectDir)/../include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -103,7 +103,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(FrameworkRoot)\include;$(ProjectDir)/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(FrameworkRoot)\include;$(ProjectDir)/../include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -119,7 +119,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(FrameworkRoot)\include;$(ProjectDir)/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(FrameworkRoot)\include;$(ProjectDir)/../include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -137,7 +137,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(FrameworkRoot)\include;$(ProjectDir)/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(FrameworkRoot)\include;$(ProjectDir)/../include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -147,54 +147,54 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="tests\AliasTest.cpp" />
-    <ClCompile Include="tests\Alu64Test.cpp" />
-    <ClCompile Include="tests\Call64Test.cpp" />
-    <ClCompile Include="tests\CompareTest.cpp" />
-    <ClCompile Include="tests\Crc32Test.cpp" />
-    <ClCompile Include="tests\FpIntMixTest.cpp" />
-    <ClCompile Include="tests\FpuTest.cpp" />
-    <ClCompile Include="tests\HalfMultTest.cpp" />
-    <ClCompile Include="tests\HugeJumpTest.cpp" />
-    <ClCompile Include="tests\Main.cpp" />
-    <ClCompile Include="tests\MdCallTest.cpp" />
-    <ClCompile Include="tests\MdFpFlagTest.cpp" />
-    <ClCompile Include="tests\MdFpTest.cpp" />
-    <ClCompile Include="tests\MdTest.cpp" />
-    <ClCompile Include="tests\MemAccessTest.cpp" />
-    <ClCompile Include="tests\MultTest.cpp" />
-    <ClCompile Include="tests\RandomAluTest.cpp" />
-    <ClCompile Include="tests\RandomAluTest2.cpp" />
-    <ClCompile Include="tests\RandomAluTest3.cpp" />
-    <ClCompile Include="tests\RegAllocTest.cpp" />
-    <ClCompile Include="tests\Shift64Test.cpp" />
+    <ClCompile Include="..\tests\AliasTest.cpp" />
+    <ClCompile Include="..\tests\Alu64Test.cpp" />
+    <ClCompile Include="..\tests\Call64Test.cpp" />
+    <ClCompile Include="..\tests\CompareTest.cpp" />
+    <ClCompile Include="..\tests\Crc32Test.cpp" />
+    <ClCompile Include="..\tests\FpIntMixTest.cpp" />
+    <ClCompile Include="..\tests\FpuTest.cpp" />
+    <ClCompile Include="..\tests\HalfMultTest.cpp" />
+    <ClCompile Include="..\tests\HugeJumpTest.cpp" />
+    <ClCompile Include="..\tests\Main.cpp" />
+    <ClCompile Include="..\tests\MdCallTest.cpp" />
+    <ClCompile Include="..\tests\MdFpFlagTest.cpp" />
+    <ClCompile Include="..\tests\MdFpTest.cpp" />
+    <ClCompile Include="..\tests\MdTest.cpp" />
+    <ClCompile Include="..\tests\MemAccessTest.cpp" />
+    <ClCompile Include="..\tests\MultTest.cpp" />
+    <ClCompile Include="..\tests\RandomAluTest.cpp" />
+    <ClCompile Include="..\tests\RandomAluTest2.cpp" />
+    <ClCompile Include="..\tests\RandomAluTest3.cpp" />
+    <ClCompile Include="..\tests\RegAllocTest.cpp" />
+    <ClCompile Include="..\tests\Shift64Test.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="tests\AliasTest.h" />
-    <ClInclude Include="tests\Align16.h" />
-    <ClInclude Include="tests\Alu64Test.h" />
-    <ClInclude Include="tests\Call64Test.h" />
-    <ClInclude Include="tests\CompareTest.h" />
-    <ClInclude Include="tests\Crc32Test.h" />
-    <ClInclude Include="tests\FpIntMixTest.h" />
-    <ClInclude Include="tests\FpuTest.h" />
-    <ClInclude Include="tests\HalfMultTest.h" />
-    <ClInclude Include="tests\HugeJumpTest.h" />
-    <ClInclude Include="tests\MdCallTest.h" />
-    <ClInclude Include="tests\MdFpFlagTest.h" />
-    <ClInclude Include="tests\MdFpTest.h" />
-    <ClInclude Include="tests\MdTest.h" />
-    <ClInclude Include="tests\MemAccessTest.h" />
-    <ClInclude Include="tests\MultTest.h" />
-    <ClInclude Include="tests\RandomAluTest.h" />
-    <ClInclude Include="tests\RandomAluTest2.h" />
-    <ClInclude Include="tests\RandomAluTest3.h" />
-    <ClInclude Include="tests\RegAllocTest.h" />
-    <ClInclude Include="tests\Shift64Test.h" />
-    <ClInclude Include="tests\Test.h" />
+    <ClInclude Include="..\tests\AliasTest.h" />
+    <ClInclude Include="..\tests\Align16.h" />
+    <ClInclude Include="..\tests\Alu64Test.h" />
+    <ClInclude Include="..\tests\Call64Test.h" />
+    <ClInclude Include="..\tests\CompareTest.h" />
+    <ClInclude Include="..\tests\Crc32Test.h" />
+    <ClInclude Include="..\tests\FpIntMixTest.h" />
+    <ClInclude Include="..\tests\FpuTest.h" />
+    <ClInclude Include="..\tests\HalfMultTest.h" />
+    <ClInclude Include="..\tests\HugeJumpTest.h" />
+    <ClInclude Include="..\tests\MdCallTest.h" />
+    <ClInclude Include="..\tests\MdFpFlagTest.h" />
+    <ClInclude Include="..\tests\MdFpTest.h" />
+    <ClInclude Include="..\tests\MdTest.h" />
+    <ClInclude Include="..\tests\MemAccessTest.h" />
+    <ClInclude Include="..\tests\MultTest.h" />
+    <ClInclude Include="..\tests\RandomAluTest.h" />
+    <ClInclude Include="..\tests\RandomAluTest2.h" />
+    <ClInclude Include="..\tests\RandomAluTest3.h" />
+    <ClInclude Include="..\tests\RegAllocTest.h" />
+    <ClInclude Include="..\tests\Shift64Test.h" />
+    <ClInclude Include="..\tests\Test.h" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Framework\build_msvc100\Framework.vcxproj">
+    <ProjectReference Include="..\..\Framework\build_msvc100\Framework.vcxproj">
       <Project>{553ce050-a97e-4e6e-ae84-057a1f0fa45d}</Project>
     </ProjectReference>
     <ProjectReference Include="CodeGen.vcxproj">

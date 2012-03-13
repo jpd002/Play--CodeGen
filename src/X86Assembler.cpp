@@ -197,103 +197,108 @@ CX86Assembler::CAddress CX86Assembler::MakeByteRegisterAddress(REGISTER register
 
 CX86Assembler::CAddress CX86Assembler::MakeIndRegAddress(REGISTER registerId)
 {
-    CAddress address;
+	CAddress address;
 
-	//Cannot be done with rSP
+	//Cannot be done with rBP
 	assert(registerId != rBP);
 	assert(registerId < 8);
 
-    if(registerId == rSP)
-    {
-        registerId = static_cast<REGISTER>(4);
-        address.sib.scale = 0;
-        address.sib.index = 4;
-        address.sib.base = 4;
-    }
+	if(registerId == rSP)
+	{
+		registerId = static_cast<REGISTER>(4);
+		address.sib.scale = 0;
+		address.sib.index = 4;
+		address.sib.base = 4;
+	}
 
-    address.ModRm.nMod = 0;
-    address.ModRm.nRM = registerId;
-    return address;
+	address.ModRm.nMod = 0;
+	address.ModRm.nRM = registerId;
+	return address;
 }
 
 CX86Assembler::CAddress CX86Assembler::MakeIndRegOffAddress(REGISTER nRegister, uint32 nOffset)
 {
-    CAddress Address;
+	if((nOffset == 0) && (nRegister != CX86Assembler::rBP))
+	{
+		return MakeIndRegAddress(nRegister);
+	}
+	
+	CAddress Address;
 
-    if(nRegister == rSP)
-    {
-        nRegister = static_cast<REGISTER>(4);
-        Address.sib.scale = 0;
-        Address.sib.index = 4;
-        Address.sib.base = 4;
-    }
+	if(nRegister == rSP)
+	{
+		nRegister = static_cast<REGISTER>(4);
+		Address.sib.scale = 0;
+		Address.sib.index = 4;
+		Address.sib.base = 4;
+	}
 
-    if(nRegister > 7)
-    {
-        Address.nIsExtendedModRM = true;
-        nRegister = static_cast<REGISTER>(nRegister & 7);
-    }
+	if(nRegister > 7)
+	{
+		Address.nIsExtendedModRM = true;
+		nRegister = static_cast<REGISTER>(nRegister & 7);
+	}
 
-    if(GetMinimumConstantSize(nOffset) == 1)
-    {
-        Address.ModRm.nMod = 1;
-        Address.nOffset = static_cast<uint8>(nOffset);
-    }
-    else
-    {
-        Address.ModRm.nMod = 2;
-        Address.nOffset = nOffset;
-    }
+	if(GetMinimumConstantSize(nOffset) == 1)
+	{
+		Address.ModRm.nMod = 1;
+		Address.nOffset = static_cast<uint8>(nOffset);
+	}
+	else
+	{
+		Address.ModRm.nMod = 2;
+		Address.nOffset = nOffset;
+	}
 
-    Address.ModRm.nRM = nRegister;
+	Address.ModRm.nRM = nRegister;
 
-    return Address;
+	return Address;
 }
 
 CX86Assembler::CAddress CX86Assembler::MakeBaseIndexScaleAddress(REGISTER base, REGISTER index, uint8 scale)
 {
-    CAddress address;
-    address.ModRm.nRM = 4;
-    if(base == rBP || base == r13)
-    {
-        throw std::runtime_error("Invalid base.");
-    }
-    if(index == rSP)
-    {
-        throw std::runtime_error("Invalid index.");
-    }
-    if(base > 7)
-    {
-        address.nIsExtendedModRM = true;
-        base = static_cast<REGISTER>(base & 7);
-    }
-    if(index > 7)
-    {
-        address.nIsExtendedSib = true;
-        index = static_cast<REGISTER>(index & 7);
-    }
-    address.sib.base = base;
-    address.sib.index = index;
-    switch(scale)
-    {
-    case 1:
-        address.sib.scale = 0;
-        break;
-    case 2:
-        address.sib.scale = 1;
-        break;
-    case 4:
-        address.sib.scale = 2;
-        break;
-    case 8:
-        address.sib.scale = 3;
-        break;
-    default:
-        throw std::runtime_error("Invalid scale.");
-        break;
-    }
+	CAddress address;
+	address.ModRm.nRM = 4;
+	if(base == rBP || base == r13)
+	{
+		throw std::runtime_error("Invalid base.");
+	}
+	if(index == rSP)
+	{
+		throw std::runtime_error("Invalid index.");
+	}
+	if(base > 7)
+	{
+		address.nIsExtendedModRM = true;
+		base = static_cast<REGISTER>(base & 7);
+	}
+	if(index > 7)
+	{
+		address.nIsExtendedSib = true;
+		index = static_cast<REGISTER>(index & 7);
+	}
+	address.sib.base = base;
+	address.sib.index = index;
+	switch(scale)
+	{
+	case 1:
+		address.sib.scale = 0;
+		break;
+	case 2:
+		address.sib.scale = 1;
+		break;
+	case 4:
+		address.sib.scale = 2;
+		break;
+	case 8:
+		address.sib.scale = 3;
+		break;
+	default:
+		throw std::runtime_error("Invalid scale.");
+		break;
+	}
 
-    return address;
+	return address;
 }
 
 CX86Assembler::LABEL CX86Assembler::CreateLabel()

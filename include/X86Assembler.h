@@ -137,6 +137,7 @@ public:
 	void									JnbJx(LABEL);
 	void									JzJx(LABEL);
 	void									JnleJx(LABEL);
+	void									JlJx(LABEL);
 	void									JleJx(LABEL);
 	void									JmpJx(LABEL);
 	void									JnzJx(LABEL);

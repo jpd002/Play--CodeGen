@@ -1742,6 +1742,9 @@ void CJitter::NormalizeStatements(BASIC_BLOCK& basicBlock)
 			case CONDITION_LT:
 				statement.jmpCondition = CONDITION_GT;
 				break;
+			case CONDITION_GT:
+				statement.jmpCondition = CONDITION_LT;
+				break;
 			default:
 				assert(0);
 				break;

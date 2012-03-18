@@ -294,7 +294,7 @@ void CCodeGen_x86::GenerateCode(const StatementList& statements, unsigned int st
 			registerUsage |= (1 << dst->m_valueLow);
 		}
 	}
-
+	
 	//Align stacksize
 	stackSize = (stackSize + 0xF) & ~0xF;
 	m_stackLevel = 0;
@@ -304,18 +304,18 @@ void CCodeGen_x86::GenerateCode(const StatementList& statements, unsigned int st
 		CX86Assembler::LABEL rootLabel = m_assembler.CreateLabel();
 		m_assembler.MarkLabel(rootLabel);
 
-		Emit_Prolog(stackSize, registerUsage);
+		Emit_Prolog(statements, stackSize, registerUsage);
 
-		for(StatementList::const_iterator statementIterator(statements.begin());
-			statementIterator != statements.end(); statementIterator++)
+		for(auto statementIterator(std::begin(statements));
+			statementIterator != std::end(statements); statementIterator++)
 		{
 			const STATEMENT& statement(*statementIterator);
 
 			bool found = false;
-			MatcherMapType::const_iterator begin = m_matchers.lower_bound(statement.op);
-			MatcherMapType::const_iterator end = m_matchers.upper_bound(statement.op);
+			auto begin = m_matchers.lower_bound(statement.op);
+			auto end = m_matchers.upper_bound(statement.op);
 
-			for(MatcherMapType::const_iterator matchIterator(begin); matchIterator != end; matchIterator++)
+			for(auto matchIterator(begin); matchIterator != end; matchIterator++)
 			{
 				const MATCHER& matcher(matchIterator->second);
 				if(!SymbolMatches(matcher.dstType, statement.dst)) continue;

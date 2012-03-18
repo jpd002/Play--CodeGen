@@ -2,6 +2,7 @@
 #define _JITTER_CODEGEN_X86_32_H_
 
 #include "Jitter_CodeGen_x86.h"
+#include <deque>
 
 namespace Jitter
 {
@@ -14,7 +15,7 @@ namespace Jitter
 		unsigned int						GetAvailableRegisterCount() const;
 
 	protected:
-		virtual void						Emit_Prolog(unsigned int, uint32);
+		virtual void						Emit_Prolog(const StatementList&, unsigned int, uint32);
 		virtual void						Emit_Epilog(unsigned int, uint32);
 
 		//PARAM
@@ -23,6 +24,7 @@ namespace Jitter
 		void								Emit_Param_Cst(const STATEMENT&);
 		void								Emit_Param_Reg(const STATEMENT&);
 		void								Emit_Param_Mem64(const STATEMENT&);
+		void								Emit_Param_Cst64(const STATEMENT&);
 		void								Emit_Param_Mem128(const STATEMENT&);
 		
 		//PARAM_RET
@@ -93,6 +95,9 @@ namespace Jitter
 		void								Emit_StoreAtRef_TmpCst(const STATEMENT&);
 
 	private:
+		typedef std::function<uint32 (uint32)> ParamEmitterFunction;
+		typedef std::deque<ParamEmitterFunction> ParamStack;
+		
 		typedef void (CCodeGen_x86_32::*ConstCodeEmitterType)(const STATEMENT&);
 
 		struct CONSTMATCHER
@@ -104,9 +109,19 @@ namespace Jitter
 			ConstCodeEmitterType	emitter;
 		};
 
+		uint32								WriteCtxParam(uint32);
+		uint32								WriteRegParam(uint32, CX86Assembler::REGISTER);
+		uint32								WriteMemParam(uint32, CSymbol*);
+		uint32								WriteCstParam(uint32, uint32);
+		uint32								WriteMem64Param(uint32, CSymbol*);
+		uint32								WriteCst64Param(uint32, CSymbol*);
+		uint32								WriteMem128Param(uint32, const CX86Assembler::CAddress&);
+		
 		static CONSTMATCHER					g_constMatchers[];
 		static CX86Assembler::REGISTER		g_registers[];
 		
+		ParamStack							m_params;
+		uint32								m_paramAreaSize;
 		bool								m_hasImplicitRetValueParam;
 	};
 }

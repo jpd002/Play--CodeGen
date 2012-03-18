@@ -303,7 +303,7 @@ namespace Jitter
 			static OpVoType OpVo() { return &CX86Assembler::PslldVo; }
 		};
 
-		virtual void				Emit_Prolog(unsigned int, uint32) = 0;
+		virtual void				Emit_Prolog(const StatementList&, unsigned int, uint32) = 0;
 		virtual void				Emit_Epilog(unsigned int, uint32) = 0;
 
 		CX86Assembler::LABEL		GetLabel(uint32);

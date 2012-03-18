@@ -220,7 +220,7 @@ unsigned int CCodeGen_x86_64::GetAvailableRegisterCount() const
 	return MAX_REGISTERS;
 }
 
-void CCodeGen_x86_64::Emit_Prolog(unsigned int stackSize, uint32 registerUsage)
+void CCodeGen_x86_64::Emit_Prolog(const StatementList&, unsigned int stackSize, uint32 registerUsage)
 {
 	m_params.clear();
 

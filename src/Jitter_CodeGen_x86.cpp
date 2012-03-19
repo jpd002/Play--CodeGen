@@ -145,7 +145,7 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_constMatchers[] =
 	ALU_CONST_MATCHERS(OP_XOR, ALUOP_XOR)
 
 	{ OP_CMP,		MATCH_REGISTER,		MATCH_REGISTER,		MATCH_REGISTER,		&CCodeGen_x86::Emit_Cmp_RegRegReg					},
-	{ OP_CMP,		MATCH_REGISTER,		MATCH_REGISTER,		MATCH_RELATIVE,		&CCodeGen_x86::Emit_Cmp_RegRegRel					},
+	{ OP_CMP,		MATCH_REGISTER,		MATCH_REGISTER,		MATCH_MEMORY,		&CCodeGen_x86::Emit_Cmp_RegRegMem					},
 	{ OP_CMP,		MATCH_REGISTER,		MATCH_REGISTER,		MATCH_CONSTANT,		&CCodeGen_x86::Emit_Cmp_RegRegCst					},
 	{ OP_CMP,		MATCH_REGISTER,		MATCH_RELATIVE,		MATCH_RELATIVE,		&CCodeGen_x86::Emit_Cmp_RegRelRel					},
 	{ OP_CMP,		MATCH_REGISTER,		MATCH_RELATIVE,		MATCH_CONSTANT,		&CCodeGen_x86::Emit_Cmp_RegRelCst					},
@@ -182,11 +182,10 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_constMatchers[] =
 	{ OP_JMP,		MATCH_NIL,			MATCH_NIL,			MATCH_NIL,			&CCodeGen_x86::Emit_Jmp								},
 
 	{ OP_CONDJMP,	MATCH_NIL,			MATCH_REGISTER,		MATCH_REGISTER,		&CCodeGen_x86::Emit_CondJmp_RegReg					},
-	{ OP_CONDJMP,	MATCH_NIL,			MATCH_REGISTER,		MATCH_RELATIVE,		&CCodeGen_x86::Emit_CondJmp_RegRel					},
+	{ OP_CONDJMP,	MATCH_NIL,			MATCH_REGISTER,		MATCH_MEMORY,		&CCodeGen_x86::Emit_CondJmp_RegMem					},
 	{ OP_CONDJMP,	MATCH_NIL,			MATCH_REGISTER,		MATCH_CONSTANT,		&CCodeGen_x86::Emit_CondJmp_RegCst					},
 	{ OP_CONDJMP,	MATCH_NIL,			MATCH_RELATIVE,		MATCH_RELATIVE,		&CCodeGen_x86::Emit_CondJmp_RelRel					},
-	{ OP_CONDJMP,	MATCH_NIL,			MATCH_RELATIVE,		MATCH_CONSTANT,		&CCodeGen_x86::Emit_CondJmp_RelCst					},
-	{ OP_CONDJMP,	MATCH_NIL,			MATCH_TEMPORARY,	MATCH_CONSTANT,		&CCodeGen_x86::Emit_CondJmp_TmpCst					},
+	{ OP_CONDJMP,	MATCH_NIL,			MATCH_MEMORY,		MATCH_CONSTANT,		&CCodeGen_x86::Emit_CondJmp_MemCst					},
 
 	{ OP_DIV,		MATCH_TEMPORARY64,	MATCH_REGISTER,		MATCH_REGISTER,		&CCodeGen_x86::Emit_DivTmp64RegReg<false>			},
 	{ OP_DIV,		MATCH_TEMPORARY64,	MATCH_REGISTER,		MATCH_MEMORY,		&CCodeGen_x86::Emit_DivTmp64RegMem<false>			},
@@ -938,13 +937,13 @@ void CCodeGen_x86::Emit_Cmp_RegRegReg(const STATEMENT& statement)
 	m_assembler.MovzxEb(m_registers[dst->m_valueLow], CX86Assembler::MakeRegisterAddress(CX86Assembler::rAX));
 }
 
-void CCodeGen_x86::Emit_Cmp_RegRegRel(const STATEMENT& statement)
+void CCodeGen_x86::Emit_Cmp_RegRegMem(const STATEMENT& statement)
 {
 	CSymbol* dst = statement.dst->GetSymbol().get();
 	CSymbol* src1 = statement.src1->GetSymbol().get();
 	CSymbol* src2 = statement.src2->GetSymbol().get();
 
-	m_assembler.CmpEd(m_registers[src1->m_valueLow], CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, src2->m_valueLow));
+	m_assembler.CmpEd(m_registers[src1->m_valueLow], MakeMemorySymbolAddress(src2));
 	Cmp_GetFlag(CX86Assembler::MakeRegisterAddress(CX86Assembler::rAX), statement.jmpCondition);
 	m_assembler.MovzxEb(m_registers[dst->m_valueLow], CX86Assembler::MakeRegisterAddress(CX86Assembler::rAX));
 }
@@ -1110,15 +1109,14 @@ void CCodeGen_x86::Emit_CondJmp_RegReg(const STATEMENT& statement)
 	CondJmp_JumpTo(GetLabel(statement.jmpBlock), statement.jmpCondition);
 }
 
-void CCodeGen_x86::Emit_CondJmp_RegRel(const STATEMENT& statement)
+void CCodeGen_x86::Emit_CondJmp_RegMem(const STATEMENT& statement)
 {
 	CSymbol* src1 = statement.src1->GetSymbol().get();
 	CSymbol* src2 = statement.src2->GetSymbol().get();
 
 	assert(src1->m_type == SYM_REGISTER);
-	assert(src2->m_type == SYM_RELATIVE);
 
-	m_assembler.CmpEd(m_registers[src1->m_valueLow], CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, src2->m_valueLow));
+	m_assembler.CmpEd(m_registers[src1->m_valueLow], MakeMemorySymbolAddress(src2));
 
 	CondJmp_JumpTo(GetLabel(statement.jmpBlock), statement.jmpCondition);
 }
@@ -1157,37 +1155,14 @@ void CCodeGen_x86::Emit_CondJmp_RelRel(const STATEMENT& statement)
 	CondJmp_JumpTo(GetLabel(statement.jmpBlock), statement.jmpCondition);
 }
 
-void CCodeGen_x86::Emit_CondJmp_RelCst(const STATEMENT& statement)
+void CCodeGen_x86::Emit_CondJmp_MemCst(const STATEMENT& statement)
 {
 	CSymbol* src1 = statement.src1->GetSymbol().get();
 	CSymbol* src2 = statement.src2->GetSymbol().get();
 
-	assert(src1->m_type == SYM_RELATIVE);
 	assert(src2->m_type == SYM_CONSTANT);
 
-	m_assembler.MovEd(CX86Assembler::rAX, CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, src1->m_valueLow));
-	
-	if((src2->m_valueLow == 0) && (statement.jmpCondition == CONDITION_NE || statement.jmpCondition == CONDITION_EQ))
-	{
-		m_assembler.TestEd(CX86Assembler::rAX, CX86Assembler::MakeRegisterAddress(CX86Assembler::rAX));
-	}
-	else
-	{
-		m_assembler.CmpId(CX86Assembler::MakeRegisterAddress(CX86Assembler::rAX), src2->m_valueLow);
-	}
-
-	CondJmp_JumpTo(GetLabel(statement.jmpBlock), statement.jmpCondition);
-}
-
-void CCodeGen_x86::Emit_CondJmp_TmpCst(const STATEMENT& statement)
-{
-	CSymbol* src1 = statement.src1->GetSymbol().get();
-	CSymbol* src2 = statement.src2->GetSymbol().get();
-
-	assert(src1->m_type == SYM_TEMPORARY);
-	assert(src2->m_type == SYM_CONSTANT);
-
-	m_assembler.MovEd(CX86Assembler::rAX, CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rSP, src1->m_stackLocation + m_stackLevel));
+	m_assembler.MovEd(CX86Assembler::rAX, MakeMemorySymbolAddress(src1));
 	
 	if((src2->m_valueLow == 0) && (statement.jmpCondition == CONDITION_NE || statement.jmpCondition == CONDITION_EQ))
 	{

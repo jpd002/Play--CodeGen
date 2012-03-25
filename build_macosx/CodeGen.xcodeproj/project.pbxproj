@@ -322,7 +322,7 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				EXECUTABLE_PREFIX = lib;
 				HEADER_SEARCH_PATHS = (
-					"~/Libraries/boost_1_48_0",
+					"~/Libraries/boost_1_49_0",
 					"~/Projects/Framework/include",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -337,7 +337,7 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				EXECUTABLE_PREFIX = lib;
 				HEADER_SEARCH_PATHS = (
-					"~/Libraries/boost_1_48_0",
+					"~/Libraries/boost_1_49_0",
 					"~/Projects/Framework/include",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";

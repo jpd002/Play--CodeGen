@@ -260,7 +260,7 @@ void CJitter::Call(void* func, unsigned int paramCount, RETURN_VALUE_TYPE return
 	STATEMENT callStatement;
 	if(addrSize == 4)
 	{
-		callStatement.src1 = MakeSymbolRef(MakeSymbol(SYM_CONSTANT, reinterpret_cast<uint32>(func)));
+		callStatement.src1 = MakeSymbolRef(MakeSymbol(SYM_CONSTANT, reinterpret_cast<size_t>(func)));
 	}
 	else if(addrSize == 8)
 	{

@@ -154,6 +154,7 @@ namespace Jitter
 
 		void							MD_AbsS();
 		void							MD_AddB();
+		void							MD_AddBUS();
 		void							MD_AddH();
 		void							MD_AddW();
 		void							MD_AddWSS();

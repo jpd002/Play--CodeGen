@@ -25,6 +25,7 @@ private:
 
 		uint8			dstMov[16];
 		uint8			dstAddB[16];
+		uint8			dstAddBUS[16];
 		uint8			dstAddH[16];
 		uint8			dstAddW[16];
 		uint8			dstAddWUS[16];

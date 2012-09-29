@@ -55,6 +55,7 @@ namespace Jitter
 		OP_MD_MOV_MASKED,
 
 		OP_MD_ADD_B,
+		OP_MD_ADDUS_B,
 		OP_MD_ADD_H,
 		OP_MD_ADD_W,
 		OP_MD_ADDSS_W,

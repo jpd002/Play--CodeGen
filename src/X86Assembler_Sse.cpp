@@ -178,6 +178,13 @@ void CX86Assembler::PadddVo(XMMREGISTER registerId, const CAddress& address)
 	WriteEdVdOp(0xFE, address, registerId);
 }
 
+void CX86Assembler::PaddusbVo(XMMREGISTER registerId, const CAddress& address)
+{
+	WriteByte(0x66);
+	WriteByte(0x0F);
+	WriteEdVdOp(0xDC, address, registerId);
+}
+
 void CX86Assembler::PandVo(XMMREGISTER registerId, const CAddress& address)
 {
 	WriteByte(0x66);

@@ -76,6 +76,11 @@ void CMdTest::Compile(Jitter::CJitter& jitter)
 		jitter.MD_MaxH();
 		jitter.MD_PullRel(offsetof(CONTEXT, dstMaxH));
 
+		jitter.MD_PushRel(offsetof(CONTEXT, src0));
+		jitter.MD_PushRel(offsetof(CONTEXT, src2));
+		jitter.MD_MaxW();
+		jitter.MD_PullRel(offsetof(CONTEXT, dstMaxW));
+
 		//Shifts
 		jitter.MD_PushRel(offsetof(CONTEXT, src0));
 		jitter.MD_SrlH(9);
@@ -304,6 +309,18 @@ void CMdTest::Run()
 		0x0E, 0x0F,
 	};
 
+	static const uint8 dstMaxWRes[16] =
+	{
+		0x00, 0x01,
+		0x02, 0x03,
+		0x40, 0x50,
+		0x60, 0x70,
+		0x08, 0x09,
+		0x0A, 0x0B,
+		0x0C, 0x0D,
+		0x0E, 0x0F,
+	};
+
 	static const uint8 dstSrlH[16] =
 	{
 		0x00, 0x00,
@@ -481,6 +498,7 @@ void CMdTest::Run()
 		TEST_VERIFY(dstMinHRes[i]			== context.dstMinH[i]);
 		TEST_VERIFY(dstMinWRes[i]			== context.dstMinW[i]);
 		TEST_VERIFY(dstMaxHRes[i]			== context.dstMaxH[i]);
+		TEST_VERIFY(dstMaxWRes[i]			== context.dstMaxW[i]);
 		TEST_VERIFY(dstSrlH[i]				== context.dstSrlH[i]);
 		TEST_VERIFY(dstSraH[i]				== context.dstSraH[i]);
 		TEST_VERIFY(dstSllH[i]				== context.dstSllH[i]);

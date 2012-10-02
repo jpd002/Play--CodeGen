@@ -35,6 +35,7 @@ private:
 
 		uint8			dstMinH[16];
 		uint8			dstMaxH[16];
+		uint8			dstMaxW[16];
 
 		uint8			dstMinW[16];
 

@@ -68,6 +68,7 @@ namespace Jitter
 		OP_MD_MIN_H,
 		OP_MD_MIN_W,
 		OP_MD_MAX_H,
+		OP_MD_MAX_W,
 
 		OP_MD_AND,
 		OP_MD_OR,

@@ -189,12 +189,18 @@ void CCodeGen_x86::Emit_Shift_MemMemReg(const STATEMENT& statement)
 
 	assert(src2->m_type == SYM_REGISTER);
 
-	assert(!dst->Equals(src1));
-
-	m_assembler.MovEd(CX86Assembler::rAX, MakeMemorySymbolAddress(src1));
 	m_assembler.MovEd(CX86Assembler::rCX, CX86Assembler::MakeRegisterAddress(m_registers[src2->m_valueLow]));
-	((m_assembler).*(SHIFTOP::OpVar()))(CX86Assembler::MakeRegisterAddress(CX86Assembler::rAX));
-	m_assembler.MovGd(MakeMemorySymbolAddress(dst), CX86Assembler::rAX);
+
+	if(dst->Equals(src1))
+	{
+		((m_assembler).*(SHIFTOP::OpVar()))(MakeMemorySymbolAddress(dst));
+	}
+	else
+	{
+		m_assembler.MovEd(CX86Assembler::rAX, MakeMemorySymbolAddress(src1));
+		((m_assembler).*(SHIFTOP::OpVar()))(CX86Assembler::MakeRegisterAddress(CX86Assembler::rAX));
+		m_assembler.MovGd(MakeMemorySymbolAddress(dst), CX86Assembler::rAX);
+	}
 }
 
 template <typename SHIFTOP>

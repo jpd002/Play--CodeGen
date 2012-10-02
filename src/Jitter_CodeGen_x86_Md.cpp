@@ -176,7 +176,7 @@ void CCodeGen_x86::Emit_Md_PackHB_MemMemMem(const STATEMENT& statement)
 	//Generate mask (0x00FF x8)
 	m_assembler.PcmpeqdVo(maskRegister,	CX86Assembler::MakeXmmRegisterAddress(maskRegister));
 	m_assembler.PsrlwVo(maskRegister, 0x08);
-    
+
 	//Mask both operands
 	m_assembler.PandVo(resultRegister, CX86Assembler::MakeXmmRegisterAddress(maskRegister));
 	m_assembler.PandVo(tempRegister, CX86Assembler::MakeXmmRegisterAddress(maskRegister));
@@ -404,7 +404,7 @@ void CCodeGen_x86::Emit_Md_Expand_MemReg(const STATEMENT& statement)
 	CX86Assembler::XMMREGISTER resultRegister = CX86Assembler::xMM0;
 
 	m_assembler.MovdVo(resultRegister, CX86Assembler::MakeRegisterAddress(m_registers[src1->m_valueLow]));
-    m_assembler.ShufpsVo(resultRegister, CX86Assembler::MakeXmmRegisterAddress(resultRegister), 0x00);
+	m_assembler.ShufpsVo(resultRegister, CX86Assembler::MakeXmmRegisterAddress(resultRegister), 0x00);
 	m_assembler.MovapsVo(MakeMemory128SymbolAddress(dst), resultRegister);
 }
 
@@ -416,7 +416,7 @@ void CCodeGen_x86::Emit_Md_Expand_MemMem(const STATEMENT& statement)
 	CX86Assembler::XMMREGISTER resultRegister = CX86Assembler::xMM0;
 
 	m_assembler.MovssEd(resultRegister, MakeMemorySymbolAddress(src1));
-    m_assembler.ShufpsVo(resultRegister, CX86Assembler::MakeXmmRegisterAddress(resultRegister), 0x00);
+	m_assembler.ShufpsVo(resultRegister, CX86Assembler::MakeXmmRegisterAddress(resultRegister), 0x00);
 	m_assembler.MovapsVo(MakeMemory128SymbolAddress(dst), resultRegister);
 }
 
@@ -432,7 +432,7 @@ void CCodeGen_x86::Emit_Md_Expand_MemCst(const STATEMENT& statement)
 
 	m_assembler.MovId(cstRegister, src1->m_valueLow);
 	m_assembler.MovdVo(resultRegister, CX86Assembler::MakeRegisterAddress(cstRegister));
-    m_assembler.ShufpsVo(resultRegister, CX86Assembler::MakeXmmRegisterAddress(resultRegister), 0x00);
+	m_assembler.ShufpsVo(resultRegister, CX86Assembler::MakeXmmRegisterAddress(resultRegister), 0x00);
 	m_assembler.MovapsVo(MakeMemory128SymbolAddress(dst), resultRegister);
 }
 
@@ -528,6 +528,7 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdConstMatchers[] =
 	{ OP_MD_MIN_W,				MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_x86::Emit_Md_MemMemMem<MDOP_MINW>					},
 
 	{ OP_MD_MAX_H,				MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_x86::Emit_Md_MemMemMem<MDOP_MAXH>					},
+	{ OP_MD_MAX_W,				MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_x86::Emit_Md_MemMemMem<MDOP_MAXW>					},
 
 	{ OP_MD_AND,				MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_x86::Emit_Md_MemMemMem<MDOP_AND>					},
 	{ OP_MD_OR,					MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_x86::Emit_Md_MemMemMem<MDOP_OR>					},

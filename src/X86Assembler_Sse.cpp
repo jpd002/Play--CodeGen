@@ -218,6 +218,14 @@ void CX86Assembler::PmaxswVo(XMMREGISTER registerId, const CAddress& address)
 	WriteEdVdOp(0xEE, address, registerId);
 }
 
+void CX86Assembler::PmaxsdVo(XMMREGISTER registerId, const CAddress& address)
+{
+	WriteByte(0x66);
+	WriteByte(0x0F);
+	WriteByte(0x38);
+	WriteEdVdOp(0x3D, address, registerId);
+}
+
 void CX86Assembler::PminswVo(XMMREGISTER registerId, const CAddress& address)
 {
 	WriteByte(0x66);

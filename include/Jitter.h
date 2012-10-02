@@ -167,6 +167,7 @@ namespace Jitter
 		void							MD_IsNegative();
 		void							MD_IsZero();
 		void							MD_MaxH();
+		void							MD_MaxW();
 		void							MD_MaxS();
 		void							MD_MinH();
 		void							MD_MinW();
@@ -278,6 +279,7 @@ namespace Jitter
 
 		bool							FoldConstantOperation(STATEMENT&);
 		bool							FoldConstant64Operation(STATEMENT&);
+		bool							FoldConstant6432Operation(STATEMENT&);
 
 		BASIC_BLOCK						ConcatBlocks(const BasicBlockList&);
 		bool							MergeBlocks();

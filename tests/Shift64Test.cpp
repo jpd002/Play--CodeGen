@@ -26,6 +26,9 @@ void CShift64Test::Run()
 	TEST_VERIFY(m_context.resultSra0 == 0xFFFFFFFFFFFF8000ULL);
 	TEST_VERIFY(m_context.resultSra1 == 0xFFFF8000FFFF0123ULL);
 
+	TEST_VERIFY(m_context.resultSraVar0 == 0xFFF8000FFFF01234ULL);
+	TEST_VERIFY(m_context.resultSraVar1 == 0xFFFFFFFFFFFF8000ULL);
+
 	TEST_VERIFY(m_context.resultShlVar0 == 0x0FFFF01234567000ULL);
 	TEST_VERIFY(m_context.resultShlVar1 == 0x4567000000000000ULL);
 
@@ -42,6 +45,8 @@ void CShift64Test::Compile(Jitter::CJitter& jitter)
 
 	jitter.Begin();
 	{
+		//------------------
+		//SRA Constant
 		jitter.PushRel64(offsetof(CONTEXT, value0));
 		jitter.Sra64(48);
 		jitter.PullRel64(offsetof(CONTEXT, resultSra0));
@@ -50,16 +55,20 @@ void CShift64Test::Compile(Jitter::CJitter& jitter)
 		jitter.Sra64(16);
 		jitter.PullRel64(offsetof(CONTEXT, resultSra1));
 
+		//------------------
+		//SRA Variable
 		jitter.PushRel64(offsetof(CONTEXT, value0));
 		jitter.PushRel(offsetof(CONTEXT, shiftAmount0));
-		jitter.Shl64();
-		jitter.PullRel64(offsetof(CONTEXT, resultShlVar0));
+		jitter.Sra64();
+		jitter.PullRel64(offsetof(CONTEXT, resultSraVar0));
 
 		jitter.PushRel64(offsetof(CONTEXT, value0));
 		jitter.PushRel(offsetof(CONTEXT, shiftAmount1));
-		jitter.Shl64();
-		jitter.PullRel64(offsetof(CONTEXT, resultShlVar1));
+		jitter.Sra64();
+		jitter.PullRel64(offsetof(CONTEXT, resultSraVar1));
 
+		//------------------
+		//SRL Variable
 		jitter.PushRel64(offsetof(CONTEXT, value1));
 		jitter.PushRel(offsetof(CONTEXT, shiftAmount0));
 		jitter.Srl64();
@@ -69,6 +78,18 @@ void CShift64Test::Compile(Jitter::CJitter& jitter)
 		jitter.PushRel(offsetof(CONTEXT, shiftAmount1));
 		jitter.Srl64();
 		jitter.PullRel64(offsetof(CONTEXT, resultSrlVar1));
+
+		//------------------
+		//SHL Variable
+		jitter.PushRel64(offsetof(CONTEXT, value0));
+		jitter.PushRel(offsetof(CONTEXT, shiftAmount0));
+		jitter.Shl64();
+		jitter.PullRel64(offsetof(CONTEXT, resultShlVar0));
+
+		jitter.PushRel64(offsetof(CONTEXT, value0));
+		jitter.PushRel(offsetof(CONTEXT, shiftAmount1));
+		jitter.Shl64();
+		jitter.PullRel64(offsetof(CONTEXT, resultShlVar1));
 	}
 	jitter.End();
 

@@ -25,6 +25,9 @@ private:
 		uint64			resultSra0;
 		uint64			resultSra1;
 
+		uint64			resultSraVar0;
+		uint64			resultSraVar1;
+
 		uint64			resultShlVar0;
 		uint64			resultShlVar1;
 

@@ -769,6 +769,20 @@ void CJitter::Srl64(uint8 nAmount)
 	m_Shadow.Push(tempSym);
 }
 
+void CJitter::Sra64()
+{
+	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY64, m_nextTemporary++);
+
+	STATEMENT statement;
+	statement.op	= OP_SRA64;
+	statement.src2	= MakeSymbolRef(m_Shadow.Pull());
+	statement.src1	= MakeSymbolRef(m_Shadow.Pull());
+	statement.dst	= MakeSymbolRef(tempSym);
+	InsertStatement(statement);
+
+	m_Shadow.Push(tempSym);
+}
+
 void CJitter::Sra64(uint8 nAmount)
 {
 	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY64, m_nextTemporary++);

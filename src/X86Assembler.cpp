@@ -667,8 +667,6 @@ void CX86Assembler::SarEd(const CAddress& address, uint8 amount)
 
 void CX86Assembler::SarEq(const CAddress& address)
 {
-	//Need to test that
-	assert(0);
 	WriteEvOp(0xD3, 0x07, true, address);
 }
 

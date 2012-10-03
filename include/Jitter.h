@@ -121,6 +121,7 @@ namespace Jitter
 		void							Cmp64(CONDITION);
 		void							Srl64();
 		void							Srl64(uint8);
+		void							Sra64();
 		void							Sra64(uint8);
 		void							Shl64();
 		void							Shl64(uint8);

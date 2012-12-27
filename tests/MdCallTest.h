@@ -17,7 +17,25 @@ public:
 private:
 	struct uint128
 	{
-		float v[4];
+		union
+		{
+			struct
+			{
+				uint32 nV[4];
+			};
+			struct
+			{
+				uint32 nV0;
+				uint32 nV1;
+				uint32 nV2;
+				uint32 nV3;
+			};
+			struct
+			{
+				uint64 nD0;
+				uint64 nD1;
+			};
+		};
 	};
 
 	struct CONTEXT
@@ -27,8 +45,8 @@ private:
 		uint128			value0;
 		uint128			value1;
 
-		float			result0;
-		float			result1;
+		uint32			result0;
+		uint32			result1;
 
 		ALIGN16
 

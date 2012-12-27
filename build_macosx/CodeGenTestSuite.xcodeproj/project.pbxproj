@@ -393,7 +393,7 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				HEADER_SEARCH_PATHS = (
 					"~/Projects/CodeGen/include",
-					"~/Libraries/boost_1_49_0",
+					"~/Libraries/boost_1_50_0",
 					"~/Projects/Framework/include",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -408,7 +408,7 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				HEADER_SEARCH_PATHS = (
 					"~/Projects/CodeGen/include",
-					"~/Libraries/boost_1_49_0",
+					"~/Libraries/boost_1_50_0",
 					"~/Projects/Framework/include",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";

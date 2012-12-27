@@ -13,7 +13,8 @@ namespace Jitter
 		virtual								~CCodeGen_x86_32();
 
 		unsigned int						GetAvailableRegisterCount() const;
-
+		bool								CanHold128BitsReturnValueInRegisters() const;
+		
 	protected:
 		virtual void						Emit_Prolog(const StatementList&, unsigned int, uint32);
 		virtual void						Emit_Epilog(unsigned int, uint32);

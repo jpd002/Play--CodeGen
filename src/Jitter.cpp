@@ -244,6 +244,7 @@ void CJitter::Call(void* func, unsigned int paramCount, RETURN_VALUE_TYPE return
 		break;
 	case RETURN_VALUE_128:
 		returnValueSym = MakeSymbol(SYM_TEMPORARY128, m_nextTemporary++);
+		if(!m_codeGen->CanHold128BitsReturnValueInRegisters())
 		{
 			STATEMENT paramStatement;
 			paramStatement.src1	= MakeSymbolRef(returnValueSym);

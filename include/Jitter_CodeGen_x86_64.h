@@ -13,6 +13,7 @@ namespace Jitter
 		virtual			~CCodeGen_x86_64();
 
 		unsigned int	GetAvailableRegisterCount() const;
+		bool			CanHold128BitsReturnValueInRegisters() const;
 
 	protected:
 		//ALUOP64 ----------------------------------------------------------
@@ -84,6 +85,7 @@ namespace Jitter
 		void								Emit_RetVal_Reg(const STATEMENT&);
 		void								Emit_RetVal_Mem(const STATEMENT&);
 		void								Emit_RetVal_Mem64(const STATEMENT&);
+		void								Emit_RetVal_Mem128(const STATEMENT&);
 
 		//MOV
 		void								Emit_Mov_Mem64Mem64(const STATEMENT&);
@@ -138,16 +140,32 @@ namespace Jitter
 			ConstCodeEmitterType	emitter;
 		};
 
+#if defined(__APPLE__)
+		
+		enum MAX_REGISTERS
+		{
+			MAX_REGISTERS = 5,
+		};
+		
+		enum MAX_PARAMS
+		{
+			MAX_PARAMS = 6,
+		};
+		
+#else
+				
+		enum MAX_REGISTERS
+		{
+			MAX_REGISTERS = 7,
+		};
+		
 		enum MAX_PARAMS
 		{
 			MAX_PARAMS = 4,
 		};
 
-		enum MAX_REGISTERS
-		{
-			MAX_REGISTERS = 7,
-		};
-
+#endif
+		
 		static CONSTMATCHER					g_constMatchers[];
 		static CX86Assembler::REGISTER		g_registers[MAX_REGISTERS];
 		static CX86Assembler::REGISTER		g_paramRegs[MAX_PARAMS];

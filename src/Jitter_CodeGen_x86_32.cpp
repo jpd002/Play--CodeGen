@@ -177,6 +177,11 @@ unsigned int CCodeGen_x86_32::GetAvailableRegisterCount() const
 	return 3;
 }
 
+bool CCodeGen_x86_32::CanHold128BitsReturnValueInRegisters() const
+{
+	return false;
+}
+
 uint32 CCodeGen_x86_32::WriteCtxParam(uint32 offset)
 {
 	m_assembler.MovGd(CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rSP, offset), CX86Assembler::rBP);

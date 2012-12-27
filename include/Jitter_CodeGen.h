@@ -15,6 +15,7 @@ namespace Jitter
 		virtual void			SetStream(Framework::CStream*) = 0;
 		virtual void			GenerateCode(const StatementList&, unsigned int) = 0;
 		virtual unsigned int	GetAvailableRegisterCount() const = 0;
+		virtual bool			CanHold128BitsReturnValueInRegisters() const = 0;
 
 	protected:
 		enum MATCHTYPE

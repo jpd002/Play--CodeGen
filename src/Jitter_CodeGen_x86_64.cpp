@@ -2,6 +2,29 @@
 
 using namespace Jitter;
 
+#if defined(__APPLE__)
+
+CX86Assembler::REGISTER CCodeGen_x86_64::g_registers[MAX_REGISTERS] =
+{
+	CX86Assembler::rBX,
+	CX86Assembler::r12,
+	CX86Assembler::r13,
+	CX86Assembler::r14,
+	CX86Assembler::r15,
+};
+
+CX86Assembler::REGISTER CCodeGen_x86_64::g_paramRegs[MAX_PARAMS] =
+{
+	CX86Assembler::rDI,
+	CX86Assembler::rSI,
+	CX86Assembler::rDX,
+	CX86Assembler::rCX,
+	CX86Assembler::r8,
+	CX86Assembler::r9,
+};
+
+#else
+
 CX86Assembler::REGISTER CCodeGen_x86_64::g_registers[MAX_REGISTERS] =
 {
 	CX86Assembler::rBX,
@@ -20,6 +43,8 @@ CX86Assembler::REGISTER CCodeGen_x86_64::g_paramRegs[MAX_PARAMS] =
 	CX86Assembler::r8,
 	CX86Assembler::r9,
 };
+
+#endif
 
 static uint64 CombineConstant64(uint32 cstLow, uint32 cstHigh)
 {
@@ -164,6 +189,7 @@ CCodeGen_x86_64::CONSTMATCHER CCodeGen_x86_64::g_constMatchers[] =
 	{ OP_RETVAL,		MATCH_REGISTER,		MATCH_NIL,			MATCH_NIL,			&CCodeGen_x86_64::Emit_RetVal_Reg							},
 	{ OP_RETVAL,		MATCH_MEMORY,		MATCH_NIL,			MATCH_NIL,			&CCodeGen_x86_64::Emit_RetVal_Mem							},
 	{ OP_RETVAL,		MATCH_MEMORY64,		MATCH_NIL,			MATCH_NIL,			&CCodeGen_x86_64::Emit_RetVal_Mem64							},
+	{ OP_RETVAL,		MATCH_MEMORY128,	MATCH_NIL,			MATCH_NIL,			&CCodeGen_x86_64::Emit_RetVal_Mem128						},
 
 	{ OP_MOV,			MATCH_MEMORY64,		MATCH_MEMORY64,		MATCH_NIL,			&CCodeGen_x86_64::Emit_Mov_Mem64Mem64						},
 	{ OP_MOV,			MATCH_RELATIVE64,	MATCH_CONSTANT64,	MATCH_NIL,			&CCodeGen_x86_64::Emit_Mov_Rel64Cst64						},
@@ -218,6 +244,15 @@ CCodeGen_x86_64::~CCodeGen_x86_64()
 unsigned int CCodeGen_x86_64::GetAvailableRegisterCount() const
 {
 	return MAX_REGISTERS;
+}
+
+bool CCodeGen_x86_64::CanHold128BitsReturnValueInRegisters() const
+{
+#if defined(__APPLE__)
+	return true;
+#else
+	return false;
+#endif
 }
 
 void CCodeGen_x86_64::Emit_Prolog(const StatementList&, unsigned int stackSize, uint32 registerUsage)
@@ -367,6 +402,13 @@ void CCodeGen_x86_64::Emit_RetVal_Mem64(const STATEMENT& statement)
 {
 	CSymbol* dst = statement.dst->GetSymbol().get();
 	m_assembler.MovGq(MakeMemory64SymbolAddress(dst), CX86Assembler::rAX);
+}
+
+void CCodeGen_x86_64::Emit_RetVal_Mem128(const STATEMENT& statement)
+{
+	CSymbol* dst = statement.dst->GetSymbol().get();
+	m_assembler.MovGq(MakeMemory128SymbolElementAddress(dst, 0), CX86Assembler::rAX);
+	m_assembler.MovGq(MakeMemory128SymbolElementAddress(dst, 2), CX86Assembler::rDX);
 }
 
 void CCodeGen_x86_64::Emit_Mov_Mem64Mem64(const STATEMENT& statement)

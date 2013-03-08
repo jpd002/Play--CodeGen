@@ -198,7 +198,7 @@
     <ClInclude Include="..\tests\Test.h" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Framework\build_msvc100\Framework.vcxproj">
+    <ProjectReference Include="..\..\Framework\build_win32\Framework.vcxproj">
       <Project>{553ce050-a97e-4e6e-ae84-057a1f0fa45d}</Project>
     </ProjectReference>
     <ProjectReference Include="CodeGen.vcxproj">

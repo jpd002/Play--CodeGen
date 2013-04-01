@@ -4,15 +4,20 @@
 #include "Stream.h"
 #include "Jitter_Statement.h"
 #include <map>
+#include <functional>
 
 namespace Jitter
 {
 	class CCodeGen
 	{
 	public:
+		typedef std::function<void (void*, uint32)> ExternalSymbolReferencedHandler;
+
 		virtual					~CCodeGen() {};
 
 		virtual void			SetStream(Framework::CStream*) = 0;
+		void					SetExternalSymbolReferencedHandler(const ExternalSymbolReferencedHandler&);
+
 		virtual void			GenerateCode(const StatementList&, unsigned int) = 0;
 		virtual unsigned int	GetAvailableRegisterCount() const = 0;
 		virtual bool			CanHold128BitsReturnValueInRegisters() const = 0;
@@ -64,9 +69,10 @@ namespace Jitter
 
 		typedef std::multimap<OPERATION, MATCHER> MatcherMapType;
 
-		bool						SymbolMatches(MATCHTYPE, const SymbolRefPtr&);
+		bool								SymbolMatches(MATCHTYPE, const SymbolRefPtr&);
 
-		MatcherMapType				m_matchers;
+		MatcherMapType						m_matchers;
+		ExternalSymbolReferencedHandler		m_externalSymbolReferencedHandler;
 	};
 }
 

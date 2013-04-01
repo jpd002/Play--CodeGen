@@ -8,7 +8,7 @@ CMdFpFlagTest::CMdFpFlagTest()
 
 CMdFpFlagTest::~CMdFpFlagTest()
 {
-	delete m_function;
+
 }
 
 void CMdFpFlagTest::Compile(Jitter::CJitter& jitter)
@@ -47,7 +47,7 @@ void CMdFpFlagTest::Compile(Jitter::CJitter& jitter)
 	}
 	jitter.End();
 
-	m_function = new CMemoryFunction(codeStream.GetBuffer(), codeStream.GetSize());
+	m_function = CMemoryFunction(codeStream.GetBuffer(), codeStream.GetSize());
 }
 
 void CMdFpFlagTest::Run()
@@ -70,7 +70,7 @@ void CMdFpFlagTest::Run()
 	context.src2[2] = -7.5f;
 	context.src2[3] = -8.5f;
 
-	(*m_function)(&context);
+	m_function(&context);
 
 	TEST_VERIFY(context.dstIsNegative0	== 0x4);
 	TEST_VERIFY(context.dstIsZero0		== 0x3);

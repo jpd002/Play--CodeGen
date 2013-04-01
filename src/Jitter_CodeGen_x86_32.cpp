@@ -2,7 +2,7 @@
 
 using namespace Jitter;
 
-CX86Assembler::REGISTER CCodeGen_x86_32::g_registers[3] =
+CX86Assembler::REGISTER CCodeGen_x86_32::g_registers[MAX_REGISTERS] =
 {
 	CX86Assembler::rBX,
 	CX86Assembler::rSI,
@@ -115,7 +115,7 @@ void CCodeGen_x86_32::Emit_Prolog(const StatementList& statements, unsigned int 
 				{
 					case SYM_CONTEXT:
 					case SYM_REGISTER:
-					case SYM_RELATIVE:						
+					case SYM_RELATIVE:
 					case SYM_CONSTANT:
 					case SYM_TEMPORARY:
 					case SYM_TEMPORARY128:
@@ -140,6 +140,27 @@ void CCodeGen_x86_32::Emit_Prolog(const StatementList& statements, unsigned int 
 		}
 	}
 	
+	//Fetch parameter
+	m_assembler.Push(CX86Assembler::rBP);
+	m_assembler.MovEd(CX86Assembler::rBP, CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rSP, 8));
+
+	//Save registers
+	for(unsigned int i = 0; i < MAX_REGISTERS; i++)
+	{
+		if(registerUsage & (1 << i))
+		{
+			m_assembler.Push(m_registers[i]);
+		}
+	}
+
+	//Align stack
+	m_assembler.MovEd(CX86Assembler::rAX, CX86Assembler::MakeRegisterAddress(CX86Assembler::rSP));
+	m_assembler.SubId(CX86Assembler::MakeRegisterAddress(CX86Assembler::rSP), 0x10);
+	m_assembler.AndId(CX86Assembler::MakeRegisterAddress(CX86Assembler::rSP), ~0x0F);
+	m_assembler.SubId(CX86Assembler::MakeRegisterAddress(CX86Assembler::rSP), 0x0C);
+	m_assembler.Push(CX86Assembler::rAX);
+
+	//Allocate stack space for temps
 	uint32 totalStackSize = stackSize + maxParamSize;
 
 	//Allocate stack space
@@ -158,16 +179,28 @@ void CCodeGen_x86_32::Emit_Prolog(const StatementList& statements, unsigned int 
 		m_stackLevel = 0;
 	}
 	
-	m_paramAreaSize = m_stackLevel;	
+	m_paramAreaSize = m_stackLevel;
 }
 
 void CCodeGen_x86_32::Emit_Epilog(unsigned int stackSize, uint32 registerUsage)
 {
-	uint32 totalStackSize = stackSize + m_paramAreaSize;	
+	uint32 totalStackSize = stackSize + m_paramAreaSize;
 	if(totalStackSize != 0)
 	{
 		m_assembler.AddId(CX86Assembler::MakeRegisterAddress(CX86Assembler::rSP), totalStackSize);
 	}
+
+	m_assembler.Pop(CX86Assembler::rSP);
+
+	for(int i = MAX_REGISTERS - 1; i >= 0; i--)
+	{
+		if(registerUsage & (1 << i))
+		{
+			m_assembler.Pop(m_registers[i]);
+		}
+	}
+
+	m_assembler.Pop(CX86Assembler::rBP);
 	m_assembler.Ret();
 }
 
@@ -196,7 +229,7 @@ uint32 CCodeGen_x86_32::WriteRegParam(uint32 offset, CX86Assembler::REGISTER reg
 
 uint32 CCodeGen_x86_32::WriteMemParam(uint32 offset, CSymbol* sym)
 {
-	m_assembler.MovEd(CX86Assembler::rAX, MakeMemorySymbolAddress(sym));	
+	m_assembler.MovEd(CX86Assembler::rAX, MakeMemorySymbolAddress(sym));
 	m_assembler.MovGd(CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rSP, offset), CX86Assembler::rAX);
 	return 4;
 }
@@ -297,6 +330,9 @@ void CCodeGen_x86_32::Emit_Call(const STATEMENT& statement)
 	assert(currentOffset <= m_paramAreaSize);
 	
 	m_assembler.MovId(CX86Assembler::rAX, src1->m_valueLow);
+	auto symbolRefLabel = m_assembler.CreateLabel();
+	m_assembler.MarkLabel(symbolRefLabel, -4);
+	m_symbolReferenceLabels.push_back(std::make_pair(reinterpret_cast<void*>(src1->m_valueLow), symbolRefLabel));
 	m_assembler.CallEd(CX86Assembler::MakeRegisterAddress(CX86Assembler::rAX));
 	
 #ifdef __APPLE__
@@ -308,7 +344,7 @@ void CCodeGen_x86_32::Emit_Call(const STATEMENT& statement)
 	}
 #endif
 	
-	m_hasImplicitRetValueParam = false;	
+	m_hasImplicitRetValueParam = false;
 }
 
 void CCodeGen_x86_32::Emit_RetVal_Tmp(const STATEMENT& statement)

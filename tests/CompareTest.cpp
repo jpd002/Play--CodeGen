@@ -2,7 +2,6 @@
 #include "MemStream.h"
 
 CCompareTest::CCompareTest()
-: m_function(NULL)
 {
 
 }
@@ -19,7 +18,7 @@ void CCompareTest::Run()
 	m_context.number2 = 0x10;
 	m_context.number3 = 0x10000;
 
-	(*m_function)(&m_context);
+	m_function(&m_context);
 
 	TEST_VERIFY(m_context.number1 == 0x10000);
 	TEST_VERIFY(m_context.number2 == 0x10);
@@ -30,8 +29,6 @@ void CCompareTest::Run()
 
 void CCompareTest::Compile(Jitter::CJitter& jitter)
 {
-	if(m_function != NULL) return;
-
 	Framework::CMemStream codeStream;
 	jitter.SetStream(&codeStream);
 
@@ -66,5 +63,5 @@ void CCompareTest::Compile(Jitter::CJitter& jitter)
 	}
 	jitter.End();
 
-	m_function = new CMemoryFunction(codeStream.GetBuffer(), codeStream.GetSize());
+	m_function = CMemoryFunction(codeStream.GetBuffer(), codeStream.GetSize());
 }

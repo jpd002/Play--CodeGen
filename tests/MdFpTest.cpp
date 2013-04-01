@@ -8,7 +8,7 @@ CMdFpTest::CMdFpTest()
 
 CMdFpTest::~CMdFpTest()
 {
-	delete m_function;
+
 }
 
 void CMdFpTest::Compile(Jitter::CJitter& jitter)
@@ -93,7 +93,7 @@ void CMdFpTest::Compile(Jitter::CJitter& jitter)
 	}
 	jitter.End();
 
-	m_function = new CMemoryFunction(codeStream.GetBuffer(), codeStream.GetSize());
+	m_function = CMemoryFunction(codeStream.GetBuffer(), codeStream.GetSize());
 }
 
 void CMdFpTest::Run()
@@ -116,7 +116,7 @@ void CMdFpTest::Run()
 	context.src2[2] = 7.5f;
 	context.src2[3] = 8.5f;
 
-	(*m_function)(&context);
+	m_function(&context);
 
 	TEST_VERIFY(context.dstAdd[0] ==  6005.f);
 	TEST_VERIFY(context.dstAdd[1] ==   650.f);

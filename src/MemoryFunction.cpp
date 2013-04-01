@@ -7,10 +7,6 @@
 
 #include <windows.h>
 
-#ifdef _M_X64
-extern "C" void _CMemoryFunction_Execute(void*, void*);
-#endif
-
 #elif defined(__APPLE__)
 
 #include "TargetConditionals.h"
@@ -20,8 +16,15 @@ extern "C" void __clear_cache(void* begin, void* end);
 
 #endif
 
+CMemoryFunction::CMemoryFunction()
+: m_code(nullptr)
+, m_size(0)
+{
+
+}
+
 CMemoryFunction::CMemoryFunction(const void* code, size_t size)
-: m_code(NULL)
+: m_code(nullptr)
 {
 #ifdef WIN32
 	m_size = size;
@@ -46,7 +49,12 @@ CMemoryFunction::CMemoryFunction(const void* code, size_t size)
 
 CMemoryFunction::~CMemoryFunction()
 {
-	if(m_code != NULL)
+	Reset();
+}
+
+void CMemoryFunction::Reset()
+{
+	if(m_code != nullptr)
 	{
 #ifdef WIN32
 		free(m_code);
@@ -54,50 +62,32 @@ CMemoryFunction::~CMemoryFunction()
 		vm_deallocate(mach_task_self(), reinterpret_cast<vm_address_t>(m_code), m_size); 
 #endif
 	}
+	m_code = nullptr;
+	m_size = 0;
+}
+
+bool CMemoryFunction::IsEmpty() const
+{
+	return m_code == nullptr;
+}
+
+CMemoryFunction& CMemoryFunction::operator =(CMemoryFunction&& rhs)
+{
+	Reset();
+	std::swap(m_code, rhs.m_code);
+	std::swap(m_size, rhs.m_size);
+	return (*this);
 }
 
 void CMemoryFunction::operator()(void* context)
 {
 
 #ifdef WIN32
-	
-	#ifdef _M_X64
-	
-		_CMemoryFunction_Execute(m_code, context);
-	
-	#else
-	
-		volatile const void* code = m_code;
-		volatile const void* dataPtr = context;
-	
-		__asm
-		{
-			push ebp
-			push ebx
-			push esi
-			push edi
 
-			mov eax, code
-			mov ebp, dataPtr
+		typedef void (*FctType)(void*);
+		auto fct = reinterpret_cast<FctType>(m_code);
+		fct(context);
 
-			mov edi, esp
-			sub esp, 0x10
-			and esp, ~0xF
-			sub esp, 0x08
-			push edi
-
-			call eax
-
-			pop esp
-
-			pop edi
-			pop esi
-			pop ebx
-			pop ebp
-		}
-
-	#endif
-	
 #elif defined(__APPLE__)
 	
 	volatile const void* code = m_code;

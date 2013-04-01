@@ -106,7 +106,8 @@ public:
 	static CAddress							MakeBaseIndexScaleAddress(REGISTER, REGISTER, uint8);
 
 	LABEL									CreateLabel();
-	void									MarkLabel(LABEL);
+	void									MarkLabel(LABEL, int32 = 0);
+	uint32									GetLabelOffset(LABEL) const;
 
 	void									AdcEd(REGISTER, const CAddress&);
 	void									AdcId(const CAddress&, uint32);

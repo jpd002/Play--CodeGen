@@ -8,7 +8,6 @@
 #define ARRAY_IDX_1	(6)
 
 CMemAccessTest::CMemAccessTest()
-: m_function(NULL)
 {
 
 }
@@ -27,7 +26,7 @@ void CMemAccessTest::Run()
 	m_context.memory = m_memory;
 	m_context.array0[ARRAY_IDX_1] = CONSTANT_1;
 
-	(*m_function)(&m_context);
+	m_function(&m_context);
 
 	TEST_VERIFY(m_memory[1] == CONSTANT_1);
 	TEST_VERIFY(m_context.result0 == 0x80808080);
@@ -37,8 +36,6 @@ void CMemAccessTest::Run()
 
 void CMemAccessTest::Compile(Jitter::CJitter& jitter)
 {
-	if(m_function != NULL) return;
-
 	Framework::CMemStream codeStream;
 	jitter.SetStream(&codeStream);
 
@@ -78,5 +75,5 @@ void CMemAccessTest::Compile(Jitter::CJitter& jitter)
 	}
 	jitter.End();
 
-	m_function = new CMemoryFunction(codeStream.GetBuffer(), codeStream.GetSize());
+	m_function = CMemoryFunction(codeStream.GetBuffer(), codeStream.GetSize());
 }

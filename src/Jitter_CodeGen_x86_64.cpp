@@ -260,7 +260,7 @@ void CCodeGen_x86_64::Emit_Prolog(const StatementList&, unsigned int stackSize, 
 	m_params.clear();
 
 	m_assembler.Push(CX86Assembler::rBP);
-	m_assembler.MovEq(CX86Assembler::rBP, CX86Assembler::MakeRegisterAddress(CX86Assembler::rDX));
+	m_assembler.MovEq(CX86Assembler::rBP, CX86Assembler::MakeRegisterAddress(CX86Assembler::rCX));
 
 	uint32 savedCount = 0;
 	for(unsigned int i = 0; i < MAX_REGISTERS; i++)
@@ -367,8 +367,8 @@ void CCodeGen_x86_64::Emit_Param_Mem128(const STATEMENT& statement)
 
 void CCodeGen_x86_64::Emit_Call(const STATEMENT& statement)
 {
-	CSymbol* src1 = statement.src1->GetSymbol().get();
-	CSymbol* src2 = statement.src2->GetSymbol().get();
+	const auto& src1 = statement.src1->GetSymbol().get();
+	const auto& src2 = statement.src2->GetSymbol().get();
 
 	unsigned int paramCount = src2->m_valueLow;
 
@@ -380,6 +380,7 @@ void CCodeGen_x86_64::Emit_Call(const STATEMENT& statement)
 	}
 
 	m_assembler.MovIq(CX86Assembler::rAX, CombineConstant64(src1->m_valueLow, src1->m_valueHigh));
+	if(m_externalSymbolReferencedHandler) m_externalSymbolReferencedHandler(src1, -8);
 	m_assembler.CallEd(CX86Assembler::MakeRegisterAddress(CX86Assembler::rAX));
 }
 

@@ -7,7 +7,6 @@
 #define CONSTANT_3	(0x34002010)
 
 CAliasTest::CAliasTest()
-: m_function(NULL)
 {
 
 }
@@ -34,7 +33,7 @@ void CAliasTest::Run()
 	m_context.value4[2] = 0x01234567;
 	m_context.value4[3] = 0x01234567;
 
-	(*m_function)(&m_context);
+	m_function(&m_context);
 
 	TEST_VERIFY(m_context.result != 0);
 	TEST_VERIFY(m_context.value4[0] == (CONSTANT_3 * 2));
@@ -45,8 +44,6 @@ void CAliasTest::Run()
 
 void CAliasTest::Compile(Jitter::CJitter& jitter)
 {
-	if(m_function != NULL) return;
-
 	Framework::CMemStream codeStream;
 	jitter.SetStream(&codeStream);
 
@@ -79,5 +76,5 @@ void CAliasTest::Compile(Jitter::CJitter& jitter)
 	}
 	jitter.End();
 
-	m_function = new CMemoryFunction(codeStream.GetBuffer(), codeStream.GetSize());
+	m_function = CMemoryFunction(codeStream.GetBuffer(), codeStream.GetSize());
 }

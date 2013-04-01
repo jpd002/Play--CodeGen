@@ -20,6 +20,8 @@ void CX86Assembler::Begin()
 	m_nextLabelId = 1;
 	m_currentLabel = NULL;
 	m_tmpStream.ResetBuffer();
+	m_labels.clear();
+	m_labelOrder.clear();
 }
 
 void CX86Assembler::End()
@@ -93,20 +95,17 @@ void CX86Assembler::End()
 	assert(m_outputStream != NULL);
 	m_tmpStream.Seek(0, Framework::STREAM_SEEK_SET);
 
-	for(LabelArray::const_iterator labelIterator(m_labelOrder.begin());
-		labelIterator != m_labelOrder.end(); labelIterator++)
+	for(const auto& labelId : m_labelOrder)
 	{
-		LABELINFO& label = m_labels[*labelIterator];
+		const auto& label = m_labels[labelId];
 
 		unsigned int currentPos = label.start;
 		unsigned int currentProjectedPos = label.projectedStart;
 		unsigned int endPos = label.start + label.size;
 
-		for(LabelRefArray::iterator labelRefIterator(label.labelRefs.begin());
-			labelRefIterator != label.labelRefs.end(); labelRefIterator++)
+		for(const auto& labelRef : label.labelRefs)
 		{
-			LABELREF& labelRef(*labelRefIterator);
-			LABELINFO& referencedLabel(m_labels[labelRef.label]);
+			const auto& referencedLabel(m_labels[labelRef.label]);
 
 			unsigned int readSize = labelRef.offset - currentProjectedPos;
 			if(readSize != 0)
@@ -133,9 +132,6 @@ void CX86Assembler::End()
 			m_outputStream->Write(&m_copyBuffer[0], lastCopySize);
 		}
 	}
-
-	m_labels.clear();
-	m_labelOrder.clear();
 }
 
 void CX86Assembler::IncrementJumpOffsets(LabelArray::const_iterator startLabel, unsigned int amount)
@@ -308,20 +304,29 @@ CX86Assembler::LABEL CX86Assembler::CreateLabel()
 	return newLabelId;
 }
 
-void CX86Assembler::MarkLabel(LABEL label)
+void CX86Assembler::MarkLabel(LABEL label, int32 offset)
 {
-	uint32 currentPos = static_cast<uint32>(m_tmpStream.Tell());
+	uint32 currentPos = static_cast<uint32>(m_tmpStream.Tell()) + offset;
+
 	if(m_currentLabel != NULL)
 	{
 		m_currentLabel->size = currentPos - m_currentLabel->start;
 	}
 
-	LabelMap::iterator labelIterator(m_labels.find(label));
+	auto labelIterator(m_labels.find(label));
 	assert(labelIterator != m_labels.end());
 	LABELINFO& labelInfo(labelIterator->second);
 	labelInfo.start = currentPos;
 	m_currentLabel = &labelInfo;
 	m_labelOrder.push_back(label);
+}
+
+uint32 CX86Assembler::GetLabelOffset(LABEL label) const
+{
+	auto labelIterator(m_labels.find(label));
+	assert(labelIterator != m_labels.end());
+	const auto& labelInfo(labelIterator->second);
+	return labelInfo.projectedStart;
 }
 
 void CX86Assembler::AdcEd(REGISTER registerId, const CAddress& address)

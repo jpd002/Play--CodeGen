@@ -32,7 +32,7 @@ private:
 		float			src2[4];
 	};
 
-	CMemoryFunction*	m_function;
+	CMemoryFunction		m_function;
 };
 
 #endif

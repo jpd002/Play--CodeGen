@@ -10,7 +10,7 @@ CMdCallTest::CMdCallTest()
 
 CMdCallTest::~CMdCallTest()
 {
-	delete m_function;
+
 }
 
 uint32 CMdCallTest::MdInputFunction(const uint128& value, uint32 mask)
@@ -84,7 +84,7 @@ void CMdCallTest::Compile(Jitter::CJitter& jitter)
 	}
 	jitter.End();
 
-	m_function = new CMemoryFunction(codeStream.GetBuffer(), codeStream.GetSize());
+	m_function = CMemoryFunction(codeStream.GetBuffer(), codeStream.GetSize());
 }
 
 void CMdCallTest::Run()
@@ -102,7 +102,7 @@ void CMdCallTest::Run()
 	context.value1.nV[2] = 4;
 	context.value1.nV[3] = 2;
 
-	(*m_function)(&context);
+	m_function(&context);
 
 	//Result 0
 	{

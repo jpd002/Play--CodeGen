@@ -31,7 +31,7 @@ private:
 	static uint64		Add64(uint64, uint64);
 	static uint64		Sub64(uint64, uint64);
 
-	CMemoryFunction*	m_function;
+	CMemoryFunction		m_function;
 };
 
 #endif

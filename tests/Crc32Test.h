@@ -39,8 +39,8 @@ private:
 	static uint32		GetTableValue(uint32);
 
 	CONTEXT				m_context;
-	CMemoryFunction*	m_testFunction;
-	CMemoryFunction*	m_computeFunction;
+	CMemoryFunction		m_testFunction;
+	CMemoryFunction		m_computeFunction;
 
 	static void			BuildTable();
 

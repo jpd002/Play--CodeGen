@@ -2,7 +2,6 @@
 #include "MemStream.h"
 
 CAlu64Test::CAlu64Test()
-: m_function(NULL)
 {
 
 }
@@ -19,15 +18,13 @@ void CAlu64Test::Run()
 	m_context.value0 = 0xFEDCBA9876543210ULL;
 	m_context.value1 = 0x012389AB4567CDEFULL;
 
-	(*m_function)(&m_context);
+	m_function(&m_context);
 
 	TEST_VERIFY(m_context.resultAdd == 0x00004443BBBBFFFF);
 }
 
 void CAlu64Test::Compile(Jitter::CJitter& jitter)
 {
-	if(m_function != NULL) return;
-
 	Framework::CMemStream codeStream;
 	jitter.SetStream(&codeStream);
 
@@ -40,5 +37,5 @@ void CAlu64Test::Compile(Jitter::CJitter& jitter)
 	}
 	jitter.End();
 
-	m_function = new CMemoryFunction(codeStream.GetBuffer(), codeStream.GetSize());
+	m_function = CMemoryFunction(codeStream.GetBuffer(), codeStream.GetSize());
 }

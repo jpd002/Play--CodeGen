@@ -11,7 +11,7 @@ CCall64Test::CCall64Test()
 
 CCall64Test::~CCall64Test()
 {
-	delete m_function;
+
 }
 
 uint64 CCall64Test::Add64(uint64 v1, uint64 v2)
@@ -49,7 +49,7 @@ void CCall64Test::Compile(Jitter::CJitter& jitter)
 	}
 	jitter.End();
 
-	m_function = new CMemoryFunction(codeStream.GetBuffer(), codeStream.GetSize());
+	m_function = CMemoryFunction(codeStream.GetBuffer(), codeStream.GetSize());
 }
 
 void CCall64Test::Run()
@@ -60,7 +60,7 @@ void CCall64Test::Run()
 	context.value0 = CONSTANT_1;
 	context.value1 = CONSTANT_2;
 
-	(*m_function)(&context);
+	m_function(&context);
 
 	TEST_VERIFY(context.result0 == (CONSTANT_1 + CONSTANT_2));
 	TEST_VERIFY(context.result1 == (CONSTANT_1 - CONSTANT_2));

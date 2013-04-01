@@ -2,6 +2,11 @@
 
 using namespace Jitter;
 
+void CCodeGen::SetExternalSymbolReferencedHandler(const ExternalSymbolReferencedHandler& externalSymbolReferencedHandler)
+{
+	m_externalSymbolReferencedHandler = externalSymbolReferencedHandler;
+}
+
 bool CCodeGen::SymbolMatches(MATCHTYPE match, const SymbolRefPtr& symbolRef)
 {
 	if(match == MATCH_ANY) return true;

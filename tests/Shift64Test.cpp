@@ -2,7 +2,6 @@
 #include "MemStream.h"
 
 CShift64Test::CShift64Test()
-: m_function(NULL)
 {
 
 }
@@ -21,7 +20,7 @@ void CShift64Test::Run()
 	m_context.shiftAmount0 = 12;
 	m_context.shiftAmount1 = 48;
 
-	(*m_function)(&m_context);
+	m_function(&m_context);
 
 	TEST_VERIFY(m_context.resultSra0 == 0xFFFFFFFFFFFF8000ULL);
 	TEST_VERIFY(m_context.resultSra1 == 0xFFFF8000FFFF0123ULL);
@@ -38,8 +37,6 @@ void CShift64Test::Run()
 
 void CShift64Test::Compile(Jitter::CJitter& jitter)
 {
-	if(m_function != NULL) return;
-
 	Framework::CMemStream codeStream;
 	jitter.SetStream(&codeStream);
 
@@ -93,5 +90,5 @@ void CShift64Test::Compile(Jitter::CJitter& jitter)
 	}
 	jitter.End();
 
-	m_function = new CMemoryFunction(codeStream.GetBuffer(), codeStream.GetSize());
+	m_function = CMemoryFunction(codeStream.GetBuffer(), codeStream.GetSize());
 }

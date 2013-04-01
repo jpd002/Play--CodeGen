@@ -8,7 +8,7 @@ CMdTest::CMdTest()
 
 CMdTest::~CMdTest()
 {
-	delete m_function;
+
 }
 
 void CMdTest::Compile(Jitter::CJitter& jitter)
@@ -157,7 +157,7 @@ void CMdTest::Compile(Jitter::CJitter& jitter)
 	}
 	jitter.End();
 
-	m_function = new CMemoryFunction(codeStream.GetBuffer(), codeStream.GetSize());
+	m_function = CMemoryFunction(codeStream.GetBuffer(), codeStream.GetSize());
 }
 
 uint32 CMdTest::ComputeWordUnsignedSaturation(uint32 value0, uint32 value1)
@@ -208,7 +208,7 @@ void CMdTest::Run()
 	}
 	context.shiftAmount = 16;
 
-	(*m_function)(&context);
+	m_function(&context);
 
 	static const uint8 dstMovRes[16] =
 	{

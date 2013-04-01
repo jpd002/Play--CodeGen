@@ -64,7 +64,7 @@ private:
 	uint32				ComputeWordUnsignedSaturation(uint32, uint32);
 	uint32				ComputeWordSignedSaturation(uint32, uint32);
 
-	CMemoryFunction*	m_function;
+	CMemoryFunction		m_function;
 };
 
 #endif

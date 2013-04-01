@@ -56,7 +56,7 @@ private:
 	static uint32		MdInputFunction(const uint128&, uint32);
 	static uint128		MdOutputFunction(uint32);
 
-	CMemoryFunction*	m_function;
+	CMemoryFunction		m_function;
 };
 
 #endif

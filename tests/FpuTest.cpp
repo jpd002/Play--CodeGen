@@ -8,7 +8,7 @@ CFpuTest::CFpuTest()
 
 CFpuTest::~CFpuTest()
 {
-	delete m_function;
+
 }
 
 void CFpuTest::Compile(Jitter::CJitter& jitter)
@@ -69,7 +69,7 @@ void CFpuTest::Compile(Jitter::CJitter& jitter)
 	}
 	jitter.End();
 
-	m_function = new CMemoryFunction(codeStream.GetBuffer(), codeStream.GetSize());
+	m_function = CMemoryFunction(codeStream.GetBuffer(), codeStream.GetSize());
 }
 
 void CFpuTest::Run()
@@ -78,7 +78,7 @@ void CFpuTest::Run()
 	m_context.number1 = 1.0;
 	m_context.number2 = 2.0;
 	m_context.number4 = 16.0f;
-	(*m_function)(&m_context);
+	m_function(&m_context);
 	TEST_VERIFY(m_context.number1 ==  1.5f);
 	TEST_VERIFY(m_context.number2 == -1.5f);
 	TEST_VERIFY(m_context.number1 == m_context.number3);

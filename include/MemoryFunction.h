@@ -1,5 +1,4 @@
-#ifndef _MEMORYFUNCTION_H_
-#define _MEMORYFUNCTION_H_
+#pragma once
 
 #include <boost/utility.hpp>
 #include "Types.h"
@@ -7,17 +6,23 @@
 class CMemoryFunction : public boost::noncopyable
 {
 public:
-					CMemoryFunction(const void*, size_t);
-	virtual			~CMemoryFunction();
+						CMemoryFunction();
+						CMemoryFunction(const void*, size_t);
+						CMemoryFunction(CMemoryFunction&&);
 
-	void			operator()(void*);
+	virtual				~CMemoryFunction();
 
-	void*			GetCode() const;
-	size_t			GetSize() const;
+	bool				IsEmpty() const;
+
+	CMemoryFunction&	operator =(CMemoryFunction&&);
+	void				operator()(void*);
+
+	void*				GetCode() const;
+	size_t				GetSize() const;
 
 private:
-	void*			m_code;
-	size_t			m_size;
-};
+	void				Reset();
 
-#endif
+	void*				m_code;
+	size_t				m_size;
+};

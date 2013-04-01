@@ -5,9 +5,7 @@ bool		CCrc32Test::m_tableBuilt = false;
 uint32		CCrc32Test::m_table[0x100];
 
 CCrc32Test::CCrc32Test(const char* input, uint32 result)
-: m_testFunction(NULL)
-, m_computeFunction(NULL)
-, m_input(input)
+: m_input(input)
 , m_inputPtr(0)
 , m_result(result)
 {
@@ -16,8 +14,7 @@ CCrc32Test::CCrc32Test(const char* input, uint32 result)
 
 CCrc32Test::~CCrc32Test()
 {
-	delete m_testFunction;
-	delete m_computeFunction;
+
 }
 
 void CCrc32Test::Run()
@@ -35,10 +32,10 @@ void CCrc32Test::Run()
 		switch(m_context.state)
 		{
 		case STATE_TEST:
-			function = m_testFunction;
+			function = &m_testFunction;
 			break;
 		case STATE_COMPUTE:
-			function = m_computeFunction;
+			function = &m_computeFunction;
 			break;
 		}
 
@@ -60,8 +57,6 @@ void CCrc32Test::Compile(Jitter::CJitter& jitter)
 
 void CCrc32Test::CompileTestFunction(Jitter::CJitter& jitter)
 {
-	if(m_testFunction != NULL) return;
-
 	//b = GetByte()
 	//if(b == 0)
 	//	done
@@ -91,13 +86,11 @@ void CCrc32Test::CompileTestFunction(Jitter::CJitter& jitter)
 	}
 	jitter.End();
 
-	m_testFunction = new CMemoryFunction(codeStream.GetBuffer(), codeStream.GetSize());
+	m_testFunction = CMemoryFunction(codeStream.GetBuffer(), codeStream.GetSize());
 }
 
 void CCrc32Test::CompileComputeFunction(Jitter::CJitter& jitter)
 {
-	if(m_computeFunction != NULL) return;
-
 	//t   = b ^ crc
 	//tv  = GetTable(t)
 	//t   = crc >> 8
@@ -125,7 +118,7 @@ void CCrc32Test::CompileComputeFunction(Jitter::CJitter& jitter)
 	}
 	jitter.End();
 
-	m_computeFunction = new CMemoryFunction(codeStream.GetBuffer(), codeStream.GetSize());
+	m_computeFunction = CMemoryFunction(codeStream.GetBuffer(), codeStream.GetSize());
 }
 
 uint32 CCrc32Test::GetNextByte(CONTEXT* context)

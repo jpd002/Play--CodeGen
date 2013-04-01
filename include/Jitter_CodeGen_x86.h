@@ -1,5 +1,4 @@
-#ifndef _JITTER_CODEGEN_X86_H_
-#define _JITTER_CODEGEN_X86_H_
+#pragma once
 
 #include "Jitter_CodeGen.h"
 #include "X86Assembler.h"
@@ -17,6 +16,7 @@ namespace Jitter
 
 	protected:
 		typedef std::map<uint32, CX86Assembler::LABEL> LabelMapType;
+		typedef std::vector<std::pair<void*, CX86Assembler::LABEL>> SymbolReferenceLabelArray;
 
 		//ALUOP ----------------------------------------------------------
 		struct ALUOP_BASE
@@ -562,6 +562,7 @@ namespace Jitter
 		CX86Assembler				m_assembler;
 		CX86Assembler::REGISTER*	m_registers;
 		LabelMapType				m_labels;
+		SymbolReferenceLabelArray	m_symbolReferenceLabels;
 		uint32						m_stackLevel;
 		
 	private:
@@ -581,5 +582,3 @@ namespace Jitter
 		static CONSTMATCHER			g_mdConstMatchers[];
 	};
 }
-
-#endif

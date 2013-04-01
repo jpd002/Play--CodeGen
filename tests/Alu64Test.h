@@ -23,7 +23,7 @@ private:
 	};
 
 	CONTEXT				m_context;
-	CMemoryFunction*	m_function;
+	CMemoryFunction		m_function;
 };
 
 #endif

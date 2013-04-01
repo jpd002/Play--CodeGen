@@ -113,6 +113,11 @@ namespace Jitter
 			ConstCodeEmitterType	emitter;
 		};
 
+		enum MAX_REGISTERS
+		{
+			MAX_REGISTERS = 3,
+		};
+
 		uint32								WriteCtxParam(uint32);
 		uint32								WriteRegParam(uint32, CX86Assembler::REGISTER);
 		uint32								WriteMemParam(uint32, CSymbol*);

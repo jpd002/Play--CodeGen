@@ -284,10 +284,8 @@ void CCodeGen_x86::GenerateCode(const StatementList& statements, unsigned int st
 	assert(m_registers != NULL);
 
 	uint32 registerUsage = 0;
-	for(StatementList::const_iterator statementIterator(statements.begin());
-		statementIterator != statements.end(); statementIterator++)
+	for(const auto& statement : statements)
 	{
-		const STATEMENT& statement(*statementIterator);
 		if(CSymbol* dst = dynamic_symbolref_cast(SYM_REGISTER, statement.dst))
 		{
 			registerUsage |= (1 << dst->m_valueLow);
@@ -305,11 +303,8 @@ void CCodeGen_x86::GenerateCode(const StatementList& statements, unsigned int st
 
 		Emit_Prolog(statements, stackSize, registerUsage);
 
-		for(auto statementIterator(std::begin(statements));
-			statementIterator != std::end(statements); statementIterator++)
+		for(const auto& statement : statements)
 		{
-			const STATEMENT& statement(*statementIterator);
-
 			bool found = false;
 			auto begin = m_matchers.lower_bound(statement.op);
 			auto end = m_matchers.upper_bound(statement.op);
@@ -335,7 +330,17 @@ void CCodeGen_x86::GenerateCode(const StatementList& statements, unsigned int st
 	}
 	m_assembler.End();
 
+	if(m_externalSymbolReferencedHandler)
+	{
+		for(const auto& symbolRefLabel : m_symbolReferenceLabels)
+		{
+			uint32 offset = m_assembler.GetLabelOffset(symbolRefLabel.second);
+			m_externalSymbolReferencedHandler(symbolRefLabel.first, offset);
+		}
+	}
+
 	m_labels.clear();
+	m_symbolReferenceLabels.clear();
 }
 
 void CCodeGen_x86::SetStream(Framework::CStream* stream)
@@ -587,9 +592,9 @@ void CCodeGen_x86::Emit_Not_RelTmp(const STATEMENT& statement)
 
 void CCodeGen_x86::Lzc_RegMem(CX86Assembler::REGISTER dstRegister, const CX86Assembler::CAddress& srcAddress)
 {
-    CX86Assembler::LABEL set32Label = m_assembler.CreateLabel();
-    CX86Assembler::LABEL startCountLabel = m_assembler.CreateLabel();
-    CX86Assembler::LABEL doneLabel = m_assembler.CreateLabel();
+	CX86Assembler::LABEL set32Label = m_assembler.CreateLabel();
+	CX86Assembler::LABEL startCountLabel = m_assembler.CreateLabel();
+	CX86Assembler::LABEL doneLabel = m_assembler.CreateLabel();
 
 	CX86Assembler::REGISTER tmpRegister = CX86Assembler::rAX;
 
@@ -605,17 +610,17 @@ void CCodeGen_x86::Lzc_RegMem(CX86Assembler::REGISTER dstRegister, const CX86Ass
 
 	//startCount:
 	m_assembler.MarkLabel(startCountLabel);
-    m_assembler.BsrEd(dstRegister, CX86Assembler::MakeRegisterAddress(tmpRegister));
-    m_assembler.NegEd(CX86Assembler::MakeRegisterAddress(dstRegister));
-    m_assembler.AddId(CX86Assembler::MakeRegisterAddress(dstRegister), 0x1E);
-    m_assembler.JmpJx(doneLabel);
+	m_assembler.BsrEd(dstRegister, CX86Assembler::MakeRegisterAddress(tmpRegister));
+	m_assembler.NegEd(CX86Assembler::MakeRegisterAddress(dstRegister));
+	m_assembler.AddId(CX86Assembler::MakeRegisterAddress(dstRegister), 0x1E);
+	m_assembler.JmpJx(doneLabel);
 
-    //set32
-    m_assembler.MarkLabel(set32Label);
-    m_assembler.MovId(dstRegister, 0x1F);
+	//set32
+	m_assembler.MarkLabel(set32Label);
+	m_assembler.MovId(dstRegister, 0x1F);
 
-    //done
-    m_assembler.MarkLabel(doneLabel);
+	//done
+	m_assembler.MarkLabel(doneLabel);
 }
 
 void CCodeGen_x86::Emit_Lzc_RegMem(const STATEMENT& statement)

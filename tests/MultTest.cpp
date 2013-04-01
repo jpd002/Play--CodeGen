@@ -2,8 +2,7 @@
 #include "MemStream.h"
 
 CMultTest::CMultTest(bool isSigned)
-: m_function(NULL)
-, m_isSigned(isSigned)
+: m_isSigned(isSigned)
 {
 
 }
@@ -20,7 +19,7 @@ void CMultTest::Run()
 	m_context.relArg0 = 0xFFFF8000;
 	m_context.relArg1 = 0x8000FFFF;
 
-	(*m_function)(&m_context);
+	m_function(&m_context);
 
 	if(!m_isSigned)
 	{
@@ -42,8 +41,6 @@ void CMultTest::Run()
 
 void CMultTest::Compile(Jitter::CJitter& jitter)
 {
-	if(m_function != NULL) return;
-
 	Framework::CMemStream codeStream;
 	jitter.SetStream(&codeStream);
 
@@ -93,5 +90,5 @@ void CMultTest::Compile(Jitter::CJitter& jitter)
 	}
 	jitter.End();
 
-	m_function = new CMemoryFunction(codeStream.GetBuffer(), codeStream.GetSize());
+	m_function = CMemoryFunction(codeStream.GetBuffer(), codeStream.GetSize());
 }

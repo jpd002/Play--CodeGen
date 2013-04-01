@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ArmAssembler.cpp" />
+    <ClCompile Include="..\src\CoffObjectFile.cpp" />
     <ClCompile Include="..\src\Jitter.cpp" />
     <ClCompile Include="..\src\Jitter_CodeGen.cpp" />
     <ClCompile Include="..\src\Jitter_CodeGenFactory.cpp" />
@@ -34,6 +35,7 @@
     <ClCompile Include="..\src\Jitter_RegAlloc.cpp" />
     <ClCompile Include="..\src\Jitter_SymbolTable.cpp" />
     <ClCompile Include="..\src\MemoryFunction.cpp" />
+    <ClCompile Include="..\src\ObjectFile.cpp" />
     <ClCompile Include="..\src\X86Assembler.cpp" />
     <ClCompile Include="..\src\X86Assembler_Fpu.cpp" />
     <ClCompile Include="..\src\X86Assembler_Sse.cpp" />
@@ -41,6 +43,7 @@
   <ItemGroup>
     <ClInclude Include="..\include\ArmAssembler.h" />
     <ClInclude Include="..\include\ArrayStack.h" />
+    <ClInclude Include="..\include\CoffObjectFile.h" />
     <ClInclude Include="..\include\Jitter.h" />
     <ClInclude Include="..\include\Jitter_CodeGen.h" />
     <ClInclude Include="..\include\Jitter_CodeGenFactory.h" />
@@ -53,6 +56,7 @@
     <ClInclude Include="..\include\Jitter_SymbolRef.h" />
     <ClInclude Include="..\include\Jitter_SymbolTable.h" />
     <ClInclude Include="..\include\MemoryFunction.h" />
+    <ClInclude Include="..\include\ObjectFile.h" />
     <ClInclude Include="..\include\X86Assembler.h" />
     <ClInclude Include="..\src\Jitter_CodeGen_Arm_Alu.h" />
     <ClInclude Include="..\src\Jitter_CodeGen_Arm_Div.h" />
@@ -62,17 +66,6 @@
     <ClInclude Include="..\src\Jitter_CodeGen_x86_Div.h" />
     <ClInclude Include="..\src\Jitter_CodeGen_x86_Mul.h" />
     <ClInclude Include="..\src\Jitter_CodeGen_x86_Shift.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <CustomBuild Include="..\src\MemoryFunction_Execute.asm">
-      <FileType>Document</FileType>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ml64 /c /Fo"$(IntDir)\%(Filename).obj" %(Identity)</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)\%(Filename).obj</Outputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Assembling...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ml64 /c /Fo"$(IntDir)\%(Filename).obj" %(Identity)</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)\%(Filename).obj</Outputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Assembling...</Message>
-    </CustomBuild>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{E3521577-BFC9-4532-9B70-1F8C0D546F4A}</ProjectGuid>
@@ -144,7 +137,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(FrameworkRoot)\include;$(ProjectDir)/../include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -174,7 +167,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(FrameworkRoot)\include;$(ProjectDir)/../include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>

@@ -8,7 +8,7 @@ CFpIntMixTest::CFpIntMixTest()
 
 CFpIntMixTest::~CFpIntMixTest()
 {
-	delete m_function;
+
 }
 
 void CFpIntMixTest::Compile(Jitter::CJitter& jitter)
@@ -38,14 +38,14 @@ void CFpIntMixTest::Compile(Jitter::CJitter& jitter)
 	}
 	jitter.End();
 
-	m_function = new CMemoryFunction(codeStream.GetBuffer(), codeStream.GetSize());
+	m_function = CMemoryFunction(codeStream.GetBuffer(), codeStream.GetSize());
 }
 
 void CFpIntMixTest::Run()
 {
 	memset(&m_context, 0, sizeof(CONTEXT));
 	m_context.number2 = 2.0;
-	(*m_function)(&m_context);
+	m_function(&m_context);
 	TEST_VERIFY(*reinterpret_cast<uint32*>(&m_context.number1)	== 200);
 	TEST_VERIFY(m_context.number2								==   2);
 	TEST_VERIFY(m_context.result								== 200);

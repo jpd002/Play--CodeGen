@@ -43,7 +43,7 @@ private:
 		float			dstCvtSingle[4];
 	};
 
-	CMemoryFunction*	m_function;
+	CMemoryFunction		m_function;
 };
 
 #endif

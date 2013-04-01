@@ -67,6 +67,12 @@
     <ClCompile Include="..\src\Jitter_CodeGen_Arm_Fpu.cpp">
       <Filter>Source Files\arm</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\CoffObjectFile.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ObjectFile.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\ArrayStack.h">
@@ -91,9 +97,6 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="..\include\Jitter_SymbolTable.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\MemoryFunction.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="..\include\X86Assembler.h">
@@ -138,10 +141,14 @@
     <ClInclude Include="..\src\Jitter_CodeGen_Arm_Shift.h">
       <Filter>Source Files\arm</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <CustomBuild Include="..\src\MemoryFunction_Execute.asm">
+    <ClInclude Include="..\include\MemoryFunction.h">
       <Filter>Source Files</Filter>
-    </CustomBuild>
+    </ClInclude>
+    <ClInclude Include="..\include\CoffObjectFile.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\ObjectFile.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

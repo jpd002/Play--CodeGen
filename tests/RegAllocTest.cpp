@@ -6,14 +6,13 @@
 #define TEST_NUMBER2 (0xCAFECAFE)
 
 CRegAllocTest::CRegAllocTest()
-: m_function(NULL)
 {
 
 }
 
 CRegAllocTest::~CRegAllocTest()
 {
-	delete m_function;
+
 }
 
 void CRegAllocTest::Compile(Jitter::CJitter& jitter)
@@ -33,7 +32,7 @@ void CRegAllocTest::Compile(Jitter::CJitter& jitter)
 	}
 	jitter.End();
 
-	m_function = new CMemoryFunction(codeStream.GetBuffer(), codeStream.GetSize());
+	m_function = CMemoryFunction(codeStream.GetBuffer(), codeStream.GetSize());
 }
 
 void CRegAllocTest::Run()
@@ -41,7 +40,7 @@ void CRegAllocTest::Run()
 	memset(&m_context, 0, sizeof(CONTEXT));
 	m_context.number[0] = TEST_NUMBER1;
 	m_context.number[1] = TEST_NUMBER2;
-	(*m_function)(&m_context);
+	m_function(&m_context);
 	TEST_VERIFY(m_context.number[0] == TEST_NUMBER1);
 	TEST_VERIFY(m_context.number[1] == TEST_NUMBER2);
 	for(unsigned int i = 2; i < MAX_VARS; i++)

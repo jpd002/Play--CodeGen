@@ -25,7 +25,7 @@ private:
 
 	CONTEXT				m_context;
 	uint32				m_memory[0x20];
-	CMemoryFunction*	m_function;
+	CMemoryFunction		m_function;
 };
 
 #endif

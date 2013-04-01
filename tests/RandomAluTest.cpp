@@ -5,14 +5,13 @@
 
 CRandomAluTest::CRandomAluTest(bool useConstant)
 : m_useConstant(useConstant)
-, m_function(NULL)
 {
 
 }
 
 CRandomAluTest::~CRandomAluTest()
 {
-	delete m_function;
+
 }
 
 void CRandomAluTest::Compile(Jitter::CJitter& jitter)
@@ -45,13 +44,13 @@ void CRandomAluTest::Compile(Jitter::CJitter& jitter)
 	}
 	jitter.End();
 
-	m_function = new CMemoryFunction(codeStream.GetBuffer(), codeStream.GetSize());
+	m_function = CMemoryFunction(codeStream.GetBuffer(), codeStream.GetSize());
 }
 
 void CRandomAluTest::Run()
 {
 	memset(&m_context, 0, sizeof(CONTEXT));
 	m_context.number = TEST_NUMBER;
-	(*m_function)(&m_context);
+	m_function(&m_context);
 	TEST_VERIFY(m_context.number == 0xFFFF00E3);
 }

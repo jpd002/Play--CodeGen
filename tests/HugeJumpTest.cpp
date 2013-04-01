@@ -3,14 +3,13 @@
 #include "offsetof_def.h"
 
 CHugeJumpTest::CHugeJumpTest()
-: m_function(NULL)
 {
 
 }
 
 CHugeJumpTest::~CHugeJumpTest()
 {
-	delete m_function;
+
 }
 
 void CHugeJumpTest::Compile(Jitter::CJitter& jitter)
@@ -47,11 +46,11 @@ void CHugeJumpTest::Compile(Jitter::CJitter& jitter)
 	}
 	jitter.End();
 
-	m_function = new CMemoryFunction(codeStream.GetBuffer(), codeStream.GetSize());
+	m_function = CMemoryFunction(codeStream.GetBuffer(), codeStream.GetSize());
 }
 
 void CHugeJumpTest::Run()
 {
 	memset(&m_context, 0, sizeof(CONTEXT));
-	(*m_function)(&m_context);
+	m_function(&m_context);
 }

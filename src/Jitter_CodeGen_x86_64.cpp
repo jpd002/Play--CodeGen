@@ -380,7 +380,9 @@ void CCodeGen_x86_64::Emit_Call(const STATEMENT& statement)
 	}
 
 	m_assembler.MovIq(CX86Assembler::rAX, CombineConstant64(src1->m_valueLow, src1->m_valueHigh));
-	if(m_externalSymbolReferencedHandler) m_externalSymbolReferencedHandler(src1, -8);
+	auto symbolRefLabel = m_assembler.CreateLabel();
+	m_assembler.MarkLabel(symbolRefLabel, -8);
+	m_symbolReferenceLabels.push_back(std::make_pair(reinterpret_cast<void*>(CombineConstant64(src1->m_valueLow, src1->m_valueHigh)), symbolRefLabel));
 	m_assembler.CallEd(CX86Assembler::MakeRegisterAddress(CX86Assembler::rAX));
 }
 

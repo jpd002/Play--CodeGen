@@ -20,6 +20,7 @@ namespace Jitter
 
 		virtual void			GenerateCode(const StatementList&, unsigned int) = 0;
 		virtual unsigned int	GetAvailableRegisterCount() const = 0;
+		virtual unsigned int	GetAddressSize() const = 0;
 		virtual bool			CanHold128BitsReturnValueInRegisters() const = 0;
 
 	protected:

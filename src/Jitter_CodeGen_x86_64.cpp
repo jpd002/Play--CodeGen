@@ -246,6 +246,11 @@ unsigned int CCodeGen_x86_64::GetAvailableRegisterCount() const
 	return MAX_REGISTERS;
 }
 
+unsigned int CCodeGen_x86_64::GetAddressSize() const
+{
+	return 8;
+}
+
 bool CCodeGen_x86_64::CanHold128BitsReturnValueInRegisters() const
 {
 #if defined(__APPLE__)

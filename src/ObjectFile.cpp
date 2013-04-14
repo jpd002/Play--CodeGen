@@ -39,7 +39,10 @@ unsigned int CObjectFile::GetExternalSymbolIndexByValue(void* value) const
 	auto externalSymbolIterator = std::find_if(std::begin(m_externalSymbols), std::end(m_externalSymbols),
 		[&] (const EXTERNAL_SYMBOL& externalSymbol)
 		{
-			return externalSymbol.value == value;
+			//This is kinda bad, but we have no choice if we want to be able to cross compile...
+			uint32 srcValue = reinterpret_cast<uint32>(externalSymbol.value);
+			uint32 dstValue = reinterpret_cast<uint32>(value);
+			return srcValue == dstValue;
 		}
 	);
 	if(externalSymbolIterator == std::end(m_externalSymbols))

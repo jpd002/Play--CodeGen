@@ -206,8 +206,12 @@ void CCodeGen_x86_32::Emit_Epilog(unsigned int stackSize, uint32 registerUsage)
 
 unsigned int CCodeGen_x86_32::GetAvailableRegisterCount() const
 {
-	//We have ebx, esi and edi
-	return 3;
+	return MAX_REGISTERS;
+}
+
+unsigned int CCodeGen_x86_32::GetAddressSize() const
+{
+	return 4;
 }
 
 bool CCodeGen_x86_32::CanHold128BitsReturnValueInRegisters() const

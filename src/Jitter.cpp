@@ -256,7 +256,7 @@ void CJitter::Call(void* func, unsigned int paramCount, RETURN_VALUE_TYPE return
 		break;
 	}
 
-	size_t addrSize = sizeof(func);
+	size_t addrSize = m_codeGen->GetAddressSize();
 
 	STATEMENT callStatement;
 	if(addrSize == 4)

@@ -13,6 +13,7 @@ namespace Jitter
 		virtual								~CCodeGen_x86_32();
 
 		unsigned int						GetAvailableRegisterCount() const;
+		unsigned int						GetAddressSize() const;
 		bool								CanHold128BitsReturnValueInRegisters() const;
 		
 	protected:

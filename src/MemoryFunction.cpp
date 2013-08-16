@@ -81,66 +81,9 @@ CMemoryFunction& CMemoryFunction::operator =(CMemoryFunction&& rhs)
 
 void CMemoryFunction::operator()(void* context)
 {
-
-#ifdef WIN32
-
-		typedef void (*FctType)(void*);
-		auto fct = reinterpret_cast<FctType>(m_code);
-		fct(context);
-
-#elif defined(__APPLE__)
-	
-	volatile const void* code = m_code;
-	volatile const void* dataPtr = context;
-	
-	#if TARGET_CPU_ARM
-			
-		__asm__ ("mov r1, %0" : : "r"(dataPtr) : "r1");
-		__asm__ ("mov r0, %0" : : "r"(code) : "r0");
-		__asm__ ("stmdb sp!, {r2, r3, r4, r5, r6, r7, r11, ip, lr}");
-		__asm__ ("mov r11, r1");
-		__asm__ ("blx r0");
-		__asm__ ("ldmia sp!, {r2, r3, r4, r5, r6, r7, r11, ip, lr}");
-	
-	#else // TARGET_CPU_X86
-	
-		#if TARGET_RT_64_BIT
-	
-			__asm__("mov %0, %%rcx\n"
-					"mov %1, %%rdx\n"
-					"call *%%rcx\n"
-					: : "r"(code), "r"(dataPtr) : "%rax", "%rcx", "%rdx");
-	
-		#else
-	
-			__asm__("push %%ebp\n"
-					"push %%ebx\n"
-					"push %%esi\n"
-					"push %%edi\n"
-					"mov %0, %%eax\n"
-					"mov %1, %%ebp\n"
-					
-					"mov %%esp, %%edi\n"
-					"sub $0x10, %%esp\n"
-					"and $~0xF, %%esp\n"
-					"sub $0x08, %%esp\n"
-					"push %%edi\n"
-					
-					"call *%%eax\n"
-					
-					"pop %%esp\n"
-					"pop %%edi\n"
-					"pop %%esi\n"
-					"pop %%ebx\n"
-					"pop %%ebp\n"
-					: : "r"(code), "r"(dataPtr) : "%eax", "%ecx", "%edx");
-	
-		#endif
-	
-	#endif
-	
-#endif
-
+	typedef void (*FctType)(void*);
+	auto fct = reinterpret_cast<FctType>(m_code);
+	fct(context);
 }
 
 void* CMemoryFunction::GetCode() const

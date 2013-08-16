@@ -265,7 +265,7 @@ void CCodeGen_x86_64::Emit_Prolog(const StatementList&, unsigned int stackSize, 
 	m_params.clear();
 
 	m_assembler.Push(CX86Assembler::rBP);
-	m_assembler.MovEq(CX86Assembler::rBP, CX86Assembler::MakeRegisterAddress(CX86Assembler::rCX));
+	m_assembler.MovEq(CX86Assembler::rBP, CX86Assembler::MakeRegisterAddress(g_paramRegs[0]));
 
 	uint32 savedCount = 0;
 	for(unsigned int i = 0; i < MAX_REGISTERS; i++)

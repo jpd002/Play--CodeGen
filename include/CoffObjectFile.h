@@ -78,15 +78,6 @@ namespace Jitter
 		static_assert(sizeof(SYMBOL) == 0x12, "Size of SYMBOL must be 0x12 bytes.");
 		typedef std::vector<SYMBOL> SymbolArray;
 
-		typedef std::vector<char> StringTable;
-		typedef std::vector<uint8> SectionData;
-
-		struct SECTION
-		{
-			SectionData				data;
-			SymbolReferenceArray	symbolReferences;
-		};
-
 									CCoffObjectFile();
 		virtual						~CCoffObjectFile();
 
@@ -120,6 +111,15 @@ namespace Jitter
 			uint32		symbolIndex;
 		};
 		typedef std::vector<EXTERNAL_SYMBOL_INFO> ExternalSymbolInfoArray;
+
+		typedef std::vector<char> StringTable;
+		typedef std::vector<uint8> SectionData;
+
+		struct SECTION
+		{
+			SectionData				data;
+			SymbolReferenceArray	symbolReferences;
+		};
 
 		static void					FillStringTable(StringTable&, const InternalSymbolArray&, InternalSymbolInfoArray&);
 		static void					FillStringTable(StringTable&, const ExternalSymbolArray&, ExternalSymbolInfoArray&);

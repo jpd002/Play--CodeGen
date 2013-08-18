@@ -14,9 +14,11 @@ namespace Jitter
 												CCodeGen_Arm();
 		virtual									~CCodeGen_Arm();
 
-		void									GenerateCode(const StatementList&, unsigned int);
-		void									SetStream(Framework::CStream*);
-		unsigned int							GetAvailableRegisterCount() const;
+		void									GenerateCode(const StatementList&, unsigned int) override;
+		void									SetStream(Framework::CStream*) override;
+		unsigned int							GetAvailableRegisterCount() const override;
+		unsigned int							GetAddressSize() const override;
+		bool									CanHold128BitsReturnValueInRegisters() const override;
 
 	private:
 		typedef std::map<uint32, CArmAssembler::LABEL> LabelMapType;

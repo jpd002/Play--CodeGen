@@ -159,6 +159,16 @@ unsigned int CCodeGen_Arm::GetAvailableRegisterCount() const
 	return MAX_REGISTERS;
 }
 
+unsigned int CCodeGen_Arm::GetAddressSize() const
+{
+	return 4;
+}
+
+bool CCodeGen_Arm::CanHold128BitsReturnValueInRegisters() const
+{
+	return false;
+}
+
 void CCodeGen_Arm::SetStream(Framework::CStream* stream)
 {
 	m_stream = stream;

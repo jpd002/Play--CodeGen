@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		703093D317BE6844009662A1 /* Jitter_CodeGen_x86_Md.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 703093D217BE6844009662A1 /* Jitter_CodeGen_x86_Md.cpp */; };
 		7E0C76EA121E442B00F46800 /* Jitter_CodeGen_Arm_Shift.h in Headers */ = {isa = PBXBuildFile; fileRef = 7E0C76E9121E442B00F46800 /* Jitter_CodeGen_Arm_Shift.h */; };
 		7E0C76F2121E457300F46800 /* Jitter_CodeGen_Arm_Alu.h in Headers */ = {isa = PBXBuildFile; fileRef = 7E0C76F1121E457300F46800 /* Jitter_CodeGen_Arm_Alu.h */; };
 		7E271F89121256B300C0DEBF /* ArmAssembler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E271F75121256B300C0DEBF /* ArmAssembler.cpp */; };
@@ -52,6 +53,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		703093D217BE6844009662A1 /* Jitter_CodeGen_x86_Md.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Jitter_CodeGen_x86_Md.cpp; path = ../src/Jitter_CodeGen_x86_Md.cpp; sourceTree = "<group>"; };
 		7E0C76E9121E442B00F46800 /* Jitter_CodeGen_Arm_Shift.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Jitter_CodeGen_Arm_Shift.h; path = ../src/Jitter_CodeGen_Arm_Shift.h; sourceTree = SOURCE_ROOT; };
 		7E0C76F1121E457300F46800 /* Jitter_CodeGen_Arm_Alu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Jitter_CodeGen_Arm_Alu.h; path = ../src/Jitter_CodeGen_Arm_Alu.h; sourceTree = SOURCE_ROOT; };
 		7E271F75121256B300C0DEBF /* ArmAssembler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ArmAssembler.cpp; path = ../src/ArmAssembler.cpp; sourceTree = SOURCE_ROOT; };
@@ -162,6 +164,7 @@
 				7E271F7A121256B300C0DEBF /* Jitter_CodeGen_x86_Alu.h */,
 				7E271F7B121256B300C0DEBF /* Jitter_CodeGen_x86_Div.h */,
 				7E271F7C121256B300C0DEBF /* Jitter_CodeGen_x86_Fpu.cpp */,
+				703093D217BE6844009662A1 /* Jitter_CodeGen_x86_Md.cpp */,
 				7E271F7D121256B300C0DEBF /* Jitter_CodeGen_x86_Mul.h */,
 				7E271F7E121256B300C0DEBF /* Jitter_CodeGen_x86_Shift.h */,
 				7E271F81121256B300C0DEBF /* Jitter_CodeGenFactory.cpp */,
@@ -250,6 +253,8 @@
 /* Begin PBXProject section */
 		0867D690FE84028FC02AAC07 /* Project object */ = {
 			isa = PBXProject;
+			attributes = {
+			};
 			buildConfigurationList = 1DEB922208733DC00010E9CD /* Build configuration list for PBXProject "CodeGen" */;
 			compatibilityVersion = "Xcode 3.1";
 			developmentRegion = English;
@@ -280,6 +285,7 @@
 				7E271F8B121256B300C0DEBF /* Jitter_CodeGen_Arm.cpp in Sources */,
 				7E271F8C121256B300C0DEBF /* Jitter_CodeGen_x86_32.cpp in Sources */,
 				7E271F8D121256B300C0DEBF /* Jitter_CodeGen_x86_64.cpp in Sources */,
+				703093D317BE6844009662A1 /* Jitter_CodeGen_x86_Md.cpp in Sources */,
 				7E271F90121256B300C0DEBF /* Jitter_CodeGen_x86_Fpu.cpp in Sources */,
 				7E271F93121256B300C0DEBF /* Jitter_CodeGen_x86.cpp in Sources */,
 				7E271F94121256B300C0DEBF /* Jitter_CodeGen.cpp in Sources */,
@@ -303,6 +309,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				COPY_PHASE_STRIP = NO;
 				DSTROOT = /tmp/CodeGen.dst;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -311,6 +318,11 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = CodeGen_Prefix.pch;
+				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
+				HEADER_SEARCH_PATHS = (
+					"~/Projects/Framework/include",
+					"~/Libraries/boost_1_50_0",
+				);
 				INSTALL_PATH = /usr/local/lib;
 				PRODUCT_NAME = CodeGen;
 			};
@@ -321,10 +333,16 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				DSTROOT = /tmp/CodeGen.dst;
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = CodeGen_Prefix.pch;
+				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
+				HEADER_SEARCH_PATHS = (
+					"~/Projects/Framework/include",
+					"~/Libraries/boost_1_50_0",
+				);
 				INSTALL_PATH = /usr/local/lib;
 				PRODUCT_NAME = CodeGen;
 			};

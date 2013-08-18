@@ -10,6 +10,12 @@
 		1D60589F0D05DD5A006BFB54 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1D30AB110D05D00D00671497 /* Foundation.framework */; };
 		1DF5F4E00D08C38300B7A737 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1DF5F4DF0D08C38300B7A737 /* UIKit.framework */; };
 		288765FD0DF74451002DB57D /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 288765FC0DF74451002DB57D /* CoreGraphics.framework */; };
+		703093CC17BE67E5009662A1 /* Alu64Test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 703093C017BE67CE009662A1 /* Alu64Test.cpp */; };
+		703093CD17BE67E8009662A1 /* Call64Test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 703093C217BE67CE009662A1 /* Call64Test.cpp */; };
+		703093CE17BE67EF009662A1 /* HalfMultTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 703093C417BE67CE009662A1 /* HalfMultTest.cpp */; };
+		703093CF17BE67F5009662A1 /* MdCallTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 703093C617BE67CE009662A1 /* MdCallTest.cpp */; };
+		703093D017BE67F8009662A1 /* MdFpFlagTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 703093C817BE67CE009662A1 /* MdFpFlagTest.cpp */; };
+		703093D117BE6804009662A1 /* Shift64Test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 703093CA17BE67CE009662A1 /* Shift64Test.cpp */; };
 		7E2720451212598B00C0DEBF /* CompareTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E2720351212598B00C0DEBF /* CompareTest.cpp */; };
 		7E2720461212598B00C0DEBF /* Crc32Test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E2720371212598B00C0DEBF /* Crc32Test.cpp */; };
 		7E2720471212598B00C0DEBF /* FpuTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E2720391212598B00C0DEBF /* FpuTest.cpp */; };
@@ -20,6 +26,7 @@
 		7E27204C1212598B00C0DEBF /* RandomAluTest3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E2720421212598B00C0DEBF /* RandomAluTest3.cpp */; };
 		7E272053121259AA00C0DEBF /* libCodeGen.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7E272052121259A200C0DEBF /* libCodeGen.a */; };
 		7E2720CF1213AF1700C0DEBF /* libFramework.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7E2720CE1213AF1000C0DEBF /* libFramework.a */; };
+		7E3018541341A22000FEAF04 /* HugeJumpTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E3018521341A22000FEAF04 /* HugeJumpTest.cpp */; };
 		7EE2D43A1228842C00C2C057 /* RegAllocTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7EE2D4381228842C00C2C057 /* RegAllocTest.cpp */; };
 		7EF8380512DAB5D300EA0F1C /* AliasTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7EF837FB12DAB5D300EA0F1C /* AliasTest.cpp */; };
 		7EF8380612DAB5D300EA0F1C /* FpIntMixTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7EF837FD12DAB5D300EA0F1C /* FpIntMixTest.cpp */; };
@@ -50,6 +57,21 @@
 		1D6058910D05DD3D006BFB54 /* CodeGenTestSuite.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CodeGenTestSuite.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1DF5F4DF0D08C38300B7A737 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		288765FC0DF74451002DB57D /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
+		703093BD17BE6628009662A1 /* CodeGenTestSuite-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "CodeGenTestSuite-Info.plist"; sourceTree = "<group>"; };
+		703093BE17BE6678009662A1 /* CodeGenTestSuite_Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CodeGenTestSuite_Prefix.pch; sourceTree = "<group>"; };
+		703093BF17BE67CE009662A1 /* Align16.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Align16.h; path = ../tests/Align16.h; sourceTree = "<group>"; };
+		703093C017BE67CE009662A1 /* Alu64Test.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Alu64Test.cpp; path = ../tests/Alu64Test.cpp; sourceTree = "<group>"; };
+		703093C117BE67CE009662A1 /* Alu64Test.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Alu64Test.h; path = ../tests/Alu64Test.h; sourceTree = "<group>"; };
+		703093C217BE67CE009662A1 /* Call64Test.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Call64Test.cpp; path = ../tests/Call64Test.cpp; sourceTree = "<group>"; };
+		703093C317BE67CE009662A1 /* Call64Test.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Call64Test.h; path = ../tests/Call64Test.h; sourceTree = "<group>"; };
+		703093C417BE67CE009662A1 /* HalfMultTest.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = HalfMultTest.cpp; path = ../tests/HalfMultTest.cpp; sourceTree = "<group>"; };
+		703093C517BE67CE009662A1 /* HalfMultTest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = HalfMultTest.h; path = ../tests/HalfMultTest.h; sourceTree = "<group>"; };
+		703093C617BE67CE009662A1 /* MdCallTest.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = MdCallTest.cpp; path = ../tests/MdCallTest.cpp; sourceTree = "<group>"; };
+		703093C717BE67CE009662A1 /* MdCallTest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = MdCallTest.h; path = ../tests/MdCallTest.h; sourceTree = "<group>"; };
+		703093C817BE67CE009662A1 /* MdFpFlagTest.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = MdFpFlagTest.cpp; path = ../tests/MdFpFlagTest.cpp; sourceTree = "<group>"; };
+		703093C917BE67CE009662A1 /* MdFpFlagTest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = MdFpFlagTest.h; path = ../tests/MdFpFlagTest.h; sourceTree = "<group>"; };
+		703093CA17BE67CE009662A1 /* Shift64Test.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Shift64Test.cpp; path = ../tests/Shift64Test.cpp; sourceTree = "<group>"; };
+		703093CB17BE67CE009662A1 /* Shift64Test.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Shift64Test.h; path = ../tests/Shift64Test.h; sourceTree = "<group>"; };
 		7E2720351212598B00C0DEBF /* CompareTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CompareTest.cpp; path = ../tests/CompareTest.cpp; sourceTree = SOURCE_ROOT; };
 		7E2720361212598B00C0DEBF /* CompareTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CompareTest.h; path = ../tests/CompareTest.h; sourceTree = SOURCE_ROOT; };
 		7E2720371212598B00C0DEBF /* Crc32Test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Crc32Test.cpp; path = ../tests/Crc32Test.cpp; sourceTree = SOURCE_ROOT; };
@@ -68,7 +90,8 @@
 		7E2720441212598B00C0DEBF /* Test.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Test.h; path = ../tests/Test.h; sourceTree = SOURCE_ROOT; };
 		7E27204D121259A200C0DEBF /* CodeGen.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = CodeGen.xcodeproj; sourceTree = "<group>"; };
 		7E2720C91213AF1000C0DEBF /* Framework.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Framework.xcodeproj; path = ../../Framework/build_iphone/Framework.xcodeproj; sourceTree = SOURCE_ROOT; };
-		7E2720D21213AF3E00C0DEBF /* CodeGenTestSuite_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CodeGenTestSuite_Prefix.pch; sourceTree = "<group>"; };
+		7E3018521341A22000FEAF04 /* HugeJumpTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = HugeJumpTest.cpp; path = ../tests/HugeJumpTest.cpp; sourceTree = "<group>"; };
+		7E3018531341A22000FEAF04 /* HugeJumpTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HugeJumpTest.h; path = ../tests/HugeJumpTest.h; sourceTree = "<group>"; };
 		7EE2D4381228842C00C2C057 /* RegAllocTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RegAllocTest.cpp; path = ../tests/RegAllocTest.cpp; sourceTree = SOURCE_ROOT; };
 		7EE2D4391228842C00C2C057 /* RegAllocTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RegAllocTest.h; path = ../tests/RegAllocTest.h; sourceTree = SOURCE_ROOT; };
 		7EF837FB12DAB5D300EA0F1C /* AliasTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = AliasTest.cpp; path = ../tests/AliasTest.cpp; sourceTree = SOURCE_ROOT; };
@@ -81,7 +104,6 @@
 		7EF8380212DAB5D300EA0F1C /* MdTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MdTest.h; path = ../tests/MdTest.h; sourceTree = SOURCE_ROOT; };
 		7EF8380312DAB5D300EA0F1C /* MemAccessTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MemAccessTest.cpp; path = ../tests/MemAccessTest.cpp; sourceTree = SOURCE_ROOT; };
 		7EF8380412DAB5D300EA0F1C /* MemAccessTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MemAccessTest.h; path = ../tests/MemAccessTest.h; sourceTree = SOURCE_ROOT; };
-		8D1107310486CEB800E47090 /* CodeGenTestSuite-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "CodeGenTestSuite-Info.plist"; plistStructureDefinitionIdentifier = "com.apple.xcode.plist.structure-definition.iphone.info-plist"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -124,7 +146,7 @@
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				8D1107310486CEB800E47090 /* CodeGenTestSuite-Info.plist */,
+				703093BD17BE6628009662A1 /* CodeGenTestSuite-Info.plist */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -144,7 +166,12 @@
 			children = (
 				7EF837FB12DAB5D300EA0F1C /* AliasTest.cpp */,
 				7EF837FC12DAB5D300EA0F1C /* AliasTest.h */,
-				7E2720D21213AF3E00C0DEBF /* CodeGenTestSuite_Prefix.pch */,
+				703093BF17BE67CE009662A1 /* Align16.h */,
+				703093C017BE67CE009662A1 /* Alu64Test.cpp */,
+				703093C117BE67CE009662A1 /* Alu64Test.h */,
+				703093C217BE67CE009662A1 /* Call64Test.cpp */,
+				703093C317BE67CE009662A1 /* Call64Test.h */,
+				703093BE17BE6678009662A1 /* CodeGenTestSuite_Prefix.pch */,
 				7E2720351212598B00C0DEBF /* CompareTest.cpp */,
 				7E2720361212598B00C0DEBF /* CompareTest.h */,
 				7E2720371212598B00C0DEBF /* Crc32Test.cpp */,
@@ -153,7 +180,15 @@
 				7EF837FE12DAB5D300EA0F1C /* FpIntMixTest.h */,
 				7E2720391212598B00C0DEBF /* FpuTest.cpp */,
 				7E27203A1212598B00C0DEBF /* FpuTest.h */,
+				703093C417BE67CE009662A1 /* HalfMultTest.cpp */,
+				703093C517BE67CE009662A1 /* HalfMultTest.h */,
+				7E3018521341A22000FEAF04 /* HugeJumpTest.cpp */,
+				7E3018531341A22000FEAF04 /* HugeJumpTest.h */,
 				7E27203B1212598B00C0DEBF /* Main.cpp */,
+				703093C617BE67CE009662A1 /* MdCallTest.cpp */,
+				703093C717BE67CE009662A1 /* MdCallTest.h */,
+				703093C817BE67CE009662A1 /* MdFpFlagTest.cpp */,
+				703093C917BE67CE009662A1 /* MdFpFlagTest.h */,
 				7EF837FF12DAB5D300EA0F1C /* MdFpTest.cpp */,
 				7EF8380012DAB5D300EA0F1C /* MdFpTest.h */,
 				7EF8380112DAB5D300EA0F1C /* MdTest.cpp */,
@@ -170,6 +205,8 @@
 				7E2720431212598B00C0DEBF /* RandomAluTest3.h */,
 				7EE2D4381228842C00C2C057 /* RegAllocTest.cpp */,
 				7EE2D4391228842C00C2C057 /* RegAllocTest.h */,
+				703093CA17BE67CE009662A1 /* Shift64Test.cpp */,
+				703093CB17BE67CE009662A1 /* Shift64Test.h */,
 				7E2720441212598B00C0DEBF /* Test.h */,
 			);
 			name = Source;
@@ -216,6 +253,8 @@
 /* Begin PBXProject section */
 		29B97313FDCFA39411CA2CEA /* Project object */ = {
 			isa = PBXProject;
+			attributes = {
+			};
 			buildConfigurationList = C01FCF4E08A954540054247B /* Build configuration list for PBXProject "CodeGenTestSuite" */;
 			compatibilityVersion = "Xcode 3.1";
 			developmentRegion = English;
@@ -277,20 +316,27 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				703093D117BE6804009662A1 /* Shift64Test.cpp in Sources */,
+				703093CE17BE67EF009662A1 /* HalfMultTest.cpp in Sources */,
 				7E2720451212598B00C0DEBF /* CompareTest.cpp in Sources */,
 				7E2720461212598B00C0DEBF /* Crc32Test.cpp in Sources */,
+				703093CD17BE67E8009662A1 /* Call64Test.cpp in Sources */,
 				7E2720471212598B00C0DEBF /* FpuTest.cpp in Sources */,
 				7E2720481212598B00C0DEBF /* Main.cpp in Sources */,
 				7E2720491212598B00C0DEBF /* MultTest.cpp in Sources */,
 				7E27204A1212598B00C0DEBF /* RandomAluTest.cpp in Sources */,
 				7E27204B1212598B00C0DEBF /* RandomAluTest2.cpp in Sources */,
 				7E27204C1212598B00C0DEBF /* RandomAluTest3.cpp in Sources */,
+				703093D017BE67F8009662A1 /* MdFpFlagTest.cpp in Sources */,
 				7EE2D43A1228842C00C2C057 /* RegAllocTest.cpp in Sources */,
 				7EF8380512DAB5D300EA0F1C /* AliasTest.cpp in Sources */,
+				703093CC17BE67E5009662A1 /* Alu64Test.cpp in Sources */,
 				7EF8380612DAB5D300EA0F1C /* FpIntMixTest.cpp in Sources */,
 				7EF8380712DAB5D300EA0F1C /* MdFpTest.cpp in Sources */,
+				703093CF17BE67F5009662A1 /* MdCallTest.cpp in Sources */,
 				7EF8380812DAB5D300EA0F1C /* MdTest.cpp in Sources */,
 				7EF8380912DAB5D300EA0F1C /* MemAccessTest.cpp in Sources */,
+				7E3018541341A22000FEAF04 /* HugeJumpTest.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -301,12 +347,21 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = CodeGenTestSuite_Prefix.pch;
+				HEADER_SEARCH_PATHS = (
+					"~/Projects/Framework/include",
+					"~/Libraries/boost_1_50_0",
+					../include,
+				);
 				INFOPLIST_FILE = "CodeGenTestSuite-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
 				PRODUCT_NAME = CodeGenTestSuite;
 			};
 			name = Debug;
@@ -315,10 +370,19 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				COPY_PHASE_STRIP = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = CodeGenTestSuite_Prefix.pch;
+				HEADER_SEARCH_PATHS = (
+					"~/Projects/Framework/include",
+					"~/Libraries/boost_1_50_0",
+					../include,
+				);
 				INFOPLIST_FILE = "CodeGenTestSuite-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
 				PRODUCT_NAME = CodeGenTestSuite;
 				VALIDATE_PRODUCT = YES;
 			};

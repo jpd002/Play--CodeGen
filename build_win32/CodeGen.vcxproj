@@ -34,6 +34,7 @@
     <ClCompile Include="..\src\Jitter_Optimize.cpp" />
     <ClCompile Include="..\src\Jitter_RegAlloc.cpp" />
     <ClCompile Include="..\src\Jitter_SymbolTable.cpp" />
+    <ClCompile Include="..\src\MachoObjectFile.cpp" />
     <ClCompile Include="..\src\MemoryFunction.cpp" />
     <ClCompile Include="..\src\ObjectFile.cpp" />
     <ClCompile Include="..\src\X86Assembler.cpp" />
@@ -55,6 +56,8 @@
     <ClInclude Include="..\include\Jitter_Symbol.h" />
     <ClInclude Include="..\include\Jitter_SymbolRef.h" />
     <ClInclude Include="..\include\Jitter_SymbolTable.h" />
+    <ClInclude Include="..\include\MachoDefs.h" />
+    <ClInclude Include="..\include\MachoObjectFile.h" />
     <ClInclude Include="..\include\MemoryFunction.h" />
     <ClInclude Include="..\include\ObjectFile.h" />
     <ClInclude Include="..\include\X86Assembler.h" />

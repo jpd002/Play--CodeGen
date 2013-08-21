@@ -103,7 +103,28 @@ namespace Macho
 		uint32	symbolsOffset;
 		uint32	symbolCount;
 		uint32	stringsOffset;
-		uint32	stringCount;
+		uint32	stringsSize;
 	};
 	static_assert(sizeof(SYMTAB_COMMAND) == 0x18, "Size of SYMTAB_COMMAND structure must be 24 bytes.");
+
+	struct NLIST
+	{
+		uint32	stringTableIndex;
+		uint8	type;
+		uint8	section;
+		uint16	desc;
+		uint32	value;
+	};
+	static_assert(sizeof(NLIST) == 0xC, "Size of NLIST structure must be 12 bytes.");
+
+	struct RELOCATION_INFO
+	{
+		uint32			address;
+		unsigned int	symbolIndex	: 24;
+		unsigned int	pcRel		: 1;
+		unsigned int	length		: 2;
+		unsigned int	isExtern	: 1;
+		unsigned int	type		: 4;
+	};
+	static_assert(sizeof(RELOCATION_INFO) == 0x08, "Size of RELOCATION_INFO structure must be 8 bytes.");
 }

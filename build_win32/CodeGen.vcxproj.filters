@@ -11,6 +11,9 @@
     <Filter Include="Source Files\arm">
       <UniqueIdentifier>{95ac34a4-202e-4670-8593-a340cbfd46f2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\object">
+      <UniqueIdentifier>{cd419ed2-0ccf-4925-8dae-4b0930235eb3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\Jitter.cpp">
@@ -68,10 +71,13 @@
       <Filter>Source Files\arm</Filter>
     </ClCompile>
     <ClCompile Include="..\src\CoffObjectFile.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\object</Filter>
     </ClCompile>
     <ClCompile Include="..\src\ObjectFile.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\object</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\MachoObjectFile.cpp">
+      <Filter>Source Files\object</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -145,10 +151,16 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="..\include\CoffObjectFile.h">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\object</Filter>
     </ClInclude>
     <ClInclude Include="..\include\ObjectFile.h">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\object</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\MachoObjectFile.h">
+      <Filter>Source Files\object</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\MachoDefs.h">
+      <Filter>Source Files\object</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

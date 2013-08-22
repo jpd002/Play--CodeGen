@@ -8,6 +8,8 @@
 
 namespace Jitter
 {
+	class CObjectFile;
+
 	class CCodeGen
 	{
 	public:
@@ -22,6 +24,7 @@ namespace Jitter
 		virtual unsigned int	GetAvailableRegisterCount() const = 0;
 		virtual unsigned int	GetAddressSize() const = 0;
 		virtual bool			CanHold128BitsReturnValueInRegisters() const = 0;
+		virtual void			RegisterExternalSymbols(CObjectFile*) const = 0;
 
 	protected:
 		enum MATCHTYPE
@@ -71,6 +74,7 @@ namespace Jitter
 		typedef std::multimap<OPERATION, MATCHER> MatcherMapType;
 
 		bool								SymbolMatches(MATCHTYPE, const SymbolRefPtr&);
+		static uint32						GetRegisterUsage(const StatementList&);
 
 		MatcherMapType						m_matchers;
 		ExternalSymbolReferencedHandler		m_externalSymbolReferencedHandler;

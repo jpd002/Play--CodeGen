@@ -2,11 +2,11 @@
 #include <stdexcept>
 #include "ArmAssembler.h"
 
-CArmAssembler::CArmAssembler() :
-m_nextLabelId(1),
-m_stream(NULL)
+CArmAssembler::CArmAssembler() 
+: m_nextLabelId(1)
+, m_stream(NULL)
 {
-    
+
 }
 
 CArmAssembler::~CArmAssembler()
@@ -270,6 +270,17 @@ void CArmAssembler::Eor(REGISTER rd, REGISTER rn, const ImmediateAluOperand& ope
 	WriteWord(opcode);
 }
 
+void CArmAssembler::Ldmia(REGISTER rbase, uint16 regList)
+{
+	//20 - Load
+	//21 - Writeback
+	//22 - User bit
+	//23 - Down/Up (0/1)
+	//24 - Post/Pre (0/1)
+	uint32 opcode = (CONDITION_AL << 28) | (4 << 25) | (1 << 23) | (1 << 21) | (1 << 20) | (static_cast<uint32>(rbase) << 16) | regList;
+	WriteWord(opcode);
+}
+
 void CArmAssembler::Ldr(REGISTER rd, REGISTER rbase, const LdrAddress& address)
 {
 	uint32 opcode = 0;
@@ -382,6 +393,17 @@ void CArmAssembler::Smull(REGISTER rdLow, REGISTER rdHigh, REGISTER rn, REGISTER
 {
 	uint32 opcode = 0;
 	opcode = (CONDITION_AL << 28) | (0x06 << 21) | (rdHigh << 16) | (rdLow << 12) | (rm << 8) | (0x9 << 4) | (rn << 0);
+	WriteWord(opcode);
+}
+
+void CArmAssembler::Stmdb(REGISTER rbase, uint16 regList)
+{
+	//20 - Load
+	//21 - Writeback
+	//22 - User bit
+	//23 - Down/Up (0/1)
+	//24 - Post/Pre (0/1)
+	uint32 opcode = (CONDITION_AL << 28) | (4 << 25) | (1 << 24) | (1 << 21) | (static_cast<uint32>(rbase) << 16) | regList;
 	WriteWord(opcode);
 }
 

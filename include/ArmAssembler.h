@@ -28,9 +28,9 @@ public:
 		r14 = 14,
 		r15 = 15,
 		
-		rIP = 12,		
+		rIP = 12,
 		rSP = 13,
-		rLR = 14,		
+		rLR = 14,
 		rPC = 15,
 	};
 	
@@ -188,7 +188,8 @@ public:
 	void									Cmp(REGISTER, REGISTER);
 	void									Cmp(REGISTER, const ImmediateAluOperand&);
 	void									Eor(REGISTER, REGISTER, REGISTER);
-	void									Eor(REGISTER, REGISTER, const ImmediateAluOperand&);	
+	void									Eor(REGISTER, REGISTER, const ImmediateAluOperand&);
+	void									Ldmia(REGISTER, uint16);
 	void									Ldr(REGISTER, REGISTER, const LdrAddress&);
 	void									Mov(REGISTER, REGISTER);
 	void									Mov(REGISTER, const RegisterAluOperand&);
@@ -199,6 +200,7 @@ public:
 	void									Or(REGISTER, REGISTER, REGISTER);
 	void									Or(REGISTER, REGISTER, const ImmediateAluOperand&);
 	void									Smull(REGISTER, REGISTER, REGISTER, REGISTER);
+	void									Stmdb(REGISTER, uint16);
 	void									Str(REGISTER, REGISTER, const LdrAddress&);
 	void									Sub(REGISTER, REGISTER, REGISTER);
 	void									Sub(REGISTER, REGISTER, const ImmediateAluOperand&);

@@ -16,6 +16,7 @@ namespace Jitter
 
 		void									GenerateCode(const StatementList&, unsigned int) override;
 		void									SetStream(Framework::CStream*) override;
+		void									RegisterExternalSymbols(CObjectFile*) const override;
 		unsigned int							GetAvailableRegisterCount() const override;
 		unsigned int							GetAddressSize() const override;
 		bool									CanHold128BitsReturnValueInRegisters() const override;
@@ -60,6 +61,11 @@ namespace Jitter
 			ConstCodeEmitterType				emitter;
 		};
 
+		static uint16							GetSavedRegisterList(uint32);
+
+		void									Emit_Prolog(unsigned int, uint16);
+		void									Emit_Epilog(unsigned int, uint16);
+
 		CArmAssembler::LABEL					GetLabel(uint32);
 		void									MarkLabel(const STATEMENT&);
 
@@ -77,7 +83,7 @@ namespace Jitter
 		uint32									RotateRight(uint32);
 		uint32									RotateLeft(uint32);
 		bool									TryGetAluImmediateParams(uint32, uint8&, uint8&);
-		void									LoadConstantInRegister(CArmAssembler::REGISTER, uint32);
+		void									LoadConstantInRegister(CArmAssembler::REGISTER, uint32, bool = false);
 		void									DumpLiteralPool();
 
 		//ALUOP ----------------------------------------------------------
@@ -161,14 +167,14 @@ namespace Jitter
 		template <typename> void				Emit_Alu_RelRelReg(const STATEMENT&);
 		template <typename> void				Emit_Alu_RelRelRel(const STATEMENT&);
 		template <typename> void				Emit_Alu_RelRelCst(const STATEMENT&);
-        template <typename> void                Emit_Alu_RelCstReg(const STATEMENT&);
+		template <typename> void				Emit_Alu_RelCstReg(const STATEMENT&);
 		template <typename> void				Emit_Alu_TmpRegCst(const STATEMENT&);
 		template <typename> void				Emit_Alu_TmpRelCst(const STATEMENT&);
 		template <typename> void				Emit_Alu_TmpTmpCst(const STATEMENT&);
 		
 		//SHIFTOP
 		template <CArmAssembler::SHIFT> void	Emit_Shift_RegRegReg(const STATEMENT&);
-		template <CArmAssembler::SHIFT> void	Emit_Shift_RegRegRel(const STATEMENT&);		
+		template <CArmAssembler::SHIFT> void	Emit_Shift_RegRegRel(const STATEMENT&);
 		template <CArmAssembler::SHIFT> void	Emit_Shift_RegRegCst(const STATEMENT&);
 		template <CArmAssembler::SHIFT> void	Emit_Shift_RegRelReg(const STATEMENT&);
 		template <CArmAssembler::SHIFT> void	Emit_Shift_RegRelCst(const STATEMENT&);
@@ -176,6 +182,7 @@ namespace Jitter
 		template <CArmAssembler::SHIFT> void	Emit_Shift_RegCstRel(const STATEMENT&);
 		template <CArmAssembler::SHIFT> void	Emit_Shift_RelRegReg(const STATEMENT&);
 		template <CArmAssembler::SHIFT> void	Emit_Shift_RelRegCst(const STATEMENT&);
+		template <CArmAssembler::SHIFT> void	Emit_Shift_RelRelReg(const STATEMENT&);
 		template <CArmAssembler::SHIFT> void	Emit_Shift_RelRelCst(const STATEMENT&);
 		template <CArmAssembler::SHIFT> void	Emit_Shift_RelTmpCst(const STATEMENT&);
 		template <CArmAssembler::SHIFT> void	Emit_Shift_TmpTmpCst(const STATEMENT&);
@@ -271,14 +278,15 @@ namespace Jitter
 		static CONSTMATCHER						g_constMatchers[];
 		static CONSTMATCHER						g_fpuConstMatchers[];
 		static CArmAssembler::REGISTER			g_registers[MAX_REGISTERS];
-		static CArmAssembler::REGISTER			g_paramRegs[MAX_PARAMS];		
+		static CArmAssembler::REGISTER			g_paramRegs[MAX_PARAMS];
 		static CArmAssembler::REGISTER			g_baseRegister;
 
 		Framework::CStream*						m_stream;
 		CArmAssembler							m_assembler;
 		LabelMapType							m_labels;
-		ParamStack								m_params;		
+		ParamStack								m_params;
 		uint32*									m_literalPool;
+		bool*									m_literalPoolReloc;
 		unsigned int							m_lastLiteralPtr;
 		LiteralPoolRefList						m_literalPoolRefs;
 		uint32									m_stackLevel;

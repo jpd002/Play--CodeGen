@@ -1,4 +1,5 @@
 #include "Jitter_CodeGen_Arm.h"
+#include "ObjectFile.h"
 
 using namespace Jitter;
 
@@ -21,6 +22,26 @@ CArmAssembler::REGISTER CCodeGen_Arm::g_paramRegs[MAX_PARAMS] =
 	CArmAssembler::r2,
 	CArmAssembler::r3,
 };
+
+uint32 CodeGen_Arm_div_unsigned(uint32 a, uint32 b)
+{
+	return a / b;
+}
+
+int32 CodeGen_Arm_div_signed(int32 a, int32 b)
+{
+	return a / b;
+}
+
+uint32 CodeGen_Arm_mod_unsigned(uint32 a, uint32 b)
+{
+	return a % b;
+}
+
+int32 CodeGen_Arm_mod_signed(int32 a, int32 b)
+{
+	return a % b;
+}
 
 #include "Jitter_CodeGen_Arm_Alu.h"
 #include "Jitter_CodeGen_Arm_Shift.h"
@@ -117,8 +138,9 @@ CCodeGen_Arm::CONSTMATCHER CCodeGen_Arm::g_constMatchers[] =
 };
 
 CCodeGen_Arm::CCodeGen_Arm()
-: m_stream(NULL)
-, m_literalPool(NULL)
+: m_stream(nullptr)
+, m_literalPool(nullptr)
+, m_literalPoolReloc(nullptr)
 {
 	for(CONSTMATCHER* constMatcher = g_constMatchers; constMatcher->emitter != NULL; constMatcher++)
 	{
@@ -143,15 +165,13 @@ CCodeGen_Arm::CCodeGen_Arm()
 	}
 
 	m_literalPool = new uint32[LITERAL_POOL_SIZE];
+	m_literalPoolReloc = new bool[LITERAL_POOL_SIZE];
 }
 
 CCodeGen_Arm::~CCodeGen_Arm()
 {
-	if(m_literalPool)
-	{
-		delete [] m_literalPool;
-		m_literalPool = NULL;
-	}
+	delete [] m_literalPool;
+	delete [] m_literalPoolReloc;
 }
 
 unsigned int CCodeGen_Arm::GetAvailableRegisterCount() const
@@ -175,16 +195,21 @@ void CCodeGen_Arm::SetStream(Framework::CStream* stream)
 	m_assembler.SetStream(stream);
 }
 
+void CCodeGen_Arm::RegisterExternalSymbols(CObjectFile* objectFile) const
+{
+	objectFile->AddExternalSymbol("_CodeGen_Arm_div_unsigned",	&CodeGen_Arm_div_unsigned);
+	objectFile->AddExternalSymbol("_CodeGen_Arm_div_signed",	&CodeGen_Arm_div_signed);
+	objectFile->AddExternalSymbol("_CodeGen_Arm_mod_unsigned",	&CodeGen_Arm_mod_unsigned);
+	objectFile->AddExternalSymbol("_CodeGen_Arm_mod_signed",	&CodeGen_Arm_mod_signed);
+}
+
 void CCodeGen_Arm::GenerateCode(const StatementList& statements, unsigned int stackSize)
 {
+	uint16 registerSave = GetSavedRegisterList(GetRegisterUsage(statements));
 	m_lastLiteralPtr = 0;
 
-	//Save return address
-	m_assembler.Sub(CArmAssembler::rSP, CArmAssembler::rSP, CArmAssembler::MakeImmediateAluOperand(0x04 + stackSize, 0));
-	m_assembler.Str(CArmAssembler::rLR, CArmAssembler::rSP, CArmAssembler::MakeImmediateLdrAddress(0x00));
+	Emit_Prolog(stackSize, registerSave);
 
-	m_stackLevel = 0x04;
-	
 	for(StatementList::const_iterator statementIterator(statements.begin());
 		statementIterator != statements.end(); statementIterator++)
 	{
@@ -207,15 +232,49 @@ void CCodeGen_Arm::GenerateCode(const StatementList& statements, unsigned int st
 		assert(found);
 	}
 
-	m_assembler.Ldr(CArmAssembler::rLR, CArmAssembler::rSP, CArmAssembler::MakeImmediateLdrAddress(0x00));
-	m_assembler.Add(CArmAssembler::rSP, CArmAssembler::rSP, CArmAssembler::MakeImmediateAluOperand(0x04 + stackSize, 0));
-	m_assembler.Bx(CArmAssembler::rLR);
+	Emit_Epilog(stackSize, registerSave);
 
 	m_assembler.ResolveLabelReferences();
 	m_assembler.ClearLabels();
 	m_labels.clear();
 	
 	DumpLiteralPool();
+}
+
+uint16 CCodeGen_Arm::GetSavedRegisterList(uint32 registerUsage)
+{
+	uint16 registerSave = 0;
+	for(unsigned int i = 0; i < MAX_REGISTERS; i++)
+	{
+		if((1 << i) & registerUsage)
+		{
+			registerSave |= (1 << g_registers[i]);
+		}
+	}
+	registerSave |= (1 << CArmAssembler::r11);
+	registerSave |= (1 << CArmAssembler::rLR);
+	return registerSave;
+}
+
+void CCodeGen_Arm::Emit_Prolog(unsigned int stackSize, uint16 registerSave)
+{
+	m_assembler.Stmdb(CArmAssembler::rSP, registerSave);
+	if(stackSize != 0)
+	{
+		m_assembler.Sub(CArmAssembler::rSP, CArmAssembler::rSP, CArmAssembler::MakeImmediateAluOperand(stackSize, 0));
+	}
+	m_assembler.Mov(CArmAssembler::r11, CArmAssembler::r0);
+	m_stackLevel = 0;
+}
+
+void CCodeGen_Arm::Emit_Epilog(unsigned int stackSize, uint16 registerSave)
+{
+	if(stackSize != 0)
+	{
+		m_assembler.Add(CArmAssembler::rSP, CArmAssembler::rSP, CArmAssembler::MakeImmediateAluOperand(stackSize, 0));
+	}
+	m_assembler.Ldmia(CArmAssembler::rSP, registerSave);
+	m_assembler.Bx(CArmAssembler::rLR);
 }
 
 uint32 CCodeGen_Arm::RotateRight(uint32 value)
@@ -261,27 +320,30 @@ bool CCodeGen_Arm::TryGetAluImmediateParams(uint32 constant, uint8& immediate, u
 	}
 }
 
-void CCodeGen_Arm::LoadConstantInRegister(CArmAssembler::REGISTER registerId, uint32 constant)
+void CCodeGen_Arm::LoadConstantInRegister(CArmAssembler::REGISTER registerId, uint32 constant, bool relocatable)
 {	
-	//Try normal move
+	if(!relocatable)
 	{
-		uint8 immediate = 0;
-		uint8 shiftAmount = 0;
-		if(TryGetAluImmediateParams(constant, immediate, shiftAmount))
+		//Try normal move
 		{
-			m_assembler.Mov(registerId, CArmAssembler::MakeImmediateAluOperand(immediate, shiftAmount));				
-			return;
+			uint8 immediate = 0;
+			uint8 shiftAmount = 0;
+			if(TryGetAluImmediateParams(constant, immediate, shiftAmount))
+			{
+				m_assembler.Mov(registerId, CArmAssembler::MakeImmediateAluOperand(immediate, shiftAmount));
+				return;
+			}
 		}
-	}
 	
-	//Try not move
-	{
-		uint8 immediate = 0;
-		uint8 shiftAmount = 0;
-		if(TryGetAluImmediateParams(~constant, immediate, shiftAmount))
+		//Try not move
 		{
-			m_assembler.Mvn(registerId, CArmAssembler::MakeImmediateAluOperand(immediate, shiftAmount));
-			return;
+			uint8 immediate = 0;
+			uint8 shiftAmount = 0;
+			if(TryGetAluImmediateParams(~constant, immediate, shiftAmount))
+			{
+				m_assembler.Mvn(registerId, CArmAssembler::MakeImmediateAluOperand(immediate, shiftAmount));
+				return;
+			}
 		}
 	}
 		
@@ -291,23 +353,25 @@ void CCodeGen_Arm::LoadConstantInRegister(CArmAssembler::REGISTER registerId, ui
 		unsigned int literalPtr = -1;
 		for(unsigned int i = 0; i < m_lastLiteralPtr; i++)
 		{
-			if(m_literalPool[i] == constant) 
+			if((m_literalPool[i] == constant) && (m_literalPoolReloc[i] == relocatable)) 
 			{
 				literalPtr = i;
 				break;
 			}
 		}
+
 		if(literalPtr == -1)
 		{
 			assert(m_lastLiteralPtr != LITERAL_POOL_SIZE);
 			literalPtr = m_lastLiteralPtr++;
 			m_literalPool[literalPtr] = constant;
+			m_literalPoolReloc[literalPtr] = relocatable;
 		}
 		
 		LITERAL_POOL_REF reference;
-		reference.poolPtr = literalPtr;
-		reference.dstRegister = registerId;
-		reference.offset = static_cast<unsigned int>(m_stream->Tell());
+		reference.poolPtr		= literalPtr;
+		reference.dstRegister	= registerId;
+		reference.offset		= static_cast<unsigned int>(m_stream->Tell());
 		m_literalPoolRefs.push_back(reference);
 		
 		//Write a blank instruction
@@ -367,10 +431,16 @@ void CCodeGen_Arm::DumpLiteralPool()
 		uint32 literalPoolPos = static_cast<uint32>(m_stream->Tell());
 		m_stream->Write(m_literalPool, sizeof(uint32) * m_lastLiteralPtr);
 		
-		for(LiteralPoolRefList::const_iterator referenceIterator(m_literalPoolRefs.begin());
-			referenceIterator != m_literalPoolRefs.end(); referenceIterator++)
+		for(unsigned int i = 0; i < m_lastLiteralPtr; i++)
 		{
-			const LITERAL_POOL_REF& reference(*referenceIterator);
+			if(m_literalPoolReloc[i])
+			{
+				m_externalSymbolReferencedHandler(reinterpret_cast<void*>(m_literalPool[i]), literalPoolPos + (i * 4));
+			}
+		}
+
+		for(const auto& reference : m_literalPoolRefs)
+		{
 			m_stream->Seek(reference.offset, Framework::STREAM_SEEK_SET);
 			uint32 literalOffset = (reference.poolPtr * 4 + literalPoolPos) - reference.offset - 8;
 			m_assembler.Ldr(reference.dstRegister, CArmAssembler::rPC, CArmAssembler::MakeImmediateLdrAddress(literalOffset));
@@ -448,7 +518,7 @@ void CCodeGen_Arm::Emit_Param_Cst(const STATEMENT& statement)
 	assert(src1->m_type == SYM_CONSTANT);
 	assert(m_params.size() < MAX_PARAMS);
 	
-	m_params.push_back(std::bind(&CCodeGen_Arm::LoadConstantInRegister, this, std::placeholders::_1, src1->m_valueLow));
+	m_params.push_back(std::bind(&CCodeGen_Arm::LoadConstantInRegister, this, std::placeholders::_1, src1->m_valueLow, false));
 }
 
 void CCodeGen_Arm::Emit_Param_Tmp(const STATEMENT& statement)
@@ -479,7 +549,7 @@ void CCodeGen_Arm::Emit_Call(const STATEMENT& statement)
 	}
 
 	m_assembler.Mov(CArmAssembler::rLR, CArmAssembler::rPC);
-	LoadConstantInRegister(CArmAssembler::rPC, src1->m_valueLow);
+	LoadConstantInRegister(CArmAssembler::rPC, src1->m_valueLow, true);
 }
 
 void CCodeGen_Arm::Emit_RetVal_Reg(const STATEMENT& statement)

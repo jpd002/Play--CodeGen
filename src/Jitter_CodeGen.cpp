@@ -67,3 +67,16 @@ bool CCodeGen::SymbolMatches(MATCHTYPE match, const SymbolRefPtr& symbolRef)
 	}
 	return false;
 }
+
+uint32 CCodeGen::GetRegisterUsage(const StatementList& statements)
+{
+	uint32 registerUsage = 0;
+	for(const auto& statement : statements)
+	{
+		if(CSymbol* dst = dynamic_symbolref_cast(SYM_REGISTER, statement.dst))
+		{
+			registerUsage |= (1 << dst->m_valueLow);
+		}
+	}
+	return registerUsage;
+}

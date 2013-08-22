@@ -1,26 +1,6 @@
 #ifndef _JITTER_CODEGEN_ARM_DIV_H_
 #define _JITTER_CODEGEN_ARM_DIV_H_
 
-static uint32 div_unsigned(uint32 a, uint32 b)
-{
-	return a / b;
-}
-
-static int32 div_signed(int32 a, int32 b)
-{
-	return a / b;
-}
-
-static uint32 mod_unsigned(uint32 a, uint32 b)
-{
-	return a % b;
-}
-
-static int32 mod_signed(int32 a, int32 b)
-{
-	return a % b;
-}
-
 template <bool isSigned>
 void CCodeGen_Arm::Div_GenericTmp64RegReg_Quotient(CSymbol* dst)
 {
@@ -28,11 +8,11 @@ void CCodeGen_Arm::Div_GenericTmp64RegReg_Quotient(CSymbol* dst)
 	
 	if(isSigned)
 	{
-		LoadConstantInRegister(CArmAssembler::r2, reinterpret_cast<uint32>(&div_signed));
+		LoadConstantInRegister(CArmAssembler::r2, reinterpret_cast<uint32>(&CodeGen_Arm_div_signed), true);
 	}
 	else
 	{
-		LoadConstantInRegister(CArmAssembler::r2, reinterpret_cast<uint32>(&div_unsigned));
+		LoadConstantInRegister(CArmAssembler::r2, reinterpret_cast<uint32>(&CodeGen_Arm_div_unsigned), true);
 	}
 	m_assembler.Blx(CArmAssembler::r2);
 	
@@ -46,11 +26,11 @@ void CCodeGen_Arm::Div_GenericTmp64RegReg_Remainder(CSymbol* dst)
 	
 	if(isSigned)
 	{
-		LoadConstantInRegister(CArmAssembler::r2, reinterpret_cast<uint32>(&mod_signed));
+		LoadConstantInRegister(CArmAssembler::r2, reinterpret_cast<uint32>(&CodeGen_Arm_mod_signed), true);
 	}
 	else
 	{
-		LoadConstantInRegister(CArmAssembler::r2, reinterpret_cast<uint32>(&mod_unsigned));
+		LoadConstantInRegister(CArmAssembler::r2, reinterpret_cast<uint32>(&CodeGen_Arm_mod_unsigned), true);
 	}
 	m_assembler.Blx(CArmAssembler::r2);
 	

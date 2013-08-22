@@ -283,14 +283,7 @@ void CCodeGen_x86::GenerateCode(const StatementList& statements, unsigned int st
 {
 	assert(m_registers != NULL);
 
-	uint32 registerUsage = 0;
-	for(const auto& statement : statements)
-	{
-		if(CSymbol* dst = dynamic_symbolref_cast(SYM_REGISTER, statement.dst))
-		{
-			registerUsage |= (1 << dst->m_valueLow);
-		}
-	}
+	uint32 registerUsage = GetRegisterUsage(statements);
 	
 	//Align stacksize
 	stackSize = (stackSize + 0xF) & ~0xF;
@@ -346,6 +339,11 @@ void CCodeGen_x86::GenerateCode(const StatementList& statements, unsigned int st
 void CCodeGen_x86::SetStream(Framework::CStream* stream)
 {
 	m_assembler.SetStream(stream);
+}
+
+void CCodeGen_x86::RegisterExternalSymbols(CObjectFile*) const
+{
+	//Nothing to register
 }
 
 CX86Assembler::LABEL CCodeGen_x86::GetLabel(uint32 blockId)

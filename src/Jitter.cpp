@@ -19,6 +19,11 @@ CJitter::~CJitter()
 	delete m_codeGen;
 }
 
+CCodeGen* CJitter::GetCodeGen()
+{
+	return m_codeGen;
+}
+
 void CJitter::SetStream(Framework::CStream* stream)
 {
 	m_codeGen->SetStream(stream);

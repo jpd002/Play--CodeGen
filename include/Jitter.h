@@ -197,6 +197,8 @@ namespace Jitter
 		void							MD_UnpackUpperWD();
 		void							MD_Xor();
 
+		CCodeGen*						GetCodeGen();
+
 		void							SetStream(Framework::CStream*);
 
 	protected:

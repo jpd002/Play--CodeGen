@@ -44,6 +44,7 @@
   <ItemGroup>
     <ClInclude Include="..\include\ArmAssembler.h" />
     <ClInclude Include="..\include\ArrayStack.h" />
+    <ClInclude Include="..\include\CoffDefs.h" />
     <ClInclude Include="..\include\CoffObjectFile.h" />
     <ClInclude Include="..\include\Jitter.h" />
     <ClInclude Include="..\include\Jitter_CodeGen.h" />

@@ -4,7 +4,8 @@
 
 using namespace Jitter;
 
-CObjectFile::CObjectFile()
+CObjectFile::CObjectFile(CPU_ARCH cpuArch)
+: m_cpuArch(cpuArch)
 {
 
 }

@@ -2,7 +2,8 @@
 
 using namespace Jitter;
 
-CMachoObjectFile::CMachoObjectFile()
+CMachoObjectFile::CMachoObjectFile(CPU_ARCH cpuArch)
+: CObjectFile(cpuArch)
 {
 
 }
@@ -112,8 +113,20 @@ void CMachoObjectFile::Write(Framework::CStream& stream)
 
 	Macho::MACH_HEADER header = {};
 	header.magic			= Macho::MH_MAGIC;
-	header.cpuType			= Macho::CPU_TYPE_I386;
-	header.cpuSubType		= Macho::CPU_SUBTYPE_I386_ALL;
+	switch(m_cpuArch)
+	{
+	case CPU_ARCH_X86:
+		header.cpuType			= Macho::CPU_TYPE_I386;
+		header.cpuSubType		= Macho::CPU_SUBTYPE_I386_ALL;
+		break;
+	case CPU_ARCH_ARM:
+		header.cpuType			= Macho::CPU_TYPE_ARM;
+		header.cpuSubType		= Macho::CPU_SUBTYPE_ARM_V7;
+		break;
+	default:
+		throw std::runtime_error("MachoObjectFile: Unsupported CPU architecture.");
+		break;
+	}
 	header.fileType			= Macho::MH_OBJECT;
 	header.commandCount		= 2;		//SEGMENT_COMMMAND + SYMTAB_COMMAND
 	header.sizeofCommands	= sizeofCommands;

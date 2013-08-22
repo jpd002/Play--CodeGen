@@ -13,7 +13,7 @@ namespace Macho
 	enum CPU_TYPE
 	{
 		CPU_TYPE_I386		= 0x07,
-		CPU_TYPE_ARM		= 0x0E,
+		CPU_TYPE_ARM		= 0x0C,
 	};
 
 	enum CPU_SUBTYPE_I386
@@ -25,6 +25,7 @@ namespace Macho
 	{
 		CPU_SUBTYPE_ARM_V6	= 0x06,
 		CPU_SUBTYPE_ARM_V7	= 0x09,
+		CPU_SUBTYPE_ARM_V7S	= 0x0B
 	};
 
 	enum FILE_TYPE

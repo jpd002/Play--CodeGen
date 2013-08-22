@@ -162,5 +162,8 @@
     <ClInclude Include="..\include\MachoDefs.h">
       <Filter>Source Files\object</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\CoffDefs.h">
+      <Filter>Source Files\object</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

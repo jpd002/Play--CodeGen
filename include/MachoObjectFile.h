@@ -8,8 +8,9 @@ namespace Jitter
 	class CMachoObjectFile : public CObjectFile
 	{
 	public:
-						CMachoObjectFile();
+						CMachoObjectFile(CPU_ARCH);
 		virtual			~CMachoObjectFile();
+
 		virtual void	Write(Framework::CStream&) override;
 
 	private:

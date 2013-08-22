@@ -11,6 +11,13 @@ namespace Jitter
 	class CObjectFile
 	{
 	public:
+		enum CPU_ARCH
+		{
+			CPU_ARCH_X86,
+			CPU_ARCH_X64,
+			CPU_ARCH_ARM
+		};
+
 		enum SYMBOL_TYPE
 		{
 			SYMBOL_TYPE_INTERNAL,
@@ -45,7 +52,7 @@ namespace Jitter
 			void*							value;
 		};
 
-								CObjectFile();
+								CObjectFile(CPU_ARCH);
 		virtual					~CObjectFile();
 
 		unsigned int			AddInternalSymbol(const INTERNAL_SYMBOL&);
@@ -60,6 +67,8 @@ namespace Jitter
 	protected:
 		typedef std::vector<INTERNAL_SYMBOL> InternalSymbolArray;
 		typedef std::vector<EXTERNAL_SYMBOL> ExternalSymbolArray;
+
+		CPU_ARCH				m_cpuArch;
 
 		InternalSymbolArray		m_internalSymbols;
 		ExternalSymbolArray		m_externalSymbols;

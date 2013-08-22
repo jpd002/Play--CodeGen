@@ -6,7 +6,8 @@
 
 using namespace Jitter;
 
-CCoffObjectFile::CCoffObjectFile()
+CCoffObjectFile::CCoffObjectFile(CPU_ARCH cpuArch)
+: CObjectFile(cpuArch)
 {
 
 }
@@ -50,16 +51,16 @@ void CCoffObjectFile::Write(Framework::CStream& stream)
 	unsigned int sectionHeaderCount = 2;
 
 	OffsetKeeper offsetKeeper;
-	uint32 textSectionDataOffset = offsetKeeper.Advance(sizeof(HEADER) + (sectionHeaderCount * sizeof(SECTION_HEADER)));
+	uint32 textSectionDataOffset = offsetKeeper.Advance(sizeof(Coff::HEADER) + (sectionHeaderCount * sizeof(Coff::SECTION_HEADER)));
 	uint32 textSectionRelocOffset = offsetKeeper.Advance(textSection.data.size());
-	uint32 dataSectionDataOffset = offsetKeeper.Advance((textSection.symbolReferences.size() * sizeof(RELOCATION)));
+	uint32 dataSectionDataOffset = offsetKeeper.Advance((textSection.symbolReferences.size() * sizeof(Coff::RELOCATION)));
 	uint32 dataSectionRelocOffset = offsetKeeper.Advance(dataSection.data.size());
-	uint32 symbolTableOffset = offsetKeeper.Advance(dataSection.symbolReferences.size() * sizeof(RELOCATION));
+	uint32 symbolTableOffset = offsetKeeper.Advance(dataSection.symbolReferences.size() * sizeof(Coff::RELOCATION));
 
 	SectionHeaderArray sectionHeaders;
 
 	{
-		SECTION_HEADER sectionHeader = {};
+		Coff::SECTION_HEADER sectionHeader = {};
 		strncpy(sectionHeader.name, ".text", 8);
 		sectionHeader.virtualSize			= 0;
 		sectionHeader.virtualAddress		= 0;
@@ -74,7 +75,7 @@ void CCoffObjectFile::Write(Framework::CStream& stream)
 	}
 
 	{
-		SECTION_HEADER sectionHeader = {};
+		Coff::SECTION_HEADER sectionHeader = {};
 		strncpy(sectionHeader.name, ".data", 8);
 		sectionHeader.virtualSize			= 0;
 		sectionHeader.virtualAddress		= 0;
@@ -91,8 +92,8 @@ void CCoffObjectFile::Write(Framework::CStream& stream)
 	auto textSectionRelocations = BuildRelocations(textSection, internalSymbolInfos, externalSymbolInfos);
 	auto dataSectionRelocations = BuildRelocations(dataSection, internalSymbolInfos, externalSymbolInfos);
 
-	HEADER header = {};
-	header.machine				= MACHINE_TYPE_I386;
+	Coff::HEADER header = {};
+	header.machine				= Coff::MACHINE_TYPE_I386;
 	header.numberOfSections		= sectionHeaderCount;
 	header.timeDateStamp		= static_cast<uint32>(time(nullptr));
 	header.pointerToSymbolTable	= symbolTableOffset;
@@ -100,13 +101,13 @@ void CCoffObjectFile::Write(Framework::CStream& stream)
 	header.sizeOfOptionalHeader	= 0;
 	header.characteristics		= 0;
 
-	stream.Write(&header, sizeof(HEADER));
-	stream.Write(sectionHeaders.data(), sectionHeaders.size() * sizeof(SECTION_HEADER));
+	stream.Write(&header, sizeof(Coff::HEADER));
+	stream.Write(sectionHeaders.data(), sectionHeaders.size() * sizeof(Coff::SECTION_HEADER));
 	stream.Write(textSection.data.data(), textSection.data.size());
-	stream.Write(textSectionRelocations.data(), textSectionRelocations.size() * sizeof(RELOCATION));
+	stream.Write(textSectionRelocations.data(), textSectionRelocations.size() * sizeof(Coff::RELOCATION));
 	stream.Write(dataSection.data.data(), dataSection.data.size());
-	stream.Write(dataSectionRelocations.data(), dataSectionRelocations.size() * sizeof(RELOCATION));
-	stream.Write(symbols.data(), symbols.size() * sizeof(SYMBOL));
+	stream.Write(dataSectionRelocations.data(), dataSectionRelocations.size() * sizeof(Coff::RELOCATION));
+	stream.Write(symbols.data(), symbols.size() * sizeof(Coff::SYMBOL));
 	stream.Write32(stringTable.size() + 4);
 	stream.Write(stringTable.data(), stringTable.size());
 }
@@ -186,7 +187,7 @@ CCoffObjectFile::SymbolArray CCoffObjectFile::BuildSymbols(const InternalSymbolA
 
 	//SafeSEH stuff
 	{
-		SYMBOL symbol = {};
+		Coff::SYMBOL symbol = {};
 		strncpy(symbol.name.shortName, "@feat.00", 8);
 		symbol.value				= 0x01;
 		symbol.sectionNumber		= 0xFFFF;
@@ -198,7 +199,7 @@ CCoffObjectFile::SymbolArray CCoffObjectFile::BuildSymbols(const InternalSymbolA
 
 	//Text Section
 	{
-		SYMBOL symbol = {};
+		Coff::SYMBOL symbol = {};
 		strncpy(symbol.name.shortName, ".text", 8);
 		symbol.value				= 0;
 		symbol.sectionNumber		= 1;
@@ -209,7 +210,7 @@ CCoffObjectFile::SymbolArray CCoffObjectFile::BuildSymbols(const InternalSymbolA
 	}
 
 	{
-		SYMBOL symbol = {};
+		Coff::SYMBOL symbol = {};
 		symbol.name.offset			= 0;
 		symbol.name.zeroes			= textSectionSize;
 		symbols.push_back(symbol);
@@ -217,7 +218,7 @@ CCoffObjectFile::SymbolArray CCoffObjectFile::BuildSymbols(const InternalSymbolA
 
 	//Data Section
 	{
-		SYMBOL symbol = {};
+		Coff::SYMBOL symbol = {};
 		strncpy(symbol.name.shortName, ".data", 8);
 		symbol.value				= 0;
 		symbol.sectionNumber		= 2;
@@ -228,7 +229,7 @@ CCoffObjectFile::SymbolArray CCoffObjectFile::BuildSymbols(const InternalSymbolA
 	}
 
 	{
-		SYMBOL symbol = {};
+		Coff::SYMBOL symbol = {};
 		symbol.name.offset			= 0;
 		symbol.name.zeroes			= dataSectionSize;
 		symbols.push_back(symbol);
@@ -241,7 +242,7 @@ CCoffObjectFile::SymbolArray CCoffObjectFile::BuildSymbols(const InternalSymbolA
 		auto& internalSymbolInfo = internalSymbolInfos[i];
 		internalSymbolInfo.symbolIndex = symbols.size();
 
-		SYMBOL symbol = {};
+		Coff::SYMBOL symbol = {};
 		symbol.name.offset			= 4 + internalSymbolInfo.nameOffset;
 		symbol.value				= internalSymbolInfo.dataOffset;
 		symbol.sectionNumber		= (internalSymbol.location == CObjectFile::INTERNAL_SYMBOL_LOCATION_TEXT) ? 1 : 2;		//.text or .data section
@@ -258,7 +259,7 @@ CCoffObjectFile::SymbolArray CCoffObjectFile::BuildSymbols(const InternalSymbolA
 		auto& externalSymbolInfo = externalSymbolInfos[i];
 		externalSymbolInfo.symbolIndex = symbols.size();
 
-		SYMBOL symbol = {};
+		Coff::SYMBOL symbol = {};
 		symbol.name.offset			= 4 + externalSymbolInfo.nameOffset;
 		symbol.value				= 0;
 		symbol.sectionNumber		= 0;

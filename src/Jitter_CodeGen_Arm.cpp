@@ -23,22 +23,22 @@ CArmAssembler::REGISTER CCodeGen_Arm::g_paramRegs[MAX_PARAMS] =
 	CArmAssembler::r3,
 };
 
-uint32 CodeGen_Arm_div_unsigned(uint32 a, uint32 b)
+extern "C" uint32 CodeGen_Arm_div_unsigned(uint32 a, uint32 b)
 {
 	return a / b;
 }
 
-int32 CodeGen_Arm_div_signed(int32 a, int32 b)
+extern "C" int32 CodeGen_Arm_div_signed(int32 a, int32 b)
 {
 	return a / b;
 }
 
-uint32 CodeGen_Arm_mod_unsigned(uint32 a, uint32 b)
+extern "C" uint32 CodeGen_Arm_mod_unsigned(uint32 a, uint32 b)
 {
 	return a % b;
 }
 
-int32 CodeGen_Arm_mod_signed(int32 a, int32 b)
+extern "C" int32 CodeGen_Arm_mod_signed(int32 a, int32 b)
 {
 	return a % b;
 }
@@ -197,10 +197,10 @@ void CCodeGen_Arm::SetStream(Framework::CStream* stream)
 
 void CCodeGen_Arm::RegisterExternalSymbols(CObjectFile* objectFile) const
 {
-	objectFile->AddExternalSymbol("_CodeGen_Arm_div_unsigned",	&CodeGen_Arm_div_unsigned);
-	objectFile->AddExternalSymbol("_CodeGen_Arm_div_signed",	&CodeGen_Arm_div_signed);
-	objectFile->AddExternalSymbol("_CodeGen_Arm_mod_unsigned",	&CodeGen_Arm_mod_unsigned);
-	objectFile->AddExternalSymbol("_CodeGen_Arm_mod_signed",	&CodeGen_Arm_mod_signed);
+	objectFile->AddExternalSymbol("_CodeGen_Arm_div_unsigned",	reinterpret_cast<void*>(&CodeGen_Arm_div_unsigned));
+	objectFile->AddExternalSymbol("_CodeGen_Arm_div_signed",	reinterpret_cast<void*>(&CodeGen_Arm_div_signed));
+	objectFile->AddExternalSymbol("_CodeGen_Arm_mod_unsigned",	reinterpret_cast<void*>(&CodeGen_Arm_mod_unsigned));
+	objectFile->AddExternalSymbol("_CodeGen_Arm_mod_signed",	reinterpret_cast<void*>(&CodeGen_Arm_mod_signed));
 }
 
 void CCodeGen_Arm::GenerateCode(const StatementList& statements, unsigned int stackSize)

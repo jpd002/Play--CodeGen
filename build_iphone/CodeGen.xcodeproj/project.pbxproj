@@ -54,6 +54,14 @@
 
 /* Begin PBXFileReference section */
 		703093D217BE6844009662A1 /* Jitter_CodeGen_x86_Md.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Jitter_CodeGen_x86_Md.cpp; path = ../src/Jitter_CodeGen_x86_Md.cpp; sourceTree = "<group>"; };
+		7099CCA517C63E930035D19A /* CoffObjectFile.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = CoffObjectFile.cpp; path = ../src/CoffObjectFile.cpp; sourceTree = "<group>"; };
+		7099CCA617C63E930035D19A /* MachoObjectFile.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = MachoObjectFile.cpp; path = ../src/MachoObjectFile.cpp; sourceTree = "<group>"; };
+		7099CCA717C63E930035D19A /* ObjectFile.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = ObjectFile.cpp; path = ../src/ObjectFile.cpp; sourceTree = "<group>"; };
+		7099CCA817C63E9C0035D19A /* CoffDefs.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = CoffDefs.h; path = ../include/CoffDefs.h; sourceTree = "<group>"; };
+		7099CCA917C63E9C0035D19A /* CoffObjectFile.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = CoffObjectFile.h; path = ../include/CoffObjectFile.h; sourceTree = "<group>"; };
+		7099CCAA17C63E9C0035D19A /* MachoDefs.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = MachoDefs.h; path = ../include/MachoDefs.h; sourceTree = "<group>"; };
+		7099CCAB17C63E9C0035D19A /* MachoObjectFile.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = MachoObjectFile.h; path = ../include/MachoObjectFile.h; sourceTree = "<group>"; };
+		7099CCAC17C63E9C0035D19A /* ObjectFile.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ObjectFile.h; path = ../include/ObjectFile.h; sourceTree = "<group>"; };
 		7E0C76E9121E442B00F46800 /* Jitter_CodeGen_Arm_Shift.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Jitter_CodeGen_Arm_Shift.h; path = ../src/Jitter_CodeGen_Arm_Shift.h; sourceTree = SOURCE_ROOT; };
 		7E0C76F1121E457300F46800 /* Jitter_CodeGen_Arm_Alu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Jitter_CodeGen_Arm_Alu.h; path = ../src/Jitter_CodeGen_Arm_Alu.h; sourceTree = SOURCE_ROOT; };
 		7E271F75121256B300C0DEBF /* ArmAssembler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ArmAssembler.cpp; path = ../src/ArmAssembler.cpp; sourceTree = SOURCE_ROOT; };
@@ -144,6 +152,9 @@
 				7E271F75121256B300C0DEBF /* ArmAssembler.cpp */,
 				7E271F9D121256BB00C0DEBF /* ArmAssembler.h */,
 				7E271F9E121256BB00C0DEBF /* ArrayStack.h */,
+				7099CCA817C63E9C0035D19A /* CoffDefs.h */,
+				7099CCA517C63E930035D19A /* CoffObjectFile.cpp */,
+				7099CCA917C63E9C0035D19A /* CoffObjectFile.h */,
 				7E271F84121256B300C0DEBF /* Jitter.cpp */,
 				7E271FA9121256BB00C0DEBF /* Jitter.h */,
 				7E271F80121256B300C0DEBF /* Jitter_CodeGen.cpp */,
@@ -176,8 +187,13 @@
 				7E271FA7121256BB00C0DEBF /* Jitter_SymbolRef.h */,
 				7E271F83121256B300C0DEBF /* Jitter_SymbolTable.cpp */,
 				7E271FA8121256BB00C0DEBF /* Jitter_SymbolTable.h */,
+				7099CCAA17C63E9C0035D19A /* MachoDefs.h */,
+				7099CCA617C63E930035D19A /* MachoObjectFile.cpp */,
+				7099CCAB17C63E9C0035D19A /* MachoObjectFile.h */,
 				7E271F85121256B300C0DEBF /* MemoryFunction.cpp */,
 				7E271FAA121256BB00C0DEBF /* MemoryFunction.h */,
+				7099CCA717C63E930035D19A /* ObjectFile.cpp */,
+				7099CCAC17C63E9C0035D19A /* ObjectFile.h */,
 				7E271F88121256B300C0DEBF /* X86Assembler.cpp */,
 				7E271FAB121256BB00C0DEBF /* X86Assembler.h */,
 				7E271F86121256B300C0DEBF /* X86Assembler_Fpu.cpp */,

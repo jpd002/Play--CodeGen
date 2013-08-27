@@ -40,7 +40,7 @@ namespace Jitter
 
 		enum
 		{
-			LITERAL_POOL_SIZE = 0x80,
+			LITERAL_POOL_SIZE = 0x100,
 		};
 		
 		struct LITERAL_POOL_REF

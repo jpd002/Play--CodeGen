@@ -13,7 +13,7 @@ void CCodeGen_Arm::Alu_GenericRegRegCst(CArmAssembler::REGISTER dst, CArmAssembl
 	{
 		((m_assembler).*(ALUOP::OpImm()))(dst, src1, CArmAssembler::MakeImmediateAluOperand(immediate, shiftAmount));
 	}
-	else if(supportsNegative && TryGetAluImmediateParams(-src2, immediate, shiftAmount))
+	else if(supportsNegative && TryGetAluImmediateParams(-static_cast<int32>(src2), immediate, shiftAmount))
 	{
 		((m_assembler).*(ALUOP::OpImmNeg()))(dst, src1, CArmAssembler::MakeImmediateAluOperand(immediate, shiftAmount));
 	}
@@ -139,6 +139,21 @@ void CCodeGen_Arm::Emit_Alu_RegCstReg(const STATEMENT& statement)
 	
 	LoadConstantInRegister(CArmAssembler::r0, src1->m_valueLow);
 	((m_assembler).*(ALUOP::OpReg()))(g_registers[dst->m_valueLow], CArmAssembler::r0, g_registers[src2->m_valueLow]);
+}
+
+template <typename ALUOP>
+void CCodeGen_Arm::Emit_Alu_RegCstMem(const STATEMENT& statement)
+{
+	CSymbol* dst = statement.dst->GetSymbol().get();
+	CSymbol* src1 = statement.src1->GetSymbol().get();
+	CSymbol* src2 = statement.src2->GetSymbol().get();
+	
+	assert(dst->m_type  == SYM_REGISTER);
+	assert(src1->m_type == SYM_CONSTANT);
+	
+	LoadConstantInRegister(CArmAssembler::r0, src1->m_valueLow);
+	LoadMemoryInRegister(CArmAssembler::r1, src2);
+	((m_assembler).*(ALUOP::OpReg()))(g_registers[dst->m_valueLow], CArmAssembler::r0, CArmAssembler::r1);
 }
 
 template <typename ALUOP>
@@ -320,13 +335,14 @@ void CCodeGen_Arm::Emit_Alu_TmpTmpCst(const STATEMENT& statement)
 	{ ALUOP_CST,	MATCH_REGISTER,		MATCH_RELATIVE,		MATCH_RELATIVE,		&CCodeGen_Arm::Emit_Alu_RegRelRel<ALUOP>		}, \
 	{ ALUOP_CST,	MATCH_REGISTER,		MATCH_RELATIVE,		MATCH_CONSTANT,		&CCodeGen_Arm::Emit_Alu_RegRelCst<ALUOP>		}, \
 	{ ALUOP_CST,	MATCH_REGISTER,		MATCH_CONSTANT,		MATCH_REGISTER,		&CCodeGen_Arm::Emit_Alu_RegCstReg<ALUOP>		}, \
+	{ ALUOP_CST,	MATCH_REGISTER,		MATCH_CONSTANT,		MATCH_MEMORY,		&CCodeGen_Arm::Emit_Alu_RegCstMem<ALUOP>		}, \
 	{ ALUOP_CST,	MATCH_RELATIVE,		MATCH_REGISTER,		MATCH_REGISTER,		&CCodeGen_Arm::Emit_Alu_RelRegReg<ALUOP>		}, \
 	{ ALUOP_CST,	MATCH_RELATIVE,		MATCH_REGISTER,		MATCH_RELATIVE,		&CCodeGen_Arm::Emit_Alu_RelRegRel<ALUOP>		}, \
 	{ ALUOP_CST,	MATCH_RELATIVE,		MATCH_REGISTER,		MATCH_CONSTANT,		&CCodeGen_Arm::Emit_Alu_RelRegCst<ALUOP>		}, \
 	{ ALUOP_CST,	MATCH_RELATIVE,		MATCH_RELATIVE,		MATCH_REGISTER,		&CCodeGen_Arm::Emit_Alu_RelRelReg<ALUOP>		}, \
 	{ ALUOP_CST,	MATCH_RELATIVE,		MATCH_RELATIVE,		MATCH_RELATIVE,		&CCodeGen_Arm::Emit_Alu_RelRelRel<ALUOP>		}, \
 	{ ALUOP_CST,	MATCH_RELATIVE,		MATCH_RELATIVE,		MATCH_CONSTANT,		&CCodeGen_Arm::Emit_Alu_RelRelCst<ALUOP>		}, \
-    { ALUOP_CST,	MATCH_RELATIVE,		MATCH_CONSTANT,		MATCH_REGISTER,		&CCodeGen_Arm::Emit_Alu_RelCstReg<ALUOP>		}, \
+	{ ALUOP_CST,	MATCH_RELATIVE,		MATCH_CONSTANT,		MATCH_REGISTER,		&CCodeGen_Arm::Emit_Alu_RelCstReg<ALUOP>		}, \
 	{ ALUOP_CST,	MATCH_TEMPORARY,	MATCH_REGISTER,		MATCH_CONSTANT,		&CCodeGen_Arm::Emit_Alu_TmpRegCst<ALUOP>		}, \
 	{ ALUOP_CST,	MATCH_TEMPORARY,	MATCH_RELATIVE,		MATCH_CONSTANT,		&CCodeGen_Arm::Emit_Alu_TmpRelCst<ALUOP>		}, \
 	{ ALUOP_CST,	MATCH_TEMPORARY,	MATCH_TEMPORARY,	MATCH_CONSTANT,		&CCodeGen_Arm::Emit_Alu_TmpTmpCst<ALUOP>		},

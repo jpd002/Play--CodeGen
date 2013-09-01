@@ -69,6 +69,9 @@ namespace Jitter
 		CArmAssembler::LABEL					GetLabel(uint32);
 		void									MarkLabel(const STATEMENT&);
 
+		void									LoadMemoryInRegister(CArmAssembler::REGISTER, CSymbol*);
+		void									StoreRegisterInMemory(CSymbol*, CArmAssembler::REGISTER);
+
 		void									LoadRelativeInRegister(CArmAssembler::REGISTER, CSymbol*);
 		void									StoreRegisterInRelative(CSymbol*, CArmAssembler::REGISTER);
 		
@@ -80,8 +83,13 @@ namespace Jitter
 		void									LoadTemporaryReferenceInRegister(CArmAssembler::REGISTER, CSymbol*);
 		void									StoreInRegisterTemporaryReference(CSymbol*, CArmAssembler::REGISTER);
 		
-		uint32									RotateRight(uint32);
-		uint32									RotateLeft(uint32);
+		CArmAssembler::REGISTER					PrepareSymbolRegister(CSymbol*, CArmAssembler::REGISTER);
+		void									CommitSymbolRegister(CSymbol*, CArmAssembler::REGISTER);
+
+		CArmAssembler::AluLdrShift				GetAluShiftFromSymbol(CArmAssembler::SHIFT shiftType, CSymbol* symbol, CArmAssembler::REGISTER preferedRegister);
+
+		static uint32							RotateRight(uint32);
+		static uint32							RotateLeft(uint32);
 		bool									TryGetAluImmediateParams(uint32, uint8&, uint8&);
 		void									LoadConstantInRegister(CArmAssembler::REGISTER, uint32, bool = false);
 		void									DumpLiteralPool();
@@ -161,6 +169,7 @@ namespace Jitter
 		template <typename> void				Emit_Alu_RegRelRel(const STATEMENT&);
 		template <typename> void				Emit_Alu_RegRelCst(const STATEMENT&);
 		template <typename> void				Emit_Alu_RegCstReg(const STATEMENT&);
+		template <typename> void				Emit_Alu_RegCstMem(const STATEMENT&);
 		template <typename> void				Emit_Alu_RelRegReg(const STATEMENT&);
 		template <typename> void				Emit_Alu_RelRegRel(const STATEMENT&);
 		template <typename> void				Emit_Alu_RelRegCst(const STATEMENT&);
@@ -172,20 +181,8 @@ namespace Jitter
 		template <typename> void				Emit_Alu_TmpRelCst(const STATEMENT&);
 		template <typename> void				Emit_Alu_TmpTmpCst(const STATEMENT&);
 		
-		//SHIFTOP
-		template <CArmAssembler::SHIFT> void	Emit_Shift_RegRegReg(const STATEMENT&);
-		template <CArmAssembler::SHIFT> void	Emit_Shift_RegRegRel(const STATEMENT&);
-		template <CArmAssembler::SHIFT> void	Emit_Shift_RegRegCst(const STATEMENT&);
-		template <CArmAssembler::SHIFT> void	Emit_Shift_RegRelReg(const STATEMENT&);
-		template <CArmAssembler::SHIFT> void	Emit_Shift_RegRelCst(const STATEMENT&);
-		template <CArmAssembler::SHIFT> void	Emit_Shift_RegCstReg(const STATEMENT&);
-		template <CArmAssembler::SHIFT> void	Emit_Shift_RegCstRel(const STATEMENT&);
-		template <CArmAssembler::SHIFT> void	Emit_Shift_RelRegReg(const STATEMENT&);
-		template <CArmAssembler::SHIFT> void	Emit_Shift_RelRegCst(const STATEMENT&);
-		template <CArmAssembler::SHIFT> void	Emit_Shift_RelRelReg(const STATEMENT&);
-		template <CArmAssembler::SHIFT> void	Emit_Shift_RelRelCst(const STATEMENT&);
-		template <CArmAssembler::SHIFT> void	Emit_Shift_RelTmpCst(const STATEMENT&);
-		template <CArmAssembler::SHIFT> void	Emit_Shift_TmpTmpCst(const STATEMENT&);
+		//SHIFT
+		template <CArmAssembler::SHIFT> void	Emit_Shift_Generic(const STATEMENT&);
 
 		//PARAM
 		void									Emit_Param_Ctx(const STATEMENT&);
@@ -239,7 +236,7 @@ namespace Jitter
 		void									Cmp_GetFlag(CArmAssembler::REGISTER, CONDITION);
 		void									Cmp_GenericRegCst(CArmAssembler::REGISTER, uint32);
 		void									Emit_Cmp_RegRegReg(const STATEMENT&);
-		void									Emit_Cmp_RegRegRel(const STATEMENT&);		
+		void									Emit_Cmp_RegRegRel(const STATEMENT&);
 		void									Emit_Cmp_RegRegCst(const STATEMENT&);
 		void									Emit_Cmp_RegRelCst(const STATEMENT&);
 		void									Emit_Cmp_RelRegCst(const STATEMENT&);
@@ -251,9 +248,9 @@ namespace Jitter
 		//CONDJMP
 		void									Emit_CondJmp(const STATEMENT&);
 		void									Emit_CondJmp_RegReg(const STATEMENT&);
-		void									Emit_CondJmp_RegRel(const STATEMENT&);
+		void									Emit_CondJmp_RegMem(const STATEMENT&);
 		void									Emit_CondJmp_RegCst(const STATEMENT&);
-		void									Emit_CondJmp_RelCst(const STATEMENT&);
+		void									Emit_CondJmp_MemCst(const STATEMENT&);
 		
 		//NOT
 		void									Emit_Not_RegReg(const STATEMENT&);

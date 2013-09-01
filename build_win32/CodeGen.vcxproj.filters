@@ -144,9 +144,6 @@
     <ClInclude Include="..\src\Jitter_CodeGen_Arm_Mul.h">
       <Filter>Source Files\arm</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\Jitter_CodeGen_Arm_Shift.h">
-      <Filter>Source Files\arm</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\MemoryFunction.h">
       <Filter>Source Files</Filter>
     </ClInclude>

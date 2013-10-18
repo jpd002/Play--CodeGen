@@ -1,5 +1,4 @@
-#ifndef _JITTER_CODEGEN_ARM_H_
-#define _JITTER_CODEGEN_ARM_H_
+#pragma once
 
 #include "Jitter_CodeGen.h"
 #include "ArmAssembler.h"
@@ -161,26 +160,9 @@ namespace Jitter
 		};
 
 		//ALUOP
-		template <typename> void				Alu_GenericRegRegCst(CArmAssembler::REGISTER, CArmAssembler::REGISTER, uint32);
-		template <typename> void				Emit_Alu_RegRegReg(const STATEMENT&);
-		template <typename> void				Emit_Alu_RegRegRel(const STATEMENT&);
-		template <typename> void				Emit_Alu_RegRegCst(const STATEMENT&);
-		template <typename> void				Emit_Alu_RegRelReg(const STATEMENT&);
-		template <typename> void				Emit_Alu_RegRelRel(const STATEMENT&);
-		template <typename> void				Emit_Alu_RegRelCst(const STATEMENT&);
-		template <typename> void				Emit_Alu_RegCstReg(const STATEMENT&);
-		template <typename> void				Emit_Alu_RegCstMem(const STATEMENT&);
-		template <typename> void				Emit_Alu_RelRegReg(const STATEMENT&);
-		template <typename> void				Emit_Alu_RelRegRel(const STATEMENT&);
-		template <typename> void				Emit_Alu_RelRegCst(const STATEMENT&);
-		template <typename> void				Emit_Alu_RelRelReg(const STATEMENT&);
-		template <typename> void				Emit_Alu_RelRelRel(const STATEMENT&);
-		template <typename> void				Emit_Alu_RelRelCst(const STATEMENT&);
-		template <typename> void				Emit_Alu_RelCstReg(const STATEMENT&);
-		template <typename> void				Emit_Alu_TmpRegCst(const STATEMENT&);
-		template <typename> void				Emit_Alu_TmpRelCst(const STATEMENT&);
-		template <typename> void				Emit_Alu_TmpTmpCst(const STATEMENT&);
-		
+		template <typename> void				Emit_Alu_GenericAnyAny(const STATEMENT&);
+		template <typename> void				Emit_Alu_GenericAnyCst(const STATEMENT&);
+
 		//SHIFT
 		template <CArmAssembler::SHIFT> void	Emit_Shift_Generic(const STATEMENT&);
 
@@ -235,12 +217,8 @@ namespace Jitter
 		//CMP
 		void									Cmp_GetFlag(CArmAssembler::REGISTER, CONDITION);
 		void									Cmp_GenericRegCst(CArmAssembler::REGISTER, uint32);
-		void									Emit_Cmp_RegRegReg(const STATEMENT&);
-		void									Emit_Cmp_RegRegRel(const STATEMENT&);
-		void									Emit_Cmp_RegRegCst(const STATEMENT&);
-		void									Emit_Cmp_RegRelCst(const STATEMENT&);
-		void									Emit_Cmp_RelRegCst(const STATEMENT&);
-		void									Emit_Cmp_RelRelRel(const STATEMENT&);
+		void									Emit_Cmp_AnyAnyAny(const STATEMENT&);
+		void									Emit_Cmp_AnyAnyCst(const STATEMENT&);
 
 		//JMP
 		void									Emit_Jmp(const STATEMENT&);
@@ -289,5 +267,3 @@ namespace Jitter
 		uint32									m_stackLevel;
 	};
 };
-
-#endif

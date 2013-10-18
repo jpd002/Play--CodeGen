@@ -62,7 +62,6 @@
     <ClInclude Include="..\include\MemoryFunction.h" />
     <ClInclude Include="..\include\ObjectFile.h" />
     <ClInclude Include="..\include\X86Assembler.h" />
-    <ClInclude Include="..\src\Jitter_CodeGen_Arm_Alu.h" />
     <ClInclude Include="..\src\Jitter_CodeGen_Arm_Div.h" />
     <ClInclude Include="..\src\Jitter_CodeGen_Arm_Mul.h" />
     <ClInclude Include="..\src\Jitter_CodeGen_x86_Alu.h" />

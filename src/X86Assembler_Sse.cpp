@@ -199,6 +199,16 @@ void CX86Assembler::PandnVo(XMMREGISTER registerId, const CAddress& address)
 	WriteEdVdOp(0xDF, address, registerId);
 }
 
+void CX86Assembler::PcmpeqbVo(XMMREGISTER registerId, const CAddress& address)
+{
+	WriteEdVdOp_66_0F(0x74, address, registerId);
+}
+
+void CX86Assembler::PcmpeqwVo(XMMREGISTER registerId, const CAddress& address)
+{
+	WriteEdVdOp_66_0F(0x75, address, registerId);
+}
+
 void CX86Assembler::PcmpeqdVo(XMMREGISTER registerId, const CAddress& address)
 {
 	WriteEdVdOp_66_0F(0x76, address, registerId);

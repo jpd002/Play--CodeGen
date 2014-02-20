@@ -12,7 +12,10 @@
 #include "TargetConditionals.h"
 #include <mach/mach_init.h>
 #include <mach/vm_map.h>
+
+#if TARGET_IPHONE_SIMULATOR
 extern "C" void __clear_cache(void* begin, void* end);
+#endif
 
 #endif
 

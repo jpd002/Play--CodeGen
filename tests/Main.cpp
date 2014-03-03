@@ -1,8 +1,3 @@
-#include <boost/function.hpp>
-#include <boost/lambda/lambda.hpp>
-#include <boost/lambda/bind.hpp>
-#include <boost/lambda/construct.hpp>
-
 #include "Jitter_CodeGenFactory.h"
 
 #include "Crc32Test.h"
@@ -34,50 +29,47 @@
 #define HAS_ADVANCED_OPS
 #endif
 
-typedef boost::function<CTest* ()> TestFactoryFunction;
+typedef std::function<CTest* ()> TestFactoryFunction;
 
-TestFactoryFunction s_factories[] =
+static const TestFactoryFunction s_factories[] =
 {
-	TestFactoryFunction(boost::lambda::bind(boost::lambda::new_ptr<CCompareTest>())),
-	TestFactoryFunction(boost::lambda::bind(boost::lambda::new_ptr<CRegAllocTest>())),
-	TestFactoryFunction(boost::lambda::bind(boost::lambda::new_ptr<CRandomAluTest>(), true)),
-	TestFactoryFunction(boost::lambda::bind(boost::lambda::new_ptr<CRandomAluTest>(), false)),
-	TestFactoryFunction(boost::lambda::bind(boost::lambda::new_ptr<CRandomAluTest2>(), true)),
-	TestFactoryFunction(boost::lambda::bind(boost::lambda::new_ptr<CRandomAluTest2>(), false)),
-	TestFactoryFunction(boost::lambda::bind(boost::lambda::new_ptr<CRandomAluTest3>(), true)),
-	TestFactoryFunction(boost::lambda::bind(boost::lambda::new_ptr<CRandomAluTest3>(), false)),
-	TestFactoryFunction(boost::lambda::bind(boost::lambda::new_ptr<CCrc32Test>(), "Hello World!", 0x67FCDACC)),
-	TestFactoryFunction(boost::lambda::bind(boost::lambda::new_ptr<CMultTest>(), true)),
-	TestFactoryFunction(boost::lambda::bind(boost::lambda::new_ptr<CMultTest>(), false)),
-	TestFactoryFunction(boost::lambda::bind(boost::lambda::new_ptr<CMemAccessTest>())),
-	TestFactoryFunction(boost::lambda::bind(boost::lambda::new_ptr<CHugeJumpTest>())),
+	[] () { return new CCompareTest(); },
+	[] () { return new CRegAllocTest(); },
+	[] () { return new CRandomAluTest(true); },
+	[] () { return new CRandomAluTest(false); },
+	[] () { return new CRandomAluTest2(true); },
+	[] () { return new CRandomAluTest2(false); },
+	[] () { return new CRandomAluTest3(true); },
+	[] () { return new CRandomAluTest3(false); },
+	[] () { return new CCrc32Test("Hello World!", 0x67FCDACC); },
+	[] () { return new CMultTest(true); },
+	[] () { return new CMultTest(false); },
+	[] () { return new CMemAccessTest(); },
+	[] () { return new CHugeJumpTest(); },
 #ifdef HAS_ADVANCED_OPS
-	TestFactoryFunction(boost::lambda::bind(boost::lambda::new_ptr<CHalfMultTest>())),
-	TestFactoryFunction(boost::lambda::bind(boost::lambda::new_ptr<CAliasTest>())),
-	TestFactoryFunction(boost::lambda::bind(boost::lambda::new_ptr<CFpuTest>())),
-	TestFactoryFunction(boost::lambda::bind(boost::lambda::new_ptr<CFpIntMixTest>())),
-	TestFactoryFunction(boost::lambda::bind(boost::lambda::new_ptr<CMdTest>())),
-	TestFactoryFunction(boost::lambda::bind(boost::lambda::new_ptr<CMdFpTest>())),
-	TestFactoryFunction(boost::lambda::bind(boost::lambda::new_ptr<CMdFpFlagTest>())),
-	TestFactoryFunction(boost::lambda::bind(boost::lambda::new_ptr<CMdCallTest>())),
-	TestFactoryFunction(boost::lambda::bind(boost::lambda::new_ptr<CAlu64Test>())),
-	TestFactoryFunction(boost::lambda::bind(boost::lambda::new_ptr<CShift64Test>())),
-	TestFactoryFunction(boost::lambda::bind(boost::lambda::new_ptr<CCall64Test>())),
+	[] () { return new CHalfMultTest(); },
+	[] () { return new CAliasTest(); },
+	[] () { return new CFpuTest(); },
+	[] () { return new CFpIntMixTest(); },
+	[] () { return new CMdTest(); },
+	[] () { return new CMdFpTest(); },
+	[] () { return new CMdFpFlagTest(); },
+	[] () { return new CMdCallTest(); },
+	[] () { return new CAlu64Test(); },
+	[] () { return new CShift64Test(); },
+	[] () { return new CCall64Test(); },
 #endif
-	TestFactoryFunction(),
 };
 
 int main(int argc, char** argv)
 {
 	Jitter::CJitter jitter(Jitter::CreateCodeGen());
-	TestFactoryFunction* currentTestFactory = s_factories;
-	while(!currentTestFactory->empty())
+	for(const auto& factory : s_factories)
 	{
-		CTest* test = (*currentTestFactory)();
+		auto test = factory();
 		test->Compile(jitter);
 		test->Run();
 		delete test;
-		currentTestFactory++;
 	}
 	return 0;
 }

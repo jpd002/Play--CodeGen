@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#include <algorithm>
 #include "MemoryFunction.h"
 
 #ifdef WIN32

@@ -4,7 +4,6 @@
 #include "Types.h"
 #include <memory>
 #include <string>
-#include <boost/lexical_cast.hpp>
 #include <assert.h>
 
 namespace Jitter
@@ -72,49 +71,49 @@ namespace Jitter
 				return "CTX";
 				break;
 			case SYM_CONSTANT:
-				return boost::lexical_cast<std::string>(m_valueLow);
+				return std::to_string(m_valueLow);
 				break;
 			case SYM_RELATIVE:
-				return "REL[" + boost::lexical_cast<std::string>(m_valueLow) + "]";
+				return "REL[" + std::to_string(m_valueLow) + "]";
 				break;
 			case SYM_TEMPORARY:
-				return "TMP[" + boost::lexical_cast<std::string>(m_valueLow) + "]";
+				return "TMP[" + std::to_string(m_valueLow) + "]";
 				break;
 			case SYM_REL_REFERENCE:
-				return "REL&[" + boost::lexical_cast<std::string>(m_valueLow) + "]";
+				return "REL&[" + std::to_string(m_valueLow) + "]";
 				break;
 			case SYM_TMP_REFERENCE:
-				return "TMP&[" + boost::lexical_cast<std::string>(m_valueLow) + "]";
+				return "TMP&[" + std::to_string(m_valueLow) + "]";
 				break;
 			case SYM_CONSTANT64:
-				return "CST64[" + boost::lexical_cast<std::string>(m_valueLow) + ", " + boost::lexical_cast<std::string>(m_valueHigh) + "]";
+				return "CST64[" + std::to_string(m_valueLow) + ", " + std::to_string(m_valueHigh) + "]";
 				break;
 			case SYM_TEMPORARY64:
-				return "TMP64[" + boost::lexical_cast<std::string>(m_valueLow) + "]";
+				return "TMP64[" + std::to_string(m_valueLow) + "]";
 				break;
 			case SYM_RELATIVE64:
-				return "REL64[" + boost::lexical_cast<std::string>(m_valueLow) + "]";
+				return "REL64[" + std::to_string(m_valueLow) + "]";
 				break;
 			case SYM_REGISTER:
-				return "REG[" + boost::lexical_cast<std::string>(m_valueLow) + "]";
+				return "REG[" + std::to_string(m_valueLow) + "]";
 				break;
 			case SYM_FP_REL_SINGLE:
-				return "REL(FP_S)[" + boost::lexical_cast<std::string>(m_valueLow) + "]";
+				return "REL(FP_S)[" + std::to_string(m_valueLow) + "]";
 				break;
 			case SYM_FP_REL_INT32:
-				return "REL(FP_I32)[" + boost::lexical_cast<std::string>(m_valueLow) + "]";
+				return "REL(FP_I32)[" + std::to_string(m_valueLow) + "]";
 				break;
 			case SYM_FP_TMP_SINGLE:
-				return "TMP(FP_S)[" + boost::lexical_cast<std::string>(m_valueLow) + "]";
+				return "TMP(FP_S)[" + std::to_string(m_valueLow) + "]";
 				break;
 			case SYM_RELATIVE128:
-				return "REL128[" + boost::lexical_cast<std::string>(m_valueLow) + "]";
+				return "REL128[" + std::to_string(m_valueLow) + "]";
 				break;
 			case SYM_TEMPORARY128:
-				return "TMP128[" + boost::lexical_cast<std::string>(m_valueLow) + "]";
+				return "TMP128[" + std::to_string(m_valueLow) + "]";
 				break;
 			case SYM_TEMPORARY256:
-				return "TMP256[" + boost::lexical_cast<std::string>(m_valueLow) + "]";
+				return "TMP256[" + std::to_string(m_valueLow) + "]";
 				break;
 			default:
 				return "";

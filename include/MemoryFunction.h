@@ -1,18 +1,20 @@
 #pragma once
 
-#include <boost/utility.hpp>
 #include "Types.h"
 
-class CMemoryFunction : public boost::noncopyable
+class CMemoryFunction
 {
 public:
 						CMemoryFunction();
 						CMemoryFunction(const void*, size_t);
+						CMemoryFunction(const CMemoryFunction&) = delete;
 						CMemoryFunction(CMemoryFunction&&);
 
 	virtual				~CMemoryFunction();
 
 	bool				IsEmpty() const;
+
+	CMemoryFunction&	operator =(const CMemoryFunction&) = delete;
 
 	CMemoryFunction&	operator =(CMemoryFunction&&);
 	void				operator()(void*);

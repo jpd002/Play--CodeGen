@@ -212,13 +212,10 @@ void CCodeGen_x86::Emit_Md_PackWH_MemMemMem(const STATEMENT& statement)
 	m_assembler.MovapsVo(MakeMemory128SymbolAddress(dst), resultRegister);
 }
 
-void CCodeGen_x86::Emit_Md_Not_RelTmp(const STATEMENT& statement)
+void CCodeGen_x86::Emit_Md_Not_MemMem(const STATEMENT& statement)
 {
 	CSymbol* dst = statement.dst->GetSymbol().get();
 	CSymbol* src1 = statement.src1->GetSymbol().get();
-
-	assert(dst->m_type  == SYM_RELATIVE128);
-	assert(src1->m_type == SYM_TEMPORARY128);
 
 	m_assembler.MovapsVo(CX86Assembler::xMM0, MakeMemory128SymbolAddress(src1));
 	m_assembler.PcmpeqdVo(CX86Assembler::xMM1, CX86Assembler::MakeXmmRegisterAddress(CX86Assembler::xMM1));
@@ -570,7 +567,7 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdConstMatchers[] =
 	{ OP_MD_MIN_S,				MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_x86::Emit_Md_MemMemMem<MDOP_MINS>					},
 	{ OP_MD_MAX_S,				MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_x86::Emit_Md_MemMemMem<MDOP_MAXS>					},
 
-	{ OP_MD_NOT,				MATCH_RELATIVE128,			MATCH_TEMPORARY128,			MATCH_NIL,				&CCodeGen_x86::Emit_Md_Not_RelTmp							},
+	{ OP_MD_NOT,				MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_NIL,				&CCodeGen_x86::Emit_Md_Not_MemMem							},
 
 	{ OP_MD_ISNEGATIVE,			MATCH_REGISTER,				MATCH_MEMORY128,			MATCH_NIL,				&CCodeGen_x86::Emit_Md_IsNegative_RegMem					},
 	{ OP_MD_ISNEGATIVE,			MATCH_MEMORY,				MATCH_MEMORY128,			MATCH_NIL,				&CCodeGen_x86::Emit_Md_IsNegative_MemMem					},

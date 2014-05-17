@@ -548,7 +548,7 @@ namespace Jitter
 		void						Emit_Md_AddUSW_MemMemMem(const STATEMENT&);
 		void						Emit_Md_PackHB_MemMemMem(const STATEMENT&);
 		void						Emit_Md_PackWH_MemMemMem(const STATEMENT&);
-		void						Emit_Md_Not_RelTmp(const STATEMENT&);
+		void						Emit_Md_Not_MemMem(const STATEMENT&);
 		void						Emit_Md_Mov_MemMem(const STATEMENT&);
 		void						Emit_Md_MovMasked_MemMemCst(const STATEMENT&);
 		void						Emit_Md_Abs_MemMem(const STATEMENT&);

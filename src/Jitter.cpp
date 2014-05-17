@@ -1098,11 +1098,9 @@ void CJitter::MD_PushRelExpand(size_t offset)
 	m_Shadow.Push(tempSym);
 }
 
-void CJitter::MD_PushCstExpand(float value)
+void CJitter::MD_PushCstExpand(uint32 constant)
 {
 	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY128, m_nextTemporary++);
-
-	uint32 constant = *reinterpret_cast<uint32*>(&value);
 
 	STATEMENT statement;
 	statement.op	= OP_MD_EXPAND;
@@ -1111,6 +1109,11 @@ void CJitter::MD_PushCstExpand(float value)
 	InsertStatement(statement);
 
 	m_Shadow.Push(tempSym);
+}
+
+void CJitter::MD_PushCstExpand(float value)
+{
+	MD_PushCstExpand(*reinterpret_cast<uint32*>(&value));
 }
 
 void CJitter::MD_AddB()

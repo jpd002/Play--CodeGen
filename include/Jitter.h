@@ -149,6 +149,7 @@ namespace Jitter
 		//SIMD (128-bits only)
 		virtual void					MD_PushRel(size_t);
 		virtual void					MD_PushRelExpand(size_t);
+		void							MD_PushCstExpand(uint32);
 		void							MD_PushCstExpand(float);
 		virtual void					MD_PullRel(size_t);
 		virtual void					MD_PullRel(size_t, bool, bool, bool, bool);

@@ -1,4 +1,5 @@
 #include "Jitter_CodeGen_x86_32.h"
+#include <algorithm>
 
 using namespace Jitter;
 

@@ -56,7 +56,7 @@ namespace Jitter
 
 		virtual std::string ToString() const
 		{
-			return CSymbolRef::ToString() + "{" +  boost::lexical_cast<std::string>(version) + "}";
+			return CSymbolRef::ToString() + "{" +  std::to_string(version) + "}";
 		}
 
 		int version;

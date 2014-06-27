@@ -78,7 +78,7 @@ void CMdFpTest::Compile(Jitter::CJitter& jitter)
 		jitter.MD_PullRel(offsetof(CONTEXT, dstExpandRel));
 
 		//Push Cst Expand
-		jitter.MD_PushCstExpand(31415);
+		jitter.MD_PushCstExpand(31415.f);
 		jitter.MD_PullRel(offsetof(CONTEXT, dstExpandCst));
 
 		//ToWord Truncate

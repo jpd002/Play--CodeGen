@@ -386,8 +386,7 @@ void CX86Assembler::AndIq(const CAddress& address, uint64 constant)
 
 void CX86Assembler::BsrEd(REGISTER registerId, const CAddress& address)
 {
-	WriteByte(0x0F);
-	WriteEvGvOp(0xBD, false, address, registerId);
+	WriteEvGvOp0F(0xBD, false, address, registerId);
 }
 
 void CX86Assembler::CallEd(const CAddress& address)
@@ -397,14 +396,12 @@ void CX86Assembler::CallEd(const CAddress& address)
 
 void CX86Assembler::CmovsEd(REGISTER registerId, const CAddress& address)
 {
-	WriteByte(0x0F);
-	WriteEvGvOp(0x48, false, address, registerId);
+	WriteEvGvOp0F(0x48, false, address, registerId);
 }
 
 void CX86Assembler::CmovnsEd(REGISTER registerId, const CAddress& address)
 {
-	WriteByte(0x0F);
-	WriteEvGvOp(0x49, false, address, registerId);
+	WriteEvGvOp0F(0x49, false, address, registerId);
 }
 
 void CX86Assembler::CmpEd(REGISTER registerId, const CAddress& address)

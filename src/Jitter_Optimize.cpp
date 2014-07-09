@@ -761,6 +761,19 @@ bool CJitter::FoldConstantOperation(STATEMENT& statement)
 		//	src2cst->m_valueLow = GetPowerOf2(src2cst->m_valueLow);
 		//}
 	}
+	else if (statement.op == OP_DIVS)
+	{
+		if (src1cst && src2cst)
+		{
+			int32 quotient = static_cast<int32>(src1cst->m_valueLow) / static_cast<int32>(src2cst->m_valueLow);
+			uint32 remainder = src1cst->m_valueLow % src2cst->m_valueLow;
+			uint64 result = static_cast<int64>(quotient) | (static_cast<uint64>(remainder) << 32);
+			statement.op = OP_MOV;
+			statement.src1 = MakeSymbolRef(MakeConstant64(result));
+			statement.src2.reset();
+			changed = true;
+		}
+	}
 	else if(statement.op == OP_CMP)
 	{
 		if(src1cst && src2cst)

@@ -38,6 +38,11 @@ void CMdTest::Compile(Jitter::CJitter& jitter)
 
 		jitter.MD_PushRel(offsetof(CONTEXT, src1));
 		jitter.MD_PushRel(offsetof(CONTEXT, src1));
+		jitter.MD_AddHSS();
+		jitter.MD_PullRel(offsetof(CONTEXT, dstAddHSS));
+
+		jitter.MD_PushRel(offsetof(CONTEXT, src1));
+		jitter.MD_PushRel(offsetof(CONTEXT, src1));
 		jitter.MD_AddW();
 		jitter.MD_PullRel(offsetof(CONTEXT, dstAddW));
 
@@ -50,6 +55,11 @@ void CMdTest::Compile(Jitter::CJitter& jitter)
 		jitter.MD_PushRel(offsetof(CONTEXT, src1));
 		jitter.MD_AddWSS();
 		jitter.MD_PullRel(offsetof(CONTEXT, dstAddWSS));
+
+		jitter.MD_PushRel(offsetof(CONTEXT, src3));
+		jitter.MD_PushRel(offsetof(CONTEXT, src1));
+		jitter.MD_SubHSS();
+		jitter.MD_PullRel(offsetof(CONTEXT, dstSubHSS));
 
 		jitter.MD_PushRel(offsetof(CONTEXT, src0));
 		jitter.MD_PushRel(offsetof(CONTEXT, src2));
@@ -205,6 +215,7 @@ void CMdTest::Run()
 		{
 			context.src2[i] = context.src1[i];
 		}
+		context.src3[i] = 0xC0;
 	}
 	context.shiftAmount = 16;
 
@@ -249,12 +260,42 @@ void CMdTest::Run()
 		0xC0, 0xE1
 	};
 
+	static const uint8 dstAddHSSRes[16] =
+	{
+		0x00, 0x20,
+		0x40, 0x60,
+
+		0xFF, 0x7F,
+		0xFF, 0x7F,
+
+		0x00, 0x80,
+		0x00, 0x80,
+
+		0x80, 0xA1,
+		0xC0, 0xE1
+	};
+
 	static const uint8 dstAddWRes[16] =
 	{
 		0x00, 0x20, 0x40, 0x60,
 		0x80, 0xA0, 0xC0, 0xE0,
 		0x00, 0x21, 0x41, 0x61,
 		0x80, 0xA1, 0xC1, 0xE1
+	};
+
+	static const uint8 dstSubHSSRes[16] =
+	{
+		0xC0, 0xB0,
+		0xA0, 0x90,
+
+		0x00, 0x80,
+		0x00, 0x80,
+
+		0x40, 0x30,
+		0x20, 0x10,
+
+		0x00, 0xF0,
+		0xE0, 0xCF
 	};
 
 	static const uint8 dstCmpEqWRes[16] =
@@ -492,7 +533,9 @@ void CMdTest::Run()
 		TEST_VERIFY(dstAddBRes[i]			== context.dstAddB[i]);
 		TEST_VERIFY(dstAddBUSRes[i]			== context.dstAddBUS[i]);
 		TEST_VERIFY(dstAddHRes[i]			== context.dstAddH[i]);
+		TEST_VERIFY(dstAddHSSRes[i]			== context.dstAddHSS[i]);
 		TEST_VERIFY(dstAddWRes[i]			== context.dstAddW[i]);
+		TEST_VERIFY(dstSubHSSRes[i]			== context.dstSubHSS[i]);
 		TEST_VERIFY(dstCmpEqWRes[i]			== context.dstCmpEqW[i]);
 		TEST_VERIFY(dstCmpGtHRes[i]			== context.dstCmpGtH[i]);
 		TEST_VERIFY(dstMinHRes[i]			== context.dstMinH[i]);

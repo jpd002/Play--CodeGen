@@ -22,14 +22,19 @@ private:
 		uint8			src0[16];
 		uint8			src1[16];
 		uint8			src2[16];
+		uint8			src3[16];
 
 		uint8			dstMov[16];
 		uint8			dstAddB[16];
 		uint8			dstAddBUS[16];
 		uint8			dstAddH[16];
+		uint8			dstAddHSS[16];
 		uint8			dstAddW[16];
 		uint8			dstAddWUS[16];
 		uint8			dstAddWSS[16];
+
+		uint8			dstSubHSS[16];
+
 		uint8			dstCmpEqW[16];
 		uint8			dstCmpGtH[16];
 

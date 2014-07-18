@@ -245,10 +245,13 @@ public:
 	void									MovapsVo(XMMREGISTER, const CAddress&);
 	void									PackssdwVo(XMMREGISTER, const CAddress&);
 	void									PackuswbVo(XMMREGISTER, const CAddress&);
+
 	void									PaddbVo(XMMREGISTER, const CAddress&);
-	void									PaddwVo(XMMREGISTER, const CAddress&);
-	void									PadddVo(XMMREGISTER, const CAddress&);
 	void									PaddusbVo(XMMREGISTER, const CAddress&);
+	void									PaddwVo(XMMREGISTER, const CAddress&);
+	void									PaddswVo(XMMREGISTER, const CAddress&);
+	void									PadddVo(XMMREGISTER, const CAddress&);
+
 	void									PandVo(XMMREGISTER, const CAddress&);
 	void									PandnVo(XMMREGISTER, const CAddress&);
 	void									PcmpeqbVo(XMMREGISTER, const CAddress&);
@@ -267,8 +270,11 @@ public:
 	void									PsradVo(XMMREGISTER, uint8);
 	void									PsrlwVo(XMMREGISTER, uint8);
 	void									PsrldVo(XMMREGISTER, uint8);
+
 	void									PsubbVo(XMMREGISTER, const CAddress&);
+	void									PsubswVo(XMMREGISTER, const CAddress&);
 	void									PsubdVo(XMMREGISTER, const CAddress&);
+
 	void									PunpcklbwVo(XMMREGISTER, const CAddress&);
 	void									PunpcklwdVo(XMMREGISTER, const CAddress&);
 	void									PunpckldqVo(XMMREGISTER, const CAddress&);

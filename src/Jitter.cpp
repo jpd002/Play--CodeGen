@@ -1158,6 +1158,20 @@ void CJitter::MD_AddH()
 	m_Shadow.Push(tempSym);
 }
 
+void CJitter::MD_AddHSS()
+{
+	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY128, m_nextTemporary++);
+
+	STATEMENT statement;
+	statement.op	= OP_MD_ADDSS_H;
+	statement.src2	= MakeSymbolRef(m_Shadow.Pull());
+	statement.src1	= MakeSymbolRef(m_Shadow.Pull());
+	statement.dst	= MakeSymbolRef(tempSym);
+	InsertStatement(statement);
+
+	m_Shadow.Push(tempSym);
+}
+
 void CJitter::MD_AddW()
 {
 	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY128, m_nextTemporary++);
@@ -1206,6 +1220,20 @@ void CJitter::MD_SubB()
 
 	STATEMENT statement;
 	statement.op	= OP_MD_SUB_B;
+	statement.src2	= MakeSymbolRef(m_Shadow.Pull());
+	statement.src1	= MakeSymbolRef(m_Shadow.Pull());
+	statement.dst	= MakeSymbolRef(tempSym);
+	InsertStatement(statement);
+
+	m_Shadow.Push(tempSym);
+}
+
+void CJitter::MD_SubHSS()
+{
+	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY128, m_nextTemporary++);
+
+	STATEMENT statement;
+	statement.op	= OP_MD_SUBSS_H;
 	statement.src2	= MakeSymbolRef(m_Shadow.Pull());
 	statement.src1	= MakeSymbolRef(m_Shadow.Pull());
 	statement.dst	= MakeSymbolRef(tempSym);

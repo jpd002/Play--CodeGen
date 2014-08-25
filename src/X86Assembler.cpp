@@ -2,10 +2,10 @@
 #include <stdexcept>
 #include "X86Assembler.h"
 
-CX86Assembler::CX86Assembler() :
-m_outputStream(NULL),
-m_currentLabel(NULL),
-m_nextLabelId(1)
+CX86Assembler::CX86Assembler() 
+: m_outputStream(nullptr)
+, m_currentLabel(nullptr)
+, m_nextLabelId(1)
 {
 
 }
@@ -18,7 +18,7 @@ CX86Assembler::~CX86Assembler()
 void CX86Assembler::Begin()
 {
 	m_nextLabelId = 1;
-	m_currentLabel = NULL;
+	m_currentLabel = nullptr;
 	m_tmpStream.ResetBuffer();
 	m_labels.clear();
 	m_labelOrder.clear();
@@ -27,17 +27,16 @@ void CX86Assembler::Begin()
 void CX86Assembler::End()
 {
 	//Mark last label
-	if(m_currentLabel != NULL)
+	if(m_currentLabel != nullptr)
 	{
 		uint32 currentPos = static_cast<uint32>(m_tmpStream.Tell());
 		m_currentLabel->size = currentPos - m_currentLabel->start;
 	}
 
 	//Initialize
-	for(LabelMap::iterator labelIterator(m_labels.begin());
-		labelIterator != m_labels.end(); labelIterator++)
+	for(auto& labelPair : m_labels)
 	{
-		LABELINFO& label = labelIterator->second;
+		auto& label = labelPair.second;
 		label.projectedStart = label.start;
 	}
 
@@ -92,7 +91,7 @@ void CX86Assembler::End()
 		if(!changed) break;
 	}
 
-	assert(m_outputStream != NULL);
+	assert(m_outputStream != nullptr);
 	m_tmpStream.Seek(0, Framework::STREAM_SEEK_SET);
 
 	for(const auto& labelId : m_labelOrder)

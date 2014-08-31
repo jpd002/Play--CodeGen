@@ -1,5 +1,4 @@
-#ifndef _TEST_H_
-#define _TEST_H_
+#pragma once
 
 #include "Jitter.h"
 
@@ -13,5 +12,3 @@ public:
 	virtual void	Run()						= 0;
 	virtual void	Compile(Jitter::CJitter&)	= 0;
 };
-
-#endif

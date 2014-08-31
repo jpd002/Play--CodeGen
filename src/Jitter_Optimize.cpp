@@ -1591,35 +1591,31 @@ void CJitter::RemoveSelfAssignments(BASIC_BLOCK& basicBlock)
 
 void CJitter::ComputeLivenessAndPruneSymbols(BASIC_BLOCK& basicBlock)
 {
-	struct ModifyLiveRangeInfo
-	{
-		void operator()(SymbolPtr& symbol, unsigned int statementIdx) const
+	const auto ModifyLiveRangeInfo =
+		[] (const SymbolPtr& symbol, unsigned int statementIdx)
 		{
 			if(symbol->m_rangeBegin == -1)
 			{
 				symbol->m_rangeBegin = statementIdx;
 			}
 			symbol->m_rangeEnd = statementIdx;
-		}
-	};
+		};
 
-	CSymbolTable& symbolTable(basicBlock.symbolTable);
-	const StatementList& statements(basicBlock.statements);
+	auto& symbolTable(basicBlock.symbolTable);
+	const auto& statements(basicBlock.statements);
 
-	for(CSymbolTable::SymbolIterator symbolIterator(symbolTable.GetSymbolsBegin());
-		symbolIterator != symbolTable.GetSymbolsEnd(); symbolIterator++)
+	for(const auto& symbol : symbolTable.GetSymbols())
 	{
-		SymbolPtr& symbol(const_cast<SymbolPtr&>(*symbolIterator));
 		symbol->m_useCount = 0;
 
 		unsigned int statementIdx = 0;
 		for(StatementList::const_iterator statementIterator(statements.begin());
 			statementIterator != statements.end(); statementIterator++, statementIdx++)
 		{
-			const STATEMENT& statement(*statementIterator);
+			const auto& statement(*statementIterator);
 			if(statement.dst)
 			{
-				SymbolPtr dstSymbol(statement.dst->GetSymbol());
+				auto dstSymbol(statement.dst->GetSymbol());
 				if(dstSymbol->Equals(symbol.get()))
 				{
 					symbol->m_useCount++;
@@ -1632,7 +1628,7 @@ void CJitter::ComputeLivenessAndPruneSymbols(BASIC_BLOCK& basicBlock)
 						symbol->m_lastDef = statementIdx;
 					}
 
-					ModifyLiveRangeInfo()(symbol, statementIdx);
+					ModifyLiveRangeInfo(symbol, statementIdx);
 				}
 				else if(!symbol->m_aliased && dstSymbol->Aliases(symbol.get()))
 				{
@@ -1642,7 +1638,7 @@ void CJitter::ComputeLivenessAndPruneSymbols(BASIC_BLOCK& basicBlock)
 
 			if(statement.src1)
 			{
-				SymbolPtr src1Symbol(statement.src1->GetSymbol());
+				auto src1Symbol(statement.src1->GetSymbol());
 				if(src1Symbol->Equals(symbol.get()))
 				{
 					symbol->m_useCount++;
@@ -1651,7 +1647,7 @@ void CJitter::ComputeLivenessAndPruneSymbols(BASIC_BLOCK& basicBlock)
 						symbol->m_firstUse = statementIdx;
 					}
 
-					ModifyLiveRangeInfo()(symbol, statementIdx);
+					ModifyLiveRangeInfo(symbol, statementIdx);
 				}
 				else if(!symbol->m_aliased && src1Symbol->Aliases(symbol.get()))
 				{
@@ -1661,7 +1657,7 @@ void CJitter::ComputeLivenessAndPruneSymbols(BASIC_BLOCK& basicBlock)
 
 			if(statement.src2)
 			{
-				SymbolPtr src2Symbol(statement.src2->GetSymbol());
+				auto src2Symbol(statement.src2->GetSymbol());
 				if(src2Symbol->Equals(symbol.get()))
 				{
 					symbol->m_useCount++;
@@ -1670,7 +1666,7 @@ void CJitter::ComputeLivenessAndPruneSymbols(BASIC_BLOCK& basicBlock)
 						symbol->m_firstUse = statementIdx;
 					}
 
-					ModifyLiveRangeInfo()(symbol, statementIdx);
+					ModifyLiveRangeInfo(symbol, statementIdx);
 				}
 				else if(!symbol->m_aliased && src2Symbol->Aliases(symbol.get()))
 				{
@@ -1680,10 +1676,10 @@ void CJitter::ComputeLivenessAndPruneSymbols(BASIC_BLOCK& basicBlock)
 		}
 	}
 
-	for(CSymbolTable::SymbolIterator symbolIterator(symbolTable.GetSymbolsBegin());
-		symbolIterator != symbolTable.GetSymbolsEnd();)
+	for(auto symbolIterator(std::begin(symbolTable.GetSymbols()));
+		symbolIterator != std::end(symbolTable.GetSymbols());)
 	{
-		const SymbolPtr& symbol(*symbolIterator);
+		const auto& symbol(*symbolIterator);
 		if(symbol->m_useCount == 0)
 		{
 			symbolIterator = symbolTable.RemoveSymbol(symbolIterator);
@@ -1698,12 +1694,8 @@ void CJitter::ComputeLivenessAndPruneSymbols(BASIC_BLOCK& basicBlock)
 unsigned int CJitter::AllocateStack(BASIC_BLOCK& basicBlock)
 {
 	unsigned int stackAlloc = 0;
-	CSymbolTable& symbolTable(basicBlock.symbolTable);
-	for(CSymbolTable::SymbolIterator symbolIterator(symbolTable.GetSymbolsBegin());
-		symbolIterator != symbolTable.GetSymbolsEnd(); symbolIterator++)
+	for(const auto& symbol : basicBlock.symbolTable.GetSymbols())
 	{
-		const SymbolPtr& symbol(*symbolIterator);
-
 		if(symbol->m_regAlloc_register != -1 && (symbol->m_regAlloc_notAllocatedAfterIdx == symbol->m_rangeEnd)) continue;
 
 		if(symbol->m_type == SYM_TEMPORARY || symbol->m_type == SYM_FP_TMP_SINGLE)

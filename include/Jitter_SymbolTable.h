@@ -43,8 +43,7 @@ namespace Jitter
 		SymbolPtr				MakeSymbol(SYM_TYPE, uint32, uint32 = 0);
 		SymbolIterator			RemoveSymbol(const SymbolIterator&);
 
-		SymbolIterator			GetSymbolsBegin();
-		SymbolIterator			GetSymbolsEnd();
+		SymbolSet&				GetSymbols();
 
 	private:
 		SymbolSet				m_symbols;

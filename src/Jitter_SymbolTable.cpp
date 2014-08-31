@@ -13,14 +13,9 @@ CSymbolTable::~CSymbolTable()
 
 }
 
-CSymbolTable::SymbolIterator CSymbolTable::GetSymbolsBegin()
+CSymbolTable::SymbolSet& CSymbolTable::GetSymbols()
 {
-	return m_symbols.begin();
-}
-
-CSymbolTable::SymbolIterator CSymbolTable::GetSymbolsEnd()
-{
-	return m_symbols.end();
+	return m_symbols;
 }
 
 CSymbolTable::SymbolIterator CSymbolTable::RemoveSymbol(const SymbolIterator& symbolIterator)

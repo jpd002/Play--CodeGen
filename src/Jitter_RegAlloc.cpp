@@ -16,13 +16,10 @@ void CJitter::AllocateRegisters(BASIC_BLOCK& basicBlock)
 	CSymbolTable& symbolTable(basicBlock.symbolTable);
 	StatementList& statements(basicBlock.statements);
 
-	typedef std::list<CSymbol*> UseCountSymbolSortedList;
-
-	UseCountSymbolSortedList sortedSymbols;
-	for(CSymbolTable::SymbolIterator symbolIterator(symbolTable.GetSymbolsBegin());
-		symbolIterator != symbolTable.GetSymbolsEnd(); symbolIterator++)
+	std::list<CSymbol*> sortedSymbols;
+	for(const auto& symbol : symbolTable.GetSymbols())
 	{
-		sortedSymbols.push_back(symbolIterator->get());
+		sortedSymbols.push_back(symbol.get());
 	}
 	sortedSymbols.sort(UseCountSymbolComparator);
 
@@ -31,7 +28,7 @@ void CJitter::AllocateRegisters(BASIC_BLOCK& basicBlock)
 		symbolTable.MakeSymbol(SYM_REGISTER, i);
 	}
 
-	UseCountSymbolSortedList::iterator symbolIterator = sortedSymbols.begin();
+	auto symbolIterator = sortedSymbols.begin();
 	while(1)
 	{
 		if(symbolIterator == sortedSymbols.end())
@@ -94,10 +91,8 @@ void CJitter::AllocateRegisters(BASIC_BLOCK& basicBlock)
 	}
 
 	//Emit copies to registers
-	for(CSymbolTable::SymbolIterator symbolIterator(symbolTable.GetSymbolsBegin());
-		symbolIterator != symbolTable.GetSymbolsEnd(); symbolIterator++)
+	for(const auto& symbol : symbolTable.GetSymbols())
 	{
-		const SymbolPtr& symbol(*symbolIterator);
 		if(symbol->m_regAlloc_register == -1) continue;
 		if(symbol->m_type == SYM_TEMPORARY) continue;
 

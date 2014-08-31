@@ -10,7 +10,6 @@
 #include <iostream>
 #endif
 
-using namespace std;
 using namespace Jitter;
 
 static bool IsPowerOfTwo(uint32 number)
@@ -220,7 +219,7 @@ void CJitter::Compile()
 
 #ifdef DUMP_STATEMENTS
 	DumpStatementList(result.statements);
-	cout << endl;
+	std::cout << std::endl;
 #endif
 
 	unsigned int stackSize = AllocateStack(result);
@@ -263,20 +262,17 @@ std::string CJitter::ConditionToString(CONDITION condition)
 void CJitter::DumpStatementList(const StatementList& statements)
 {
 #ifdef DUMP_STATEMENTS
-	for(StatementList::const_iterator statementIterator(statements.begin());
-		statements.end() != statementIterator; statementIterator++)
+	for(const auto& statement : statements)
 	{
-		const STATEMENT& statement(*statementIterator);
-
 		if(statement.dst)
 		{
-			cout << statement.dst->ToString();
-			cout << " := ";
+			std::cout << statement.dst->ToString();
+			std::cout << " := ";
 		}
 
 		if(statement.src1)
 		{
-			cout << statement.src1->ToString();
+			std::cout << statement.src1->ToString();
 		}
 
 		switch(statement.op)
@@ -285,230 +281,272 @@ void CJitter::DumpStatementList(const StatementList& statements)
 		case OP_ADD64:
 		case OP_ADDREF:
 		case OP_FP_ADD:
-			cout << " + ";
+			std::cout << " + ";
 			break;
 		case OP_SUB:
 		case OP_SUB64:
 		case OP_FP_SUB:
-			cout << " - ";
+			std::cout << " - ";
 			break;
 		case OP_CMP:
 		case OP_CMP64:
 		case OP_FP_CMP:
-			cout << " CMP(" << ConditionToString(statement.jmpCondition) << ") ";
+			std::cout << " CMP(" << ConditionToString(statement.jmpCondition) << ") ";
 			break;
 		case OP_MUL:
 		case OP_MULS:
 		case OP_FP_MUL:
-			cout << " * ";
+			std::cout << " * ";
 			break;
 		case OP_MULSHL:
-			cout << " *(HL) ";
+			std::cout << " *(HL) ";
 			break;
 		case OP_MULSHH:
-			cout << " *(HH) ";
+			std::cout << " *(HH) ";
 			break;
 		case OP_DIV:
 		case OP_DIVS:
 		case OP_FP_DIV:
-			cout << " / ";
+			std::cout << " / ";
 			break;
 		case OP_AND:
 		case OP_AND64:
 		case OP_MD_AND:
-			cout << " & ";
+			std::cout << " & ";
 			break;
 		case OP_LZC:
-			cout << " LZC";
+			std::cout << " LZC";
 			break;
 		case OP_OR:
 		case OP_MD_OR:
-			cout << " | ";
+			std::cout << " | ";
 			break;
 		case OP_XOR:
 		case OP_MD_XOR:
-			cout << " ^ ";
+			std::cout << " ^ ";
 			break;
 		case OP_NOT:
 		case OP_MD_NOT:
-			cout << " ! ";
+			std::cout << " ! ";
 			break;
 		case OP_SRL:
 		case OP_SRL64:
-			cout << " >> ";
+			std::cout << " >> ";
 			break;
 		case OP_SRA:
 		case OP_SRA64:
-			cout << " >>A ";
+			std::cout << " >>A ";
 			break;
 		case OP_SLL:
 		case OP_SLL64:
-			cout << " << ";
+			std::cout << " << ";
 			break;
 		case OP_NOP:
-			cout << " NOP ";
+			std::cout << " NOP ";
 			break;
 		case OP_MOV:
 			break;
 		case OP_STOREATREF:
-			cout << " <- ";
+			std::cout << " <- ";
 			break;
 		case OP_LOADFROMREF:
-			cout << " LOADFROM ";
+			std::cout << " LOADFROM ";
 			break;
 		case OP_RELTOREF:
-			cout << " TOREF ";
+			std::cout << " TOREF ";
 			break;
 		case OP_PARAM:
 		case OP_PARAM_RET:
-			cout << " PARAM ";
+			std::cout << " PARAM ";
 			break;
 		case OP_CALL:
-			cout << " CALL ";
+			std::cout << " CALL ";
 			break;
 		case OP_RETVAL:
-			cout << " RETURNVALUE ";
+			std::cout << " RETURNVALUE ";
 			break;
 		case OP_JMP:
-			cout << " JMP{" << statement.jmpBlock << "} ";
+			std::cout << " JMP{" << statement.jmpBlock << "} ";
 			break;
 		case OP_CONDJMP:
-			cout << " JMP{" << statement.jmpBlock << "}(" << ConditionToString(statement.jmpCondition) << ") ";
+			std::cout << " JMP{" << statement.jmpBlock << "}(" << ConditionToString(statement.jmpCondition) << ") ";
 			break;
 		case OP_LABEL:
-			cout << "LABEL_" << statement.jmpBlock << ":";
+			std::cout << "LABEL_" << statement.jmpBlock << ":";
 			break;
 		case OP_EXTLOW64:
-			cout << " EXTLOW64";
+			std::cout << " EXTLOW64";
 			break;
 		case OP_EXTHIGH64:
-			cout << " EXTHIGH64";
+			std::cout << " EXTHIGH64";
 			break;
 		case OP_MERGETO64:
-			cout << " MERGETO64 ";
+			std::cout << " MERGETO64 ";
 			break;
 		case OP_MERGETO256:
-			cout << " MERGETO256 ";
+			std::cout << " MERGETO256 ";
 			break;
 		case OP_FP_ABS:
-			cout << " ABS";
+			std::cout << " ABS";
 			break;
 		case OP_FP_NEG:
-			cout << " NEG";
+			std::cout << " NEG";
 			break;
 		case OP_FP_MIN:
-			cout << " MIN ";
+			std::cout << " MIN ";
 			break;
 		case OP_FP_MAX:
-			cout << " MAX ";
+			std::cout << " MAX ";
 			break;
 		case OP_FP_SQRT:
-			cout << " SQRT";
+			std::cout << " SQRT";
 			break;
 		case OP_FP_RSQRT:
-			cout << " RSQRT";
+			std::cout << " RSQRT";
 			break;
 		case OP_FP_RCPL:
-			cout << " RCPL";
+			std::cout << " RCPL";
 			break;
 		case OP_FP_TOINT_TRUNC:
-			cout << " INT(TRUNC)";
+			std::cout << " INT(TRUNC)";
 			break;
 		case OP_FP_LDCST:
-			cout << " LOAD ";
+			std::cout << " LOAD ";
 			break;
 		case OP_MD_MOV_MASKED:
-			cout << " MOVMSK ";
+			std::cout << " MOVMSK ";
 			break;
 		case OP_MD_PACK_HB:
-			cout << " PACK_HB ";
+			std::cout << " PACK_HB ";
 			break;
 		case OP_MD_PACK_WH:
-			cout << " PACK_WH ";
+			std::cout << " PACK_WH ";
 			break;
 		case OP_MD_UNPACK_LOWER_BH:
-			cout << " UNPACK_LOWER_BH ";
+			std::cout << " UNPACK_LOWER_BH ";
 			break;
 		case OP_MD_UNPACK_LOWER_HW:
-			cout << " UNPACK_LOWER_HW ";
+			std::cout << " UNPACK_LOWER_HW ";
 			break;
 		case OP_MD_UNPACK_LOWER_WD:
-			cout << " UNPACK_LOWER_WD ";
+			std::cout << " UNPACK_LOWER_WD ";
+			break;
+		case OP_MD_UNPACK_UPPER_BH:
+			std::cout << " UNPACK_UPPER_BH ";
 			break;
 		case OP_MD_UNPACK_UPPER_WD:
-			cout << " UNPACK_UPPER_WD ";
+			std::cout << " UNPACK_UPPER_WD ";
+			break;
+		case OP_MD_ADD_B:
+			std::cout << " +(B) ";
 			break;
 		case OP_MD_ADD_H:
-			cout << " +(H) ";
+			std::cout << " +(H) ";
 			break;
 		case OP_MD_ADD_W:
-			cout << " +(W) ";
+			std::cout << " +(W) ";
+			break;
+		case OP_MD_ADDUS_B:
+			std::cout << " +(USB) ";
 			break;
 		case OP_MD_ADDUS_W:
-			cout << " +(USW) ";
+			std::cout << " +(USW) ";
+			break;
+		case OP_MD_ADDSS_H:
+			std::cout << " +(SSH) ";
 			break;
 		case OP_MD_ADDSS_W:
-			cout << " +(SSW) ";
+			std::cout << " +(SSW) ";
 			break;
 		case OP_MD_SUB_B:
-			cout << " -(B) ";
+			std::cout << " -(B) ";
 			break;
 		case OP_MD_SUB_W:
-			cout << " -(W) ";
+			std::cout << " -(W) ";
+			break;
+		case OP_MD_SUBSS_H:
+			std::cout << " -(SSH) ";
 			break;
 		case OP_MD_SLLW:
-			cout << " <<(W) ";
+			std::cout << " <<(W) ";
+			break;
+		case OP_MD_SLLH:
+			std::cout << " <<(H) ";
+			break;
+		case OP_MD_SRLH:
+			std::cout << " >>(H) ";
 			break;
 		case OP_MD_SRLW:
-			cout << " >>(W) ";
+			std::cout << " >>(W) ";
+			break;
+		case OP_MD_SRAH:
+			std::cout << " >>A(H) ";
+			break;
+		case OP_MD_SRAW:
+			std::cout << " >>A(W) ";
 			break;
 		case OP_MD_SRL256:
-			cout << " >>(256) ";
+			std::cout << " >>(256) ";
 			break;
 		case OP_MD_CMPEQ_W:
-			cout << " CMP(EQ,W) ";
+			std::cout << " CMP(EQ,W) ";
+			break;
+		case OP_MD_CMPGT_H:
+			std::cout << " CMP(GT,H) ";
 			break;
 		case OP_MD_ADD_S:
-			cout << " +(S) ";
+			std::cout << " +(S) ";
 			break;
 		case OP_MD_SUB_S:
-			cout << " -(S) ";
+			std::cout << " -(S) ";
 			break;
 		case OP_MD_MUL_S:
-			cout << " *(S) ";
+			std::cout << " *(S) ";
 			break;
 		case OP_MD_DIV_S:
-			cout << " /(S) ";
+			std::cout << " /(S) ";
+			break;
+		case OP_MD_MIN_H:
+			std::cout << " MIN(H) ";
+			break;
+		case OP_MD_MIN_W:
+			std::cout << " MIN(W) ";
 			break;
 		case OP_MD_MIN_S:
-			cout << " MIN(S) ";
+			std::cout << " MIN(S) ";
+			break;
+		case OP_MD_MAX_H:
+			std::cout << " MAX(H) ";
+			break;
+		case OP_MD_MAX_W:
+			std::cout << " MAX(W) ";
 			break;
 		case OP_MD_MAX_S:
-			cout << " MAX(S) ";
+			std::cout << " MAX(S) ";
 			break;
 		case OP_MD_ISNEGATIVE:
-			cout << " ISNEGATIVE";
+			std::cout << " ISNEGATIVE";
 			break;
 		case OP_MD_ISZERO:
-			cout << " ISZERO";
+			std::cout << " ISZERO";
 			break;
 		case OP_MD_EXPAND:
-			cout << " EXPAND";
+			std::cout << " EXPAND";
 			break;
 		case OP_MD_TOWORD_TRUNCATE:
-			cout << " TOWORD_TRUNCATE";
+			std::cout << " TOWORD_TRUNCATE";
 			break;
 		default:
-			cout << " ?? ";
+			std::cout << " ?? ";
 			break;
 		}
 
 		if(statement.src2)
 		{
-			cout << statement.src2->ToString();
+			std::cout << statement.src2->ToString();
 		}
 
-		cout << endl;
+		std::cout << std::endl;
 	}
 #endif
 }

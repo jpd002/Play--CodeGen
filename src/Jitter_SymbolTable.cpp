@@ -25,12 +25,12 @@ CSymbolTable::SymbolIterator CSymbolTable::RemoveSymbol(const SymbolIterator& sy
 
 SymbolPtr CSymbolTable::MakeSymbol(const SymbolPtr& srcSymbol)
 {
-	SymbolSet::const_iterator symbolIterator(m_symbols.find(srcSymbol));
+	auto symbolIterator(m_symbols.find(srcSymbol));
 	if(symbolIterator != m_symbols.end())
 	{
 		return *symbolIterator;
 	}
-	SymbolPtr result = SymbolPtr(new CSymbol(*srcSymbol));
+	auto result = std::make_shared<CSymbol>(*srcSymbol);
 	m_symbols.insert(result);
 	return result;
 }

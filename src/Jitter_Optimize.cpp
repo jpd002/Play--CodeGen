@@ -76,12 +76,12 @@ CJitter::VERSIONED_STATEMENT_LIST CJitter::GenerateVersionedStatementList(const 
 			if(CSymbol* symbol = dynamic_symbolref_cast(SYM_RELATIVE, symbolRef))
 			{
 				unsigned int currentVersion = relativeVersions.GetRelativeVersion(symbol->m_valueLow);
-				symbolRef = SymbolRefPtr(new CVersionedSymbolRef(symbolRef->GetSymbol(), currentVersion));
+				symbolRef = std::make_shared<CVersionedSymbolRef>(symbolRef->GetSymbol(), currentVersion);
 			}
 			if(CSymbol* symbol = dynamic_symbolref_cast(SYM_RELATIVE64, symbolRef))
 			{
 				unsigned int currentVersion = relativeVersions.GetRelativeVersion(symbol->m_valueLow);
-				symbolRef = SymbolRefPtr(new CVersionedSymbolRef(symbolRef->GetSymbol(), currentVersion));
+				symbolRef = std::make_shared<CVersionedSymbolRef>(symbolRef->GetSymbol(), currentVersion);
 			}
 		}
 	};
@@ -97,7 +97,7 @@ CJitter::VERSIONED_STATEMENT_LIST CJitter::GenerateVersionedStatementList(const 
 		if(CSymbol* dst = dynamic_symbolref_cast(SYM_RELATIVE, newStatement.dst))
 		{
 			unsigned int nextVersion = result.relativeVersions.IncrementRelativeVersion(dst->m_valueLow);
-			newStatement.dst = SymbolRefPtr(new CVersionedSymbolRef(newStatement.dst->GetSymbol(), nextVersion));
+			newStatement.dst = std::make_shared<CVersionedSymbolRef>(newStatement.dst->GetSymbol(), nextVersion);
 		}
 		//Increment relative versions to prevent some optimization problems
 		else if(CSymbol* dst = dynamic_symbolref_cast(SYM_FP_REL_SINGLE, newStatement.dst))
@@ -143,17 +143,17 @@ StatementList CJitter::CollapseVersionedStatementList(const VERSIONED_STATEMENT_
 
 		if(VersionedSymbolRefPtr src1 = std::dynamic_pointer_cast<CVersionedSymbolRef>(newStatement.src1))
 		{
-			newStatement.src1 = SymbolRefPtr(new CSymbolRef(src1->GetSymbol()));
+			newStatement.src1 = std::make_shared<CSymbolRef>(src1->GetSymbol());
 		}
 
 		if(VersionedSymbolRefPtr src2 = std::dynamic_pointer_cast<CVersionedSymbolRef>(newStatement.src2))
 		{
-			newStatement.src2 = SymbolRefPtr(new CSymbolRef(src2->GetSymbol()));
+			newStatement.src2 = std::make_shared<CSymbolRef>(src2->GetSymbol());
 		}
 
 		if(VersionedSymbolRefPtr dst = std::dynamic_pointer_cast<CVersionedSymbolRef>(newStatement.dst))
 		{
-			newStatement.dst = SymbolRefPtr(new CSymbolRef(dst->GetSymbol()));
+			newStatement.dst = std::make_shared<CSymbolRef>(dst->GetSymbol());
 		}
 
 		result.push_back(newStatement);
@@ -560,7 +560,7 @@ uint32 CJitter::CreateBlock()
 CJitter::BASIC_BLOCK* CJitter::GetBlock(uint32 blockId)
 {
 	BasicBlockList::iterator blockIterator(m_basicBlocks.find(blockId));
-	if(blockIterator == m_basicBlocks.end()) return NULL;
+	if(blockIterator == m_basicBlocks.end()) return nullptr;
 	return &blockIterator->second;
 }
 
@@ -594,7 +594,7 @@ int CJitter::GetSymbolSize(const SymbolRefPtr& symbolRef)
 
 SymbolRefPtr CJitter::MakeSymbolRef(const SymbolPtr& symbol)
 {
-	return SymbolRefPtr(new CSymbolRef(symbol));
+	return std::make_shared<CSymbolRef>(symbol);
 }
 
 bool CJitter::FoldConstantOperation(STATEMENT& statement)
@@ -1054,19 +1054,19 @@ void CJitter::MergeBasicBlocks(BASIC_BLOCK& dstBlock, const BASIC_BLOCK& srcBloc
 		if(statement.dst)
 		{
 			SymbolPtr symbol(statement.dst->GetSymbol());
-			statement.dst = SymbolRefPtr(new CSymbolRef(dstSymbolTable.MakeSymbol(symbol)));
+			statement.dst = std::make_shared<CSymbolRef>(dstSymbolTable.MakeSymbol(symbol));
 		}
 
 		if(statement.src1)
 		{
 			SymbolPtr symbol(statement.src1->GetSymbol());
-			statement.src1 = SymbolRefPtr(new CSymbolRef(dstSymbolTable.MakeSymbol(symbol)));
+			statement.src1 = std::make_shared<CSymbolRef>(dstSymbolTable.MakeSymbol(symbol));
 		}
 
 		if(statement.src2)
 		{
 			SymbolPtr symbol(statement.src2->GetSymbol());
-			statement.src2 = SymbolRefPtr(new CSymbolRef(dstSymbolTable.MakeSymbol(symbol)));
+			statement.src2 = std::make_shared<CSymbolRef>(dstSymbolTable.MakeSymbol(symbol));
 		}
 
 		dstBlock.statements.push_back(statement);
@@ -1239,15 +1239,15 @@ bool CJitter::MergeBlocks()
 			nextBlockIterator++;
 			if(nextBlockIterator == m_basicBlocks.end()) continue;
 
-			BASIC_BLOCK& basicBlock(blockIterator->second);
-			BASIC_BLOCK& nextBlock(nextBlockIterator->second);
+			auto& basicBlock(blockIterator->second);
+			auto& nextBlock(nextBlockIterator->second);
 
 			if(nextBlock.hasJumpRef) continue;
 
 			//Check if the last statement is a jump
-			StatementList::const_iterator lastStatementIterator(basicBlock.statements.end());
+			auto lastStatementIterator(basicBlock.statements.end());
 			lastStatementIterator--;
-			const STATEMENT& statement(*lastStatementIterator);
+			const auto& statement(*lastStatementIterator);
 			if(statement.op == OP_CONDJMP) continue;
 			if(statement.op == OP_JMP) continue;
 
@@ -1755,11 +1755,8 @@ void CJitter::NormalizeStatements(BASIC_BLOCK& basicBlock)
 	//1. Always have registers as the first operand
 	//2. Always have constants as the last operand
 
-	for(StatementList::iterator statementIterator(basicBlock.statements.begin());
-		basicBlock.statements.end() != statementIterator; statementIterator++)
+	for(auto& statement : basicBlock.statements)
 	{
-		STATEMENT& statement(*statementIterator);
-
 		bool isCommutative = false;
 		bool conditionSwapRequired = false;
 

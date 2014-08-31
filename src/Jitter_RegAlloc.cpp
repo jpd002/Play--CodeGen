@@ -101,8 +101,8 @@ void CJitter::AllocateRegisters(BASIC_BLOCK& basicBlock)
 		{
 			STATEMENT statement;
 			statement.op	= OP_MOV;
-			statement.dst	= SymbolRefPtr(new CSymbolRef(symbolTable.MakeSymbol(SYM_REGISTER, symbol->m_regAlloc_register)));
-			statement.src1	= SymbolRefPtr(new CSymbolRef(symbol));
+			statement.dst	= std::make_shared<CSymbolRef>(symbolTable.MakeSymbol(SYM_REGISTER, symbol->m_regAlloc_register));
+			statement.src1	= std::make_shared<CSymbolRef>(symbol);
 
 			statements.push_front(statement);
 		}
@@ -112,8 +112,8 @@ void CJitter::AllocateRegisters(BASIC_BLOCK& basicBlock)
 		{
 			STATEMENT statement;
 			statement.op	= OP_MOV;
-			statement.dst	= SymbolRefPtr(new CSymbolRef(symbol));
-			statement.src1	= SymbolRefPtr(new CSymbolRef(symbolTable.MakeSymbol(SYM_REGISTER, symbol->m_regAlloc_register)));
+			statement.dst	= std::make_shared<CSymbolRef>(symbol);
+			statement.src1	= std::make_shared<CSymbolRef>(symbolTable.MakeSymbol(SYM_REGISTER, symbol->m_regAlloc_register));
 
 			statements.insert(endInsertionPoint, statement);
 		}

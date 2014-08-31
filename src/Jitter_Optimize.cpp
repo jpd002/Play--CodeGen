@@ -202,10 +202,9 @@ void CJitter::Compile()
 	}
 
 	//Allocate registers
-	for(BasicBlockList::iterator blockIterator(m_basicBlocks.begin());
-		m_basicBlocks.end() != blockIterator; blockIterator++)
+	for(auto& basicBlockPair : m_basicBlocks)
 	{
-		BASIC_BLOCK& basicBlock(blockIterator->second);
+		auto& basicBlock(basicBlockPair.second);
 		m_currentBlock = &basicBlock;
 
 		CoalesceTemporaries(basicBlock);

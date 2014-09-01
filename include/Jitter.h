@@ -316,6 +316,7 @@ namespace Jitter
 		void							RemoveSelfAssignments(BASIC_BLOCK&);
 		void							ComputeLivenessAndPruneSymbols(BASIC_BLOCK&);
 		void							AllocateRegisters(BASIC_BLOCK&);
+		void							AllocateRegistersMd(BASIC_BLOCK&);
 //		void							AllocateRegisters_ReplaceOperand(CSymbolTable&, SymbolRefPtr&, unsigned int);
 //		void							AllocateRegisters_SpillSymbol(ActiveSymbolList::iterator&, unsigned int = -1);
 //		void							AllocateRegisters_ComputeCallRanges(const BASIC_BLOCK&);

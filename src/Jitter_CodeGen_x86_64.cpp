@@ -36,6 +36,21 @@ CX86Assembler::REGISTER CCodeGen_x86_64::g_registers[MAX_REGISTERS] =
 	CX86Assembler::r15,
 };
 
+//XMM6:XMM15 are non-volatile in the Windows ABI for x64
+CX86Assembler::XMMREGISTER CCodeGen_x86_64::g_mdRegisters[MAX_MDREGISTERS] =
+{
+	CX86Assembler::xMM6,
+	CX86Assembler::xMM7,
+	CX86Assembler::xMM8,
+	CX86Assembler::xMM9,
+	CX86Assembler::xMM10,
+	CX86Assembler::xMM11,
+	CX86Assembler::xMM12,
+	CX86Assembler::xMM13,
+	CX86Assembler::xMM14,
+	CX86Assembler::xMM15
+};
+
 CX86Assembler::REGISTER CCodeGen_x86_64::g_paramRegs[MAX_PARAMS] =
 {
 	CX86Assembler::rCX,
@@ -223,6 +238,7 @@ CCodeGen_x86_64::CONSTMATCHER CCodeGen_x86_64::g_constMatchers[] =
 CCodeGen_x86_64::CCodeGen_x86_64()
 {
 	CCodeGen_x86::m_registers = g_registers;
+	CCodeGen_x86_64::m_mdRegisters = g_mdRegisters;
 
 	for(CONSTMATCHER* constMatcher = g_constMatchers; constMatcher->emitter != NULL; constMatcher++)
 	{
@@ -244,6 +260,11 @@ CCodeGen_x86_64::~CCodeGen_x86_64()
 unsigned int CCodeGen_x86_64::GetAvailableRegisterCount() const
 {
 	return MAX_REGISTERS;
+}
+
+unsigned int CCodeGen_x86_64::GetAvailableMdRegisterCount() const
+{
+	return MAX_MDREGISTERS;
 }
 
 unsigned int CCodeGen_x86_64::GetAddressSize() const

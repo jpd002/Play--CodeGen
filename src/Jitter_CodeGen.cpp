@@ -52,6 +52,8 @@ bool CCodeGen::SymbolMatches(MATCHTYPE match, const SymbolRefPtr& symbolRef)
 	case MATCH_RELATIVE_FP_INT32:
 		return (symbol->m_type == SYM_FP_REL_INT32);
 
+	case MATCH_REGISTER128:
+		return (symbol->m_type == SYM_REGISTER128);
 	case MATCH_RELATIVE128:
 		return (symbol->m_type == SYM_RELATIVE128);
 	case MATCH_TEMPORARY128:

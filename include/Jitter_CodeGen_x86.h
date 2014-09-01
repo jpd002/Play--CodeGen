@@ -551,6 +551,7 @@ namespace Jitter
 
 		//MDOP
 		template <typename> void	Emit_Md_MemMem(const STATEMENT&);
+		template <typename> void	Emit_Md_RegRegReg(const STATEMENT&);
 		template <typename> void	Emit_Md_MemMemMem(const STATEMENT&);
 		template <typename> void	Emit_Md_MemMemMemRev(const STATEMENT&);
 		template <typename> void	Emit_Md_Shift_MemMemCst(const STATEMENT&);
@@ -559,6 +560,8 @@ namespace Jitter
 		void						Emit_Md_PackHB_MemMemMem(const STATEMENT&);
 		void						Emit_Md_PackWH_MemMemMem(const STATEMENT&);
 		void						Emit_Md_Not_MemMem(const STATEMENT&);
+		void						Emit_Md_Mov_RegMem(const STATEMENT&);
+		void						Emit_Md_Mov_MemReg(const STATEMENT&);
 		void						Emit_Md_Mov_MemMem(const STATEMENT&);
 		void						Emit_Md_MovMasked_MemMemCst(const STATEMENT&);
 		void						Emit_Md_Abs_MemMem(const STATEMENT&);
@@ -582,6 +585,7 @@ namespace Jitter
 
 		CX86Assembler				m_assembler;
 		CX86Assembler::REGISTER*	m_registers;
+		CX86Assembler::XMMREGISTER*	m_mdRegisters;
 		LabelMapType				m_labels;
 		SymbolReferenceLabelArray	m_symbolReferenceLabels;
 		uint32						m_stackLevel;

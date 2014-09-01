@@ -79,6 +79,9 @@
     <ClCompile Include="..\src\MachoObjectFile.cpp">
       <Filter>Source Files\object</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\Jitter_RegAllocMd.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\ArrayStack.h">

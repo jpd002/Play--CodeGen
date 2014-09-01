@@ -26,6 +26,7 @@ namespace Jitter
 
 		SYM_RELATIVE128,
 		SYM_TEMPORARY128,
+		SYM_REGISTER128,
 
 		SYM_TEMPORARY256,
 
@@ -111,6 +112,9 @@ namespace Jitter
 				break;
 			case SYM_TEMPORARY128:
 				return "TMP128[" + std::to_string(m_valueLow) + "]";
+				break;
+			case SYM_REGISTER128:
+				return "REG128[" + std::to_string(m_valueLow) + "]";
 				break;
 			case SYM_TEMPORARY256:
 				return "TMP256[" + std::to_string(m_valueLow) + "]";

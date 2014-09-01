@@ -12,9 +12,10 @@ namespace Jitter
 											CCodeGen_x86_32();
 		virtual								~CCodeGen_x86_32();
 
-		unsigned int						GetAvailableRegisterCount() const;
-		unsigned int						GetAddressSize() const;
-		bool								CanHold128BitsReturnValueInRegisters() const;
+		unsigned int						GetAvailableRegisterCount() const override;
+		unsigned int						GetAvailableMdRegisterCount() const override;
+		unsigned int						GetAddressSize() const override;
+		bool								CanHold128BitsReturnValueInRegisters() const override;
 		
 	protected:
 		virtual void						Emit_Prolog(const StatementList&, unsigned int, uint32);

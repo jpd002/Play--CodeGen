@@ -211,6 +211,7 @@ void CJitter::Compile()
 		RemoveSelfAssignments(basicBlock);
 		ComputeLivenessAndPruneSymbols(basicBlock);
 		AllocateRegisters(basicBlock);
+		//AllocateRegistersMd(basicBlock);
 		NormalizeStatements(basicBlock);
 	}
 

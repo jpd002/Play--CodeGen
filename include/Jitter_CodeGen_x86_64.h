@@ -9,12 +9,13 @@ namespace Jitter
 	class CCodeGen_x86_64 : public CCodeGen_x86
 	{
 	public:
-						CCodeGen_x86_64();
-		virtual			~CCodeGen_x86_64();
+											CCodeGen_x86_64();
+		virtual								~CCodeGen_x86_64();
 
-		unsigned int	GetAvailableRegisterCount() const;
-		unsigned int	GetAddressSize() const;
-		bool			CanHold128BitsReturnValueInRegisters() const;
+		unsigned int						GetAvailableRegisterCount() const override;
+		unsigned int						GetAvailableMdRegisterCount() const override;
+		unsigned int						GetAddressSize() const override;
+		bool								CanHold128BitsReturnValueInRegisters() const override;
 
 	protected:
 		//ALUOP64 ----------------------------------------------------------
@@ -158,6 +159,7 @@ namespace Jitter
 		enum MAX_REGISTERS
 		{
 			MAX_REGISTERS = 7,
+			MAX_MDREGISTERS = 10,
 		};
 		
 		enum MAX_PARAMS
@@ -169,6 +171,7 @@ namespace Jitter
 		
 		static CONSTMATCHER					g_constMatchers[];
 		static CX86Assembler::REGISTER		g_registers[MAX_REGISTERS];
+		static CX86Assembler::XMMREGISTER	g_mdRegisters[MAX_MDREGISTERS];
 		static CX86Assembler::REGISTER		g_paramRegs[MAX_PARAMS];
 
 		ParamStack							m_params;

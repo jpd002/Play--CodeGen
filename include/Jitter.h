@@ -1,5 +1,4 @@
-#ifndef _JITTER_H_
-#define _JITTER_H_
+#pragma once
 
 #include <string>
 #include <memory>
@@ -205,12 +204,6 @@ namespace Jitter
 
 		void							SetStream(Framework::CStream*);
 
-	protected:
-		CArrayStack<SymbolPtr>			m_Shadow;
-		CArrayStack<uint32>				m_IfStack;
-
-		void							PushTmp64(unsigned int);
-
 	private:
 		typedef size_t LABELREF;
 		typedef std::map<LABEL, unsigned int> LabelMapType;
@@ -326,7 +319,10 @@ namespace Jitter
 		void							NormalizeStatements(BASIC_BLOCK&);
 		unsigned int					AllocateStack(BASIC_BLOCK&);
 
-		bool							m_nBlockStarted;
+		bool							m_blockStarted;
+
+		CArrayStack<SymbolPtr>			m_shadow;
+		CArrayStack<uint32>				m_ifStack;
 
 		unsigned int					m_nextTemporary;
 		unsigned int					m_nextBlockId;
@@ -342,5 +338,3 @@ namespace Jitter
 	};
 
 }
-
-#endif

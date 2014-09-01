@@ -133,14 +133,12 @@ void CX86Assembler::MovdquVo(const CAddress& address, XMMREGISTER registerId)
 
 void CX86Assembler::MovapsVo(const CAddress& address, XMMREGISTER registerId)
 {
-	WriteByte(0x0F);
-	WriteEdVdOp(0x29, address, registerId);
+	WriteEdVdOp_0F(0x29, address, registerId);
 }
 
 void CX86Assembler::MovapsVo(XMMREGISTER registerId, const CAddress& address)
 {
-	WriteByte(0x0F);
-	WriteEdVdOp(0x28, address, registerId);
+	WriteEdVdOp_0F(0x28, address, registerId);
 }
 
 void CX86Assembler::PackssdwVo(XMMREGISTER registerId, const CAddress& address)
@@ -445,6 +443,17 @@ void CX86Assembler::WriteEdVdOp(uint8 opcode, const CAddress& address, XMMREGIST
 {
 	REGISTER registerId = static_cast<REGISTER>(xmmRegisterId);
 	WriteRexByte(false, address, registerId);
+	CAddress NewAddress(address);
+	NewAddress.ModRm.nFnReg = registerId;
+	WriteByte(opcode);
+	NewAddress.Write(&m_tmpStream);
+}
+
+void CX86Assembler::WriteEdVdOp_0F(uint8 opcode, const CAddress& address, XMMREGISTER xmmRegisterId)
+{
+	REGISTER registerId = static_cast<REGISTER>(xmmRegisterId);
+	WriteRexByte(false, address, registerId);
+	WriteByte(0x0F);
 	CAddress NewAddress(address);
 	NewAddress.ModRm.nFnReg = registerId;
 	WriteByte(opcode);

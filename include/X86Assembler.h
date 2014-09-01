@@ -385,8 +385,9 @@ private:
 	void									WriteEvIb(uint8, const CAddress&, uint8);
 	void									WriteEvId(uint8, const CAddress&, uint32);
 	void									WriteEvIq(uint8, const CAddress&, uint64);
-	void									WriteEdVdOp(uint8, const CAddress&, XMMREGISTER); 
-	void									WriteEdVdOp_66_0F(uint8, const CAddress&, XMMREGISTER); 
+	void									WriteEdVdOp(uint8, const CAddress&, XMMREGISTER);
+	void									WriteEdVdOp_0F(uint8, const CAddress&, XMMREGISTER);
+	void									WriteEdVdOp_66_0F(uint8, const CAddress&, XMMREGISTER);
 	void									WriteVrOp(uint8, uint8, XMMREGISTER);
 	void									WriteStOp(uint8, uint8, uint8);
 

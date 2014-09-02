@@ -260,14 +260,6 @@ namespace Jitter
 		typedef std::multimap<unsigned int, CSymbol*> ActiveSymbolList;
 		typedef std::map<unsigned int, unsigned int, std::greater<unsigned int> > CallRangeMap;
 
-		struct REGALLOC_STATE
-		{
-			InsertCommandList	insertCommands;
-			ActiveSymbolList	activeSymbols;
-			AvailableRegsSet	availableRegs;
-			CallRangeMap		callRanges;
-		};
-
 		void							Compile();
 
 		bool							ConstantFolding(StatementList&);
@@ -310,12 +302,6 @@ namespace Jitter
 		void							ComputeLivenessAndPruneSymbols(BASIC_BLOCK&);
 		void							AllocateRegisters(BASIC_BLOCK&);
 		void							AllocateRegistersMd(BASIC_BLOCK&);
-//		void							AllocateRegisters_ReplaceOperand(CSymbolTable&, SymbolRefPtr&, unsigned int);
-//		void							AllocateRegisters_SpillSymbol(ActiveSymbolList::iterator&, unsigned int = -1);
-//		void							AllocateRegisters_ComputeCallRanges(const BASIC_BLOCK&);
-#ifdef _DEBUG
-//		void							AllocateRegisters_VerifyProperCallSequence(const BASIC_BLOCK&);
-#endif
 		void							NormalizeStatements(BASIC_BLOCK&);
 		unsigned int					AllocateStack(BASIC_BLOCK&);
 
@@ -333,8 +319,6 @@ namespace Jitter
 
 		unsigned int					m_nextLabelId;
 		LabelMapType					m_labels;
-
-		REGALLOC_STATE					m_regAllocState;
 	};
 
 }

@@ -1,5 +1,4 @@
-#ifndef _JITTER_STATEMENT_H_
-#define _JITTER_STATEMENT_H_
+#pragma once
 
 #include <list>
 #include <functional>
@@ -198,6 +197,7 @@ namespace Jitter
 	};
 
 	typedef std::list<STATEMENT> StatementList;
-}
 
-#endif
+	std::string		ConditionToString(CONDITION);
+	void			DumpStatementList(const StatementList&);
+}

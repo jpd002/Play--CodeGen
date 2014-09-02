@@ -293,8 +293,6 @@ namespace Jitter
 
 		static CONDITION				GetReverseCondition(CONDITION);
 
-		void							DumpStatementList(const StatementList&);
-		std::string						ConditionToString(CONDITION);
 		VERSIONED_STATEMENT_LIST		GenerateVersionedStatementList(const StatementList&);
 		StatementList					CollapseVersionedStatementList(const VERSIONED_STATEMENT_LIST&);
 		void							CoalesceTemporaries(BASIC_BLOCK&);

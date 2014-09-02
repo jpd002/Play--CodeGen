@@ -38,6 +38,7 @@
     <ClCompile Include="..\src\MachoObjectFile.cpp" />
     <ClCompile Include="..\src\MemoryFunction.cpp" />
     <ClCompile Include="..\src\ObjectFile.cpp" />
+    <ClCompile Include="..\src\Jitter_Statement.cpp" />
     <ClCompile Include="..\src\X86Assembler.cpp" />
     <ClCompile Include="..\src\X86Assembler_Fpu.cpp" />
     <ClCompile Include="..\src\X86Assembler_Sse.cpp" />

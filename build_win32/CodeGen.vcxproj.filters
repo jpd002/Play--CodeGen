@@ -82,6 +82,9 @@
     <ClCompile Include="..\src\Jitter_RegAllocMd.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\Jitter_Statement.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\ArrayStack.h">

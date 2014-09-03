@@ -5,7 +5,6 @@
 #include <list>
 #include <map>
 #include <unordered_map>
-#include <deque>
 #include <vector>
 #include "ArrayStack.h"
 #include "Stream.h"
@@ -255,10 +254,6 @@ namespace Jitter
 			STATEMENT statement;
 		};
 		typedef std::vector<INSERT_COMMAND> InsertCommandList;
-
-		typedef std::deque<unsigned int> AvailableRegsSet;
-		typedef std::multimap<unsigned int, CSymbol*> ActiveSymbolList;
-		typedef std::map<unsigned int, unsigned int, std::greater<unsigned int> > CallRangeMap;
 
 		void							Compile();
 

@@ -298,6 +298,9 @@ void Jitter::DumpStatementList(const StatementList& statements)
 		case OP_MD_MAX_S:
 			std::cout << " MAX(S) ";
 			break;
+		case OP_MD_ABS_S:
+			std::cout << " ABS(S)";
+			break;
 		case OP_MD_ISNEGATIVE:
 			std::cout << " ISNEGATIVE";
 			break;
@@ -306,6 +309,9 @@ void Jitter::DumpStatementList(const StatementList& statements)
 			break;
 		case OP_MD_EXPAND:
 			std::cout << " EXPAND";
+			break;
+		case OP_MD_TOSINGLE:
+			std::cout << " TOSINGLE";
 			break;
 		case OP_MD_TOWORD_TRUNCATE:
 			std::cout << " TOWORD_TRUNCATE";

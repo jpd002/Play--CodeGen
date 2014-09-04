@@ -101,11 +101,9 @@ void CCodeGen_x86_32::Emit_Prolog(const StatementList& statements, unsigned int 
 	//Compute the size needed to store all function call parameters
 	uint32 maxParamSize = 0;
 	uint32 currParamSize = 0;
-		
-	for(auto statementIterator(std::begin(statements));
-		statementIterator != std::end(statements); statementIterator++)
+	
+	for(const auto& statement : statements)
 	{
-		auto statement = *statementIterator;
 		switch(statement.op)
 		{
 		case OP_PARAM:

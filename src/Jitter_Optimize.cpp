@@ -209,13 +209,14 @@ void CJitter::Compile()
 
 		CoalesceTemporaries(basicBlock);
 		RemoveSelfAssignments(basicBlock);
-		ComputeLivenessAndPruneSymbols(basicBlock);
+		PruneSymbols(basicBlock);
+
 		AllocateRegisters(basicBlock);
-		//AllocateRegistersMd(basicBlock);
+
 		NormalizeStatements(basicBlock);
 	}
 
-	BASIC_BLOCK result = ConcatBlocks(m_basicBlocks);
+	auto result = ConcatBlocks(m_basicBlocks);
 
 #ifdef DUMP_STATEMENTS
 	DumpStatementList(result.statements);
@@ -1267,98 +1268,27 @@ void CJitter::RemoveSelfAssignments(BASIC_BLOCK& basicBlock)
 	}
 }
 
-void CJitter::ComputeLivenessAndPruneSymbols(BASIC_BLOCK& basicBlock)
+void CJitter::PruneSymbols(BASIC_BLOCK& basicBlock) const
 {
-	const auto ModifyLiveRangeInfo =
-		[] (const SymbolPtr& symbol, unsigned int statementIdx)
-		{
-			if(symbol->m_rangeBegin == -1)
-			{
-				symbol->m_rangeBegin = statementIdx;
-			}
-			symbol->m_rangeEnd = statementIdx;
-		};
-
 	auto& symbolTable(basicBlock.symbolTable);
-	const auto& statements(basicBlock.statements);
 
-	for(const auto& symbol : symbolTable.GetSymbols())
+	SymbolUseCountMap symbolUseCount;
+	for(const auto& statement : basicBlock.statements)
 	{
-		symbol->m_useCount = 0;
-
-		unsigned int statementIdx = 0;
-		for(StatementList::const_iterator statementIterator(statements.begin());
-			statementIterator != statements.end(); statementIterator++, statementIdx++)
-		{
-			const auto& statement(*statementIterator);
-			if(statement.dst)
+		statement.VisitOperands(
+			[&] (const SymbolRefPtr& symbolRef, bool)
 			{
-				auto dstSymbol(statement.dst->GetSymbol());
-				if(dstSymbol->Equals(symbol.get()))
-				{
-					symbol->m_useCount++;
-					if(symbol->m_firstDef == -1)
-					{
-						symbol->m_firstDef = statementIdx;
-					}
-					if((symbol->m_lastDef == -1) || (statementIdx > symbol->m_lastDef))
-					{
-						symbol->m_lastDef = statementIdx;
-					}
-
-					ModifyLiveRangeInfo(symbol, statementIdx);
-				}
-				else if(!symbol->m_aliased && dstSymbol->Aliases(symbol.get()))
-				{
-					symbol->m_aliased = true;
-				}
+				const auto& symbol = symbolRef->GetSymbol();
+				symbolUseCount[symbol.get()]++;
 			}
-
-			if(statement.src1)
-			{
-				auto src1Symbol(statement.src1->GetSymbol());
-				if(src1Symbol->Equals(symbol.get()))
-				{
-					symbol->m_useCount++;
-					if(symbol->m_firstUse == -1)
-					{
-						symbol->m_firstUse = statementIdx;
-					}
-
-					ModifyLiveRangeInfo(symbol, statementIdx);
-				}
-				else if(!symbol->m_aliased && src1Symbol->Aliases(symbol.get()))
-				{
-					symbol->m_aliased = true;
-				}
-			}
-
-			if(statement.src2)
-			{
-				auto src2Symbol(statement.src2->GetSymbol());
-				if(src2Symbol->Equals(symbol.get()))
-				{
-					symbol->m_useCount++;
-					if(symbol->m_firstUse == -1)
-					{
-						symbol->m_firstUse = statementIdx;
-					}
-
-					ModifyLiveRangeInfo(symbol, statementIdx);
-				}
-				else if(!symbol->m_aliased && src2Symbol->Aliases(symbol.get()))
-				{
-					symbol->m_aliased = true;
-				}
-			}
-		}
+		);
 	}
 
 	for(auto symbolIterator(std::begin(symbolTable.GetSymbols()));
 		symbolIterator != std::end(symbolTable.GetSymbols());)
 	{
 		const auto& symbol(*symbolIterator);
-		if(symbol->m_useCount == 0)
+		if(symbolUseCount.find(symbol.get()) == std::end(symbolUseCount))
 		{
 			symbolIterator = symbolTable.RemoveSymbol(symbolIterator);
 		}

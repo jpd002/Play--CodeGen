@@ -204,8 +204,24 @@ namespace Jitter
 		void							SetStream(Framework::CStream*);
 
 	private:
+		struct SYMBOL_REGALLOCINFO
+		{
+			unsigned int			useCount = 0;
+			unsigned int			firstUse = -1;
+			unsigned int			firstDef = -1;
+			unsigned int			lastDef = -1;
+			unsigned int			rangeBegin = -1;
+			unsigned int			rangeEnd = -1;
+			bool					aliased = false;
+		};
+
 		typedef size_t LABELREF;
 		typedef std::map<LABEL, unsigned int> LabelMapType;
+		typedef std::pair<unsigned int, unsigned int> AllocationRange;
+		typedef std::vector<AllocationRange> AllocationRangeArray;
+		typedef std::unordered_map<SymbolPtr, SYMBOL_REGALLOCINFO> SymbolRegAllocInfo;
+		typedef std::unordered_map<SymbolPtr, unsigned int> SymbolAllocRegMap;
+		typedef std::unordered_map<CSymbol*, unsigned int> SymbolUseCountMap;
 
 		enum MAX_STACK
 		{
@@ -292,9 +308,12 @@ namespace Jitter
 		StatementList					CollapseVersionedStatementList(const VERSIONED_STATEMENT_LIST&);
 		void							CoalesceTemporaries(BASIC_BLOCK&);
 		void							RemoveSelfAssignments(BASIC_BLOCK&);
-		void							ComputeLivenessAndPruneSymbols(BASIC_BLOCK&);
+		void							PruneSymbols(BASIC_BLOCK&) const;
+		static AllocationRangeArray		ComputeAllocationRanges(const BASIC_BLOCK&);
+		void							ComputeLivenessForRange(const BASIC_BLOCK&, const AllocationRange&, SymbolRegAllocInfo&);
 		void							AllocateRegisters(BASIC_BLOCK&);
-		void							AllocateRegistersMd(BASIC_BLOCK&);
+		SymbolAllocRegMap				AllocateRegisters(SymbolRegAllocInfo&) const;
+		SymbolAllocRegMap				AllocateRegistersMd(SymbolRegAllocInfo&) const;
 		void							NormalizeStatements(BASIC_BLOCK&);
 		unsigned int					AllocateStack(BASIC_BLOCK&);
 

@@ -33,7 +33,6 @@
     <ClCompile Include="..\src\Jitter_CodeGen_x86_Md.cpp" />
     <ClCompile Include="..\src\Jitter_Optimize.cpp" />
     <ClCompile Include="..\src\Jitter_RegAlloc.cpp" />
-    <ClCompile Include="..\src\Jitter_RegAllocMd.cpp" />
     <ClCompile Include="..\src\Jitter_SymbolTable.cpp" />
     <ClCompile Include="..\src\MachoObjectFile.cpp" />
     <ClCompile Include="..\src\MemoryFunction.cpp" />

@@ -79,9 +79,6 @@
     <ClCompile Include="..\src\MachoObjectFile.cpp">
       <Filter>Source Files\object</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\Jitter_RegAllocMd.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\Jitter_Statement.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

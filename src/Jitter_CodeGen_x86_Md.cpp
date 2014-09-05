@@ -23,6 +23,25 @@ CX86Assembler::CAddress CCodeGen_x86::MakeTemporary256SymbolElementAddress(CSymb
 	return CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rSP, symbol->m_stackLocation + m_stackLevel + elementIdx);
 }
 
+CX86Assembler::CAddress CCodeGen_x86::Make128SymbolAddress(CSymbol* symbol)
+{
+	switch(symbol->m_type)
+	{
+	case SYM_REGISTER128:
+		return CX86Assembler::MakeXmmRegisterAddress(m_mdRegisters[symbol->m_valueLow]);
+		break;
+	case SYM_RELATIVE128:
+		return MakeRelative128SymbolElementAddress(symbol, 0);
+		break;
+	case SYM_TEMPORARY128:
+		return MakeTemporary128SymbolElementAddress(symbol, 0);
+		break;
+	default:
+		throw std::exception();
+		break;
+	}
+}
+
 CX86Assembler::CAddress CCodeGen_x86::MakeMemory128SymbolAddress(CSymbol* symbol)
 {
 	switch(symbol->m_type)
@@ -56,13 +75,24 @@ CX86Assembler::CAddress CCodeGen_x86::MakeMemory128SymbolElementAddress(CSymbol*
 }
 
 template <typename MDOP>
-void CCodeGen_x86::Emit_Md_MemMem(const STATEMENT& statement)
+void CCodeGen_x86::Emit_Md_RegAny(const STATEMENT& statement)
 {
-	CSymbol* dst = statement.dst->GetSymbol().get();
-	CSymbol* src1 = statement.src1->GetSymbol().get();
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
 
-	((m_assembler).*(MDOP::OpVo()))(CX86Assembler::xMM0, MakeMemory128SymbolAddress(src1));
-	m_assembler.MovapsVo(MakeMemory128SymbolAddress(dst), CX86Assembler::xMM0);
+	((m_assembler).*(MDOP::OpVo()))(m_mdRegisters[dst->m_valueLow], Make128SymbolAddress(src1));
+}
+
+template <typename MDOP>
+void CCodeGen_x86::Emit_Md_MemAny(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+
+	auto dstRegister = CX86Assembler::xMM0;
+
+	((m_assembler).*(MDOP::OpVo()))(dstRegister, Make128SymbolAddress(src1));
+	m_assembler.MovapsVo(MakeMemory128SymbolAddress(dst), dstRegister);
 }
 
 template <typename MDOP>
@@ -79,29 +109,31 @@ void CCodeGen_x86::Emit_Md_RegRegReg(const STATEMENT& statement)
 	}
 	else
 	{
-		auto src2register = m_mdRegisters[src2->m_valueLow];
+		auto src2Register = m_mdRegisters[src2->m_valueLow];
 
 		if(dst->Equals(src2))
 		{
 			m_assembler.MovapsVo(CX86Assembler::xMM0, CX86Assembler::MakeXmmRegisterAddress(m_mdRegisters[src2->m_valueLow]));
-			src2register = CX86Assembler::xMM0;
+			src2Register = CX86Assembler::xMM0;
 		}
 
 		m_assembler.MovapsVo(m_mdRegisters[dst->m_valueLow], CX86Assembler::MakeXmmRegisterAddress(m_mdRegisters[src1->m_valueLow]));
-		((m_assembler).*(MDOP::OpVo()))(m_mdRegisters[dst->m_valueLow], CX86Assembler::MakeXmmRegisterAddress(src2register));
+		((m_assembler).*(MDOP::OpVo()))(m_mdRegisters[dst->m_valueLow], CX86Assembler::MakeXmmRegisterAddress(src2Register));
 	}
 }
 
 template <typename MDOP>
-void CCodeGen_x86::Emit_Md_MemMemMem(const STATEMENT& statement)
+void CCodeGen_x86::Emit_Md_MemAnyAny(const STATEMENT& statement)
 {
-	CSymbol* dst = statement.dst->GetSymbol().get();
-	CSymbol* src1 = statement.src1->GetSymbol().get();
-	CSymbol* src2 = statement.src2->GetSymbol().get();
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
 
-	m_assembler.MovapsVo(CX86Assembler::xMM0, MakeMemory128SymbolAddress(src1));
-	((m_assembler).*(MDOP::OpVo()))(CX86Assembler::xMM0, MakeMemory128SymbolAddress(src2));
-	m_assembler.MovapsVo(MakeMemory128SymbolAddress(dst), CX86Assembler::xMM0);
+	auto dstRegister = CX86Assembler::xMM0;
+
+	m_assembler.MovapsVo(dstRegister, Make128SymbolAddress(src1));
+	((m_assembler).*(MDOP::OpVo()))(dstRegister, Make128SymbolAddress(src2));
+	m_assembler.MovapsVo(MakeMemory128SymbolAddress(dst), dstRegister);
 }
 
 template <typename MDOP>
@@ -130,6 +162,37 @@ void CCodeGen_x86::Emit_Md_Shift_MemMemCst(const STATEMENT& statement)
 	m_assembler.MovapsVo(tmpReg, MakeMemory128SymbolAddress(src1));
 	((m_assembler).*(MDOPSHIFT::OpVo()))(tmpReg, static_cast<uint8>(src2->m_valueLow));
 	m_assembler.MovapsVo(MakeMemory128SymbolAddress(dst), tmpReg);
+}
+
+template <typename MDOPFLAG>
+void CCodeGen_x86::Emit_Md_GetFlag_RegMem(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+
+	((*this).*(MDOPFLAG::OpEd()))(m_registers[dst->m_valueLow], MakeMemory128SymbolAddress(src1));
+}
+
+template <typename MDOPFLAG>
+void CCodeGen_x86::Emit_Md_GetFlag_MemReg(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+
+	auto tmpRegister = CX86Assembler::rAX;
+	((*this).*(MDOPFLAG::OpEd()))(tmpRegister, CX86Assembler::MakeXmmRegisterAddress(m_mdRegisters[src1->m_valueLow]));
+	m_assembler.MovGd(MakeMemorySymbolAddress(dst), tmpRegister);
+}
+
+template <typename MDOPFLAG>
+void CCodeGen_x86::Emit_Md_GetFlag_MemMem(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+
+	auto tmpRegister = CX86Assembler::rAX;
+	((*this).*(MDOPFLAG::OpEd()))(tmpRegister, MakeMemory128SymbolAddress(src1));
+	m_assembler.MovGd(MakeMemorySymbolAddress(dst), tmpRegister);
 }
 
 void CCodeGen_x86::Emit_Md_AddSSW_MemMemMem(const STATEMENT& statement)
@@ -280,6 +343,17 @@ void CCodeGen_x86::Emit_Md_MovMasked_MemMemCst(const STATEMENT& statement)
 	}
 }
 
+void CCodeGen_x86::Emit_Md_Mov_RegReg(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+
+	assert(dst->m_valueLow != src1->m_valueLow);
+
+	m_assembler.MovapsVo(m_mdRegisters[dst->m_valueLow], 
+		CX86Assembler::MakeXmmRegisterAddress(m_mdRegisters[src1->m_valueLow]));
+}
+
 void CCodeGen_x86::Emit_Md_Mov_RegMem(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
@@ -307,19 +381,40 @@ void CCodeGen_x86::Emit_Md_Mov_MemMem(const STATEMENT& statement)
 	m_assembler.MovapsVo(MakeMemory128SymbolAddress(dst), resultRegister);
 }
 
-void CCodeGen_x86::Emit_Md_Abs_MemMem(const STATEMENT& statement)
+void CCodeGen_x86::Emit_Md_Abs_RegReg(const STATEMENT& statement)
 {
-	CSymbol* dst = statement.dst->GetSymbol().get();
-	CSymbol* src1 = statement.src1->GetSymbol().get();
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
 
-	CX86Assembler::XMMREGISTER maskRegister = CX86Assembler::xMM0;
-	CX86Assembler::XMMREGISTER resultRegister = CX86Assembler::xMM1;
-    
-	m_assembler.MovapsVo(resultRegister, MakeMemory128SymbolAddress(src1));
+	if(!dst->Equals(src1))
+	{
+		m_assembler.MovapsVo(m_mdRegisters[dst->m_valueLow], CX86Assembler::MakeXmmRegisterAddress(m_mdRegisters[src1->m_valueLow]));
+	}
+
+	Emit_Md_Abs(m_mdRegisters[dst->m_valueLow]);
+}
+
+void CCodeGen_x86::Emit_Md_Abs_MemAny(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+
+	auto resultRegister = CX86Assembler::xMM0;
+
+	m_assembler.MovapsVo(resultRegister, Make128SymbolAddress(src1));
+	Emit_Md_Abs(resultRegister);
+	m_assembler.MovapsVo(MakeMemory128SymbolAddress(dst), resultRegister);
+}
+
+void CCodeGen_x86::Emit_Md_Abs(CX86Assembler::XMMREGISTER dstRegister)
+{
+	auto maskRegister = CX86Assembler::xMM1;
+
+	assert(dstRegister != maskRegister);
+
 	m_assembler.PcmpeqdVo(maskRegister, CX86Assembler::MakeXmmRegisterAddress(maskRegister));
 	m_assembler.PsrldVo(maskRegister, 1);
-	m_assembler.PandVo(resultRegister, CX86Assembler::MakeXmmRegisterAddress(maskRegister));
-	m_assembler.MovapsVo(MakeMemory128SymbolAddress(dst), resultRegister);
+	m_assembler.PandVo(dstRegister, CX86Assembler::MakeXmmRegisterAddress(maskRegister));
 }
 
 void CCodeGen_x86::Emit_Md_IsNegative(CX86Assembler::REGISTER dstRegister, const CX86Assembler::CAddress& srcAddress)
@@ -370,24 +465,6 @@ void CCodeGen_x86::Emit_Md_IsNegative(CX86Assembler::REGISTER dstRegister, const
 	}
 }
 
-void CCodeGen_x86::Emit_Md_IsNegative_RegMem(const STATEMENT& statement)
-{
-	CSymbol* dst = statement.dst->GetSymbol().get();
-	CSymbol* src1 = statement.src1->GetSymbol().get();
-
-	Emit_Md_IsNegative(m_registers[dst->m_valueLow], MakeMemory128SymbolAddress(src1));
-}
-
-void CCodeGen_x86::Emit_Md_IsNegative_MemMem(const STATEMENT& statement)
-{
-	CSymbol* dst = statement.dst->GetSymbol().get();
-	CSymbol* src1 = statement.src1->GetSymbol().get();
-
-	CX86Assembler::REGISTER tmpRegister = CX86Assembler::rAX;
-	Emit_Md_IsNegative(tmpRegister, MakeMemory128SymbolAddress(src1));
-	m_assembler.MovGd(MakeMemorySymbolAddress(dst), tmpRegister);
-}
-
 void CCodeGen_x86::Emit_Md_IsZero(CX86Assembler::REGISTER dstRegister, const CX86Assembler::CAddress& srcAddress)
 {
 	CX86Assembler::XMMREGISTER valueRegister = CX86Assembler::xMM0;
@@ -414,24 +491,6 @@ void CCodeGen_x86::Emit_Md_IsZero(CX86Assembler::REGISTER dstRegister, const CX8
 		m_assembler.ShrEd(CX86Assembler::MakeRegisterAddress(tmpFlagRegister), 4);
 		m_assembler.RclEd(CX86Assembler::MakeRegisterAddress(dstRegister), 1);
 	}
-}
-
-void CCodeGen_x86::Emit_Md_IsZero_RegMem(const STATEMENT& statement)
-{
-	CSymbol* dst = statement.dst->GetSymbol().get();
-	CSymbol* src1 = statement.src1->GetSymbol().get();
-
-	Emit_Md_IsZero(m_registers[dst->m_valueLow], MakeMemory128SymbolAddress(src1));
-}
-
-void CCodeGen_x86::Emit_Md_IsZero_MemMem(const STATEMENT& statement)
-{
-	CSymbol* dst = statement.dst->GetSymbol().get();
-	CSymbol* src1 = statement.src1->GetSymbol().get();
-
-	CX86Assembler::REGISTER tmpRegister = CX86Assembler::rAX;
-	Emit_Md_IsZero(tmpRegister, MakeMemory128SymbolAddress(src1));
-	m_assembler.MovGd(MakeMemorySymbolAddress(dst), tmpRegister);
 }
 
 void CCodeGen_x86::Emit_Md_Expand_MemReg(const STATEMENT& statement)
@@ -547,38 +606,46 @@ void CCodeGen_x86::Emit_MergeTo256_MemMemMem(const STATEMENT& statement)
 	m_assembler.MovapsVo(MakeTemporary256SymbolElementAddress(dst, 0x10), src2Register);
 }
 
+#define MD_CONST_MATCHERS_2OPS(MDOP_CST, MDOP) \
+	{ MDOP_CST,				MATCH_REGISTER128,			MATCH_ANY128,				MATCH_NIL,				&CCodeGen_x86::Emit_Md_RegAny<MDOP>						}, \
+	{ MDOP_CST,				MATCH_MEMORY128,			MATCH_ANY128,				MATCH_NIL,				&CCodeGen_x86::Emit_Md_MemAny<MDOP>						},
+
+#define MD_CONST_MATCHERS_3OPS(MDOP_CST, MDOP) \
+	{ MDOP_CST,				MATCH_REGISTER128,			MATCH_REGISTER128,			MATCH_REGISTER128,		&CCodeGen_x86::Emit_Md_RegRegReg<MDOP>					}, \
+	{ MDOP_CST,				MATCH_MEMORY128,			MATCH_ANY128,				MATCH_ANY128,			&CCodeGen_x86::Emit_Md_MemAnyAny<MDOP>					},
+
 CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdConstMatchers[] = 
 {
-	{ OP_MD_ADD_B,				MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_x86::Emit_Md_MemMemMem<MDOP_ADDB>					},
-	{ OP_MD_ADDUS_B,			MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_x86::Emit_Md_MemMemMem<MDOP_ADDUSB>				},
+	{ OP_MD_ADD_B,				MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_x86::Emit_Md_MemAnyAny<MDOP_ADDB>					},
+	{ OP_MD_ADDUS_B,			MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_x86::Emit_Md_MemAnyAny<MDOP_ADDUSB>				},
 
-	{ OP_MD_ADD_H,				MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_x86::Emit_Md_MemMemMem<MDOP_ADDH>					},
-	{ OP_MD_ADDSS_H,			MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_x86::Emit_Md_MemMemMem<MDOP_ADDSSH>				},
+	{ OP_MD_ADD_H,				MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_x86::Emit_Md_MemAnyAny<MDOP_ADDH>					},
+	{ OP_MD_ADDSS_H,			MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_x86::Emit_Md_MemAnyAny<MDOP_ADDSSH>				},
 
-	{ OP_MD_ADD_W,				MATCH_REGISTER128,			MATCH_REGISTER128,			MATCH_REGISTER128,		&CCodeGen_x86::Emit_Md_RegRegReg<MDOP_ADDW>					},
-	{ OP_MD_ADD_W,				MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_x86::Emit_Md_MemMemMem<MDOP_ADDW>					},
+	MD_CONST_MATCHERS_3OPS(OP_MD_ADD_W, MDOP_ADDW)
+
 	{ OP_MD_ADDSS_W,			MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_x86::Emit_Md_AddSSW_MemMemMem						},
 	{ OP_MD_ADDUS_W,			MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_x86::Emit_Md_AddUSW_MemMemMem						},
 
-	{ OP_MD_SUB_B,				MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_x86::Emit_Md_MemMemMem<MDOP_SUBB>					},
-	{ OP_MD_SUBSS_H,			MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_x86::Emit_Md_MemMemMem<MDOP_SUBSSH>				},
+	{ OP_MD_SUB_B,				MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_x86::Emit_Md_MemAnyAny<MDOP_SUBB>					},
+	{ OP_MD_SUBSS_H,			MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_x86::Emit_Md_MemAnyAny<MDOP_SUBSSH>				},
 
-	{ OP_MD_SUB_W,				MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_x86::Emit_Md_MemMemMem<MDOP_SUBW>					},
+	{ OP_MD_SUB_W,				MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_x86::Emit_Md_MemAnyAny<MDOP_SUBW>					},
 
-	{ OP_MD_CMPEQ_B,			MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_x86::Emit_Md_MemMemMem<MDOP_CMPEQB>				},
-	{ OP_MD_CMPEQ_H,			MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_x86::Emit_Md_MemMemMem<MDOP_CMPEQH>				},
-	{ OP_MD_CMPEQ_W,			MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_x86::Emit_Md_MemMemMem<MDOP_CMPEQW>				},
-	{ OP_MD_CMPGT_H,			MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_x86::Emit_Md_MemMemMem<MDOP_CMPGTH>				},
+	{ OP_MD_CMPEQ_B,			MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_x86::Emit_Md_MemAnyAny<MDOP_CMPEQB>				},
+	{ OP_MD_CMPEQ_H,			MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_x86::Emit_Md_MemAnyAny<MDOP_CMPEQH>				},
+	{ OP_MD_CMPEQ_W,			MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_x86::Emit_Md_MemAnyAny<MDOP_CMPEQW>				},
+	{ OP_MD_CMPGT_H,			MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_x86::Emit_Md_MemAnyAny<MDOP_CMPGTH>				},
 
-	{ OP_MD_MIN_H,				MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_x86::Emit_Md_MemMemMem<MDOP_MINH>					},
-	{ OP_MD_MIN_W,				MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_x86::Emit_Md_MemMemMem<MDOP_MINW>					},
+	{ OP_MD_MIN_H,				MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_x86::Emit_Md_MemAnyAny<MDOP_MINH>					},
+	{ OP_MD_MIN_W,				MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_x86::Emit_Md_MemAnyAny<MDOP_MINW>					},
 
-	{ OP_MD_MAX_H,				MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_x86::Emit_Md_MemMemMem<MDOP_MAXH>					},
-	{ OP_MD_MAX_W,				MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_x86::Emit_Md_MemMemMem<MDOP_MAXW>					},
+	{ OP_MD_MAX_H,				MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_x86::Emit_Md_MemAnyAny<MDOP_MAXH>					},
+	{ OP_MD_MAX_W,				MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_x86::Emit_Md_MemAnyAny<MDOP_MAXW>					},
 
-	{ OP_MD_AND,				MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_x86::Emit_Md_MemMemMem<MDOP_AND>					},
-	{ OP_MD_OR,					MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_x86::Emit_Md_MemMemMem<MDOP_OR>					},
-	{ OP_MD_XOR,				MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_x86::Emit_Md_MemMemMem<MDOP_XOR>					},
+	{ OP_MD_AND,				MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_x86::Emit_Md_MemAnyAny<MDOP_AND>					},
+	{ OP_MD_OR,					MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_x86::Emit_Md_MemAnyAny<MDOP_OR>					},
+	{ OP_MD_XOR,				MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_x86::Emit_Md_MemAnyAny<MDOP_XOR>					},
 
 	{ OP_MD_SRLH,				MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_CONSTANT,			&CCodeGen_x86::Emit_Md_Shift_MemMemCst<MDOP_SRLH>			},
 	{ OP_MD_SRAH,				MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_CONSTANT,			&CCodeGen_x86::Emit_Md_Shift_MemMemCst<MDOP_SRAH>			},
@@ -605,26 +672,31 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdConstMatchers[] =
 	{ OP_MD_UNPACK_UPPER_BH,	MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_x86::Emit_Md_MemMemMemRev<MDOP_UNPACK_UPPER_BH>	},
 	{ OP_MD_UNPACK_UPPER_WD,	MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_x86::Emit_Md_MemMemMemRev<MDOP_UNPACK_UPPER_WD>	},
 
-	{ OP_MD_ADD_S,				MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_x86::Emit_Md_MemMemMem<MDOP_ADDS>					},
-	{ OP_MD_SUB_S,				MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_x86::Emit_Md_MemMemMem<MDOP_SUBS>					},
-	{ OP_MD_MUL_S,				MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_x86::Emit_Md_MemMemMem<MDOP_MULS>					},
-	{ OP_MD_DIV_S,				MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_x86::Emit_Md_MemMemMem<MDOP_DIVS>					},
+	MD_CONST_MATCHERS_3OPS(OP_MD_ADD_S, MDOP_ADDS)
+	MD_CONST_MATCHERS_3OPS(OP_MD_SUB_S, MDOP_SUBS)
+	MD_CONST_MATCHERS_3OPS(OP_MD_MUL_S, MDOP_MULS)
+	MD_CONST_MATCHERS_3OPS(OP_MD_DIV_S, MDOP_DIVS)
 
-	{ OP_MD_ABS_S,				MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_NIL,				&CCodeGen_x86::Emit_Md_Abs_MemMem							},
-	{ OP_MD_MIN_S,				MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_x86::Emit_Md_MemMemMem<MDOP_MINS>					},
-	{ OP_MD_MAX_S,				MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_x86::Emit_Md_MemMemMem<MDOP_MAXS>					},
+	{ OP_MD_ABS_S,				MATCH_REGISTER128,			MATCH_REGISTER128,			MATCH_NIL,				&CCodeGen_x86::Emit_Md_Abs_RegReg							},
+	{ OP_MD_ABS_S,				MATCH_MEMORY128,			MATCH_ANY128,				MATCH_NIL,				&CCodeGen_x86::Emit_Md_Abs_MemAny							},
+
+	MD_CONST_MATCHERS_3OPS(OP_MD_MIN_S, MDOP_MINS)
+	MD_CONST_MATCHERS_3OPS(OP_MD_MAX_S, MDOP_MAXS)
 
 	{ OP_MD_NOT,				MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_NIL,				&CCodeGen_x86::Emit_Md_Not_MemMem							},
 
-	{ OP_MD_ISNEGATIVE,			MATCH_REGISTER,				MATCH_MEMORY128,			MATCH_NIL,				&CCodeGen_x86::Emit_Md_IsNegative_RegMem					},
-	{ OP_MD_ISNEGATIVE,			MATCH_MEMORY,				MATCH_MEMORY128,			MATCH_NIL,				&CCodeGen_x86::Emit_Md_IsNegative_MemMem					},
+	{ OP_MD_ISNEGATIVE,			MATCH_REGISTER,				MATCH_MEMORY128,			MATCH_NIL,				&CCodeGen_x86::Emit_Md_GetFlag_RegMem<MDOP_ISNEGATIVE>		},
+	{ OP_MD_ISNEGATIVE,			MATCH_MEMORY,				MATCH_REGISTER128,			MATCH_NIL,				&CCodeGen_x86::Emit_Md_GetFlag_MemReg<MDOP_ISNEGATIVE>		},
+	{ OP_MD_ISNEGATIVE,			MATCH_MEMORY,				MATCH_MEMORY128,			MATCH_NIL,				&CCodeGen_x86::Emit_Md_GetFlag_MemMem<MDOP_ISNEGATIVE>		},
 
-	{ OP_MD_ISZERO,				MATCH_REGISTER,				MATCH_MEMORY128,			MATCH_NIL,				&CCodeGen_x86::Emit_Md_IsZero_RegMem						},
-	{ OP_MD_ISZERO,				MATCH_MEMORY,				MATCH_MEMORY128,			MATCH_NIL,				&CCodeGen_x86::Emit_Md_IsZero_MemMem						},
+	{ OP_MD_ISZERO,				MATCH_REGISTER,				MATCH_MEMORY128,			MATCH_NIL,				&CCodeGen_x86::Emit_Md_GetFlag_RegMem<MDOP_ISZERO>			},
+	{ OP_MD_ISZERO,				MATCH_MEMORY,				MATCH_REGISTER128,			MATCH_NIL,				&CCodeGen_x86::Emit_Md_GetFlag_MemReg<MDOP_ISZERO>			},
+	{ OP_MD_ISZERO,				MATCH_MEMORY,				MATCH_MEMORY128,			MATCH_NIL,				&CCodeGen_x86::Emit_Md_GetFlag_MemMem<MDOP_ISZERO>			},
 
-	{ OP_MD_TOWORD_TRUNCATE,	MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_NIL,				&CCodeGen_x86::Emit_Md_MemMem<MDOP_TOWORD_TRUNCATE>			},
-	{ OP_MD_TOSINGLE,			MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_NIL,				&CCodeGen_x86::Emit_Md_MemMem<MDOP_TOSINGLE>				},
+	MD_CONST_MATCHERS_2OPS(OP_MD_TOWORD_TRUNCATE,	MDOP_TOWORD_TRUNCATE)
+	MD_CONST_MATCHERS_2OPS(OP_MD_TOSINGLE,			MDOP_TOSINGLE)
 
+	{ OP_MOV,					MATCH_REGISTER128,			MATCH_REGISTER128,			MATCH_NIL,				&CCodeGen_x86::Emit_Md_Mov_RegReg,							},
 	{ OP_MOV,					MATCH_REGISTER128,			MATCH_MEMORY128,			MATCH_NIL,				&CCodeGen_x86::Emit_Md_Mov_RegMem							},
 	{ OP_MOV,					MATCH_MEMORY128,			MATCH_REGISTER128,			MATCH_NIL,				&CCodeGen_x86::Emit_Md_Mov_MemReg							},
 	{ OP_MOV,					MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_NIL,				&CCodeGen_x86::Emit_Md_Mov_MemMem							},

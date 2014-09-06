@@ -78,6 +78,7 @@ namespace Jitter
 		void								Emit_Param_Cst(const STATEMENT&);
 		void								Emit_Param_Mem64(const STATEMENT&);
 		void								Emit_Param_Cst64(const STATEMENT&);
+		void								Emit_Param_Reg128(const STATEMENT&);
 		void								Emit_Param_Mem128(const STATEMENT&);
 
 		//CALL
@@ -130,7 +131,7 @@ namespace Jitter
 	private:
 		typedef void (CCodeGen_x86_64::*ConstCodeEmitterType)(const STATEMENT&);
 
-		typedef std::function<void (CX86Assembler::REGISTER)> ParamEmitterFunction;
+		typedef std::function<uint32 (CX86Assembler::REGISTER, uint32)> ParamEmitterFunction;
 		typedef std::deque<ParamEmitterFunction> ParamStack;
 
 		struct CONSTMATCHER
@@ -175,7 +176,8 @@ namespace Jitter
 		static CX86Assembler::REGISTER		g_paramRegs[MAX_PARAMS];
 
 		ParamStack							m_params;
-		uint32								m_totalStackAlloc;
+		uint32								m_paramTempBase = 0;
+		uint32								m_totalStackAlloc = 0;
 	};
 }
 

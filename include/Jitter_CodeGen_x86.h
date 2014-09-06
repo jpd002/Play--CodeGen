@@ -585,9 +585,8 @@ namespace Jitter
 		void						Emit_Md_MovMasked_MemMemCst(const STATEMENT&);
 		void						Emit_Md_Abs_RegReg(const STATEMENT&);
 		void						Emit_Md_Abs_MemAny(const STATEMENT&);
-		template <typename> void	Emit_Md_GetFlag_RegMem(const STATEMENT&);
-		template <typename> void	Emit_Md_GetFlag_MemReg(const STATEMENT&);
-		template <typename> void	Emit_Md_GetFlag_MemMem(const STATEMENT&);
+		template <typename> void	Emit_Md_GetFlag_RegAny(const STATEMENT&);
+		template <typename> void	Emit_Md_GetFlag_MemAny(const STATEMENT&);
 		void						Emit_Md_Expand_MemReg(const STATEMENT&);
 		void						Emit_Md_Expand_MemMem(const STATEMENT&);
 		void						Emit_Md_Expand_MemCst(const STATEMENT&);

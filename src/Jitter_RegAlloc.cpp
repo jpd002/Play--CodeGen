@@ -44,19 +44,7 @@ void CJitter::AllocateRegisters(BASIC_BLOCK& basicBlock)
 		SymbolRegAllocInfo symbolRegAllocs;
 		ComputeLivenessForRange(basicBlock, allocRange, symbolRegAllocs);
 
-		//Aliasing check
-		for(const auto& statementInfo : IndexedStatementList(basicBlock.statements))
-		{
-			auto& statement(statementInfo.statement);
-			const auto& statementIdx(statementInfo.index);
-			if(statementIdx < allocRange.first) continue;
-			if(statementIdx > allocRange.second) break;
-			if(statement.op == OP_PARAM_RET)
-			{
-				auto& symbolRegAlloc = symbolRegAllocs[statement.src1->GetSymbol()];
-				symbolRegAlloc.aliased = true;
-			}
-		}
+		MarkAliasedSymbols(basicBlock, allocRange, symbolRegAllocs);
 
 		auto regAllocs = AllocateRegisters(symbolRegAllocs);
 //		auto regAllocs = AllocateRegistersMd(symbolRegAllocs);
@@ -299,7 +287,7 @@ CJitter::AllocationRangeArray CJitter::ComputeAllocationRanges(const BASIC_BLOCK
 	return result;
 }
 
-void CJitter::ComputeLivenessForRange(const BASIC_BLOCK& basicBlock, const AllocationRange& allocRange, SymbolRegAllocInfo& symbolRegAllocs)
+void CJitter::ComputeLivenessForRange(const BASIC_BLOCK& basicBlock, const AllocationRange& allocRange, SymbolRegAllocInfo& symbolRegAllocs) const
 {
 	auto& symbolTable(basicBlock.symbolTable);
 	const auto& statements(basicBlock.statements);
@@ -340,5 +328,37 @@ void CJitter::ComputeLivenessForRange(const BASIC_BLOCK& basicBlock, const Alloc
 				}
 			}
 		);
+	}
+}
+
+void CJitter::MarkAliasedSymbols(const BASIC_BLOCK& basicBlock, const AllocationRange& allocRange, SymbolRegAllocInfo& symbolRegAllocs) const
+{
+	for(const auto& statementInfo : ConstIndexedStatementList(basicBlock.statements))
+	{
+		auto& statement(statementInfo.statement);
+		const auto& statementIdx(statementInfo.index);
+		if(statementIdx < allocRange.first) continue;
+		if(statementIdx > allocRange.second) break;
+		if(statement.op == OP_PARAM_RET)
+		{
+			auto& symbolRegAlloc = symbolRegAllocs[statement.src1->GetSymbol()];
+			symbolRegAlloc.aliased = true;
+		}
+		for(auto& symbolRegAlloc : symbolRegAllocs)
+		{
+			if(symbolRegAlloc.second.aliased) continue;
+			auto testedSymbol = symbolRegAlloc.first;
+			statement.VisitOperands(
+				[&](const SymbolRefPtr& symbolRef, bool)
+				{
+					auto symbol = symbolRef->GetSymbol();
+					if(symbol->Equals(testedSymbol.get())) return;
+					if(symbol->Aliases(testedSymbol.get()))
+					{
+						symbolRegAlloc.second.aliased = true;
+					}
+				}
+			);
+		}
 	}
 }

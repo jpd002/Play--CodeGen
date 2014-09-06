@@ -310,7 +310,8 @@ namespace Jitter
 		void							RemoveSelfAssignments(BASIC_BLOCK&);
 		void							PruneSymbols(BASIC_BLOCK&) const;
 		static AllocationRangeArray		ComputeAllocationRanges(const BASIC_BLOCK&);
-		void							ComputeLivenessForRange(const BASIC_BLOCK&, const AllocationRange&, SymbolRegAllocInfo&);
+		void							ComputeLivenessForRange(const BASIC_BLOCK&, const AllocationRange&, SymbolRegAllocInfo&) const;
+		void							MarkAliasedSymbols(const BASIC_BLOCK&, const AllocationRange&, SymbolRegAllocInfo&) const;
 		void							AllocateRegisters(BASIC_BLOCK&);
 		SymbolAllocRegMap				AllocateRegisters(SymbolRegAllocInfo&) const;
 		SymbolAllocRegMap				AllocateRegistersMd(SymbolRegAllocInfo&) const;

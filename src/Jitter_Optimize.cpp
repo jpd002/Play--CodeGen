@@ -1304,8 +1304,6 @@ unsigned int CJitter::AllocateStack(BASIC_BLOCK& basicBlock)
 	unsigned int stackAlloc = 0;
 	for(const auto& symbol : basicBlock.symbolTable.GetSymbols())
 	{
-		if(symbol->m_regAlloc_register != -1 && (symbol->m_regAlloc_notAllocatedAfterIdx == symbol->m_rangeEnd)) continue;
-
 		if(symbol->m_type == SYM_TEMPORARY || symbol->m_type == SYM_FP_TMP_SINGLE)
 		{
 			symbol->m_stackLocation = stackAlloc;

@@ -1,5 +1,4 @@
-#ifndef _JITTER_SYMBOL_H_
-#define _JITTER_SYMBOL_H_
+#pragma once
 
 #include "Types.h"
 #include <memory>
@@ -44,24 +43,7 @@ namespace Jitter
 			, m_valueLow(valueLow)
 			, m_valueHigh(valueHigh)
 		{
-			m_rangeBegin = -1;
-			m_rangeEnd = -1;
-			m_firstUse = -1;
-			m_firstDef = -1;
-			m_lastDef = -1;
-			m_stackLocation = -1;
-			m_useCount = 0;
-			m_aliased = false;
 
-			m_regAlloc_register = -1;
-			m_regAlloc_loadBeforeIdx = -1;
-			m_regAlloc_saveAfterIdx = -1;
-			m_regAlloc_notAllocatedAfterIdx = -1;
-		}
-
-		virtual ~CSymbol()
-		{
-			
 		}
 
 		std::string ToString() const
@@ -216,23 +198,9 @@ namespace Jitter
 		uint32					m_valueLow;
 		uint32					m_valueHigh;
 
-		unsigned int			m_useCount;
-		unsigned int			m_firstUse;
-		unsigned int			m_firstDef;
-		unsigned int			m_lastDef;
-		unsigned int			m_rangeBegin;
-		unsigned int			m_rangeEnd;
-		unsigned int			m_stackLocation;
-		bool					m_aliased;
-
-		unsigned int			m_regAlloc_register;
-		unsigned int			m_regAlloc_loadBeforeIdx;
-		unsigned int			m_regAlloc_saveAfterIdx;
-		unsigned int			m_regAlloc_notAllocatedAfterIdx;
+		unsigned int			m_stackLocation = -1;
 	};
 
 	typedef std::shared_ptr<CSymbol> SymbolPtr;
 	typedef std::weak_ptr<CSymbol> WeakSymbolPtr;
 }
-
-#endif

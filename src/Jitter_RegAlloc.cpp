@@ -1,5 +1,6 @@
 #include "Jitter.h"
 #include <iostream>
+#include <set>
 
 #ifdef _DEBUG
 //#define DUMP_STATEMENTS
@@ -14,22 +15,6 @@ using namespace Jitter;
 void CJitter::AllocateRegisters(BASIC_BLOCK& basicBlock)
 {
 	auto& symbolTable = basicBlock.symbolTable;
-
-	{
-		unsigned int regCount = m_codeGen->GetAvailableRegisterCount();
-		for(unsigned int i = 0; i < regCount; i++)
-		{
-			symbolTable.MakeSymbol(SYM_REGISTER, i);
-		}
-	}
-
-	{
-		unsigned int regCount = m_codeGen->GetAvailableMdRegisterCount();
-		for(unsigned int i = 0; i < regCount; i++)
-		{
-			symbolTable.MakeSymbol(SYM_REGISTER128, i);
-		}
-	}
 
 	std::multimap<unsigned int, STATEMENT> loadStatements;
 	std::multimap<unsigned int, STATEMENT> spillStatements;
@@ -46,9 +31,9 @@ void CJitter::AllocateRegisters(BASIC_BLOCK& basicBlock)
 
 		MarkAliasedSymbols(basicBlock, allocRange, symbolRegAllocs);
 
-		auto regAllocs = AllocateRegisters(symbolRegAllocs);
-//		auto regAllocs = AllocateRegistersMd(symbolRegAllocs);
+		AssociateSymbolsToRegisters(symbolRegAllocs);
 
+		//Replace all references to symbols by references to allocated registers
 		for(const auto& statementInfo : IndexedStatementList(basicBlock.statements))
 		{
 			auto& statement(statementInfo.statement);
@@ -60,21 +45,29 @@ void CJitter::AllocateRegisters(BASIC_BLOCK& basicBlock)
 				[&] (SymbolRefPtr& symbolRef, bool)
 				{
 					auto symbol = symbolRef->GetSymbol();
-					auto regAllocIterator = regAllocs.find(symbol);
-					if(regAllocIterator != std::end(regAllocs))
+					auto symbolRegAllocIterator = symbolRegAllocs.find(symbol);
+					if(symbolRegAllocIterator != std::end(symbolRegAllocs))
 					{
-						symbolRef = MakeSymbolRef(symbolTable.MakeSymbol(SYM_REGISTER, regAllocIterator->second));
-//						symbolRef = MakeSymbolRef(symbolTable.MakeSymbol(SYM_REGISTER128, regAllocIterator->second));
+						const auto& symbolRegAlloc = symbolRegAllocIterator->second;
+						if(symbolRegAlloc.registerId != -1)
+						{
+							symbolRef = MakeSymbolRef(
+								symbolTable.MakeSymbol(symbolRegAlloc.registerType, symbolRegAlloc.registerId));
+						}
 					}
 				}
 			);
 		}
 
 		//Prepare load and spills
-		for(const auto& regAlloc : regAllocs)
+		for(const auto& symbolRegAllocPair : symbolRegAllocs)
 		{
-			const auto& symbol = regAlloc.first;
-			const auto& symbolRegAlloc = symbolRegAllocs[symbol];
+			const auto& symbol = symbolRegAllocPair.first;
+			const auto& symbolRegAlloc = symbolRegAllocPair.second;
+
+			//Check if it's actually allocated
+			if(symbolRegAlloc.registerId == -1) continue;
+
 			//firstUse == -1 means it is written to but never used afterwards in this block
 
 			//Do we need to load register at the beginning?
@@ -83,8 +76,8 @@ void CJitter::AllocateRegisters(BASIC_BLOCK& basicBlock)
 			{
 				STATEMENT statement;
 				statement.op	= OP_MOV;
-				statement.dst	= std::make_shared<CSymbolRef>(symbolTable.MakeSymbol(SYM_REGISTER, regAlloc.second));
-//				statement.dst	= std::make_shared<CSymbolRef>(symbolTable.MakeSymbol(SYM_REGISTER128, regAlloc.second));
+				statement.dst	= std::make_shared<CSymbolRef>(
+					symbolTable.MakeSymbol(symbolRegAlloc.registerType, symbolRegAlloc.registerId));
 				statement.src1	= std::make_shared<CSymbolRef>(symbol);
 
 				loadStatements.insert(std::make_pair(allocRange.first, statement));
@@ -96,8 +89,8 @@ void CJitter::AllocateRegisters(BASIC_BLOCK& basicBlock)
 				STATEMENT statement;
 				statement.op	= OP_MOV;
 				statement.dst	= std::make_shared<CSymbolRef>(symbol);
-				statement.src1	= std::make_shared<CSymbolRef>(symbolTable.MakeSymbol(SYM_REGISTER, regAlloc.second));
-//				statement.src1	= std::make_shared<CSymbolRef>(symbolTable.MakeSymbol(SYM_REGISTER128, regAlloc.second));
+				statement.src1	= std::make_shared<CSymbolRef>(
+					symbolTable.MakeSymbol(symbolRegAlloc.registerType, symbolRegAlloc.registerId));
 
 				spillStatements.insert(std::make_pair(allocRange.second, statement));
 			}
@@ -170,102 +163,77 @@ void CJitter::AllocateRegisters(BASIC_BLOCK& basicBlock)
 #endif
 }
 
-CJitter::SymbolAllocRegMap CJitter::AllocateRegisters(SymbolRegAllocInfo& symbolRegAllocs) const
+void CJitter::AssociateSymbolsToRegisters(SymbolRegAllocInfo& symbolRegAllocs) const
 {
+	std::multimap<SYM_TYPE, unsigned int> availableRegisters;
+	{
+		unsigned int regCount = m_codeGen->GetAvailableRegisterCount();
+		for(unsigned int i = 0; i < regCount; i++)
+		{
+			availableRegisters.insert(std::make_pair(SYM_REGISTER, i));
+		}
+	}
+
+	{
+		unsigned int regCount = m_codeGen->GetAvailableMdRegisterCount();
+		for(unsigned int i = 0; i < regCount; i++)
+		{
+			availableRegisters.insert(std::make_pair(SYM_REGISTER128, i));
+		}
+	}
+
 	auto isRegisterAllocatable =
 		[] (SYM_TYPE symbolType)
 		{
-			return (symbolType == SYM_RELATIVE) || (symbolType == SYM_TEMPORARY);
+			return 
+				(symbolType == SYM_RELATIVE) || (symbolType == SYM_TEMPORARY) ||
+				(symbolType == SYM_RELATIVE128) || (symbolType == SYM_TEMPORARY128);
 		};
 
 	//Sort symbols by usage count
-	std::list<SymbolPtr> sortedSymbols;
-	for(const auto& symbolRegAlloc : symbolRegAllocs)
+	std::list<SymbolRegAllocInfo::value_type*> sortedSymbols;
+	for(auto& symbolRegAllocPair : symbolRegAllocs)
 	{
-		const auto& symbol(symbolRegAlloc.first);
+		const auto& symbol(symbolRegAllocPair.first);
+		const auto& symbolRegAlloc(symbolRegAllocPair.second);
 		if(!isRegisterAllocatable(symbol->m_type)) continue;
-		if(symbolRegAlloc.second.aliased) continue;
-		sortedSymbols.push_back(symbolRegAlloc.first);
+		if(symbolRegAlloc.aliased) continue;
+		sortedSymbols.push_back(&symbolRegAllocPair);
 	}
 	sortedSymbols.sort(
-		[&] (const SymbolPtr& symbol1, const SymbolPtr& symbol2)
+		[] (SymbolRegAllocInfo::value_type* symbolRegAllocPair1, SymbolRegAllocInfo::value_type* symbolRegAllocPair2)
 		{
-			auto symbol1RegAllocIterator = symbolRegAllocs.find(symbol1);
-			auto symbol2RegAllocIterator = symbolRegAllocs.find(symbol2);
-			assert(symbol1RegAllocIterator != std::end(symbolRegAllocs));
-			assert(symbol2RegAllocIterator != std::end(symbolRegAllocs));
-			unsigned int symbol1UseCount = symbol1RegAllocIterator->second.useCount;
-			unsigned int symbol2UseCount = symbol2RegAllocIterator->second.useCount;
-			return symbol1UseCount > symbol2UseCount;
+			return symbolRegAllocPair1->second.useCount > symbolRegAllocPair2->second.useCount;
 		}
 	);
 
-	SymbolAllocRegMap symbolAllocReg;
-	unsigned int regCount = m_codeGen->GetAvailableRegisterCount();
-	unsigned int currentRegister = 0;
-
-	for(const auto& symbol : sortedSymbols)
+	for(auto& symbolRegAllocPair : sortedSymbols)
 	{
-		if(currentRegister == regCount)
+		if(availableRegisters.empty()) break;
+
+		const auto& symbol = symbolRegAllocPair->first;
+		auto& symbolRegAlloc = symbolRegAllocPair->second;
+
+		//Find suitable register for this symbol
+		auto registerIterator = std::end(availableRegisters);
+		auto registerIteratorEnd = std::end(availableRegisters);
+		if((symbol->m_type == SYM_RELATIVE) || (symbol->m_type == SYM_TEMPORARY))
 		{
-			//We're done
-			break;
+			registerIterator = availableRegisters.lower_bound(SYM_REGISTER);
+			registerIteratorEnd = availableRegisters.upper_bound(SYM_REGISTER);
 		}
-
-		symbolAllocReg[symbol] = currentRegister;
-		currentRegister++;
-	}
-
-	return symbolAllocReg;
-}
-
-CJitter::SymbolAllocRegMap CJitter::AllocateRegistersMd(SymbolRegAllocInfo& symbolRegAllocs) const
-{
-	auto isRegisterAllocatable =
-		[] (SYM_TYPE symbolType)
+		else if((symbol->m_type == SYM_RELATIVE128) || (symbol->m_type == SYM_TEMPORARY128))
 		{
-			return (symbolType == SYM_RELATIVE128) || (symbolType == SYM_TEMPORARY128);
-		};
-
-	//Sort symbols by usage count
-	std::list<SymbolPtr> sortedSymbols;
-	for(const auto& symbolRegAlloc : symbolRegAllocs)
-	{
-		const auto& symbol(symbolRegAlloc.first);
-		if(!isRegisterAllocatable(symbol->m_type)) continue;
-		if(symbolRegAlloc.second.aliased) continue;
-		sortedSymbols.push_back(symbolRegAlloc.first);
-	}
-	sortedSymbols.sort(
-		[&] (const SymbolPtr& symbol1, const SymbolPtr& symbol2)
-		{
-			auto symbol1RegAllocIterator = symbolRegAllocs.find(symbol1);
-			auto symbol2RegAllocIterator = symbolRegAllocs.find(symbol2);
-			assert(symbol1RegAllocIterator != std::end(symbolRegAllocs));
-			assert(symbol2RegAllocIterator != std::end(symbolRegAllocs));
-			unsigned int symbol1UseCount = symbol1RegAllocIterator->second.useCount;
-			unsigned int symbol2UseCount = symbol2RegAllocIterator->second.useCount;
-			return symbol1UseCount > symbol2UseCount;
+			registerIterator = availableRegisters.lower_bound(SYM_REGISTER128);
+			registerIteratorEnd = availableRegisters.upper_bound(SYM_REGISTER128);
 		}
-	);
-
-	SymbolAllocRegMap symbolAllocReg;
-	unsigned int regCount = m_codeGen->GetAvailableMdRegisterCount();
-	unsigned int currentRegister = 0;
-
-	for(const auto& symbol : sortedSymbols)
-	{
-		if(currentRegister == regCount)
+		if(registerIterator != registerIteratorEnd)
 		{
-			//We're done
-			break;
+			symbolRegAlloc.registerType = registerIterator->first;
+			symbolRegAlloc.registerId = registerIterator->second;
+			availableRegisters.erase(registerIterator);
 		}
-
-		symbolAllocReg[symbol] = currentRegister;
-		currentRegister++;
 	}
-
-	return symbolAllocReg;
 }
 
 CJitter::AllocationRangeArray CJitter::ComputeAllocationRanges(const BASIC_BLOCK& basicBlock)

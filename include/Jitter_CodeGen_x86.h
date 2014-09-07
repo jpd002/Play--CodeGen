@@ -595,7 +595,7 @@ namespace Jitter
 		void						Emit_Md_Expand_MemMem(const STATEMENT&);
 		void						Emit_Md_Expand_MemCst(const STATEMENT&);
 
-		void						Emit_MergeTo256_MemMemMem(const STATEMENT&);
+		void						Emit_MergeTo256_MemAnyAny(const STATEMENT&);
 
 		void						Emit_Md_Srl256_MemMem(CSymbol*, CSymbol*, const CX86Assembler::CAddress&);
 		void						Emit_Md_Srl256_MemMemReg(const STATEMENT&);

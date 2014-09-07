@@ -633,19 +633,22 @@ void CCodeGen_x86::Emit_Md_Srl256_MemMemCst(const STATEMENT& statement)
 	m_assembler.MovapsVo(MakeMemory128SymbolAddress(dst), resultRegister);
 }
 
-void CCodeGen_x86::Emit_MergeTo256_MemMemMem(const STATEMENT& statement)
+void CCodeGen_x86::Emit_MergeTo256_MemAnyAny(const STATEMENT& statement)
 {
-	CSymbol* dst = statement.dst->GetSymbol().get();
-	CSymbol* src1 = statement.src1->GetSymbol().get();
-	CSymbol* src2 = statement.src2->GetSymbol().get();
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
 
 	assert(dst->m_type == SYM_TEMPORARY256);
 
-	CX86Assembler::XMMREGISTER src1Register = CX86Assembler::xMM0;
-	CX86Assembler::XMMREGISTER src2Register = CX86Assembler::xMM1;
+	auto src1Register = CX86Assembler::xMM0;
+	auto src2Register = CX86Assembler::xMM1;
 
-	m_assembler.MovapsVo(src1Register, MakeMemory128SymbolAddress(src1));
-	m_assembler.MovapsVo(src2Register, MakeMemory128SymbolAddress(src2));
+	//TODO: Improve this to write out registers directly to temporary's memory space
+	//instead of passing by temporary registers
+
+	m_assembler.MovapsVo(src1Register, Make128SymbolAddress(src1));
+	m_assembler.MovapsVo(src2Register, Make128SymbolAddress(src2));
 
 	m_assembler.MovapsVo(MakeTemporary256SymbolElementAddress(dst, 0x00), src1Register);
 	m_assembler.MovapsVo(MakeTemporary256SymbolElementAddress(dst, 0x10), src2Register);
@@ -756,7 +759,7 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdConstMatchers[] =
 	{ OP_MOV,					MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_NIL,				&CCodeGen_x86::Emit_Md_Mov_MemMem							},
 	{ OP_MD_MOV_MASKED,			MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_CONSTANT,			&CCodeGen_x86::Emit_Md_MovMasked_MemMemCst					},
 
-	{ OP_MERGETO256,			MATCH_MEMORY256,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_x86::Emit_MergeTo256_MemMemMem					},
+	{ OP_MERGETO256,			MATCH_MEMORY256,			MATCH_ANY128,				MATCH_ANY128,			&CCodeGen_x86::Emit_MergeTo256_MemAnyAny					},
 
 	{ OP_MOV,					MATCH_NIL,					MATCH_NIL,					MATCH_NIL,				NULL														},
 };

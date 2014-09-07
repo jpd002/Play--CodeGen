@@ -254,21 +254,21 @@ void CCodeGen_x86::Emit_Md_AddUSW_MemMemMem(const STATEMENT& statement)
 	}
 }
 
-void CCodeGen_x86::Emit_Md_PackHB_MemMemMem(const STATEMENT& statement)
+void CCodeGen_x86::Emit_Md_PackHB_AnyAnyAny(const STATEMENT& statement)
 {
-	CSymbol* dst = statement.dst->GetSymbol().get();
-	CSymbol* src1 = statement.src1->GetSymbol().get();
-	CSymbol* src2 = statement.src2->GetSymbol().get();
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
 
 	CX86Assembler::XMMREGISTER resultRegister = CX86Assembler::xMM0;
 	CX86Assembler::XMMREGISTER tempRegister = CX86Assembler::xMM1;
 	CX86Assembler::XMMREGISTER maskRegister = CX86Assembler::xMM2;
 
-	m_assembler.MovapsVo(resultRegister, MakeMemory128SymbolAddress(src2));
-	m_assembler.MovapsVo(tempRegister, MakeMemory128SymbolAddress(src1));
+	m_assembler.MovapsVo(resultRegister, Make128SymbolAddress(src2));
+	m_assembler.MovapsVo(tempRegister, Make128SymbolAddress(src1));
 
 	//Generate mask (0x00FF x8)
-	m_assembler.PcmpeqdVo(maskRegister,	CX86Assembler::MakeXmmRegisterAddress(maskRegister));
+	m_assembler.PcmpeqdVo(maskRegister, CX86Assembler::MakeXmmRegisterAddress(maskRegister));
 	m_assembler.PsrlwVo(maskRegister, 0x08);
 
 	//Mask both operands
@@ -278,20 +278,20 @@ void CCodeGen_x86::Emit_Md_PackHB_MemMemMem(const STATEMENT& statement)
 	//Pack
 	m_assembler.PackuswbVo(resultRegister, CX86Assembler::MakeXmmRegisterAddress(tempRegister));
 
-	m_assembler.MovapsVo(MakeMemory128SymbolAddress(dst), resultRegister);
+	m_assembler.MovapsVo(Make128SymbolAddress(dst), resultRegister);
 }
 
-void CCodeGen_x86::Emit_Md_PackWH_MemMemMem(const STATEMENT& statement)
+void CCodeGen_x86::Emit_Md_PackWH_AnyAnyAny(const STATEMENT& statement)
 {
-	CSymbol* dst = statement.dst->GetSymbol().get();
-	CSymbol* src1 = statement.src1->GetSymbol().get();
-	CSymbol* src2 = statement.src2->GetSymbol().get();
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
 
-	CX86Assembler::XMMREGISTER resultRegister = CX86Assembler::xMM0;
-	CX86Assembler::XMMREGISTER tempRegister = CX86Assembler::xMM1;
+	auto resultRegister = CX86Assembler::xMM0;
+	auto tempRegister = CX86Assembler::xMM1;
 
-	m_assembler.MovapsVo(resultRegister, MakeMemory128SymbolAddress(src2));
-	m_assembler.MovapsVo(tempRegister, MakeMemory128SymbolAddress(src1));
+	m_assembler.MovapsVo(resultRegister, Make128SymbolAddress(src2));
+	m_assembler.MovapsVo(tempRegister, Make128SymbolAddress(src1));
 
 	//Sign extend the lower half word of our registers
 	m_assembler.PslldVo(resultRegister, 0x10);
@@ -303,7 +303,7 @@ void CCodeGen_x86::Emit_Md_PackWH_MemMemMem(const STATEMENT& statement)
 	//Pack
 	m_assembler.PackssdwVo(resultRegister, CX86Assembler::MakeXmmRegisterAddress(tempRegister));
 
-	m_assembler.MovapsVo(MakeMemory128SymbolAddress(dst), resultRegister);
+	m_assembler.MovapsVo(Make128SymbolAddress(dst), resultRegister);
 }
 
 void CCodeGen_x86::Emit_Md_Not_MemMem(const STATEMENT& statement)
@@ -670,12 +670,12 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdConstMatchers[] =
 	{ OP_MD_EXPAND,				MATCH_MEMORY128,			MATCH_REGISTER,				MATCH_NIL,				&CCodeGen_x86::Emit_Md_Expand_MemReg						},
 	{ OP_MD_EXPAND,				MATCH_MEMORY128,			MATCH_MEMORY,				MATCH_NIL,				&CCodeGen_x86::Emit_Md_Expand_MemMem						},
 	{ OP_MD_EXPAND,				MATCH_MEMORY128,			MATCH_CONSTANT,				MATCH_NIL,				&CCodeGen_x86::Emit_Md_Expand_MemCst						},
-	{ OP_MD_PACK_HB,			MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_x86::Emit_Md_PackHB_MemMemMem,					},
-	{ OP_MD_PACK_WH,			MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_x86::Emit_Md_PackWH_MemMemMem,					},
 
 	{ OP_MD_UNPACK_LOWER_BH,	MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_x86::Emit_Md_MemMemMemRev<MDOP_UNPACK_LOWER_BH>	},
 	{ OP_MD_UNPACK_LOWER_HW,	MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_x86::Emit_Md_MemMemMemRev<MDOP_UNPACK_LOWER_HW>	},
 	{ OP_MD_UNPACK_LOWER_WD,	MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_x86::Emit_Md_MemMemMemRev<MDOP_UNPACK_LOWER_WD>	},
+	{ OP_MD_PACK_HB,			MATCH_ANY128,				MATCH_ANY128,				MATCH_ANY128,			&CCodeGen_x86::Emit_Md_PackHB_AnyAnyAny,					},
+	{ OP_MD_PACK_WH,			MATCH_ANY128,				MATCH_ANY128,				MATCH_ANY128,			&CCodeGen_x86::Emit_Md_PackWH_AnyAnyAny,					},
 
 	{ OP_MD_UNPACK_UPPER_BH,	MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_x86::Emit_Md_MemMemMemRev<MDOP_UNPACK_UPPER_BH>	},
 	{ OP_MD_UNPACK_UPPER_WD,	MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_x86::Emit_Md_MemMemMemRev<MDOP_UNPACK_UPPER_WD>	},

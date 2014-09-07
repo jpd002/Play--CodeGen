@@ -366,25 +366,17 @@ void CCodeGen_x86::Emit_Md_MovMasked_MemMemCst(const STATEMENT& statement)
 			m_assembler.MovssEd(MakeMemory128SymbolElementAddress(dst, i), tmpReg);
 		}
 	}
+
+
+
 }
 
-void CCodeGen_x86::Emit_Md_Mov_RegReg(const STATEMENT& statement)
+void CCodeGen_x86::Emit_Md_Mov_RegAny(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
 
-	assert(dst->m_valueLow != src1->m_valueLow);
-
-	m_assembler.MovapsVo(m_mdRegisters[dst->m_valueLow], 
-		CX86Assembler::MakeXmmRegisterAddress(m_mdRegisters[src1->m_valueLow]));
-}
-
-void CCodeGen_x86::Emit_Md_Mov_RegMem(const STATEMENT& statement)
-{
-	auto dst = statement.dst->GetSymbol().get();
-	auto src1 = statement.src1->GetSymbol().get();
-
-	m_assembler.MovapsVo(m_mdRegisters[dst->m_valueLow], MakeMemory128SymbolAddress(src1));
+	m_assembler.MovapsVo(m_mdRegisters[dst->m_valueLow], Make128SymbolAddress(src1));
 }
 
 void CCodeGen_x86::Emit_Md_Mov_MemReg(const STATEMENT& statement)
@@ -753,8 +745,7 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdConstMatchers[] =
 	MD_CONST_MATCHERS_2OPS(OP_MD_TOWORD_TRUNCATE,	MDOP_TOWORD_TRUNCATE)
 	MD_CONST_MATCHERS_2OPS(OP_MD_TOSINGLE,			MDOP_TOSINGLE)
 
-	{ OP_MOV,					MATCH_REGISTER128,			MATCH_REGISTER128,			MATCH_NIL,				&CCodeGen_x86::Emit_Md_Mov_RegReg,							},
-	{ OP_MOV,					MATCH_REGISTER128,			MATCH_MEMORY128,			MATCH_NIL,				&CCodeGen_x86::Emit_Md_Mov_RegMem							},
+	{ OP_MOV,					MATCH_REGISTER128,			MATCH_ANY128,				MATCH_NIL,				&CCodeGen_x86::Emit_Md_Mov_RegAny,							},
 	{ OP_MOV,					MATCH_MEMORY128,			MATCH_REGISTER128,			MATCH_NIL,				&CCodeGen_x86::Emit_Md_Mov_MemReg							},
 	{ OP_MOV,					MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_NIL,				&CCodeGen_x86::Emit_Md_Mov_MemMem							},
 	{ OP_MD_MOV_MASKED,			MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_CONSTANT,			&CCodeGen_x86::Emit_Md_MovMasked_MemMemCst					},

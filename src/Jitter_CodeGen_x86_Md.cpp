@@ -123,6 +123,21 @@ void CCodeGen_x86::Emit_Md_RegRegReg(const STATEMENT& statement)
 }
 
 template <typename MDOP>
+void CCodeGen_x86::Emit_Md_RegAnyAny(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	assert(!((src1->m_type == SYM_REGISTER128) && (src1->m_valueLow == dst->m_valueLow)));
+
+	auto dstRegister = m_mdRegisters[dst->m_valueLow];
+
+	m_assembler.MovapsVo(dstRegister, Make128SymbolAddress(src1));
+	((m_assembler).*(MDOP::OpVo()))(dstRegister, Make128SymbolAddress(src2));
+}
+
+template <typename MDOP>
 void CCodeGen_x86::Emit_Md_MemAnyAny(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
@@ -620,6 +635,7 @@ void CCodeGen_x86::Emit_MergeTo256_MemMemMem(const STATEMENT& statement)
 
 #define MD_CONST_MATCHERS_3OPS(MDOP_CST, MDOP) \
 	{ MDOP_CST,				MATCH_REGISTER128,			MATCH_REGISTER128,			MATCH_REGISTER128,		&CCodeGen_x86::Emit_Md_RegRegReg<MDOP>					}, \
+	{ MDOP_CST,				MATCH_REGISTER128,			MATCH_ANY128,				MATCH_ANY128,			&CCodeGen_x86::Emit_Md_RegAnyAny<MDOP>					}, \
 	{ MDOP_CST,				MATCH_MEMORY128,			MATCH_ANY128,				MATCH_ANY128,			&CCodeGen_x86::Emit_Md_MemAnyAny<MDOP>					},
 
 CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdConstMatchers[] = 

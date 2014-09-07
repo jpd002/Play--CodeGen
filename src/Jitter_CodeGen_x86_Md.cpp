@@ -220,31 +220,87 @@ void CCodeGen_x86::Emit_Md_GetFlag_MemAny(const STATEMENT& statement)
 	m_assembler.MovGd(MakeMemorySymbolAddress(dst), tmpRegister);
 }
 
-void CCodeGen_x86::Emit_Md_AddSSW_MemMemMem(const STATEMENT& statement)
+void CCodeGen_x86::Emit_Md_AddSSW_AnyAnyAny(const STATEMENT& statement)
 {
-	CSymbol* dst = statement.dst->GetSymbol().get();
-	CSymbol* src1 = statement.src1->GetSymbol().get();
-	CSymbol* src2 = statement.src2->GetSymbol().get();
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
 
-	CX86Assembler::REGISTER overflowReg = CX86Assembler::rAX;
-	CX86Assembler::REGISTER underflowReg = CX86Assembler::rDX;
-	CX86Assembler::REGISTER resultRegister = CX86Assembler::rCX;
+	auto uxRegister = CX86Assembler::xMM0;
+	auto uyRegister = CX86Assembler::xMM1;
+	auto resRegister = CX86Assembler::xMM2;
+	auto cstRegister = CX86Assembler::xMM3;
 
-	//Prepare registers
-	m_assembler.MovId(overflowReg, 0x7FFFFFFF);
-	m_assembler.MovId(underflowReg, 0x80000000);
+//	This is based on code from http://locklessinc.com/articles/sat_arithmetic/ modified to work without cmovns
+//	s32b sat_adds32b(s32b x, s32b y)
+//	{
+//		u32b ux = x;
+//		u32b uy = y;
+//		u32b res = ux + uy;
+//	
+//		/* Calculate overflowed result. (Don't change the sign bit of ux) */
+//		ux = (ux >> 31) + INT_MAX;
+//	
+//		s32b sign = (s32b) ((ux ^ uy) | ~(uy ^ res))
+//		sign >>= 31;
+//		res = (res & sign) | (ux & ~sign);
+//		
+//		return res;
+//	}
 
-	for(int i = 0; i < 4; i++)
-	{
-		CX86Assembler::LABEL doneLabel = m_assembler.CreateLabel();
-		m_assembler.MovEd(resultRegister, MakeMemory128SymbolElementAddress(src1, i));
-		m_assembler.AddEd(resultRegister, MakeMemory128SymbolElementAddress(src2, i));
-		m_assembler.JnoJx(doneLabel);
-		m_assembler.CmovsEd(resultRegister, CX86Assembler::MakeRegisterAddress(overflowReg));
-		m_assembler.CmovnsEd(resultRegister, CX86Assembler::MakeRegisterAddress(underflowReg));
-		m_assembler.MarkLabel(doneLabel);
-		m_assembler.MovGd(MakeMemory128SymbolElementAddress(dst, i), resultRegister);
-	}
+	//ux = src1
+	//uy = src2
+	m_assembler.MovapsVo(uxRegister, Make128SymbolAddress(src1));
+	m_assembler.MovapsVo(uyRegister, Make128SymbolAddress(src2));
+	
+	//res = ux + uy
+	m_assembler.MovapsVo(resRegister, CX86Assembler::MakeXmmRegisterAddress(uxRegister));
+	m_assembler.PadddVo(resRegister, CX86Assembler::MakeXmmRegisterAddress(uyRegister));
+
+	//cst = 0x7FFFFFFF
+	m_assembler.PcmpeqdVo(cstRegister, CX86Assembler::MakeXmmRegisterAddress(cstRegister));
+	m_assembler.PsrldVo(cstRegister, 1);
+
+	//ux = (ux >> 31)
+	m_assembler.PsrldVo(uxRegister, 31);
+
+	//ux += 0x7FFFFFFF
+	m_assembler.PadddVo(uxRegister, CX86Assembler::MakeXmmRegisterAddress(cstRegister));
+
+	//uy = ~(uy ^ res)
+	//------
+	//uy ^ res
+	m_assembler.PxorVo(uyRegister, CX86Assembler::MakeXmmRegisterAddress(resRegister));
+
+	//~(uy ^ res)
+	m_assembler.PcmpeqdVo(cstRegister, CX86Assembler::MakeXmmRegisterAddress(cstRegister));
+	m_assembler.PxorVo(uyRegister, CX86Assembler::MakeXmmRegisterAddress(cstRegister));
+
+	//cst = ux ^ uy (reloading uy from src2 because we don't have any registers available)
+	m_assembler.MovapsVo(cstRegister ,CX86Assembler::MakeXmmRegisterAddress(uxRegister));
+	m_assembler.PxorVo(cstRegister, Make128SymbolAddress(src2));
+
+	//uy = ((ux ^ uy) | ~(uy ^ res)) >> 31; (signed operation)
+	m_assembler.PorVo(uyRegister, CX86Assembler::MakeXmmRegisterAddress(cstRegister));
+	m_assembler.PsradVo(uyRegister, 31);
+
+	//res = (res & uy)	(uy is the sign value)
+	m_assembler.PandVo(resRegister, CX86Assembler::MakeXmmRegisterAddress(uyRegister));
+
+	//ux = (ux & ~uy)
+	//------
+	//~uy
+	m_assembler.PcmpeqdVo(cstRegister, CX86Assembler::MakeXmmRegisterAddress(cstRegister));
+	m_assembler.PxorVo(uyRegister, CX86Assembler::MakeXmmRegisterAddress(cstRegister));
+
+	//ux & ~uy
+	m_assembler.PandVo(uxRegister, CX86Assembler::MakeXmmRegisterAddress(uyRegister));
+
+	//res = (res & uy) | (ux & ~uy)
+	m_assembler.PorVo(resRegister, CX86Assembler::MakeXmmRegisterAddress(uxRegister));
+
+	//Copy final result
+	m_assembler.MovapsVo(Make128SymbolAddress(dst), resRegister);
 }
 
 void CCodeGen_x86::Emit_Md_AddUSW_MemMemMem(const STATEMENT& statement)
@@ -685,8 +741,8 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdConstMatchers[] =
 
 	MD_CONST_MATCHERS_3OPS(OP_MD_ADD_W,		MDOP_ADDW)
 
-	{ OP_MD_ADDSS_W,			MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_x86::Emit_Md_AddSSW_MemMemMem						},
 	{ OP_MD_ADDUS_W,			MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_x86::Emit_Md_AddUSW_MemMemMem						},
+	{ OP_MD_ADDSS_W,			MATCH_ANY128,				MATCH_ANY128,				MATCH_ANY128,			&CCodeGen_x86::Emit_Md_AddSSW_AnyAnyAny						},
 
 	MD_CONST_MATCHERS_3OPS(OP_MD_SUB_B,		MDOP_SUBB)
 	MD_CONST_MATCHERS_3OPS(OP_MD_SUBSS_H,	MDOP_SUBSSH)

@@ -152,15 +152,21 @@ void CCodeGen_x86::Emit_Md_MemAnyAny(const STATEMENT& statement)
 }
 
 template <typename MDOP>
-void CCodeGen_x86::Emit_Md_MemMemMemRev(const STATEMENT& statement)
+void CCodeGen_x86::Emit_Md_AnyAnyAnyRev(const STATEMENT& statement)
 {
-	CSymbol* dst = statement.dst->GetSymbol().get();
-	CSymbol* src1 = statement.src1->GetSymbol().get();
-	CSymbol* src2 = statement.src2->GetSymbol().get();
+	//TODO: This could be improved further, but we might want
+	//to reverse the operands somewhere else as to not
+	//copy paste the code from the "non-reversed" path
 
-	m_assembler.MovapsVo(CX86Assembler::xMM0, MakeMemory128SymbolAddress(src2));
-	((m_assembler).*(MDOP::OpVo()))(CX86Assembler::xMM0, MakeMemory128SymbolAddress(src1));
-	m_assembler.MovapsVo(MakeMemory128SymbolAddress(dst), CX86Assembler::xMM0);
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	auto dstRegister = CX86Assembler::xMM0;
+
+	m_assembler.MovapsVo(dstRegister, Make128SymbolAddress(src2));
+	((m_assembler).*(MDOP::OpVo()))(dstRegister, Make128SymbolAddress(src1));
+	m_assembler.MovapsVo(Make128SymbolAddress(dst), dstRegister);
 }
 
 template <typename MDOPSHIFT> 
@@ -638,6 +644,9 @@ void CCodeGen_x86::Emit_MergeTo256_MemMemMem(const STATEMENT& statement)
 	{ MDOP_CST,				MATCH_REGISTER128,			MATCH_ANY128,				MATCH_ANY128,			&CCodeGen_x86::Emit_Md_RegAnyAny<MDOP>					}, \
 	{ MDOP_CST,				MATCH_MEMORY128,			MATCH_ANY128,				MATCH_ANY128,			&CCodeGen_x86::Emit_Md_MemAnyAny<MDOP>					},
 
+#define MD_CONST_MATCHERS_3OPS_REV(MDOP_CST, MDOP) \
+	{ MDOP_CST,				MATCH_ANY128,				MATCH_ANY128,				MATCH_ANY128,			&CCodeGen_x86::Emit_Md_AnyAnyAnyRev<MDOP>				},
+
 CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdConstMatchers[] = 
 {
 	MD_CONST_MATCHERS_3OPS(OP_MD_ADD_B,		MDOP_ADDB)
@@ -687,14 +696,15 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdConstMatchers[] =
 	{ OP_MD_EXPAND,				MATCH_MEMORY128,			MATCH_MEMORY,				MATCH_NIL,				&CCodeGen_x86::Emit_Md_Expand_MemMem						},
 	{ OP_MD_EXPAND,				MATCH_MEMORY128,			MATCH_CONSTANT,				MATCH_NIL,				&CCodeGen_x86::Emit_Md_Expand_MemCst						},
 
-	{ OP_MD_UNPACK_LOWER_BH,	MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_x86::Emit_Md_MemMemMemRev<MDOP_UNPACK_LOWER_BH>	},
-	{ OP_MD_UNPACK_LOWER_HW,	MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_x86::Emit_Md_MemMemMemRev<MDOP_UNPACK_LOWER_HW>	},
-	{ OP_MD_UNPACK_LOWER_WD,	MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_x86::Emit_Md_MemMemMemRev<MDOP_UNPACK_LOWER_WD>	},
 	{ OP_MD_PACK_HB,			MATCH_ANY128,				MATCH_ANY128,				MATCH_ANY128,			&CCodeGen_x86::Emit_Md_PackHB_AnyAnyAny,					},
 	{ OP_MD_PACK_WH,			MATCH_ANY128,				MATCH_ANY128,				MATCH_ANY128,			&CCodeGen_x86::Emit_Md_PackWH_AnyAnyAny,					},
 
-	{ OP_MD_UNPACK_UPPER_BH,	MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_x86::Emit_Md_MemMemMemRev<MDOP_UNPACK_UPPER_BH>	},
-	{ OP_MD_UNPACK_UPPER_WD,	MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_x86::Emit_Md_MemMemMemRev<MDOP_UNPACK_UPPER_WD>	},
+	MD_CONST_MATCHERS_3OPS_REV(OP_MD_UNPACK_LOWER_BH, MDOP_UNPACK_LOWER_BH)
+	MD_CONST_MATCHERS_3OPS_REV(OP_MD_UNPACK_LOWER_HW, MDOP_UNPACK_LOWER_HW)
+	MD_CONST_MATCHERS_3OPS_REV(OP_MD_UNPACK_LOWER_WD, MDOP_UNPACK_LOWER_WD)
+
+	MD_CONST_MATCHERS_3OPS_REV(OP_MD_UNPACK_UPPER_BH, MDOP_UNPACK_UPPER_BH)
+	MD_CONST_MATCHERS_3OPS_REV(OP_MD_UNPACK_UPPER_WD, MDOP_UNPACK_UPPER_WD)
 
 	MD_CONST_MATCHERS_3OPS(OP_MD_ADD_S, MDOP_ADDS)
 	MD_CONST_MATCHERS_3OPS(OP_MD_SUB_S, MDOP_SUBS)

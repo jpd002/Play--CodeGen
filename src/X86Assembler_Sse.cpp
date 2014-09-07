@@ -183,10 +183,7 @@ void CX86Assembler::PmaxswVo(XMMREGISTER registerId, const CAddress& address)
 
 void CX86Assembler::PmaxsdVo(XMMREGISTER registerId, const CAddress& address)
 {
-	WriteByte(0x66);
-	WriteByte(0x0F);
-	WriteByte(0x38);
-	WriteEdVdOp(0x3D, address, registerId);
+	WriteEdVdOp_66_0F_38(0x3D, address, registerId);
 }
 
 void CX86Assembler::PminswVo(XMMREGISTER registerId, const CAddress& address)
@@ -196,10 +193,7 @@ void CX86Assembler::PminswVo(XMMREGISTER registerId, const CAddress& address)
 
 void CX86Assembler::PminsdVo(XMMREGISTER registerId, const CAddress& address)
 {
-	WriteByte(0x66);
-	WriteByte(0x0F);
-	WriteByte(0x38);
-	WriteEdVdOp(0x39, address, registerId);
+	WriteEdVdOp_66_0F_38(0x39, address, registerId);
 }
 
 void CX86Assembler::PmovmskbVo(REGISTER srcReg, XMMREGISTER dstReg)
@@ -374,6 +368,19 @@ void CX86Assembler::WriteEdVdOp_66_0F(uint8 opcode, const CAddress& address, XMM
 	NewAddress.ModRm.nFnReg = registerId;
 	WriteByte(opcode);
 	NewAddress.Write(&m_tmpStream);
+}
+
+void CX86Assembler::WriteEdVdOp_66_0F_38(uint8 opcode, const CAddress& address, XMMREGISTER xmmRegisterId)
+{
+	REGISTER registerId = static_cast<REGISTER>(xmmRegisterId);
+	WriteByte(0x66);
+	WriteRexByte(false, address, registerId);
+	WriteByte(0x0F);
+	WriteByte(0x38);
+	CAddress newAddress(address);
+	newAddress.ModRm.nFnReg = registerId;
+	WriteByte(opcode);
+	newAddress.Write(&m_tmpStream);
 }
 
 void CX86Assembler::WriteEdVdOp_F3_0F(uint8 opcode, const CAddress& address, XMMREGISTER xmmRegisterId)

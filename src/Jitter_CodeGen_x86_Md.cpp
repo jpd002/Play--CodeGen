@@ -518,14 +518,36 @@ void CCodeGen_x86::Emit_Md_IsZero(CX86Assembler::REGISTER dstRegister, const CX8
 	}
 }
 
+void CCodeGen_x86::Emit_Md_Expand_RegMem(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+
+	auto resultRegister = m_mdRegisters[dst->m_valueLow];
+
+	m_assembler.MovssEd(resultRegister, MakeMemorySymbolAddress(src1));
+	m_assembler.ShufpsVo(resultRegister, CX86Assembler::MakeXmmRegisterAddress(resultRegister), 0x00);
+}
+
+void CCodeGen_x86::Emit_Md_Expand_RegCst(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+
+	auto cstRegister = CX86Assembler::rAX;
+	auto resultRegister = m_mdRegisters[dst->m_valueLow];
+
+	m_assembler.MovId(cstRegister, src1->m_valueLow);
+	m_assembler.MovdVo(resultRegister, CX86Assembler::MakeRegisterAddress(cstRegister));
+	m_assembler.ShufpsVo(resultRegister, CX86Assembler::MakeXmmRegisterAddress(resultRegister), 0x00);
+}
+
 void CCodeGen_x86::Emit_Md_Expand_MemReg(const STATEMENT& statement)
 {
-	CSymbol* dst = statement.dst->GetSymbol().get();
-	CSymbol* src1 = statement.src1->GetSymbol().get();
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
 
-	assert(src1->m_type == SYM_REGISTER);
-
-	CX86Assembler::XMMREGISTER resultRegister = CX86Assembler::xMM0;
+	auto resultRegister = CX86Assembler::xMM0;
 
 	m_assembler.MovdVo(resultRegister, CX86Assembler::MakeRegisterAddress(m_registers[src1->m_valueLow]));
 	m_assembler.ShufpsVo(resultRegister, CX86Assembler::MakeXmmRegisterAddress(resultRegister), 0x00);
@@ -534,10 +556,10 @@ void CCodeGen_x86::Emit_Md_Expand_MemReg(const STATEMENT& statement)
 
 void CCodeGen_x86::Emit_Md_Expand_MemMem(const STATEMENT& statement)
 {
-	CSymbol* dst = statement.dst->GetSymbol().get();
-	CSymbol* src1 = statement.src1->GetSymbol().get();
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
 
-	CX86Assembler::XMMREGISTER resultRegister = CX86Assembler::xMM0;
+	auto resultRegister = CX86Assembler::xMM0;
 
 	m_assembler.MovssEd(resultRegister, MakeMemorySymbolAddress(src1));
 	m_assembler.ShufpsVo(resultRegister, CX86Assembler::MakeXmmRegisterAddress(resultRegister), 0x00);
@@ -546,13 +568,11 @@ void CCodeGen_x86::Emit_Md_Expand_MemMem(const STATEMENT& statement)
 
 void CCodeGen_x86::Emit_Md_Expand_MemCst(const STATEMENT& statement)
 {
-	CSymbol* dst = statement.dst->GetSymbol().get();
-	CSymbol* src1 = statement.src1->GetSymbol().get();
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
 
-	assert(src1->m_type == SYM_CONSTANT);
-
-	CX86Assembler::REGISTER cstRegister = CX86Assembler::rAX;
-	CX86Assembler::XMMREGISTER resultRegister = CX86Assembler::xMM0;
+	auto cstRegister = CX86Assembler::rAX;
+	auto resultRegister = CX86Assembler::xMM0;
 
 	m_assembler.MovId(cstRegister, src1->m_valueLow);
 	m_assembler.MovdVo(resultRegister, CX86Assembler::MakeRegisterAddress(cstRegister));
@@ -692,6 +712,8 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdConstMatchers[] =
 	{ OP_MD_SRL256,				MATCH_MEMORY128,			MATCH_MEMORY256,			MATCH_MEMORY,			&CCodeGen_x86::Emit_Md_Srl256_MemMemMem						},
 	{ OP_MD_SRL256,				MATCH_MEMORY128,			MATCH_MEMORY256,			MATCH_CONSTANT,			&CCodeGen_x86::Emit_Md_Srl256_MemMemCst						},
 
+	{ OP_MD_EXPAND,				MATCH_REGISTER128,			MATCH_MEMORY,				MATCH_NIL,				&CCodeGen_x86::Emit_Md_Expand_RegMem						},
+	{ OP_MD_EXPAND,				MATCH_REGISTER128,			MATCH_CONSTANT,				MATCH_NIL,				&CCodeGen_x86::Emit_Md_Expand_RegCst						},
 	{ OP_MD_EXPAND,				MATCH_MEMORY128,			MATCH_REGISTER,				MATCH_NIL,				&CCodeGen_x86::Emit_Md_Expand_MemReg						},
 	{ OP_MD_EXPAND,				MATCH_MEMORY128,			MATCH_MEMORY,				MATCH_NIL,				&CCodeGen_x86::Emit_Md_Expand_MemMem						},
 	{ OP_MD_EXPAND,				MATCH_MEMORY128,			MATCH_CONSTANT,				MATCH_NIL,				&CCodeGen_x86::Emit_Md_Expand_MemCst						},

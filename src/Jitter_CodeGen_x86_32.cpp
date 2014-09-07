@@ -208,6 +208,11 @@ unsigned int CCodeGen_x86_32::GetAvailableRegisterCount() const
 	return MAX_REGISTERS;
 }
 
+unsigned int CCodeGen_x86_32::GetAvailableMdRegisterCount() const
+{
+	return 0;
+}
+
 unsigned int CCodeGen_x86_32::GetAddressSize() const
 {
 	return 4;

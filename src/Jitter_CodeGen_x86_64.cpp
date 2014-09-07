@@ -37,9 +37,11 @@ CX86Assembler::REGISTER CCodeGen_x86_64::g_registers[MAX_REGISTERS] =
 	CX86Assembler::r15,
 };
 
-//XMM6:XMM15 are non-volatile in the Windows ABI for x64
+//xMM0->xMM3 are used internally for temporary uses
 CX86Assembler::XMMREGISTER CCodeGen_x86_64::g_mdRegisters[MAX_MDREGISTERS] =
 {
+	CX86Assembler::xMM4,
+	CX86Assembler::xMM5,
 	CX86Assembler::xMM6,
 	CX86Assembler::xMM7,
 	CX86Assembler::xMM8,

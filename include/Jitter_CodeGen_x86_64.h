@@ -160,7 +160,7 @@ namespace Jitter
 		enum MAX_REGISTERS
 		{
 			MAX_REGISTERS = 7,
-			MAX_MDREGISTERS = 10,
+			MAX_MDREGISTERS = 12,
 		};
 		
 		enum MAX_PARAMS

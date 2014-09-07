@@ -389,7 +389,7 @@ private:
 	void									WriteEdVdOp_0F(uint8, const CAddress&, XMMREGISTER);
 	void									WriteEdVdOp_66_0F(uint8, const CAddress&, XMMREGISTER);
 	void									WriteEdVdOp_F3_0F(uint8, const CAddress&, XMMREGISTER);
-	void									WriteVrOp(uint8, uint8, XMMREGISTER);
+	void									WriteVrOp_66_0F(uint8, uint8, XMMREGISTER);
 	void									WriteStOp(uint8, uint8, uint8);
 
 	void									CreateLabelReference(LABEL, JMP_TYPE);

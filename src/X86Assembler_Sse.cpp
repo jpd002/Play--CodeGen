@@ -214,49 +214,37 @@ void CX86Assembler::PorVo(XMMREGISTER registerId, const CAddress& address)
 
 void CX86Assembler::PsllwVo(XMMREGISTER registerId, uint8 amount)
 {
-	WriteByte(0x66);
-	WriteByte(0x0F);
-	WriteVrOp(0x71, 0x06, registerId);
+	WriteVrOp_66_0F(0x71, 0x06, registerId);
 	WriteByte(amount);
 }
 
 void CX86Assembler::PslldVo(XMMREGISTER registerId, uint8 amount)
 {
-	WriteByte(0x66);
-	WriteByte(0x0F);
-	WriteVrOp(0x72, 0x06, registerId);
+	WriteVrOp_66_0F(0x72, 0x06, registerId);
 	WriteByte(amount);
 }
 
 void CX86Assembler::PsrawVo(XMMREGISTER registerId, uint8 amount)
 {
-	WriteByte(0x66);
-	WriteByte(0x0F);
-	WriteVrOp(0x71, 0x04, registerId);
+	WriteVrOp_66_0F(0x71, 0x04, registerId);
 	WriteByte(amount);
 }
 
 void CX86Assembler::PsradVo(XMMREGISTER registerId, uint8 amount)
 {
-	WriteByte(0x66);
-	WriteByte(0x0F);
-	WriteVrOp(0x72, 0x04, registerId);
+	WriteVrOp_66_0F(0x72, 0x04, registerId);
 	WriteByte(amount);
 }
 
 void CX86Assembler::PsrlwVo(XMMREGISTER registerId, uint8 amount)
 {
-	WriteByte(0x66);
-	WriteByte(0x0F);
-	WriteVrOp(0x71, 0x02, registerId);
+	WriteVrOp_66_0F(0x71, 0x02, registerId);
 	WriteByte(amount);
 }
 
 void CX86Assembler::PsrldVo(XMMREGISTER registerId, uint8 amount)
 {
-	WriteByte(0x66);
-	WriteByte(0x0F);
-	WriteVrOp(0x72, 0x02, registerId);
+	WriteVrOp_66_0F(0x72, 0x02, registerId);
 	WriteByte(amount);
 }
 
@@ -400,10 +388,12 @@ void CX86Assembler::WriteEdVdOp_F3_0F(uint8 opcode, const CAddress& address, XMM
 	NewAddress.Write(&m_tmpStream);
 }
 
-void CX86Assembler::WriteVrOp(uint8 opcode, uint8 subOpcode, XMMREGISTER registerId)
+void CX86Assembler::WriteVrOp_66_0F(uint8 opcode, uint8 subOpcode, XMMREGISTER registerId)
 {
 	CAddress address(MakeXmmRegisterAddress(registerId));
+	WriteByte(0x66);
 	WriteRexByte(false, address);
+	WriteByte(0x0F);
 	address.ModRm.nFnReg = subOpcode;
 	WriteByte(opcode);
 	address.Write(&m_tmpStream);

@@ -572,11 +572,12 @@ namespace Jitter
 		template <typename> void	Emit_Md_RegRegReg(const STATEMENT&);
 		template <typename> void	Emit_Md_MemAnyAny(const STATEMENT&);
 		template <typename> void	Emit_Md_MemMemMemRev(const STATEMENT&);
-		template <typename> void	Emit_Md_Shift_MemMemCst(const STATEMENT&);
 		void						Emit_Md_AddSSW_MemMemMem(const STATEMENT&);
 		void						Emit_Md_AddUSW_MemMemMem(const STATEMENT&);
 		void						Emit_Md_PackHB_MemMemMem(const STATEMENT&);
 		void						Emit_Md_PackWH_MemMemMem(const STATEMENT&);
+		template <typename> void	Emit_Md_Shift_RegRegCst(const STATEMENT&);
+		template <typename> void	Emit_Md_Shift_MemAnyCst(const STATEMENT&);
 		void						Emit_Md_Not_MemMem(const STATEMENT&);
 		void						Emit_Md_Mov_RegReg(const STATEMENT&);
 		void						Emit_Md_Mov_RegMem(const STATEMENT&);

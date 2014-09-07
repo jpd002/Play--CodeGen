@@ -149,19 +149,34 @@ void CCodeGen_x86::Emit_Md_MemMemMemRev(const STATEMENT& statement)
 }
 
 template <typename MDOPSHIFT> 
-void CCodeGen_x86::Emit_Md_Shift_MemMemCst(const STATEMENT& statement)
+void CCodeGen_x86::Emit_Md_Shift_RegRegCst(const STATEMENT& statement)
 {
-	CSymbol* dst = statement.dst->GetSymbol().get();
-	CSymbol* src1 = statement.src1->GetSymbol().get();
-	CSymbol* src2 = statement.src2->GetSymbol().get();
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
 
-	assert(src2->m_type == SYM_CONSTANT);
+	auto dstRegister = m_mdRegisters[dst->m_valueLow];
 
-	CX86Assembler::XMMREGISTER tmpReg = CX86Assembler::xMM0;
+	if(!dst->Equals(src1))
+	{
+		m_assembler.MovapsVo(dstRegister, Make128SymbolAddress(src1));
+	}
 
-	m_assembler.MovapsVo(tmpReg, MakeMemory128SymbolAddress(src1));
-	((m_assembler).*(MDOPSHIFT::OpVo()))(tmpReg, static_cast<uint8>(src2->m_valueLow));
-	m_assembler.MovapsVo(MakeMemory128SymbolAddress(dst), tmpReg);
+	((m_assembler).*(MDOPSHIFT::OpVo()))(dstRegister, static_cast<uint8>(src2->m_valueLow));
+}
+
+template <typename MDOPSHIFT> 
+void CCodeGen_x86::Emit_Md_Shift_MemAnyCst(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	auto tmpRegister = CX86Assembler::xMM0;
+
+	m_assembler.MovapsVo(tmpRegister, Make128SymbolAddress(src1));
+	((m_assembler).*(MDOPSHIFT::OpVo()))(tmpRegister, static_cast<uint8>(src2->m_valueLow));
+	m_assembler.MovapsVo(MakeMemory128SymbolAddress(dst), tmpRegister);
 }
 
 template <typename MDOPFLAG>
@@ -595,6 +610,10 @@ void CCodeGen_x86::Emit_MergeTo256_MemMemMem(const STATEMENT& statement)
 	m_assembler.MovapsVo(MakeTemporary256SymbolElementAddress(dst, 0x10), src2Register);
 }
 
+#define MD_CONST_MATCHERS_SHIFT(MDOP_CST, MDOP) \
+	{ MDOP_CST,				MATCH_REGISTER128,			MATCH_REGISTER128,			MATCH_CONSTANT,			&CCodeGen_x86::Emit_Md_Shift_RegRegCst<MDOP>			}, \
+	{ MDOP_CST,				MATCH_MEMORY128,			MATCH_ANY128	,			MATCH_CONSTANT,			&CCodeGen_x86::Emit_Md_Shift_MemAnyCst<MDOP>			},
+
 #define MD_CONST_MATCHERS_2OPS(MDOP_CST, MDOP) \
 	{ MDOP_CST,				MATCH_REGISTER128,			MATCH_ANY128,				MATCH_NIL,				&CCodeGen_x86::Emit_Md_RegAny<MDOP>						}, \
 	{ MDOP_CST,				MATCH_MEMORY128,			MATCH_ANY128,				MATCH_NIL,				&CCodeGen_x86::Emit_Md_MemAny<MDOP>						},
@@ -636,13 +655,13 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdConstMatchers[] =
 	{ OP_MD_OR,					MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_x86::Emit_Md_MemAnyAny<MDOP_OR>					},
 	{ OP_MD_XOR,				MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_x86::Emit_Md_MemAnyAny<MDOP_XOR>					},
 
-	{ OP_MD_SRLH,				MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_CONSTANT,			&CCodeGen_x86::Emit_Md_Shift_MemMemCst<MDOP_SRLH>			},
-	{ OP_MD_SRAH,				MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_CONSTANT,			&CCodeGen_x86::Emit_Md_Shift_MemMemCst<MDOP_SRAH>			},
-	{ OP_MD_SLLH,				MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_CONSTANT,			&CCodeGen_x86::Emit_Md_Shift_MemMemCst<MDOP_SLLH>			},
+	MD_CONST_MATCHERS_SHIFT(OP_MD_SRLH,		MDOP_SRLH)
+	MD_CONST_MATCHERS_SHIFT(OP_MD_SRAH,		MDOP_SRAH)
+	MD_CONST_MATCHERS_SHIFT(OP_MD_SLLH,		MDOP_SLLH)
 
-	{ OP_MD_SRLW,				MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_CONSTANT,			&CCodeGen_x86::Emit_Md_Shift_MemMemCst<MDOP_SRLW>			},
-	{ OP_MD_SRAW,				MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_CONSTANT,			&CCodeGen_x86::Emit_Md_Shift_MemMemCst<MDOP_SRAW>			},
-	{ OP_MD_SLLW,				MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_CONSTANT,			&CCodeGen_x86::Emit_Md_Shift_MemMemCst<MDOP_SLLW>			},
+	MD_CONST_MATCHERS_SHIFT(OP_MD_SRLW,		MDOP_SRLW)
+	MD_CONST_MATCHERS_SHIFT(OP_MD_SRAW,		MDOP_SRAW)
+	MD_CONST_MATCHERS_SHIFT(OP_MD_SLLW,		MDOP_SLLW)
 
 	{ OP_MD_SRL256,				MATCH_MEMORY128,			MATCH_MEMORY256,			MATCH_REGISTER,			&CCodeGen_x86::Emit_Md_Srl256_MemMemReg						},
 	{ OP_MD_SRL256,				MATCH_MEMORY128,			MATCH_MEMORY256,			MATCH_MEMORY,			&CCodeGen_x86::Emit_Md_Srl256_MemMemMem						},

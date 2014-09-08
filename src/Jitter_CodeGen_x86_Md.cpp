@@ -303,32 +303,39 @@ void CCodeGen_x86::Emit_Md_AddSSW_AnyAnyAny(const STATEMENT& statement)
 	m_assembler.MovapsVo(Make128SymbolAddress(dst), resRegister);
 }
 
-void CCodeGen_x86::Emit_Md_AddUSW_MemMemMem(const STATEMENT& statement)
+void CCodeGen_x86::Emit_Md_AddUSW_AnyAnyAny(const STATEMENT& statement)
 {
-	CSymbol* dst = statement.dst->GetSymbol().get();
-	CSymbol* src1 = statement.src1->GetSymbol().get();
-	CSymbol* src2 = statement.src2->GetSymbol().get();
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
 
-	CX86Assembler::REGISTER overflowReg = CX86Assembler::rAX;
-	CX86Assembler::REGISTER resultRegister = CX86Assembler::rCX;
+	auto xRegister = CX86Assembler::xMM0;
+	auto tmpRegister = CX86Assembler::xMM1;
+	auto resRegister = CX86Assembler::xMM2;
 
-	//Prepare registers
-	m_assembler.MovId(overflowReg, 0xFFFFFFFF);
+//	This is based on code from http://locklessinc.com/articles/sat_arithmetic/
+//	u32b sat_addu32b(u32b x, u32b y)
+//	{
+//		u32b res = x + y;
+//		res |= -(res < x);
+//	
+//		return res;
+//	}
 
-	for(int i = 0; i < 4; i++)
-	{
-		CX86Assembler::LABEL doneLabel = m_assembler.CreateLabel();
-		m_assembler.MovEd(resultRegister, MakeMemory128SymbolElementAddress(src1, i));
-		m_assembler.AddEd(resultRegister, MakeMemory128SymbolElementAddress(src2, i));
-		m_assembler.JnbJx(doneLabel);
+	m_assembler.MovapsVo(xRegister, Make128SymbolAddress(src1));
+	m_assembler.MovapsVo(resRegister, CX86Assembler::MakeXmmRegisterAddress(xRegister));
+	m_assembler.PadddVo(resRegister, Make128SymbolAddress(src2));
+	
+	//-(res < x)
+	m_assembler.MovapsVo(tmpRegister, CX86Assembler::MakeXmmRegisterAddress(resRegister));
+	m_assembler.PsubdVo(tmpRegister, CX86Assembler::MakeXmmRegisterAddress(xRegister));
+	m_assembler.PsradVo(tmpRegister, 31);
 
-		//overflow:
-		m_assembler.MovGd(CX86Assembler::MakeRegisterAddress(resultRegister), overflowReg);
-		
-		//done:
-		m_assembler.MarkLabel(doneLabel);
-		m_assembler.MovGd(MakeMemory128SymbolElementAddress(dst, i), resultRegister);
-	}
+	//res |= -(res < x)
+	m_assembler.PorVo(resRegister, CX86Assembler::MakeXmmRegisterAddress(tmpRegister));
+
+	//Store result
+	m_assembler.MovapsVo(Make128SymbolAddress(dst), resRegister);
 }
 
 void CCodeGen_x86::Emit_Md_PackHB_AnyAnyAny(const STATEMENT& statement)
@@ -741,8 +748,8 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdConstMatchers[] =
 
 	MD_CONST_MATCHERS_3OPS(OP_MD_ADD_W,		MDOP_ADDW)
 
-	{ OP_MD_ADDUS_W,			MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_x86::Emit_Md_AddUSW_MemMemMem						},
 	{ OP_MD_ADDSS_W,			MATCH_ANY128,				MATCH_ANY128,				MATCH_ANY128,			&CCodeGen_x86::Emit_Md_AddSSW_AnyAnyAny						},
+	{ OP_MD_ADDUS_W,			MATCH_ANY128,				MATCH_ANY128,				MATCH_ANY128,			&CCodeGen_x86::Emit_Md_AddUSW_AnyAnyAny						},
 
 	MD_CONST_MATCHERS_3OPS(OP_MD_SUB_B,		MDOP_SUBB)
 	MD_CONST_MATCHERS_3OPS(OP_MD_SUBSS_H,	MDOP_SUBSSH)

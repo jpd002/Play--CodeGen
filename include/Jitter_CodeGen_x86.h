@@ -380,7 +380,7 @@ namespace Jitter
 		CX86Assembler::CAddress		MakeRelative128SymbolElementAddress(CSymbol*, unsigned int);
 		CX86Assembler::CAddress		MakeTemporary128SymbolElementAddress(CSymbol*, unsigned int);
 
-		CX86Assembler::CAddress		Make128SymbolAddress(CSymbol*);
+		CX86Assembler::CAddress		MakeVariable128SymbolAddress(CSymbol*);
 		CX86Assembler::CAddress		MakeMemory128SymbolAddress(CSymbol*);
 		CX86Assembler::CAddress		MakeMemory128SymbolElementAddress(CSymbol*, unsigned int);
 
@@ -567,34 +567,34 @@ namespace Jitter
 		void						Emit_Fp_LdCst_MemCst(const STATEMENT&);
 
 		//MDOP
-		template <typename> void	Emit_Md_RegAny(const STATEMENT&);
-		template <typename> void	Emit_Md_MemAny(const STATEMENT&);
+		template <typename> void	Emit_Md_RegVar(const STATEMENT&);
+		template <typename> void	Emit_Md_MemVar(const STATEMENT&);
 		template <typename> void	Emit_Md_RegRegReg(const STATEMENT&);
-		template <typename> void	Emit_Md_RegAnyAny(const STATEMENT&);
-		template <typename> void	Emit_Md_MemAnyAny(const STATEMENT&);
-		template <typename> void	Emit_Md_AnyAnyAnyRev(const STATEMENT&);
+		template <typename> void	Emit_Md_RegVarVar(const STATEMENT&);
+		template <typename> void	Emit_Md_MemVarVar(const STATEMENT&);
+		template <typename> void	Emit_Md_VarVarVarRev(const STATEMENT&);
 		template <typename> void	Emit_Md_Shift_RegRegCst(const STATEMENT&);
-		template <typename> void	Emit_Md_Shift_MemAnyCst(const STATEMENT&);
-		void						Emit_Md_AddSSW_AnyAnyAny(const STATEMENT&);
-		void						Emit_Md_AddUSW_AnyAnyAny(const STATEMENT&);
-		void						Emit_Md_PackHB_AnyAnyAny(const STATEMENT&);
-		void						Emit_Md_PackWH_AnyAnyAny(const STATEMENT&);
+		template <typename> void	Emit_Md_Shift_MemVarCst(const STATEMENT&);
+		void						Emit_Md_AddSSW_VarVarVar(const STATEMENT&);
+		void						Emit_Md_AddUSW_VarVarVar(const STATEMENT&);
+		void						Emit_Md_PackHB_VarVarVar(const STATEMENT&);
+		void						Emit_Md_PackWH_VarVarVar(const STATEMENT&);
 		void						Emit_Md_Not_MemMem(const STATEMENT&);
-		void						Emit_Md_Mov_RegAny(const STATEMENT&);
+		void						Emit_Md_Mov_RegVar(const STATEMENT&);
 		void						Emit_Md_Mov_MemReg(const STATEMENT&);
 		void						Emit_Md_Mov_MemMem(const STATEMENT&);
-		void						Emit_Md_MovMasked_AnyAnyCst(const STATEMENT&);
+		void						Emit_Md_MovMasked_VarVarCst(const STATEMENT&);
 		void						Emit_Md_Abs_RegReg(const STATEMENT&);
-		void						Emit_Md_Abs_MemAny(const STATEMENT&);
-		template <typename> void	Emit_Md_GetFlag_RegAny(const STATEMENT&);
-		template <typename> void	Emit_Md_GetFlag_MemAny(const STATEMENT&);
+		void						Emit_Md_Abs_MemVar(const STATEMENT&);
+		template <typename> void	Emit_Md_GetFlag_RegVar(const STATEMENT&);
+		template <typename> void	Emit_Md_GetFlag_MemVar(const STATEMENT&);
 		void						Emit_Md_Expand_RegMem(const STATEMENT&);
 		void						Emit_Md_Expand_RegCst(const STATEMENT&);
 		void						Emit_Md_Expand_MemReg(const STATEMENT&);
 		void						Emit_Md_Expand_MemMem(const STATEMENT&);
 		void						Emit_Md_Expand_MemCst(const STATEMENT&);
 
-		void						Emit_MergeTo256_MemAnyAny(const STATEMENT&);
+		void						Emit_MergeTo256_MemVarVar(const STATEMENT&);
 
 		void						Emit_Md_Srl256_MemMem(CSymbol*, CSymbol*, const CX86Assembler::CAddress&);
 		void						Emit_Md_Srl256_MemMemReg(const STATEMENT&);

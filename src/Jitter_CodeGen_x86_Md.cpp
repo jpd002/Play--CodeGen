@@ -344,9 +344,9 @@ void CCodeGen_x86::Emit_Md_PackHB_VarVarVar(const STATEMENT& statement)
 	auto src1 = statement.src1->GetSymbol().get();
 	auto src2 = statement.src2->GetSymbol().get();
 
-	CX86Assembler::XMMREGISTER resultRegister = CX86Assembler::xMM0;
-	CX86Assembler::XMMREGISTER tempRegister = CX86Assembler::xMM1;
-	CX86Assembler::XMMREGISTER maskRegister = CX86Assembler::xMM2;
+	auto resultRegister = CX86Assembler::xMM0;
+	auto tempRegister = CX86Assembler::xMM1;
+	auto maskRegister = CX86Assembler::xMM2;
 
 	m_assembler.MovapsVo(resultRegister, MakeVariable128SymbolAddress(src2));
 	m_assembler.MovapsVo(tempRegister, MakeVariable128SymbolAddress(src1));

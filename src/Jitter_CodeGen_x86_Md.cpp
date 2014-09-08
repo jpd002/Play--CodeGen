@@ -648,10 +648,10 @@ void CCodeGen_x86::Emit_Md_Expand_MemCst(const STATEMENT& statement)
 	m_assembler.MovapsVo(MakeMemory128SymbolAddress(dst), resultRegister);
 }
 
-void CCodeGen_x86::Emit_Md_Srl256_MemMem(CSymbol* dst, CSymbol* src1, const CX86Assembler::CAddress& offsetAddress)
+void CCodeGen_x86::Emit_Md_Srl256_VarMem(CSymbol* dst, CSymbol* src1, const CX86Assembler::CAddress& offsetAddress)
 {
-	CX86Assembler::REGISTER offsetRegister = CX86Assembler::rAX;
-	CX86Assembler::XMMREGISTER resultRegister = CX86Assembler::xMM0;
+	auto offsetRegister = CX86Assembler::rAX;
+	auto resultRegister = CX86Assembler::xMM0;
 
 	assert(src1->m_type == SYM_TEMPORARY256);
 
@@ -661,36 +661,25 @@ void CCodeGen_x86::Emit_Md_Srl256_MemMem(CSymbol* dst, CSymbol* src1, const CX86
 	m_assembler.AddId(CX86Assembler::MakeRegisterAddress(offsetRegister), src1->m_stackLocation + m_stackLevel);
 
 	m_assembler.MovdquVo(resultRegister, CX86Assembler::MakeBaseIndexScaleAddress(CX86Assembler::rSP, offsetRegister, 1));
-	m_assembler.MovapsVo(MakeMemory128SymbolAddress(dst), resultRegister);
+	m_assembler.MovapsVo(MakeVariable128SymbolAddress(dst), resultRegister);
 }
 
-void CCodeGen_x86::Emit_Md_Srl256_MemMemReg(const STATEMENT& statement)
+void CCodeGen_x86::Emit_Md_Srl256_VarMemVar(const STATEMENT& statement)
 {
-	CSymbol* dst = statement.dst->GetSymbol().get();
-	CSymbol* src1 = statement.src1->GetSymbol().get();
-	CSymbol* src2 = statement.src2->GetSymbol().get();
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
 
-	assert(src2->m_type == SYM_REGISTER);
-
-	Emit_Md_Srl256_MemMem(dst, src1, CX86Assembler::MakeRegisterAddress(m_registers[src2->m_valueLow]));
+	Emit_Md_Srl256_VarMem(dst, src1, MakeVariableSymbolAddress(src2));
 }
 
-void CCodeGen_x86::Emit_Md_Srl256_MemMemMem(const STATEMENT& statement)
+void CCodeGen_x86::Emit_Md_Srl256_VarMemCst(const STATEMENT& statement)
 {
-	CSymbol* dst = statement.dst->GetSymbol().get();
-	CSymbol* src1 = statement.src1->GetSymbol().get();
-	CSymbol* src2 = statement.src2->GetSymbol().get();
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
 
-	Emit_Md_Srl256_MemMem(dst, src1, MakeMemorySymbolAddress(src2));
-}
-
-void CCodeGen_x86::Emit_Md_Srl256_MemMemCst(const STATEMENT& statement)
-{
-	CSymbol* dst = statement.dst->GetSymbol().get();
-	CSymbol* src1 = statement.src1->GetSymbol().get();
-	CSymbol* src2 = statement.src2->GetSymbol().get();
-
-	CX86Assembler::XMMREGISTER resultRegister = CX86Assembler::xMM0;
+	auto resultRegister = CX86Assembler::xMM0;
 
 	assert(src1->m_type == SYM_TEMPORARY256);
 	assert(src2->m_type == SYM_CONSTANT);
@@ -698,7 +687,7 @@ void CCodeGen_x86::Emit_Md_Srl256_MemMemCst(const STATEMENT& statement)
 	uint32 offset = (src2->m_valueLow & 0x7F) / 8;
 
 	m_assembler.MovdquVo(resultRegister, MakeTemporary256SymbolElementAddress(src1, offset));
-	m_assembler.MovapsVo(MakeMemory128SymbolAddress(dst), resultRegister);
+	m_assembler.MovapsVo(MakeVariable128SymbolAddress(dst), resultRegister);
 }
 
 void CCodeGen_x86::Emit_MergeTo256_MemVarVar(const STATEMENT& statement)
@@ -779,9 +768,8 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdConstMatchers[] =
 	MD_CONST_MATCHERS_SHIFT(OP_MD_SRAW,		MDOP_SRAW)
 	MD_CONST_MATCHERS_SHIFT(OP_MD_SLLW,		MDOP_SLLW)
 
-	{ OP_MD_SRL256,				MATCH_MEMORY128,			MATCH_MEMORY256,			MATCH_REGISTER,			&CCodeGen_x86::Emit_Md_Srl256_MemMemReg						},
-	{ OP_MD_SRL256,				MATCH_MEMORY128,			MATCH_MEMORY256,			MATCH_MEMORY,			&CCodeGen_x86::Emit_Md_Srl256_MemMemMem						},
-	{ OP_MD_SRL256,				MATCH_MEMORY128,			MATCH_MEMORY256,			MATCH_CONSTANT,			&CCodeGen_x86::Emit_Md_Srl256_MemMemCst						},
+	{ OP_MD_SRL256,				MATCH_VARIABLE128,			MATCH_MEMORY256,			MATCH_VARIABLE,			&CCodeGen_x86::Emit_Md_Srl256_VarMemVar						},
+	{ OP_MD_SRL256,				MATCH_VARIABLE128,			MATCH_MEMORY256,			MATCH_CONSTANT,			&CCodeGen_x86::Emit_Md_Srl256_VarMemCst						},
 
 	{ OP_MD_EXPAND,				MATCH_REGISTER128,			MATCH_MEMORY,				MATCH_NIL,				&CCodeGen_x86::Emit_Md_Expand_RegMem						},
 	{ OP_MD_EXPAND,				MATCH_REGISTER128,			MATCH_CONSTANT,				MATCH_NIL,				&CCodeGen_x86::Emit_Md_Expand_RegCst						},

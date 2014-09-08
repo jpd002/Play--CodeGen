@@ -9,6 +9,7 @@
 #include "FpuTest.h"
 #include "FpIntMixTest.h"
 #include "SimpleMdTest.h"
+#include "LogicMdTest.h"
 #include "MdTest.h"
 #include "MdFpTest.h"
 #include "MdFpFlagTest.h"
@@ -53,6 +54,7 @@ static const TestFactoryFunction s_factories[] =
 	[] () { return new CFpuTest(); },
 	[] () { return new CFpIntMixTest(); },
 	[] () { return new CSimpleMdTest(); },
+	[] () { return new CLogicMdTest(); },
 	[] () { return new CMdTest(); },
 	[] () { return new CMdFpTest(); },
 	[] () { return new CMdFpFlagTest(); },

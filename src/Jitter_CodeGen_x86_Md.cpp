@@ -390,16 +390,19 @@ void CCodeGen_x86::Emit_Md_PackWH_VarVarVar(const STATEMENT& statement)
 	m_assembler.MovapsVo(MakeVariable128SymbolAddress(dst), resultRegister);
 }
 
-void CCodeGen_x86::Emit_Md_Not_MemMem(const STATEMENT& statement)
+void CCodeGen_x86::Emit_Md_Not_VarVar(const STATEMENT& statement)
 {
-	CSymbol* dst = statement.dst->GetSymbol().get();
-	CSymbol* src1 = statement.src1->GetSymbol().get();
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
 
-	m_assembler.MovapsVo(CX86Assembler::xMM0, MakeMemory128SymbolAddress(src1));
-	m_assembler.PcmpeqdVo(CX86Assembler::xMM1, CX86Assembler::MakeXmmRegisterAddress(CX86Assembler::xMM1));
-	m_assembler.PxorVo(CX86Assembler::xMM0, CX86Assembler::MakeXmmRegisterAddress(CX86Assembler::xMM1));
+	auto resultRegister = CX86Assembler::xMM0;
+	auto cstRegister = CX86Assembler::xMM1;
 
-	m_assembler.MovapsVo(MakeMemory128SymbolAddress(dst), CX86Assembler::xMM0);
+	m_assembler.MovapsVo(resultRegister, MakeVariable128SymbolAddress(src1));
+	m_assembler.PcmpeqdVo(cstRegister, CX86Assembler::MakeXmmRegisterAddress(cstRegister));
+	m_assembler.PxorVo(resultRegister, CX86Assembler::MakeXmmRegisterAddress(cstRegister));
+
+	m_assembler.MovapsVo(MakeVariable128SymbolAddress(dst), resultRegister);
 }
 
 void CCodeGen_x86::Emit_Md_MovMasked_VarVarCst(const STATEMENT& statement)
@@ -798,7 +801,7 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdConstMatchers[] =
 	MD_CONST_MATCHERS_3OPS(OP_MD_MIN_S, MDOP_MINS)
 	MD_CONST_MATCHERS_3OPS(OP_MD_MAX_S, MDOP_MAXS)
 
-	{ OP_MD_NOT,				MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_NIL,				&CCodeGen_x86::Emit_Md_Not_MemMem							},
+	{ OP_MD_NOT,				MATCH_VARIABLE128,			MATCH_VARIABLE128,			MATCH_NIL,				&CCodeGen_x86::Emit_Md_Not_VarVar							},
 
 	{ OP_MD_ISNEGATIVE,			MATCH_REGISTER,				MATCH_VARIABLE128,			MATCH_NIL,				&CCodeGen_x86::Emit_Md_GetFlag_RegVar<MDOP_ISNEGATIVE>		},
 	{ OP_MD_ISNEGATIVE,			MATCH_MEMORY,				MATCH_VARIABLE128,			MATCH_NIL,				&CCodeGen_x86::Emit_Md_GetFlag_MemVar<MDOP_ISNEGATIVE>		},

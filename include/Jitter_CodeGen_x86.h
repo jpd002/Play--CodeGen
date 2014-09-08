@@ -580,7 +580,7 @@ namespace Jitter
 		void						Emit_Md_AddUSW_VarVarVar(const STATEMENT&);
 		void						Emit_Md_PackHB_VarVarVar(const STATEMENT&);
 		void						Emit_Md_PackWH_VarVarVar(const STATEMENT&);
-		void						Emit_Md_Not_MemMem(const STATEMENT&);
+		void						Emit_Md_Not_VarVar(const STATEMENT&);
 		void						Emit_Md_Mov_RegVar(const STATEMENT&);
 		void						Emit_Md_Mov_MemReg(const STATEMENT&);
 		void						Emit_Md_Mov_MemMem(const STATEMENT&);

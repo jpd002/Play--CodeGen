@@ -309,6 +309,7 @@ void CJitter::MarkAliasedSymbols(const BASIC_BLOCK& basicBlock, const Allocation
 		if(statementIdx > allocRange.second) break;
 		if(statement.op == OP_PARAM_RET)
 		{
+			//This symbol will end up being written to by the callee, thus will be aliased
 			auto& symbolRegAlloc = symbolRegAllocs[statement.src1->GetSymbol()];
 			symbolRegAlloc.aliased = true;
 		}

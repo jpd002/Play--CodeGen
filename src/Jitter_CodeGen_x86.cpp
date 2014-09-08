@@ -392,6 +392,25 @@ CX86Assembler::CAddress CCodeGen_x86::MakeMemorySymbolAddress(CSymbol* symbol)
 	}
 }
 
+CX86Assembler::CAddress CCodeGen_x86::MakeVariableSymbolAddress(CSymbol* symbol)
+{
+	switch(symbol->m_type)
+	{
+	case SYM_REGISTER:
+		return CX86Assembler::MakeRegisterAddress(m_registers[symbol->m_valueLow]);
+		break;
+	case SYM_RELATIVE:
+		return MakeRelativeSymbolAddress(symbol);
+		break;
+	case SYM_TEMPORARY:
+		return MakeTemporarySymbolAddress(symbol);
+		break;
+	default:
+		throw std::exception();
+		break;
+	}
+}
+
 CX86Assembler::CAddress CCodeGen_x86::MakeRelativeReferenceSymbolAddress(CSymbol* symbol)
 {
 	size_t symbolMask = sizeof(void*) - 1;

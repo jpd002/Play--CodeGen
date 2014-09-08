@@ -24,6 +24,8 @@ bool CCodeGen::SymbolMatches(MATCHTYPE match, const SymbolRefPtr& symbolRef)
 		return (symbol->m_type == SYM_TEMPORARY);
 	case MATCH_MEMORY:
 		return (symbol->m_type == SYM_RELATIVE) || (symbol->m_type == SYM_TEMPORARY);
+	case MATCH_VARIABLE:
+		return (symbol->m_type == SYM_REGISTER) || (symbol->m_type == SYM_RELATIVE) || (symbol->m_type == SYM_TEMPORARY);
 
 	case MATCH_REL_REF:
 		return (symbol->m_type == SYM_REL_REFERENCE);

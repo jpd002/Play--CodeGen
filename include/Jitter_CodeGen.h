@@ -38,7 +38,8 @@ namespace Jitter
 			MATCH_REGISTER,
 			MATCH_RELATIVE,
 			MATCH_TEMPORARY,
-			MATCH_MEMORY,
+			MATCH_MEMORY,			//Either relative or temporary
+			MATCH_VARIABLE,			//Either relative or temporary or register
 
 			MATCH_REL_REF,
 			MATCH_TMP_REF,

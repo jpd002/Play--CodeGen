@@ -160,6 +160,7 @@
     <ClCompile Include="..\tests\FpuTest.cpp" />
     <ClCompile Include="..\tests\HalfMultTest.cpp" />
     <ClCompile Include="..\tests\HugeJumpTest.cpp" />
+    <ClCompile Include="..\tests\LogicMdTest.cpp" />
     <ClCompile Include="..\tests\Main.cpp" />
     <ClCompile Include="..\tests\MdCallTest.cpp" />
     <ClCompile Include="..\tests\MdFpFlagTest.cpp" />
@@ -185,6 +186,7 @@
     <ClInclude Include="..\tests\FpuTest.h" />
     <ClInclude Include="..\tests\HalfMultTest.h" />
     <ClInclude Include="..\tests\HugeJumpTest.h" />
+    <ClInclude Include="..\tests\LogicMdTest.h" />
     <ClInclude Include="..\tests\MdCallTest.h" />
     <ClInclude Include="..\tests\MdFpFlagTest.h" />
     <ClInclude Include="..\tests\MdFpTest.h" />

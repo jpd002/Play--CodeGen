@@ -296,6 +296,19 @@ void CJitter::ComputeLivenessForRange(const BASIC_BLOCK& basicBlock, const Alloc
 				}
 			}
 		);
+
+		//Special case (probably because of badly designed instruction)
+		if(statement.op == OP_MD_MOV_MASKED)
+		{
+			//MD_MOV_MASKED will use the values from dst, so, it's actually
+			//used before being defined
+			auto symbol(statement.dst->GetSymbol());
+			auto& symbolRegAlloc = symbolRegAllocs[symbol];
+			if(symbolRegAlloc.firstUse == -1)
+			{
+				symbolRegAlloc.firstUse = statementIdx;
+			}
+		}
 	}
 }
 

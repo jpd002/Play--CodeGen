@@ -589,6 +589,17 @@ void CCodeGen_x86::Emit_Md_IsZero(CX86Assembler::REGISTER dstRegister, const CX8
 	}
 }
 
+void CCodeGen_x86::Emit_Md_Expand_RegReg(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+
+	auto resultRegister = m_mdRegisters[dst->m_valueLow];
+
+	m_assembler.MovdVo(resultRegister, CX86Assembler::MakeRegisterAddress(m_registers[src1->m_valueLow]));
+	m_assembler.ShufpsVo(resultRegister, CX86Assembler::MakeXmmRegisterAddress(resultRegister), 0x00);
+}
+
 void CCodeGen_x86::Emit_Md_Expand_RegMem(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
@@ -774,6 +785,7 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdConstMatchers[] =
 	{ OP_MD_SRL256,				MATCH_VARIABLE128,			MATCH_MEMORY256,			MATCH_VARIABLE,			&CCodeGen_x86::Emit_Md_Srl256_VarMemVar						},
 	{ OP_MD_SRL256,				MATCH_VARIABLE128,			MATCH_MEMORY256,			MATCH_CONSTANT,			&CCodeGen_x86::Emit_Md_Srl256_VarMemCst						},
 
+	{ OP_MD_EXPAND,				MATCH_REGISTER128,			MATCH_REGISTER,				MATCH_NIL,				&CCodeGen_x86::Emit_Md_Expand_RegReg						},
 	{ OP_MD_EXPAND,				MATCH_REGISTER128,			MATCH_MEMORY,				MATCH_NIL,				&CCodeGen_x86::Emit_Md_Expand_RegMem						},
 	{ OP_MD_EXPAND,				MATCH_REGISTER128,			MATCH_CONSTANT,				MATCH_NIL,				&CCodeGen_x86::Emit_Md_Expand_RegCst						},
 	{ OP_MD_EXPAND,				MATCH_MEMORY128,			MATCH_REGISTER,				MATCH_NIL,				&CCodeGen_x86::Emit_Md_Expand_MemReg						},

@@ -206,6 +206,35 @@ void CCodeGen_x86::Emit_Md_Shift_MemVarCst(const STATEMENT& statement)
 	m_assembler.MovapsVo(MakeMemory128SymbolAddress(dst), tmpRegister);
 }
 
+template <typename MDOPSINGLEOP>
+void CCodeGen_x86::Emit_Md_SingleOp_RegVar(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+
+	auto resultRegister = m_mdRegisters[dst->m_valueLow];
+
+	if(!dst->Equals(src1))
+	{
+		m_assembler.MovapsVo(resultRegister, CX86Assembler::MakeXmmRegisterAddress(m_mdRegisters[src1->m_valueLow]));
+	}
+
+	((*this).*(MDOPSINGLEOP::OpVr()))(resultRegister);
+}
+
+template <typename MDOPSINGLEOP>
+void CCodeGen_x86::Emit_Md_SingleOp_MemVar(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+
+	auto resultRegister = CX86Assembler::xMM0;
+
+	m_assembler.MovapsVo(resultRegister, MakeVariable128SymbolAddress(src1));
+	((*this).*(MDOPSINGLEOP::OpVr()))(resultRegister);
+	m_assembler.MovapsVo(MakeMemory128SymbolAddress(dst), resultRegister);
+}
+
 template <typename MDOPFLAG>
 void CCodeGen_x86::Emit_Md_GetFlag_RegVar(const STATEMENT& statement)
 {
@@ -396,21 +425,6 @@ void CCodeGen_x86::Emit_Md_PackWH_VarVarVar(const STATEMENT& statement)
 	m_assembler.MovapsVo(MakeVariable128SymbolAddress(dst), resultRegister);
 }
 
-void CCodeGen_x86::Emit_Md_Not_VarVar(const STATEMENT& statement)
-{
-	auto dst = statement.dst->GetSymbol().get();
-	auto src1 = statement.src1->GetSymbol().get();
-
-	auto resultRegister = CX86Assembler::xMM0;
-	auto cstRegister = CX86Assembler::xMM1;
-
-	m_assembler.MovapsVo(resultRegister, MakeVariable128SymbolAddress(src1));
-	m_assembler.PcmpeqdVo(cstRegister, CX86Assembler::MakeXmmRegisterAddress(cstRegister));
-	m_assembler.PxorVo(resultRegister, CX86Assembler::MakeXmmRegisterAddress(cstRegister));
-
-	m_assembler.MovapsVo(MakeVariable128SymbolAddress(dst), resultRegister);
-}
-
 void CCodeGen_x86::Emit_Md_MovMasked_VarVarCst(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
@@ -483,31 +497,6 @@ void CCodeGen_x86::Emit_Md_Mov_MemMem(const STATEMENT& statement)
 	m_assembler.MovapsVo(MakeMemory128SymbolAddress(dst), resultRegister);
 }
 
-void CCodeGen_x86::Emit_Md_Abs_RegReg(const STATEMENT& statement)
-{
-	auto dst = statement.dst->GetSymbol().get();
-	auto src1 = statement.src1->GetSymbol().get();
-
-	if(!dst->Equals(src1))
-	{
-		m_assembler.MovapsVo(m_mdRegisters[dst->m_valueLow], CX86Assembler::MakeXmmRegisterAddress(m_mdRegisters[src1->m_valueLow]));
-	}
-
-	Emit_Md_Abs(m_mdRegisters[dst->m_valueLow]);
-}
-
-void CCodeGen_x86::Emit_Md_Abs_MemVar(const STATEMENT& statement)
-{
-	auto dst = statement.dst->GetSymbol().get();
-	auto src1 = statement.src1->GetSymbol().get();
-
-	auto resultRegister = CX86Assembler::xMM0;
-
-	m_assembler.MovapsVo(resultRegister, MakeVariable128SymbolAddress(src1));
-	Emit_Md_Abs(resultRegister);
-	m_assembler.MovapsVo(MakeMemory128SymbolAddress(dst), resultRegister);
-}
-
 void CCodeGen_x86::Emit_Md_Abs(CX86Assembler::XMMREGISTER dstRegister)
 {
 	auto maskRegister = CX86Assembler::xMM1;
@@ -517,6 +506,16 @@ void CCodeGen_x86::Emit_Md_Abs(CX86Assembler::XMMREGISTER dstRegister)
 	m_assembler.PcmpeqdVo(maskRegister, CX86Assembler::MakeXmmRegisterAddress(maskRegister));
 	m_assembler.PsrldVo(maskRegister, 1);
 	m_assembler.PandVo(dstRegister, CX86Assembler::MakeXmmRegisterAddress(maskRegister));
+}
+
+void CCodeGen_x86::Emit_Md_Not(CX86Assembler::XMMREGISTER dstRegister)
+{
+	auto cstRegister = CX86Assembler::xMM1;
+
+	assert(dstRegister != cstRegister);
+
+	m_assembler.PcmpeqdVo(cstRegister, CX86Assembler::MakeXmmRegisterAddress(cstRegister));
+	m_assembler.PxorVo(dstRegister, CX86Assembler::MakeXmmRegisterAddress(cstRegister));
 }
 
 void CCodeGen_x86::Emit_Md_IsNegative(CX86Assembler::REGISTER dstRegister, const CX86Assembler::CAddress& srcAddress)
@@ -747,6 +746,10 @@ void CCodeGen_x86::Emit_MergeTo256_MemVarVar(const STATEMENT& statement)
 #define MD_CONST_MATCHERS_3OPS_REV(MDOP_CST, MDOP) \
 	{ MDOP_CST,				MATCH_VARIABLE128,			MATCH_VARIABLE128,			MATCH_VARIABLE128,		&CCodeGen_x86::Emit_Md_VarVarVarRev<MDOP>				},
 
+#define MD_CONST_MATCHERS_SINGLEOP(MDOP_CST, MDOP) \
+	{ MDOP_CST,				MATCH_REGISTER128,			MATCH_VARIABLE128,			MATCH_NIL,				&CCodeGen_x86::Emit_Md_SingleOp_RegVar<MDOP>			}, \
+	{ MDOP_CST,				MATCH_MEMORY128,			MATCH_VARIABLE128,			MATCH_NIL,				&CCodeGen_x86::Emit_Md_SingleOp_MemVar<MDOP>			},
+
 CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdConstMatchers[] = 
 {
 	MD_CONST_MATCHERS_3OPS(OP_MD_ADD_B,		MDOP_ADDB)
@@ -813,13 +816,11 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdConstMatchers[] =
 	MD_CONST_MATCHERS_3OPS(OP_MD_MUL_S, MDOP_MULS)
 	MD_CONST_MATCHERS_3OPS(OP_MD_DIV_S, MDOP_DIVS)
 
-	{ OP_MD_ABS_S,				MATCH_REGISTER128,			MATCH_REGISTER128,			MATCH_NIL,				&CCodeGen_x86::Emit_Md_Abs_RegReg							},
-	{ OP_MD_ABS_S,				MATCH_MEMORY128,			MATCH_VARIABLE128,			MATCH_NIL,				&CCodeGen_x86::Emit_Md_Abs_MemVar							},
-
 	MD_CONST_MATCHERS_3OPS(OP_MD_MIN_S, MDOP_MINS)
 	MD_CONST_MATCHERS_3OPS(OP_MD_MAX_S, MDOP_MAXS)
 
-	{ OP_MD_NOT,				MATCH_VARIABLE128,			MATCH_VARIABLE128,			MATCH_NIL,				&CCodeGen_x86::Emit_Md_Not_VarVar							},
+	MD_CONST_MATCHERS_SINGLEOP(OP_MD_ABS_S,	MDOP_ABS)
+	MD_CONST_MATCHERS_SINGLEOP(OP_MD_NOT,	MDOP_NOT)
 
 	{ OP_MD_ISNEGATIVE,			MATCH_REGISTER,				MATCH_VARIABLE128,			MATCH_NIL,				&CCodeGen_x86::Emit_Md_GetFlag_RegVar<MDOP_ISNEGATIVE>		},
 	{ OP_MD_ISNEGATIVE,			MATCH_MEMORY,				MATCH_VARIABLE128,			MATCH_NIL,				&CCodeGen_x86::Emit_Md_GetFlag_MemVar<MDOP_ISNEGATIVE>		},

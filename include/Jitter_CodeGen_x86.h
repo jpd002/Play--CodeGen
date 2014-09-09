@@ -334,6 +334,22 @@ namespace Jitter
 			static OpVoType OpVo() { return &CX86Assembler::PslldVo; }
 		};
 
+		//MDOP SINGLEOP -------------------------------------------------
+		struct MDOP_SINGLEOP_BASE
+		{
+			typedef void (CCodeGen_x86::*OpVrType)(CX86Assembler::XMMREGISTER);
+		};
+
+		struct MDOP_ABS : public MDOP_SINGLEOP_BASE
+		{
+			static OpVrType OpVr() { return &CCodeGen_x86::Emit_Md_Abs; }
+		};
+
+		struct MDOP_NOT : public MDOP_SINGLEOP_BASE
+		{
+			static OpVrType OpVr() { return &CCodeGen_x86::Emit_Md_Not; }
+		};
+
 		//MDOP FLAG -----------------------------------------------------
 		struct MDOP_FLAG_BASE
 		{
@@ -576,17 +592,16 @@ namespace Jitter
 		template <typename> void	Emit_Md_VarVarVarRev(const STATEMENT&);
 		template <typename> void	Emit_Md_Shift_RegVarCst(const STATEMENT&);
 		template <typename> void	Emit_Md_Shift_MemVarCst(const STATEMENT&);
+		template <typename> void	Emit_Md_SingleOp_RegVar(const STATEMENT&);
+		template <typename> void	Emit_Md_SingleOp_MemVar(const STATEMENT&);
 		void						Emit_Md_AddSSW_VarVarVar(const STATEMENT&);
 		void						Emit_Md_AddUSW_VarVarVar(const STATEMENT&);
 		void						Emit_Md_PackHB_VarVarVar(const STATEMENT&);
 		void						Emit_Md_PackWH_VarVarVar(const STATEMENT&);
-		void						Emit_Md_Not_VarVar(const STATEMENT&);
 		void						Emit_Md_Mov_RegVar(const STATEMENT&);
 		void						Emit_Md_Mov_MemReg(const STATEMENT&);
 		void						Emit_Md_Mov_MemMem(const STATEMENT&);
 		void						Emit_Md_MovMasked_VarVarCst(const STATEMENT&);
-		void						Emit_Md_Abs_RegReg(const STATEMENT&);
-		void						Emit_Md_Abs_MemVar(const STATEMENT&);
 		template <typename> void	Emit_Md_GetFlag_RegVar(const STATEMENT&);
 		template <typename> void	Emit_Md_GetFlag_MemVar(const STATEMENT&);
 		void						Emit_Md_Expand_RegReg(const STATEMENT&);
@@ -603,6 +618,7 @@ namespace Jitter
 		void						Emit_Md_Srl256_VarMemCst(const STATEMENT&);
 
 		void						Emit_Md_Abs(CX86Assembler::XMMREGISTER);
+		void						Emit_Md_Not(CX86Assembler::XMMREGISTER);
 		void						Emit_Md_IsZero(CX86Assembler::REGISTER, const CX86Assembler::CAddress&);
 		void						Emit_Md_IsNegative(CX86Assembler::REGISTER, const CX86Assembler::CAddress&);
 

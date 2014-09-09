@@ -1,5 +1,4 @@
-#ifndef _JITTER_CODEGEN_X86_64_H_
-#define _JITTER_CODEGEN_X86_64_H_
+#pragma once
 
 #include <deque>
 #include "Jitter_CodeGen_x86.h"
@@ -180,5 +179,3 @@ namespace Jitter
 		uint32								m_totalStackAlloc = 0;
 	};
 }
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef _JITTER_CODEGEN_X86_32_H_
-#define _JITTER_CODEGEN_X86_32_H_
+#pragma once
 
 #include "Jitter_CodeGen_x86.h"
 #include <deque>
@@ -136,5 +135,3 @@ namespace Jitter
 		bool								m_hasImplicitRetValueParam;
 	};
 }
-
-#endif

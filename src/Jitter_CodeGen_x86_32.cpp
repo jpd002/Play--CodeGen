@@ -131,10 +131,10 @@ void CCodeGen_x86_32::Emit_Prolog(const StatementList& statements, unsigned int 
 						break;
 				}
 			}
-		case OP_CALL:
-			maxParamSize = std::max<uint32>(currParamSize, maxParamSize);
 			break;
-		default:
+		case OP_CALL:
+			//Maybe we need to reset currParamSize to zero here?
+			maxParamSize = std::max<uint32>(currParamSize, maxParamSize);
 			break;
 		}
 	}

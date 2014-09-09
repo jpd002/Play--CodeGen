@@ -170,7 +170,7 @@ void CCodeGen_x86::Emit_Md_VarVarVarRev(const STATEMENT& statement)
 }
 
 template <typename MDOPSHIFT> 
-void CCodeGen_x86::Emit_Md_Shift_RegRegCst(const STATEMENT& statement)
+void CCodeGen_x86::Emit_Md_Shift_RegVarCst(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
@@ -726,8 +726,8 @@ void CCodeGen_x86::Emit_MergeTo256_MemVarVar(const STATEMENT& statement)
 }
 
 #define MD_CONST_MATCHERS_SHIFT(MDOP_CST, MDOP) \
-	{ MDOP_CST,				MATCH_REGISTER128,			MATCH_REGISTER128,			MATCH_CONSTANT,			&CCodeGen_x86::Emit_Md_Shift_RegRegCst<MDOP>			}, \
-	{ MDOP_CST,				MATCH_MEMORY128,			MATCH_VARIABLE128	,		MATCH_CONSTANT,			&CCodeGen_x86::Emit_Md_Shift_MemVarCst<MDOP>			},
+	{ MDOP_CST,				MATCH_REGISTER128,			MATCH_VARIABLE128,			MATCH_CONSTANT,			&CCodeGen_x86::Emit_Md_Shift_RegVarCst<MDOP>			}, \
+	{ MDOP_CST,				MATCH_MEMORY128,			MATCH_VARIABLE128,			MATCH_CONSTANT,			&CCodeGen_x86::Emit_Md_Shift_MemVarCst<MDOP>			},
 
 #define MD_CONST_MATCHERS_2OPS(MDOP_CST, MDOP) \
 	{ MDOP_CST,				MATCH_REGISTER128,			MATCH_VARIABLE128,			MATCH_NIL,				&CCodeGen_x86::Emit_Md_RegVar<MDOP>						}, \

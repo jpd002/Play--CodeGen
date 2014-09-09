@@ -129,11 +129,17 @@ void CCodeGen_x86::Emit_Md_RegVarVar(const STATEMENT& statement)
 	auto src1 = statement.src1->GetSymbol().get();
 	auto src2 = statement.src2->GetSymbol().get();
 
-	assert(!((src1->m_type == SYM_REGISTER128) && (src1->m_valueLow == dst->m_valueLow)));
+	//If we get in here, it must absolutely mean that the second source isn't a register
+	//Otherwise, some of the assumuptions done below will be wrong (dst mustn't be equal to src2)
+	assert(src2->m_type != SYM_REGISTER);
 
 	auto dstRegister = m_mdRegisters[dst->m_valueLow];
 
-	m_assembler.MovapsVo(dstRegister, MakeVariable128SymbolAddress(src1));
+	if(!dst->Equals(src1))
+	{
+		m_assembler.MovapsVo(dstRegister, MakeVariable128SymbolAddress(src1));
+	}
+
 	((m_assembler).*(MDOP::OpVo()))(dstRegister, MakeVariable128SymbolAddress(src2));
 }
 

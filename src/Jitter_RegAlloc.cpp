@@ -203,7 +203,25 @@ void CJitter::AssociateSymbolsToRegisters(SymbolRegAllocInfo& symbolRegAllocs) c
 	sortedSymbols.sort(
 		[] (SymbolRegAllocInfo::value_type* symbolRegAllocPair1, SymbolRegAllocInfo::value_type* symbolRegAllocPair2)
 		{
-			return symbolRegAllocPair1->second.useCount > symbolRegAllocPair2->second.useCount;
+			const auto& symbol1(symbolRegAllocPair1->first);
+			const auto& symbol2(symbolRegAllocPair2->first);
+			const auto& symbolRegAlloc1(symbolRegAllocPair1->second);
+			const auto& symbolRegAlloc2(symbolRegAllocPair2->second);
+			if(symbolRegAlloc1.useCount == symbolRegAlloc2.useCount)
+			{
+				if(symbol1->m_type == symbol2->m_type)
+				{
+					return symbol1->m_valueLow > symbol2->m_valueLow;
+				}
+				else
+				{
+					return symbol1->m_type > symbol2->m_type;
+				}
+			}
+			else
+			{
+				return symbolRegAlloc1.useCount > symbolRegAlloc2.useCount;
+			}
 		}
 	);
 

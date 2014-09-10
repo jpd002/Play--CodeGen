@@ -1,5 +1,4 @@
-#ifndef _MDCALLTEST_H_
-#define _MDCALLTEST_H_
+#pragma once
 
 #include "Test.h"
 #include "Align16.h"
@@ -58,5 +57,3 @@ private:
 
 	CMemoryFunction		m_function;
 };
-
-#endif

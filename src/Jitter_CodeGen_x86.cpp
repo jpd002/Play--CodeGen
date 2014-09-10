@@ -281,7 +281,8 @@ CCodeGen_x86::~CCodeGen_x86()
 
 void CCodeGen_x86::GenerateCode(const StatementList& statements, unsigned int stackSize)
 {
-	assert(m_registers != NULL);
+	assert(m_registers != nullptr);
+	assert(m_mdRegisters != nullptr);
 
 	uint32 registerUsage = GetRegisterUsage(statements);
 	
@@ -304,7 +305,7 @@ void CCodeGen_x86::GenerateCode(const StatementList& statements, unsigned int st
 
 			for(auto matchIterator(begin); matchIterator != end; matchIterator++)
 			{
-				const MATCHER& matcher(matchIterator->second);
+				const auto& matcher(matchIterator->second);
 				if(!SymbolMatches(matcher.dstType, statement.dst)) continue;
 				if(!SymbolMatches(matcher.src1Type, statement.src1)) continue;
 				if(!SymbolMatches(matcher.src2Type, statement.src2)) continue;

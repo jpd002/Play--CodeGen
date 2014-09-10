@@ -175,7 +175,7 @@ namespace Jitter
 		static CX86Assembler::REGISTER		g_paramRegs[MAX_PARAMS];
 
 		ParamStack							m_params;
-		uint32								m_paramTempBase = 0;
+		uint32								m_paramSpillBase = 0;
 		uint32								m_totalStackAlloc = 0;
 	};
 }

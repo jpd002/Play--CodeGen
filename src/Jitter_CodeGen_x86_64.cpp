@@ -290,9 +290,9 @@ void CCodeGen_x86_64::Emit_Prolog(const StatementList& statements, unsigned int 
 	m_params.clear();
 
 	//Compute the size needed to store all function call parameters
-	uint32 maxParamSize = 0;
+	uint32 maxParamSpillSize = 0;
 	{
-		uint32 currParamSize = 0;
+		uint32 currParamSpillSize = 0;
 		for(const auto& statement : statements)
 		{
 			switch(statement.op)
@@ -303,22 +303,24 @@ void CCodeGen_x86_64::Emit_Prolog(const StatementList& statements, unsigned int 
 					CSymbol* src1 = statement.src1->GetSymbol().get();
 					switch(src1->m_type)
 					{
-						case SYM_REGISTER128:
-							currParamSize += 16;
-							break;
+					case SYM_REGISTER128:
+						currParamSpillSize += 16;
+						break;
 					}
 				}
 				break;
 			case OP_CALL:
-				maxParamSize = std::max<uint32>(currParamSize, maxParamSize);
-				currParamSize = 0;
+				maxParamSpillSize = std::max<uint32>(currParamSpillSize, maxParamSpillSize);
+				currParamSpillSize = 0;
 				break;
 			default:
 				break;
 			}
 		}
 	}
-	assert((maxParamSize & 0x0F) == 0);
+	
+	assert((maxParamSpillSize & 0x0F) == 0);
+	assert((stackSize & 0x0F) == 0);
 
 	m_assembler.Push(CX86Assembler::rBP);
 	m_assembler.MovEq(CX86Assembler::rBP, CX86Assembler::MakeRegisterAddress(g_paramRegs[0]));
@@ -335,30 +337,28 @@ void CCodeGen_x86_64::Emit_Prolog(const StatementList& statements, unsigned int 
 
 	uint32 savedRegAlignAdjust = (savedSize != 0) ? (0x10 - (savedSize & 0xF)) : 0;
 
-	//-------------------------------
-	//Stack Frame
-	//-------------------------------
-	//(high address)
-	//------------------
-	//savedRegisters + alignAdjust
-	//------------------
-	//params temp base
-	//------------------			<----- rSP + m_paramTempBase
-	//temporary symbols (stackSize) + alignAdjust
-	//------------------			<----- rSP + m_stackLevel
-	//0x20 bytes (param spill area for callee)
-	//------------------			<----- rSP
-	//(low address)
-
-	uint32 stackSizeAligned = ((stackSize + 0xF) & ~0xF);
-
-	m_totalStackAlloc = savedRegAlignAdjust + maxParamSize + stackSizeAligned;
+	m_totalStackAlloc = savedRegAlignAdjust + maxParamSpillSize + stackSize;
 	m_totalStackAlloc += 0x20;
 
 	m_stackLevel = 0x20;
-	m_paramTempBase = 0x20 + stackSizeAligned;
+	m_paramSpillBase = 0x20 + stackSize;
 
 	m_assembler.SubIq(CX86Assembler::MakeRegisterAddress(CX86Assembler::rSP), m_totalStackAlloc);
+
+	//-------------------------------
+	//Stack Frame
+	//-------------------------------
+	//(High address)
+	//------------------
+	//Saved registers + align adjustment
+	//------------------
+	//Params spill space
+	//------------------			<----- rSP + m_paramSpillBase
+	//Temporary symbols (stackSize) + align adjustment
+	//------------------			<----- rSP + m_stackLevel
+	//Param spill area for callee (0x20 bytes)
+	//------------------			<----- rSP
+	//(Low address)
 }
 
 void CCodeGen_x86_64::Emit_Epilog(unsigned int stackSize, uint32 registerUsage)
@@ -472,9 +472,9 @@ void CCodeGen_x86_64::Emit_Param_Reg128(const STATEMENT& statement)
 	auto src1 = statement.src1->GetSymbol().get();
 
 	m_params.push_back(
-		[this, src1] (CX86Assembler::REGISTER paramReg, uint32 paramTempOffset)
+		[this, src1] (CX86Assembler::REGISTER paramReg, uint32 paramSpillOffset)
 		{
-			auto paramTempAddr = CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rSP, m_paramTempBase + paramTempOffset);
+			auto paramTempAddr = CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rSP, m_paramSpillBase + paramSpillOffset);
 			m_assembler.MovapsVo(paramTempAddr, m_mdRegisters[src1->m_valueLow]);
 			m_assembler.LeaGq(paramReg, paramTempAddr);
 			return 0x10;
@@ -503,13 +503,13 @@ void CCodeGen_x86_64::Emit_Call(const STATEMENT& statement)
 	const auto& src2 = statement.src2->GetSymbol().get();
 
 	unsigned int paramCount = src2->m_valueLow;
-	uint32 paramTempOffset = 0;
+	uint32 paramSpillOffset = 0;
 
 	for(unsigned int i = 0; i < paramCount; i++)
 	{
 		auto emitter(m_params.back());
 		m_params.pop_back();
-		paramTempOffset += emitter(g_paramRegs[i], paramTempOffset);
+		paramSpillOffset += emitter(g_paramRegs[i], paramSpillOffset);
 	}
 
 	m_assembler.MovIq(CX86Assembler::rAX, CombineConstant64(src1->m_valueLow, src1->m_valueHigh));

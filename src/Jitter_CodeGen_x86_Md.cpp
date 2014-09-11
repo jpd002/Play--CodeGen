@@ -216,7 +216,7 @@ void CCodeGen_x86::Emit_Md_SingleOp_RegVar(const STATEMENT& statement)
 
 	if(!dst->Equals(src1))
 	{
-		m_assembler.MovapsVo(resultRegister, CX86Assembler::MakeXmmRegisterAddress(m_mdRegisters[src1->m_valueLow]));
+		m_assembler.MovapsVo(resultRegister, MakeVariable128SymbolAddress(src1));
 	}
 
 	((*this).*(MDOPSINGLEOP::OpVr()))(resultRegister);

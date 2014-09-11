@@ -221,7 +221,7 @@ namespace Jitter
 		typedef std::map<LABEL, unsigned int> LabelMapType;
 		typedef std::pair<unsigned int, unsigned int> AllocationRange;
 		typedef std::vector<AllocationRange> AllocationRangeArray;
-		typedef std::unordered_map<SymbolPtr, SYMBOL_REGALLOCINFO> SymbolRegAllocInfo;
+		typedef std::unordered_map<SymbolPtr, SYMBOL_REGALLOCINFO, SymbolHasher, SymbolComparator> SymbolRegAllocInfo;
 		typedef std::unordered_map<CSymbol*, unsigned int> SymbolUseCountMap;
 
 		enum MAX_STACK

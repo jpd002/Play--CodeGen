@@ -203,4 +203,20 @@ namespace Jitter
 
 	typedef std::shared_ptr<CSymbol> SymbolPtr;
 	typedef std::weak_ptr<CSymbol> WeakSymbolPtr;
+
+	struct SymbolComparator
+	{
+		bool operator()(const SymbolPtr& sym1, const SymbolPtr& sym2) const
+		{
+			return sym1->Equals(sym2.get());
+		}
+	};
+
+	struct SymbolHasher
+	{
+		size_t operator()(const SymbolPtr& symbol) const
+		{
+			return (symbol->m_type << 24) ^ symbol->m_valueLow ^ symbol->m_valueHigh;
+		}
+	};
 }

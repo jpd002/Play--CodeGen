@@ -455,9 +455,9 @@ namespace Jitter
 		void						Emit_Not_RelTmp(const STATEMENT&);
 
 		//LZC
-		void						Lzc_RegMem(CX86Assembler::REGISTER, const CX86Assembler::CAddress&);
-		void						Emit_Lzc_RegMem(const STATEMENT&);
-		void						Emit_Lzc_MemMem(const STATEMENT&);
+		void						Emit_Lzc(CX86Assembler::REGISTER, const CX86Assembler::CAddress&);
+		void						Emit_Lzc_RegVar(const STATEMENT&);
+		void						Emit_Lzc_MemVar(const STATEMENT&);
 
 		//CMP
 		void						Cmp_GetFlag(const CX86Assembler::CAddress&, CONDITION);

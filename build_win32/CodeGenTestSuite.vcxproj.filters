@@ -88,6 +88,9 @@
     <ClCompile Include="..\tests\LogicMdTest.cpp">
       <Filter>Source Files\Tests\Md</Filter>
     </ClCompile>
+    <ClCompile Include="..\tests\LzcTest.cpp">
+      <Filter>Source Files\Tests</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\tests\Test.h">
@@ -161,6 +164,9 @@
     </ClInclude>
     <ClInclude Include="..\tests\LogicMdTest.h">
       <Filter>Source Files\Tests\Md</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tests\LzcTest.h">
+      <Filter>Source Files\Tests</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

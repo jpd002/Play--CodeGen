@@ -22,6 +22,7 @@
 #include "Alu64Test.h"
 #include "Shift64Test.h"
 #include "Call64Test.h"
+#include "LzcTest.h"
 
 #ifdef __APPLE__
 #include "TargetConditionals.h"
@@ -49,6 +50,7 @@ static const TestFactoryFunction s_factories[] =
 	[] () { return new CMemAccessTest(); },
 	[] () { return new CHugeJumpTest(); },
 #ifdef HAS_ADVANCED_OPS
+	[] () { return new CLzcTest(); },
 	[] () { return new CHalfMultTest(); },
 	[] () { return new CAliasTest(); },
 	[] () { return new CFpuTest(); },

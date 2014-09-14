@@ -7,11 +7,6 @@ CMultTest::CMultTest(bool isSigned)
 
 }
 
-CMultTest::~CMultTest()
-{
-
-}
-
 void CMultTest::Run()
 {
 	memset(&m_context, 0, sizeof(m_context));

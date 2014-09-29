@@ -258,6 +258,7 @@ public:
 	void									PcmpeqwVo(XMMREGISTER, const CAddress&);
 	void									PcmpeqdVo(XMMREGISTER, const CAddress&);
 	void									PcmpgtwVo(XMMREGISTER, const CAddress&);
+	void									PcmpgtdVo(XMMREGISTER, const CAddress&);
 	void									PmaxswVo(XMMREGISTER, const CAddress&);
 	void									PmaxsdVo(XMMREGISTER, const CAddress&);
 	void									PminswVo(XMMREGISTER, const CAddress&);

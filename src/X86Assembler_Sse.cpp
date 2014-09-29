@@ -176,6 +176,11 @@ void CX86Assembler::PcmpgtwVo(XMMREGISTER registerId, const CAddress& address)
 	WriteEdVdOp_66_0F(0x65, address, registerId);
 }
 
+void CX86Assembler::PcmpgtdVo(XMMREGISTER registerId, const CAddress& address)
+{
+	WriteEdVdOp_66_0F(0x66, address, registerId);
+}
+
 void CX86Assembler::PmaxswVo(XMMREGISTER registerId, const CAddress& address)
 {
 	WriteEdVdOp_66_0F(0xEE, address, registerId);

@@ -265,6 +265,8 @@ namespace Jitter
 			CRelativeVersionManager		relativeVersions;
 		};
 
+		void							InsertGenericMdStatement(Jitter::OPERATION);
+
 		void							Compile();
 
 		bool							ConstantFolding(StatementList&);

@@ -1487,58 +1487,22 @@ void CJitter::MD_MaxW()
 
 void CJitter::MD_CmpEqB()
 {
-	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY128, m_nextTemporary++);
-
-	STATEMENT statement;
-	statement.op	= OP_MD_CMPEQ_B;
-	statement.src2	= MakeSymbolRef(m_shadow.Pull());
-	statement.src1	= MakeSymbolRef(m_shadow.Pull());
-	statement.dst	= MakeSymbolRef(tempSym);
-	InsertStatement(statement);
-
-	m_shadow.Push(tempSym);
+	InsertGenericMdStatement(OP_MD_CMPEQ_B);
 }
 
 void CJitter::MD_CmpEqH()
 {
-	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY128, m_nextTemporary++);
-
-	STATEMENT statement;
-	statement.op	= OP_MD_CMPEQ_H;
-	statement.src2	= MakeSymbolRef(m_shadow.Pull());
-	statement.src1	= MakeSymbolRef(m_shadow.Pull());
-	statement.dst	= MakeSymbolRef(tempSym);
-	InsertStatement(statement);
-
-	m_shadow.Push(tempSym);
+	InsertGenericMdStatement(OP_MD_CMPEQ_H);
 }
 
 void CJitter::MD_CmpEqW()
 {
-	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY128, m_nextTemporary++);
-
-	STATEMENT statement;
-	statement.op	= OP_MD_CMPEQ_W;
-	statement.src2	= MakeSymbolRef(m_shadow.Pull());
-	statement.src1	= MakeSymbolRef(m_shadow.Pull());
-	statement.dst	= MakeSymbolRef(tempSym);
-	InsertStatement(statement);
-
-	m_shadow.Push(tempSym);
+	InsertGenericMdStatement(OP_MD_CMPEQ_W);
 }
 
 void CJitter::MD_CmpGtH()
 {
-	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY128, m_nextTemporary++);
-
-	STATEMENT statement;
-	statement.op	= OP_MD_CMPGT_H;
-	statement.src2	= MakeSymbolRef(m_shadow.Pull());
-	statement.src1	= MakeSymbolRef(m_shadow.Pull());
-	statement.dst	= MakeSymbolRef(tempSym);
-	InsertStatement(statement);
-
-	m_shadow.Push(tempSym);
+	InsertGenericMdStatement(OP_MD_CMPGT_H);
 }
 
 void CJitter::MD_UnpackLowerBH()
@@ -1781,6 +1745,20 @@ void CJitter::MD_ToSingle()
 
 	STATEMENT statement;
 	statement.op	= OP_MD_TOSINGLE;
+	statement.src1	= MakeSymbolRef(m_shadow.Pull());
+	statement.dst	= MakeSymbolRef(tempSym);
+	InsertStatement(statement);
+
+	m_shadow.Push(tempSym);
+}
+
+void CJitter::InsertGenericMdStatement(Jitter::OPERATION operation)
+{
+	auto tempSym = MakeSymbol(SYM_TEMPORARY128, m_nextTemporary++);
+
+	STATEMENT statement;
+	statement.op	= operation;
+	statement.src2	= MakeSymbolRef(m_shadow.Pull());
 	statement.src1	= MakeSymbolRef(m_shadow.Pull());
 	statement.dst	= MakeSymbolRef(tempSym);
 	InsertStatement(statement);

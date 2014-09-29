@@ -1505,6 +1505,11 @@ void CJitter::MD_CmpGtH()
 	InsertGenericMdStatement(OP_MD_CMPGT_H);
 }
 
+void CJitter::MD_CmpGtW()
+{
+	InsertGenericMdStatement(OP_MD_CMPGT_W);
+}
+
 void CJitter::MD_UnpackLowerBH()
 {
 	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY128, m_nextTemporary++);

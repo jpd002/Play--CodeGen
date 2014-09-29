@@ -165,6 +165,7 @@ namespace Jitter
 		void							MD_CmpEqH();
 		void							MD_CmpEqW();
 		void							MD_CmpGtH();
+		void							MD_CmpGtW();
 		void							MD_DivS();
 		void							MD_IsNegative();
 		void							MD_IsZero();

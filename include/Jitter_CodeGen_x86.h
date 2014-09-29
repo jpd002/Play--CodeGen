@@ -198,6 +198,11 @@ namespace Jitter
 			static OpVoType OpVo() { return &CX86Assembler::PcmpgtwVo; }
 		};
 
+		struct MDOP_CMPGTW : public MDOP_BASE
+		{
+			static OpVoType OpVo() { return &CX86Assembler::PcmpgtdVo; }
+		};
+
 		struct MDOP_MINH : public MDOP_BASE
 		{
 			static OpVoType OpVo() { return &CX86Assembler::PminswVo; }

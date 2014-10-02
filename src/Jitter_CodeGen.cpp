@@ -24,6 +24,8 @@ bool CCodeGen::SymbolMatches(MATCHTYPE match, const SymbolRefPtr& symbolRef)
 		return (symbol->m_type == SYM_TEMPORARY);
 	case MATCH_MEMORY:
 		return (symbol->m_type == SYM_RELATIVE) || (symbol->m_type == SYM_TEMPORARY);
+	case MATCH_VARIABLE:
+		return (symbol->m_type == SYM_REGISTER) || (symbol->m_type == SYM_RELATIVE) || (symbol->m_type == SYM_TEMPORARY);
 
 	case MATCH_REL_REF:
 		return (symbol->m_type == SYM_REL_REFERENCE);
@@ -52,12 +54,16 @@ bool CCodeGen::SymbolMatches(MATCHTYPE match, const SymbolRefPtr& symbolRef)
 	case MATCH_RELATIVE_FP_INT32:
 		return (symbol->m_type == SYM_FP_REL_INT32);
 
+	case MATCH_REGISTER128:
+		return (symbol->m_type == SYM_REGISTER128);
 	case MATCH_RELATIVE128:
 		return (symbol->m_type == SYM_RELATIVE128);
 	case MATCH_TEMPORARY128:
 		return (symbol->m_type == SYM_TEMPORARY128);
 	case MATCH_MEMORY128:
 		return (symbol->m_type == SYM_RELATIVE128) || (symbol->m_type == SYM_TEMPORARY128);
+	case MATCH_VARIABLE128:
+		return (symbol->m_type == SYM_REGISTER128) || (symbol->m_type == SYM_RELATIVE128) || (symbol->m_type == SYM_TEMPORARY128);
 
 	case MATCH_MEMORY256:
 		return (symbol->m_type == SYM_TEMPORARY256);

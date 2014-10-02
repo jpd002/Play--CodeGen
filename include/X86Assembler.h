@@ -258,6 +258,7 @@ public:
 	void									PcmpeqwVo(XMMREGISTER, const CAddress&);
 	void									PcmpeqdVo(XMMREGISTER, const CAddress&);
 	void									PcmpgtwVo(XMMREGISTER, const CAddress&);
+	void									PcmpgtdVo(XMMREGISTER, const CAddress&);
 	void									PmaxswVo(XMMREGISTER, const CAddress&);
 	void									PmaxsdVo(XMMREGISTER, const CAddress&);
 	void									PminswVo(XMMREGISTER, const CAddress&);
@@ -385,9 +386,12 @@ private:
 	void									WriteEvIb(uint8, const CAddress&, uint8);
 	void									WriteEvId(uint8, const CAddress&, uint32);
 	void									WriteEvIq(uint8, const CAddress&, uint64);
-	void									WriteEdVdOp(uint8, const CAddress&, XMMREGISTER); 
-	void									WriteEdVdOp_66_0F(uint8, const CAddress&, XMMREGISTER); 
-	void									WriteVrOp(uint8, uint8, XMMREGISTER);
+	void									WriteEdVdOp(uint8, const CAddress&, XMMREGISTER);
+	void									WriteEdVdOp_0F(uint8, const CAddress&, XMMREGISTER);
+	void									WriteEdVdOp_66_0F(uint8, const CAddress&, XMMREGISTER);
+	void									WriteEdVdOp_66_0F_38(uint8, const CAddress&, XMMREGISTER);
+	void									WriteEdVdOp_F3_0F(uint8, const CAddress&, XMMREGISTER);
+	void									WriteVrOp_66_0F(uint8, uint8, XMMREGISTER);
 	void									WriteStOp(uint8, uint8, uint8);
 
 	void									CreateLabelReference(LABEL, JMP_TYPE);

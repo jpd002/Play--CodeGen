@@ -160,6 +160,8 @@
     <ClCompile Include="..\tests\FpuTest.cpp" />
     <ClCompile Include="..\tests\HalfMultTest.cpp" />
     <ClCompile Include="..\tests\HugeJumpTest.cpp" />
+    <ClCompile Include="..\tests\LogicMdTest.cpp" />
+    <ClCompile Include="..\tests\LzcTest.cpp" />
     <ClCompile Include="..\tests\Main.cpp" />
     <ClCompile Include="..\tests\MdCallTest.cpp" />
     <ClCompile Include="..\tests\MdFpFlagTest.cpp" />
@@ -172,6 +174,7 @@
     <ClCompile Include="..\tests\RandomAluTest3.cpp" />
     <ClCompile Include="..\tests\RegAllocTest.cpp" />
     <ClCompile Include="..\tests\Shift64Test.cpp" />
+    <ClCompile Include="..\tests\SimpleMdTest.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\tests\AliasTest.h" />
@@ -184,6 +187,8 @@
     <ClInclude Include="..\tests\FpuTest.h" />
     <ClInclude Include="..\tests\HalfMultTest.h" />
     <ClInclude Include="..\tests\HugeJumpTest.h" />
+    <ClInclude Include="..\tests\LogicMdTest.h" />
+    <ClInclude Include="..\tests\LzcTest.h" />
     <ClInclude Include="..\tests\MdCallTest.h" />
     <ClInclude Include="..\tests\MdFpFlagTest.h" />
     <ClInclude Include="..\tests\MdFpTest.h" />
@@ -195,6 +200,7 @@
     <ClInclude Include="..\tests\RandomAluTest3.h" />
     <ClInclude Include="..\tests\RegAllocTest.h" />
     <ClInclude Include="..\tests\Shift64Test.h" />
+    <ClInclude Include="..\tests\SimpleMdTest.h" />
     <ClInclude Include="..\tests\Test.h" />
   </ItemGroup>
   <ItemGroup>

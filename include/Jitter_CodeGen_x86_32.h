@@ -1,5 +1,4 @@
-#ifndef _JITTER_CODEGEN_X86_32_H_
-#define _JITTER_CODEGEN_X86_32_H_
+#pragma once
 
 #include "Jitter_CodeGen_x86.h"
 #include <deque>
@@ -12,9 +11,10 @@ namespace Jitter
 											CCodeGen_x86_32();
 		virtual								~CCodeGen_x86_32();
 
-		unsigned int						GetAvailableRegisterCount() const;
-		unsigned int						GetAddressSize() const;
-		bool								CanHold128BitsReturnValueInRegisters() const;
+		unsigned int						GetAvailableRegisterCount() const override;
+		unsigned int						GetAvailableMdRegisterCount() const override;
+		unsigned int						GetAddressSize() const override;
+		bool								CanHold128BitsReturnValueInRegisters() const override;
 		
 	protected:
 		virtual void						Emit_Prolog(const StatementList&, unsigned int, uint32);
@@ -22,11 +22,12 @@ namespace Jitter
 
 		//PARAM
 		void								Emit_Param_Ctx(const STATEMENT&);
+		void								Emit_Param_Reg(const STATEMENT&);
 		void								Emit_Param_Mem(const STATEMENT&);
 		void								Emit_Param_Cst(const STATEMENT&);
-		void								Emit_Param_Reg(const STATEMENT&);
 		void								Emit_Param_Mem64(const STATEMENT&);
 		void								Emit_Param_Cst64(const STATEMENT&);
+		void								Emit_Param_Reg128(const STATEMENT&);
 		void								Emit_Param_Mem128(const STATEMENT&);
 		
 		//PARAM_RET
@@ -100,7 +101,13 @@ namespace Jitter
 		void								Emit_StoreAtRef_TmpCst(const STATEMENT&);
 
 	private:
-		typedef std::function<uint32 (uint32)> ParamEmitterFunction;
+		struct CALL_STATE
+		{
+			uint32	paramOffset = 0;
+			uint32	paramSpillOffset = 0;
+		};
+
+		typedef std::function<void (CALL_STATE&)> ParamEmitterFunction;
 		typedef std::deque<ParamEmitterFunction> ParamStack;
 		
 		typedef void (CCodeGen_x86_32::*ConstCodeEmitterType)(const STATEMENT&);
@@ -117,23 +124,16 @@ namespace Jitter
 		enum MAX_REGISTERS
 		{
 			MAX_REGISTERS = 3,
+			MAX_MDREGISTERS = 4,
 		};
 
-		uint32								WriteCtxParam(uint32);
-		uint32								WriteRegParam(uint32, CX86Assembler::REGISTER);
-		uint32								WriteMemParam(uint32, CSymbol*);
-		uint32								WriteCstParam(uint32, uint32);
-		uint32								WriteMem64Param(uint32, CSymbol*);
-		uint32								WriteCst64Param(uint32, CSymbol*);
-		uint32								WriteMem128Param(uint32, const CX86Assembler::CAddress&);
-		
 		static CONSTMATCHER					g_constMatchers[];
-		static CX86Assembler::REGISTER		g_registers[];
+		static CX86Assembler::REGISTER		g_registers[MAX_REGISTERS];
+		static CX86Assembler::XMMREGISTER	g_mdRegisters[MAX_MDREGISTERS];
 		
 		ParamStack							m_params;
-		uint32								m_paramAreaSize;
-		bool								m_hasImplicitRetValueParam;
+		uint32								m_paramSpillBase = 0;
+		uint32								m_totalStackAlloc = 0;
+		bool								m_hasImplicitRetValueParam = false;
 	};
 }
-
-#endif

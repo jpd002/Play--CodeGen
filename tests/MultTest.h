@@ -1,5 +1,4 @@
-#ifndef _MULTTEST_H_
-#define _MULTTEST_H_
+#pragma once
 
 #include "Test.h"
 #include "MemoryFunction.h"
@@ -8,8 +7,7 @@ class CMultTest : public CTest
 {
 public:
 						CMultTest(bool);
-	virtual				~CMultTest();
-			
+
 	void				Run();
 	void				Compile(Jitter::CJitter&);
 
@@ -30,5 +28,3 @@ private:
 	CONTEXT				m_context;
 	CMemoryFunction		m_function;
 };
-
-#endif

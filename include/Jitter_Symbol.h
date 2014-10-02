@@ -1,5 +1,4 @@
-#ifndef _JITTER_SYMBOL_H_
-#define _JITTER_SYMBOL_H_
+#pragma once
 
 #include "Types.h"
 #include <memory>
@@ -26,6 +25,7 @@ namespace Jitter
 
 		SYM_RELATIVE128,
 		SYM_TEMPORARY128,
+		SYM_REGISTER128,
 
 		SYM_TEMPORARY256,
 
@@ -43,24 +43,7 @@ namespace Jitter
 			, m_valueLow(valueLow)
 			, m_valueHigh(valueHigh)
 		{
-			m_rangeBegin = -1;
-			m_rangeEnd = -1;
-			m_firstUse = -1;
-			m_firstDef = -1;
-			m_lastDef = -1;
-			m_stackLocation = -1;
-			m_useCount = 0;
-			m_aliased = false;
 
-			m_regAlloc_register = -1;
-			m_regAlloc_loadBeforeIdx = -1;
-			m_regAlloc_saveAfterIdx = -1;
-			m_regAlloc_notAllocatedAfterIdx = -1;
-		}
-
-		virtual ~CSymbol()
-		{
-			
 		}
 
 		std::string ToString() const
@@ -111,6 +94,9 @@ namespace Jitter
 				break;
 			case SYM_TEMPORARY128:
 				return "TMP128[" + std::to_string(m_valueLow) + "]";
+				break;
+			case SYM_REGISTER128:
+				return "REG128[" + std::to_string(m_valueLow) + "]";
 				break;
 			case SYM_TEMPORARY256:
 				return "TMP256[" + std::to_string(m_valueLow) + "]";
@@ -212,23 +198,25 @@ namespace Jitter
 		uint32					m_valueLow;
 		uint32					m_valueHigh;
 
-		unsigned int			m_useCount;
-		unsigned int			m_firstUse;
-		unsigned int			m_firstDef;
-		unsigned int			m_lastDef;
-		unsigned int			m_rangeBegin;
-		unsigned int			m_rangeEnd;
-		unsigned int			m_stackLocation;
-		bool					m_aliased;
-
-		unsigned int			m_regAlloc_register;
-		unsigned int			m_regAlloc_loadBeforeIdx;
-		unsigned int			m_regAlloc_saveAfterIdx;
-		unsigned int			m_regAlloc_notAllocatedAfterIdx;
+		unsigned int			m_stackLocation = -1;
 	};
 
 	typedef std::shared_ptr<CSymbol> SymbolPtr;
 	typedef std::weak_ptr<CSymbol> WeakSymbolPtr;
-}
 
-#endif
+	struct SymbolComparator
+	{
+		bool operator()(const SymbolPtr& sym1, const SymbolPtr& sym2) const
+		{
+			return sym1->Equals(sym2.get());
+		}
+	};
+
+	struct SymbolHasher
+	{
+		size_t operator()(const SymbolPtr& symbol) const
+		{
+			return (symbol->m_type << 24) ^ symbol->m_valueLow ^ symbol->m_valueHigh;
+		}
+	};
+}

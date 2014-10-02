@@ -1,5 +1,4 @@
-#ifndef _JITTER_STATEMENT_H_
-#define _JITTER_STATEMENT_H_
+#pragma once
 
 #include <list>
 #include <functional>
@@ -70,6 +69,7 @@ namespace Jitter
 		OP_MD_CMPEQ_H,
 		OP_MD_CMPEQ_W,
 		OP_MD_CMPGT_H,
+		OP_MD_CMPGT_W,
 
 		OP_MD_MIN_H,
 		OP_MD_MIN_W,
@@ -176,7 +176,8 @@ namespace Jitter
 		uint32			jmpBlock;
 		CONDITION		jmpCondition;
 
-		typedef std::function<void (const SymbolRefPtr&, bool)> OperandVisitor;
+		typedef std::function<void (SymbolRefPtr&, bool)> OperandVisitor;
+		typedef std::function<void (const SymbolRefPtr&, bool)> ConstOperandVisitor;
 
 		void VisitOperands(const OperandVisitor& visitor)
 		{
@@ -185,12 +186,19 @@ namespace Jitter
 			if(src2) visitor(src2, false);
 		}
 
-		void VisitDestination(const OperandVisitor& visitor)
+		void VisitOperands(const ConstOperandVisitor& visitor) const
+		{
+			if(dst) visitor(dst, true);
+			if(src1) visitor(src1, false);
+			if(src2) visitor(src2, false);
+		}
+
+		void VisitDestination(const ConstOperandVisitor& visitor) const
 		{
 			if(dst) visitor(dst, true);
 		}
 
-		void VisitSources(const OperandVisitor& visitor)
+		void VisitSources(const ConstOperandVisitor& visitor) const
 		{
 			if(src1) visitor(src1, false);
 			if(src2) visitor(src2, false);
@@ -198,6 +206,77 @@ namespace Jitter
 	};
 
 	typedef std::list<STATEMENT> StatementList;
-}
 
-#endif
+	std::string		ConditionToString(CONDITION);
+	void			DumpStatementList(const StatementList&);
+
+	template<typename ListType, typename IteratorType, typename ValueType>
+	class IndexedStatementListBase
+	{
+	public:
+		struct ITERATOR
+		{
+		public:
+			struct VALUE
+			{
+				VALUE(const IteratorType& iterator, ValueType& statement, unsigned int index)
+					: iterator(iterator), statement(statement), index(index)
+				{
+
+				}
+
+				IteratorType iterator;
+				ValueType& statement;
+				unsigned int index = 0;
+			};
+
+			ITERATOR(const IteratorType& iterator, unsigned int index)
+				: m_iterator(iterator)
+				, m_index(index)
+			{
+
+			}
+
+			const ITERATOR& operator ++()
+			{
+				assert(m_index != -1);
+				m_iterator++;
+				m_index++;
+				return (*this);
+			}
+
+			bool operator !=(const ITERATOR& rhs) const
+			{
+				return m_iterator != rhs.m_iterator;
+			}
+
+			VALUE operator *() const
+			{
+				return VALUE(m_iterator, *m_iterator, m_index);
+			}
+
+		private:
+			IteratorType m_iterator;
+			unsigned int m_index = 0;
+		};
+
+		IndexedStatementListBase(ListType& statements)
+			: m_statements(statements) { }
+
+		ITERATOR begin() const
+		{
+			return ITERATOR(m_statements.begin(), 0);
+		}
+
+		ITERATOR end() const
+		{
+			return ITERATOR(m_statements.end(), -1);
+		}
+
+	private:
+		ListType& m_statements;
+	};
+
+	typedef IndexedStatementListBase<StatementList, StatementList::iterator, STATEMENT> IndexedStatementList;
+	typedef IndexedStatementListBase<const StatementList, StatementList::const_iterator, const STATEMENT> ConstIndexedStatementList;
+}

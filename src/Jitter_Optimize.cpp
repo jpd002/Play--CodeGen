@@ -10,7 +10,6 @@
 #include <iostream>
 #endif
 
-using namespace std;
 using namespace Jitter;
 
 static bool IsPowerOfTwo(uint32 number)
@@ -77,12 +76,12 @@ CJitter::VERSIONED_STATEMENT_LIST CJitter::GenerateVersionedStatementList(const 
 			if(CSymbol* symbol = dynamic_symbolref_cast(SYM_RELATIVE, symbolRef))
 			{
 				unsigned int currentVersion = relativeVersions.GetRelativeVersion(symbol->m_valueLow);
-				symbolRef = SymbolRefPtr(new CVersionedSymbolRef(symbolRef->GetSymbol(), currentVersion));
+				symbolRef = std::make_shared<CVersionedSymbolRef>(symbolRef->GetSymbol(), currentVersion);
 			}
 			if(CSymbol* symbol = dynamic_symbolref_cast(SYM_RELATIVE64, symbolRef))
 			{
 				unsigned int currentVersion = relativeVersions.GetRelativeVersion(symbol->m_valueLow);
-				symbolRef = SymbolRefPtr(new CVersionedSymbolRef(symbolRef->GetSymbol(), currentVersion));
+				symbolRef = std::make_shared<CVersionedSymbolRef>(symbolRef->GetSymbol(), currentVersion);
 			}
 		}
 	};
@@ -98,7 +97,7 @@ CJitter::VERSIONED_STATEMENT_LIST CJitter::GenerateVersionedStatementList(const 
 		if(CSymbol* dst = dynamic_symbolref_cast(SYM_RELATIVE, newStatement.dst))
 		{
 			unsigned int nextVersion = result.relativeVersions.IncrementRelativeVersion(dst->m_valueLow);
-			newStatement.dst = SymbolRefPtr(new CVersionedSymbolRef(newStatement.dst->GetSymbol(), nextVersion));
+			newStatement.dst = std::make_shared<CVersionedSymbolRef>(newStatement.dst->GetSymbol(), nextVersion);
 		}
 		//Increment relative versions to prevent some optimization problems
 		else if(CSymbol* dst = dynamic_symbolref_cast(SYM_FP_REL_SINGLE, newStatement.dst))
@@ -144,17 +143,17 @@ StatementList CJitter::CollapseVersionedStatementList(const VERSIONED_STATEMENT_
 
 		if(VersionedSymbolRefPtr src1 = std::dynamic_pointer_cast<CVersionedSymbolRef>(newStatement.src1))
 		{
-			newStatement.src1 = SymbolRefPtr(new CSymbolRef(src1->GetSymbol()));
+			newStatement.src1 = std::make_shared<CSymbolRef>(src1->GetSymbol());
 		}
 
 		if(VersionedSymbolRefPtr src2 = std::dynamic_pointer_cast<CVersionedSymbolRef>(newStatement.src2))
 		{
-			newStatement.src2 = SymbolRefPtr(new CSymbolRef(src2->GetSymbol()));
+			newStatement.src2 = std::make_shared<CSymbolRef>(src2->GetSymbol());
 		}
 
 		if(VersionedSymbolRefPtr dst = std::dynamic_pointer_cast<CVersionedSymbolRef>(newStatement.dst))
 		{
-			newStatement.dst = SymbolRefPtr(new CSymbolRef(dst->GetSymbol()));
+			newStatement.dst = std::make_shared<CSymbolRef>(dst->GetSymbol());
 		}
 
 		result.push_back(newStatement);
@@ -203,314 +202,31 @@ void CJitter::Compile()
 	}
 
 	//Allocate registers
-	for(BasicBlockList::iterator blockIterator(m_basicBlocks.begin());
-		m_basicBlocks.end() != blockIterator; blockIterator++)
+	for(auto& basicBlockPair : m_basicBlocks)
 	{
-		BASIC_BLOCK& basicBlock(blockIterator->second);
+		auto& basicBlock(basicBlockPair.second);
 		m_currentBlock = &basicBlock;
 
 		CoalesceTemporaries(basicBlock);
 		RemoveSelfAssignments(basicBlock);
-		ComputeLivenessAndPruneSymbols(basicBlock);
+		PruneSymbols(basicBlock);
+
 		AllocateRegisters(basicBlock);
+
 		NormalizeStatements(basicBlock);
 	}
 
-	BASIC_BLOCK result = ConcatBlocks(m_basicBlocks);
+	auto result = ConcatBlocks(m_basicBlocks);
 
 #ifdef DUMP_STATEMENTS
 	DumpStatementList(result.statements);
-	cout << endl;
+	std::cout << std::endl;
 #endif
 
 	unsigned int stackSize = AllocateStack(result);
 	m_codeGen->GenerateCode(result.statements, stackSize);
 
 	m_labels.clear();
-}
-
-std::string CJitter::ConditionToString(CONDITION condition)
-{
-	switch(condition)
-	{
-	case CONDITION_LT:
-		return "LT";
-		break;
-	case CONDITION_LE:
-		return "LE";
-		break;
-	case CONDITION_GT:
-		return "GT";
-		break;
-	case CONDITION_EQ:
-		return "EQ";
-		break;
-	case CONDITION_NE:
-		return "NE";
-		break;
-	case CONDITION_BL:
-		return "BL";
-		break;
-	case CONDITION_AB:
-		return "AB";
-		break;
-	default:
-		return "??";
-		break;
-	}
-}
-
-void CJitter::DumpStatementList(const StatementList& statements)
-{
-#ifdef DUMP_STATEMENTS
-	for(StatementList::const_iterator statementIterator(statements.begin());
-		statements.end() != statementIterator; statementIterator++)
-	{
-		const STATEMENT& statement(*statementIterator);
-
-		if(statement.dst)
-		{
-			cout << statement.dst->ToString();
-			cout << " := ";
-		}
-
-		if(statement.src1)
-		{
-			cout << statement.src1->ToString();
-		}
-
-		switch(statement.op)
-		{
-		case OP_ADD:
-		case OP_ADD64:
-		case OP_ADDREF:
-		case OP_FP_ADD:
-			cout << " + ";
-			break;
-		case OP_SUB:
-		case OP_SUB64:
-		case OP_FP_SUB:
-			cout << " - ";
-			break;
-		case OP_CMP:
-		case OP_CMP64:
-		case OP_FP_CMP:
-			cout << " CMP(" << ConditionToString(statement.jmpCondition) << ") ";
-			break;
-		case OP_MUL:
-		case OP_MULS:
-		case OP_FP_MUL:
-			cout << " * ";
-			break;
-		case OP_MULSHL:
-			cout << " *(HL) ";
-			break;
-		case OP_MULSHH:
-			cout << " *(HH) ";
-			break;
-		case OP_DIV:
-		case OP_DIVS:
-		case OP_FP_DIV:
-			cout << " / ";
-			break;
-		case OP_AND:
-		case OP_AND64:
-		case OP_MD_AND:
-			cout << " & ";
-			break;
-		case OP_LZC:
-			cout << " LZC";
-			break;
-		case OP_OR:
-		case OP_MD_OR:
-			cout << " | ";
-			break;
-		case OP_XOR:
-		case OP_MD_XOR:
-			cout << " ^ ";
-			break;
-		case OP_NOT:
-		case OP_MD_NOT:
-			cout << " ! ";
-			break;
-		case OP_SRL:
-		case OP_SRL64:
-			cout << " >> ";
-			break;
-		case OP_SRA:
-		case OP_SRA64:
-			cout << " >>A ";
-			break;
-		case OP_SLL:
-		case OP_SLL64:
-			cout << " << ";
-			break;
-		case OP_NOP:
-			cout << " NOP ";
-			break;
-		case OP_MOV:
-			break;
-		case OP_STOREATREF:
-			cout << " <- ";
-			break;
-		case OP_LOADFROMREF:
-			cout << " LOADFROM ";
-			break;
-		case OP_RELTOREF:
-			cout << " TOREF ";
-			break;
-		case OP_PARAM:
-		case OP_PARAM_RET:
-			cout << " PARAM ";
-			break;
-		case OP_CALL:
-			cout << " CALL ";
-			break;
-		case OP_RETVAL:
-			cout << " RETURNVALUE ";
-			break;
-		case OP_JMP:
-			cout << " JMP{" << statement.jmpBlock << "} ";
-			break;
-		case OP_CONDJMP:
-			cout << " JMP{" << statement.jmpBlock << "}(" << ConditionToString(statement.jmpCondition) << ") ";
-			break;
-		case OP_LABEL:
-			cout << "LABEL_" << statement.jmpBlock << ":";
-			break;
-		case OP_EXTLOW64:
-			cout << " EXTLOW64";
-			break;
-		case OP_EXTHIGH64:
-			cout << " EXTHIGH64";
-			break;
-		case OP_MERGETO64:
-			cout << " MERGETO64 ";
-			break;
-		case OP_MERGETO256:
-			cout << " MERGETO256 ";
-			break;
-		case OP_FP_ABS:
-			cout << " ABS";
-			break;
-		case OP_FP_NEG:
-			cout << " NEG";
-			break;
-		case OP_FP_MIN:
-			cout << " MIN ";
-			break;
-		case OP_FP_MAX:
-			cout << " MAX ";
-			break;
-		case OP_FP_SQRT:
-			cout << " SQRT";
-			break;
-		case OP_FP_RSQRT:
-			cout << " RSQRT";
-			break;
-		case OP_FP_RCPL:
-			cout << " RCPL";
-			break;
-		case OP_FP_TOINT_TRUNC:
-			cout << " INT(TRUNC)";
-			break;
-		case OP_FP_LDCST:
-			cout << " LOAD ";
-			break;
-		case OP_MD_MOV_MASKED:
-			cout << " MOVMSK ";
-			break;
-		case OP_MD_PACK_HB:
-			cout << " PACK_HB ";
-			break;
-		case OP_MD_PACK_WH:
-			cout << " PACK_WH ";
-			break;
-		case OP_MD_UNPACK_LOWER_BH:
-			cout << " UNPACK_LOWER_BH ";
-			break;
-		case OP_MD_UNPACK_LOWER_HW:
-			cout << " UNPACK_LOWER_HW ";
-			break;
-		case OP_MD_UNPACK_LOWER_WD:
-			cout << " UNPACK_LOWER_WD ";
-			break;
-		case OP_MD_UNPACK_UPPER_WD:
-			cout << " UNPACK_UPPER_WD ";
-			break;
-		case OP_MD_ADD_H:
-			cout << " +(H) ";
-			break;
-		case OP_MD_ADD_W:
-			cout << " +(W) ";
-			break;
-		case OP_MD_ADDUS_W:
-			cout << " +(USW) ";
-			break;
-		case OP_MD_ADDSS_W:
-			cout << " +(SSW) ";
-			break;
-		case OP_MD_SUB_B:
-			cout << " -(B) ";
-			break;
-		case OP_MD_SUB_W:
-			cout << " -(W) ";
-			break;
-		case OP_MD_SLLW:
-			cout << " <<(W) ";
-			break;
-		case OP_MD_SRLW:
-			cout << " >>(W) ";
-			break;
-		case OP_MD_SRL256:
-			cout << " >>(256) ";
-			break;
-		case OP_MD_CMPEQ_W:
-			cout << " CMP(EQ,W) ";
-			break;
-		case OP_MD_ADD_S:
-			cout << " +(S) ";
-			break;
-		case OP_MD_SUB_S:
-			cout << " -(S) ";
-			break;
-		case OP_MD_MUL_S:
-			cout << " *(S) ";
-			break;
-		case OP_MD_DIV_S:
-			cout << " /(S) ";
-			break;
-		case OP_MD_MIN_S:
-			cout << " MIN(S) ";
-			break;
-		case OP_MD_MAX_S:
-			cout << " MAX(S) ";
-			break;
-		case OP_MD_ISNEGATIVE:
-			cout << " ISNEGATIVE";
-			break;
-		case OP_MD_ISZERO:
-			cout << " ISZERO";
-			break;
-		case OP_MD_EXPAND:
-			cout << " EXPAND";
-			break;
-		case OP_MD_TOWORD_TRUNCATE:
-			cout << " TOWORD_TRUNCATE";
-			break;
-		default:
-			cout << " ?? ";
-			break;
-		}
-
-		if(statement.src2)
-		{
-			cout << statement.src2->ToString();
-		}
-
-		cout << endl;
-	}
-#endif
 }
 
 uint32 CJitter::CreateBlock()
@@ -523,7 +239,7 @@ uint32 CJitter::CreateBlock()
 CJitter::BASIC_BLOCK* CJitter::GetBlock(uint32 blockId)
 {
 	BasicBlockList::iterator blockIterator(m_basicBlocks.find(blockId));
-	if(blockIterator == m_basicBlocks.end()) return NULL;
+	if(blockIterator == m_basicBlocks.end()) return nullptr;
 	return &blockIterator->second;
 }
 
@@ -557,7 +273,7 @@ int CJitter::GetSymbolSize(const SymbolRefPtr& symbolRef)
 
 SymbolRefPtr CJitter::MakeSymbolRef(const SymbolPtr& symbol)
 {
-	return SymbolRefPtr(new CSymbolRef(symbol));
+	return std::make_shared<CSymbolRef>(symbol);
 }
 
 bool CJitter::FoldConstantOperation(STATEMENT& statement)
@@ -1017,19 +733,19 @@ void CJitter::MergeBasicBlocks(BASIC_BLOCK& dstBlock, const BASIC_BLOCK& srcBloc
 		if(statement.dst)
 		{
 			SymbolPtr symbol(statement.dst->GetSymbol());
-			statement.dst = SymbolRefPtr(new CSymbolRef(dstSymbolTable.MakeSymbol(symbol)));
+			statement.dst = std::make_shared<CSymbolRef>(dstSymbolTable.MakeSymbol(symbol));
 		}
 
 		if(statement.src1)
 		{
 			SymbolPtr symbol(statement.src1->GetSymbol());
-			statement.src1 = SymbolRefPtr(new CSymbolRef(dstSymbolTable.MakeSymbol(symbol)));
+			statement.src1 = std::make_shared<CSymbolRef>(dstSymbolTable.MakeSymbol(symbol));
 		}
 
 		if(statement.src2)
 		{
 			SymbolPtr symbol(statement.src2->GetSymbol());
-			statement.src2 = SymbolRefPtr(new CSymbolRef(dstSymbolTable.MakeSymbol(symbol)));
+			statement.src2 = std::make_shared<CSymbolRef>(dstSymbolTable.MakeSymbol(symbol));
 		}
 
 		dstBlock.statements.push_back(statement);
@@ -1202,15 +918,15 @@ bool CJitter::MergeBlocks()
 			nextBlockIterator++;
 			if(nextBlockIterator == m_basicBlocks.end()) continue;
 
-			BASIC_BLOCK& basicBlock(blockIterator->second);
-			BASIC_BLOCK& nextBlock(nextBlockIterator->second);
+			auto& basicBlock(blockIterator->second);
+			auto& nextBlock(nextBlockIterator->second);
 
 			if(nextBlock.hasJumpRef) continue;
 
 			//Check if the last statement is a jump
-			StatementList::const_iterator lastStatementIterator(basicBlock.statements.end());
+			auto lastStatementIterator(basicBlock.statements.end());
 			lastStatementIterator--;
-			const STATEMENT& statement(*lastStatementIterator);
+			const auto& statement(*lastStatementIterator);
 			if(statement.op == OP_CONDJMP) continue;
 			if(statement.op == OP_JMP) continue;
 
@@ -1552,102 +1268,27 @@ void CJitter::RemoveSelfAssignments(BASIC_BLOCK& basicBlock)
 	}
 }
 
-void CJitter::ComputeLivenessAndPruneSymbols(BASIC_BLOCK& basicBlock)
+void CJitter::PruneSymbols(BASIC_BLOCK& basicBlock) const
 {
-	struct ModifyLiveRangeInfo
+	auto& symbolTable(basicBlock.symbolTable);
+
+	SymbolUseCountMap symbolUseCount;
+	for(const auto& statement : basicBlock.statements)
 	{
-		void operator()(SymbolPtr& symbol, unsigned int statementIdx) const
-		{
-			if(symbol->m_rangeBegin == -1)
+		statement.VisitOperands(
+			[&] (const SymbolRefPtr& symbolRef, bool)
 			{
-				symbol->m_rangeBegin = statementIdx;
+				const auto& symbol = symbolRef->GetSymbol();
+				symbolUseCount[symbol.get()]++;
 			}
-			symbol->m_rangeEnd = statementIdx;
-		}
-	};
-
-	CSymbolTable& symbolTable(basicBlock.symbolTable);
-	const StatementList& statements(basicBlock.statements);
-
-	for(CSymbolTable::SymbolIterator symbolIterator(symbolTable.GetSymbolsBegin());
-		symbolIterator != symbolTable.GetSymbolsEnd(); symbolIterator++)
-	{
-		SymbolPtr& symbol(const_cast<SymbolPtr&>(*symbolIterator));
-		symbol->m_useCount = 0;
-
-		unsigned int statementIdx = 0;
-		for(StatementList::const_iterator statementIterator(statements.begin());
-			statementIterator != statements.end(); statementIterator++, statementIdx++)
-		{
-			const STATEMENT& statement(*statementIterator);
-			if(statement.dst)
-			{
-				SymbolPtr dstSymbol(statement.dst->GetSymbol());
-				if(dstSymbol->Equals(symbol.get()))
-				{
-					symbol->m_useCount++;
-					if(symbol->m_firstDef == -1)
-					{
-						symbol->m_firstDef = statementIdx;
-					}
-					if((symbol->m_lastDef == -1) || (statementIdx > symbol->m_lastDef))
-					{
-						symbol->m_lastDef = statementIdx;
-					}
-
-					ModifyLiveRangeInfo()(symbol, statementIdx);
-				}
-				else if(!symbol->m_aliased && dstSymbol->Aliases(symbol.get()))
-				{
-					symbol->m_aliased = true;
-				}
-			}
-
-			if(statement.src1)
-			{
-				SymbolPtr src1Symbol(statement.src1->GetSymbol());
-				if(src1Symbol->Equals(symbol.get()))
-				{
-					symbol->m_useCount++;
-					if(symbol->m_firstUse == -1)
-					{
-						symbol->m_firstUse = statementIdx;
-					}
-
-					ModifyLiveRangeInfo()(symbol, statementIdx);
-				}
-				else if(!symbol->m_aliased && src1Symbol->Aliases(symbol.get()))
-				{
-					symbol->m_aliased = true;
-				}
-			}
-
-			if(statement.src2)
-			{
-				SymbolPtr src2Symbol(statement.src2->GetSymbol());
-				if(src2Symbol->Equals(symbol.get()))
-				{
-					symbol->m_useCount++;
-					if(symbol->m_firstUse == -1)
-					{
-						symbol->m_firstUse = statementIdx;
-					}
-
-					ModifyLiveRangeInfo()(symbol, statementIdx);
-				}
-				else if(!symbol->m_aliased && src2Symbol->Aliases(symbol.get()))
-				{
-					symbol->m_aliased = true;
-				}
-			}
-		}
+		);
 	}
 
-	for(CSymbolTable::SymbolIterator symbolIterator(symbolTable.GetSymbolsBegin());
-		symbolIterator != symbolTable.GetSymbolsEnd();)
+	for(auto symbolIterator(std::begin(symbolTable.GetSymbols()));
+		symbolIterator != std::end(symbolTable.GetSymbols());)
 	{
-		const SymbolPtr& symbol(*symbolIterator);
-		if(symbol->m_useCount == 0)
+		const auto& symbol(*symbolIterator);
+		if(symbolUseCount.find(symbol.get()) == std::end(symbolUseCount))
 		{
 			symbolIterator = symbolTable.RemoveSymbol(symbolIterator);
 		}
@@ -1661,14 +1302,8 @@ void CJitter::ComputeLivenessAndPruneSymbols(BASIC_BLOCK& basicBlock)
 unsigned int CJitter::AllocateStack(BASIC_BLOCK& basicBlock)
 {
 	unsigned int stackAlloc = 0;
-	CSymbolTable& symbolTable(basicBlock.symbolTable);
-	for(CSymbolTable::SymbolIterator symbolIterator(symbolTable.GetSymbolsBegin());
-		symbolIterator != symbolTable.GetSymbolsEnd(); symbolIterator++)
+	for(const auto& symbol : basicBlock.symbolTable.GetSymbols())
 	{
-		const SymbolPtr& symbol(*symbolIterator);
-
-		if(symbol->m_regAlloc_register != -1 && (symbol->m_regAlloc_notAllocatedAfterIdx == symbol->m_rangeEnd)) continue;
-
 		if(symbol->m_type == SYM_TEMPORARY || symbol->m_type == SYM_FP_TMP_SINGLE)
 		{
 			symbol->m_stackLocation = stackAlloc;
@@ -1726,11 +1361,8 @@ void CJitter::NormalizeStatements(BASIC_BLOCK& basicBlock)
 	//1. Always have registers as the first operand
 	//2. Always have constants as the last operand
 
-	for(StatementList::iterator statementIterator(basicBlock.statements.begin());
-		basicBlock.statements.end() != statementIterator; statementIterator++)
+	for(auto& statement : basicBlock.statements)
 	{
-		STATEMENT& statement(*statementIterator);
-
 		bool isCommutative = false;
 		bool conditionSwapRequired = false;
 

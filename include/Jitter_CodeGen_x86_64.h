@@ -1,5 +1,4 @@
-#ifndef _JITTER_CODEGEN_X86_64_H_
-#define _JITTER_CODEGEN_X86_64_H_
+#pragma once
 
 #include <deque>
 #include "Jitter_CodeGen_x86.h"
@@ -9,12 +8,13 @@ namespace Jitter
 	class CCodeGen_x86_64 : public CCodeGen_x86
 	{
 	public:
-						CCodeGen_x86_64();
-		virtual			~CCodeGen_x86_64();
+											CCodeGen_x86_64();
+		virtual								~CCodeGen_x86_64();
 
-		unsigned int	GetAvailableRegisterCount() const;
-		unsigned int	GetAddressSize() const;
-		bool			CanHold128BitsReturnValueInRegisters() const;
+		unsigned int						GetAvailableRegisterCount() const override;
+		unsigned int						GetAvailableMdRegisterCount() const override;
+		unsigned int						GetAddressSize() const override;
+		bool								CanHold128BitsReturnValueInRegisters() const override;
 
 	protected:
 		//ALUOP64 ----------------------------------------------------------
@@ -77,6 +77,7 @@ namespace Jitter
 		void								Emit_Param_Cst(const STATEMENT&);
 		void								Emit_Param_Mem64(const STATEMENT&);
 		void								Emit_Param_Cst64(const STATEMENT&);
+		void								Emit_Param_Reg128(const STATEMENT&);
 		void								Emit_Param_Mem128(const STATEMENT&);
 
 		//CALL
@@ -129,7 +130,7 @@ namespace Jitter
 	private:
 		typedef void (CCodeGen_x86_64::*ConstCodeEmitterType)(const STATEMENT&);
 
-		typedef std::function<void (CX86Assembler::REGISTER)> ParamEmitterFunction;
+		typedef std::function<uint32 (CX86Assembler::REGISTER, uint32)> ParamEmitterFunction;
 		typedef std::deque<ParamEmitterFunction> ParamStack;
 
 		struct CONSTMATCHER
@@ -158,6 +159,7 @@ namespace Jitter
 		enum MAX_REGISTERS
 		{
 			MAX_REGISTERS = 7,
+			MAX_MDREGISTERS = 12,
 		};
 		
 		enum MAX_PARAMS
@@ -169,11 +171,11 @@ namespace Jitter
 		
 		static CONSTMATCHER					g_constMatchers[];
 		static CX86Assembler::REGISTER		g_registers[MAX_REGISTERS];
+		static CX86Assembler::XMMREGISTER	g_mdRegisters[MAX_MDREGISTERS];
 		static CX86Assembler::REGISTER		g_paramRegs[MAX_PARAMS];
 
 		ParamStack							m_params;
-		uint32								m_totalStackAlloc;
+		uint32								m_paramSpillBase = 0;
+		uint32								m_totalStackAlloc = 0;
 	};
 }
-
-#endif

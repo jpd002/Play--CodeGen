@@ -1,8 +1,8 @@
-#ifndef _ALIASTEST_H_
-#define _ALIASTEST_H_
+#pragma once
 
 #include "Test.h"
 #include "MemoryFunction.h"
+#include "Align16.h"
 
 class CAliasTest : public CTest
 {
@@ -16,6 +16,8 @@ public:
 private:
 	struct CONTEXT
 	{
+		ALIGN16
+
 		uint32		value0[2];
 		uint32		value1[2];
 
@@ -29,5 +31,3 @@ private:
 	CONTEXT				m_context;
 	CMemoryFunction		m_function;
 };
-
-#endif

@@ -1,126 +1,364 @@
 #include "Jitter.h"
+#include <iostream>
+#include <set>
+
+#ifdef _DEBUG
+//#define DUMP_STATEMENTS
+#endif
+
+#ifdef DUMP_STATEMENTS
+#include <iostream>
+#endif
 
 using namespace Jitter;
 
-static bool UseCountSymbolComparator(const CSymbol* symbol1, const CSymbol* symbol2)
-{
-	return symbol1->m_useCount > symbol2->m_useCount;
-}
-
 void CJitter::AllocateRegisters(BASIC_BLOCK& basicBlock)
 {
-	if(basicBlock.statements.size() == 0) return;
+	auto& symbolTable = basicBlock.symbolTable;
 
-	unsigned int regCount = m_codeGen->GetAvailableRegisterCount();
-	unsigned int currentRegister = 0;
-	CSymbolTable& symbolTable(basicBlock.symbolTable);
-	StatementList& statements(basicBlock.statements);
+	std::multimap<unsigned int, STATEMENT> loadStatements;
+	std::multimap<unsigned int, STATEMENT> spillStatements;
+#ifdef DUMP_STATEMENTS
+	DumpStatementList(basicBlock.statements);
+	std::cout << std::endl;
+#endif
 
-	typedef std::list<CSymbol*> UseCountSymbolSortedList;
-
-	UseCountSymbolSortedList sortedSymbols;
-	for(CSymbolTable::SymbolIterator symbolIterator(symbolTable.GetSymbolsBegin());
-		symbolIterator != symbolTable.GetSymbolsEnd(); symbolIterator++)
+	auto allocRanges = ComputeAllocationRanges(basicBlock);
+	for(const auto& allocRange : allocRanges)
 	{
-		sortedSymbols.push_back(symbolIterator->get());
-	}
-	sortedSymbols.sort(UseCountSymbolComparator);
+		SymbolRegAllocInfo symbolRegAllocs;
+		ComputeLivenessForRange(basicBlock, allocRange, symbolRegAllocs);
 
-	for(unsigned int i = 0; i < regCount; i++)
-	{
-		symbolTable.MakeSymbol(SYM_REGISTER, i);
-	}
+		MarkAliasedSymbols(basicBlock, allocRange, symbolRegAllocs);
 
-	UseCountSymbolSortedList::iterator symbolIterator = sortedSymbols.begin();
-	while(1)
-	{
-		if(symbolIterator == sortedSymbols.end())
+		AssociateSymbolsToRegisters(symbolRegAllocs);
+
+		//Replace all references to symbols by references to allocated registers
+		for(const auto& statementInfo : IndexedStatementList(basicBlock.statements))
 		{
-			//We're done
-			break;
+			auto& statement(statementInfo.statement);
+			const auto& statementIdx(statementInfo.index);
+			if(statementIdx < allocRange.first) continue;
+			if(statementIdx > allocRange.second) break;
+
+			statement.VisitOperands(
+				[&] (SymbolRefPtr& symbolRef, bool)
+				{
+					auto symbol = symbolRef->GetSymbol();
+					auto symbolRegAllocIterator = symbolRegAllocs.find(symbol);
+					if(symbolRegAllocIterator != std::end(symbolRegAllocs))
+					{
+						const auto& symbolRegAlloc = symbolRegAllocIterator->second;
+						if(symbolRegAlloc.registerId != -1)
+						{
+							symbolRef = MakeSymbolRef(
+								symbolTable.MakeSymbol(symbolRegAlloc.registerType, symbolRegAlloc.registerId));
+						}
+					}
+				}
+			);
 		}
 
-		if(currentRegister == regCount)
+		//Prepare load and spills
+		for(const auto& symbolRegAllocPair : symbolRegAllocs)
 		{
-			//We're done
-			break;
-		}
+			const auto& symbol = symbolRegAllocPair.first;
+			const auto& symbolRegAlloc = symbolRegAllocPair.second;
 
-		CSymbol* symbol(*symbolIterator);
-		if(
-			((symbol->m_type == SYM_RELATIVE) && (symbol->m_useCount != 0) && (!symbol->m_aliased)) ||
-			((symbol->m_type == SYM_TEMPORARY) && (symbol->m_useCount != 0))
-			)
-		{
-			symbol->m_regAlloc_register = currentRegister;
+			//Check if it's actually allocated
+			if(symbolRegAlloc.registerId == -1) continue;
 
-			//Replace all uses of this symbol with register
-			for(StatementList::iterator statementIterator(statements.begin());
-				statementIterator != statements.end(); statementIterator++)
+			//firstUse == -1 means it is written to but never used afterwards in this block
+
+			//Do we need to load register at the beginning?
+			//If symbol is read and we use this symbol before we define it, so we need to load it first
+			if((symbolRegAlloc.firstUse != -1) && (symbolRegAlloc.firstUse <= symbolRegAlloc.firstDef))
 			{
-				STATEMENT& statement(*statementIterator);
-				if(statement.dst && statement.dst->GetSymbol()->Equals(symbol))
-				{
-					statement.dst = MakeSymbolRef(symbolTable.MakeSymbol(SYM_REGISTER, currentRegister));
-				}
+				STATEMENT statement;
+				statement.op	= OP_MOV;
+				statement.dst	= std::make_shared<CSymbolRef>(
+					symbolTable.MakeSymbol(symbolRegAlloc.registerType, symbolRegAlloc.registerId));
+				statement.src1	= std::make_shared<CSymbolRef>(symbol);
 
-				if(statement.src1 && statement.src1->GetSymbol()->Equals(symbol))
-				{
-					statement.src1 = MakeSymbolRef(symbolTable.MakeSymbol(SYM_REGISTER, currentRegister));
-				}
-
-				if(statement.src2 && statement.src2->GetSymbol()->Equals(symbol))
-				{
-					statement.src2 = MakeSymbolRef(symbolTable.MakeSymbol(SYM_REGISTER, currentRegister));
-				}
+				loadStatements.insert(std::make_pair(allocRange.first, statement));
 			}
 
-			currentRegister++;
-		}
+			//If symbol is defined, we need to save it at the end
+			if(symbolRegAlloc.firstDef != -1)
+			{
+				STATEMENT statement;
+				statement.op	= OP_MOV;
+				statement.dst	= std::make_shared<CSymbolRef>(symbol);
+				statement.src1	= std::make_shared<CSymbolRef>(
+					symbolTable.MakeSymbol(symbolRegAlloc.registerType, symbolRegAlloc.registerId));
 
-		symbolIterator++;
-	}
-
-	//Find the final instruction where to dump registers to
-	StatementList::iterator endInsertionPoint(statements.end());
-	{
-		StatementList::const_iterator endInstructionIterator(statements.end());
-		endInstructionIterator--;
-		const STATEMENT& statement(*endInstructionIterator);
-		if(statement.op == OP_CONDJMP || statement.op == OP_JMP)
-		{
-			endInsertionPoint--;
+				spillStatements.insert(std::make_pair(allocRange.second, statement));
+			}
 		}
 	}
 
-	//Emit copies to registers
-	for(CSymbolTable::SymbolIterator symbolIterator(symbolTable.GetSymbolsBegin());
-		symbolIterator != symbolTable.GetSymbolsEnd(); symbolIterator++)
+#ifdef DUMP_STATEMENTS
+	DumpStatementList(basicBlock.statements);
+	std::cout << std::endl;
+#endif
+
+	std::map<unsigned int, StatementList::const_iterator> loadPoints;
+	std::map<unsigned int, StatementList::const_iterator> spillPoints;
+
+	//Load
+	for(const auto& statementInfo : ConstIndexedStatementList(basicBlock.statements))
 	{
-		const SymbolPtr& symbol(*symbolIterator);
-		if(symbol->m_regAlloc_register == -1) continue;
-		if(symbol->m_type == SYM_TEMPORARY) continue;
-
-		//We use this symbol before we define it, so we need to load it first
-		if(symbol->m_firstUse != -1 && symbol->m_firstUse <= symbol->m_firstDef)
+		const auto& statementIdx(statementInfo.index);
+		if(loadStatements.find(statementIdx) != std::end(loadStatements))
 		{
-			STATEMENT statement;
-			statement.op	= OP_MOV;
-			statement.dst	= SymbolRefPtr(new CSymbolRef(symbolTable.MakeSymbol(SYM_REGISTER, symbol->m_regAlloc_register)));
-			statement.src1	= SymbolRefPtr(new CSymbolRef(symbol));
-
-			statements.push_front(statement);
+			loadPoints.insert(std::make_pair(statementIdx, statementInfo.iterator));
 		}
+	}
 
-		//If symbol is defined, we need to save it at the end
-		if(symbol->m_firstDef != -1)
+	//Spill
+	for(const auto& statementInfo : ConstIndexedStatementList(basicBlock.statements))
+	{
+		const auto& statementIdx(statementInfo.index);
+		if(spillStatements.find(statementIdx) != std::end(spillStatements))
 		{
-			STATEMENT statement;
-			statement.op	= OP_MOV;
-			statement.dst	= SymbolRefPtr(new CSymbolRef(symbol));
-			statement.src1	= SymbolRefPtr(new CSymbolRef(symbolTable.MakeSymbol(SYM_REGISTER, symbol->m_regAlloc_register)));
+			const auto& statement = statementInfo.statement;
+			auto statementIterator = statementInfo.iterator;
+			if((statement.op != OP_CONDJMP) && (statement.op != OP_JMP) && (statement.op != OP_CALL))
+			{
+				statementIterator++;
+			}
+			spillPoints.insert(std::make_pair(statementIdx, statementIterator));
+		}
+	}
 
-			statements.insert(endInsertionPoint, statement);
+	//Loads
+	for(const auto& loadPoint : loadPoints)
+	{
+		unsigned int statementIndex = loadPoint.first;
+		for(auto statementIterator = loadStatements.lower_bound(statementIndex);
+			statementIterator != loadStatements.upper_bound(statementIndex);
+			statementIterator++)
+		{
+			const auto& statement(statementIterator->second);
+			basicBlock.statements.insert(loadPoint.second, statement);
+		}
+	}
+
+	//Spills
+	for(const auto& spillPoint : spillPoints)
+	{
+		unsigned int statementIndex = spillPoint.first;
+		for(auto statementIterator = spillStatements.lower_bound(statementIndex);
+			statementIterator != spillStatements.upper_bound(statementIndex);
+			statementIterator++)
+		{
+			const auto& statement(statementIterator->second);
+			basicBlock.statements.insert(spillPoint.second, statement);
+		}
+	}
+
+#ifdef DUMP_STATEMENTS
+	DumpStatementList(basicBlock.statements);
+	std::cout << std::endl;
+#endif
+}
+
+void CJitter::AssociateSymbolsToRegisters(SymbolRegAllocInfo& symbolRegAllocs) const
+{
+	std::multimap<SYM_TYPE, unsigned int> availableRegisters;
+	{
+		unsigned int regCount = m_codeGen->GetAvailableRegisterCount();
+		for(unsigned int i = 0; i < regCount; i++)
+		{
+			availableRegisters.insert(std::make_pair(SYM_REGISTER, i));
+		}
+	}
+
+	{
+		unsigned int regCount = m_codeGen->GetAvailableMdRegisterCount();
+		for(unsigned int i = 0; i < regCount; i++)
+		{
+			availableRegisters.insert(std::make_pair(SYM_REGISTER128, i));
+		}
+	}
+
+	auto isRegisterAllocatable =
+		[] (SYM_TYPE symbolType)
+		{
+			return 
+				(symbolType == SYM_RELATIVE) || (symbolType == SYM_TEMPORARY) ||
+				(symbolType == SYM_RELATIVE128) || (symbolType == SYM_TEMPORARY128);
+		};
+
+	//Sort symbols by usage count
+	std::list<SymbolRegAllocInfo::value_type*> sortedSymbols;
+	for(auto& symbolRegAllocPair : symbolRegAllocs)
+	{
+		const auto& symbol(symbolRegAllocPair.first);
+		const auto& symbolRegAlloc(symbolRegAllocPair.second);
+		if(!isRegisterAllocatable(symbol->m_type)) continue;
+		if(symbolRegAlloc.aliased) continue;
+		sortedSymbols.push_back(&symbolRegAllocPair);
+	}
+	sortedSymbols.sort(
+		[] (SymbolRegAllocInfo::value_type* symbolRegAllocPair1, SymbolRegAllocInfo::value_type* symbolRegAllocPair2)
+		{
+			const auto& symbol1(symbolRegAllocPair1->first);
+			const auto& symbol2(symbolRegAllocPair2->first);
+			const auto& symbolRegAlloc1(symbolRegAllocPair1->second);
+			const auto& symbolRegAlloc2(symbolRegAllocPair2->second);
+			if(symbolRegAlloc1.useCount == symbolRegAlloc2.useCount)
+			{
+				if(symbol1->m_type == symbol2->m_type)
+				{
+					return symbol1->m_valueLow > symbol2->m_valueLow;
+				}
+				else
+				{
+					return symbol1->m_type > symbol2->m_type;
+				}
+			}
+			else
+			{
+				return symbolRegAlloc1.useCount > symbolRegAlloc2.useCount;
+			}
+		}
+	);
+
+	for(auto& symbolRegAllocPair : sortedSymbols)
+	{
+		if(availableRegisters.empty()) break;
+
+		const auto& symbol = symbolRegAllocPair->first;
+		auto& symbolRegAlloc = symbolRegAllocPair->second;
+
+		//Find suitable register for this symbol
+		auto registerIterator = std::end(availableRegisters);
+		auto registerIteratorEnd = std::end(availableRegisters);
+		if((symbol->m_type == SYM_RELATIVE) || (symbol->m_type == SYM_TEMPORARY))
+		{
+			registerIterator = availableRegisters.lower_bound(SYM_REGISTER);
+			registerIteratorEnd = availableRegisters.upper_bound(SYM_REGISTER);
+		}
+		else if((symbol->m_type == SYM_RELATIVE128) || (symbol->m_type == SYM_TEMPORARY128))
+		{
+			registerIterator = availableRegisters.lower_bound(SYM_REGISTER128);
+			registerIteratorEnd = availableRegisters.upper_bound(SYM_REGISTER128);
+		}
+		if(registerIterator != registerIteratorEnd)
+		{
+			symbolRegAlloc.registerType = registerIterator->first;
+			symbolRegAlloc.registerId = registerIterator->second;
+			availableRegisters.erase(registerIterator);
+		}
+	}
+}
+
+CJitter::AllocationRangeArray CJitter::ComputeAllocationRanges(const BASIC_BLOCK& basicBlock)
+{
+	AllocationRangeArray result;
+	unsigned int currentStart = 0;
+	for(const auto& statementInfo : ConstIndexedStatementList(basicBlock.statements))
+	{
+		const auto& statement(statementInfo.statement);
+		const auto& statementIdx(statementInfo.index);
+		if(statement.op == OP_CALL)
+		{
+			//Gotta split here
+			result.push_back(std::make_pair(currentStart, statementIdx));
+			currentStart = statementIdx + 1;
+		}
+	}
+	result.push_back(std::make_pair(currentStart, basicBlock.statements.size() - 1));
+	return result;
+}
+
+void CJitter::ComputeLivenessForRange(const BASIC_BLOCK& basicBlock, const AllocationRange& allocRange, SymbolRegAllocInfo& symbolRegAllocs) const
+{
+	auto& symbolTable(basicBlock.symbolTable);
+	const auto& statements(basicBlock.statements);
+
+	for(const auto& statementInfo : ConstIndexedStatementList(basicBlock.statements))
+	{
+		const auto& statement(statementInfo.statement);
+		unsigned int statementIdx(statementInfo.index);
+		if(statementIdx < allocRange.first) continue;
+		if(statementIdx > allocRange.second) continue;
+
+		statement.VisitDestination(
+			[&] (const SymbolRefPtr& symbolRef, bool)
+			{
+				auto symbol(symbolRef->GetSymbol());
+				auto& symbolRegAlloc = symbolRegAllocs[symbol];
+				symbolRegAlloc.useCount++;
+				if(symbolRegAlloc.firstDef == -1)
+				{
+					symbolRegAlloc.firstDef = statementIdx;
+				}
+				if((symbolRegAlloc.lastDef == -1) || (statementIdx > symbolRegAlloc.lastDef))
+				{
+					symbolRegAlloc.lastDef = statementIdx;
+				}
+			}
+		);
+
+		statement.VisitSources(
+			[&] (const SymbolRefPtr& symbolRef, bool)
+			{
+				auto symbol(symbolRef->GetSymbol());
+				auto& symbolRegAlloc = symbolRegAllocs[symbol];
+				symbolRegAlloc.useCount++;
+				if(symbolRegAlloc.firstUse == -1)
+				{
+					symbolRegAlloc.firstUse = statementIdx;
+				}
+			}
+		);
+
+		//Special case (probably because of badly designed instruction)
+		if(statement.op == OP_MD_MOV_MASKED)
+		{
+			//MD_MOV_MASKED will use the values from dst, so, it's actually
+			//used before being defined
+			auto symbol(statement.dst->GetSymbol());
+			auto& symbolRegAlloc = symbolRegAllocs[symbol];
+			if(symbolRegAlloc.firstUse == -1)
+			{
+				symbolRegAlloc.firstUse = statementIdx;
+			}
+		}
+	}
+}
+
+void CJitter::MarkAliasedSymbols(const BASIC_BLOCK& basicBlock, const AllocationRange& allocRange, SymbolRegAllocInfo& symbolRegAllocs) const
+{
+	for(const auto& statementInfo : ConstIndexedStatementList(basicBlock.statements))
+	{
+		auto& statement(statementInfo.statement);
+		const auto& statementIdx(statementInfo.index);
+		if(statementIdx < allocRange.first) continue;
+		if(statementIdx > allocRange.second) break;
+		if(statement.op == OP_PARAM_RET)
+		{
+			//This symbol will end up being written to by the callee, thus will be aliased
+			auto& symbolRegAlloc = symbolRegAllocs[statement.src1->GetSymbol()];
+			symbolRegAlloc.aliased = true;
+		}
+		for(auto& symbolRegAlloc : symbolRegAllocs)
+		{
+			if(symbolRegAlloc.second.aliased) continue;
+			auto testedSymbol = symbolRegAlloc.first;
+			statement.VisitOperands(
+				[&](const SymbolRefPtr& symbolRef, bool)
+				{
+					auto symbol = symbolRef->GetSymbol();
+					if(symbol->Equals(testedSymbol.get())) return;
+					if(symbol->Aliases(testedSymbol.get()))
+					{
+						symbolRegAlloc.second.aliased = true;
+					}
+				}
+			);
 		}
 	}
 }

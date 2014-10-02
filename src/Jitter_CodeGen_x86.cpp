@@ -161,8 +161,8 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_constMatchers[] =
 	{ OP_NOT,		MATCH_RELATIVE,		MATCH_REGISTER,		MATCH_NIL,			&CCodeGen_x86::Emit_Not_RelReg						},
 	{ OP_NOT,		MATCH_RELATIVE,		MATCH_TEMPORARY,	MATCH_NIL,			&CCodeGen_x86::Emit_Not_RelTmp						},
 
-	{ OP_LZC,		MATCH_REGISTER,		MATCH_MEMORY,		MATCH_NIL,			&CCodeGen_x86::Emit_Lzc_RegMem						},
-	{ OP_LZC,		MATCH_MEMORY,		MATCH_MEMORY,		MATCH_NIL,			&CCodeGen_x86::Emit_Lzc_MemMem						},
+	{ OP_LZC,		MATCH_REGISTER,		MATCH_VARIABLE,		MATCH_NIL,			&CCodeGen_x86::Emit_Lzc_RegVar						},
+	{ OP_LZC,		MATCH_MEMORY,		MATCH_VARIABLE,		MATCH_NIL,			&CCodeGen_x86::Emit_Lzc_MemVar						},
 
 	SHIFT_CONST_MATCHERS(OP_SRL, SHIFTOP_SRL)
 	SHIFT_CONST_MATCHERS(OP_SRA, SHIFTOP_SRA)
@@ -281,7 +281,8 @@ CCodeGen_x86::~CCodeGen_x86()
 
 void CCodeGen_x86::GenerateCode(const StatementList& statements, unsigned int stackSize)
 {
-	assert(m_registers != NULL);
+	assert(m_registers != nullptr);
+	assert(m_mdRegisters != nullptr);
 
 	uint32 registerUsage = GetRegisterUsage(statements);
 	
@@ -304,7 +305,7 @@ void CCodeGen_x86::GenerateCode(const StatementList& statements, unsigned int st
 
 			for(auto matchIterator(begin); matchIterator != end; matchIterator++)
 			{
-				const MATCHER& matcher(matchIterator->second);
+				const auto& matcher(matchIterator->second);
 				if(!SymbolMatches(matcher.dstType, statement.dst)) continue;
 				if(!SymbolMatches(matcher.src1Type, statement.src1)) continue;
 				if(!SymbolMatches(matcher.src2Type, statement.src2)) continue;
@@ -380,6 +381,25 @@ CX86Assembler::CAddress CCodeGen_x86::MakeMemorySymbolAddress(CSymbol* symbol)
 {
 	switch(symbol->m_type)
 	{
+	case SYM_RELATIVE:
+		return MakeRelativeSymbolAddress(symbol);
+		break;
+	case SYM_TEMPORARY:
+		return MakeTemporarySymbolAddress(symbol);
+		break;
+	default:
+		throw std::exception();
+		break;
+	}
+}
+
+CX86Assembler::CAddress CCodeGen_x86::MakeVariableSymbolAddress(CSymbol* symbol)
+{
+	switch(symbol->m_type)
+	{
+	case SYM_REGISTER:
+		return CX86Assembler::MakeRegisterAddress(m_registers[symbol->m_valueLow]);
+		break;
 	case SYM_RELATIVE:
 		return MakeRelativeSymbolAddress(symbol);
 		break;
@@ -588,13 +608,13 @@ void CCodeGen_x86::Emit_Not_RelTmp(const STATEMENT& statement)
 	m_assembler.MovGd(CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, dst->m_valueLow), CX86Assembler::rAX);
 }
 
-void CCodeGen_x86::Lzc_RegMem(CX86Assembler::REGISTER dstRegister, const CX86Assembler::CAddress& srcAddress)
+void CCodeGen_x86::Emit_Lzc(CX86Assembler::REGISTER dstRegister, const CX86Assembler::CAddress& srcAddress)
 {
-	CX86Assembler::LABEL set32Label = m_assembler.CreateLabel();
-	CX86Assembler::LABEL startCountLabel = m_assembler.CreateLabel();
-	CX86Assembler::LABEL doneLabel = m_assembler.CreateLabel();
+	auto set32Label = m_assembler.CreateLabel();
+	auto startCountLabel = m_assembler.CreateLabel();
+	auto doneLabel = m_assembler.CreateLabel();
 
-	CX86Assembler::REGISTER tmpRegister = CX86Assembler::rAX;
+	auto tmpRegister = CX86Assembler::rAX;
 
 	m_assembler.MovEd(tmpRegister, srcAddress);
 	m_assembler.TestEd(tmpRegister, CX86Assembler::MakeRegisterAddress(tmpRegister));
@@ -621,23 +641,23 @@ void CCodeGen_x86::Lzc_RegMem(CX86Assembler::REGISTER dstRegister, const CX86Ass
 	m_assembler.MarkLabel(doneLabel);
 }
 
-void CCodeGen_x86::Emit_Lzc_RegMem(const STATEMENT& statement)
+void CCodeGen_x86::Emit_Lzc_RegVar(const STATEMENT& statement)
 {
-	CSymbol* dst = statement.dst->GetSymbol().get();
-	CSymbol* src1 = statement.src1->GetSymbol().get();
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
 
-	assert(dst->m_type == SYM_REGISTER);
-
-	Lzc_RegMem(m_registers[dst->m_valueLow], MakeMemorySymbolAddress(src1));
+	Emit_Lzc(m_registers[dst->m_valueLow], MakeVariableSymbolAddress(src1));
 }
 
-void CCodeGen_x86::Emit_Lzc_MemMem(const STATEMENT& statement)
+void CCodeGen_x86::Emit_Lzc_MemVar(const STATEMENT& statement)
 {
-	CSymbol* dst = statement.dst->GetSymbol().get();
-	CSymbol* src1 = statement.src1->GetSymbol().get();
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
 
-	Lzc_RegMem(CX86Assembler::rAX, MakeMemorySymbolAddress(src1));
-	m_assembler.MovGd(MakeMemorySymbolAddress(dst), CX86Assembler::rAX);
+	auto dstRegister = CX86Assembler::rAX;
+
+	Emit_Lzc(dstRegister, MakeVariableSymbolAddress(src1));
+	m_assembler.MovGd(MakeMemorySymbolAddress(dst), dstRegister);
 }
 
 void CCodeGen_x86::Emit_Mov_RegReg(const STATEMENT& statement)

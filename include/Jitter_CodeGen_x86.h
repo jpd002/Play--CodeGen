@@ -198,6 +198,11 @@ namespace Jitter
 			static OpVoType OpVo() { return &CX86Assembler::PcmpgtwVo; }
 		};
 
+		struct MDOP_CMPGTW : public MDOP_BASE
+		{
+			static OpVoType OpVo() { return &CX86Assembler::PcmpgtdVo; }
+		};
+
 		struct MDOP_MINH : public MDOP_BASE
 		{
 			static OpVoType OpVo() { return &CX86Assembler::PminswVo; }
@@ -334,6 +339,38 @@ namespace Jitter
 			static OpVoType OpVo() { return &CX86Assembler::PslldVo; }
 		};
 
+		//MDOP SINGLEOP -------------------------------------------------
+		struct MDOP_SINGLEOP_BASE
+		{
+			typedef void (CCodeGen_x86::*OpVrType)(CX86Assembler::XMMREGISTER);
+		};
+
+		struct MDOP_ABS : public MDOP_SINGLEOP_BASE
+		{
+			static OpVrType OpVr() { return &CCodeGen_x86::Emit_Md_Abs; }
+		};
+
+		struct MDOP_NOT : public MDOP_SINGLEOP_BASE
+		{
+			static OpVrType OpVr() { return &CCodeGen_x86::Emit_Md_Not; }
+		};
+
+		//MDOP FLAG -----------------------------------------------------
+		struct MDOP_FLAG_BASE
+		{
+			typedef void (CCodeGen_x86::*OpEdType)(CX86Assembler::REGISTER, const CX86Assembler::CAddress&);
+		};
+
+		struct MDOP_ISNEGATIVE : public MDOP_FLAG_BASE
+		{
+			static OpEdType OpEd() { return &CCodeGen_x86::Emit_Md_IsNegative; }
+		};
+
+		struct MDOP_ISZERO : public MDOP_FLAG_BASE
+		{
+			static OpEdType OpEd() { return &CCodeGen_x86::Emit_Md_IsZero; }
+		};
+
 		virtual void				Emit_Prolog(const StatementList&, unsigned int, uint32) = 0;
 		virtual void				Emit_Epilog(unsigned int, uint32) = 0;
 
@@ -342,6 +379,7 @@ namespace Jitter
 		CX86Assembler::CAddress		MakeRelativeSymbolAddress(CSymbol*);
 		CX86Assembler::CAddress		MakeTemporarySymbolAddress(CSymbol*);
 		CX86Assembler::CAddress		MakeMemorySymbolAddress(CSymbol*);
+		CX86Assembler::CAddress		MakeVariableSymbolAddress(CSymbol*);
 
 		CX86Assembler::CAddress		MakeRelativeReferenceSymbolAddress(CSymbol*);
 		CX86Assembler::CAddress		MakeTemporaryReferenceSymbolAddress(CSymbol*);
@@ -364,6 +402,7 @@ namespace Jitter
 		CX86Assembler::CAddress		MakeRelative128SymbolElementAddress(CSymbol*, unsigned int);
 		CX86Assembler::CAddress		MakeTemporary128SymbolElementAddress(CSymbol*, unsigned int);
 
+		CX86Assembler::CAddress		MakeVariable128SymbolAddress(CSymbol*);
 		CX86Assembler::CAddress		MakeMemory128SymbolAddress(CSymbol*);
 		CX86Assembler::CAddress		MakeMemory128SymbolElementAddress(CSymbol*, unsigned int);
 
@@ -421,9 +460,9 @@ namespace Jitter
 		void						Emit_Not_RelTmp(const STATEMENT&);
 
 		//LZC
-		void						Lzc_RegMem(CX86Assembler::REGISTER, const CX86Assembler::CAddress&);
-		void						Emit_Lzc_RegMem(const STATEMENT&);
-		void						Emit_Lzc_MemMem(const STATEMENT&);
+		void						Emit_Lzc(CX86Assembler::REGISTER, const CX86Assembler::CAddress&);
+		void						Emit_Lzc_RegVar(const STATEMENT&);
+		void						Emit_Lzc_MemVar(const STATEMENT&);
 
 		//CMP
 		void						Cmp_GetFlag(const CX86Assembler::CAddress&, CONDITION);
@@ -550,38 +589,47 @@ namespace Jitter
 		void						Emit_Fp_LdCst_MemCst(const STATEMENT&);
 
 		//MDOP
-		template <typename> void	Emit_Md_MemMem(const STATEMENT&);
-		template <typename> void	Emit_Md_MemMemMem(const STATEMENT&);
-		template <typename> void	Emit_Md_MemMemMemRev(const STATEMENT&);
-		template <typename> void	Emit_Md_Shift_MemMemCst(const STATEMENT&);
-		void						Emit_Md_AddSSW_MemMemMem(const STATEMENT&);
-		void						Emit_Md_AddUSW_MemMemMem(const STATEMENT&);
-		void						Emit_Md_PackHB_MemMemMem(const STATEMENT&);
-		void						Emit_Md_PackWH_MemMemMem(const STATEMENT&);
-		void						Emit_Md_Not_MemMem(const STATEMENT&);
+		template <typename> void	Emit_Md_RegVar(const STATEMENT&);
+		template <typename> void	Emit_Md_MemVar(const STATEMENT&);
+		template <typename> void	Emit_Md_RegRegReg(const STATEMENT&);
+		template <typename> void	Emit_Md_RegVarVar(const STATEMENT&);
+		template <typename> void	Emit_Md_MemVarVar(const STATEMENT&);
+		template <typename> void	Emit_Md_VarVarVarRev(const STATEMENT&);
+		template <typename> void	Emit_Md_Shift_RegVarCst(const STATEMENT&);
+		template <typename> void	Emit_Md_Shift_MemVarCst(const STATEMENT&);
+		template <typename> void	Emit_Md_SingleOp_RegVar(const STATEMENT&);
+		template <typename> void	Emit_Md_SingleOp_MemVar(const STATEMENT&);
+		void						Emit_Md_AddSSW_VarVarVar(const STATEMENT&);
+		void						Emit_Md_AddUSW_VarVarVar(const STATEMENT&);
+		void						Emit_Md_PackHB_VarVarVar(const STATEMENT&);
+		void						Emit_Md_PackWH_VarVarVar(const STATEMENT&);
+		void						Emit_Md_Mov_RegVar(const STATEMENT&);
+		void						Emit_Md_Mov_MemReg(const STATEMENT&);
 		void						Emit_Md_Mov_MemMem(const STATEMENT&);
-		void						Emit_Md_MovMasked_MemMemCst(const STATEMENT&);
-		void						Emit_Md_Abs_MemMem(const STATEMENT&);
-		void						Emit_Md_IsNegative_RegMem(const STATEMENT&);
-		void						Emit_Md_IsNegative_MemMem(const STATEMENT&);
-		void						Emit_Md_IsZero_RegMem(const STATEMENT&);
-		void						Emit_Md_IsZero_MemMem(const STATEMENT&);
+		void						Emit_Md_MovMasked_VarVarCst(const STATEMENT&);
+		template <typename> void	Emit_Md_GetFlag_RegVar(const STATEMENT&);
+		template <typename> void	Emit_Md_GetFlag_MemVar(const STATEMENT&);
+		void						Emit_Md_Expand_RegReg(const STATEMENT&);
+		void						Emit_Md_Expand_RegMem(const STATEMENT&);
+		void						Emit_Md_Expand_RegCst(const STATEMENT&);
 		void						Emit_Md_Expand_MemReg(const STATEMENT&);
 		void						Emit_Md_Expand_MemMem(const STATEMENT&);
 		void						Emit_Md_Expand_MemCst(const STATEMENT&);
 
-		void						Emit_MergeTo256_MemMemMem(const STATEMENT&);
+		void						Emit_MergeTo256_MemVarVar(const STATEMENT&);
 
-		void						Emit_Md_Srl256_MemMem(CSymbol*, CSymbol*, const CX86Assembler::CAddress&);
-		void						Emit_Md_Srl256_MemMemReg(const STATEMENT&);
-		void						Emit_Md_Srl256_MemMemMem(const STATEMENT&);
-		void						Emit_Md_Srl256_MemMemCst(const STATEMENT&);
+		void						Emit_Md_Srl256_VarMem(CSymbol*, CSymbol*, const CX86Assembler::CAddress&);
+		void						Emit_Md_Srl256_VarMemVar(const STATEMENT&);
+		void						Emit_Md_Srl256_VarMemCst(const STATEMENT&);
 
+		void						Emit_Md_Abs(CX86Assembler::XMMREGISTER);
+		void						Emit_Md_Not(CX86Assembler::XMMREGISTER);
 		void						Emit_Md_IsZero(CX86Assembler::REGISTER, const CX86Assembler::CAddress&);
 		void						Emit_Md_IsNegative(CX86Assembler::REGISTER, const CX86Assembler::CAddress&);
 
 		CX86Assembler				m_assembler;
 		CX86Assembler::REGISTER*	m_registers;
+		CX86Assembler::XMMREGISTER*	m_mdRegisters;
 		LabelMapType				m_labels;
 		SymbolReferenceLabelArray	m_symbolReferenceLabels;
 		uint32						m_stackLevel;

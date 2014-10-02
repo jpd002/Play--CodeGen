@@ -22,6 +22,7 @@ namespace Jitter
 
 		virtual void			GenerateCode(const StatementList&, unsigned int) = 0;
 		virtual unsigned int	GetAvailableRegisterCount() const = 0;
+		virtual unsigned int	GetAvailableMdRegisterCount() const = 0;
 		virtual unsigned int	GetAddressSize() const = 0;
 		virtual bool			CanHold128BitsReturnValueInRegisters() const = 0;
 		virtual void			RegisterExternalSymbols(CObjectFile*) const = 0;
@@ -37,7 +38,8 @@ namespace Jitter
 			MATCH_REGISTER,
 			MATCH_RELATIVE,
 			MATCH_TEMPORARY,
-			MATCH_MEMORY,
+			MATCH_MEMORY,			//Either relative or temporary
+			MATCH_VARIABLE,			//Either relative or temporary or register
 
 			MATCH_REL_REF,
 			MATCH_TMP_REF,
@@ -48,9 +50,11 @@ namespace Jitter
 			MATCH_CONSTANT64,
 			MATCH_MEMORY64,
 
+			MATCH_REGISTER128,
 			MATCH_RELATIVE128,
 			MATCH_TEMPORARY128,
 			MATCH_MEMORY128,
+			MATCH_VARIABLE128,
 
 			MATCH_MEMORY256,
 

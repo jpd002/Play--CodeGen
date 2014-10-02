@@ -17,6 +17,7 @@ namespace Jitter
 		void									SetStream(Framework::CStream*) override;
 		void									RegisterExternalSymbols(CObjectFile*) const override;
 		unsigned int							GetAvailableRegisterCount() const override;
+		unsigned int							GetAvailableMdRegisterCount() const override;
 		unsigned int							GetAddressSize() const override;
 		bool									CanHold128BitsReturnValueInRegisters() const override;
 

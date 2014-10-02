@@ -9,22 +9,6 @@ namespace Jitter
 	class CSymbolTable
 	{
 	public:
-		struct SymbolComparator
-		{
-			bool operator()(const SymbolPtr& sym1, const SymbolPtr& sym2) const
-			{
-				return sym1->Equals(sym2.get());
-			}
-		};
-
-		struct SymbolHasher
-		{
-			size_t operator()(const SymbolPtr& symbol) const
-			{
-				return symbol->m_type ^ symbol->m_valueLow ^ symbol->m_valueHigh;
-			}
-		};
-
 		struct SymbolNullDeleter
 		{
 			void operator()(void const *) const
@@ -43,8 +27,7 @@ namespace Jitter
 		SymbolPtr				MakeSymbol(SYM_TYPE, uint32, uint32 = 0);
 		SymbolIterator			RemoveSymbol(const SymbolIterator&);
 
-		SymbolIterator			GetSymbolsBegin();
-		SymbolIterator			GetSymbolsEnd();
+		SymbolSet&				GetSymbols();
 
 	private:
 		SymbolSet				m_symbols;

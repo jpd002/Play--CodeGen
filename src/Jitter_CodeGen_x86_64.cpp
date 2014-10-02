@@ -1,3 +1,4 @@
+#include <algorithm>
 #include "Jitter_CodeGen_x86_64.h"
 
 using namespace Jitter;
@@ -34,6 +35,23 @@ CX86Assembler::REGISTER CCodeGen_x86_64::g_registers[MAX_REGISTERS] =
 	CX86Assembler::r13,
 	CX86Assembler::r14,
 	CX86Assembler::r15,
+};
+
+//xMM0->xMM3 are used internally for temporary uses
+CX86Assembler::XMMREGISTER CCodeGen_x86_64::g_mdRegisters[MAX_MDREGISTERS] =
+{
+	CX86Assembler::xMM4,
+	CX86Assembler::xMM5,
+	CX86Assembler::xMM6,
+	CX86Assembler::xMM7,
+	CX86Assembler::xMM8,
+	CX86Assembler::xMM9,
+	CX86Assembler::xMM10,
+	CX86Assembler::xMM11,
+	CX86Assembler::xMM12,
+	CX86Assembler::xMM13,
+	CX86Assembler::xMM14,
+	CX86Assembler::xMM15
 };
 
 CX86Assembler::REGISTER CCodeGen_x86_64::g_paramRegs[MAX_PARAMS] =
@@ -180,6 +198,7 @@ CCodeGen_x86_64::CONSTMATCHER CCodeGen_x86_64::g_constMatchers[] =
 	{ OP_PARAM,			MATCH_NIL,			MATCH_CONSTANT,		MATCH_NIL,			&CCodeGen_x86_64::Emit_Param_Cst							},
 	{ OP_PARAM,			MATCH_NIL,			MATCH_MEMORY64,		MATCH_NIL,			&CCodeGen_x86_64::Emit_Param_Mem64							},
 	{ OP_PARAM,			MATCH_NIL,			MATCH_CONSTANT64,	MATCH_NIL,			&CCodeGen_x86_64::Emit_Param_Cst64							},
+	{ OP_PARAM,			MATCH_NIL,			MATCH_REGISTER128,	MATCH_NIL,			&CCodeGen_x86_64::Emit_Param_Reg128							},
 	{ OP_PARAM,			MATCH_NIL,			MATCH_MEMORY128,	MATCH_NIL,			&CCodeGen_x86_64::Emit_Param_Mem128							},
 
 	{ OP_PARAM_RET,		MATCH_NIL,			MATCH_MEMORY128,	MATCH_NIL,			&CCodeGen_x86_64::Emit_Param_Mem128							},
@@ -223,6 +242,7 @@ CCodeGen_x86_64::CONSTMATCHER CCodeGen_x86_64::g_constMatchers[] =
 CCodeGen_x86_64::CCodeGen_x86_64()
 {
 	CCodeGen_x86::m_registers = g_registers;
+	CCodeGen_x86_64::m_mdRegisters = g_mdRegisters;
 
 	for(CONSTMATCHER* constMatcher = g_constMatchers; constMatcher->emitter != NULL; constMatcher++)
 	{
@@ -246,6 +266,11 @@ unsigned int CCodeGen_x86_64::GetAvailableRegisterCount() const
 	return MAX_REGISTERS;
 }
 
+unsigned int CCodeGen_x86_64::GetAvailableMdRegisterCount() const
+{
+	return MAX_MDREGISTERS;
+}
+
 unsigned int CCodeGen_x86_64::GetAddressSize() const
 {
 	return 8;
@@ -260,31 +285,80 @@ bool CCodeGen_x86_64::CanHold128BitsReturnValueInRegisters() const
 #endif
 }
 
-void CCodeGen_x86_64::Emit_Prolog(const StatementList&, unsigned int stackSize, uint32 registerUsage)
+void CCodeGen_x86_64::Emit_Prolog(const StatementList& statements, unsigned int stackSize, uint32 registerUsage)
 {
 	m_params.clear();
+
+	//Compute the size needed to store all function call parameters
+	uint32 maxParamSpillSize = 0;
+	{
+		uint32 currParamSpillSize = 0;
+		for(const auto& statement : statements)
+		{
+			switch(statement.op)
+			{
+			case OP_PARAM:
+			case OP_PARAM_RET:
+				{
+					CSymbol* src1 = statement.src1->GetSymbol().get();
+					switch(src1->m_type)
+					{
+					case SYM_REGISTER128:
+						currParamSpillSize += 16;
+						break;
+					}
+				}
+				break;
+			case OP_CALL:
+				maxParamSpillSize = std::max<uint32>(currParamSpillSize, maxParamSpillSize);
+				currParamSpillSize = 0;
+				break;
+			default:
+				break;
+			}
+		}
+	}
+	
+	assert((maxParamSpillSize & 0x0F) == 0);
+	assert((stackSize & 0x0F) == 0);
 
 	m_assembler.Push(CX86Assembler::rBP);
 	m_assembler.MovEq(CX86Assembler::rBP, CX86Assembler::MakeRegisterAddress(g_paramRegs[0]));
 
-	uint32 savedCount = 0;
+	uint32 savedSize = 0;
 	for(unsigned int i = 0; i < MAX_REGISTERS; i++)
 	{
 		if(registerUsage & (1 << i))
 		{
 			m_assembler.Push(m_registers[i]);
-			savedCount += 8;
+			savedSize += 8;
 		}
 	}
 
-	savedCount = 0x10 - (savedCount & 0xF);
+	uint32 savedRegAlignAdjust = (savedSize != 0) ? (0x10 - (savedSize & 0xF)) : 0;
 
-	m_totalStackAlloc = savedCount + ((stackSize + 0xF) & ~0xF);
+	m_totalStackAlloc = savedRegAlignAdjust + maxParamSpillSize + stackSize;
 	m_totalStackAlloc += 0x20;
 
 	m_stackLevel = 0x20;
+	m_paramSpillBase = 0x20 + stackSize;
 
 	m_assembler.SubIq(CX86Assembler::MakeRegisterAddress(CX86Assembler::rSP), m_totalStackAlloc);
+
+	//-------------------------------
+	//Stack Frame
+	//-------------------------------
+	//(High address)
+	//------------------
+	//Saved registers + align adjustment
+	//------------------
+	//Params spill space
+	//------------------			<----- rSP + m_paramSpillBase
+	//Temporary symbols (stackSize) + align adjustment
+	//------------------			<----- rSP + m_stackLevel
+	//Param spill area for callee (0x20 bytes)
+	//------------------			<----- rSP
+	//(Low address)
 }
 
 void CCodeGen_x86_64::Emit_Epilog(unsigned int stackSize, uint32 registerUsage)
@@ -307,67 +381,120 @@ void CCodeGen_x86_64::Emit_Param_Ctx(const STATEMENT& statement)
 {
 	assert(m_params.size() < MAX_PARAMS);
 
-	m_params.push_back(std::bind(
-		&CX86Assembler::MovEq, &m_assembler, std::placeholders::_1, CX86Assembler::MakeRegisterAddress(CX86Assembler::rBP)));
+	m_params.push_back(
+		[this] (CX86Assembler::REGISTER paramReg, uint32)
+		{
+			m_assembler.MovEq(paramReg, CX86Assembler::MakeRegisterAddress(CX86Assembler::rBP));
+			return 0;
+		}
+	);
 }
 
 void CCodeGen_x86_64::Emit_Param_Reg(const STATEMENT& statement)
 {
 	assert(m_params.size() < MAX_PARAMS);
 
-	CSymbol* src1 = statement.src1->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
 
-	m_params.push_back(std::bind(
-		&CX86Assembler::MovEd, &m_assembler, std::placeholders::_1, CX86Assembler::MakeRegisterAddress(m_registers[src1->m_valueLow])));
+	m_params.push_back(
+		[this, src1] (CX86Assembler::REGISTER paramReg, uint32)
+		{
+			m_assembler.MovEd(paramReg, CX86Assembler::MakeRegisterAddress(m_registers[src1->m_valueLow]));
+			return 0;
+		}
+	);
 }
 
 void CCodeGen_x86_64::Emit_Param_Mem(const STATEMENT& statement)
 {
 	assert(m_params.size() < MAX_PARAMS);
 
-	CSymbol* src1 = statement.src1->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
 
-	m_params.push_back(std::bind(&CX86Assembler::MovEd, &m_assembler, std::placeholders::_1, MakeMemorySymbolAddress(src1)));
+	m_params.push_back(
+		[this, src1] (CX86Assembler::REGISTER paramReg, uint32)
+		{
+			m_assembler.MovEd(paramReg, MakeMemorySymbolAddress(src1));
+			return 0;
+		}
+	);
 }
 
 void CCodeGen_x86_64::Emit_Param_Cst(const STATEMENT& statement)
 {
 	assert(m_params.size() < MAX_PARAMS);
 
-	CSymbol* src1 = statement.src1->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
 
-	void (CX86Assembler::*MovFunction)(CX86Assembler::REGISTER, uint32) = &CX86Assembler::MovId;
-	m_params.push_back(std::bind(MovFunction, &m_assembler, std::placeholders::_1, src1->m_valueLow));
+	m_params.push_back(
+		[this, src1] (CX86Assembler::REGISTER paramReg, uint32)
+		{
+			m_assembler.MovId(paramReg, src1->m_valueLow);
+			return 0;
+		}
+	);
 }
 
 void CCodeGen_x86_64::Emit_Param_Mem64(const STATEMENT& statement)
 {
 	assert(m_params.size() < MAX_PARAMS);
 
-	CSymbol* src1 = statement.src1->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
 
-	m_params.push_back(std::bind(
-		&CX86Assembler::MovEq, &m_assembler, std::placeholders::_1, MakeMemory64SymbolAddress(src1)));
+	m_params.push_back(
+		[this, src1] (CX86Assembler::REGISTER paramReg, uint32)
+		{
+			m_assembler.MovEq(paramReg, MakeMemory64SymbolAddress(src1));
+			return 0;
+		}
+	);
 }
 
 void CCodeGen_x86_64::Emit_Param_Cst64(const STATEMENT& statement)
 {
 	assert(m_params.size() < MAX_PARAMS);
 
-	CSymbol* src1 = statement.src1->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
 
-	m_params.push_back(std::bind(
-		&CX86Assembler::MovIq, &m_assembler, std::placeholders::_1, CombineConstant64(src1->m_valueLow, src1->m_valueHigh)));
+	m_params.push_back(
+		[this, src1] (CX86Assembler::REGISTER paramReg, uint32)
+		{
+			m_assembler.MovIq(paramReg, CombineConstant64(src1->m_valueLow, src1->m_valueHigh));
+			return 0;
+		}
+	);
+}
+
+void CCodeGen_x86_64::Emit_Param_Reg128(const STATEMENT& statement)
+{
+	assert(m_params.size() < MAX_PARAMS);
+
+	auto src1 = statement.src1->GetSymbol().get();
+
+	m_params.push_back(
+		[this, src1] (CX86Assembler::REGISTER paramReg, uint32 paramSpillOffset)
+		{
+			auto paramTempAddr = CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rSP, m_paramSpillBase + paramSpillOffset);
+			m_assembler.MovapsVo(paramTempAddr, m_mdRegisters[src1->m_valueLow]);
+			m_assembler.LeaGq(paramReg, paramTempAddr);
+			return 0x10;
+		}
+	);
 }
 
 void CCodeGen_x86_64::Emit_Param_Mem128(const STATEMENT& statement)
 {
 	assert(m_params.size() < MAX_PARAMS);
 
-	CSymbol* src1 = statement.src1->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
 
-	m_params.push_back(std::bind(
-		&CX86Assembler::LeaGq, &m_assembler, std::placeholders::_1, MakeMemory128SymbolAddress(src1)));
+	m_params.push_back(
+		[this, src1] (CX86Assembler::REGISTER paramReg, uint32)
+		{
+			m_assembler.LeaGq(paramReg, MakeMemory128SymbolAddress(src1));
+			return 0;
+		}
+	);
 }
 
 void CCodeGen_x86_64::Emit_Call(const STATEMENT& statement)
@@ -376,12 +503,13 @@ void CCodeGen_x86_64::Emit_Call(const STATEMENT& statement)
 	const auto& src2 = statement.src2->GetSymbol().get();
 
 	unsigned int paramCount = src2->m_valueLow;
+	uint32 paramSpillOffset = 0;
 
 	for(unsigned int i = 0; i < paramCount; i++)
 	{
-		ParamEmitterFunction emitter(m_params.back());
+		auto emitter(m_params.back());
 		m_params.pop_back();
-		emitter(g_paramRegs[i]);
+		paramSpillOffset += emitter(g_paramRegs[i], paramSpillOffset);
 	}
 
 	m_assembler.MovIq(CX86Assembler::rAX, CombineConstant64(src1->m_valueLow, src1->m_valueHigh));

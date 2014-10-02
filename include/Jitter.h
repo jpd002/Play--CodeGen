@@ -1,12 +1,10 @@
-#ifndef _JITTER_H_
-#define _JITTER_H_
+#pragma once
 
 #include <string>
 #include <memory>
 #include <list>
 #include <map>
 #include <unordered_map>
-#include <deque>
 #include <vector>
 #include "ArrayStack.h"
 #include "Stream.h"
@@ -167,6 +165,7 @@ namespace Jitter
 		void							MD_CmpEqH();
 		void							MD_CmpEqW();
 		void							MD_CmpGtH();
+		void							MD_CmpGtW();
 		void							MD_DivS();
 		void							MD_IsNegative();
 		void							MD_IsZero();
@@ -205,15 +204,26 @@ namespace Jitter
 
 		void							SetStream(Framework::CStream*);
 
-	protected:
-		CArrayStack<SymbolPtr>			m_Shadow;
-		CArrayStack<uint32>				m_IfStack;
-
-		void							PushTmp64(unsigned int);
-
 	private:
+		struct SYMBOL_REGALLOCINFO
+		{
+			unsigned int			useCount = 0;
+			unsigned int			firstUse = -1;
+			unsigned int			firstDef = -1;
+			unsigned int			lastDef = -1;
+			unsigned int			rangeBegin = -1;
+			unsigned int			rangeEnd = -1;
+			bool					aliased = false;
+			SYM_TYPE				registerType = SYM_REGISTER;
+			unsigned int			registerId = -1;
+		};
+
 		typedef size_t LABELREF;
 		typedef std::map<LABEL, unsigned int> LabelMapType;
+		typedef std::pair<unsigned int, unsigned int> AllocationRange;
+		typedef std::vector<AllocationRange> AllocationRangeArray;
+		typedef std::unordered_map<SymbolPtr, SYMBOL_REGALLOCINFO, SymbolHasher, SymbolComparator> SymbolRegAllocInfo;
+		typedef std::unordered_map<CSymbol*, unsigned int> SymbolUseCountMap;
 
 		enum MAX_STACK
 		{
@@ -256,24 +266,7 @@ namespace Jitter
 			CRelativeVersionManager		relativeVersions;
 		};
 
-		struct INSERT_COMMAND
-		{
-			StatementList::iterator insertionPoint;
-			STATEMENT statement;
-		};
-		typedef std::vector<INSERT_COMMAND> InsertCommandList;
-
-		typedef std::deque<unsigned int> AvailableRegsSet;
-		typedef std::multimap<unsigned int, CSymbol*> ActiveSymbolList;
-		typedef std::map<unsigned int, unsigned int, std::greater<unsigned int> > CallRangeMap;
-
-		struct REGALLOC_STATE
-		{
-			InsertCommandList	insertCommands;
-			ActiveSymbolList	activeSymbols;
-			AvailableRegsSet	availableRegs;
-			CallRangeMap		callRanges;
-		};
+		void							InsertGenericMdStatement(Jitter::OPERATION);
 
 		void							Compile();
 
@@ -308,24 +301,25 @@ namespace Jitter
 
 		static CONDITION				GetReverseCondition(CONDITION);
 
-		void							DumpStatementList(const StatementList&);
-		std::string						ConditionToString(CONDITION);
 		VERSIONED_STATEMENT_LIST		GenerateVersionedStatementList(const StatementList&);
 		StatementList					CollapseVersionedStatementList(const VERSIONED_STATEMENT_LIST&);
 		void							CoalesceTemporaries(BASIC_BLOCK&);
 		void							RemoveSelfAssignments(BASIC_BLOCK&);
-		void							ComputeLivenessAndPruneSymbols(BASIC_BLOCK&);
+		void							PruneSymbols(BASIC_BLOCK&) const;
+
 		void							AllocateRegisters(BASIC_BLOCK&);
-//		void							AllocateRegisters_ReplaceOperand(CSymbolTable&, SymbolRefPtr&, unsigned int);
-//		void							AllocateRegisters_SpillSymbol(ActiveSymbolList::iterator&, unsigned int = -1);
-//		void							AllocateRegisters_ComputeCallRanges(const BASIC_BLOCK&);
-#ifdef _DEBUG
-//		void							AllocateRegisters_VerifyProperCallSequence(const BASIC_BLOCK&);
-#endif
+		static AllocationRangeArray		ComputeAllocationRanges(const BASIC_BLOCK&);
+		void							ComputeLivenessForRange(const BASIC_BLOCK&, const AllocationRange&, SymbolRegAllocInfo&) const;
+		void							MarkAliasedSymbols(const BASIC_BLOCK&, const AllocationRange&, SymbolRegAllocInfo&) const;
+		void							AssociateSymbolsToRegisters(SymbolRegAllocInfo&) const;
+
 		void							NormalizeStatements(BASIC_BLOCK&);
 		unsigned int					AllocateStack(BASIC_BLOCK&);
 
-		bool							m_nBlockStarted;
+		bool							m_blockStarted;
+
+		CArrayStack<SymbolPtr>			m_shadow;
+		CArrayStack<uint32>				m_ifStack;
 
 		unsigned int					m_nextTemporary;
 		unsigned int					m_nextBlockId;
@@ -336,10 +330,6 @@ namespace Jitter
 
 		unsigned int					m_nextLabelId;
 		LabelMapType					m_labels;
-
-		REGALLOC_STATE					m_regAllocState;
 	};
 
 }
-
-#endif

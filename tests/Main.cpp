@@ -14,6 +14,7 @@
 #include "MdFpTest.h"
 #include "MdFpFlagTest.h"
 #include "MdCallTest.h"
+#include "MdMemAccessTest.h"
 #include "CompareTest.h"
 #include "RegAllocTest.h"
 #include "MemAccessTest.h"
@@ -61,6 +62,7 @@ static const TestFactoryFunction s_factories[] =
 	[] () { return new CMdFpTest(); },
 	[] () { return new CMdFpFlagTest(); },
 	[] () { return new CMdCallTest(); },
+	[] () { return new CMdMemAccessTest(); },
 	[] () { return new CAlu64Test(); },
 	[] () { return new CShift64Test(); },
 	[] () { return new CCall64Test(); },

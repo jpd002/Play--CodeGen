@@ -123,11 +123,15 @@ namespace Jitter
 		//LOADFROMREF
 		void								Emit_LoadFromRef_RegMem(const STATEMENT&);
 		void								Emit_LoadFromRef_MemMem(const STATEMENT&);
+		void								Emit_LoadFromRef_Md_RegMem(const STATEMENT&);
+		void								Emit_LoadFromRef_Md_MemMem(const STATEMENT&);
 
 		//STOREATREF
 		void								Emit_StoreAtRef_MemReg(const STATEMENT&);
 		void								Emit_StoreAtRef_MemMem(const STATEMENT&);
 		void								Emit_StoreAtRef_MemCst(const STATEMENT&);
+		void								Emit_StoreAtRef_Md_MemReg(const STATEMENT&);
+		void								Emit_StoreAtRef_Md_MemMem(const STATEMENT&);
 
 	private:
 		typedef void (CCodeGen_x86_64::*ConstCodeEmitterType)(const STATEMENT&);

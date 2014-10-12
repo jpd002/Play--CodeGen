@@ -1116,6 +1116,24 @@ void CJitter::MD_PushCstExpand(float value)
 	MD_PushCstExpand(*reinterpret_cast<uint32*>(&value));
 }
 
+void CJitter::MD_LoadFromRef()
+{
+	auto tempSym = MakeSymbol(SYM_TEMPORARY128, m_nextTemporary++);
+
+	STATEMENT statement;
+	statement.op	= OP_LOADFROMREF;
+	statement.src1	= MakeSymbolRef(m_shadow.Pull());
+	statement.dst	= MakeSymbolRef(tempSym);
+	InsertStatement(statement);
+
+	m_shadow.Push(tempSym);
+}
+
+void CJitter::MD_StoreAtRef()
+{
+	StoreAtRef();
+}
+
 void CJitter::MD_AddB()
 {
 	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY128, m_nextTemporary++);

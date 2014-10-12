@@ -1,5 +1,4 @@
-#ifndef _MEMACCESSTEST_H_
-#define _MEMACCESSTEST_H_
+#pragma once
 
 #include "Test.h"
 #include "MemoryFunction.h"
@@ -27,5 +26,3 @@ private:
 	uint32				m_memory[0x20];
 	CMemoryFunction		m_function;
 };
-
-#endif

@@ -121,10 +121,12 @@ namespace Jitter
 		void								Emit_AddRef_MemMemCst(const STATEMENT&);
 
 		//LOADFROMREF
-		void								Emit_LoadFromRef_RegTmp(const STATEMENT&);
+		void								Emit_LoadFromRef_RegMem(const STATEMENT&);
+		void								Emit_LoadFromRef_MemMem(const STATEMENT&);
 
 		//STOREATREF
 		void								Emit_StoreAtRef_MemReg(const STATEMENT&);
+		void								Emit_StoreAtRef_MemMem(const STATEMENT&);
 		void								Emit_StoreAtRef_MemCst(const STATEMENT&);
 
 	private:

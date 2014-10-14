@@ -94,11 +94,15 @@ namespace Jitter
 		//LOADFROMREF
 		void								Emit_LoadFromRef_RegTmp(const STATEMENT&);
 		void								Emit_LoadFromRef_MemTmp(const STATEMENT&);
+		void								Emit_LoadFromRef_Md_RegMem(const STATEMENT&);
+		void								Emit_LoadFromRef_Md_MemMem(const STATEMENT&);
 
 		//STOREATREF
 		void								Emit_StoreAtRef_TmpReg(const STATEMENT&);
 		void								Emit_StoreAtRef_TmpMem(const STATEMENT&);
 		void								Emit_StoreAtRef_TmpCst(const STATEMENT&);
+		void								Emit_StoreAtRef_Md_MemReg(const STATEMENT&);
+		void								Emit_StoreAtRef_Md_MemMem(const STATEMENT&);
 
 	private:
 		struct CALL_STATE

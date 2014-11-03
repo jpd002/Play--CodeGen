@@ -3,7 +3,8 @@
 #include "Types.h"
 #include <memory>
 #include <string>
-#include <assert.h>
+#include <cassert>
+#include <cstdlib>
 
 namespace Jitter
 {

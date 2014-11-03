@@ -245,6 +245,11 @@ unsigned int CCodeGen_Arm::GetAvailableRegisterCount() const
 	return MAX_REGISTERS;
 }
 
+unsigned int CCodeGen_Arm::GetAvailableMdRegisterCount() const
+{
+	return 0;
+}
+
 unsigned int CCodeGen_Arm::GetAddressSize() const
 {
 	return 4;

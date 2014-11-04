@@ -69,7 +69,7 @@ static const TestFactoryFunction s_factories[] =
 #endif
 };
 
-int main(int argc, char** argv)
+int main(int argc, const char** argv)
 {
 	Jitter::CJitter jitter(Jitter::CreateCodeGen());
 	for(const auto& factory : s_factories)
@@ -81,3 +81,14 @@ int main(int argc, char** argv)
 	}
 	return 0;
 }
+
+#ifdef __ANDROID__
+
+#include <jni.h>
+
+extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_codegentestsuite_NativeInterop_start(JNIEnv* env, jobject obj)
+{
+	main(0, nullptr);
+}
+
+#endif

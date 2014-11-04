@@ -599,7 +599,10 @@ void CCodeGen_Arm::DumpLiteralPool()
 		{
 			if(m_literalPoolReloc[i])
 			{
-				m_externalSymbolReferencedHandler(reinterpret_cast<void*>(m_literalPool[i]), literalPoolPos + (i * 4));
+				if(m_externalSymbolReferencedHandler)
+				{
+					m_externalSymbolReferencedHandler(reinterpret_cast<void*>(m_literalPool[i]), literalPoolPos + (i * 4));
+				}
 			}
 		}
 

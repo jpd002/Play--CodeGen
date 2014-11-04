@@ -18,6 +18,10 @@
 extern "C" void __clear_cache(void* begin, void* end);
 #endif
 
+#elif defined(__ANDROID__)
+
+#include <sys/mman.h>
+
 #endif
 
 CMemoryFunction::CMemoryFunction()
@@ -48,6 +52,12 @@ CMemoryFunction::CMemoryFunction(const void* code, size_t size)
 	kern_return_t result = vm_protect(mach_task_self(), reinterpret_cast<vm_address_t>(m_code), size, 0, VM_PROT_READ | VM_PROT_EXECUTE);
 	assert(result == 0);
 	m_size = allocSize;
+#elif defined(__ANDROID__)
+	m_size = size;
+	m_code = mmap(nullptr, size, PROT_WRITE | PROT_EXEC, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+	assert(m_code != MAP_FAILED);
+	memcpy(m_code, code, size);
+	__clear_cache(m_code, reinterpret_cast<uint8*>(m_code) + size);
 #endif
 }
 
@@ -63,7 +73,9 @@ void CMemoryFunction::Reset()
 #ifdef WIN32
 		free(m_code);
 #elif defined(__APPLE__)
-		vm_deallocate(mach_task_self(), reinterpret_cast<vm_address_t>(m_code), m_size); 
+		vm_deallocate(mach_task_self(), reinterpret_cast<vm_address_t>(m_code), m_size);
+#elif defined(__ANDROID__)
+		munmap(m_code, m_size);
 #endif
 	}
 	m_code = nullptr;

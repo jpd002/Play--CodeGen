@@ -1,7 +1,6 @@
 LOCAL_PATH:= $(call my-dir)
 
-BOOST_PATH			:= /cygdrive/c/Components/boost_trunk/
-FRAMEWORK_PATH		:= /cygdrive/c/Projects/Framework/
+include $(LOCAL_PATH)/ExternalDependencies.mk
 
 include $(CLEAR_VARS)
 
@@ -25,7 +24,7 @@ LOCAL_SRC_FILES		:=	../../src/ArmAssembler.cpp \
 						../../src/Jitter_SymbolTable.cpp \
 						../../src/MemoryFunction.cpp \
 						../../src/ObjectFile.cpp
-LOCAL_C_INCLUDES	:= $(BOOST_PATH) $(FRAMEWORK_PATH)/include $(LOCAL_PATH)/../../include
+LOCAL_C_INCLUDES	:= $(FRAMEWORK_PATH)/include $(LOCAL_PATH)/../../include
 LOCAL_CPP_FEATURES	:= exceptions rtti
 
 include $(BUILD_STATIC_LIBRARY)
@@ -43,9 +42,9 @@ LOCAL_SRC_FILES			:=	../../tests/CompareTest.cpp \
 							../../tests/RandomAluTest2.cpp \
 							../../tests/RandomAluTest3.cpp \
 							../../tests/RegAllocTest.cpp
-LOCAL_C_INCLUDES		:= $(BOOST_PATH) $(FRAMEWORK_PATH)/include $(LOCAL_PATH)/../../include
+LOCAL_C_INCLUDES		:= $(FRAMEWORK_PATH)/include $(LOCAL_PATH)/../../include
 LOCAL_CPP_FEATURES		:= exceptions rtti
-LOCAL_LDLIBS 			:= -landroid -llog
+LOCAL_LDLIBS 			:= -landroid
 LOCAL_STATIC_LIBRARIES	:= libCodeGen libFramework
 
 include $(BUILD_SHARED_LIBRARY)

@@ -211,7 +211,8 @@ public:
 	void									Flds(VFP_REGISTER, REGISTER, const LdrAddress&);
 	void									Fsts(VFP_REGISTER, REGISTER, const LdrAddress&);
 	void									Fadds(VFP_REGISTER, VFP_REGISTER, VFP_REGISTER);
-	
+	void									Fdivs(VFP_REGISTER, VFP_REGISTER, VFP_REGISTER);
+
 	static LdrAddress						MakeImmediateLdrAddress(uint32);
 	static ImmediateAluOperand				MakeImmediateAluOperand(uint8, uint8);
 	static RegisterAluOperand				MakeRegisterAluOperand(CArmAssembler::REGISTER, const AluLdrShift&);

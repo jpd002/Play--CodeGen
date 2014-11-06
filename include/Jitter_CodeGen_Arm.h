@@ -160,6 +160,11 @@ namespace Jitter
 			static OpRegType OpReg() { return &CArmAssembler::Fadds; }
 		};
 
+		struct FPUOP_DIV : public FPUOP_BASE
+		{
+			static OpRegType OpReg() { return &CArmAssembler::Fdivs; }
+		};
+
 		//ALUOP
 		template <typename> void				Emit_Alu_GenericAnyAny(const STATEMENT&);
 		template <typename> void				Emit_Alu_GenericAnyCst(const STATEMENT&);

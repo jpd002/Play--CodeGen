@@ -2,6 +2,8 @@
 #include <stdexcept>
 #include "ArmAssembler.h"
 
+#define OPCODE_BKPT (0xE1200070)
+
 CArmAssembler::CArmAssembler() 
 : m_nextLabelId(1)
 , m_stream(NULL)
@@ -485,24 +487,39 @@ uint32 CArmAssembler::Vfp_EncodeSm(VFP_REGISTER sm)
 
 void CArmAssembler::Flds(VFP_REGISTER sd, REGISTER rbase, const LdrAddress& address)
 {
-	uint32 opcode = 0xD100A00;
+	assert((address.immediate / 4) <= 0xFF);
+
+	uint32 opcode = 0xD900A00;
 	opcode |= (CONDITION_AL << 28);
 	opcode |= Vfp_EncodeSd(sd);
-	opcode |= (static_cast<uint32>(rbase) << 16) | (static_cast<uint32>(address.immediate));
+	opcode |= (static_cast<uint32>(rbase) << 16) | (static_cast<uint32>(address.immediate / 4));
 	WriteWord(opcode);
 }
 
 void CArmAssembler::Fsts(VFP_REGISTER sd, REGISTER rbase, const LdrAddress& address)
 {
-	uint32 opcode = 0xD000A00;
+	assert((address.immediate / 4) <= 0xFF);
+
+	uint32 opcode = 0xD800A00;
 	opcode |= (CONDITION_AL << 28);
 	opcode |= Vfp_EncodeSd(sd);
+	opcode |= (static_cast<uint32>(rbase) << 16) | (static_cast<uint32>(address.immediate / 4));
 	WriteWord(opcode);
 }
 
 void CArmAssembler::Fadds(VFP_REGISTER sd, VFP_REGISTER sn, VFP_REGISTER sm)
 {
 	uint32 opcode = 0xE300A00;
+	opcode |= (CONDITION_AL << 28);
+	opcode |= Vfp_EncodeSd(sd);
+	opcode |= Vfp_EncodeSn(sn);
+	opcode |= Vfp_EncodeSm(sm);
+	WriteWord(opcode);
+}
+
+void CArmAssembler::Fdivs(VFP_REGISTER sd, VFP_REGISTER sn, VFP_REGISTER sm)
+{
+	uint32 opcode = 0xE800A00;
 	opcode |= (CONDITION_AL << 28);
 	opcode |= Vfp_EncodeSd(sd);
 	opcode |= Vfp_EncodeSn(sn);

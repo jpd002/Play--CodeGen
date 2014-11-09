@@ -1,5 +1,4 @@
-#ifndef _ARMASSEMBLER_H_
-#define _ARMASSEMBLER_H_
+#pragma once
 
 #include <functional>
 #include <map>
@@ -34,19 +33,27 @@ public:
 		rPC = 15,
 	};
 	
-	enum VFP_REGISTER
+	enum SINGLE_REGISTER
 	{
-		s0  = 0,   s1 = 1,  s2  = 2,  s3  = 3,
-		s4  = 4,   s5 = 5,  s6  = 6,  s7  = 7,
-		s8  = 8,   s9 = 9,  s10 = 10, s11 = 11,
-		s12 = 12, s13 = 13, s14 = 14, s15 = 15,
+		s0,		s1,		s2,		s3,
+		s4,		s5,		s6,		s7,
+		s8,		s9,		s10,	s11,
+		s12,	s13,	s14,	s15,
 
-		s16 = 16, s17 = 17, s18 = 18, s19 = 19,
-		s20 = 20, s21 = 21, s22 = 22, s23 = 23,
-		s24 = 24, s25 = 25, s26 = 26, s27 = 27,
-		s28 = 28, s29 = 29, s30 = 30, s31 = 31,
+		s16,	s17,	s18,	s19,
+		s20,	s21,	s22,	s23,
+		s24,	s25,	s26,	s27,
+		s28,	s29,	s30,	s31,
 	};
 	
+	enum QUAD_REGISTER
+	{
+		q0 = 0,		q1 = 2,		q2 = 4,		q3 = 6,
+		q4 = 8,		q5 = 10,	q6 = 12,	q7 = 14,
+		q8 = 16,	q9 = 18,	q10 = 20,	q11 = 22,
+		q12 = 24,	q13 = 26,	q14 = 28,	q15 = 30,
+	};
+
 	enum ALU_OPCODE
 	{
 		ALU_OPCODE_AND = 0x00,
@@ -207,11 +214,18 @@ public:
 	void									Teq(REGISTER, const ImmediateAluOperand&);
 	void									Umull(REGISTER, REGISTER, REGISTER, REGISTER);
 
-	//VFP
-	void									Flds(VFP_REGISTER, REGISTER, const LdrAddress&);
-	void									Fsts(VFP_REGISTER, REGISTER, const LdrAddress&);
-	void									Fadds(VFP_REGISTER, VFP_REGISTER, VFP_REGISTER);
-	void									Fdivs(VFP_REGISTER, VFP_REGISTER, VFP_REGISTER);
+	//VFP/NEON
+	void									Vldr(SINGLE_REGISTER, REGISTER, const LdrAddress&);
+	void									Vstr(SINGLE_REGISTER, REGISTER, const LdrAddress&);
+	void									Vadd_F32(SINGLE_REGISTER, SINGLE_REGISTER, SINGLE_REGISTER);
+	void									Vmul_F32(SINGLE_REGISTER, SINGLE_REGISTER, SINGLE_REGISTER);
+	void									Vdiv_F32(SINGLE_REGISTER, SINGLE_REGISTER, SINGLE_REGISTER);
+	void									Vabs_F32(SINGLE_REGISTER, SINGLE_REGISTER);
+	void									Vneg_F32(SINGLE_REGISTER, SINGLE_REGISTER);
+	void									Vsqrt_F32(SINGLE_REGISTER, SINGLE_REGISTER);
+
+	void									Vrecpe_F32(QUAD_REGISTER, QUAD_REGISTER);
+	void									Vrsqrte_F32(QUAD_REGISTER, QUAD_REGISTER);
 
 	static LdrAddress						MakeImmediateLdrAddress(uint32);
 	static ImmediateAluOperand				MakeImmediateAluOperand(uint8, uint8);
@@ -223,15 +237,18 @@ public:
 private:
 	typedef size_t LABELREF;
 	
-    typedef std::map<LABEL, size_t> LabelMapType;
-    typedef std::multimap<LABEL, LABELREF> LabelReferenceMapType;
+	typedef std::map<LABEL, size_t> LabelMapType;
+	typedef std::multimap<LABEL, LABELREF> LabelReferenceMapType;
 	
 	void									CreateLabelReference(LABEL);
 	void									WriteWord(uint32);
 
-	uint32									Vfp_EncodeSd(VFP_REGISTER);
-	uint32									Vfp_EncodeSn(VFP_REGISTER);
-	uint32									Vfp_EncodeSm(VFP_REGISTER);
+	static uint32							FPSIMD_EncodeSd(SINGLE_REGISTER);
+	static uint32							FPSIMD_EncodeSn(SINGLE_REGISTER);
+	static uint32							FPSIMD_EncodeSm(SINGLE_REGISTER);
+	static uint32							FPSIMD_EncodeQd(QUAD_REGISTER);
+	static uint32							FPSIMD_EncodeQn(QUAD_REGISTER);
+	static uint32							FPSIMD_EncodeQm(QUAD_REGISTER);
 
 	unsigned int							m_nextLabelId;
 	LabelMapType							m_labels;
@@ -239,5 +256,3 @@ private:
 	
 	Framework::CStream*						m_stream;
 };
-
-#endif

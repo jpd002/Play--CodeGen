@@ -467,63 +467,134 @@ void CArmAssembler::Umull(REGISTER rdLow, REGISTER rdHigh, REGISTER rn, REGISTER
 }
 
 //////////////////////////////////////////////////
-// VFP Stuff
+// VFP/NEON Stuff
 //////////////////////////////////////////////////
 
-uint32 CArmAssembler::Vfp_EncodeSd(VFP_REGISTER sd)
+uint32 CArmAssembler::FPSIMD_EncodeSd(SINGLE_REGISTER sd)
 {
 	return ((sd >> 1) << 12) | ((sd & 1) << 22);
 }
 
-uint32 CArmAssembler::Vfp_EncodeSn(VFP_REGISTER sn)
+uint32 CArmAssembler::FPSIMD_EncodeSn(SINGLE_REGISTER sn)
 {
 	return ((sn >> 1) << 16) | ((sn & 1) <<  7);
 }
 
-uint32 CArmAssembler::Vfp_EncodeSm(VFP_REGISTER sm)
+uint32 CArmAssembler::FPSIMD_EncodeSm(SINGLE_REGISTER sm)
 {
 	return ((sm >> 1) <<  0) | ((sm & 1) <<  5);
 }
 
-void CArmAssembler::Flds(VFP_REGISTER sd, REGISTER rbase, const LdrAddress& address)
+uint32 CArmAssembler::FPSIMD_EncodeQd(QUAD_REGISTER qd)
+{
+	assert((qd & 1) == 0);
+	return ((qd & 0xF) << 12) | ((qd >> 4) << 22);
+}
+
+uint32 CArmAssembler::FPSIMD_EncodeQn(QUAD_REGISTER qn)
+{
+	assert((qn & 1) == 0);
+	return ((qn & 0xF) << 16) | ((qn >> 4) <<  7);
+}
+
+uint32 CArmAssembler::FPSIMD_EncodeQm(QUAD_REGISTER qm)
+{
+	assert((qm & 1) == 0);
+	return ((qm & 0x0F) <<  0) | ((qm >> 4) <<  5);
+}
+
+void CArmAssembler::Vldr(SINGLE_REGISTER sd, REGISTER rbase, const LdrAddress& address)
 {
 	assert((address.immediate / 4) <= 0xFF);
 
-	uint32 opcode = 0xD900A00;
+	uint32 opcode = 0x0D900A00;
 	opcode |= (CONDITION_AL << 28);
-	opcode |= Vfp_EncodeSd(sd);
+	opcode |= FPSIMD_EncodeSd(sd);
 	opcode |= (static_cast<uint32>(rbase) << 16) | (static_cast<uint32>(address.immediate / 4));
 	WriteWord(opcode);
 }
 
-void CArmAssembler::Fsts(VFP_REGISTER sd, REGISTER rbase, const LdrAddress& address)
+void CArmAssembler::Vstr(SINGLE_REGISTER sd, REGISTER rbase, const LdrAddress& address)
 {
 	assert((address.immediate / 4) <= 0xFF);
 
-	uint32 opcode = 0xD800A00;
+	uint32 opcode = 0x0D800A00;
 	opcode |= (CONDITION_AL << 28);
-	opcode |= Vfp_EncodeSd(sd);
+	opcode |= FPSIMD_EncodeSd(sd);
 	opcode |= (static_cast<uint32>(rbase) << 16) | (static_cast<uint32>(address.immediate / 4));
 	WriteWord(opcode);
 }
 
-void CArmAssembler::Fadds(VFP_REGISTER sd, VFP_REGISTER sn, VFP_REGISTER sm)
+void CArmAssembler::Vadd_F32(SINGLE_REGISTER sd, SINGLE_REGISTER sn, SINGLE_REGISTER sm)
 {
-	uint32 opcode = 0xE300A00;
+	uint32 opcode = 0x0E300A00;
 	opcode |= (CONDITION_AL << 28);
-	opcode |= Vfp_EncodeSd(sd);
-	opcode |= Vfp_EncodeSn(sn);
-	opcode |= Vfp_EncodeSm(sm);
+	opcode |= FPSIMD_EncodeSd(sd);
+	opcode |= FPSIMD_EncodeSn(sn);
+	opcode |= FPSIMD_EncodeSm(sm);
 	WriteWord(opcode);
 }
 
-void CArmAssembler::Fdivs(VFP_REGISTER sd, VFP_REGISTER sn, VFP_REGISTER sm)
+void CArmAssembler::Vmul_F32(SINGLE_REGISTER sd, SINGLE_REGISTER sn, SINGLE_REGISTER sm)
 {
-	uint32 opcode = 0xE800A00;
+	uint32 opcode = 0x0E200A00;
 	opcode |= (CONDITION_AL << 28);
-	opcode |= Vfp_EncodeSd(sd);
-	opcode |= Vfp_EncodeSn(sn);
-	opcode |= Vfp_EncodeSm(sm);
+	opcode |= FPSIMD_EncodeSd(sd);
+	opcode |= FPSIMD_EncodeSn(sn);
+	opcode |= FPSIMD_EncodeSm(sm);
+	WriteWord(opcode);
+}
+
+void CArmAssembler::Vdiv_F32(SINGLE_REGISTER sd, SINGLE_REGISTER sn, SINGLE_REGISTER sm)
+{
+	uint32 opcode = 0x0E800A00;
+	opcode |= (CONDITION_AL << 28);
+	opcode |= FPSIMD_EncodeSd(sd);
+	opcode |= FPSIMD_EncodeSn(sn);
+	opcode |= FPSIMD_EncodeSm(sm);
+	WriteWord(opcode);
+}
+
+void CArmAssembler::Vabs_F32(SINGLE_REGISTER sd, SINGLE_REGISTER sm)
+{
+	uint32 opcode = 0x0EB00AC0;
+	opcode |= (CONDITION_AL << 28);
+	opcode |= FPSIMD_EncodeSd(sd);
+	opcode |= FPSIMD_EncodeSm(sm);
+	WriteWord(opcode);
+}
+
+void CArmAssembler::Vneg_F32(SINGLE_REGISTER sd, SINGLE_REGISTER sm)
+{
+	uint32 opcode = 0x0EB10A40;
+	opcode |= (CONDITION_AL << 28);
+	opcode |= FPSIMD_EncodeSd(sd);
+	opcode |= FPSIMD_EncodeSm(sm);
+	WriteWord(opcode);
+}
+
+void CArmAssembler::Vsqrt_F32(SINGLE_REGISTER sd, SINGLE_REGISTER sm)
+{
+	uint32 opcode = 0x0EB10AC0;
+	opcode |= (CONDITION_AL << 28);
+	opcode |= FPSIMD_EncodeSd(sd);
+	opcode |= FPSIMD_EncodeSm(sm);
+	WriteWord(opcode);
+}
+
+void CArmAssembler::Vrecpe_F32(QUAD_REGISTER qd, QUAD_REGISTER qm)
+{
+	uint32 opcode = 0xF3BB0540;
+	opcode |= FPSIMD_EncodeQd(qd);
+	opcode |= FPSIMD_EncodeQm(qm);
+	WriteWord(opcode);
+}
+
+void CArmAssembler::Vrsqrte_F32(QUAD_REGISTER qd, QUAD_REGISTER qm)
+{
+	uint32 opcode = 0xF3BB05C0;
+	opcode |= FPSIMD_EncodeQd(qd);
+	opcode |= FPSIMD_EncodeQm(qm);
 	WriteWord(opcode);
 }
 

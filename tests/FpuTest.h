@@ -1,5 +1,4 @@
-#ifndef _FPUTEST_H_
-#define _FPUTEST_H_
+#pragma once
 
 #include "Test.h"
 #include "MemoryFunction.h"
@@ -10,8 +9,8 @@ public:
 						CFpuTest();
 	virtual				~CFpuTest();
 
-	void				Compile(Jitter::CJitter&);
-	void				Run();
+	void				Compile(Jitter::CJitter&) override;
+	void				Run() override;
 
 private:
 	struct CONTEXT
@@ -32,5 +31,3 @@ private:
 	CONTEXT				m_context;
 	CMemoryFunction		m_function;
 };
-
-#endif

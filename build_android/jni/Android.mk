@@ -34,6 +34,7 @@ include $(CLEAR_VARS)
 LOCAL_MODULE			:= libCodeGenTestSuite
 LOCAL_SRC_FILES			:=	../../tests/CompareTest.cpp \
 							../../tests/Crc32Test.cpp \
+							../../tests/FpuTest.cpp \
 							../../tests/HugeJumpTest.cpp \
 							../../tests/Main.cpp \
 							../../tests/MemAccessTest.cpp \

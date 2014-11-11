@@ -226,6 +226,8 @@ public:
 
 	void									Vrecpe_F32(QUAD_REGISTER, QUAD_REGISTER);
 	void									Vrsqrte_F32(QUAD_REGISTER, QUAD_REGISTER);
+	void									Vmin_F32(QUAD_REGISTER, QUAD_REGISTER, QUAD_REGISTER);
+	void									Vmax_F32(QUAD_REGISTER, QUAD_REGISTER, QUAD_REGISTER);
 
 	static LdrAddress						MakeImmediateLdrAddress(uint32);
 	static ImmediateAluOperand				MakeImmediateAluOperand(uint8, uint8);

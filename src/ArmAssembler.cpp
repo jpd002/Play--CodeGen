@@ -598,6 +598,24 @@ void CArmAssembler::Vrsqrte_F32(QUAD_REGISTER qd, QUAD_REGISTER qm)
 	WriteWord(opcode);
 }
 
+void CArmAssembler::Vmin_F32(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER qm)
+{
+	uint32 opcode = 0xF2200F40;
+	opcode |= FPSIMD_EncodeQd(qd);
+	opcode |= FPSIMD_EncodeQn(qn);
+	opcode |= FPSIMD_EncodeQm(qm);
+	WriteWord(opcode);
+}
+
+void CArmAssembler::Vmax_F32(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER qm)
+{
+	uint32 opcode = 0xF2000F40;
+	opcode |= FPSIMD_EncodeQd(qd);
+	opcode |= FPSIMD_EncodeQn(qn);
+	opcode |= FPSIMD_EncodeQm(qm);
+	WriteWord(opcode);
+}
+
 void CArmAssembler::WriteWord(uint32 value)
 {
 	m_stream->Write32(value);

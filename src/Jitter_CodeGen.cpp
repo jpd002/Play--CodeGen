@@ -48,6 +48,8 @@ bool CCodeGen::SymbolMatches(MATCHTYPE match, const SymbolRefPtr& symbolRef)
 
 	case MATCH_RELATIVE_FP_SINGLE:
 		return (symbol->m_type == SYM_FP_REL_SINGLE);
+	case MATCH_TEMPORARY_FP_SINGLE:
+		return (symbol->m_type == SYM_FP_TMP_SINGLE);
 	case MATCH_MEMORY_FP_SINGLE:
 		return (symbol->m_type == SYM_FP_REL_SINGLE) || (symbol->m_type == SYM_FP_TMP_SINGLE);
 

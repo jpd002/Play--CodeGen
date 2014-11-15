@@ -245,6 +245,11 @@ unsigned int CCodeGen_Arm::GetAvailableRegisterCount() const
 	return MAX_REGISTERS;
 }
 
+unsigned int CCodeGen_Arm::GetAvailableMdRegisterCount() const
+{
+	return 0;
+}
+
 unsigned int CCodeGen_Arm::GetAddressSize() const
 {
 	return 4;
@@ -594,7 +599,10 @@ void CCodeGen_Arm::DumpLiteralPool()
 		{
 			if(m_literalPoolReloc[i])
 			{
-				m_externalSymbolReferencedHandler(reinterpret_cast<void*>(m_literalPool[i]), literalPoolPos + (i * 4));
+				if(m_externalSymbolReferencedHandler)
+				{
+					m_externalSymbolReferencedHandler(reinterpret_cast<void*>(m_literalPool[i]), literalPoolPos + (i * 4));
+				}
 			}
 		}
 

@@ -83,6 +83,15 @@ namespace Jitter
 		void									LoadTemporaryReferenceInRegister(CArmAssembler::REGISTER, CSymbol*);
 		void									StoreInRegisterTemporaryReference(CSymbol*, CArmAssembler::REGISTER);
 		
+		void									LoadMemoryFpSingleInRegister(CArmAssembler::SINGLE_REGISTER, CSymbol*);
+		void									StoreRegisterInMemoryFpSingle(CSymbol*, CArmAssembler::SINGLE_REGISTER);
+
+		void									LoadRelativeFpSingleInRegister(CArmAssembler::SINGLE_REGISTER, CSymbol*);
+		void									StoreRelativeFpSingleInRegister(CSymbol*, CArmAssembler::SINGLE_REGISTER);
+
+		void									LoadTemporaryFpSingleInRegister(CArmAssembler::SINGLE_REGISTER, CSymbol*);
+		void									StoreTemporaryFpSingleInRegister(CSymbol*, CArmAssembler::SINGLE_REGISTER);
+
 		CArmAssembler::REGISTER					PrepareSymbolRegister(CSymbol*, CArmAssembler::REGISTER);
 		void									CommitSymbolRegister(CSymbol*, CArmAssembler::REGISTER);
 
@@ -150,14 +159,74 @@ namespace Jitter
 		};
 		
 		//FPUOP -----------------------------------------------------------
-		struct FPUOP_BASE
+		struct FPUOP_BASE2
 		{
-			typedef void (CArmAssembler::*OpRegType)(CArmAssembler::VFP_REGISTER, CArmAssembler::VFP_REGISTER, CArmAssembler::VFP_REGISTER);
+			typedef void (CArmAssembler::*OpRegType)(CArmAssembler::SINGLE_REGISTER, CArmAssembler::SINGLE_REGISTER);
 		};
 
-		struct FPUOP_ADD : public FPUOP_BASE
+		struct FPUOP_BASE3
 		{
-			static OpRegType OpReg() { return &CArmAssembler::Fadds; }
+			typedef void (CArmAssembler::*OpRegType)(CArmAssembler::SINGLE_REGISTER, CArmAssembler::SINGLE_REGISTER, CArmAssembler::SINGLE_REGISTER);
+		};
+
+		struct FPUMDOP_BASE2
+		{
+			typedef void (CArmAssembler::*OpRegType)(CArmAssembler::QUAD_REGISTER, CArmAssembler::QUAD_REGISTER);
+		};
+
+		struct FPUMDOP_BASE3
+		{
+			typedef void (CArmAssembler::*OpRegType)(CArmAssembler::QUAD_REGISTER, CArmAssembler::QUAD_REGISTER, CArmAssembler::QUAD_REGISTER);
+		};
+
+		struct FPUOP_ABS : public FPUOP_BASE2
+		{
+			static OpRegType OpReg() { return &CArmAssembler::Vabs_F32; }
+		};
+
+		struct FPUOP_NEG : public FPUOP_BASE2
+		{
+			static OpRegType OpReg() { return &CArmAssembler::Vneg_F32; }
+		};
+
+		struct FPUOP_SQRT : public FPUOP_BASE2
+		{
+			static OpRegType OpReg() { return &CArmAssembler::Vsqrt_F32; }
+		};
+
+		struct FPUOP_ADD : public FPUOP_BASE3
+		{
+			static OpRegType OpReg() { return &CArmAssembler::Vadd_F32; }
+		};
+
+		struct FPUOP_MUL : public FPUOP_BASE3
+		{
+			static OpRegType OpReg() { return &CArmAssembler::Vmul_F32; }
+		};
+
+		struct FPUOP_DIV : public FPUOP_BASE3
+		{
+			static OpRegType OpReg() { return &CArmAssembler::Vdiv_F32; }
+		};
+
+		struct FPUMDOP_RCPL : public FPUMDOP_BASE2
+		{
+			static OpRegType OpReg() { return &CArmAssembler::Vrecpe_F32; }
+		};
+
+		struct FPUMDOP_RSQRT : public FPUMDOP_BASE2
+		{
+			static OpRegType OpReg() { return &CArmAssembler::Vrsqrte_F32; }
+		};
+
+		struct FPUMDOP_MIN : public FPUMDOP_BASE3
+		{
+			static OpRegType OpReg() { return &CArmAssembler::Vmin_F32; }
+		};
+
+		struct FPUMDOP_MAX : public FPUMDOP_BASE3
+		{
+			static OpRegType OpReg() { return &CArmAssembler::Vmax_F32; }
 		};
 
 		//ALUOP
@@ -248,9 +317,12 @@ namespace Jitter
 		void									Emit_StoreAtRef_TmpCst(const STATEMENT&);
 		
 		//FPUOP
-		template <typename> void				Emit_Fpu_RelRel(const STATEMENT&);
-		template <typename> void				Emit_Fpu_RelRelRel(const STATEMENT&);
-
+		template <typename> void				Emit_Fpu_MemMem(const STATEMENT&);
+		template <typename> void				Emit_Fpu_MemMemMem(const STATEMENT&);
+		template <typename> void				Emit_FpuMd_MemMem(const STATEMENT&);
+		template <typename> void				Emit_FpuMd_MemMemMem(const STATEMENT&);
+		void									Emit_Fp_LdCst_TmpCst(const STATEMENT&);
+		
 		static CONSTMATCHER						g_constMatchers[];
 		static CONSTMATCHER						g_fpuConstMatchers[];
 		static CArmAssembler::REGISTER			g_registers[MAX_REGISTERS];

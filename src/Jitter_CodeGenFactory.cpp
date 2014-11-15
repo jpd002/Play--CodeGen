@@ -21,6 +21,10 @@
 		#endif
 	#endif
 
+#elif defined(__ANDROID__)
+
+	#include "Jitter_CodeGen_Arm.h"
+
 #endif
 
 Jitter::CCodeGen* Jitter::CreateCodeGen()
@@ -40,12 +44,16 @@ Jitter::CCodeGen* Jitter::CreateCodeGen()
 	#else
 	
 		#if TARGET_RT_64_BIT
-			return new Jitter::CCodeGen_x86_64();		
+			return new Jitter::CCodeGen_x86_64();
 		#else
 			return new Jitter::CCodeGen_x86_32();
 		#endif
 	
 	#endif
+
+#elif defined(__ANDROID__)
+
+	return new Jitter::CCodeGen_Arm();
 
 #endif
 }

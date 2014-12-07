@@ -26,6 +26,10 @@ private:
 
 		float resMax;
 		float resMin;
+
+		uint32 ltTest;
+		uint32 leTest;
+		uint32 eqTest;
 	};
 
 	CONTEXT				m_context;

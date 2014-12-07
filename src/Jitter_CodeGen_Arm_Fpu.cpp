@@ -106,6 +106,50 @@ void CCodeGen_Arm::Emit_FpuMd_MemMemMem(const STATEMENT& statement)
 	StoreRegisterInMemoryFpSingle(dst, CArmAssembler::s8);
 }
 
+void CCodeGen_Arm::Emit_Fp_Cmp_MemMem(CArmAssembler::REGISTER dstReg, const STATEMENT& statement)
+{
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	LoadMemoryFpSingleInRegister(CArmAssembler::s0, src1);
+	LoadMemoryFpSingleInRegister(CArmAssembler::s1, src2);
+	m_assembler.Vcmp_F32(CArmAssembler::s0, CArmAssembler::s1);
+	m_assembler.Vmrs(CArmAssembler::rPC);	//Move to general purpose status register
+	switch(statement.jmpCondition)
+	{
+	case Jitter::CONDITION_BE:
+		m_assembler.MovCc(CArmAssembler::CONDITION_LE, dstReg, CArmAssembler::MakeImmediateAluOperand(1, 0));
+		m_assembler.MovCc(CArmAssembler::CONDITION_GT, dstReg, CArmAssembler::MakeImmediateAluOperand(0, 0));
+		break;
+	case Jitter::CONDITION_BL:
+		m_assembler.MovCc(CArmAssembler::CONDITION_LT, dstReg, CArmAssembler::MakeImmediateAluOperand(1, 0));
+		m_assembler.MovCc(CArmAssembler::CONDITION_GE, dstReg, CArmAssembler::MakeImmediateAluOperand(0, 0));
+		break;
+	case Jitter::CONDITION_EQ:
+		m_assembler.MovCc(CArmAssembler::CONDITION_EQ, dstReg, CArmAssembler::MakeImmediateAluOperand(1, 0));
+		m_assembler.MovCc(CArmAssembler::CONDITION_NE, dstReg, CArmAssembler::MakeImmediateAluOperand(0, 0));
+		break;
+	default:
+		assert(0);
+		break;
+	}
+}
+
+void CCodeGen_Arm::Emit_Fp_Cmp_SymMemMem(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+
+	switch(dst->m_type)
+	{
+	case SYM_REGISTER:
+		Emit_Fp_Cmp_MemMem(g_registers[dst->m_valueLow], statement);
+		break;
+	default:
+		assert(0);
+		break;
+	}
+}
+
 void CCodeGen_Arm::Emit_Fp_LdCst_TmpCst(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
@@ -123,6 +167,9 @@ CCodeGen_Arm::CONSTMATCHER CCodeGen_Arm::g_fpuConstMatchers[] =
 	{ OP_FP_ADD,	MATCH_MEMORY_FP_SINGLE,		MATCH_MEMORY_FP_SINGLE,		MATCH_MEMORY_FP_SINGLE,	&CCodeGen_Arm::Emit_Fpu_MemMemMem<FPUOP_ADD>		},
 	{ OP_FP_MUL,	MATCH_MEMORY_FP_SINGLE,		MATCH_MEMORY_FP_SINGLE,		MATCH_MEMORY_FP_SINGLE,	&CCodeGen_Arm::Emit_Fpu_MemMemMem<FPUOP_MUL>		},
 	{ OP_FP_DIV,	MATCH_MEMORY_FP_SINGLE,		MATCH_MEMORY_FP_SINGLE,		MATCH_MEMORY_FP_SINGLE,	&CCodeGen_Arm::Emit_Fpu_MemMemMem<FPUOP_DIV>		},
+
+	{ OP_FP_CMP,	MATCH_REGISTER,				MATCH_MEMORY_FP_SINGLE,		MATCH_MEMORY_FP_SINGLE,	&CCodeGen_Arm::Emit_Fp_Cmp_SymMemMem				},
+	{ OP_FP_CMP,	MATCH_MEMORY,				MATCH_MEMORY_FP_SINGLE,		MATCH_MEMORY_FP_SINGLE,	&CCodeGen_Arm::Emit_Fp_Cmp_SymMemMem				},
 
 	{ OP_FP_MIN,	MATCH_MEMORY_FP_SINGLE,		MATCH_MEMORY_FP_SINGLE,		MATCH_MEMORY_FP_SINGLE,	&CCodeGen_Arm::Emit_FpuMd_MemMemMem<FPUMDOP_MIN>	},
 	{ OP_FP_MAX,	MATCH_MEMORY_FP_SINGLE,		MATCH_MEMORY_FP_SINGLE,		MATCH_MEMORY_FP_SINGLE,	&CCodeGen_Arm::Emit_FpuMd_MemMemMem<FPUMDOP_MAX>	},

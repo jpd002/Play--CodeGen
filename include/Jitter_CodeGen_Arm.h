@@ -251,11 +251,7 @@ namespace Jitter
 		void									Emit_RetVal_Tmp(const STATEMENT&);
 		
 		//MUL/MULS
-		template<bool> void						Mul_GenericTmp64RegReg(CSymbol*, CArmAssembler::REGISTER, CArmAssembler::REGISTER);
-		template<bool> void						Emit_MulTmp64RegReg(const STATEMENT&);
-		template<bool> void						Emit_MulTmp64RegCst(const STATEMENT&);
-		template<bool> void						Emit_MulTmp64RegRel(const STATEMENT&);
-		template<bool> void						Emit_MulTmp64RelRel(const STATEMENT&);
+		template<bool> void						Emit_MulTmp64AnyAny(const STATEMENT&);
 
 		//DIV/DIVS
 		template<bool> void						Div_GenericTmp64RegReg_Quotient(CSymbol*);

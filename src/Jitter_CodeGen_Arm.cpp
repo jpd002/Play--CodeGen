@@ -102,7 +102,35 @@ void CCodeGen_Arm::Emit_Alu_GenericAnyCst(const STATEMENT& statement)
 	{ ALUOP_CST,	MATCH_ANY,		MATCH_ANY,		MATCH_ANY,		&CCodeGen_Arm::Emit_Alu_GenericAnyAny<ALUOP>		},
 
 #include "Jitter_CodeGen_Arm_Div.h"
-#include "Jitter_CodeGen_Arm_Mul.h"
+
+template <bool isSigned>
+void CCodeGen_Arm::Emit_MulTmp64AnyAny(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	auto resLoReg = CArmAssembler::r0;
+	auto resHiReg = CArmAssembler::r1;
+	auto src1Reg = PrepareSymbolRegister(src1, CArmAssembler::r2);
+	auto src2Reg = PrepareSymbolRegister(src2, CArmAssembler::r3);
+	
+	assert(dst->m_type == SYM_TEMPORARY64);
+	assert(resLoReg != src1Reg && resLoReg != src2Reg);
+	assert(resHiReg != src1Reg && resHiReg != src2Reg);
+	
+	if(isSigned)
+	{
+		m_assembler.Smull(resLoReg, resHiReg, src1Reg, src2Reg);
+	}
+	else
+	{
+		m_assembler.Umull(resLoReg, resHiReg, src1Reg, src2Reg);
+	}
+	
+	m_assembler.Str(resLoReg, CArmAssembler::rSP, CArmAssembler::MakeImmediateLdrAddress(dst->m_stackLocation + m_stackLevel + 0));
+	m_assembler.Str(resHiReg, CArmAssembler::rSP, CArmAssembler::MakeImmediateLdrAddress(dst->m_stackLocation + m_stackLevel + 4));
+}
 
 template <CArmAssembler::SHIFT shiftType>
 void CCodeGen_Arm::Emit_Shift_Generic(const STATEMENT& statement)
@@ -184,15 +212,8 @@ CCodeGen_Arm::CONSTMATCHER CCodeGen_Arm::g_constMatchers[] =
 	{ OP_DIVS,			MATCH_TEMPORARY64,	MATCH_MEMORY,		MATCH_CONSTANT,		&CCodeGen_Arm::Emit_DivTmp64MemCst<true>					},
 //	{ OP_DIVS,			MATCH_TEMPORARY64,	MATCH_RELATIVE,		MATCH_REGISTER,		&CCodeGen_Arm::Emit_DivTmp64RelReg<true>					},
 	
-	{ OP_MUL,			MATCH_TEMPORARY64,	MATCH_REGISTER,		MATCH_REGISTER,		&CCodeGen_Arm::Emit_MulTmp64RegReg<false>					},
-	{ OP_MUL,			MATCH_TEMPORARY64,	MATCH_REGISTER,		MATCH_CONSTANT,		&CCodeGen_Arm::Emit_MulTmp64RegCst<false>					},
-	{ OP_MUL,			MATCH_TEMPORARY64,	MATCH_REGISTER,		MATCH_RELATIVE,		&CCodeGen_Arm::Emit_MulTmp64RegRel<false>					},
-	{ OP_MUL,			MATCH_TEMPORARY64,	MATCH_RELATIVE,		MATCH_RELATIVE,		&CCodeGen_Arm::Emit_MulTmp64RelRel<false>					},
-
-	{ OP_MULS,			MATCH_TEMPORARY64,	MATCH_REGISTER,		MATCH_REGISTER,		&CCodeGen_Arm::Emit_MulTmp64RegReg<true>					},
-	{ OP_MULS,			MATCH_TEMPORARY64,	MATCH_REGISTER,		MATCH_CONSTANT,		&CCodeGen_Arm::Emit_MulTmp64RegCst<true>					},
-	{ OP_MULS,			MATCH_TEMPORARY64,	MATCH_REGISTER,		MATCH_RELATIVE,		&CCodeGen_Arm::Emit_MulTmp64RegRel<true>					},
-	{ OP_MULS,			MATCH_TEMPORARY64,	MATCH_RELATIVE,		MATCH_RELATIVE,		&CCodeGen_Arm::Emit_MulTmp64RelRel<true>					},
+	{ OP_MUL,			MATCH_TEMPORARY64,	MATCH_ANY,			MATCH_ANY,			&CCodeGen_Arm::Emit_MulTmp64AnyAny<false>					},
+	{ OP_MULS,			MATCH_TEMPORARY64,	MATCH_ANY,			MATCH_ANY,			&CCodeGen_Arm::Emit_MulTmp64AnyAny<true>					},
 
 	{ OP_ADDREF,		MATCH_TMP_REF,		MATCH_REL_REF,		MATCH_REGISTER,		&CCodeGen_Arm::Emit_AddRef_TmpRelReg						},
 	{ OP_ADDREF,		MATCH_TMP_REF,		MATCH_REL_REF,		MATCH_CONSTANT,		&CCodeGen_Arm::Emit_AddRef_TmpRelCst						},

@@ -1,5 +1,4 @@
-#ifndef _JITTER_CODEGEN_ARM_DIV_H_
-#define _JITTER_CODEGEN_ARM_DIV_H_
+#pragma once
 
 template <bool isSigned>
 void CCodeGen_Arm::Div_GenericTmp64RegReg_Quotient(CSymbol* dst)
@@ -40,9 +39,9 @@ void CCodeGen_Arm::Div_GenericTmp64RegReg_Remainder(CSymbol* dst)
 template <bool isSigned>
 void CCodeGen_Arm::Emit_DivTmp64RegReg(const STATEMENT& statement)
 {
-	CSymbol* dst = statement.dst->GetSymbol().get();
-	CSymbol* src1 = statement.src1->GetSymbol().get();
-	CSymbol* src2 = statement.src2->GetSymbol().get();
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
 	
 	assert(dst->m_type  == SYM_TEMPORARY64);
 	assert(src1->m_type == SYM_REGISTER);
@@ -56,15 +55,15 @@ void CCodeGen_Arm::Emit_DivTmp64RegReg(const STATEMENT& statement)
 	//Remainder
 	m_assembler.Mov(CArmAssembler::r0, g_registers[src1->m_valueLow]);
 	m_assembler.Mov(CArmAssembler::r1, g_registers[src2->m_valueLow]);
-	Div_GenericTmp64RegReg_Remainder<isSigned>(dst);	
+	Div_GenericTmp64RegReg_Remainder<isSigned>(dst);
 }
 
 template <bool isSigned>
 void CCodeGen_Arm::Emit_DivTmp64RegCst(const STATEMENT& statement)
 {
-	CSymbol* dst = statement.dst->GetSymbol().get();
-	CSymbol* src1 = statement.src1->GetSymbol().get();
-	CSymbol* src2 = statement.src2->GetSymbol().get();
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
 	
 	assert(dst->m_type  == SYM_TEMPORARY64);
 	assert(src1->m_type == SYM_REGISTER);
@@ -78,7 +77,26 @@ void CCodeGen_Arm::Emit_DivTmp64RegCst(const STATEMENT& statement)
 	//Remainder
 	m_assembler.Mov(CArmAssembler::r0, g_registers[src1->m_valueLow]);
 	LoadConstantInRegister(CArmAssembler::r1, src2->m_valueLow);
-	Div_GenericTmp64RegReg_Remainder<isSigned>(dst);	
+	Div_GenericTmp64RegReg_Remainder<isSigned>(dst);
 }
 
-#endif
+template <bool isSigned>
+void CCodeGen_Arm::Emit_DivTmp64MemCst(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+	
+	assert(dst->m_type  == SYM_TEMPORARY64);
+	assert(src2->m_type == SYM_CONSTANT);
+	
+	//Quotient
+	LoadMemoryInRegister(CArmAssembler::r0, src1);
+	LoadConstantInRegister(CArmAssembler::r1, src2->m_valueLow);
+	Div_GenericTmp64RegReg_Quotient<isSigned>(dst);
+	
+	//Remainder
+	LoadMemoryInRegister(CArmAssembler::r0, src1);
+	LoadConstantInRegister(CArmAssembler::r1, src2->m_valueLow);
+	Div_GenericTmp64RegReg_Remainder<isSigned>(dst);
+}

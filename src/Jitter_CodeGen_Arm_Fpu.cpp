@@ -144,6 +144,14 @@ void CCodeGen_Arm::Emit_Fp_Cmp_SymMemMem(const STATEMENT& statement)
 	case SYM_REGISTER:
 		Emit_Fp_Cmp_MemMem(g_registers[dst->m_valueLow], statement);
 		break;
+	case SYM_RELATIVE:
+	case SYM_TEMPORARY:
+		{
+			auto tmpReg = CArmAssembler::r0;
+			Emit_Fp_Cmp_MemMem(tmpReg, statement);
+			StoreRegisterInMemory(dst, tmpReg);
+		}
+		break;
 	default:
 		assert(0);
 		break;

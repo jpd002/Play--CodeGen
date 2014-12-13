@@ -262,6 +262,7 @@ namespace Jitter
 		template<bool> void						Div_GenericTmp64RegReg_Remainder(CSymbol*);
 		template<bool> void						Emit_DivTmp64RegReg(const STATEMENT&);
 		template<bool> void						Emit_DivTmp64RegCst(const STATEMENT&);
+		template<bool> void						Emit_DivTmp64MemCst(const STATEMENT&);
 
 		//MOV
 		void									Emit_Mov_RegReg(const STATEMENT&);
@@ -278,11 +279,11 @@ namespace Jitter
 		
 		//EXTLOW64
 		void									Emit_ExtLow64RegTmp64(const STATEMENT&);
-		void									Emit_ExtLow64RelTmp64(const STATEMENT&);
+		void									Emit_ExtLow64MemTmp64(const STATEMENT&);
 
 		//EXTHIGH64
 		void									Emit_ExtHigh64RegTmp64(const STATEMENT&);
-		void									Emit_ExtHigh64RelTmp64(const STATEMENT&);
+		void									Emit_ExtHigh64MemTmp64(const STATEMENT&);
 
 		//CMP
 		void									Cmp_GetFlag(CArmAssembler::REGISTER, CONDITION);
@@ -302,8 +303,9 @@ namespace Jitter
 		
 		//NOT
 		void									Emit_Not_RegReg(const STATEMENT&);
-		void									Emit_Not_RelReg(const STATEMENT&);
-		
+		void									Emit_Not_MemReg(const STATEMENT&);
+		void									Emit_Not_MemMem(const STATEMENT&);
+
 		//ADDREF
 		void									Emit_AddRef_TmpRelReg(const STATEMENT&);
 		void									Emit_AddRef_TmpRelCst(const STATEMENT&);

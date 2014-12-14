@@ -335,6 +335,26 @@ void CArmAssembler::MovCc(CONDITION condition, REGISTER rd, const ImmediateAluOp
 	WriteWord(opcode);
 }
 
+void CArmAssembler::Movw(REGISTER rd, uint16 value)
+{
+	uint32 opcode = 0x03000000;
+	opcode |= (CONDITION_AL << 28);
+	opcode |= (value >> 12) << 16;
+	opcode |= (rd << 12);
+	opcode |= (value & 0xFFF);
+	WriteWord(opcode);
+}
+
+void CArmAssembler::Movt(REGISTER rd, uint16 value)
+{
+	uint32 opcode = 0x03400000;
+	opcode |= (CONDITION_AL << 28);
+	opcode |= (value >> 12) << 16;
+	opcode |= (rd << 12);
+	opcode |= (value & 0xFFF);
+	WriteWord(opcode);
+}
+
 void CArmAssembler::Mvn(REGISTER rd, REGISTER rm)
 {
 	InstructionAlu instruction;

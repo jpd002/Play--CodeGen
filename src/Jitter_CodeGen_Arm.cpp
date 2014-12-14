@@ -441,6 +441,16 @@ void CCodeGen_Arm::LoadConstantInRegister(CArmAssembler::REGISTER registerId, ui
 				return;
 			}
 		}
+
+		//Otherwise, use paired move
+		{
+			m_assembler.Movw(registerId, static_cast<uint16>(constant & 0xFFFF));
+			if((constant & 0xFFFF0000) != 0)
+			{
+				m_assembler.Movt(registerId, static_cast<uint16>(constant >> 16));
+			}
+			return;
+		}
 	}
 		
 	//Store as constant in literal table

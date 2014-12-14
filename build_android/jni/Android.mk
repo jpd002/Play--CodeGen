@@ -35,6 +35,7 @@ LOCAL_MODULE			:= libCodeGenTestSuite
 LOCAL_SRC_FILES			:=	../../tests/CompareTest.cpp \
 							../../tests/Crc32Test.cpp \
 							../../tests/FpuTest.cpp \
+							../../tests/FpIntMixTest.cpp \
 							../../tests/HugeJumpTest.cpp \
 							../../tests/Main.cpp \
 							../../tests/MemAccessTest.cpp \

@@ -20,6 +20,7 @@ private:
 		float number3;
 		float number4;
 		
+		float resSub;
 		float resAbs;
 		float resRsqrt;
 		float resSqrtCst;

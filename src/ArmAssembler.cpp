@@ -535,6 +535,16 @@ void CArmAssembler::Vadd_F32(SINGLE_REGISTER sd, SINGLE_REGISTER sn, SINGLE_REGI
 	WriteWord(opcode);
 }
 
+void CArmAssembler::Vsub_F32(SINGLE_REGISTER sd, SINGLE_REGISTER sn, SINGLE_REGISTER sm)
+{
+	uint32 opcode = 0x0E300A40;
+	opcode |= (CONDITION_AL << 28);
+	opcode |= FPSIMD_EncodeSd(sd);
+	opcode |= FPSIMD_EncodeSn(sn);
+	opcode |= FPSIMD_EncodeSm(sm);
+	WriteWord(opcode);
+}
+
 void CArmAssembler::Vmul_F32(SINGLE_REGISTER sd, SINGLE_REGISTER sn, SINGLE_REGISTER sm)
 {
 	uint32 opcode = 0x0E200A00;

@@ -4,7 +4,7 @@
 
 #define OPCODE_BKPT (0xE1200070)
 
-CArmAssembler::CArmAssembler() 
+CArmAssembler::CArmAssembler()
 : m_nextLabelId(1)
 , m_stream(NULL)
 {
@@ -77,38 +77,37 @@ void CArmAssembler::ClearLabels()
 
 void CArmAssembler::MarkLabel(LABEL label)
 {
-    m_labels[label] = static_cast<size_t>(m_stream->Tell());
+	m_labels[label] = static_cast<size_t>(m_stream->Tell());
 }
 
 void CArmAssembler::ResolveLabelReferences()
 {
-    for(LabelReferenceMapType::iterator labelRef(m_labelReferences.begin());
-        m_labelReferences.end() != labelRef; labelRef++)
-    {
-        LabelMapType::iterator label(m_labels.find(labelRef->first));
-        if(label == m_labels.end())
-        {
-            throw std::runtime_error("Invalid label.");
-        }
-        size_t referencePos = labelRef->second;
-        size_t labelPos = label->second;
+	for(const auto& labelReferencePair : m_labelReferences)
+	{
+		auto label(m_labels.find(labelReferencePair.first));
+		if(label == m_labels.end())
+		{
+			throw std::runtime_error("Invalid label.");
+		}
+		size_t referencePos = labelReferencePair.second;
+		size_t labelPos = label->second;
 		int offset = static_cast<int>(labelPos - referencePos) / 4;
 		assert(offset >= 2);
 		offset -= 2;
 
 		m_stream->Seek(referencePos, Framework::STREAM_SEEK_SET);
-        m_stream->Write8(static_cast<uint8>(offset >> 0));
-        m_stream->Write8(static_cast<uint8>(offset >> 8));
-        m_stream->Write8(static_cast<uint8>(offset >> 16));
+		m_stream->Write8(static_cast<uint8>(offset >> 0));
+		m_stream->Write8(static_cast<uint8>(offset >> 8));
+		m_stream->Write8(static_cast<uint8>(offset >> 16));
 		m_stream->Seek(0, Framework::STREAM_SEEK_END);
-    }
-    m_labelReferences.clear();
+	}
+	m_labelReferences.clear();
 }
 
 void CArmAssembler::CreateLabelReference(LABEL label)
 {
-    LABELREF reference = static_cast<size_t>(m_stream->Tell());
-    m_labelReferences.insert(LabelReferenceMapType::value_type(label, reference));
+	LABELREF reference = static_cast<size_t>(m_stream->Tell());
+	m_labelReferences.insert(LabelReferenceMapType::value_type(label, reference));
 }
 
 void CArmAssembler::Add(REGISTER rd, REGISTER rn, REGISTER rm)

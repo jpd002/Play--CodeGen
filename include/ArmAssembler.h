@@ -224,6 +224,8 @@ public:
 	void									Vneg_F32(SINGLE_REGISTER, SINGLE_REGISTER);
 	void									Vsqrt_F32(SINGLE_REGISTER, SINGLE_REGISTER);
 	void									Vcmp_F32(SINGLE_REGISTER, SINGLE_REGISTER);
+	void									Vcvt_F32_S32(SINGLE_REGISTER, SINGLE_REGISTER);
+	void									Vcvt_S32_F32(SINGLE_REGISTER, SINGLE_REGISTER);
 	void									Vmrs(REGISTER);
 
 	void									Vrecpe_F32(QUAD_REGISTER, QUAD_REGISTER);

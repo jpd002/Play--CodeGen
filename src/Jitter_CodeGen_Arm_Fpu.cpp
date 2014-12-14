@@ -106,10 +106,13 @@ void CCodeGen_Arm::Emit_FpuMd_MemMemMem(const STATEMENT& statement)
 	StoreRegisterInMemoryFpSingle(dst, CArmAssembler::s8);
 }
 
-void CCodeGen_Arm::Emit_Fp_Cmp_MemMem(CArmAssembler::REGISTER dstReg, const STATEMENT& statement)
+void CCodeGen_Arm::Emit_Fp_Cmp_AnyMemMem(const STATEMENT& statement)
 {
+	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
 	auto src2 = statement.src2->GetSymbol().get();
+
+	auto dstReg = PrepareSymbolRegister(dst, CArmAssembler::r0);
 
 	LoadMemoryFpSingleInRegister(CArmAssembler::s0, src1);
 	LoadMemoryFpSingleInRegister(CArmAssembler::s1, src2);
@@ -133,29 +136,8 @@ void CCodeGen_Arm::Emit_Fp_Cmp_MemMem(CArmAssembler::REGISTER dstReg, const STAT
 		assert(0);
 		break;
 	}
-}
 
-void CCodeGen_Arm::Emit_Fp_Cmp_SymMemMem(const STATEMENT& statement)
-{
-	auto dst = statement.dst->GetSymbol().get();
-
-	switch(dst->m_type)
-	{
-	case SYM_REGISTER:
-		Emit_Fp_Cmp_MemMem(g_registers[dst->m_valueLow], statement);
-		break;
-	case SYM_RELATIVE:
-	case SYM_TEMPORARY:
-		{
-			auto tmpReg = CArmAssembler::r0;
-			Emit_Fp_Cmp_MemMem(tmpReg, statement);
-			StoreRegisterInMemory(dst, tmpReg);
-		}
-		break;
-	default:
-		assert(0);
-		break;
-	}
+	CommitSymbolRegister(dst, dstReg);
 }
 
 void CCodeGen_Arm::Emit_Fp_LdCst_TmpCst(const STATEMENT& statement)
@@ -176,8 +158,7 @@ CCodeGen_Arm::CONSTMATCHER CCodeGen_Arm::g_fpuConstMatchers[] =
 	{ OP_FP_MUL,	MATCH_MEMORY_FP_SINGLE,		MATCH_MEMORY_FP_SINGLE,		MATCH_MEMORY_FP_SINGLE,	&CCodeGen_Arm::Emit_Fpu_MemMemMem<FPUOP_MUL>		},
 	{ OP_FP_DIV,	MATCH_MEMORY_FP_SINGLE,		MATCH_MEMORY_FP_SINGLE,		MATCH_MEMORY_FP_SINGLE,	&CCodeGen_Arm::Emit_Fpu_MemMemMem<FPUOP_DIV>		},
 
-	{ OP_FP_CMP,	MATCH_REGISTER,				MATCH_MEMORY_FP_SINGLE,		MATCH_MEMORY_FP_SINGLE,	&CCodeGen_Arm::Emit_Fp_Cmp_SymMemMem				},
-	{ OP_FP_CMP,	MATCH_MEMORY,				MATCH_MEMORY_FP_SINGLE,		MATCH_MEMORY_FP_SINGLE,	&CCodeGen_Arm::Emit_Fp_Cmp_SymMemMem				},
+	{ OP_FP_CMP,	MATCH_ANY,					MATCH_MEMORY_FP_SINGLE,		MATCH_MEMORY_FP_SINGLE,	&CCodeGen_Arm::Emit_Fp_Cmp_AnyMemMem				},
 
 	{ OP_FP_MIN,	MATCH_MEMORY_FP_SINGLE,		MATCH_MEMORY_FP_SINGLE,		MATCH_MEMORY_FP_SINGLE,	&CCodeGen_Arm::Emit_FpuMd_MemMemMem<FPUMDOP_MIN>	},
 	{ OP_FP_MAX,	MATCH_MEMORY_FP_SINGLE,		MATCH_MEMORY_FP_SINGLE,		MATCH_MEMORY_FP_SINGLE,	&CCodeGen_Arm::Emit_FpuMd_MemMemMem<FPUMDOP_MAX>	},

@@ -319,8 +319,7 @@ namespace Jitter
 		template <typename> void				Emit_Fpu_MemMemMem(const STATEMENT&);
 		template <typename> void				Emit_FpuMd_MemMem(const STATEMENT&);
 		template <typename> void				Emit_FpuMd_MemMemMem(const STATEMENT&);
-		void									Emit_Fp_Cmp_MemMem(CArmAssembler::REGISTER, const STATEMENT&);
-		void									Emit_Fp_Cmp_SymMemMem(const STATEMENT&);
+		void									Emit_Fp_Cmp_AnyMemMem(const STATEMENT&);
 		void									Emit_Fp_LdCst_TmpCst(const STATEMENT&);
 		
 		static CONSTMATCHER						g_constMatchers[];

@@ -208,6 +208,9 @@ void Jitter::DumpStatementList(const StatementList& statements)
 		case OP_MD_UNPACK_UPPER_BH:
 			std::cout << " UNPACK_UPPER_BH ";
 			break;
+		case OP_MD_UNPACK_UPPER_HW:
+			std::cout << " UNPACK_UPPER_HW ";
+			break;
 		case OP_MD_UNPACK_UPPER_WD:
 			std::cout << " UNPACK_UPPER_WD ";
 			break;
@@ -235,11 +238,20 @@ void Jitter::DumpStatementList(const StatementList& statements)
 		case OP_MD_SUB_B:
 			std::cout << " -(B) ";
 			break;
+		case OP_MD_SUBUS_B:
+			std::cout << " -(USB) ";
+			break;
+		case OP_MD_SUB_H:
+			std::cout << " -(H) ";
+			break;
 		case OP_MD_SUB_W:
 			std::cout << " -(W) ";
 			break;
 		case OP_MD_SUBSS_H:
 			std::cout << " -(SSH) ";
+			break;
+		case OP_MD_SUBUS_H:
+			std::cout << " -(USH) ";
 			break;
 		case OP_MD_SLLW:
 			std::cout << " <<(W) ";

@@ -191,7 +191,10 @@ namespace Jitter
 		void							MD_SrlW(uint8);
 		void							MD_Srl256();
 		void							MD_SubB();
+		void							MD_SubBUS();
 		void							MD_SubHSS();
+		void							MD_SubHUS();
+		void							MD_SubH();
 		void							MD_SubW();
 		void							MD_SubS();
 		void							MD_ToSingle();
@@ -200,6 +203,7 @@ namespace Jitter
 		void							MD_UnpackLowerHW();
 		void							MD_UnpackLowerWD();
 		void							MD_UnpackUpperBH();
+		void							MD_UnpackUpperHW();
 		void							MD_UnpackUpperWD();
 		void							MD_Xor();
 

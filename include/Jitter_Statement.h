@@ -62,7 +62,10 @@ namespace Jitter
 		OP_MD_ADDUS_W,
 
 		OP_MD_SUB_B,
+		OP_MD_SUBUS_B,
 		OP_MD_SUBSS_H,
+		OP_MD_SUBUS_H,
+		OP_MD_SUB_H,
 		OP_MD_SUB_W,
 
 		OP_MD_CMPEQ_B,
@@ -103,6 +106,7 @@ namespace Jitter
 		OP_MD_UNPACK_LOWER_WD,
 
 		OP_MD_UNPACK_UPPER_BH,
+		OP_MD_UNPACK_UPPER_HW,
 		OP_MD_UNPACK_UPPER_WD,
 
 		OP_MD_PACK_HB,

@@ -168,9 +168,24 @@ namespace Jitter
 			static OpVoType OpVo() { return &CX86Assembler::PsubbVo; }
 		};
 
+		struct MDOP_SUBUSB : public MDOP_BASE
+		{
+			static OpVoType OpVo() { return &CX86Assembler::PsubusbVo; }
+		};
+
 		struct MDOP_SUBSSH : public MDOP_BASE
 		{
 			static OpVoType OpVo() { return &CX86Assembler::PsubswVo; }
+		};
+
+		struct MDOP_SUBUSH : public MDOP_BASE
+		{
+			static OpVoType OpVo() { return &CX86Assembler::PsubuswVo; }
+		};
+
+		struct MDOP_SUBH : public MDOP_BASE
+		{
+			static OpVoType OpVo() { return &CX86Assembler::PsubwVo; }
 		};
 
 		struct MDOP_SUBW : public MDOP_BASE
@@ -256,6 +271,11 @@ namespace Jitter
 		struct MDOP_UNPACK_UPPER_BH : public MDOP_BASE
 		{
 			static OpVoType OpVo() { return &CX86Assembler::PunpckhbwVo; }
+		};
+
+		struct MDOP_UNPACK_UPPER_HW : public MDOP_BASE
+		{
+			static OpVoType OpVo() { return &CX86Assembler::PunpckhwdVo; }
 		};
 
 		struct MDOP_UNPACK_UPPER_WD : public MDOP_BASE

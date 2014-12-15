@@ -252,9 +252,24 @@ void CX86Assembler::PsubbVo(XMMREGISTER registerId, const CAddress& address)
 	WriteEdVdOp_66_0F(0xF8, address, registerId);
 }
 
+void CX86Assembler::PsubusbVo(XMMREGISTER registerId, const CAddress& address)
+{
+	WriteEdVdOp_66_0F(0xD8, address, registerId);
+}
+
 void CX86Assembler::PsubswVo(XMMREGISTER registerId, const CAddress& address)
 {
 	WriteEdVdOp_66_0F(0xE9, address, registerId);
+}
+
+void CX86Assembler::PsubuswVo(XMMREGISTER registerId, const CAddress& address)
+{
+	WriteEdVdOp_66_0F(0xD9, address, registerId);
+}
+
+void CX86Assembler::PsubwVo(XMMREGISTER registerId, const CAddress& address)
+{
+	WriteEdVdOp_66_0F(0xF9, address, registerId);
 }
 
 void CX86Assembler::PsubdVo(XMMREGISTER registerId, const CAddress& address)
@@ -280,6 +295,11 @@ void CX86Assembler::PunpckldqVo(XMMREGISTER registerId, const CAddress& address)
 void CX86Assembler::PunpckhbwVo(XMMREGISTER registerId, const CAddress& address)
 {
 	WriteEdVdOp_66_0F(0x68, address, registerId);
+}
+
+void CX86Assembler::PunpckhwdVo(XMMREGISTER registerId, const CAddress& address)
+{
+	WriteEdVdOp_66_0F(0x69, address, registerId);
 }
 
 void CX86Assembler::PunpckhdqVo(XMMREGISTER registerId, const CAddress& address)

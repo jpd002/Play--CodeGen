@@ -38,20 +38,6 @@ namespace Jitter
 			MAX_REGISTERS = 6,
 		};
 
-		enum
-		{
-			LITERAL_POOL_SIZE = 0x100,
-		};
-		
-		struct LITERAL_POOL_REF
-		{
-			unsigned int			poolPtr;
-			CArmAssembler::REGISTER	dstRegister;
-			unsigned int			offset;
-		};
-
-		typedef std::list<LITERAL_POOL_REF> LiteralPoolRefList;
-
 		struct CONSTMATCHER
 		{
 			OPERATION							op;
@@ -101,7 +87,6 @@ namespace Jitter
 		static uint32							RotateLeft(uint32);
 		bool									TryGetAluImmediateParams(uint32, uint8&, uint8&);
 		void									LoadConstantInRegister(CArmAssembler::REGISTER, uint32, bool = false);
-		void									DumpLiteralPool();
 
 		//ALUOP ----------------------------------------------------------
 		struct ALUOP_BASE
@@ -332,15 +317,12 @@ namespace Jitter
 		static CArmAssembler::REGISTER			g_registers[MAX_REGISTERS];
 		static CArmAssembler::REGISTER			g_paramRegs[MAX_PARAMS];
 		static CArmAssembler::REGISTER			g_baseRegister;
+		static CArmAssembler::REGISTER			g_callAddressRegister;
 
 		Framework::CStream*						m_stream;
 		CArmAssembler							m_assembler;
 		LabelMapType							m_labels;
 		ParamStack								m_params;
-		uint32*									m_literalPool;
-		bool*									m_literalPoolReloc;
-		unsigned int							m_lastLiteralPtr;
-		LiteralPoolRefList						m_literalPoolRefs;
 		uint32									m_stackLevel;
 	};
 };

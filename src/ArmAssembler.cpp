@@ -92,7 +92,6 @@ void CArmAssembler::ResolveLabelReferences()
 		size_t referencePos = labelReferencePair.second;
 		size_t labelPos = label->second;
 		int offset = static_cast<int>(labelPos - referencePos) / 4;
-		assert(offset >= 2);
 		offset -= 2;
 
 		m_stream->Seek(referencePos, Framework::STREAM_SEEK_SET);

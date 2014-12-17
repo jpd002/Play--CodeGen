@@ -267,13 +267,11 @@ namespace Jitter
 
 		//MOV
 		void									Emit_Mov_RegReg(const STATEMENT&);
-		void									Emit_Mov_RegRel(const STATEMENT&);
+		void									Emit_Mov_RegMem(const STATEMENT&);
 		void									Emit_Mov_RegCst(const STATEMENT&);
-		void									Emit_Mov_RelReg(const STATEMENT&);
-		void									Emit_Mov_RelRel(const STATEMENT&);
-		void									Emit_Mov_RelCst(const STATEMENT&);
-		void									Emit_Mov_RelTmp(const STATEMENT&);
-		void									Emit_Mov_TmpReg(const STATEMENT&);
+		void									Emit_Mov_MemReg(const STATEMENT&);
+		void									Emit_Mov_MemMem(const STATEMENT&);
+		void									Emit_Mov_MemCst(const STATEMENT&);
 
 		//NOP
 		void									Emit_Nop(const STATEMENT&);

@@ -14,7 +14,7 @@
 #include <mach/mach_init.h>
 #include <mach/vm_map.h>
 
-#if TARGET_IPHONE_SIMULATOR
+#if defined(TARGET_IPHONE_SIMULATOR) || defined(TARGET_OS_MAC)
 extern "C" void __clear_cache(void* begin, void* end);
 #endif
 

@@ -256,10 +256,10 @@ CMachoObjectFile::SymbolArray CMachoObjectFile::BuildSymbols(const InternalSymbo
 	return symbols;
 }
 
-CMachoObjectFile::RelocationArray CMachoObjectFile::BuildRelocations(SECTION& section, const InternalSymbolInfoArray& internalSymbolInfos, const ExternalSymbolInfoArray& externalSymbolInfos)
+CMachoObjectFile::RelocationArray CMachoObjectFile::BuildRelocations(SECTION& section, const InternalSymbolInfoArray& internalSymbolInfos, const ExternalSymbolInfoArray& externalSymbolInfos) const
 {
 	RelocationArray relocations;
-	relocations.resize(section.symbolReferences.size());
+	relocations.reserve(section.symbolReferences.size() * 4); //Times 4 because of possible HALF/PAIR relocs
 
 	for(uint32 i = 0; i < section.symbolReferences.size(); i++)
 	{
@@ -267,16 +267,83 @@ CMachoObjectFile::RelocationArray CMachoObjectFile::BuildRelocations(SECTION& se
 		uint32 symbolIndex = (symbolReference.type == SYMBOL_TYPE_INTERNAL) ? 
 			internalSymbolInfos[symbolReference.symbolIndex].symbolIndex :
 			externalSymbolInfos[symbolReference.symbolIndex].symbolIndex;
+		
+		if((m_cpuArch == CObjectFile::CPU_ARCH_ARM) && (symbolReference.type == SYMBOL_TYPE_EXTERNAL))
+		{
+			//Dirty hack: We assume that all external symbols are coming from the OP_CALL emitter on ARM
+			//which uses MOVW and MOVT
 
-		auto& relocation = relocations[i];
-		relocation.type				= 0;			//GENERIC_RELOC_VANILLA
-		relocation.symbolIndex		= symbolIndex;
-		relocation.address			= symbolReference.offset;
-		relocation.isExtern			= 1;
-		relocation.pcRel			= 0;
-		relocation.length			= 2;			//4 bytes
+			//Length field for half relocs
+			//Bit 0: 0=movw,1=movt; Bit 1: 0=arm,1=thumb
 
-		*reinterpret_cast<uint32*>(section.data.data() + symbolReference.offset) = 0;
+			{
+				unsigned int symbolLength = 0;
+
+				{
+					auto relocation = Macho::RELOCATION_INFO();
+					relocation.type			= Macho::ARM_RELOC_HALF;
+					relocation.symbolIndex	= symbolIndex;
+					relocation.address		= symbolReference.offset + 0;
+					relocation.isExtern		= 1;
+					relocation.pcRel		= 0;
+					relocation.length		= symbolLength;
+					relocations.push_back(relocation);
+				}
+
+				{
+					auto relocation = Macho::RELOCATION_INFO();
+					relocation.type			= Macho::ARM_RELOC_PAIR;
+					relocation.symbolIndex	= 0xFFFFFF;
+					relocation.address		= 0;
+					relocation.isExtern		= 0;
+					relocation.pcRel		= 0;
+					relocation.length		= symbolLength;
+					relocations.push_back(relocation);
+				}
+			}
+
+			{
+				unsigned int symbolLength = 1;
+
+				{
+					auto relocation = Macho::RELOCATION_INFO();
+					relocation.type			= Macho::ARM_RELOC_HALF;
+					relocation.symbolIndex	= symbolIndex;
+					relocation.address		= symbolReference.offset + 4;
+					relocation.isExtern		= 1;
+					relocation.pcRel		= 0;
+					relocation.length		= symbolLength;
+					relocations.push_back(relocation);
+				}
+
+				{
+					auto relocation = Macho::RELOCATION_INFO();
+					relocation.type			= Macho::ARM_RELOC_PAIR;
+					relocation.symbolIndex	= 0xFFFFFF;
+					relocation.address		= 0;
+					relocation.isExtern		= 0;
+					relocation.pcRel		= 0;
+					relocation.length		= symbolLength;
+					relocations.push_back(relocation);
+				}
+			}
+
+			*reinterpret_cast<uint32*>(section.data.data() + symbolReference.offset + 0) &= ~0xF0FFF;
+			*reinterpret_cast<uint32*>(section.data.data() + symbolReference.offset + 4) &= ~0xF0FFF;
+		}
+		else
+		{
+			auto relocation = Macho::RELOCATION_INFO();
+			relocation.type				= Macho::GENERIC_RELOC_VANILLA;
+			relocation.symbolIndex		= symbolIndex;
+			relocation.address			= symbolReference.offset;
+			relocation.isExtern			= 1;
+			relocation.pcRel			= 0;
+			relocation.length			= 2;			//4 bytes
+			relocations.push_back(relocation);
+
+			*reinterpret_cast<uint32*>(section.data.data() + symbolReference.offset) = 0;
+		}
 	}
 
 	return relocations;

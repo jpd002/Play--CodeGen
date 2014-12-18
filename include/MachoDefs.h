@@ -51,6 +51,15 @@ namespace Macho
 		LC_SYMTAB			= 0x0002
 	};
 
+	enum RELOC_TYPE
+	{
+		GENERIC_RELOC_VANILLA	= 0,
+		GENERIC_RELOC_PAIR		= 1,
+		ARM_RELOC_VANILLA		= GENERIC_RELOC_VANILLA,
+		ARM_RELOC_PAIR			= GENERIC_RELOC_PAIR,
+		ARM_RELOC_HALF			= 8
+	};
+
 	struct MACH_HEADER
 	{
 		uint32	magic;

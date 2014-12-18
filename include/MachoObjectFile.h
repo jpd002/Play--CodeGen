@@ -58,6 +58,6 @@ namespace Jitter
 		static void				FillStringTable(StringTable&, const ExternalSymbolArray&, ExternalSymbolInfoArray&);
 		static SECTION			BuildSection(const InternalSymbolArray&, InternalSymbolInfoArray&, INTERNAL_SYMBOL_LOCATION);
 		static SymbolArray		BuildSymbols(const InternalSymbolArray&, InternalSymbolInfoArray&, const ExternalSymbolArray&, ExternalSymbolInfoArray&, uint32, uint32);
-		static RelocationArray	BuildRelocations(SECTION&, const InternalSymbolInfoArray&, const ExternalSymbolInfoArray&);
+		RelocationArray			BuildRelocations(SECTION&, const InternalSymbolInfoArray&, const ExternalSymbolInfoArray&) const;
 	};
 }

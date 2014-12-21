@@ -7,11 +7,8 @@
 class CMdTest : public CTest
 {
 public:
-						CMdTest();
-	virtual				~CMdTest();
-
-	void				Compile(Jitter::CJitter&);
-	void				Run();
+	void				Compile(Jitter::CJitter&) override;
+	void				Run() override;
 
 private:
 	struct CONTEXT
@@ -52,13 +49,6 @@ private:
 
 		uint8			dstPackHB[16];
 		uint8			dstPackWH[16];
-
-		uint8			dstUnpackLowerBH[16];
-		uint8			dstUnpackLowerHW[16];
-		uint8			dstUnpackLowerWD[16];
-
-		uint8			dstUnpackUpperBH[16];
-		uint8			dstUnpackUpperWD[16];
 
 		uint32			shiftAmount;
 	};

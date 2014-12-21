@@ -1,16 +1,6 @@
 #include "MdSubTest.h"
 #include "MemStream.h"
 
-CMdSubTest::CMdSubTest()
-{
-
-}
-
-CMdSubTest::~CMdSubTest()
-{
-
-}
-
 void CMdSubTest::Compile(Jitter::CJitter& jitter)
 {
 	Framework::CMemStream codeStream;

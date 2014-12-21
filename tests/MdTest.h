@@ -1,5 +1,4 @@
-#ifndef _MDTEST_H_
-#define _MDTEST_H_
+#pragma once
 
 #include "Test.h"
 #include "Align16.h"
@@ -32,8 +31,6 @@ private:
 		uint8			dstAddW[16];
 		uint8			dstAddWUS[16];
 		uint8			dstAddWSS[16];
-
-		uint8			dstSubHSS[16];
 
 		uint8			dstCmpEqW[16];
 		uint8			dstCmpGtH[16];
@@ -71,5 +68,3 @@ private:
 
 	CMemoryFunction		m_function;
 };
-
-#endif

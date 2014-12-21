@@ -167,6 +167,7 @@
     <ClCompile Include="..\tests\MdFpFlagTest.cpp" />
     <ClCompile Include="..\tests\MdFpTest.cpp" />
     <ClCompile Include="..\tests\MdMemAccessTest.cpp" />
+    <ClCompile Include="..\tests\MdSubTest.cpp" />
     <ClCompile Include="..\tests\MdTest.cpp" />
     <ClCompile Include="..\tests\MemAccessTest.cpp" />
     <ClCompile Include="..\tests\MultTest.cpp" />
@@ -194,6 +195,7 @@
     <ClInclude Include="..\tests\MdFpFlagTest.h" />
     <ClInclude Include="..\tests\MdFpTest.h" />
     <ClInclude Include="..\tests\MdMemAccessTest.h" />
+    <ClInclude Include="..\tests\MdSubTest.h" />
     <ClInclude Include="..\tests\MdTest.h" />
     <ClInclude Include="..\tests\MemAccessTest.h" />
     <ClInclude Include="..\tests\MultTest.h" />

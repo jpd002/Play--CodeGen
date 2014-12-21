@@ -56,11 +56,6 @@ void CMdTest::Compile(Jitter::CJitter& jitter)
 		jitter.MD_AddWSS();
 		jitter.MD_PullRel(offsetof(CONTEXT, dstAddWSS));
 
-		jitter.MD_PushRel(offsetof(CONTEXT, src3));
-		jitter.MD_PushRel(offsetof(CONTEXT, src1));
-		jitter.MD_SubHSS();
-		jitter.MD_PullRel(offsetof(CONTEXT, dstSubHSS));
-
 		jitter.MD_PushRel(offsetof(CONTEXT, src0));
 		jitter.MD_PushRel(offsetof(CONTEXT, src2));
 		jitter.MD_CmpEqW();
@@ -281,21 +276,6 @@ void CMdTest::Run()
 		0x80, 0xA0, 0xC0, 0xE0,
 		0x00, 0x21, 0x41, 0x61,
 		0x80, 0xA1, 0xC1, 0xE1
-	};
-
-	static const uint8 dstSubHSSRes[16] =
-	{
-		0xC0, 0xB0,
-		0xA0, 0x90,
-
-		0x00, 0x80,
-		0x00, 0x80,
-
-		0x40, 0x30,
-		0x20, 0x10,
-
-		0x00, 0xF0,
-		0xE0, 0xCF
 	};
 
 	static const uint8 dstCmpEqWRes[16] =
@@ -535,7 +515,6 @@ void CMdTest::Run()
 		TEST_VERIFY(dstAddHRes[i]			== context.dstAddH[i]);
 		TEST_VERIFY(dstAddHSSRes[i]			== context.dstAddHSS[i]);
 		TEST_VERIFY(dstAddWRes[i]			== context.dstAddW[i]);
-		TEST_VERIFY(dstSubHSSRes[i]			== context.dstSubHSS[i]);
 		TEST_VERIFY(dstCmpEqWRes[i]			== context.dstCmpEqW[i]);
 		TEST_VERIFY(dstCmpGtHRes[i]			== context.dstCmpGtH[i]);
 		TEST_VERIFY(dstMinHRes[i]			== context.dstMinH[i]);

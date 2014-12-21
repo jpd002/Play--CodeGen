@@ -223,23 +223,20 @@ void Jitter::DumpStatementList(const StatementList& statements)
 		case OP_MD_ADD_W:
 			std::cout << " +(W) ";
 			break;
-		case OP_MD_ADDUS_B:
-			std::cout << " +(USB) ";
-			break;
-		case OP_MD_ADDUS_W:
-			std::cout << " +(USW) ";
-			break;
 		case OP_MD_ADDSS_H:
 			std::cout << " +(SSH) ";
 			break;
 		case OP_MD_ADDSS_W:
 			std::cout << " +(SSW) ";
 			break;
+		case OP_MD_ADDUS_B:
+			std::cout << " +(USB) ";
+			break;
+		case OP_MD_ADDUS_W:
+			std::cout << " +(USW) ";
+			break;
 		case OP_MD_SUB_B:
 			std::cout << " -(B) ";
-			break;
-		case OP_MD_SUBUS_B:
-			std::cout << " -(USB) ";
 			break;
 		case OP_MD_SUB_H:
 			std::cout << " -(H) ";
@@ -249,6 +246,9 @@ void Jitter::DumpStatementList(const StatementList& statements)
 			break;
 		case OP_MD_SUBSS_H:
 			std::cout << " -(SSH) ";
+			break;
+		case OP_MD_SUBUS_B:
+			std::cout << " -(USB) ";
 			break;
 		case OP_MD_SUBUS_H:
 			std::cout << " -(USH) ";

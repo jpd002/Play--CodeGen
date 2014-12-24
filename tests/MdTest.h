@@ -1,5 +1,4 @@
-#ifndef _MDTEST_H_
-#define _MDTEST_H_
+#pragma once
 
 #include "Test.h"
 #include "Align16.h"
@@ -8,11 +7,8 @@
 class CMdTest : public CTest
 {
 public:
-						CMdTest();
-	virtual				~CMdTest();
-
-	void				Compile(Jitter::CJitter&);
-	void				Run();
+	void				Compile(Jitter::CJitter&) override;
+	void				Run() override;
 
 private:
 	struct CONTEXT
@@ -32,8 +28,6 @@ private:
 		uint8			dstAddW[16];
 		uint8			dstAddWUS[16];
 		uint8			dstAddWSS[16];
-
-		uint8			dstSubHSS[16];
 
 		uint8			dstCmpEqW[16];
 		uint8			dstCmpGtH[16];
@@ -56,13 +50,6 @@ private:
 		uint8			dstPackHB[16];
 		uint8			dstPackWH[16];
 
-		uint8			dstUnpackLowerBH[16];
-		uint8			dstUnpackLowerHW[16];
-		uint8			dstUnpackLowerWD[16];
-
-		uint8			dstUnpackUpperBH[16];
-		uint8			dstUnpackUpperWD[16];
-
 		uint32			shiftAmount;
 	};
 
@@ -71,5 +58,3 @@ private:
 
 	CMemoryFunction		m_function;
 };
-
-#endif

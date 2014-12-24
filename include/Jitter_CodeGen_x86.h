@@ -143,19 +143,9 @@ namespace Jitter
 			static OpVoType OpVo() { return &CX86Assembler::PaddbVo; }
 		};
 
-		struct MDOP_ADDUSB : public MDOP_BASE
-		{
-			static OpVoType OpVo() { return &CX86Assembler::PaddusbVo; }
-		};
-
 		struct MDOP_ADDH : public MDOP_BASE
 		{
 			static OpVoType OpVo() { return &CX86Assembler::PaddwVo; }
-		};
-
-		struct MDOP_ADDSSH : public MDOP_BASE
-		{
-			static OpVoType OpVo() { return &CX86Assembler::PaddswVo; }
 		};
 
 		struct MDOP_ADDW : public MDOP_BASE
@@ -163,24 +153,19 @@ namespace Jitter
 			static OpVoType OpVo() { return &CX86Assembler::PadddVo; }
 		};
 
+		struct MDOP_ADDSSH : public MDOP_BASE
+		{
+			static OpVoType OpVo() { return &CX86Assembler::PaddswVo; }
+		};
+
+		struct MDOP_ADDUSB : public MDOP_BASE
+		{
+			static OpVoType OpVo() { return &CX86Assembler::PaddusbVo; }
+		};
+
 		struct MDOP_SUBB : public MDOP_BASE
 		{
 			static OpVoType OpVo() { return &CX86Assembler::PsubbVo; }
-		};
-
-		struct MDOP_SUBUSB : public MDOP_BASE
-		{
-			static OpVoType OpVo() { return &CX86Assembler::PsubusbVo; }
-		};
-
-		struct MDOP_SUBSSH : public MDOP_BASE
-		{
-			static OpVoType OpVo() { return &CX86Assembler::PsubswVo; }
-		};
-
-		struct MDOP_SUBUSH : public MDOP_BASE
-		{
-			static OpVoType OpVo() { return &CX86Assembler::PsubuswVo; }
 		};
 
 		struct MDOP_SUBH : public MDOP_BASE
@@ -191,6 +176,21 @@ namespace Jitter
 		struct MDOP_SUBW : public MDOP_BASE
 		{
 			static OpVoType OpVo() { return &CX86Assembler::PsubdVo; }
+		};
+
+		struct MDOP_SUBSSH : public MDOP_BASE
+		{
+			static OpVoType OpVo() { return &CX86Assembler::PsubswVo; }
+		};
+
+		struct MDOP_SUBUSB : public MDOP_BASE
+		{
+			static OpVoType OpVo() { return &CX86Assembler::PsubusbVo; }
+		};
+
+		struct MDOP_SUBUSH : public MDOP_BASE
+		{
+			static OpVoType OpVo() { return &CX86Assembler::PsubuswVo; }
 		};
 
 		struct MDOP_CMPEQB : public MDOP_BASE

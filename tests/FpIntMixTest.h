@@ -1,5 +1,4 @@
-#ifndef _FPINTMIXTEST_H_
-#define _FPINTMIXTEST_H_
+#pragma once
 
 #include "Test.h"
 #include "MemoryFunction.h"
@@ -16,6 +15,7 @@ public:
 private:
 	struct CONTEXT
 	{
+		uint32 multiplier;
 		float number1;
 		float number2;
 		uint32 result;
@@ -24,5 +24,3 @@ private:
 	CONTEXT				m_context;
 	CMemoryFunction		m_function;
 };
-
-#endif

@@ -38,20 +38,6 @@ namespace Jitter
 			MAX_REGISTERS = 6,
 		};
 
-		enum
-		{
-			LITERAL_POOL_SIZE = 0x100,
-		};
-		
-		struct LITERAL_POOL_REF
-		{
-			unsigned int			poolPtr;
-			CArmAssembler::REGISTER	dstRegister;
-			unsigned int			offset;
-		};
-
-		typedef std::list<LITERAL_POOL_REF> LiteralPoolRefList;
-
 		struct CONSTMATCHER
 		{
 			OPERATION							op;
@@ -101,7 +87,6 @@ namespace Jitter
 		static uint32							RotateLeft(uint32);
 		bool									TryGetAluImmediateParams(uint32, uint8&, uint8&);
 		void									LoadConstantInRegister(CArmAssembler::REGISTER, uint32, bool = false);
-		void									DumpLiteralPool();
 
 		//ALUOP ----------------------------------------------------------
 		struct ALUOP_BASE
@@ -199,6 +184,11 @@ namespace Jitter
 			static OpRegType OpReg() { return &CArmAssembler::Vadd_F32; }
 		};
 
+		struct FPUOP_SUB : public FPUOP_BASE3
+		{
+			static OpRegType OpReg() { return &CArmAssembler::Vsub_F32; }
+		};
+
 		struct FPUOP_MUL : public FPUOP_BASE3
 		{
 			static OpRegType OpReg() { return &CArmAssembler::Vmul_F32; }
@@ -251,38 +241,33 @@ namespace Jitter
 		void									Emit_RetVal_Tmp(const STATEMENT&);
 		
 		//MUL/MULS
-		template<bool> void						Mul_GenericTmp64RegReg(CSymbol*, CArmAssembler::REGISTER, CArmAssembler::REGISTER);
-		template<bool> void						Emit_MulTmp64RegReg(const STATEMENT&);
-		template<bool> void						Emit_MulTmp64RegCst(const STATEMENT&);
-		template<bool> void						Emit_MulTmp64RegRel(const STATEMENT&);
-		template<bool> void						Emit_MulTmp64RelRel(const STATEMENT&);
+		template<bool> void						Emit_MulTmp64AnyAny(const STATEMENT&);
 
 		//DIV/DIVS
 		template<bool> void						Div_GenericTmp64RegReg_Quotient(CSymbol*);
 		template<bool> void						Div_GenericTmp64RegReg_Remainder(CSymbol*);
 		template<bool> void						Emit_DivTmp64RegReg(const STATEMENT&);
 		template<bool> void						Emit_DivTmp64RegCst(const STATEMENT&);
+		template<bool> void						Emit_DivTmp64MemCst(const STATEMENT&);
 
 		//MOV
 		void									Emit_Mov_RegReg(const STATEMENT&);
-		void									Emit_Mov_RegRel(const STATEMENT&);
+		void									Emit_Mov_RegMem(const STATEMENT&);
 		void									Emit_Mov_RegCst(const STATEMENT&);
-		void									Emit_Mov_RelReg(const STATEMENT&);
-		void									Emit_Mov_RelRel(const STATEMENT&);
-		void									Emit_Mov_RelCst(const STATEMENT&);
-		void									Emit_Mov_RelTmp(const STATEMENT&);
-		void									Emit_Mov_TmpReg(const STATEMENT&);
+		void									Emit_Mov_MemReg(const STATEMENT&);
+		void									Emit_Mov_MemMem(const STATEMENT&);
+		void									Emit_Mov_MemCst(const STATEMENT&);
 
 		//NOP
 		void									Emit_Nop(const STATEMENT&);
 		
 		//EXTLOW64
 		void									Emit_ExtLow64RegTmp64(const STATEMENT&);
-		void									Emit_ExtLow64RelTmp64(const STATEMENT&);
+		void									Emit_ExtLow64MemTmp64(const STATEMENT&);
 
 		//EXTHIGH64
 		void									Emit_ExtHigh64RegTmp64(const STATEMENT&);
-		void									Emit_ExtHigh64RelTmp64(const STATEMENT&);
+		void									Emit_ExtHigh64MemTmp64(const STATEMENT&);
 
 		//CMP
 		void									Cmp_GetFlag(CArmAssembler::REGISTER, CONDITION);
@@ -302,8 +287,9 @@ namespace Jitter
 		
 		//NOT
 		void									Emit_Not_RegReg(const STATEMENT&);
-		void									Emit_Not_RelReg(const STATEMENT&);
-		
+		void									Emit_Not_MemReg(const STATEMENT&);
+		void									Emit_Not_MemMem(const STATEMENT&);
+
 		//ADDREF
 		void									Emit_AddRef_TmpRelReg(const STATEMENT&);
 		void									Emit_AddRef_TmpRelCst(const STATEMENT&);
@@ -321,6 +307,9 @@ namespace Jitter
 		template <typename> void				Emit_Fpu_MemMemMem(const STATEMENT&);
 		template <typename> void				Emit_FpuMd_MemMem(const STATEMENT&);
 		template <typename> void				Emit_FpuMd_MemMemMem(const STATEMENT&);
+		void									Emit_Fp_Cmp_AnyMemMem(const STATEMENT&);
+		void									Emit_Fp_Mov_MemSRelI32(const STATEMENT&);
+		void									Emit_Fp_ToIntTrunc_MemMem(const STATEMENT&);
 		void									Emit_Fp_LdCst_TmpCst(const STATEMENT&);
 		
 		static CONSTMATCHER						g_constMatchers[];
@@ -328,15 +317,12 @@ namespace Jitter
 		static CArmAssembler::REGISTER			g_registers[MAX_REGISTERS];
 		static CArmAssembler::REGISTER			g_paramRegs[MAX_PARAMS];
 		static CArmAssembler::REGISTER			g_baseRegister;
+		static CArmAssembler::REGISTER			g_callAddressRegister;
 
 		Framework::CStream*						m_stream;
 		CArmAssembler							m_assembler;
 		LabelMapType							m_labels;
 		ParamStack								m_params;
-		uint32*									m_literalPool;
-		bool*									m_literalPoolReloc;
-		unsigned int							m_lastLiteralPtr;
-		LiteralPoolRefList						m_literalPoolRefs;
 		uint32									m_stackLevel;
 	};
 };

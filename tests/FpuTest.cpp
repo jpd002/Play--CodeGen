@@ -24,6 +24,11 @@ void CFpuTest::Compile(Jitter::CJitter& jitter)
 		jitter.FP_PullSingle(offsetof(CONTEXT, number1));
 
 		jitter.FP_PushSingle(offsetof(CONTEXT, number2));
+		jitter.FP_PushSingle(offsetof(CONTEXT, number4));
+		jitter.FP_Sub();
+		jitter.FP_PullSingle(offsetof(CONTEXT, resSub));
+
+		jitter.FP_PushSingle(offsetof(CONTEXT, number2));
 		jitter.FP_PushSingle(offsetof(CONTEXT, number1));
 		jitter.FP_Div();
 		jitter.FP_PullSingle(offsetof(CONTEXT, number1));
@@ -66,6 +71,21 @@ void CFpuTest::Compile(Jitter::CJitter& jitter)
 		jitter.FP_PushSingle(offsetof(CONTEXT, number2));
 		jitter.FP_Min();
 		jitter.FP_PullSingle(offsetof(CONTEXT, resMin));
+
+		jitter.FP_PushSingle(offsetof(CONTEXT, number1));
+		jitter.FP_PushSingle(offsetof(CONTEXT, number2));
+		jitter.FP_Cmp(Jitter::CONDITION_BL);
+		jitter.PullRel(offsetof(CONTEXT, ltTest));
+
+		jitter.FP_PushSingle(offsetof(CONTEXT, number2));
+		jitter.FP_PushSingle(offsetof(CONTEXT, number1));
+		jitter.FP_Cmp(Jitter::CONDITION_BE);
+		jitter.PullRel(offsetof(CONTEXT, leTest));
+
+		jitter.FP_PushSingle(offsetof(CONTEXT, number1));
+		jitter.FP_PushSingle(offsetof(CONTEXT, resAbs));
+		jitter.FP_Cmp(Jitter::CONDITION_EQ);
+		jitter.PullRel(offsetof(CONTEXT, eqTest));
 	}
 	jitter.End();
 
@@ -82,10 +102,14 @@ void CFpuTest::Run()
 	TEST_VERIFY(m_context.number1 ==  1.5f);
 	TEST_VERIFY(m_context.number2 == -1.5f);
 	TEST_VERIFY(m_context.number1 == m_context.number3);
+	TEST_VERIFY(m_context.resSub == -14.0f);
 	TEST_VERIFY(m_context.resAbs == 1.5f);
 	TEST_VERIFY(m_context.resSqrtCst == 2.0f);
 	//Result is not exact
 	TEST_VERIFY(fabs(0.25f - m_context.resRsqrt) < 0.001f);
 	TEST_VERIFY(m_context.resMax == 1.5f);
 	TEST_VERIFY(m_context.resMin == -1.5f);
+	TEST_VERIFY(m_context.ltTest == 0);
+	TEST_VERIFY(m_context.leTest != 0);
+	TEST_VERIFY(m_context.eqTest != 0);
 }

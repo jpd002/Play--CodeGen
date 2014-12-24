@@ -202,6 +202,8 @@ public:
 	void									Mov(REGISTER, const RegisterAluOperand&);
 	void									Mov(REGISTER, const ImmediateAluOperand&);
 	void									MovCc(CONDITION, REGISTER, const ImmediateAluOperand&);
+	void									Movw(REGISTER, uint16);
+	void									Movt(REGISTER, uint16);
 	void									Mvn(REGISTER, REGISTER);
 	void									Mvn(REGISTER, const ImmediateAluOperand&);	
 	void									Or(REGISTER, REGISTER, REGISTER);
@@ -218,11 +220,16 @@ public:
 	void									Vldr(SINGLE_REGISTER, REGISTER, const LdrAddress&);
 	void									Vstr(SINGLE_REGISTER, REGISTER, const LdrAddress&);
 	void									Vadd_F32(SINGLE_REGISTER, SINGLE_REGISTER, SINGLE_REGISTER);
+	void									Vsub_F32(SINGLE_REGISTER, SINGLE_REGISTER, SINGLE_REGISTER);
 	void									Vmul_F32(SINGLE_REGISTER, SINGLE_REGISTER, SINGLE_REGISTER);
 	void									Vdiv_F32(SINGLE_REGISTER, SINGLE_REGISTER, SINGLE_REGISTER);
 	void									Vabs_F32(SINGLE_REGISTER, SINGLE_REGISTER);
 	void									Vneg_F32(SINGLE_REGISTER, SINGLE_REGISTER);
 	void									Vsqrt_F32(SINGLE_REGISTER, SINGLE_REGISTER);
+	void									Vcmp_F32(SINGLE_REGISTER, SINGLE_REGISTER);
+	void									Vcvt_F32_S32(SINGLE_REGISTER, SINGLE_REGISTER);
+	void									Vcvt_S32_F32(SINGLE_REGISTER, SINGLE_REGISTER);
+	void									Vmrs(REGISTER);
 
 	void									Vrecpe_F32(QUAD_REGISTER, QUAD_REGISTER);
 	void									Vrsqrte_F32(QUAD_REGISTER, QUAD_REGISTER);

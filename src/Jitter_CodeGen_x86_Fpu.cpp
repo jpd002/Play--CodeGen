@@ -56,25 +56,25 @@ void CCodeGen_x86::Emit_Fpu_MemMemMem(const STATEMENT& statement)
 
 CX86Assembler::SSE_CMP_TYPE CCodeGen_x86::GetSseConditionCode(Jitter::CONDITION condition)
 {
-    CX86Assembler::SSE_CMP_TYPE conditionCode = CX86Assembler::SSE_CMP_EQ;
-    switch(condition)
-    {
-    case CONDITION_EQ:
-        conditionCode = CX86Assembler::SSE_CMP_EQ;
-        break;
-    case CONDITION_BL:
-        conditionCode = CX86Assembler::SSE_CMP_LT;
-        break;
-    case CONDITION_BE:
-        conditionCode = CX86Assembler::SSE_CMP_LE;
-        break;
-    case CONDITION_AB:
-        conditionCode = CX86Assembler::SSE_CMP_NLE;
-        break;
-    default:
-        assert(0);
-        break;
-    }
+	CX86Assembler::SSE_CMP_TYPE conditionCode = CX86Assembler::SSE_CMP_EQ;
+	switch(condition)
+	{
+	case CONDITION_EQ:
+		conditionCode = CX86Assembler::SSE_CMP_EQ;
+		break;
+	case CONDITION_BL:
+		conditionCode = CX86Assembler::SSE_CMP_LT;
+		break;
+	case CONDITION_BE:
+		conditionCode = CX86Assembler::SSE_CMP_LE;
+		break;
+	case CONDITION_AB:
+		conditionCode = CX86Assembler::SSE_CMP_NLE;
+		break;
+	default:
+		assert(0);
+		break;
+	}
 	return conditionCode;
 }
 
@@ -83,10 +83,10 @@ void CCodeGen_x86::Emit_Fp_Cmp_MemMem(CX86Assembler::REGISTER dstReg, const STAT
 	CSymbol* src1 = statement.src1->GetSymbol().get();
 	CSymbol* src2 = statement.src2->GetSymbol().get();
 
-    CX86Assembler::SSE_CMP_TYPE conditionCode(GetSseConditionCode(statement.jmpCondition));
+	CX86Assembler::SSE_CMP_TYPE conditionCode(GetSseConditionCode(statement.jmpCondition));
 	m_assembler.MovssEd(CX86Assembler::xMM0, MakeMemoryFpSingleSymbolAddress(src1));
 	m_assembler.CmpssEd(CX86Assembler::xMM0, MakeMemoryFpSingleSymbolAddress(src2), conditionCode);
- 	m_assembler.MovdVo(CX86Assembler::MakeRegisterAddress(dstReg), CX86Assembler::xMM0);
+	m_assembler.MovdVo(CX86Assembler::MakeRegisterAddress(dstReg), CX86Assembler::xMM0);
 }
 
 void CCodeGen_x86::Emit_Fp_Cmp_MemCst(CX86Assembler::REGISTER dstReg, const STATEMENT& statement)
@@ -96,7 +96,7 @@ void CCodeGen_x86::Emit_Fp_Cmp_MemCst(CX86Assembler::REGISTER dstReg, const STAT
 
 	assert(src2->m_type == SYM_CONSTANT);
 
-    CX86Assembler::SSE_CMP_TYPE conditionCode(GetSseConditionCode(statement.jmpCondition));
+	CX86Assembler::SSE_CMP_TYPE conditionCode(GetSseConditionCode(statement.jmpCondition));
 	CX86Assembler::XMMREGISTER src1Reg = CX86Assembler::xMM0;
 	CX86Assembler::XMMREGISTER src2Reg = CX86Assembler::xMM1;
 

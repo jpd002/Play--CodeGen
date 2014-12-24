@@ -4,7 +4,7 @@
 
 #define OPCODE_BKPT (0xE1200070)
 
-CArmAssembler::CArmAssembler() 
+CArmAssembler::CArmAssembler()
 : m_nextLabelId(1)
 , m_stream(NULL)
 {
@@ -77,38 +77,36 @@ void CArmAssembler::ClearLabels()
 
 void CArmAssembler::MarkLabel(LABEL label)
 {
-    m_labels[label] = static_cast<size_t>(m_stream->Tell());
+	m_labels[label] = static_cast<size_t>(m_stream->Tell());
 }
 
 void CArmAssembler::ResolveLabelReferences()
 {
-    for(LabelReferenceMapType::iterator labelRef(m_labelReferences.begin());
-        m_labelReferences.end() != labelRef; labelRef++)
-    {
-        LabelMapType::iterator label(m_labels.find(labelRef->first));
-        if(label == m_labels.end())
-        {
-            throw std::runtime_error("Invalid label.");
-        }
-        size_t referencePos = labelRef->second;
-        size_t labelPos = label->second;
+	for(const auto& labelReferencePair : m_labelReferences)
+	{
+		auto label(m_labels.find(labelReferencePair.first));
+		if(label == m_labels.end())
+		{
+			throw std::runtime_error("Invalid label.");
+		}
+		size_t referencePos = labelReferencePair.second;
+		size_t labelPos = label->second;
 		int offset = static_cast<int>(labelPos - referencePos) / 4;
-		assert(offset >= 2);
 		offset -= 2;
 
 		m_stream->Seek(referencePos, Framework::STREAM_SEEK_SET);
-        m_stream->Write8(static_cast<uint8>(offset >> 0));
-        m_stream->Write8(static_cast<uint8>(offset >> 8));
-        m_stream->Write8(static_cast<uint8>(offset >> 16));
+		m_stream->Write8(static_cast<uint8>(offset >> 0));
+		m_stream->Write8(static_cast<uint8>(offset >> 8));
+		m_stream->Write8(static_cast<uint8>(offset >> 16));
 		m_stream->Seek(0, Framework::STREAM_SEEK_END);
-    }
-    m_labelReferences.clear();
+	}
+	m_labelReferences.clear();
 }
 
 void CArmAssembler::CreateLabelReference(LABEL label)
 {
-    LABELREF reference = static_cast<size_t>(m_stream->Tell());
-    m_labelReferences.insert(LabelReferenceMapType::value_type(label, reference));
+	LABELREF reference = static_cast<size_t>(m_stream->Tell());
+	m_labelReferences.insert(LabelReferenceMapType::value_type(label, reference));
 }
 
 void CArmAssembler::Add(REGISTER rd, REGISTER rn, REGISTER rm)
@@ -336,6 +334,26 @@ void CArmAssembler::MovCc(CONDITION condition, REGISTER rd, const ImmediateAluOp
 	WriteWord(opcode);
 }
 
+void CArmAssembler::Movw(REGISTER rd, uint16 value)
+{
+	uint32 opcode = 0x03000000;
+	opcode |= (CONDITION_AL << 28);
+	opcode |= (value >> 12) << 16;
+	opcode |= (rd << 12);
+	opcode |= (value & 0xFFF);
+	WriteWord(opcode);
+}
+
+void CArmAssembler::Movt(REGISTER rd, uint16 value)
+{
+	uint32 opcode = 0x03400000;
+	opcode |= (CONDITION_AL << 28);
+	opcode |= (value >> 12) << 16;
+	opcode |= (rd << 12);
+	opcode |= (value & 0xFFF);
+	WriteWord(opcode);
+}
+
 void CArmAssembler::Mvn(REGISTER rd, REGISTER rm)
 {
 	InstructionAlu instruction;
@@ -535,6 +553,16 @@ void CArmAssembler::Vadd_F32(SINGLE_REGISTER sd, SINGLE_REGISTER sn, SINGLE_REGI
 	WriteWord(opcode);
 }
 
+void CArmAssembler::Vsub_F32(SINGLE_REGISTER sd, SINGLE_REGISTER sn, SINGLE_REGISTER sm)
+{
+	uint32 opcode = 0x0E300A40;
+	opcode |= (CONDITION_AL << 28);
+	opcode |= FPSIMD_EncodeSd(sd);
+	opcode |= FPSIMD_EncodeSn(sn);
+	opcode |= FPSIMD_EncodeSm(sm);
+	WriteWord(opcode);
+}
+
 void CArmAssembler::Vmul_F32(SINGLE_REGISTER sd, SINGLE_REGISTER sn, SINGLE_REGISTER sm)
 {
 	uint32 opcode = 0x0E200A00;
@@ -579,6 +607,41 @@ void CArmAssembler::Vsqrt_F32(SINGLE_REGISTER sd, SINGLE_REGISTER sm)
 	opcode |= (CONDITION_AL << 28);
 	opcode |= FPSIMD_EncodeSd(sd);
 	opcode |= FPSIMD_EncodeSm(sm);
+	WriteWord(opcode);
+}
+
+void CArmAssembler::Vcmp_F32(SINGLE_REGISTER sd, SINGLE_REGISTER sm)
+{
+	uint32 opcode = 0x0EB40A40;
+	opcode |= (CONDITION_AL << 28);
+	opcode |= FPSIMD_EncodeSd(sd);
+	opcode |= FPSIMD_EncodeSm(sm);
+	WriteWord(opcode);
+}
+
+void CArmAssembler::Vcvt_F32_S32(SINGLE_REGISTER sd, SINGLE_REGISTER sm)
+{
+	uint32 opcode = 0x0EB80AC0;
+	opcode |= (CONDITION_AL << 28);
+	opcode |= FPSIMD_EncodeSd(sd);
+	opcode |= FPSIMD_EncodeSm(sm);
+	WriteWord(opcode);
+}
+
+void CArmAssembler::Vcvt_S32_F32(SINGLE_REGISTER sd, SINGLE_REGISTER sm)
+{
+	uint32 opcode = 0x0EBD0AC0;
+	opcode |= (CONDITION_AL << 28);
+	opcode |= FPSIMD_EncodeSd(sd);
+	opcode |= FPSIMD_EncodeSm(sm);
+	WriteWord(opcode);
+}
+
+void CArmAssembler::Vmrs(REGISTER rt)
+{
+	uint32 opcode = 0x0EF10A10;
+	opcode |= (CONDITION_AL << 28);
+	opcode |= (rt << 12);
 	WriteWord(opcode);
 }
 

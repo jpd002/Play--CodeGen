@@ -1,6 +1,7 @@
 #include "ObjectFile.h"
 #include <algorithm>
 #include <assert.h>
+#include <stdexcept>
 
 using namespace Jitter;
 
@@ -17,7 +18,18 @@ CObjectFile::~CObjectFile()
 
 unsigned int CObjectFile::AddInternalSymbol(const INTERNAL_SYMBOL& internalSymbol)
 {
-	assert(std::find_if(std::begin(m_internalSymbols), std::end(m_internalSymbols), [&] (const INTERNAL_SYMBOL& symbol) { return symbol.name == internalSymbol.name; }) == std::end(m_internalSymbols));
+	{
+		auto symbolIterator = std::find_if(std::begin(m_internalSymbols), std::end(m_internalSymbols), 
+			[&] (const INTERNAL_SYMBOL& symbol) 
+			{
+				return symbol.name == internalSymbol.name;
+			}
+		);
+		if(symbolIterator != std::end(m_internalSymbols))
+		{
+			throw std::runtime_error("Symbol already exists.");
+		}
+	}
 	m_internalSymbols.push_back(internalSymbol);
 	return m_internalSymbols.size() - 1;
 }

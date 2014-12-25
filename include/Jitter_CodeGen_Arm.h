@@ -78,6 +78,10 @@ namespace Jitter
 		void									LoadTemporaryFpSingleInRegister(CArmAssembler::SINGLE_REGISTER, CSymbol*);
 		void									StoreTemporaryFpSingleInRegister(CSymbol*, CArmAssembler::SINGLE_REGISTER);
 
+		void									LoadMemory128AddressInRegister(CArmAssembler::REGISTER, CSymbol*);
+		void									LoadRelative128AddressInRegister(CArmAssembler::REGISTER, CSymbol*);
+		void									LoadTemporary128AddressInRegister(CArmAssembler::REGISTER, CSymbol*);
+
 		CArmAssembler::REGISTER					PrepareSymbolRegister(CSymbol*, CArmAssembler::REGISTER);
 		void									CommitSymbolRegister(CSymbol*, CArmAssembler::REGISTER);
 
@@ -232,7 +236,11 @@ namespace Jitter
 		void									Emit_Param_Rel(const STATEMENT&);
 		void									Emit_Param_Cst(const STATEMENT&);
 		void									Emit_Param_Tmp(const STATEMENT&);
-		
+		void									Emit_Param_Mem128(const STATEMENT&);
+
+		//PARAM_RET
+		void									Emit_ParamRet_Tmp128(const STATEMENT&);
+
 		//CALL
 		void									Emit_Call(const STATEMENT&);
 		
@@ -312,8 +320,13 @@ namespace Jitter
 		void									Emit_Fp_ToIntTrunc_MemMem(const STATEMENT&);
 		void									Emit_Fp_LdCst_TmpCst(const STATEMENT&);
 		
+		//MDOP
+		void									Emit_Md_Mov_MemMem(const STATEMENT&);
+		void									Emit_Md_AddW_MemMemMem(const STATEMENT&);
+
 		static CONSTMATCHER						g_constMatchers[];
 		static CONSTMATCHER						g_fpuConstMatchers[];
+		static CONSTMATCHER						g_mdConstMatchers[];
 		static CArmAssembler::REGISTER			g_registers[MAX_REGISTERS];
 		static CArmAssembler::REGISTER			g_paramRegs[MAX_PARAMS];
 		static CArmAssembler::REGISTER			g_baseRegister;

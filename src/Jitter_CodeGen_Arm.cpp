@@ -175,6 +175,9 @@ CCodeGen_Arm::CONSTMATCHER CCodeGen_Arm::g_constMatchers[] =
 	{ OP_PARAM,			MATCH_NIL,			MATCH_RELATIVE,		MATCH_NIL,			&CCodeGen_Arm::Emit_Param_Rel								},
 	{ OP_PARAM,			MATCH_NIL,			MATCH_CONSTANT,		MATCH_NIL,			&CCodeGen_Arm::Emit_Param_Cst								},
 	{ OP_PARAM,			MATCH_NIL,			MATCH_TEMPORARY,	MATCH_NIL,			&CCodeGen_Arm::Emit_Param_Tmp								},
+	{ OP_PARAM,			MATCH_NIL,			MATCH_MEMORY128,	MATCH_NIL,			&CCodeGen_Arm::Emit_Param_Mem128							},
+
+	{ OP_PARAM_RET,		MATCH_NIL,			MATCH_TEMPORARY128,	MATCH_NIL,			&CCodeGen_Arm::Emit_ParamRet_Tmp128							},
 
 	{ OP_CALL,			MATCH_NIL,			MATCH_CONSTANT,		MATCH_CONSTANT,		&CCodeGen_Arm::Emit_Call									},
 	
@@ -229,7 +232,7 @@ CCodeGen_Arm::CONSTMATCHER CCodeGen_Arm::g_constMatchers[] =
 CCodeGen_Arm::CCodeGen_Arm()
 : m_stream(nullptr)
 {
-	for(CONSTMATCHER* constMatcher = g_constMatchers; constMatcher->emitter != NULL; constMatcher++)
+	for(auto* constMatcher = g_constMatchers; constMatcher->emitter != nullptr; constMatcher++)
 	{
 		MATCHER matcher;
 		matcher.op			= constMatcher->op;
@@ -240,7 +243,18 @@ CCodeGen_Arm::CCodeGen_Arm()
 		m_matchers.insert(MatcherMapType::value_type(matcher.op, matcher));
 	}
 
-	for(CONSTMATCHER* constMatcher = g_fpuConstMatchers; constMatcher->emitter != NULL; constMatcher++)
+	for(auto* constMatcher = g_fpuConstMatchers; constMatcher->emitter != nullptr; constMatcher++)
+	{
+		MATCHER matcher;
+		matcher.op			= constMatcher->op;
+		matcher.dstType		= constMatcher->dstType;
+		matcher.src1Type	= constMatcher->src1Type;
+		matcher.src2Type	= constMatcher->src2Type;
+		matcher.emitter		= std::bind(constMatcher->emitter, this, std::placeholders::_1);
+		m_matchers.insert(MatcherMapType::value_type(matcher.op, matcher));
+	}
+
+	for(auto* constMatcher = g_mdConstMatchers; constMatcher->emitter != nullptr; constMatcher++)
 	{
 		MATCHER matcher;
 		matcher.op			= constMatcher->op;
@@ -641,7 +655,7 @@ void CCodeGen_Arm::Emit_Param_Rel(const STATEMENT& statement)
 	assert(src1->m_type == SYM_RELATIVE);
 	assert(m_params.size() < MAX_PARAMS);
 	
-	m_params.push_back(std::bind(&CArmAssembler::Ldr, &m_assembler, std::placeholders::_1, g_baseRegister, CArmAssembler::MakeImmediateLdrAddress(src1->m_valueLow)));	
+	m_params.push_back(std::bind(&CArmAssembler::Ldr, &m_assembler, std::placeholders::_1, g_baseRegister, CArmAssembler::MakeImmediateLdrAddress(src1->m_valueLow)));
 }
 
 
@@ -663,6 +677,23 @@ void CCodeGen_Arm::Emit_Param_Tmp(const STATEMENT& statement)
 	assert(m_params.size() < MAX_PARAMS);
 	
 	m_params.push_back(std::bind(&CArmAssembler::Ldr, &m_assembler, std::placeholders::_1, CArmAssembler::rSP, CArmAssembler::MakeImmediateLdrAddress(src1->m_stackLocation + m_stackLevel)));	
+}
+
+void CCodeGen_Arm::Emit_Param_Mem128(const STATEMENT& statement)
+{
+	auto src1 = statement.src1->GetSymbol().get();
+
+	m_params.push_back(
+		[this, src1] (CArmAssembler::REGISTER paramReg)
+		{
+			LoadMemory128AddressInRegister(paramReg, src1);
+		}
+	);
+}
+
+void CCodeGen_Arm::Emit_ParamRet_Tmp128(const STATEMENT& statement)
+{
+	Emit_Param_Mem128(statement);
 }
 
 void CCodeGen_Arm::Emit_Call(const STATEMENT& statement)

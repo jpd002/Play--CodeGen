@@ -31,7 +31,6 @@ uint32 CMdCallTest::MdInputFunction(const uint128& value, uint32 mask)
 CMdCallTest::uint128 CMdCallTest::MdOutputFunction(uint32 mask)
 {
 	assert(mask == FUNCTION_MASK);
-	mask = FUNCTION_MASK;
 	
 	uint128 result;
 	memset(&result, 0, sizeof(result));

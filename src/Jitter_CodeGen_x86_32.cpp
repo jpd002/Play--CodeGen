@@ -1023,7 +1023,7 @@ struct CompareOrder64Less
 
 	static bool IsSigned(Jitter::CONDITION condition)
 	{
-		return (condition == CONDITION_LE) || (condition == CONDITION_LT); 
+		return (condition == CONDITION_LE) || (condition == CONDITION_LT);
 	}
 
 	static bool OrEqual(Jitter::CONDITION condition)
@@ -1033,7 +1033,7 @@ struct CompareOrder64Less
 
 	static OrderCheckFunction CheckOrderSigned()
 	{
-		return &CX86Assembler::SetlEb;		
+		return &CX86Assembler::SetlEb;
 	}
 
 	static OrderCheckFunction CheckOrderUnsigned()
@@ -1063,7 +1063,7 @@ struct CompareOrder64Greater
 
 	static OrderCheckFunction CheckOrderSigned()
 	{
-		return &CX86Assembler::SetgEb;		
+		return &CX86Assembler::SetgEb;
 	}
 
 	static OrderCheckFunction CheckOrderUnsigned()

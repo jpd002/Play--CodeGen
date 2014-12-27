@@ -23,6 +23,7 @@
 #include "HalfMultTest.h"
 #include "HugeJumpTest.h"
 #include "Alu64Test.h"
+#include "Cmp64Test.h"
 #include "Shift64Test.h"
 #include "Call64Test.h"
 #include "LzcTest.h"
@@ -68,6 +69,7 @@ static const TestFactoryFunction s_factories[] =
 	[] () { return new CMdCallTest(); },
 	[] () { return new CMdMemAccessTest(); },
 	[] () { return new CAlu64Test(); },
+	[] () { return new CCmp64Test(); },
 	[] () { return new CShift64Test(); },
 	[] () { return new CCall64Test(); },
 #endif

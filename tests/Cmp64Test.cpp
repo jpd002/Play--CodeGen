@@ -1,7 +1,7 @@
-#include "Alu64Test.h"
+#include "Cmp64Test.h"
 #include "MemStream.h"
 
-void CAlu64Test::Run()
+void CCmp64Test::Run()
 {
 	memset(&m_context, 0, sizeof(m_context));
 
@@ -10,11 +10,11 @@ void CAlu64Test::Run()
 
 	m_function(&m_context);
 
-	TEST_VERIFY(m_context.resultAdd == 0x00004443BBBBFFFF);
-	TEST_VERIFY(m_context.resultSub == m_context.value1);
+	TEST_VERIFY(m_context.resultBl == 0);
+	TEST_VERIFY(m_context.resultLt != 0);
 }
 
-void CAlu64Test::Compile(Jitter::CJitter& jitter)
+void CCmp64Test::Compile(Jitter::CJitter& jitter)
 {
 	Framework::CMemStream codeStream;
 	jitter.SetStream(&codeStream);
@@ -23,13 +23,13 @@ void CAlu64Test::Compile(Jitter::CJitter& jitter)
 	{
 		jitter.PushRel64(offsetof(CONTEXT, value0));
 		jitter.PushRel64(offsetof(CONTEXT, value1));
-		jitter.Add64();
-		jitter.PullRel64(offsetof(CONTEXT, resultAdd));
+		jitter.Cmp64(Jitter::CONDITION_BL);
+		jitter.PullRel(offsetof(CONTEXT, resultBl));
 
-		jitter.PushRel64(offsetof(CONTEXT, resultAdd));
 		jitter.PushRel64(offsetof(CONTEXT, value0));
-		jitter.Sub64();
-		jitter.PullRel64(offsetof(CONTEXT, resultSub));
+		jitter.PushRel64(offsetof(CONTEXT, value1));
+		jitter.Cmp64(Jitter::CONDITION_LT);
+		jitter.PullRel(offsetof(CONTEXT, resultLt));
 	}
 	jitter.End();
 

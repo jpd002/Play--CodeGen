@@ -69,6 +69,9 @@ namespace Jitter
 		void									LoadTemporaryReferenceInRegister(CArmAssembler::REGISTER, CSymbol*);
 		void									StoreInRegisterTemporaryReference(CSymbol*, CArmAssembler::REGISTER);
 		
+		void									LoadMemory64LowInRegister(CArmAssembler::REGISTER, CSymbol*);
+		void									LoadMemory64HighInRegister(CArmAssembler::REGISTER, CSymbol*);
+
 		void									LoadMemoryFpSingleInRegister(CArmAssembler::SINGLE_REGISTER, CSymbol*);
 		void									StoreRegisterInMemoryFpSingle(CSymbol*, CArmAssembler::SINGLE_REGISTER);
 
@@ -270,12 +273,10 @@ namespace Jitter
 		void									Emit_Nop(const STATEMENT&);
 		
 		//EXTLOW64
-		void									Emit_ExtLow64RegTmp64(const STATEMENT&);
-		void									Emit_ExtLow64MemTmp64(const STATEMENT&);
+		void									Emit_ExtLow64VarMem64(const STATEMENT&);
 
 		//EXTHIGH64
-		void									Emit_ExtHigh64RegTmp64(const STATEMENT&);
-		void									Emit_ExtHigh64MemTmp64(const STATEMENT&);
+		void									Emit_ExtHigh64VarMem64(const STATEMENT&);
 
 		//CMP
 		void									Cmp_GetFlag(CArmAssembler::REGISTER, CONDITION);
@@ -310,6 +311,9 @@ namespace Jitter
 		void									Emit_StoreAtRef_TmpRel(const STATEMENT&);
 		void									Emit_StoreAtRef_TmpCst(const STATEMENT&);
 		
+		//CMP64
+		void									Emit_Cmp64_VarMemMem(const STATEMENT&);
+
 		//FPUOP
 		template <typename> void				Emit_Fpu_MemMem(const STATEMENT&);
 		template <typename> void				Emit_Fpu_MemMemMem(const STATEMENT&);
@@ -325,6 +329,7 @@ namespace Jitter
 		void									Emit_Md_AddW_MemMemMem(const STATEMENT&);
 
 		static CONSTMATCHER						g_constMatchers[];
+		static CONSTMATCHER						g_64ConstMatchers[];
 		static CONSTMATCHER						g_fpuConstMatchers[];
 		static CONSTMATCHER						g_mdConstMatchers[];
 		static CArmAssembler::REGISTER			g_registers[MAX_REGISTERS];

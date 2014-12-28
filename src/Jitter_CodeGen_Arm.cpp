@@ -51,9 +51,9 @@ void CCodeGen_Arm::Emit_Alu_GenericAnyAny(const STATEMENT& statement)
 	auto src1 = statement.src1->GetSymbol().get();
 	auto src2 = statement.src2->GetSymbol().get();
 
-	auto dstReg = PrepareSymbolRegister(dst, CArmAssembler::r0);
-	auto src1Reg = PrepareSymbolRegister(src1, CArmAssembler::r1);
-	auto src2Reg = PrepareSymbolRegister(src2, CArmAssembler::r2);
+	auto dstReg = PrepareSymbolRegisterDef(dst, CArmAssembler::r0);
+	auto src1Reg = PrepareSymbolRegisterUse(src1, CArmAssembler::r1);
+	auto src2Reg = PrepareSymbolRegisterUse(src2, CArmAssembler::r2);
 	((m_assembler).*(ALUOP::OpReg()))(dstReg, src1Reg, src2Reg);
 	CommitSymbolRegister(dst, dstReg);
 }
@@ -67,8 +67,8 @@ void CCodeGen_Arm::Emit_Alu_GenericAnyCst(const STATEMENT& statement)
 
 	assert(src2->m_type == SYM_CONSTANT);
 
-	auto dstReg = PrepareSymbolRegister(dst, CArmAssembler::r0);
-	auto src1Reg = PrepareSymbolRegister(src1, CArmAssembler::r1);
+	auto dstReg = PrepareSymbolRegisterDef(dst, CArmAssembler::r0);
+	auto src1Reg = PrepareSymbolRegisterUse(src1, CArmAssembler::r1);
 	uint32 cst = src2->m_valueLow;
 
 	bool supportsNegative	= ALUOP::OpImmNeg() != NULL;
@@ -90,7 +90,7 @@ void CCodeGen_Arm::Emit_Alu_GenericAnyCst(const STATEMENT& statement)
 	}
 	else
 	{
-		auto cstReg = PrepareSymbolRegister(src2, CArmAssembler::r2);
+		auto cstReg = PrepareSymbolRegisterUse(src2, CArmAssembler::r2);
 		assert(cstReg != dstReg && cstReg != src1Reg);
 		((m_assembler).*(ALUOP::OpReg()))(dstReg, src1Reg, cstReg);
 	}
@@ -113,8 +113,8 @@ void CCodeGen_Arm::Emit_MulTmp64AnyAny(const STATEMENT& statement)
 
 	auto resLoReg = CArmAssembler::r0;
 	auto resHiReg = CArmAssembler::r1;
-	auto src1Reg = PrepareSymbolRegister(src1, CArmAssembler::r2);
-	auto src2Reg = PrepareSymbolRegister(src2, CArmAssembler::r3);
+	auto src1Reg = PrepareSymbolRegisterUse(src1, CArmAssembler::r2);
+	auto src2Reg = PrepareSymbolRegisterUse(src2, CArmAssembler::r3);
 	
 	assert(dst->m_type == SYM_TEMPORARY64);
 	assert(resLoReg != src1Reg && resLoReg != src2Reg);
@@ -140,8 +140,8 @@ void CCodeGen_Arm::Emit_Shift_Generic(const STATEMENT& statement)
 	CSymbol* src1 = statement.src1->GetSymbol().get();
 	CSymbol* src2 = statement.src2->GetSymbol().get();
 
-	auto dstReg = PrepareSymbolRegister(dst, CArmAssembler::r0);
-	auto src1Reg = PrepareSymbolRegister(src1, CArmAssembler::r1);
+	auto dstReg = PrepareSymbolRegisterDef(dst, CArmAssembler::r0);
+	auto src1Reg = PrepareSymbolRegisterUse(src1, CArmAssembler::r1);
 	auto shift = GetAluShiftFromSymbol(shiftType, src2, CArmAssembler::r2);
 	m_assembler.Mov(dstReg, CArmAssembler::MakeRegisterAluOperand(src1Reg, shift));
 	CommitSymbolRegister(dst, dstReg);
@@ -565,7 +565,24 @@ CArmAssembler::AluLdrShift CCodeGen_Arm::GetAluShiftFromSymbol(CArmAssembler::SH
 	}
 }
 
-CArmAssembler::REGISTER CCodeGen_Arm::PrepareSymbolRegister(CSymbol* symbol, CArmAssembler::REGISTER preferedRegister)
+CArmAssembler::REGISTER CCodeGen_Arm::PrepareSymbolRegisterDef(CSymbol* symbol, CArmAssembler::REGISTER preferedRegister)
+{
+	switch(symbol->m_type)
+	{
+	case SYM_REGISTER:
+		return g_registers[symbol->m_valueLow];
+		break;
+	case SYM_TEMPORARY:
+	case SYM_RELATIVE:
+		return preferedRegister;
+		break;
+	default:
+		throw std::runtime_error("Invalid symbol type.");
+		break;
+	}
+}
+
+CArmAssembler::REGISTER CCodeGen_Arm::PrepareSymbolRegisterUse(CSymbol* symbol, CArmAssembler::REGISTER preferedRegister)
 {
 	switch(symbol->m_type)
 	{
@@ -942,9 +959,9 @@ void CCodeGen_Arm::Emit_Cmp_AnyAnyAny(const STATEMENT& statement)
 	auto src1 = statement.src1->GetSymbol().get();
 	auto src2 = statement.src2->GetSymbol().get();
 
-	auto dstReg = PrepareSymbolRegister(dst, CArmAssembler::r0);
-	auto src1Reg = PrepareSymbolRegister(src1, CArmAssembler::r1);
-	auto src2Reg = PrepareSymbolRegister(src2, CArmAssembler::r2);
+	auto dstReg = PrepareSymbolRegisterDef(dst, CArmAssembler::r0);
+	auto src1Reg = PrepareSymbolRegisterUse(src1, CArmAssembler::r1);
+	auto src2Reg = PrepareSymbolRegisterUse(src2, CArmAssembler::r2);
 
 	m_assembler.Cmp(src1Reg, src2Reg);
 	Cmp_GetFlag(dstReg, statement.jmpCondition);
@@ -959,8 +976,8 @@ void CCodeGen_Arm::Emit_Cmp_AnyAnyCst(const STATEMENT& statement)
 
 	assert(src2->m_type == SYM_CONSTANT);
 
-	auto dstReg = PrepareSymbolRegister(dst, CArmAssembler::r0);
-	auto src1Reg = PrepareSymbolRegister(src1, CArmAssembler::r1);
+	auto dstReg = PrepareSymbolRegisterDef(dst, CArmAssembler::r0);
+	auto src1Reg = PrepareSymbolRegisterUse(src1, CArmAssembler::r1);
 	auto cst = src2->m_valueLow;
 
 	Cmp_GenericRegCst(src1Reg, cst);

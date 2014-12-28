@@ -85,7 +85,8 @@ namespace Jitter
 		void									LoadRelative128AddressInRegister(CArmAssembler::REGISTER, CSymbol*);
 		void									LoadTemporary128AddressInRegister(CArmAssembler::REGISTER, CSymbol*);
 
-		CArmAssembler::REGISTER					PrepareSymbolRegister(CSymbol*, CArmAssembler::REGISTER);
+		CArmAssembler::REGISTER					PrepareSymbolRegisterDef(CSymbol*, CArmAssembler::REGISTER);
+		CArmAssembler::REGISTER					PrepareSymbolRegisterUse(CSymbol*, CArmAssembler::REGISTER);
 		void									CommitSymbolRegister(CSymbol*, CArmAssembler::REGISTER);
 
 		CArmAssembler::AluLdrShift				GetAluShiftFromSymbol(CArmAssembler::SHIFT shiftType, CSymbol* symbol, CArmAssembler::REGISTER preferedRegister);

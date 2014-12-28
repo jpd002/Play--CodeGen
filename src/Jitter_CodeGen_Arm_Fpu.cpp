@@ -112,7 +112,7 @@ void CCodeGen_Arm::Emit_Fp_Cmp_AnyMemMem(const STATEMENT& statement)
 	auto src1 = statement.src1->GetSymbol().get();
 	auto src2 = statement.src2->GetSymbol().get();
 
-	auto dstReg = PrepareSymbolRegister(dst, CArmAssembler::r0);
+	auto dstReg = PrepareSymbolRegisterDef(dst, CArmAssembler::r0);
 
 	LoadMemoryFpSingleInRegister(CArmAssembler::s0, src1);
 	LoadMemoryFpSingleInRegister(CArmAssembler::s1, src2);

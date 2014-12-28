@@ -39,7 +39,7 @@ void CCodeGen_Arm::Emit_ExtLow64VarMem64(const STATEMENT& statement)
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
 
-	auto dstReg = PrepareSymbolRegister(dst, CArmAssembler::r0);
+	auto dstReg = PrepareSymbolRegisterDef(dst, CArmAssembler::r0);
 	LoadMemory64LowInRegister(dstReg, src1);
 	CommitSymbolRegister(dst, dstReg);
 }
@@ -49,7 +49,7 @@ void CCodeGen_Arm::Emit_ExtHigh64VarMem64(const STATEMENT& statement)
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
 
-	auto dstReg = PrepareSymbolRegister(dst, CArmAssembler::r0);
+	auto dstReg = PrepareSymbolRegisterDef(dst, CArmAssembler::r0);
 	LoadMemory64HighInRegister(dstReg, src1);
 	CommitSymbolRegister(dst, dstReg);
 }
@@ -65,7 +65,7 @@ void CCodeGen_Arm::Emit_Cmp64_VarMemMem(const STATEMENT& statement)
 	auto doneLabel = m_assembler.CreateLabel();
 	auto highOrderEqualLabel = m_assembler.CreateLabel();
 
-	auto dstReg = PrepareSymbolRegister(dst, CArmAssembler::r0);
+	auto dstReg = PrepareSymbolRegisterDef(dst, CArmAssembler::r0);
 	auto src1Reg = CArmAssembler::r1;
 	auto src2Reg = CArmAssembler::r2;
 

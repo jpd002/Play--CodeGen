@@ -186,10 +186,8 @@ CCodeGen_Arm::CONSTMATCHER CCodeGen_Arm::g_constMatchers[] =
 
 	{ OP_JMP,			MATCH_NIL,			MATCH_NIL,			MATCH_NIL,			&CCodeGen_Arm::Emit_Jmp										},
 
-	{ OP_CONDJMP,		MATCH_NIL,			MATCH_REGISTER,		MATCH_REGISTER,		&CCodeGen_Arm::Emit_CondJmp_RegReg							},
-	{ OP_CONDJMP,		MATCH_NIL,			MATCH_REGISTER,		MATCH_MEMORY,		&CCodeGen_Arm::Emit_CondJmp_RegMem							},
-	{ OP_CONDJMP,		MATCH_NIL,			MATCH_REGISTER,		MATCH_CONSTANT,		&CCodeGen_Arm::Emit_CondJmp_RegCst							},
-	{ OP_CONDJMP,		MATCH_NIL,			MATCH_MEMORY,		MATCH_CONSTANT,		&CCodeGen_Arm::Emit_CondJmp_MemCst							},
+	{ OP_CONDJMP,		MATCH_NIL,			MATCH_VARIABLE,		MATCH_CONSTANT,		&CCodeGen_Arm::Emit_CondJmp_VarCst							},
+	{ OP_CONDJMP,		MATCH_NIL,			MATCH_VARIABLE,		MATCH_VARIABLE,		&CCodeGen_Arm::Emit_CondJmp_VarVar							},
 	
 	{ OP_CMP,			MATCH_ANY,			MATCH_ANY,			MATCH_CONSTANT,		&CCodeGen_Arm::Emit_Cmp_AnyAnyCst							},
 	{ OP_CMP,			MATCH_ANY,			MATCH_ANY,			MATCH_ANY,			&CCodeGen_Arm::Emit_Cmp_AnyAnyAny							},
@@ -847,56 +845,28 @@ void CCodeGen_Arm::Emit_CondJmp(const STATEMENT& statement)
 	}
 }
 
-void CCodeGen_Arm::Emit_CondJmp_RegReg(const STATEMENT& statement)
+void CCodeGen_Arm::Emit_CondJmp_VarVar(const STATEMENT& statement)
 {
-	CSymbol* src1 = statement.src1->GetSymbol().get();
-	CSymbol* src2 = statement.src2->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
 	
-	assert(src1->m_type == SYM_REGISTER);
-	assert(src2->m_type == SYM_REGISTER);
-	
-	m_assembler.Cmp(g_registers[src1->m_valueLow], g_registers[src2->m_valueLow]);
-	
+	assert(src2->m_type != SYM_CONSTANT);	//We can do better if we have a constant
+
+	auto src1Reg = PrepareSymbolRegisterUse(src1, CArmAssembler::r1);
+	auto src2Reg = PrepareSymbolRegisterUse(src2, CArmAssembler::r2);
+	m_assembler.Cmp(src1Reg, src2Reg);
 	Emit_CondJmp(statement);
 }
 
-void CCodeGen_Arm::Emit_CondJmp_RegMem(const STATEMENT& statement)
+void CCodeGen_Arm::Emit_CondJmp_VarCst(const STATEMENT& statement)
 {
-	CSymbol* src1 = statement.src1->GetSymbol().get();
-	CSymbol* src2 = statement.src2->GetSymbol().get();
-	
-	assert(src1->m_type == SYM_REGISTER);
-	
-	CArmAssembler::REGISTER tmpReg = CArmAssembler::r1;
-	LoadMemoryInRegister(tmpReg, src2);
-	
-	m_assembler.Cmp(g_registers[src1->m_valueLow], tmpReg);
-	
-	Emit_CondJmp(statement);
-}
-
-void CCodeGen_Arm::Emit_CondJmp_RegCst(const STATEMENT& statement)
-{
-	CSymbol* src1 = statement.src1->GetSymbol().get();
-	CSymbol* src2 = statement.src2->GetSymbol().get();	
-	
-	assert(src1->m_type == SYM_REGISTER);
-	assert(src2->m_type == SYM_CONSTANT);
-	
-	Cmp_GenericRegCst(g_registers[src1->m_valueLow], src2->m_valueLow);
-	Emit_CondJmp(statement);
-}
-
-void CCodeGen_Arm::Emit_CondJmp_MemCst(const STATEMENT& statement)
-{
-	CSymbol* src1 = statement.src1->GetSymbol().get();
-	CSymbol* src2 = statement.src2->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
 	
 	assert(src2->m_type == SYM_CONSTANT);
 	
-	CArmAssembler::REGISTER tmpReg = CArmAssembler::r1;
-	LoadMemoryInRegister(tmpReg, src1);
-	Cmp_GenericRegCst(tmpReg, src2->m_valueLow);
+	auto src1Reg = PrepareSymbolRegisterUse(src1, CArmAssembler::r1);
+	Cmp_GenericRegCst(src1Reg, src2->m_valueLow, CArmAssembler::r2);
 	Emit_CondJmp(statement);
 }
 
@@ -906,6 +876,10 @@ void CCodeGen_Arm::Cmp_GetFlag(CArmAssembler::REGISTER registerId, Jitter::CONDI
 	CArmAssembler::ImmediateAluOperand trueOperand(CArmAssembler::MakeImmediateAluOperand(1, 0));
 	switch(condition)
 	{
+		case CONDITION_EQ:
+			m_assembler.MovCc(CArmAssembler::CONDITION_NE, registerId, falseOperand);
+			m_assembler.MovCc(CArmAssembler::CONDITION_EQ, registerId, trueOperand);
+			break;
 		case CONDITION_NE:
 			m_assembler.MovCc(CArmAssembler::CONDITION_EQ, registerId, falseOperand);
 			m_assembler.MovCc(CArmAssembler::CONDITION_NE, registerId, trueOperand);
@@ -932,24 +906,23 @@ void CCodeGen_Arm::Cmp_GetFlag(CArmAssembler::REGISTER registerId, Jitter::CONDI
 	}
 }
 
-void CCodeGen_Arm::Cmp_GenericRegCst(CArmAssembler::REGISTER src1, uint32 src2)
+void CCodeGen_Arm::Cmp_GenericRegCst(CArmAssembler::REGISTER src1Reg, uint32 src2, CArmAssembler::REGISTER src2Reg)
 {
 	uint8 immediate = 0;
 	uint8 shiftAmount = 0;
 	if(TryGetAluImmediateParams(src2, immediate, shiftAmount))
 	{
-		m_assembler.Cmp(src1, CArmAssembler::MakeImmediateAluOperand(immediate, shiftAmount));
+		m_assembler.Cmp(src1Reg, CArmAssembler::MakeImmediateAluOperand(immediate, shiftAmount));
 	}
 	else if(TryGetAluImmediateParams(-static_cast<int32>(src2), immediate, shiftAmount))
 	{
-		m_assembler.Cmn(src1, CArmAssembler::MakeImmediateAluOperand(immediate, shiftAmount));
+		m_assembler.Cmn(src1Reg, CArmAssembler::MakeImmediateAluOperand(immediate, shiftAmount));
 	}
 	else
 	{
-		CArmAssembler::REGISTER cstReg = CArmAssembler::r2;
-		assert(cstReg != src1);
-		LoadConstantInRegister(cstReg, src2);
-		m_assembler.Cmp(src1, cstReg);
+		assert(src1Reg != src2Reg);
+		LoadConstantInRegister(src2Reg, src2);
+		m_assembler.Cmp(src1Reg, src2Reg);
 	}
 }
 
@@ -980,7 +953,7 @@ void CCodeGen_Arm::Emit_Cmp_AnyAnyCst(const STATEMENT& statement)
 	auto src1Reg = PrepareSymbolRegisterUse(src1, CArmAssembler::r1);
 	auto cst = src2->m_valueLow;
 
-	Cmp_GenericRegCst(src1Reg, cst);
+	Cmp_GenericRegCst(src1Reg, cst, CArmAssembler::r2);
 	Cmp_GetFlag(dstReg, statement.jmpCondition);
 	CommitSymbolRegister(dst, dstReg);
 }

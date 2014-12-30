@@ -281,7 +281,7 @@ namespace Jitter
 
 		//CMP
 		void									Cmp_GetFlag(CArmAssembler::REGISTER, CONDITION);
-		void									Cmp_GenericRegCst(CArmAssembler::REGISTER, uint32);
+		void									Cmp_GenericRegCst(CArmAssembler::REGISTER, uint32, CArmAssembler::REGISTER);
 		void									Emit_Cmp_AnyAnyAny(const STATEMENT&);
 		void									Emit_Cmp_AnyAnyCst(const STATEMENT&);
 
@@ -290,10 +290,8 @@ namespace Jitter
 
 		//CONDJMP
 		void									Emit_CondJmp(const STATEMENT&);
-		void									Emit_CondJmp_RegReg(const STATEMENT&);
-		void									Emit_CondJmp_RegMem(const STATEMENT&);
-		void									Emit_CondJmp_RegCst(const STATEMENT&);
-		void									Emit_CondJmp_MemCst(const STATEMENT&);
+		void									Emit_CondJmp_VarVar(const STATEMENT&);
+		void									Emit_CondJmp_VarCst(const STATEMENT&);
 		
 		//NOT
 		void									Emit_Not_RegReg(const STATEMENT&);

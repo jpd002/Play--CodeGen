@@ -1,17 +1,34 @@
 #include "Cmp64Test.h"
 #include "MemStream.h"
 
+CCmp64Test::CCmp64Test(bool useConstant, uint64 value0, uint64 value1)
+: m_useConstant(useConstant)
+, m_value0(value0)
+, m_value1(value1)
+{
+
+}
+
 void CCmp64Test::Run()
 {
 	memset(&m_context, 0, sizeof(m_context));
 
-	m_context.value0 = 0xFEDCBA9876543210ULL;
-	m_context.value1 = 0x012389AB4567CDEFULL;
+	m_context.value0 = m_value0;
+	m_context.value1 = m_value1;
 
 	m_function(&m_context);
 
-	TEST_VERIFY(m_context.resultBl == 0);
-	TEST_VERIFY(m_context.resultLt != 0);
+	uint32 resultEq = (m_value0 == m_value1) ? 1 : 0;
+	uint32 resultNe = (m_value0 != m_value1) ? 1 : 0;
+	uint32 resultBl = static_cast<uint64>(m_value0) < static_cast<uint64>(m_value1) ? 1 : 0;
+	uint32 resultLt = static_cast<int64>(m_value0) < static_cast<int64>(m_value1) ? 1 : 0;
+	uint32 resultGt = static_cast<int64>(m_value0) > static_cast<int64>(m_value1) ? 1 : 0;
+
+	TEST_VERIFY(m_context.resultEq == resultEq);
+	TEST_VERIFY(m_context.resultNe == resultNe);
+	TEST_VERIFY(m_context.resultBl == resultBl);
+	TEST_VERIFY(m_context.resultLt == resultLt);
+	TEST_VERIFY(m_context.resultGt == resultGt);
 }
 
 void CCmp64Test::Compile(Jitter::CJitter& jitter)
@@ -21,15 +38,75 @@ void CCmp64Test::Compile(Jitter::CJitter& jitter)
 
 	jitter.Begin();
 	{
+		//Equal
+		//---------------------------------
 		jitter.PushRel64(offsetof(CONTEXT, value0));
-		jitter.PushRel64(offsetof(CONTEXT, value1));
+		if(m_useConstant)
+		{
+			jitter.PushCst64(m_value1);
+		}
+		else
+		{
+			jitter.PushRel64(offsetof(CONTEXT, value1));
+		}
+		jitter.Cmp64(Jitter::CONDITION_EQ);
+		jitter.PullRel(offsetof(CONTEXT, resultEq));
+
+		//Not Equal
+		//---------------------------------
+		jitter.PushRel64(offsetof(CONTEXT, value0));
+		if(m_useConstant)
+		{
+			jitter.PushCst64(m_value1);
+		}
+		else
+		{
+			jitter.PushRel64(offsetof(CONTEXT, value1));
+		}
+		jitter.Cmp64(Jitter::CONDITION_NE);
+		jitter.PullRel(offsetof(CONTEXT, resultNe));
+
+		//Less Than (unsigned)
+		//---------------------------------
+		jitter.PushRel64(offsetof(CONTEXT, value0));
+		if(m_useConstant)
+		{
+			jitter.PushCst64(m_value1);
+		}
+		else
+		{
+			jitter.PushRel64(offsetof(CONTEXT, value1));
+		}
 		jitter.Cmp64(Jitter::CONDITION_BL);
 		jitter.PullRel(offsetof(CONTEXT, resultBl));
 
+		//Less Than (signed)
+		//---------------------------------
 		jitter.PushRel64(offsetof(CONTEXT, value0));
-		jitter.PushRel64(offsetof(CONTEXT, value1));
+		if(m_useConstant)
+		{
+			jitter.PushCst64(m_value1);
+		}
+		else
+		{
+			jitter.PushRel64(offsetof(CONTEXT, value1));
+		}
 		jitter.Cmp64(Jitter::CONDITION_LT);
 		jitter.PullRel(offsetof(CONTEXT, resultLt));
+
+		//Greater Than (signed)
+		//---------------------------------
+		jitter.PushRel64(offsetof(CONTEXT, value0));
+		if(m_useConstant)
+		{
+			jitter.PushCst64(m_value1);
+		}
+		else
+		{
+			jitter.PushRel64(offsetof(CONTEXT, value1));
+		}
+		jitter.Cmp64(Jitter::CONDITION_GT);
+		jitter.PullRel(offsetof(CONTEXT, resultGt));
 	}
 	jitter.End();
 

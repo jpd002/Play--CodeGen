@@ -311,7 +311,11 @@ namespace Jitter
 		void									Emit_StoreAtRef_TmpCst(const STATEMENT&);
 		
 		//CMP64
-		void									Emit_Cmp64_VarMemMem(const STATEMENT&);
+		void									Cmp64_RegSymLo(CArmAssembler::REGISTER, CSymbol*, CArmAssembler::REGISTER);
+		void									Cmp64_RegSymHi(CArmAssembler::REGISTER, CSymbol*, CArmAssembler::REGISTER);
+		void									Cmp64_Equal(const STATEMENT&);
+		void									Cmp64_Order(const STATEMENT&);
+		void									Emit_Cmp64_VarMemAny(const STATEMENT&);
 
 		//FPUOP
 		template <typename> void				Emit_Fpu_MemMem(const STATEMENT&);

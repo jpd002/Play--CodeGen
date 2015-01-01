@@ -1,0 +1,16 @@
+#include "ExternalDependencies.xcconfig"
+
+SDKROOT = macosx
+
+CLANG_CXX_LANGUAGE_STANDARD = c++0x
+CLANG_CXX_LIBRARY = libc++
+
+COMBINE_HIDPI_IMAGES = YES
+
+OTHER_CFLAGS = -fvisibility=hidden
+OTHER_LDFLAGS = -ObjC
+
+GCC_PRECOMPILE_PREFIX_HEADER = YES
+GCC_PREFIX_HEADER = CodeGen_Prefix.pch
+
+HEADER_SEARCH_PATHS = $(BOOST_PATH) $(FRAMEWORK_PATH)/include ../include

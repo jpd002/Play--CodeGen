@@ -37,6 +37,16 @@ CX86Assembler::REGISTER CCodeGen_x86_64::g_registers[MAX_REGISTERS] =
 	CX86Assembler::r15,
 };
 
+CX86Assembler::REGISTER CCodeGen_x86_64::g_paramRegs[MAX_PARAMS] =
+{
+	CX86Assembler::rCX,
+	CX86Assembler::rDX,
+	CX86Assembler::r8,
+	CX86Assembler::r9,
+};
+
+#endif
+
 //xMM0->xMM3 are used internally for temporary uses
 CX86Assembler::XMMREGISTER CCodeGen_x86_64::g_mdRegisters[MAX_MDREGISTERS] =
 {
@@ -53,16 +63,6 @@ CX86Assembler::XMMREGISTER CCodeGen_x86_64::g_mdRegisters[MAX_MDREGISTERS] =
 	CX86Assembler::xMM14,
 	CX86Assembler::xMM15
 };
-
-CX86Assembler::REGISTER CCodeGen_x86_64::g_paramRegs[MAX_PARAMS] =
-{
-	CX86Assembler::rCX,
-	CX86Assembler::rDX,
-	CX86Assembler::r8,
-	CX86Assembler::r9,
-};
-
-#endif
 
 static uint64 CombineConstant64(uint32 cstLow, uint32 cstHigh)
 {

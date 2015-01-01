@@ -7,6 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		70BFC5041A5530EF0094CD9F /* Cmp64Test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70BFC4F61A5530EF0094CD9F /* Cmp64Test.cpp */; };
+		70BFC5051A5530EF0094CD9F /* LogicMdTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70BFC4F81A5530EF0094CD9F /* LogicMdTest.cpp */; };
+		70BFC5061A5530EF0094CD9F /* LzcTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70BFC4FA1A5530EF0094CD9F /* LzcTest.cpp */; };
+		70BFC5071A5530EF0094CD9F /* MdMemAccessTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70BFC4FC1A5530EF0094CD9F /* MdMemAccessTest.cpp */; };
+		70BFC5081A5530EF0094CD9F /* MdSubTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70BFC4FE1A5530EF0094CD9F /* MdSubTest.cpp */; };
+		70BFC5091A5530EF0094CD9F /* MdUnpackTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70BFC5001A5530EF0094CD9F /* MdUnpackTest.cpp */; };
+		70BFC50A1A5530EF0094CD9F /* SimpleMdTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70BFC5021A5530EF0094CD9F /* SimpleMdTest.cpp */; };
 		7E207B791507D10200EE8C4F /* libCodeGen.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7E207B201507D0AC00EE8C4F /* libCodeGen.a */; };
 		7E207C3C1507D5F200EE8C4F /* AliasTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E207C111507D5F200EE8C4F /* AliasTest.cpp */; };
 		7E207C3D1507D5F200EE8C4F /* Alu64Test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E207C141507D5F200EE8C4F /* Alu64Test.cpp */; };
@@ -76,6 +83,20 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		70BFC4F61A5530EF0094CD9F /* Cmp64Test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Cmp64Test.cpp; path = ../tests/Cmp64Test.cpp; sourceTree = "<group>"; };
+		70BFC4F71A5530EF0094CD9F /* Cmp64Test.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Cmp64Test.h; path = ../tests/Cmp64Test.h; sourceTree = "<group>"; };
+		70BFC4F81A5530EF0094CD9F /* LogicMdTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = LogicMdTest.cpp; path = ../tests/LogicMdTest.cpp; sourceTree = "<group>"; };
+		70BFC4F91A5530EF0094CD9F /* LogicMdTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LogicMdTest.h; path = ../tests/LogicMdTest.h; sourceTree = "<group>"; };
+		70BFC4FA1A5530EF0094CD9F /* LzcTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = LzcTest.cpp; path = ../tests/LzcTest.cpp; sourceTree = "<group>"; };
+		70BFC4FB1A5530EF0094CD9F /* LzcTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LzcTest.h; path = ../tests/LzcTest.h; sourceTree = "<group>"; };
+		70BFC4FC1A5530EF0094CD9F /* MdMemAccessTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MdMemAccessTest.cpp; path = ../tests/MdMemAccessTest.cpp; sourceTree = "<group>"; };
+		70BFC4FD1A5530EF0094CD9F /* MdMemAccessTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MdMemAccessTest.h; path = ../tests/MdMemAccessTest.h; sourceTree = "<group>"; };
+		70BFC4FE1A5530EF0094CD9F /* MdSubTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MdSubTest.cpp; path = ../tests/MdSubTest.cpp; sourceTree = "<group>"; };
+		70BFC4FF1A5530EF0094CD9F /* MdSubTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MdSubTest.h; path = ../tests/MdSubTest.h; sourceTree = "<group>"; };
+		70BFC5001A5530EF0094CD9F /* MdUnpackTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MdUnpackTest.cpp; path = ../tests/MdUnpackTest.cpp; sourceTree = "<group>"; };
+		70BFC5011A5530EF0094CD9F /* MdUnpackTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MdUnpackTest.h; path = ../tests/MdUnpackTest.h; sourceTree = "<group>"; };
+		70BFC5021A5530EF0094CD9F /* SimpleMdTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SimpleMdTest.cpp; path = ../tests/SimpleMdTest.cpp; sourceTree = "<group>"; };
+		70BFC5031A5530EF0094CD9F /* SimpleMdTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SimpleMdTest.h; path = ../tests/SimpleMdTest.h; sourceTree = "<group>"; };
 		7E207B071507D07500EE8C4F /* CodeGenTestSuite */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = CodeGenTestSuite; sourceTree = BUILT_PRODUCTS_DIR; };
 		7E207B181507D0AB00EE8C4F /* CodeGen.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = CodeGen.xcodeproj; sourceTree = "<group>"; };
 		7E207C111507D5F200EE8C4F /* AliasTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = AliasTest.cpp; path = ../tests/AliasTest.cpp; sourceTree = "<group>"; };
@@ -173,6 +194,8 @@
 				7E207C151507D5F200EE8C4F /* Alu64Test.h */,
 				7E207C161507D5F200EE8C4F /* Call64Test.cpp */,
 				7E207C171507D5F200EE8C4F /* Call64Test.h */,
+				70BFC4F61A5530EF0094CD9F /* Cmp64Test.cpp */,
+				70BFC4F71A5530EF0094CD9F /* Cmp64Test.h */,
 				7E207C181507D5F200EE8C4F /* CompareTest.cpp */,
 				7E207C191507D5F200EE8C4F /* CompareTest.h */,
 				7E207C1A1507D5F200EE8C4F /* Crc32Test.cpp */,
@@ -185,6 +208,10 @@
 				7E207C211507D5F200EE8C4F /* HalfMultTest.h */,
 				7E207C221507D5F200EE8C4F /* HugeJumpTest.cpp */,
 				7E207C231507D5F200EE8C4F /* HugeJumpTest.h */,
+				70BFC4F81A5530EF0094CD9F /* LogicMdTest.cpp */,
+				70BFC4F91A5530EF0094CD9F /* LogicMdTest.h */,
+				70BFC4FA1A5530EF0094CD9F /* LzcTest.cpp */,
+				70BFC4FB1A5530EF0094CD9F /* LzcTest.h */,
 				7E207C241507D5F200EE8C4F /* Main.cpp */,
 				7E207C251507D5F200EE8C4F /* MdCallTest.cpp */,
 				7E207C261507D5F200EE8C4F /* MdCallTest.h */,
@@ -192,8 +219,14 @@
 				7E207C281507D5F200EE8C4F /* MdFpFlagTest.h */,
 				7E207C291507D5F200EE8C4F /* MdFpTest.cpp */,
 				7E207C2A1507D5F200EE8C4F /* MdFpTest.h */,
+				70BFC4FC1A5530EF0094CD9F /* MdMemAccessTest.cpp */,
+				70BFC4FD1A5530EF0094CD9F /* MdMemAccessTest.h */,
+				70BFC4FE1A5530EF0094CD9F /* MdSubTest.cpp */,
+				70BFC4FF1A5530EF0094CD9F /* MdSubTest.h */,
 				7E207C2B1507D5F200EE8C4F /* MdTest.cpp */,
 				7E207C2C1507D5F200EE8C4F /* MdTest.h */,
+				70BFC5001A5530EF0094CD9F /* MdUnpackTest.cpp */,
+				70BFC5011A5530EF0094CD9F /* MdUnpackTest.h */,
 				7E207C2D1507D5F200EE8C4F /* MemAccessTest.cpp */,
 				7E207C2E1507D5F200EE8C4F /* MemAccessTest.h */,
 				7E207C2F1507D5F200EE8C4F /* MultTest.cpp */,
@@ -208,6 +241,8 @@
 				7E207C381507D5F200EE8C4F /* RegAllocTest.h */,
 				7E207C391507D5F200EE8C4F /* Shift64Test.cpp */,
 				7E207C3A1507D5F200EE8C4F /* Shift64Test.h */,
+				70BFC5021A5530EF0094CD9F /* SimpleMdTest.cpp */,
+				70BFC5031A5530EF0094CD9F /* SimpleMdTest.h */,
 				7E207C3B1507D5F200EE8C4F /* Test.h */,
 			);
 			name = Source;
@@ -249,7 +284,7 @@
 		7E207AFE1507D07500EE8C4F /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0420;
+				LastUpgradeCheck = 0600;
 			};
 			buildConfigurationList = 7E207B011507D07500EE8C4F /* Build configuration list for PBXProject "CodeGenTestSuite" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -306,19 +341,26 @@
 				7E207C3F1507D5F200EE8C4F /* CompareTest.cpp in Sources */,
 				7E207C401507D5F200EE8C4F /* Crc32Test.cpp in Sources */,
 				7E207C411507D5F200EE8C4F /* FpIntMixTest.cpp in Sources */,
+				70BFC5041A5530EF0094CD9F /* Cmp64Test.cpp in Sources */,
+				70BFC5071A5530EF0094CD9F /* MdMemAccessTest.cpp in Sources */,
+				70BFC5091A5530EF0094CD9F /* MdUnpackTest.cpp in Sources */,
 				7E207C421507D5F200EE8C4F /* FpuTest.cpp in Sources */,
 				7E207C431507D5F200EE8C4F /* HalfMultTest.cpp in Sources */,
 				7E207C441507D5F200EE8C4F /* HugeJumpTest.cpp in Sources */,
+				70BFC5081A5530EF0094CD9F /* MdSubTest.cpp in Sources */,
 				7E207C451507D5F200EE8C4F /* Main.cpp in Sources */,
 				7E207C461507D5F200EE8C4F /* MdCallTest.cpp in Sources */,
 				7E207C471507D5F200EE8C4F /* MdFpFlagTest.cpp in Sources */,
 				7E207C481507D5F200EE8C4F /* MdFpTest.cpp in Sources */,
 				7E207C491507D5F200EE8C4F /* MdTest.cpp in Sources */,
 				7E207C4A1507D5F200EE8C4F /* MemAccessTest.cpp in Sources */,
+				70BFC5051A5530EF0094CD9F /* LogicMdTest.cpp in Sources */,
+				70BFC50A1A5530EF0094CD9F /* SimpleMdTest.cpp in Sources */,
 				7E207C4B1507D5F200EE8C4F /* MultTest.cpp in Sources */,
 				7E207C4C1507D5F200EE8C4F /* RandomAluTest.cpp in Sources */,
 				7E207C4D1507D5F200EE8C4F /* RandomAluTest2.cpp in Sources */,
 				7E207C4E1507D5F200EE8C4F /* RandomAluTest3.cpp in Sources */,
+				70BFC5061A5530EF0094CD9F /* LzcTest.cpp in Sources */,
 				7E207C4F1507D5F200EE8C4F /* RegAllocTest.cpp in Sources */,
 				7E207C501507D5F200EE8C4F /* Shift64Test.cpp in Sources */,
 			);
@@ -344,8 +386,15 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
@@ -359,6 +408,9 @@
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				ONLY_ACTIVE_ARCH = YES;
@@ -370,15 +422,25 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				SDKROOT = macosx;
@@ -388,7 +450,6 @@
 		7E207B121507D07500EE8C4F /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
 				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				HEADER_SEARCH_PATHS = (
@@ -403,7 +464,6 @@
 		7E207B131507D07500EE8C4F /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
 				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				HEADER_SEARCH_PATHS = (

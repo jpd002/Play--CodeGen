@@ -1376,6 +1376,27 @@ void CJitter::NormalizeStatements(BASIC_BLOCK& basicBlock)
 			case OP_MULS:
 			case OP_MULSHL:
 			case OP_MULSHH:
+			case OP_MD_AND:
+			case OP_MD_OR:
+			case OP_MD_XOR:
+			case OP_MD_ADD_B:
+			case OP_MD_ADD_H:
+			case OP_MD_ADD_W:
+			case OP_MD_ADDSS_H:
+			case OP_MD_ADDSS_W:
+			case OP_MD_ADDUS_B:
+			case OP_MD_ADDUS_W:
+			case OP_MD_CMPEQ_B:
+			case OP_MD_CMPEQ_H:
+			case OP_MD_CMPEQ_W:
+			case OP_MD_MIN_H:
+			case OP_MD_MIN_W:
+			case OP_MD_MAX_H:
+			case OP_MD_MAX_W:
+			case OP_MD_ADD_S:
+			case OP_MD_MUL_S:
+			case OP_MD_MIN_S:
+			case OP_MD_MAX_S:
 				isCommutative = true;
 				break;
 			case OP_CMP:
@@ -1404,17 +1425,19 @@ void CJitter::NormalizeStatements(BASIC_BLOCK& basicBlock)
 
 		//Check if register operand is at the end and swap if it is the case
 		{
-			CSymbol* dstreg  = dynamic_symbolref_cast(SYM_REGISTER, statement.dst);
-			CSymbol* src1reg = dynamic_symbolref_cast(SYM_REGISTER, statement.src1);
-			CSymbol* src2reg = dynamic_symbolref_cast(SYM_REGISTER, statement.src2);
+			bool dstreg  = statement.dst && statement.dst->GetSymbol()->IsRegister();
+			bool src1reg = statement.src1->GetSymbol()->IsRegister();
+			bool src2reg = statement.src2->GetSymbol()->IsRegister();
 
 			if(!src1reg && src2reg)
 			{
 				std::swap(statement.src1, statement.src2);
 				swapped = true;
 			}
-			else if(dstreg && src1reg && src2reg && dstreg->Equals(src2reg))
+			else if(dstreg && src1reg && src2reg && 
+				statement.dst->GetSymbol()->Equals(statement.src2->GetSymbol().get()))
 			{
+				//If all operands are registers and dst is equal to src2, swap to make dst and src2 side by side
 				std::swap(statement.src1, statement.src2);
 				swapped = true;
 			}

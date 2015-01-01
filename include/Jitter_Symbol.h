@@ -146,6 +146,13 @@ namespace Jitter
 			}
 		}
 
+		bool IsRegister() const
+		{
+			return
+				(m_type == SYM_REGISTER) ||
+				(m_type == SYM_REGISTER128);
+		}
+
 		bool IsRelative() const
 		{
 			return 

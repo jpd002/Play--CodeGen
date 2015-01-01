@@ -66,18 +66,11 @@ namespace Jitter
 
 	static CSymbol* dynamic_symbolref_cast(SYM_TYPE type, const SymbolRefPtr& symbolRef)
 	{
-		if(!symbolRef) return NULL;
+		if(!symbolRef) return nullptr;
 		CSymbol* result = symbolRef->GetSymbol().get();
-		if(result->m_type != type) return NULL;
+		if(result->m_type != type) return nullptr;
 		return result;
 	}
-
-//	template <typename ClassType>
-//	static ClassType* dynamic_symbolref_cast(const SymbolRefPtr& symbolRef)
-//	{
-//		if(!symbolRef) return NULL;
-//		return std::tr1::dynamic_pointer_cast<ClassType>(symbolRef->GetSymbol()).get();
-//	}
 }
 
 #endif

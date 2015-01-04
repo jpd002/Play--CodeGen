@@ -101,6 +101,7 @@
 		70BFC5151A560A3F0094CD9F /* GeneralSettings.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = GeneralSettings.xcconfig; sourceTree = "<group>"; };
 		70BFC5161A560A3F0094CD9F /* GeneralSettingsDebug.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = GeneralSettingsDebug.xcconfig; sourceTree = "<group>"; };
 		70BFC5171A560A3F0094CD9F /* GeneralSettingsRelease.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = GeneralSettingsRelease.xcconfig; sourceTree = "<group>"; };
+		70C0EF801A593A8700227442 /* ExternalDependencies.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = ExternalDependencies.xcconfig; sourceTree = "<group>"; };
 		7E207B071507D07500EE8C4F /* CodeGenTestSuite */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = CodeGenTestSuite; sourceTree = BUILT_PRODUCTS_DIR; };
 		7E207B181507D0AB00EE8C4F /* CodeGen.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = CodeGen.xcodeproj; sourceTree = "<group>"; };
 		7E207C111507D5F200EE8C4F /* AliasTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = AliasTest.cpp; path = ../tests/AliasTest.cpp; sourceTree = "<group>"; };
@@ -165,6 +166,7 @@
 		70BFC5131A560A250094CD9F /* Config */ = {
 			isa = PBXGroup;
 			children = (
+				70C0EF801A593A8700227442 /* ExternalDependencies.xcconfig */,
 				70BFC5151A560A3F0094CD9F /* GeneralSettings.xcconfig */,
 				70BFC5161A560A3F0094CD9F /* GeneralSettingsDebug.xcconfig */,
 				70BFC5171A560A3F0094CD9F /* GeneralSettingsRelease.xcconfig */,
@@ -172,14 +174,22 @@
 			name = Config;
 			sourceTree = "<group>";
 		};
+		70C0EF831A593AD100227442 /* Dependencies */ = {
+			isa = PBXGroup;
+			children = (
+				7E207B181507D0AB00EE8C4F /* CodeGen.xcodeproj */,
+				7E207C511507D6ED00EE8C4F /* Framework.xcodeproj */,
+			);
+			name = Dependencies;
+			sourceTree = "<group>";
+		};
 		7E207AFC1507D07500EE8C4F = {
 			isa = PBXGroup;
 			children = (
-				7E207C511507D6ED00EE8C4F /* Framework.xcodeproj */,
-				7E207B181507D0AB00EE8C4F /* CodeGen.xcodeproj */,
 				70BFC5131A560A250094CD9F /* Config */,
-				7E207C101507D5DE00EE8C4F /* Source */,
+				70C0EF831A593AD100227442 /* Dependencies */,
 				7E207B081507D07500EE8C4F /* Products */,
+				7E207C101507D5DE00EE8C4F /* Source */,
 			);
 			sourceTree = "<group>";
 		};

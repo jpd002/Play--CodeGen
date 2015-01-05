@@ -54,6 +54,20 @@
 			remoteGlobalIDString = D2AAC07E0554694100DB518D;
 			remoteInfo = Framework;
 		};
+		70BF167F1A5A1BE3002AF62F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 7E27204D121259A200C0DEBF /* CodeGen.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = D2AAC07D0554694100DB518D;
+			remoteInfo = CodeGen;
+		};
+		70BF16811A5A1BE3002AF62F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 705E54E81A58C4E1009E67F1 /* Framework.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = D2AAC07D0554694100DB518D;
+			remoteInfo = Framework;
+		};
 		7E272051121259A200C0DEBF /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 7E27204D121259A200C0DEBF /* CodeGen.xcodeproj */;
@@ -307,6 +321,8 @@
 			buildRules = (
 			);
 			dependencies = (
+				70BF16801A5A1BE3002AF62F /* PBXTargetDependency */,
+				70BF16821A5A1BE3002AF62F /* PBXTargetDependency */,
 			);
 			name = CodeGenTestSuite;
 			productName = CodeGenTestSuite;
@@ -417,6 +433,19 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		70BF16801A5A1BE3002AF62F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = CodeGen;
+			targetProxy = 70BF167F1A5A1BE3002AF62F /* PBXContainerItemProxy */;
+		};
+		70BF16821A5A1BE3002AF62F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = Framework;
+			targetProxy = 70BF16811A5A1BE3002AF62F /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		1D6058940D05DD3E006BFB54 /* Debug */ = {

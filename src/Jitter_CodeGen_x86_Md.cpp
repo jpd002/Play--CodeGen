@@ -123,6 +123,26 @@ void CCodeGen_x86::Emit_Md_RegRegReg(const STATEMENT& statement)
 }
 
 template <typename MDOP>
+void CCodeGen_x86::Emit_Md_RegMemReg(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	auto dstRegister = m_mdRegisters[dst->m_valueLow];
+	auto src2Register = m_mdRegisters[src2->m_valueLow];
+
+	if(dst->Equals(src2))
+	{
+		m_assembler.MovapsVo(CX86Assembler::xMM0, CX86Assembler::MakeXmmRegisterAddress(src2Register));
+		src2Register = CX86Assembler::xMM0;
+	}
+
+	m_assembler.MovapsVo(dstRegister, MakeVariable128SymbolAddress(src1));
+	((m_assembler).*(MDOP::OpVo()))(dstRegister, CX86Assembler::MakeXmmRegisterAddress(src2Register));
+}
+
+template <typename MDOP>
 void CCodeGen_x86::Emit_Md_RegVarVar(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
@@ -131,7 +151,7 @@ void CCodeGen_x86::Emit_Md_RegVarVar(const STATEMENT& statement)
 
 	//If we get in here, it must absolutely mean that the second source isn't a register
 	//Otherwise, some of the assumuptions done below will be wrong (dst mustn't be equal to src2)
-	assert(src2->m_type != SYM_REGISTER);
+	assert(src2->m_type != SYM_REGISTER128);
 
 	auto dstRegister = m_mdRegisters[dst->m_valueLow];
 
@@ -740,6 +760,7 @@ void CCodeGen_x86::Emit_MergeTo256_MemVarVar(const STATEMENT& statement)
 
 #define MD_CONST_MATCHERS_3OPS(MDOP_CST, MDOP) \
 	{ MDOP_CST,				MATCH_REGISTER128,			MATCH_REGISTER128,			MATCH_REGISTER128,		&CCodeGen_x86::Emit_Md_RegRegReg<MDOP>					}, \
+	{ MDOP_CST,				MATCH_REGISTER128,			MATCH_MEMORY128,			MATCH_REGISTER128,		&CCodeGen_x86::Emit_Md_RegMemReg<MDOP>					}, \
 	{ MDOP_CST,				MATCH_REGISTER128,			MATCH_VARIABLE128,			MATCH_VARIABLE128,		&CCodeGen_x86::Emit_Md_RegVarVar<MDOP>					}, \
 	{ MDOP_CST,				MATCH_MEMORY128,			MATCH_VARIABLE128,			MATCH_VARIABLE128,		&CCodeGen_x86::Emit_Md_MemVarVar<MDOP>					},
 

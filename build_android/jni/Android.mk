@@ -16,7 +16,9 @@ LOCAL_SRC_FILES		:=	../../src/ArmAssembler.cpp \
 						../../src/Jitter.cpp \
 						../../src/Jitter_CodeGen.cpp \
 						../../src/Jitter_CodeGen_Arm.cpp \
+						../../src/Jitter_CodeGen_Arm_64.cpp \
 						../../src/Jitter_CodeGen_Arm_Fpu.cpp \
+						../../src/Jitter_CodeGen_Arm_Md.cpp \
 						../../src/Jitter_CodeGenFactory.cpp \
 						../../src/Jitter_Optimize.cpp \
 						../../src/Jitter_RegAlloc.cpp \
@@ -24,6 +26,7 @@ LOCAL_SRC_FILES		:=	../../src/ArmAssembler.cpp \
 						../../src/Jitter_SymbolTable.cpp \
 						../../src/MemoryFunction.cpp \
 						../../src/ObjectFile.cpp
+LOCAL_CFLAGS		:= -Wno-extern-c-compat
 LOCAL_C_INCLUDES	:= $(FRAMEWORK_PATH)/include $(LOCAL_PATH)/../../include
 LOCAL_CPP_FEATURES	:= exceptions rtti
 
@@ -32,18 +35,21 @@ include $(BUILD_STATIC_LIBRARY)
 include $(CLEAR_VARS)
 
 LOCAL_MODULE			:= libCodeGenTestSuite
-LOCAL_SRC_FILES			:=	../../tests/CompareTest.cpp \
+LOCAL_SRC_FILES			:=	../../tests/Cmp64Test.cpp \
+							../../tests/CompareTest.cpp \
 							../../tests/Crc32Test.cpp \
 							../../tests/FpuTest.cpp \
 							../../tests/FpIntMixTest.cpp \
 							../../tests/HugeJumpTest.cpp \
 							../../tests/Main.cpp \
+							../../tests/MdCallTest.cpp \
 							../../tests/MemAccessTest.cpp \
 							../../tests/MultTest.cpp \
 							../../tests/RandomAluTest.cpp \
 							../../tests/RandomAluTest2.cpp \
 							../../tests/RandomAluTest3.cpp \
 							../../tests/RegAllocTest.cpp
+LOCAL_CFLAGS			:= -Wno-extern-c-compat
 LOCAL_C_INCLUDES		:= $(FRAMEWORK_PATH)/include $(LOCAL_PATH)/../../include
 LOCAL_CPP_FEATURES		:= exceptions rtti
 LOCAL_LDLIBS 			:= -landroid

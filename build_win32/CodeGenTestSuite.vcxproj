@@ -154,6 +154,7 @@
     <ClCompile Include="..\tests\AliasTest.cpp" />
     <ClCompile Include="..\tests\Alu64Test.cpp" />
     <ClCompile Include="..\tests\Call64Test.cpp" />
+    <ClCompile Include="..\tests\Cmp64Test.cpp" />
     <ClCompile Include="..\tests\CompareTest.cpp" />
     <ClCompile Include="..\tests\Crc32Test.cpp" />
     <ClCompile Include="..\tests\FpIntMixTest.cpp" />
@@ -184,6 +185,7 @@
     <ClInclude Include="..\tests\Align16.h" />
     <ClInclude Include="..\tests\Alu64Test.h" />
     <ClInclude Include="..\tests\Call64Test.h" />
+    <ClInclude Include="..\tests\Cmp64Test.h" />
     <ClInclude Include="..\tests\CompareTest.h" />
     <ClInclude Include="..\tests\Crc32Test.h" />
     <ClInclude Include="..\tests\FpIntMixTest.h" />

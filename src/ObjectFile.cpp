@@ -53,8 +53,8 @@ unsigned int CObjectFile::GetExternalSymbolIndexByValue(void* value) const
 		[&] (const EXTERNAL_SYMBOL& externalSymbol)
 		{
 			//This is kinda bad, but we have no choice if we want to be able to cross compile...
-			uint32 srcValue = reinterpret_cast<uint32>(externalSymbol.value);
-			uint32 dstValue = reinterpret_cast<uint32>(value);
+			auto srcValue = reinterpret_cast<intptr_t>(externalSymbol.value);
+			auto dstValue = reinterpret_cast<intptr_t>(value);
 			return srcValue == dstValue;
 		}
 	);

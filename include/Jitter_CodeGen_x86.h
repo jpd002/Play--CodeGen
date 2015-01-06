@@ -612,6 +612,7 @@ namespace Jitter
 		template <typename> void	Emit_Md_RegVar(const STATEMENT&);
 		template <typename> void	Emit_Md_MemVar(const STATEMENT&);
 		template <typename> void	Emit_Md_RegRegReg(const STATEMENT&);
+		template <typename> void	Emit_Md_RegMemReg(const STATEMENT&);
 		template <typename> void	Emit_Md_RegVarVar(const STATEMENT&);
 		template <typename> void	Emit_Md_MemVarVar(const STATEMENT&);
 		template <typename> void	Emit_Md_VarVarVarRev(const STATEMENT&);

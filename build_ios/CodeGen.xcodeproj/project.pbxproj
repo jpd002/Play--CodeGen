@@ -8,6 +8,10 @@
 
 /* Begin PBXBuildFile section */
 		703093D317BE6844009662A1 /* Jitter_CodeGen_x86_Md.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 703093D217BE6844009662A1 /* Jitter_CodeGen_x86_Md.cpp */; };
+		703DF0291A5A2C4C001C1205 /* ObjectFile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7099CCA717C63E930035D19A /* ObjectFile.cpp */; };
+		705E54F21A58C5D6009E67F1 /* Jitter_CodeGen_Arm_64.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 705E54EF1A58C5D6009E67F1 /* Jitter_CodeGen_Arm_64.cpp */; };
+		705E54F31A58C5D6009E67F1 /* Jitter_CodeGen_Arm_Md.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 705E54F01A58C5D6009E67F1 /* Jitter_CodeGen_Arm_Md.cpp */; };
+		705E54F41A58C5D6009E67F1 /* Jitter_Statement.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 705E54F11A58C5D6009E67F1 /* Jitter_Statement.cpp */; };
 		7E271F89121256B300C0DEBF /* ArmAssembler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E271F75121256B300C0DEBF /* ArmAssembler.cpp */; };
 		7E271F8A121256B300C0DEBF /* Jitter_CodeGen_Arm_Fpu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E271F76121256B300C0DEBF /* Jitter_CodeGen_Arm_Fpu.cpp */; };
 		7E271F8B121256B300C0DEBF /* Jitter_CodeGen_Arm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E271F77121256B300C0DEBF /* Jitter_CodeGen_Arm.cpp */; };
@@ -44,7 +48,6 @@
 		7E271FB9121256BB00C0DEBF /* MemoryFunction.h in Headers */ = {isa = PBXBuildFile; fileRef = 7E271FAA121256BB00C0DEBF /* MemoryFunction.h */; };
 		7E271FBA121256BB00C0DEBF /* X86Assembler.h in Headers */ = {isa = PBXBuildFile; fileRef = 7E271FAB121256BB00C0DEBF /* X86Assembler.h */; };
 		7EE2D4911228865C00C2C057 /* Jitter_CodeGen_Arm_Div.h in Headers */ = {isa = PBXBuildFile; fileRef = 7EE2D4901228865C00C2C057 /* Jitter_CodeGen_Arm_Div.h */; };
-		7EE2D5471229649000C2C057 /* Jitter_CodeGen_Arm_Mul.h in Headers */ = {isa = PBXBuildFile; fileRef = 7EE2D5461229649000C2C057 /* Jitter_CodeGen_Arm_Mul.h */; };
 		7EF45DE912A0E43A00A991AB /* Jitter_RegAlloc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7EF45DE812A0E43A00A991AB /* Jitter_RegAlloc.cpp */; };
 		AA747D9F0F9514B9006C5449 /* CodeGen_Prefix.pch in Headers */ = {isa = PBXBuildFile; fileRef = AA747D9E0F9514B9006C5449 /* CodeGen_Prefix.pch */; };
 		AACBBE4A0F95108600F1A2B1 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AACBBE490F95108600F1A2B1 /* Foundation.framework */; };
@@ -52,6 +55,9 @@
 
 /* Begin PBXFileReference section */
 		703093D217BE6844009662A1 /* Jitter_CodeGen_x86_Md.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Jitter_CodeGen_x86_Md.cpp; path = ../src/Jitter_CodeGen_x86_Md.cpp; sourceTree = "<group>"; };
+		705E54EF1A58C5D6009E67F1 /* Jitter_CodeGen_Arm_64.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Jitter_CodeGen_Arm_64.cpp; path = ../src/Jitter_CodeGen_Arm_64.cpp; sourceTree = "<group>"; };
+		705E54F01A58C5D6009E67F1 /* Jitter_CodeGen_Arm_Md.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Jitter_CodeGen_Arm_Md.cpp; path = ../src/Jitter_CodeGen_Arm_Md.cpp; sourceTree = "<group>"; };
+		705E54F11A58C5D6009E67F1 /* Jitter_Statement.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Jitter_Statement.cpp; path = ../src/Jitter_Statement.cpp; sourceTree = "<group>"; };
 		7099CCA517C63E930035D19A /* CoffObjectFile.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = CoffObjectFile.cpp; path = ../src/CoffObjectFile.cpp; sourceTree = "<group>"; };
 		7099CCA617C63E930035D19A /* MachoObjectFile.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = MachoObjectFile.cpp; path = ../src/MachoObjectFile.cpp; sourceTree = "<group>"; };
 		7099CCA717C63E930035D19A /* ObjectFile.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = ObjectFile.cpp; path = ../src/ObjectFile.cpp; sourceTree = "<group>"; };
@@ -60,6 +66,10 @@
 		7099CCAA17C63E9C0035D19A /* MachoDefs.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = MachoDefs.h; path = ../include/MachoDefs.h; sourceTree = "<group>"; };
 		7099CCAB17C63E9C0035D19A /* MachoObjectFile.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = MachoObjectFile.h; path = ../include/MachoObjectFile.h; sourceTree = "<group>"; };
 		7099CCAC17C63E9C0035D19A /* ObjectFile.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ObjectFile.h; path = ../include/ObjectFile.h; sourceTree = "<group>"; };
+		70C0EF7A1A59395500227442 /* ExternalDependencies.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = ExternalDependencies.xcconfig; sourceTree = "<group>"; };
+		70C0EF7B1A59395500227442 /* GeneralSettings.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = GeneralSettings.xcconfig; sourceTree = "<group>"; };
+		70C0EF7C1A59395500227442 /* GeneralSettingsDebug.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = GeneralSettingsDebug.xcconfig; sourceTree = "<group>"; };
+		70C0EF7D1A59395500227442 /* GeneralSettingsRelease.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = GeneralSettingsRelease.xcconfig; sourceTree = "<group>"; };
 		7E271F75121256B300C0DEBF /* ArmAssembler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ArmAssembler.cpp; path = ../src/ArmAssembler.cpp; sourceTree = SOURCE_ROOT; };
 		7E271F76121256B300C0DEBF /* Jitter_CodeGen_Arm_Fpu.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Jitter_CodeGen_Arm_Fpu.cpp; path = ../src/Jitter_CodeGen_Arm_Fpu.cpp; sourceTree = SOURCE_ROOT; };
 		7E271F77121256B300C0DEBF /* Jitter_CodeGen_Arm.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Jitter_CodeGen_Arm.cpp; path = ../src/Jitter_CodeGen_Arm.cpp; sourceTree = SOURCE_ROOT; };
@@ -96,7 +106,6 @@
 		7E271FAA121256BB00C0DEBF /* MemoryFunction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MemoryFunction.h; path = ../include/MemoryFunction.h; sourceTree = SOURCE_ROOT; };
 		7E271FAB121256BB00C0DEBF /* X86Assembler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = X86Assembler.h; path = ../include/X86Assembler.h; sourceTree = SOURCE_ROOT; };
 		7EE2D4901228865C00C2C057 /* Jitter_CodeGen_Arm_Div.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Jitter_CodeGen_Arm_Div.h; path = ../src/Jitter_CodeGen_Arm_Div.h; sourceTree = SOURCE_ROOT; };
-		7EE2D5461229649000C2C057 /* Jitter_CodeGen_Arm_Mul.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Jitter_CodeGen_Arm_Mul.h; path = ../src/Jitter_CodeGen_Arm_Mul.h; sourceTree = SOURCE_ROOT; };
 		7EF45DE812A0E43A00A991AB /* Jitter_RegAlloc.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Jitter_RegAlloc.cpp; path = ../src/Jitter_RegAlloc.cpp; sourceTree = SOURCE_ROOT; };
 		AA747D9E0F9514B9006C5449 /* CodeGen_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CodeGen_Prefix.pch; sourceTree = SOURCE_ROOT; };
 		AACBBE490F95108600F1A2B1 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -126,6 +135,7 @@
 		0867D691FE84028FC02AAC07 /* CodeGen */ = {
 			isa = PBXGroup;
 			children = (
+				70C0EF791A59394700227442 /* Config */,
 				08FB77AEFE84172EC02AAC07 /* Classes */,
 				32C88DFF0371C24200C91783 /* Other Sources */,
 				0867D69AFE84028FC02AAC07 /* Frameworks */,
@@ -151,17 +161,12 @@
 				7099CCA817C63E9C0035D19A /* CoffDefs.h */,
 				7099CCA517C63E930035D19A /* CoffObjectFile.cpp */,
 				7099CCA917C63E9C0035D19A /* CoffObjectFile.h */,
-				7E271F84121256B300C0DEBF /* Jitter.cpp */,
-				7E271FA9121256BB00C0DEBF /* Jitter.h */,
-				7E271F80121256B300C0DEBF /* Jitter_CodeGen.cpp */,
-				7E271FA3121256BB00C0DEBF /* Jitter_CodeGen.h */,
-				7E271F77121256B300C0DEBF /* Jitter_CodeGen_Arm.cpp */,
-				7E271F9F121256BB00C0DEBF /* Jitter_CodeGen_Arm.h */,
+				705E54EF1A58C5D6009E67F1 /* Jitter_CodeGen_Arm_64.cpp */,
 				7EE2D4901228865C00C2C057 /* Jitter_CodeGen_Arm_Div.h */,
 				7E271F76121256B300C0DEBF /* Jitter_CodeGen_Arm_Fpu.cpp */,
-				7EE2D5461229649000C2C057 /* Jitter_CodeGen_Arm_Mul.h */,
-				7E271F7F121256B300C0DEBF /* Jitter_CodeGen_x86.cpp */,
-				7E271FA2121256BB00C0DEBF /* Jitter_CodeGen_x86.h */,
+				705E54F01A58C5D6009E67F1 /* Jitter_CodeGen_Arm_Md.cpp */,
+				7E271F77121256B300C0DEBF /* Jitter_CodeGen_Arm.cpp */,
+				7E271F9F121256BB00C0DEBF /* Jitter_CodeGen_Arm.h */,
 				7E271F78121256B300C0DEBF /* Jitter_CodeGen_x86_32.cpp */,
 				7E271FA0121256BB00C0DEBF /* Jitter_CodeGen_x86_32.h */,
 				7E271F79121256B300C0DEBF /* Jitter_CodeGen_x86_64.cpp */,
@@ -172,15 +177,22 @@
 				703093D217BE6844009662A1 /* Jitter_CodeGen_x86_Md.cpp */,
 				7E271F7D121256B300C0DEBF /* Jitter_CodeGen_x86_Mul.h */,
 				7E271F7E121256B300C0DEBF /* Jitter_CodeGen_x86_Shift.h */,
+				7E271F7F121256B300C0DEBF /* Jitter_CodeGen_x86.cpp */,
+				7E271FA2121256BB00C0DEBF /* Jitter_CodeGen_x86.h */,
+				7E271F80121256B300C0DEBF /* Jitter_CodeGen.cpp */,
+				7E271FA3121256BB00C0DEBF /* Jitter_CodeGen.h */,
 				7E271F81121256B300C0DEBF /* Jitter_CodeGenFactory.cpp */,
 				7E271FA4121256BB00C0DEBF /* Jitter_CodeGenFactory.h */,
 				7E271F82121256B300C0DEBF /* Jitter_Optimize.cpp */,
 				7EF45DE812A0E43A00A991AB /* Jitter_RegAlloc.cpp */,
+				705E54F11A58C5D6009E67F1 /* Jitter_Statement.cpp */,
 				7E271FA5121256BB00C0DEBF /* Jitter_Statement.h */,
 				7E271FA6121256BB00C0DEBF /* Jitter_Symbol.h */,
 				7E271FA7121256BB00C0DEBF /* Jitter_SymbolRef.h */,
 				7E271F83121256B300C0DEBF /* Jitter_SymbolTable.cpp */,
 				7E271FA8121256BB00C0DEBF /* Jitter_SymbolTable.h */,
+				7E271F84121256B300C0DEBF /* Jitter.cpp */,
+				7E271FA9121256BB00C0DEBF /* Jitter.h */,
 				7099CCAA17C63E9C0035D19A /* MachoDefs.h */,
 				7099CCA617C63E930035D19A /* MachoObjectFile.cpp */,
 				7099CCAB17C63E9C0035D19A /* MachoObjectFile.h */,
@@ -188,10 +200,10 @@
 				7E271FAA121256BB00C0DEBF /* MemoryFunction.h */,
 				7099CCA717C63E930035D19A /* ObjectFile.cpp */,
 				7099CCAC17C63E9C0035D19A /* ObjectFile.h */,
-				7E271F88121256B300C0DEBF /* X86Assembler.cpp */,
-				7E271FAB121256BB00C0DEBF /* X86Assembler.h */,
 				7E271F86121256B300C0DEBF /* X86Assembler_Fpu.cpp */,
 				7E271F87121256B300C0DEBF /* X86Assembler_Sse.cpp */,
+				7E271F88121256B300C0DEBF /* X86Assembler.cpp */,
+				7E271FAB121256BB00C0DEBF /* X86Assembler.h */,
 			);
 			name = Classes;
 			sourceTree = "<group>";
@@ -202,6 +214,17 @@
 				AA747D9E0F9514B9006C5449 /* CodeGen_Prefix.pch */,
 			);
 			name = "Other Sources";
+			sourceTree = "<group>";
+		};
+		70C0EF791A59394700227442 /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				70C0EF7A1A59395500227442 /* ExternalDependencies.xcconfig */,
+				70C0EF7B1A59395500227442 /* GeneralSettings.xcconfig */,
+				70C0EF7C1A59395500227442 /* GeneralSettingsDebug.xcconfig */,
+				70C0EF7D1A59395500227442 /* GeneralSettingsRelease.xcconfig */,
+			);
+			name = Config;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -232,7 +255,6 @@
 				7E271FB9121256BB00C0DEBF /* MemoryFunction.h in Headers */,
 				7E271FBA121256BB00C0DEBF /* X86Assembler.h in Headers */,
 				7EE2D4911228865C00C2C057 /* Jitter_CodeGen_Arm_Div.h in Headers */,
-				7EE2D5471229649000C2C057 /* Jitter_CodeGen_Arm_Mul.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -293,6 +315,7 @@
 				7E271F8A121256B300C0DEBF /* Jitter_CodeGen_Arm_Fpu.cpp in Sources */,
 				7E271F8B121256B300C0DEBF /* Jitter_CodeGen_Arm.cpp in Sources */,
 				7E271F8C121256B300C0DEBF /* Jitter_CodeGen_x86_32.cpp in Sources */,
+				703DF0291A5A2C4C001C1205 /* ObjectFile.cpp in Sources */,
 				7E271F8D121256B300C0DEBF /* Jitter_CodeGen_x86_64.cpp in Sources */,
 				703093D317BE6844009662A1 /* Jitter_CodeGen_x86_Md.cpp in Sources */,
 				7E271F90121256B300C0DEBF /* Jitter_CodeGen_x86_Fpu.cpp in Sources */,
@@ -303,10 +326,13 @@
 				7E271F97121256B300C0DEBF /* Jitter_SymbolTable.cpp in Sources */,
 				7E271F98121256B300C0DEBF /* Jitter.cpp in Sources */,
 				7E271F99121256B300C0DEBF /* MemoryFunction.cpp in Sources */,
+				705E54F21A58C5D6009E67F1 /* Jitter_CodeGen_Arm_64.cpp in Sources */,
+				705E54F41A58C5D6009E67F1 /* Jitter_Statement.cpp in Sources */,
 				7E271F9A121256B300C0DEBF /* X86Assembler_Fpu.cpp in Sources */,
 				7E271F9B121256B300C0DEBF /* X86Assembler_Sse.cpp in Sources */,
 				7E271F9C121256B300C0DEBF /* X86Assembler.cpp in Sources */,
 				7EF45DE912A0E43A00A991AB /* Jitter_RegAlloc.cpp in Sources */,
+				705E54F31A58C5D6009E67F1 /* Jitter_CodeGen_Arm_Md.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -315,22 +341,12 @@
 /* Begin XCBuildConfiguration section */
 		1DEB921F08733DC00010E9CD /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 70C0EF7C1A59395500227442 /* GeneralSettingsDebug.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				COPY_PHASE_STRIP = NO;
 				DSTROOT = /tmp/CodeGen.dst;
-				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
-				GCC_MODEL_TUNING = G5;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = CodeGen_Prefix.pch;
-				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
-				HEADER_SEARCH_PATHS = (
-					"~/Projects/Framework/include",
-					"~/Libraries/boost_1_55_0",
-				);
 				INSTALL_PATH = /usr/local/lib;
 				PRODUCT_NAME = CodeGen;
 			};
@@ -338,18 +354,10 @@
 		};
 		1DEB922008733DC00010E9CD /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 70C0EF7D1A59395500227442 /* GeneralSettingsRelease.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				DSTROOT = /tmp/CodeGen.dst;
-				GCC_MODEL_TUNING = G5;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = CodeGen_Prefix.pch;
-				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
-				HEADER_SEARCH_PATHS = (
-					"~/Projects/Framework/include",
-					"~/Libraries/boost_1_55_0",
-				);
 				INSTALL_PATH = /usr/local/lib;
 				PRODUCT_NAME = CodeGen;
 			};
@@ -358,39 +366,12 @@
 		1DEB922308733DC00010E9CD /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				GCC_C_LANGUAGE_STANDARD = c99;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_THUMB_SUPPORT = NO;
-				GCC_WARN_ABOUT_RETURN_TYPE = YES;
-				GCC_WARN_UNUSED_VARIABLE = YES;
-				HEADER_SEARCH_PATHS = (
-					"~/Projects/Framework/include",
-					"~/Libraries/boost_1_42_0/boost/tr1/tr1",
-					"~/Libraries/boost_1_42_0",
-				);
-				OTHER_CFLAGS = "-fvisibility=hidden";
-				OTHER_LDFLAGS = "-ObjC";
-				PREBINDING = NO;
-				SDKROOT = iphoneos;
 			};
 			name = Debug;
 		};
 		1DEB922408733DC00010E9CD /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				GCC_C_LANGUAGE_STANDARD = c99;
-				GCC_THUMB_SUPPORT = NO;
-				GCC_WARN_ABOUT_RETURN_TYPE = YES;
-				GCC_WARN_UNUSED_VARIABLE = YES;
-				HEADER_SEARCH_PATHS = (
-					"~/Projects/Framework/include",
-					"~/Libraries/boost_1_42_0/boost/tr1/tr1",
-					"~/Libraries/boost_1_42_0",
-				);
-				OTHER_CFLAGS = "-fvisibility=hidden";
-				OTHER_LDFLAGS = "-ObjC";
-				PREBINDING = NO;
-				SDKROOT = iphoneos;
 			};
 			name = Release;
 		};

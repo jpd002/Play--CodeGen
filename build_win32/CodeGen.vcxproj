@@ -25,7 +25,9 @@
     <ClCompile Include="..\src\Jitter_CodeGen.cpp" />
     <ClCompile Include="..\src\Jitter_CodeGenFactory.cpp" />
     <ClCompile Include="..\src\Jitter_CodeGen_Arm.cpp" />
+    <ClCompile Include="..\src\Jitter_CodeGen_Arm_64.cpp" />
     <ClCompile Include="..\src\Jitter_CodeGen_Arm_Fpu.cpp" />
+    <ClCompile Include="..\src\Jitter_CodeGen_Arm_Md.cpp" />
     <ClCompile Include="..\src\Jitter_CodeGen_x86.cpp" />
     <ClCompile Include="..\src\Jitter_CodeGen_x86_32.cpp" />
     <ClCompile Include="..\src\Jitter_CodeGen_x86_64.cpp" />

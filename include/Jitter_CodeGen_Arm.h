@@ -69,6 +69,9 @@ namespace Jitter
 		void									LoadTemporaryReferenceInRegister(CArmAssembler::REGISTER, CSymbol*);
 		void									StoreInRegisterTemporaryReference(CSymbol*, CArmAssembler::REGISTER);
 		
+		void									LoadMemory64LowInRegister(CArmAssembler::REGISTER, CSymbol*);
+		void									LoadMemory64HighInRegister(CArmAssembler::REGISTER, CSymbol*);
+
 		void									LoadMemoryFpSingleInRegister(CArmAssembler::SINGLE_REGISTER, CSymbol*);
 		void									StoreRegisterInMemoryFpSingle(CSymbol*, CArmAssembler::SINGLE_REGISTER);
 
@@ -78,7 +81,12 @@ namespace Jitter
 		void									LoadTemporaryFpSingleInRegister(CArmAssembler::SINGLE_REGISTER, CSymbol*);
 		void									StoreTemporaryFpSingleInRegister(CSymbol*, CArmAssembler::SINGLE_REGISTER);
 
-		CArmAssembler::REGISTER					PrepareSymbolRegister(CSymbol*, CArmAssembler::REGISTER);
+		void									LoadMemory128AddressInRegister(CArmAssembler::REGISTER, CSymbol*);
+		void									LoadRelative128AddressInRegister(CArmAssembler::REGISTER, CSymbol*);
+		void									LoadTemporary128AddressInRegister(CArmAssembler::REGISTER, CSymbol*);
+
+		CArmAssembler::REGISTER					PrepareSymbolRegisterDef(CSymbol*, CArmAssembler::REGISTER);
+		CArmAssembler::REGISTER					PrepareSymbolRegisterUse(CSymbol*, CArmAssembler::REGISTER);
 		void									CommitSymbolRegister(CSymbol*, CArmAssembler::REGISTER);
 
 		CArmAssembler::AluLdrShift				GetAluShiftFromSymbol(CArmAssembler::SHIFT shiftType, CSymbol* symbol, CArmAssembler::REGISTER preferedRegister);
@@ -232,7 +240,11 @@ namespace Jitter
 		void									Emit_Param_Rel(const STATEMENT&);
 		void									Emit_Param_Cst(const STATEMENT&);
 		void									Emit_Param_Tmp(const STATEMENT&);
-		
+		void									Emit_Param_Mem128(const STATEMENT&);
+
+		//PARAM_RET
+		void									Emit_ParamRet_Tmp128(const STATEMENT&);
+
 		//CALL
 		void									Emit_Call(const STATEMENT&);
 		
@@ -262,16 +274,14 @@ namespace Jitter
 		void									Emit_Nop(const STATEMENT&);
 		
 		//EXTLOW64
-		void									Emit_ExtLow64RegTmp64(const STATEMENT&);
-		void									Emit_ExtLow64MemTmp64(const STATEMENT&);
+		void									Emit_ExtLow64VarMem64(const STATEMENT&);
 
 		//EXTHIGH64
-		void									Emit_ExtHigh64RegTmp64(const STATEMENT&);
-		void									Emit_ExtHigh64MemTmp64(const STATEMENT&);
+		void									Emit_ExtHigh64VarMem64(const STATEMENT&);
 
 		//CMP
 		void									Cmp_GetFlag(CArmAssembler::REGISTER, CONDITION);
-		void									Cmp_GenericRegCst(CArmAssembler::REGISTER, uint32);
+		void									Cmp_GenericRegCst(CArmAssembler::REGISTER, uint32, CArmAssembler::REGISTER);
 		void									Emit_Cmp_AnyAnyAny(const STATEMENT&);
 		void									Emit_Cmp_AnyAnyCst(const STATEMENT&);
 
@@ -280,10 +290,8 @@ namespace Jitter
 
 		//CONDJMP
 		void									Emit_CondJmp(const STATEMENT&);
-		void									Emit_CondJmp_RegReg(const STATEMENT&);
-		void									Emit_CondJmp_RegMem(const STATEMENT&);
-		void									Emit_CondJmp_RegCst(const STATEMENT&);
-		void									Emit_CondJmp_MemCst(const STATEMENT&);
+		void									Emit_CondJmp_VarVar(const STATEMENT&);
+		void									Emit_CondJmp_VarCst(const STATEMENT&);
 		
 		//NOT
 		void									Emit_Not_RegReg(const STATEMENT&);
@@ -302,6 +310,13 @@ namespace Jitter
 		void									Emit_StoreAtRef_TmpRel(const STATEMENT&);
 		void									Emit_StoreAtRef_TmpCst(const STATEMENT&);
 		
+		//CMP64
+		void									Cmp64_RegSymLo(CArmAssembler::REGISTER, CSymbol*, CArmAssembler::REGISTER);
+		void									Cmp64_RegSymHi(CArmAssembler::REGISTER, CSymbol*, CArmAssembler::REGISTER);
+		void									Cmp64_Equal(const STATEMENT&);
+		void									Cmp64_Order(const STATEMENT&);
+		void									Emit_Cmp64_VarMemAny(const STATEMENT&);
+
 		//FPUOP
 		template <typename> void				Emit_Fpu_MemMem(const STATEMENT&);
 		template <typename> void				Emit_Fpu_MemMemMem(const STATEMENT&);
@@ -312,8 +327,14 @@ namespace Jitter
 		void									Emit_Fp_ToIntTrunc_MemMem(const STATEMENT&);
 		void									Emit_Fp_LdCst_TmpCst(const STATEMENT&);
 		
+		//MDOP
+		void									Emit_Md_Mov_MemMem(const STATEMENT&);
+		void									Emit_Md_AddW_MemMemMem(const STATEMENT&);
+
 		static CONSTMATCHER						g_constMatchers[];
+		static CONSTMATCHER						g_64ConstMatchers[];
 		static CONSTMATCHER						g_fpuConstMatchers[];
+		static CONSTMATCHER						g_mdConstMatchers[];
 		static CArmAssembler::REGISTER			g_registers[MAX_REGISTERS];
 		static CArmAssembler::REGISTER			g_paramRegs[MAX_PARAMS];
 		static CArmAssembler::REGISTER			g_baseRegister;

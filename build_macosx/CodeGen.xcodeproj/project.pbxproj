@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		70BFC5111A5607BF0094CD9F /* CodeGen_Prefix.pch in Headers */ = {isa = PBXBuildFile; fileRef = 70BFC5101A5607BF0094CD9F /* CodeGen_Prefix.pch */; };
 		7E207B441507D0CD00EE8C4F /* Jitter_CodeGen_x86_32.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E207B291507D0CD00EE8C4F /* Jitter_CodeGen_x86_32.cpp */; };
 		7E207B451507D0CD00EE8C4F /* Jitter_CodeGen_x86_64.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E207B2A1507D0CD00EE8C4F /* Jitter_CodeGen_x86_64.cpp */; };
 		7E207B461507D0CD00EE8C4F /* Jitter_CodeGen_x86_Alu.h in Headers */ = {isa = PBXBuildFile; fileRef = 7E207B2B1507D0CD00EE8C4F /* Jitter_CodeGen_x86_Alu.h */; };
@@ -42,6 +43,11 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		70BFC50D1A5536D50094CD9F /* GeneralSettings.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = GeneralSettings.xcconfig; sourceTree = "<group>"; };
+		70BFC50E1A5536D50094CD9F /* GeneralSettingsDebug.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = GeneralSettingsDebug.xcconfig; sourceTree = "<group>"; };
+		70BFC50F1A5536D50094CD9F /* GeneralSettingsRelease.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = GeneralSettingsRelease.xcconfig; sourceTree = "<group>"; };
+		70BFC5101A5607BF0094CD9F /* CodeGen_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CodeGen_Prefix.pch; sourceTree = "<group>"; };
+		70C0EF811A593A9200227442 /* ExternalDependencies.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = ExternalDependencies.xcconfig; sourceTree = "<group>"; };
 		7E207AE31507D03500EE8C4F /* libCodeGen.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libCodeGen.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		7E207B291507D0CD00EE8C4F /* Jitter_CodeGen_x86_32.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Jitter_CodeGen_x86_32.cpp; path = ../src/Jitter_CodeGen_x86_32.cpp; sourceTree = "<group>"; };
 		7E207B2A1507D0CD00EE8C4F /* Jitter_CodeGen_x86_64.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Jitter_CodeGen_x86_64.cpp; path = ../src/Jitter_CodeGen_x86_64.cpp; sourceTree = "<group>"; };
@@ -88,10 +94,22 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		7E207AD81507D03500EE8C4F = {
+		70BFC5121A560A100094CD9F /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				70C0EF811A593A9200227442 /* ExternalDependencies.xcconfig */,
+				70BFC50D1A5536D50094CD9F /* GeneralSettings.xcconfig */,
+				70BFC50E1A5536D50094CD9F /* GeneralSettingsDebug.xcconfig */,
+				70BFC50F1A5536D50094CD9F /* GeneralSettingsRelease.xcconfig */,
+			);
+			name = Config;
+			sourceTree = "<group>";
+		};
+		70C0EF821A593A9A00227442 /* Source */ = {
 			isa = PBXGroup;
 			children = (
 				7E207B5A1507D0DA00EE8C4F /* ArrayStack.h */,
+				70BFC5101A5607BF0094CD9F /* CodeGen_Prefix.pch */,
 				7E207B291507D0CD00EE8C4F /* Jitter_CodeGen_x86_32.cpp */,
 				7E207B5C1507D0DA00EE8C4F /* Jitter_CodeGen_x86_32.h */,
 				7E207B2A1507D0CD00EE8C4F /* Jitter_CodeGen_x86_64.cpp */,
@@ -123,7 +141,16 @@
 				7E207B3B1507D0CD00EE8C4F /* X86Assembler_Sse.cpp */,
 				7E207B3C1507D0CD00EE8C4F /* X86Assembler.cpp */,
 				7E207B671507D0DA00EE8C4F /* X86Assembler.h */,
+			);
+			name = Source;
+			sourceTree = "<group>";
+		};
+		7E207AD81507D03500EE8C4F = {
+			isa = PBXGroup;
+			children = (
+				70BFC5121A560A100094CD9F /* Config */,
 				7E207AE41507D03500EE8C4F /* Products */,
+				70C0EF821A593A9A00227442 /* Source */,
 			);
 			sourceTree = "<group>";
 		};
@@ -147,6 +174,7 @@
 				7E207B4A1507D0CD00EE8C4F /* Jitter_CodeGen_x86_Mul.h in Headers */,
 				7E207B4B1507D0CD00EE8C4F /* Jitter_CodeGen_x86_Shift.h in Headers */,
 				7E207B691507D0DA00EE8C4F /* ArrayStack.h in Headers */,
+				70BFC5111A5607BF0094CD9F /* CodeGen_Prefix.pch in Headers */,
 				7E207B6B1507D0DA00EE8C4F /* Jitter_CodeGen_x86_32.h in Headers */,
 				7E207B6C1507D0DA00EE8C4F /* Jitter_CodeGen_x86_64.h in Headers */,
 				7E207B6D1507D0DA00EE8C4F /* Jitter_CodeGen_x86.h in Headers */,
@@ -188,7 +216,7 @@
 		7E207ADA1507D03500EE8C4F /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0420;
+				LastUpgradeCheck = 0600;
 			};
 			buildConfigurationList = 7E207ADD1507D03500EE8C4F /* Build configuration list for PBXProject "CodeGen" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -236,24 +264,9 @@
 		7E207AE51507D03500EE8C4F /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				COPY_PHASE_STRIP = NO;
-				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
-					"$(inherited)",
-				);
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
-				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
-				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
-				GCC_WARN_ABOUT_RETURN_TYPE = YES;
-				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
 			};
@@ -262,53 +275,26 @@
 		7E207AE61507D03500EE8C4F /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				COPY_PHASE_STRIP = YES;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
-				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
-				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
-				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
-				GCC_WARN_ABOUT_RETURN_TYPE = YES;
-				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				SDKROOT = macosx;
 			};
 			name = Release;
 		};
 		7E207AE81507D03500EE8C4F /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 70BFC50E1A5536D50094CD9F /* GeneralSettingsDebug.xcconfig */;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
-				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
-				CLANG_CXX_LIBRARY = "libc++";
 				EXECUTABLE_PREFIX = lib;
-				GCC_INPUT_FILETYPE = sourcecode.cpp.objcpp;
-				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
-				HEADER_SEARCH_PATHS = (
-					"~/Libraries/boost_1_50_0",
-					"~/Projects/Framework/include",
-				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
 		};
 		7E207AE91507D03500EE8C4F /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 70BFC50F1A5536D50094CD9F /* GeneralSettingsRelease.xcconfig */;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
-				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
-				CLANG_CXX_LIBRARY = "libc++";
 				EXECUTABLE_PREFIX = lib;
-				GCC_INPUT_FILETYPE = sourcecode.cpp.objcpp;
-				GCC_PREPROCESSOR_DEFINITIONS = NDEBUG;
-				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
-				HEADER_SEARCH_PATHS = (
-					"~/Libraries/boost_1_50_0",
-					"~/Projects/Framework/include",
-				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;

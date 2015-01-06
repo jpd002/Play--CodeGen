@@ -13,10 +13,7 @@
 #include "TargetConditionals.h"
 #include <mach/mach_init.h>
 #include <mach/vm_map.h>
-
-#if defined(TARGET_IPHONE_SIMULATOR) || defined(TARGET_OS_MAC)
-extern "C" void __clear_cache(void* begin, void* end);
-#endif
+#include <libkern/OSCacheControl.h>
 
 #elif defined(__ANDROID__)
 
@@ -48,7 +45,7 @@ CMemoryFunction::CMemoryFunction(const void* code, size_t size)
 	unsigned int allocSize = ((size + page_size - 1) / page_size) * page_size;
 	vm_allocate(mach_task_self(), reinterpret_cast<vm_address_t*>(&m_code), allocSize, TRUE); 
 	memcpy(m_code, code, size);
-	__clear_cache(m_code, reinterpret_cast<uint8*>(m_code) + size);
+	sys_icache_invalidate(m_code, size);
 	kern_return_t result = vm_protect(mach_task_self(), reinterpret_cast<vm_address_t>(m_code), size, 0, VM_PROT_READ | VM_PROT_EXECUTE);
 	assert(result == 0);
 	m_size = allocSize;

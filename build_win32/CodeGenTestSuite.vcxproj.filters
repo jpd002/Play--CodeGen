@@ -100,6 +100,9 @@
     <ClCompile Include="..\tests\MdUnpackTest.cpp">
       <Filter>Source Files\Tests\Md</Filter>
     </ClCompile>
+    <ClCompile Include="..\tests\Cmp64Test.cpp">
+      <Filter>Source Files\Tests\64bits</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\tests\Test.h">
@@ -185,6 +188,9 @@
     </ClInclude>
     <ClInclude Include="..\tests\MdUnpackTest.h">
       <Filter>Source Files\Tests\Md</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tests\Cmp64Test.h">
+      <Filter>Source Files\Tests\64bits</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -1,2 +1,2 @@
-BOOST_PATH = /path_to/boost_1_55_0/
+BOOST_FRAMEWORK_PATH = /path_to/boost_framework/
 FRAMEWORK_PATH = /path_to/Framework/

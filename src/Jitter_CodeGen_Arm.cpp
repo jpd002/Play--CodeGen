@@ -172,9 +172,10 @@ CCodeGen_Arm::CONSTMATCHER CCodeGen_Arm::g_constMatchers[] =
 
 	{ OP_PARAM,			MATCH_NIL,			MATCH_CONTEXT,		MATCH_NIL,			&CCodeGen_Arm::Emit_Param_Ctx								},
 	{ OP_PARAM,			MATCH_NIL,			MATCH_REGISTER,		MATCH_NIL,			&CCodeGen_Arm::Emit_Param_Reg								},
-	{ OP_PARAM,			MATCH_NIL,			MATCH_RELATIVE,		MATCH_NIL,			&CCodeGen_Arm::Emit_Param_Rel								},
+	{ OP_PARAM,			MATCH_NIL,			MATCH_MEMORY,		MATCH_NIL,			&CCodeGen_Arm::Emit_Param_Mem								},
 	{ OP_PARAM,			MATCH_NIL,			MATCH_CONSTANT,		MATCH_NIL,			&CCodeGen_Arm::Emit_Param_Cst								},
-	{ OP_PARAM,			MATCH_NIL,			MATCH_TEMPORARY,	MATCH_NIL,			&CCodeGen_Arm::Emit_Param_Tmp								},
+	{ OP_PARAM,			MATCH_NIL,			MATCH_MEMORY64,		MATCH_NIL,			&CCodeGen_Arm::Emit_Param_Mem64								},
+	{ OP_PARAM,			MATCH_NIL,			MATCH_CONSTANT64,	MATCH_NIL,			&CCodeGen_Arm::Emit_Param_Cst64								},
 	{ OP_PARAM,			MATCH_NIL,			MATCH_MEMORY128,	MATCH_NIL,			&CCodeGen_Arm::Emit_Param_Mem128							},
 
 	{ OP_PARAM_RET,		MATCH_NIL,			MATCH_TEMPORARY128,	MATCH_NIL,			&CCodeGen_Arm::Emit_ParamRet_Tmp128							},
@@ -183,6 +184,7 @@ CCodeGen_Arm::CONSTMATCHER CCodeGen_Arm::g_constMatchers[] =
 	
 	{ OP_RETVAL,		MATCH_REGISTER,		MATCH_NIL,			MATCH_NIL,			&CCodeGen_Arm::Emit_RetVal_Reg								},
 	{ OP_RETVAL,		MATCH_TEMPORARY,	MATCH_NIL,			MATCH_NIL,			&CCodeGen_Arm::Emit_RetVal_Tmp								},
+	{ OP_RETVAL,		MATCH_MEMORY64,		MATCH_NIL,			MATCH_NIL,			&CCodeGen_Arm::Emit_RetVal_Mem64							},
 
 	{ OP_JMP,			MATCH_NIL,			MATCH_NIL,			MATCH_NIL,			&CCodeGen_Arm::Emit_Jmp										},
 
@@ -619,6 +621,26 @@ void CCodeGen_Arm::CommitSymbolRegister(CSymbol* symbol, CArmAssembler::REGISTER
 	}
 }
 
+void CCodeGen_Arm::AlignParam64(PARAM_STATE& paramState)
+{
+	if(paramState.index & 1)
+	{
+		paramState.index++;
+	}
+}
+
+CArmAssembler::REGISTER CCodeGen_Arm::PrepareParam(const PARAM_STATE& paramState)
+{
+	assert(paramState.index < MAX_PARAMS);
+	return g_paramRegs[paramState.index];
+}
+
+void CCodeGen_Arm::CommitParam(PARAM_STATE& paramState)
+{
+	assert(paramState.index < MAX_PARAMS);
+	paramState.index++;
+}
+
 CArmAssembler::LABEL CCodeGen_Arm::GetLabel(uint32 blockId)
 {
 	CArmAssembler::LABEL result;
@@ -648,55 +670,108 @@ void CCodeGen_Arm::Emit_Nop(const STATEMENT& statement)
 
 void CCodeGen_Arm::Emit_Param_Ctx(const STATEMENT& statement)
 {
-	CSymbol* src1 = statement.src1->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
 
 	assert(src1->m_type == SYM_CONTEXT);
-	assert(m_params.size() < MAX_PARAMS);
 	
-	void (CArmAssembler::*MovFunction)(CArmAssembler::REGISTER, CArmAssembler::REGISTER) = &CArmAssembler::Mov;
-	m_params.push_back(std::bind(MovFunction, &m_assembler, std::placeholders::_1, g_baseRegister));	
+	m_params.push_back(
+		[this] (PARAM_STATE& paramState)
+		{
+			auto paramReg = PrepareParam(paramState);
+			m_assembler.Mov(paramReg, g_baseRegister);
+			CommitParam(paramState);
+		}
+	);
 }
 
 void CCodeGen_Arm::Emit_Param_Reg(const STATEMENT& statement)
 {
-	CSymbol* src1 = statement.src1->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
 
 	assert(src1->m_type == SYM_REGISTER);
-	assert(m_params.size() < MAX_PARAMS);
 	
-	void (CArmAssembler::*MovFunction)(CArmAssembler::REGISTER, CArmAssembler::REGISTER) = &CArmAssembler::Mov;
-	m_params.push_back(std::bind(MovFunction, &m_assembler, std::placeholders::_1, g_registers[src1->m_valueLow]));	
+	m_params.push_back(
+		[this, src1] (PARAM_STATE& paramState)
+		{
+			auto paramReg = PrepareParam(paramState);
+			m_assembler.Mov(paramReg, g_registers[src1->m_valueLow]);
+			CommitParam(paramState);
+		}
+	);
 }
 
-void CCodeGen_Arm::Emit_Param_Rel(const STATEMENT& statement)
+void CCodeGen_Arm::Emit_Param_Mem(const STATEMENT& statement)
 {
-	CSymbol* src1 = statement.src1->GetSymbol().get();
-	
-	assert(src1->m_type == SYM_RELATIVE);
-	assert(m_params.size() < MAX_PARAMS);
-	
-	m_params.push_back(std::bind(&CArmAssembler::Ldr, &m_assembler, std::placeholders::_1, g_baseRegister, CArmAssembler::MakeImmediateLdrAddress(src1->m_valueLow)));
+	auto src1 = statement.src1->GetSymbol().get();
+		
+	m_params.push_back(
+		[this, src1] (PARAM_STATE& paramState)
+		{
+			auto paramReg = PrepareParam(paramState);
+			LoadMemoryInRegister(paramReg, src1);
+			CommitParam(paramState);
+		}
+	);
 }
-
 
 void CCodeGen_Arm::Emit_Param_Cst(const STATEMENT& statement)
 {
-	CSymbol* src1 = statement.src1->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
 	
 	assert(src1->m_type == SYM_CONSTANT);
-	assert(m_params.size() < MAX_PARAMS);
 	
-	m_params.push_back(std::bind(&CCodeGen_Arm::LoadConstantInRegister, this, std::placeholders::_1, src1->m_valueLow, false));
+	m_params.push_back(
+		[this, src1] (PARAM_STATE& paramState)
+		{
+			auto paramReg = PrepareParam(paramState);
+			LoadConstantInRegister(paramReg, src1->m_valueLow, false);
+			CommitParam(paramState);
+		}
+	);
 }
 
-void CCodeGen_Arm::Emit_Param_Tmp(const STATEMENT& statement)
+void CCodeGen_Arm::Emit_Param_Mem64(const STATEMENT& statement)
 {
-	CSymbol* src1 = statement.src1->GetSymbol().get();
-	
-	assert(src1->m_type == SYM_TEMPORARY);
-	assert(m_params.size() < MAX_PARAMS);
-	
-	m_params.push_back(std::bind(&CArmAssembler::Ldr, &m_assembler, std::placeholders::_1, CArmAssembler::rSP, CArmAssembler::MakeImmediateLdrAddress(src1->m_stackLocation + m_stackLevel)));	
+	auto src1 = statement.src1->GetSymbol().get();
+
+	m_params.push_back(
+		[this, src1] (PARAM_STATE& paramState)
+		{
+			AlignParam64(paramState);
+			{
+				auto paramReg = PrepareParam(paramState);
+				LoadMemory64LowInRegister(paramReg, src1);
+				CommitParam(paramState);
+			}
+			{
+				auto paramReg = PrepareParam(paramState);
+				LoadMemory64HighInRegister(paramReg, src1);
+				CommitParam(paramState);
+			}
+		}
+	);
+}
+
+void CCodeGen_Arm::Emit_Param_Cst64(const STATEMENT& statement)
+{
+	auto src1 = statement.src1->GetSymbol().get();
+
+	m_params.push_back(
+		[this, src1] (PARAM_STATE& paramState)
+		{
+			AlignParam64(paramState);
+			{
+				auto paramReg = PrepareParam(paramState);
+				LoadConstantInRegister(paramReg, src1->m_valueLow, false);
+				CommitParam(paramState);
+			}
+			{
+				auto paramReg = PrepareParam(paramState);
+				LoadConstantInRegister(paramReg, src1->m_valueHigh, false);
+				CommitParam(paramState);
+			}
+		}
+	);
 }
 
 void CCodeGen_Arm::Emit_Param_Mem128(const STATEMENT& statement)
@@ -704,9 +779,11 @@ void CCodeGen_Arm::Emit_Param_Mem128(const STATEMENT& statement)
 	auto src1 = statement.src1->GetSymbol().get();
 
 	m_params.push_back(
-		[this, src1] (CArmAssembler::REGISTER paramReg)
+		[this, src1] (PARAM_STATE& paramState)
 		{
+			auto paramReg = PrepareParam(paramState);
 			LoadMemory128AddressInRegister(paramReg, src1);
+			CommitParam(paramState);
 		}
 	);
 }
@@ -725,12 +802,13 @@ void CCodeGen_Arm::Emit_Call(const STATEMENT& statement)
 	assert(src2->m_type == SYM_CONSTANT);
 
 	unsigned int paramCount = src2->m_valueLow;
-	
+	PARAM_STATE paramState;
+
 	for(unsigned int i = 0; i < paramCount; i++)
 	{
-		ParamEmitterFunction emitter(m_params.back());
+		auto emitter(m_params.back());
 		m_params.pop_back();
-		emitter(g_paramRegs[i]);
+		emitter(paramState);
 	}
 
 	//No value should be saved in r4 at this point (register is spilled before)
@@ -755,6 +833,14 @@ void CCodeGen_Arm::Emit_RetVal_Tmp(const STATEMENT& statement)
 	assert(dst->m_type == SYM_TEMPORARY);
 	
 	StoreRegisterInTemporary(dst, CArmAssembler::r0);
+}
+
+void CCodeGen_Arm::Emit_RetVal_Mem64(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+
+	StoreRegisterInMemory64Low(dst, CArmAssembler::r0);
+	StoreRegisterInMemory64High(dst, CArmAssembler::r1);
 }
 
 void CCodeGen_Arm::Emit_Mov_RegReg(const STATEMENT& statement)

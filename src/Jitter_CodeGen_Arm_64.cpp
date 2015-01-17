@@ -34,6 +34,64 @@ void CCodeGen_Arm::LoadMemory64HighInRegister(CArmAssembler::REGISTER registerId
 	}
 }
 
+void CCodeGen_Arm::StoreRegisterInMemory64Low(CSymbol* symbol, CArmAssembler::REGISTER registerId)
+{
+	switch(symbol->m_type)
+	{
+	case SYM_RELATIVE64:
+		m_assembler.Str(registerId, g_baseRegister, CArmAssembler::MakeImmediateLdrAddress(symbol->m_valueLow + 0));
+		break;
+	case SYM_TEMPORARY64:
+		m_assembler.Str(registerId, CArmAssembler::rSP, CArmAssembler::MakeImmediateLdrAddress(symbol->m_stackLocation + m_stackLevel + 0));
+		break;
+	default:
+		assert(false);
+		break;
+	}
+}
+
+void CCodeGen_Arm::StoreRegisterInMemory64High(CSymbol* symbol, CArmAssembler::REGISTER registerId)
+{
+	switch(symbol->m_type)
+	{
+	case SYM_RELATIVE64:
+		m_assembler.Str(registerId, g_baseRegister, CArmAssembler::MakeImmediateLdrAddress(symbol->m_valueLow + 4));
+		break;
+	case SYM_TEMPORARY64:
+		m_assembler.Str(registerId, CArmAssembler::rSP, CArmAssembler::MakeImmediateLdrAddress(symbol->m_stackLocation + m_stackLevel + 4));
+		break;
+	default:
+		assert(false);
+		break;
+	}
+}
+
+void CCodeGen_Arm::Emit_Mov_Mem64Mem64(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+
+	auto regLo = CArmAssembler::r0;
+	auto regHi = CArmAssembler::r1;
+	LoadMemory64LowInRegister(regLo, src1);
+	LoadMemory64HighInRegister(regHi, src1);
+	StoreRegisterInMemory64Low(dst, regLo);
+	StoreRegisterInMemory64High(dst, regHi);
+}
+
+void CCodeGen_Arm::Emit_Mov_Mem64Cst64(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+
+	auto regLo = CArmAssembler::r0;
+	auto regHi = CArmAssembler::r1;
+	LoadConstantInRegister(regLo, src1->m_valueLow);
+	LoadConstantInRegister(regHi, src1->m_valueHigh);
+	StoreRegisterInMemory64Low(dst, regLo);
+	StoreRegisterInMemory64High(dst, regHi);
+}
+
 void CCodeGen_Arm::Emit_ExtLow64VarMem64(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
@@ -221,6 +279,9 @@ CCodeGen_Arm::CONSTMATCHER CCodeGen_Arm::g_64ConstMatchers[] =
 
 	{ OP_CMP64,			MATCH_VARIABLE,		MATCH_MEMORY64,		MATCH_MEMORY64,		&CCodeGen_Arm::Emit_Cmp64_VarMemAny				},
 	{ OP_CMP64,			MATCH_VARIABLE,		MATCH_MEMORY64,		MATCH_CONSTANT64,	&CCodeGen_Arm::Emit_Cmp64_VarMemAny				},
+
+	{ OP_MOV,			MATCH_MEMORY64,		MATCH_MEMORY64,		MATCH_NIL,			&CCodeGen_Arm::Emit_Mov_Mem64Mem64				},
+	{ OP_MOV,			MATCH_MEMORY64,		MATCH_CONSTANT64,	MATCH_NIL,			&CCodeGen_Arm::Emit_Mov_Mem64Cst64				},
 
 	{ OP_MOV,			MATCH_NIL,			MATCH_NIL,			MATCH_NIL,			NULL											},
 };

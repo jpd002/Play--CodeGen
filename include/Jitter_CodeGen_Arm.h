@@ -27,15 +27,16 @@ namespace Jitter
 
 		struct PARAM_STATE
 		{
+			bool prepared = false;
 			unsigned int index = 0;
 		};
 
 		typedef std::function<void (PARAM_STATE&)> ParamEmitterFunction;
 		typedef std::deque<ParamEmitterFunction> ParamStack;
 		
-		enum MAX_PARAMS
+		enum MAX_PARAM_REGS
 		{
-			MAX_PARAMS = 4,
+			MAX_PARAM_REGS = 4,
 		};
 		
 		enum
@@ -97,9 +98,12 @@ namespace Jitter
 		CArmAssembler::REGISTER					PrepareSymbolRegisterUse(CSymbol*, CArmAssembler::REGISTER);
 		void									CommitSymbolRegister(CSymbol*, CArmAssembler::REGISTER);
 
-		void									AlignParam64(PARAM_STATE&);
-		CArmAssembler::REGISTER					PrepareParam(const PARAM_STATE&);
+		typedef std::pair<CArmAssembler::REGISTER, CArmAssembler::REGISTER> ParamRegisterPair;
+
+		CArmAssembler::REGISTER					PrepareParam(PARAM_STATE&);
+		ParamRegisterPair						PrepareParam64(PARAM_STATE&);
 		void									CommitParam(PARAM_STATE&);
+		void									CommitParam64(PARAM_STATE&);
 
 		CArmAssembler::AluLdrShift				GetAluShiftFromSymbol(CArmAssembler::SHIFT shiftType, CSymbol* symbol, CArmAssembler::REGISTER preferedRegister);
 
@@ -354,9 +358,11 @@ namespace Jitter
 		static CONSTMATCHER						g_fpuConstMatchers[];
 		static CONSTMATCHER						g_mdConstMatchers[];
 		static CArmAssembler::REGISTER			g_registers[MAX_REGISTERS];
-		static CArmAssembler::REGISTER			g_paramRegs[MAX_PARAMS];
+		static CArmAssembler::REGISTER			g_paramRegs[MAX_PARAM_REGS];
 		static CArmAssembler::REGISTER			g_baseRegister;
 		static CArmAssembler::REGISTER			g_callAddressRegister;
+		static CArmAssembler::REGISTER			g_tempParamRegister0;
+		static CArmAssembler::REGISTER			g_tempParamRegister1;
 
 		Framework::CStream*						m_stream;
 		CArmAssembler							m_assembler;

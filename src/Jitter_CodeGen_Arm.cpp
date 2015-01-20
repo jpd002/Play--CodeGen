@@ -5,6 +5,8 @@ using namespace Jitter;
 
 CArmAssembler::REGISTER CCodeGen_Arm::g_baseRegister = CArmAssembler::r11;
 CArmAssembler::REGISTER CCodeGen_Arm::g_callAddressRegister = CArmAssembler::r4;
+CArmAssembler::REGISTER CCodeGen_Arm::g_tempParamRegister0 = CArmAssembler::r4;
+CArmAssembler::REGISTER CCodeGen_Arm::g_tempParamRegister1 = CArmAssembler::r5;
 
 CArmAssembler::REGISTER CCodeGen_Arm::g_registers[MAX_REGISTERS] =
 {
@@ -16,7 +18,7 @@ CArmAssembler::REGISTER CCodeGen_Arm::g_registers[MAX_REGISTERS] =
 	CArmAssembler::r10,
 };
 
-CArmAssembler::REGISTER CCodeGen_Arm::g_paramRegs[MAX_PARAMS] =
+CArmAssembler::REGISTER CCodeGen_Arm::g_paramRegs[MAX_PARAM_REGS] =
 {
 	CArmAssembler::r0,
 	CArmAssembler::r1,
@@ -621,24 +623,72 @@ void CCodeGen_Arm::CommitSymbolRegister(CSymbol* symbol, CArmAssembler::REGISTER
 	}
 }
 
-void CCodeGen_Arm::AlignParam64(PARAM_STATE& paramState)
+CArmAssembler::REGISTER CCodeGen_Arm::PrepareParam(PARAM_STATE& paramState)
 {
+	assert(!paramState.prepared);
+	paramState.prepared = true;
+	if(paramState.index < MAX_PARAM_REGS)
+	{
+		return g_paramRegs[paramState.index];
+	}
+	else
+	{
+		return g_tempParamRegister0;
+	}
+}
+
+CCodeGen_Arm::ParamRegisterPair CCodeGen_Arm::PrepareParam64(PARAM_STATE& paramState)
+{
+	assert(!paramState.prepared);
+	paramState.prepared = true;
 	if(paramState.index & 1)
 	{
 		paramState.index++;
 	}
-}
-
-CArmAssembler::REGISTER CCodeGen_Arm::PrepareParam(const PARAM_STATE& paramState)
-{
-	assert(paramState.index < MAX_PARAMS);
-	return g_paramRegs[paramState.index];
+	if(paramState.index < MAX_PARAM_REGS)
+	{
+		return std::make_pair(g_paramRegs[paramState.index], g_paramRegs[paramState.index + 1]);
+	}
+	else
+	{
+		return std::make_pair(g_tempParamRegister0, g_tempParamRegister1);
+	}
 }
 
 void CCodeGen_Arm::CommitParam(PARAM_STATE& paramState)
 {
-	assert(paramState.index < MAX_PARAMS);
+	assert(paramState.prepared);
+	paramState.prepared = false;
+	if(paramState.index < MAX_PARAM_REGS)
+	{
+		//Nothing to do
+	}
+	else
+	{
+		uint32 stackSlot = ((paramState.index - MAX_PARAM_REGS) + 1) * 4;
+		m_assembler.Str(g_tempParamRegister0, CArmAssembler::rSP, 
+			CArmAssembler::MakeImmediateLdrAddress(m_stackLevel - stackSlot));
+	}
 	paramState.index++;
+}
+
+void CCodeGen_Arm::CommitParam64(PARAM_STATE& paramState)
+{
+	assert(paramState.prepared);
+	paramState.prepared = false;
+	if(paramState.index < MAX_PARAM_REGS)
+	{
+		//Nothing to do 
+	}
+	else
+	{
+		uint32 stackSlot = ((paramState.index - MAX_PARAM_REGS) + 2) * 4;
+		m_assembler.Str(g_tempParamRegister0, CArmAssembler::rSP, 
+			CArmAssembler::MakeImmediateLdrAddress(m_stackLevel - stackSlot + 0));
+		m_assembler.Str(g_tempParamRegister1, CArmAssembler::rSP, 
+			CArmAssembler::MakeImmediateLdrAddress(m_stackLevel - stackSlot + 4));
+	}
+	paramState.index += 2;
 }
 
 CArmAssembler::LABEL CCodeGen_Arm::GetLabel(uint32 blockId)
@@ -737,17 +787,10 @@ void CCodeGen_Arm::Emit_Param_Mem64(const STATEMENT& statement)
 	m_params.push_back(
 		[this, src1] (PARAM_STATE& paramState)
 		{
-			AlignParam64(paramState);
-			{
-				auto paramReg = PrepareParam(paramState);
-				LoadMemory64LowInRegister(paramReg, src1);
-				CommitParam(paramState);
-			}
-			{
-				auto paramReg = PrepareParam(paramState);
-				LoadMemory64HighInRegister(paramReg, src1);
-				CommitParam(paramState);
-			}
+			auto paramRegs = PrepareParam64(paramState);
+			LoadMemory64LowInRegister(paramRegs.first, src1);
+			LoadMemory64HighInRegister(paramRegs.second, src1);
+			CommitParam64(paramState);
 		}
 	);
 }
@@ -759,17 +802,10 @@ void CCodeGen_Arm::Emit_Param_Cst64(const STATEMENT& statement)
 	m_params.push_back(
 		[this, src1] (PARAM_STATE& paramState)
 		{
-			AlignParam64(paramState);
-			{
-				auto paramReg = PrepareParam(paramState);
-				LoadConstantInRegister(paramReg, src1->m_valueLow, false);
-				CommitParam(paramState);
-			}
-			{
-				auto paramReg = PrepareParam(paramState);
-				LoadConstantInRegister(paramReg, src1->m_valueHigh, false);
-				CommitParam(paramState);
-			}
+			auto paramRegs = PrepareParam64(paramState);
+			LoadConstantInRegister(paramRegs.first, src1->m_valueLow, false);
+			LoadConstantInRegister(paramRegs.second, src1->m_valueHigh, false);
+			CommitParam64(paramState);
 		}
 	);
 }
@@ -811,10 +847,24 @@ void CCodeGen_Arm::Emit_Call(const STATEMENT& statement)
 		emitter(paramState);
 	}
 
+	uint32 stackAlloc = (paramState.index > MAX_PARAM_REGS) ? ((paramState.index - MAX_PARAM_REGS) * 4) : 0;
+
+	if(stackAlloc != 0)
+	{
+		m_assembler.Sub(CArmAssembler::rSP, CArmAssembler::rSP, 
+			CArmAssembler::MakeImmediateAluOperand(stackAlloc, 0));
+	}
+
 	//No value should be saved in r4 at this point (register is spilled before)
 	LoadConstantInRegister(g_callAddressRegister, src1->m_valueLow, true);
 	m_assembler.Mov(CArmAssembler::rLR, CArmAssembler::rPC);
 	m_assembler.Mov(CArmAssembler::rPC, g_callAddressRegister);
+
+	if(stackAlloc != 0)
+	{
+		m_assembler.Add(CArmAssembler::rSP, CArmAssembler::rSP, 
+			CArmAssembler::MakeImmediateAluOperand(stackAlloc, 0));
+	}
 }
 
 void CCodeGen_Arm::Emit_RetVal_Reg(const STATEMENT& statement)

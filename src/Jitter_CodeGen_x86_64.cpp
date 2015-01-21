@@ -602,20 +602,26 @@ void CCodeGen_x86_64::Cmp64_RelRel(CX86Assembler::REGISTER dstReg, const STATEME
 
 void CCodeGen_x86_64::Cmp64_RelCst(CX86Assembler::REGISTER dstReg, const STATEMENT& statement)
 {
-	CSymbol* src1 = statement.src1->GetSymbol().get();
-	CSymbol* src2 = statement.src2->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
 
 	assert(src1->m_type == SYM_RELATIVE64);
 	assert(src2->m_type == SYM_CONSTANT64);
 
 	uint64 constant = CombineConstant64(src2->m_valueLow, src2->m_valueHigh);
 
-	CX86Assembler::REGISTER tmpReg = CX86Assembler::rAX;
+	auto tmpReg = CX86Assembler::rAX;
 	m_assembler.MovEq(tmpReg, MakeRelative64SymbolAddress(src1));
 	if(constant == 0)
 	{
-		CX86Assembler::REGISTER cstReg = CX86Assembler::rDX;
+		auto cstReg = CX86Assembler::rDX;
 		m_assembler.XorGq(CX86Assembler::MakeRegisterAddress(cstReg), cstReg);
+		m_assembler.CmpEq(tmpReg, CX86Assembler::MakeRegisterAddress(cstReg));
+	}
+	else if(CX86Assembler::GetMinimumConstantSize64(constant) == 8)
+	{
+		auto cstReg = CX86Assembler::rDX;
+		m_assembler.MovIq(cstReg, constant);
 		m_assembler.CmpEq(tmpReg, CX86Assembler::MakeRegisterAddress(cstReg));
 	}
 	else

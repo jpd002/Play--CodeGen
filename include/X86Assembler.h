@@ -105,6 +105,9 @@ public:
 	static CAddress							MakeIndRegOffAddress(REGISTER, uint32);
 	static CAddress							MakeBaseIndexScaleAddress(REGISTER, REGISTER, uint8);
 
+	static unsigned int						GetMinimumConstantSize(uint32);
+	static unsigned int						GetMinimumConstantSize64(uint64);
+
 	LABEL									CreateLabel();
 	void									MarkLabel(LABEL, int32 = 0);
 	uint32									GetLabelOffset(LABEL) const;
@@ -403,8 +406,6 @@ private:
 	void									IncrementJumpOffsetsLocal(LABELINFO&, LabelRefArray::iterator, unsigned int);
 	void									IncrementJumpOffsets(LabelArray::const_iterator, unsigned int);
 
-	static unsigned int						GetMinimumConstantSize(uint32);
-	static unsigned int						GetMinimumConstantSize64(uint64);
 	static unsigned int						GetJumpSize(JMP_TYPE, JMP_LENGTH);
 	static void								WriteJump(Framework::CStream*, JMP_TYPE, JMP_LENGTH, uint32);
 

@@ -832,7 +832,7 @@ void CCodeGen_Arm::Emit_Call(const STATEMENT& statement)
 	auto src1 = statement.src1->GetSymbol().get();
 	auto src2 = statement.src2->GetSymbol().get();
 	
-	assert(src1->m_type == SYM_CONSTANT);
+	assert(src1->m_type == SYM_CONSTANTPTR);
 	assert(src2->m_type == SYM_CONSTANT);
 
 	unsigned int paramCount = src2->m_valueLow;

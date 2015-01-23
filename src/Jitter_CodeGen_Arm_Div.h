@@ -7,11 +7,11 @@ void CCodeGen_Arm::Div_GenericTmp64RegReg_Quotient(CSymbol* dst)
 	
 	if(isSigned)
 	{
-		LoadConstantInRegister(CArmAssembler::r2, reinterpret_cast<size_t>(&CodeGen_Arm_div_signed), true);
+		LoadConstantPtrInRegister(CArmAssembler::r2, reinterpret_cast<uintptr_t>(&CodeGen_Arm_div_signed));
 	}
 	else
 	{
-		LoadConstantInRegister(CArmAssembler::r2, reinterpret_cast<size_t>(&CodeGen_Arm_div_unsigned), true);
+		LoadConstantPtrInRegister(CArmAssembler::r2, reinterpret_cast<uintptr_t>(&CodeGen_Arm_div_unsigned));
 	}
 	m_assembler.Blx(CArmAssembler::r2);
 	
@@ -25,11 +25,11 @@ void CCodeGen_Arm::Div_GenericTmp64RegReg_Remainder(CSymbol* dst)
 	
 	if(isSigned)
 	{
-		LoadConstantInRegister(CArmAssembler::r2, reinterpret_cast<size_t>(&CodeGen_Arm_mod_signed), true);
+		LoadConstantPtrInRegister(CArmAssembler::r2, reinterpret_cast<uintptr_t>(&CodeGen_Arm_mod_signed));
 	}
 	else
 	{
-		LoadConstantInRegister(CArmAssembler::r2, reinterpret_cast<size_t>(&CodeGen_Arm_mod_unsigned), true);
+		LoadConstantPtrInRegister(CArmAssembler::r2, reinterpret_cast<uintptr_t>(&CodeGen_Arm_mod_unsigned));
 	}
 	m_assembler.Blx(CArmAssembler::r2);
 	

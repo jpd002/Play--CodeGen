@@ -182,7 +182,7 @@ CCodeGen_Arm::CONSTMATCHER CCodeGen_Arm::g_constMatchers[] =
 
 	{ OP_PARAM_RET,		MATCH_NIL,			MATCH_TEMPORARY128,	MATCH_NIL,			&CCodeGen_Arm::Emit_ParamRet_Tmp128							},
 
-	{ OP_CALL,			MATCH_NIL,			MATCH_CONSTANT,		MATCH_CONSTANT,		&CCodeGen_Arm::Emit_Call									},
+	{ OP_CALL,			MATCH_NIL,			MATCH_CONSTANTPTR,	MATCH_CONSTANT,		&CCodeGen_Arm::Emit_Call									},
 	
 	{ OP_RETVAL,		MATCH_REGISTER,		MATCH_NIL,			MATCH_NIL,			&CCodeGen_Arm::Emit_RetVal_Reg								},
 	{ OP_RETVAL,		MATCH_TEMPORARY,	MATCH_NIL,			MATCH_NIL,			&CCodeGen_Arm::Emit_RetVal_Tmp								},
@@ -288,11 +288,6 @@ unsigned int CCodeGen_Arm::GetAvailableMdRegisterCount() const
 	return 0;
 }
 
-unsigned int CCodeGen_Arm::GetAddressSize() const
-{
-	return 4;
-}
-
 bool CCodeGen_Arm::CanHold128BitsReturnValueInRegisters() const
 {
 	return false;
@@ -306,10 +301,10 @@ void CCodeGen_Arm::SetStream(Framework::CStream* stream)
 
 void CCodeGen_Arm::RegisterExternalSymbols(CObjectFile* objectFile) const
 {
-	objectFile->AddExternalSymbol("_CodeGen_Arm_div_unsigned",	reinterpret_cast<void*>(&CodeGen_Arm_div_unsigned));
-	objectFile->AddExternalSymbol("_CodeGen_Arm_div_signed",	reinterpret_cast<void*>(&CodeGen_Arm_div_signed));
-	objectFile->AddExternalSymbol("_CodeGen_Arm_mod_unsigned",	reinterpret_cast<void*>(&CodeGen_Arm_mod_unsigned));
-	objectFile->AddExternalSymbol("_CodeGen_Arm_mod_signed",	reinterpret_cast<void*>(&CodeGen_Arm_mod_signed));
+	objectFile->AddExternalSymbol("_CodeGen_Arm_div_unsigned",	reinterpret_cast<uintptr_t>(&CodeGen_Arm_div_unsigned));
+	objectFile->AddExternalSymbol("_CodeGen_Arm_div_signed",	reinterpret_cast<uintptr_t>(&CodeGen_Arm_div_signed));
+	objectFile->AddExternalSymbol("_CodeGen_Arm_mod_unsigned",	reinterpret_cast<uintptr_t>(&CodeGen_Arm_mod_unsigned));
+	objectFile->AddExternalSymbol("_CodeGen_Arm_mod_signed",	reinterpret_cast<uintptr_t>(&CodeGen_Arm_mod_signed));
 }
 
 void CCodeGen_Arm::GenerateCode(const StatementList& statements, unsigned int stackSize)
@@ -428,44 +423,47 @@ bool CCodeGen_Arm::TryGetAluImmediateParams(uint32 constant, uint8& immediate, u
 	}
 }
 
-void CCodeGen_Arm::LoadConstantInRegister(CArmAssembler::REGISTER registerId, uint32 constant, bool relocatable)
+void CCodeGen_Arm::LoadConstantInRegister(CArmAssembler::REGISTER registerId, uint32 constant)
 {	
-	if(!relocatable)
+	//Try normal move
 	{
-		//Try normal move
+		uint8 immediate = 0;
+		uint8 shiftAmount = 0;
+		if(TryGetAluImmediateParams(constant, immediate, shiftAmount))
 		{
-			uint8 immediate = 0;
-			uint8 shiftAmount = 0;
-			if(TryGetAluImmediateParams(constant, immediate, shiftAmount))
-			{
-				m_assembler.Mov(registerId, CArmAssembler::MakeImmediateAluOperand(immediate, shiftAmount));
-				return;
-			}
+			m_assembler.Mov(registerId, CArmAssembler::MakeImmediateAluOperand(immediate, shiftAmount));
+			return;
 		}
+	}
 	
-		//Try not move
+	//Try not move
+	{
+		uint8 immediate = 0;
+		uint8 shiftAmount = 0;
+		if(TryGetAluImmediateParams(~constant, immediate, shiftAmount))
 		{
-			uint8 immediate = 0;
-			uint8 shiftAmount = 0;
-			if(TryGetAluImmediateParams(~constant, immediate, shiftAmount))
-			{
-				m_assembler.Mvn(registerId, CArmAssembler::MakeImmediateAluOperand(immediate, shiftAmount));
-				return;
-			}
+			m_assembler.Mvn(registerId, CArmAssembler::MakeImmediateAluOperand(immediate, shiftAmount));
+			return;
 		}
 	}
 		
 	//Otherwise, use paired move
 	m_assembler.Movw(registerId, static_cast<uint16>(constant & 0xFFFF));
-	if(relocatable || ((constant & 0xFFFF0000) != 0))
+	if((constant & 0xFFFF0000) != 0)
 	{
 		m_assembler.Movt(registerId, static_cast<uint16>(constant >> 16));
 	}
+}
 
-	if(relocatable && m_externalSymbolReferencedHandler)
+void CCodeGen_Arm::LoadConstantPtrInRegister(CArmAssembler::REGISTER registerId, uintptr_t constant)
+{
+	m_assembler.Movw(registerId, static_cast<uint16>(constant & 0xFFFF));
+	m_assembler.Movt(registerId, static_cast<uint16>(constant >> 16));
+
+	if(m_externalSymbolReferencedHandler)
 	{
 		auto position = m_stream->GetLength();
-		m_externalSymbolReferencedHandler(reinterpret_cast<void*>(constant), position - 8);
+		m_externalSymbolReferencedHandler(constant, position - 8);
 	}
 }
 
@@ -774,7 +772,7 @@ void CCodeGen_Arm::Emit_Param_Cst(const STATEMENT& statement)
 		[this, src1] (PARAM_STATE& paramState)
 		{
 			auto paramReg = PrepareParam(paramState);
-			LoadConstantInRegister(paramReg, src1->m_valueLow, false);
+			LoadConstantInRegister(paramReg, src1->m_valueLow);
 			CommitParam(paramState);
 		}
 	);
@@ -803,8 +801,8 @@ void CCodeGen_Arm::Emit_Param_Cst64(const STATEMENT& statement)
 		[this, src1] (PARAM_STATE& paramState)
 		{
 			auto paramRegs = PrepareParam64(paramState);
-			LoadConstantInRegister(paramRegs.first, src1->m_valueLow, false);
-			LoadConstantInRegister(paramRegs.second, src1->m_valueHigh, false);
+			LoadConstantInRegister(paramRegs.first, src1->m_valueLow);
+			LoadConstantInRegister(paramRegs.second, src1->m_valueHigh);
 			CommitParam64(paramState);
 		}
 	);
@@ -856,7 +854,7 @@ void CCodeGen_Arm::Emit_Call(const STATEMENT& statement)
 	}
 
 	//No value should be saved in r4 at this point (register is spilled before)
-	LoadConstantInRegister(g_callAddressRegister, src1->m_valueLow, true);
+	LoadConstantPtrInRegister(g_callAddressRegister, src1->GetConstantPtr());
 	m_assembler.Mov(CArmAssembler::rLR, CArmAssembler::rPC);
 	m_assembler.Mov(CArmAssembler::rPC, g_callAddressRegister);
 

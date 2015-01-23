@@ -18,7 +18,6 @@ namespace Jitter
 		void									RegisterExternalSymbols(CObjectFile*) const override;
 		unsigned int							GetAvailableRegisterCount() const override;
 		unsigned int							GetAvailableMdRegisterCount() const override;
-		unsigned int							GetAddressSize() const override;
 		bool									CanHold128BitsReturnValueInRegisters() const override;
 
 	private:
@@ -110,7 +109,8 @@ namespace Jitter
 		static uint32							RotateRight(uint32);
 		static uint32							RotateLeft(uint32);
 		bool									TryGetAluImmediateParams(uint32, uint8&, uint8&);
-		void									LoadConstantInRegister(CArmAssembler::REGISTER, uint32, bool = false);
+		void									LoadConstantInRegister(CArmAssembler::REGISTER, uint32);
+		void									LoadConstantPtrInRegister(CArmAssembler::REGISTER, uintptr_t);
 
 		//ALUOP ----------------------------------------------------------
 		struct ALUOP_BASE

@@ -13,6 +13,7 @@ namespace Jitter
 		SYM_CONTEXT,
 
 		SYM_CONSTANT,
+		SYM_CONSTANTPTR,
 		SYM_RELATIVE,
 		SYM_TEMPORARY,
 		SYM_REGISTER,
@@ -56,6 +57,9 @@ namespace Jitter
 				break;
 			case SYM_CONSTANT:
 				return std::to_string(m_valueLow);
+				break;
+			case SYM_CONSTANTPTR:
+				return std::to_string(GetConstantPtr());
 				break;
 			case SYM_RELATIVE:
 				return "REL[" + std::to_string(m_valueLow) + "]";
@@ -187,6 +191,18 @@ namespace Jitter
 				(symbol->m_type == m_type) &&
 				(symbol->m_valueLow == m_valueLow) &&
 				(symbol->m_valueHigh == m_valueHigh);
+		}
+
+		uintptr_t GetConstantPtr() const
+		{
+			assert(m_type == SYM_CONSTANTPTR);
+#if (UINTPTR_MAX == UINT32_MAX)
+			return m_valueLow;
+#elif (UINTPTR_MAX == UINT64_MAX)
+			return static_cast<uint64>(m_valueLow) | (static_cast<uint64>(m_valueHigh) << 32);
+#else
+			static_assert(false, "Unsupported pointer size.");
+#endif
 		}
 
 		bool Aliases(CSymbol* symbol) const

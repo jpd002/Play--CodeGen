@@ -238,7 +238,7 @@ uint32 CJitter::CreateBlock()
 
 CJitter::BASIC_BLOCK* CJitter::GetBlock(uint32 blockId)
 {
-	BasicBlockList::iterator blockIterator(m_basicBlocks.find(blockId));
+	auto blockIterator(m_basicBlocks.find(blockId));
 	if(blockIterator == m_basicBlocks.end()) return nullptr;
 	return &blockIterator->second;
 }
@@ -251,6 +251,20 @@ void CJitter::InsertStatement(const STATEMENT& statement)
 SymbolPtr CJitter::MakeSymbol(SYM_TYPE type, uint32 value)
 {
 	return MakeSymbol(m_currentBlock, type, value, 0);
+}
+
+SymbolPtr CJitter::MakeConstantPtr(uintptr_t value)
+{
+#if (UINTPTR_MAX == UINT32_MAX)
+	uint32 valueLo = static_cast<uint32>(value);
+	return MakeSymbol(m_currentBlock, SYM_CONSTANTPTR, valueLo, 0);
+#elif (UINTPTR_MAX == UINT64_MAX)
+	uint32 valueLo = static_cast<uint32>(value);
+	uint32 valueHi = static_cast<uint32>(value >> 32);
+	return MakeSymbol(m_currentBlock, SYM_CONSTANTPTR, valueLo, valueHi);
+#else
+	static_assert(false, "Unsupported pointer size.");
+#endif
 }
 
 SymbolPtr CJitter::MakeConstant64(uint64 value)

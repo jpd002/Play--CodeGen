@@ -76,9 +76,11 @@ namespace Jitter
 		
 		void									LoadMemory64LowInRegister(CArmAssembler::REGISTER, CSymbol*);
 		void									LoadMemory64HighInRegister(CArmAssembler::REGISTER, CSymbol*);
+		void									LoadMemory64InRegisters(CArmAssembler::REGISTER, CArmAssembler::REGISTER, CSymbol*);
 
 		void									StoreRegisterInMemory64Low(CSymbol*, CArmAssembler::REGISTER);
 		void									StoreRegisterInMemory64High(CSymbol*, CArmAssembler::REGISTER);
+		void									StoreRegistersInMemory64(CSymbol*, CArmAssembler::REGISTER, CArmAssembler::REGISTER);
 
 		void									LoadMemoryFpSingleInRegister(CArmAssembler::SINGLE_REGISTER, CSymbol*);
 		void									StoreRegisterInMemoryFpSingle(CSymbol*, CArmAssembler::SINGLE_REGISTER);
@@ -331,6 +333,9 @@ namespace Jitter
 		//MOV64
 		void									Emit_Mov_Mem64Mem64(const STATEMENT&);
 		void									Emit_Mov_Mem64Cst64(const STATEMENT&);
+
+		//AND64
+		void									Emit_And64_MemMemMem(const STATEMENT&);
 
 		//CMP64
 		void									Cmp64_RegSymLo(CArmAssembler::REGISTER, CSymbol*, CArmAssembler::REGISTER);

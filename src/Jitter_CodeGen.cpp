@@ -18,6 +18,8 @@ bool CCodeGen::SymbolMatches(MATCHTYPE match, const SymbolRefPtr& symbolRef)
 		return (symbol->m_type == SYM_RELATIVE);
 	case MATCH_CONSTANT:
 		return (symbol->m_type == SYM_CONSTANT);
+	case MATCH_CONSTANTPTR:
+		return (symbol->m_type == SYM_CONSTANTPTR);
 	case MATCH_REGISTER:
 		return (symbol->m_type == SYM_REGISTER);
 	case MATCH_TEMPORARY:

@@ -18,19 +18,24 @@ namespace Jitter
 		void									RegisterExternalSymbols(CObjectFile*) const override;
 		unsigned int							GetAvailableRegisterCount() const override;
 		unsigned int							GetAvailableMdRegisterCount() const override;
-		unsigned int							GetAddressSize() const override;
 		bool									CanHold128BitsReturnValueInRegisters() const override;
 
 	private:
 		typedef std::map<uint32, CArmAssembler::LABEL> LabelMapType;
 		typedef void (CCodeGen_Arm::*ConstCodeEmitterType)(const STATEMENT&);
 
-		typedef std::function<void (CArmAssembler::REGISTER)> ParamEmitterFunction;
-		typedef std::deque<ParamEmitterFunction> ParamStack;
-
-		enum MAX_PARAMS
+		struct PARAM_STATE
 		{
-			MAX_PARAMS = 4,
+			bool prepared = false;
+			unsigned int index = 0;
+		};
+
+		typedef std::function<void (PARAM_STATE&)> ParamEmitterFunction;
+		typedef std::deque<ParamEmitterFunction> ParamStack;
+		
+		enum MAX_PARAM_REGS
+		{
+			MAX_PARAM_REGS = 4,
 		};
 		
 		enum
@@ -71,6 +76,11 @@ namespace Jitter
 		
 		void									LoadMemory64LowInRegister(CArmAssembler::REGISTER, CSymbol*);
 		void									LoadMemory64HighInRegister(CArmAssembler::REGISTER, CSymbol*);
+		void									LoadMemory64InRegisters(CArmAssembler::REGISTER, CArmAssembler::REGISTER, CSymbol*);
+
+		void									StoreRegisterInMemory64Low(CSymbol*, CArmAssembler::REGISTER);
+		void									StoreRegisterInMemory64High(CSymbol*, CArmAssembler::REGISTER);
+		void									StoreRegistersInMemory64(CSymbol*, CArmAssembler::REGISTER, CArmAssembler::REGISTER);
 
 		void									LoadMemoryFpSingleInRegister(CArmAssembler::SINGLE_REGISTER, CSymbol*);
 		void									StoreRegisterInMemoryFpSingle(CSymbol*, CArmAssembler::SINGLE_REGISTER);
@@ -89,12 +99,20 @@ namespace Jitter
 		CArmAssembler::REGISTER					PrepareSymbolRegisterUse(CSymbol*, CArmAssembler::REGISTER);
 		void									CommitSymbolRegister(CSymbol*, CArmAssembler::REGISTER);
 
+		typedef std::pair<CArmAssembler::REGISTER, CArmAssembler::REGISTER> ParamRegisterPair;
+
+		CArmAssembler::REGISTER					PrepareParam(PARAM_STATE&);
+		ParamRegisterPair						PrepareParam64(PARAM_STATE&);
+		void									CommitParam(PARAM_STATE&);
+		void									CommitParam64(PARAM_STATE&);
+
 		CArmAssembler::AluLdrShift				GetAluShiftFromSymbol(CArmAssembler::SHIFT shiftType, CSymbol* symbol, CArmAssembler::REGISTER preferedRegister);
 
 		static uint32							RotateRight(uint32);
 		static uint32							RotateLeft(uint32);
 		bool									TryGetAluImmediateParams(uint32, uint8&, uint8&);
-		void									LoadConstantInRegister(CArmAssembler::REGISTER, uint32, bool = false);
+		void									LoadConstantInRegister(CArmAssembler::REGISTER, uint32);
+		void									LoadConstantPtrInRegister(CArmAssembler::REGISTER, uintptr_t);
 
 		//ALUOP ----------------------------------------------------------
 		struct ALUOP_BASE
@@ -237,9 +255,10 @@ namespace Jitter
 		//PARAM
 		void									Emit_Param_Ctx(const STATEMENT&);
 		void									Emit_Param_Reg(const STATEMENT&);
-		void									Emit_Param_Rel(const STATEMENT&);
+		void									Emit_Param_Mem(const STATEMENT&);
 		void									Emit_Param_Cst(const STATEMENT&);
-		void									Emit_Param_Tmp(const STATEMENT&);
+		void									Emit_Param_Mem64(const STATEMENT&);
+		void									Emit_Param_Cst64(const STATEMENT&);
 		void									Emit_Param_Mem128(const STATEMENT&);
 
 		//PARAM_RET
@@ -247,11 +266,12 @@ namespace Jitter
 
 		//CALL
 		void									Emit_Call(const STATEMENT&);
-		
+
 		//RETVAL
 		void									Emit_RetVal_Reg(const STATEMENT&);
 		void									Emit_RetVal_Tmp(const STATEMENT&);
-		
+		void									Emit_RetVal_Mem64(const STATEMENT&);
+
 		//MUL/MULS
 		template<bool> void						Emit_MulTmp64AnyAny(const STATEMENT&);
 
@@ -310,6 +330,13 @@ namespace Jitter
 		void									Emit_StoreAtRef_TmpRel(const STATEMENT&);
 		void									Emit_StoreAtRef_TmpCst(const STATEMENT&);
 		
+		//MOV64
+		void									Emit_Mov_Mem64Mem64(const STATEMENT&);
+		void									Emit_Mov_Mem64Cst64(const STATEMENT&);
+
+		//AND64
+		void									Emit_And64_MemMemMem(const STATEMENT&);
+
 		//CMP64
 		void									Cmp64_RegSymLo(CArmAssembler::REGISTER, CSymbol*, CArmAssembler::REGISTER);
 		void									Cmp64_RegSymHi(CArmAssembler::REGISTER, CSymbol*, CArmAssembler::REGISTER);
@@ -336,9 +363,11 @@ namespace Jitter
 		static CONSTMATCHER						g_fpuConstMatchers[];
 		static CONSTMATCHER						g_mdConstMatchers[];
 		static CArmAssembler::REGISTER			g_registers[MAX_REGISTERS];
-		static CArmAssembler::REGISTER			g_paramRegs[MAX_PARAMS];
+		static CArmAssembler::REGISTER			g_paramRegs[MAX_PARAM_REGS];
 		static CArmAssembler::REGISTER			g_baseRegister;
 		static CArmAssembler::REGISTER			g_callAddressRegister;
+		static CArmAssembler::REGISTER			g_tempParamRegister0;
+		static CArmAssembler::REGISTER			g_tempParamRegister1;
 
 		Framework::CStream*						m_stream;
 		CArmAssembler							m_assembler;

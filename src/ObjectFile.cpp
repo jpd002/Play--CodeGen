@@ -41,21 +41,18 @@ unsigned int CObjectFile::AddExternalSymbol(const EXTERNAL_SYMBOL& externalSymbo
 	return m_externalSymbols.size() - 1;
 }
 
-unsigned int CObjectFile::AddExternalSymbol(const std::string& name, void* value)
+unsigned int CObjectFile::AddExternalSymbol(const std::string& name, uintptr_t value)
 {
 	EXTERNAL_SYMBOL symbol = { name, value };
 	return AddExternalSymbol(symbol);
 }
 
-unsigned int CObjectFile::GetExternalSymbolIndexByValue(void* value) const
+unsigned int CObjectFile::GetExternalSymbolIndexByValue(uintptr_t value) const
 {
 	auto externalSymbolIterator = std::find_if(std::begin(m_externalSymbols), std::end(m_externalSymbols),
 		[&] (const EXTERNAL_SYMBOL& externalSymbol)
 		{
-			//This is kinda bad, but we have no choice if we want to be able to cross compile...
-			auto srcValue = reinterpret_cast<intptr_t>(externalSymbol.value);
-			auto dstValue = reinterpret_cast<intptr_t>(value);
-			return srcValue == dstValue;
+			return externalSymbol.value == value;
 		}
 	);
 	if(externalSymbolIterator == std::end(m_externalSymbols))

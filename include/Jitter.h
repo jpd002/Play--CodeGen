@@ -301,6 +301,7 @@ namespace Jitter
 
 		SymbolPtr						MakeSymbol(SYM_TYPE, uint32);
 		SymbolPtr						MakeSymbol(BASIC_BLOCK*, SYM_TYPE, uint32, uint32);
+		SymbolPtr						MakeConstantPtr(uintptr_t);
 		SymbolPtr						MakeConstant64(uint64);
 
 		SymbolRefPtr					MakeSymbolRef(const SymbolPtr&);

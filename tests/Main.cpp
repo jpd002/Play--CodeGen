@@ -25,6 +25,7 @@
 #include "Alu64Test.h"
 #include "Cmp64Test.h"
 #include "Shift64Test.h"
+#include "Logic64Test.h"
 #include "Call64Test.h"
 #include "LzcTest.h"
 
@@ -71,10 +72,11 @@ static const TestFactoryFunction s_factories[] =
 	[] () { return new CAlu64Test(); },
 	[] () { return new CCmp64Test(false,	0xFEDCBA9876543210ULL, 0x012389AB4567CDEFULL); },
 	[] () { return new CCmp64Test(true,		0xFEDCBA9876543210ULL, 0x012389AB4567CDEFULL); },
-	[] () { return new CCmp64Test(false,	0xFFFFFFFF76543210ULL, 0xFFFFFFFF4567CDEFULL); },
-	[] () { return new CCmp64Test(true,		0xFFFFFFFF76543210ULL, 0xFFFFFFFF4567CDEFULL); },
+	[] () { return new CCmp64Test(false,	0xFFFFFFFFF6543210ULL, 0xFFFFFFFFF567CDEFULL); },
+	[] () { return new CCmp64Test(true,		0xFFFFFFFFF6543210ULL, 0xFFFFFFFFF567CDEFULL); },
 	[] () { return new CCmp64Test(false,	0x100000000, 0x100000000); },
 	[] () { return new CCmp64Test(true,		0x100000000, 0x100000000); },
+	[] () { return new CLogic64Test(); },
 	[] () { return new CShift64Test(); },
 	[] () { return new CCall64Test(); },
 #endif

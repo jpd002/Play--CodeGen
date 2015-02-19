@@ -21,12 +21,17 @@ void CArmAssembler::SetStream(Framework::CStream* stream)
 	m_stream = stream;
 }
 
-CArmAssembler::LdrAddress CArmAssembler::MakeImmediateLdrAddress(uint32 immediate)
+CArmAssembler::LdrAddress CArmAssembler::MakeImmediateLdrAddress(int32 immediate)
 {
 	LdrAddress result;
 	memset(&result, 0, sizeof(result));
-	assert((immediate & ~0xFFF) == 0);
 	result.isImmediate = true;
+	if(immediate < 0)
+	{
+		result.isNegative = (immediate < 0);
+		immediate = -immediate;
+	}
+	assert((immediate & ~0xFFF) == 0);
 	result.immediate = static_cast<uint16>(immediate);
 	return result;
 }
@@ -285,6 +290,7 @@ void CArmAssembler::Ldr(REGISTER rd, REGISTER rbase, const LdrAddress& address)
 {
 	uint32 opcode = 0;
 	assert(address.isImmediate);
+	assert(!address.isNegative);
 	opcode = (CONDITION_AL << 28) | (1 << 26) | (1 << 24) | (1 << 23) | (1 << 20) | (static_cast<uint32>(rbase) << 16) | (static_cast<uint32>(rd) << 12) | (static_cast<uint32>(address.immediate));
 	WriteWord(opcode);
 }
@@ -429,9 +435,12 @@ void CArmAssembler::Stmdb(REGISTER rbase, uint16 regList)
 
 void CArmAssembler::Str(REGISTER rd, REGISTER rbase, const LdrAddress& address)
 {
-	uint32 opcode = 0;
 	assert(address.isImmediate);
-	opcode = (CONDITION_AL << 28) | (1 << 26) | (1 << 24) | (1 << 23) | (0 << 20) | (static_cast<uint32>(rbase) << 16) | (static_cast<uint32>(rd) << 12) | (static_cast<uint32>(address.immediate));
+	uint32 opcode = (CONDITION_AL << 28) | (1 << 26) | (1 << 24) | (0 << 20);
+	opcode |= (address.isNegative) ? 0 : (1 << 23);
+	opcode |= static_cast<uint32>(rbase) << 16;
+	opcode |= static_cast<uint32>(rd) << 12;
+	opcode |= static_cast<uint32>(address.immediate);
 	WriteWord(opcode);
 }
 
@@ -523,6 +532,8 @@ uint32 CArmAssembler::FPSIMD_EncodeQm(QUAD_REGISTER qm)
 
 void CArmAssembler::Vldr(SINGLE_REGISTER sd, REGISTER rbase, const LdrAddress& address)
 {
+	assert(address.isImmediate);
+	assert(!address.isNegative);
 	assert((address.immediate / 4) <= 0xFF);
 
 	uint32 opcode = 0x0D900A00;
@@ -544,6 +555,8 @@ void CArmAssembler::Vld1_32x4(QUAD_REGISTER qd, REGISTER rn)
 
 void CArmAssembler::Vstr(SINGLE_REGISTER sd, REGISTER rbase, const LdrAddress& address)
 {
+	assert(address.isImmediate);
+	assert(!address.isNegative);
 	assert((address.immediate / 4) <= 0xFF);
 
 	uint32 opcode = 0x0D800A00;

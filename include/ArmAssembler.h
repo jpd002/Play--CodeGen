@@ -167,7 +167,8 @@ public:
 			uint16			immediate;
 			ShiftRmAddress	shiftRm;
 		};
-		bool isImmediate;
+		bool isImmediate = false;
+		bool isNegative = false;
 	};
 	
 	typedef unsigned int LABEL;
@@ -239,7 +240,7 @@ public:
 	void									Vmin_F32(QUAD_REGISTER, QUAD_REGISTER, QUAD_REGISTER);
 	void									Vmax_F32(QUAD_REGISTER, QUAD_REGISTER, QUAD_REGISTER);
 
-	static LdrAddress						MakeImmediateLdrAddress(uint32);
+	static LdrAddress						MakeImmediateLdrAddress(int32);
 	static ImmediateAluOperand				MakeImmediateAluOperand(uint8, uint8);
 	static RegisterAluOperand				MakeRegisterAluOperand(CArmAssembler::REGISTER, const AluLdrShift&);
 	

@@ -261,21 +261,8 @@ void CJitter::Call(void* func, unsigned int paramCount, RETURN_VALUE_TYPE return
 		break;
 	}
 
-	size_t addrSize = m_codeGen->GetAddressSize();
-
 	STATEMENT callStatement;
-	if(addrSize == 4)
-	{
-		callStatement.src1 = MakeSymbolRef(MakeSymbol(SYM_CONSTANT, reinterpret_cast<size_t>(func)));
-	}
-	else if(addrSize == 8)
-	{
-		callStatement.src1 = MakeSymbolRef(MakeConstant64(reinterpret_cast<uint64>(func)));
-	}
-	else
-	{
-		assert(0);
-	}
+	callStatement.src1 = MakeSymbolRef(MakeConstantPtr(reinterpret_cast<uintptr_t>(func)));
 	callStatement.src2 = MakeSymbolRef(MakeSymbol(SYM_CONSTANT, paramCount));
 	callStatement.op = OP_CALL;
 	InsertStatement(callStatement);

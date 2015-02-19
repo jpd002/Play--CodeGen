@@ -1,5 +1,4 @@
-#ifndef _JITTER_CODEGEN_H_
-#define _JITTER_CODEGEN_H_
+#pragma once
 
 #include "Stream.h"
 #include "Jitter_Statement.h"
@@ -13,7 +12,7 @@ namespace Jitter
 	class CCodeGen
 	{
 	public:
-		typedef std::function<void (void*, uint32)> ExternalSymbolReferencedHandler;
+		typedef std::function<void (uintptr_t, uint32)> ExternalSymbolReferencedHandler;
 
 		virtual					~CCodeGen() {};
 
@@ -23,7 +22,6 @@ namespace Jitter
 		virtual void			GenerateCode(const StatementList&, unsigned int) = 0;
 		virtual unsigned int	GetAvailableRegisterCount() const = 0;
 		virtual unsigned int	GetAvailableMdRegisterCount() const = 0;
-		virtual unsigned int	GetAddressSize() const = 0;
 		virtual bool			CanHold128BitsReturnValueInRegisters() const = 0;
 		virtual void			RegisterExternalSymbols(CObjectFile*) const = 0;
 
@@ -35,6 +33,7 @@ namespace Jitter
 
 			MATCH_CONTEXT,
 			MATCH_CONSTANT,
+			MATCH_CONSTANTPTR,
 			MATCH_REGISTER,
 			MATCH_RELATIVE,
 			MATCH_TEMPORARY,
@@ -85,5 +84,3 @@ namespace Jitter
 		ExternalSymbolReferencedHandler		m_externalSymbolReferencedHandler;
 	};
 }
-
-#endif

@@ -26,10 +26,12 @@ private:
 
 		uint64			result0;
 		uint64			result1;
+		uint64			result2;
 	};
 
 	static uint64		Add64(uint64, uint64);
 	static uint64		Sub64(uint64, uint64);
+	static uint64		AddMul64(uint32, uint64, uint64);
 
 	CMemoryFunction		m_function;
 };

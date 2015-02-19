@@ -31,7 +31,7 @@ CCodeGen_x86_32::CONSTMATCHER CCodeGen_x86_32::g_constMatchers[] =
 
 	{ OP_PARAM_RET,		MATCH_NIL,			MATCH_MEMORY128,	MATCH_NIL,			&CCodeGen_x86_32::Emit_ParamRet_Mem128			},
 	
-	{ OP_CALL,			MATCH_NIL,			MATCH_CONSTANT,		MATCH_CONSTANT,		&CCodeGen_x86_32::Emit_Call						},
+	{ OP_CALL,			MATCH_NIL,			MATCH_CONSTANTPTR,	MATCH_CONSTANT,		&CCodeGen_x86_32::Emit_Call						},
 
 	{ OP_RETVAL,		MATCH_TEMPORARY,	MATCH_NIL,			MATCH_NIL,			&CCodeGen_x86_32::Emit_RetVal_Tmp				},
 	{ OP_RETVAL,		MATCH_REGISTER,		MATCH_NIL,			MATCH_NIL,			&CCodeGen_x86_32::Emit_RetVal_Reg				},
@@ -244,11 +244,6 @@ unsigned int CCodeGen_x86_32::GetAvailableMdRegisterCount() const
 	return MAX_MDREGISTERS;
 }
 
-unsigned int CCodeGen_x86_32::GetAddressSize() const
-{
-	return 4;
-}
-
 bool CCodeGen_x86_32::CanHold128BitsReturnValueInRegisters() const
 {
 	return false;
@@ -388,7 +383,7 @@ void CCodeGen_x86_32::Emit_Call(const STATEMENT& statement)
 	m_assembler.MovId(CX86Assembler::rAX, src1->m_valueLow);
 	auto symbolRefLabel = m_assembler.CreateLabel();
 	m_assembler.MarkLabel(symbolRefLabel, -4);
-	m_symbolReferenceLabels.push_back(std::make_pair(reinterpret_cast<void*>(src1->m_valueLow), symbolRefLabel));
+	m_symbolReferenceLabels.push_back(std::make_pair(src1->GetConstantPtr(), symbolRefLabel));
 	m_assembler.CallEd(CX86Assembler::MakeRegisterAddress(CX86Assembler::rAX));
 	
 #ifdef __APPLE__

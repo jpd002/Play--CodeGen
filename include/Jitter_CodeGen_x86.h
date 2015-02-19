@@ -17,7 +17,7 @@ namespace Jitter
 
 	protected:
 		typedef std::map<uint32, CX86Assembler::LABEL> LabelMapType;
-		typedef std::vector<std::pair<void*, CX86Assembler::LABEL>> SymbolReferenceLabelArray;
+		typedef std::vector<std::pair<uintptr_t, CX86Assembler::LABEL>> SymbolReferenceLabelArray;
 
 		//ALUOP ----------------------------------------------------------
 		struct ALUOP_BASE

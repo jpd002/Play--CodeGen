@@ -203,7 +203,7 @@ CCodeGen_x86_64::CONSTMATCHER CCodeGen_x86_64::g_constMatchers[] =
 
 	{ OP_PARAM_RET,		MATCH_NIL,			MATCH_MEMORY128,	MATCH_NIL,			&CCodeGen_x86_64::Emit_Param_Mem128							},
 
-	{ OP_CALL,			MATCH_NIL,			MATCH_CONSTANT64,	MATCH_CONSTANT,		&CCodeGen_x86_64::Emit_Call									},
+	{ OP_CALL,			MATCH_NIL,			MATCH_CONSTANTPTR,	MATCH_CONSTANT,		&CCodeGen_x86_64::Emit_Call									},
 
 	{ OP_RETVAL,		MATCH_REGISTER,		MATCH_NIL,			MATCH_NIL,			&CCodeGen_x86_64::Emit_RetVal_Reg							},
 	{ OP_RETVAL,		MATCH_MEMORY,		MATCH_NIL,			MATCH_NIL,			&CCodeGen_x86_64::Emit_RetVal_Mem							},
@@ -275,11 +275,6 @@ unsigned int CCodeGen_x86_64::GetAvailableRegisterCount() const
 unsigned int CCodeGen_x86_64::GetAvailableMdRegisterCount() const
 {
 	return MAX_MDREGISTERS;
-}
-
-unsigned int CCodeGen_x86_64::GetAddressSize() const
-{
-	return 8;
 }
 
 bool CCodeGen_x86_64::CanHold128BitsReturnValueInRegisters() const
@@ -521,7 +516,7 @@ void CCodeGen_x86_64::Emit_Call(const STATEMENT& statement)
 	m_assembler.MovIq(CX86Assembler::rAX, CombineConstant64(src1->m_valueLow, src1->m_valueHigh));
 	auto symbolRefLabel = m_assembler.CreateLabel();
 	m_assembler.MarkLabel(symbolRefLabel, -8);
-	m_symbolReferenceLabels.push_back(std::make_pair(reinterpret_cast<void*>(CombineConstant64(src1->m_valueLow, src1->m_valueHigh)), symbolRefLabel));
+	m_symbolReferenceLabels.push_back(std::make_pair(src1->GetConstantPtr(), symbolRefLabel));
 	m_assembler.CallEd(CX86Assembler::MakeRegisterAddress(CX86Assembler::rAX));
 }
 
@@ -602,20 +597,26 @@ void CCodeGen_x86_64::Cmp64_RelRel(CX86Assembler::REGISTER dstReg, const STATEME
 
 void CCodeGen_x86_64::Cmp64_RelCst(CX86Assembler::REGISTER dstReg, const STATEMENT& statement)
 {
-	CSymbol* src1 = statement.src1->GetSymbol().get();
-	CSymbol* src2 = statement.src2->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
 
 	assert(src1->m_type == SYM_RELATIVE64);
 	assert(src2->m_type == SYM_CONSTANT64);
 
 	uint64 constant = CombineConstant64(src2->m_valueLow, src2->m_valueHigh);
 
-	CX86Assembler::REGISTER tmpReg = CX86Assembler::rAX;
+	auto tmpReg = CX86Assembler::rAX;
 	m_assembler.MovEq(tmpReg, MakeRelative64SymbolAddress(src1));
 	if(constant == 0)
 	{
-		CX86Assembler::REGISTER cstReg = CX86Assembler::rDX;
+		auto cstReg = CX86Assembler::rDX;
 		m_assembler.XorGq(CX86Assembler::MakeRegisterAddress(cstReg), cstReg);
+		m_assembler.CmpEq(tmpReg, CX86Assembler::MakeRegisterAddress(cstReg));
+	}
+	else if(CX86Assembler::GetMinimumConstantSize64(constant) == 8)
+	{
+		auto cstReg = CX86Assembler::rDX;
+		m_assembler.MovIq(cstReg, constant);
 		m_assembler.CmpEq(tmpReg, CX86Assembler::MakeRegisterAddress(cstReg));
 	}
 	else

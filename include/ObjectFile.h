@@ -49,7 +49,7 @@ namespace Jitter
 		struct EXTERNAL_SYMBOL
 		{
 			std::string						name;
-			void*							value;
+			uintptr_t						value;
 		};
 
 								CObjectFile(CPU_ARCH);
@@ -58,9 +58,9 @@ namespace Jitter
 		unsigned int			AddInternalSymbol(const INTERNAL_SYMBOL&);
 
 		unsigned int			AddExternalSymbol(const EXTERNAL_SYMBOL&);
-		unsigned int			AddExternalSymbol(const std::string&, void*);
+		unsigned int			AddExternalSymbol(const std::string&, uintptr_t);
 
-		unsigned int			GetExternalSymbolIndexByValue(void*) const;
+		unsigned int			GetExternalSymbolIndexByValue(uintptr_t) const;
 
 		virtual void			Write(Framework::CStream&) = 0;
 

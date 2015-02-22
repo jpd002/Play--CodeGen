@@ -16,6 +16,7 @@
 		703093CF17BE67F5009662A1 /* MdCallTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 703093C617BE67CE009662A1 /* MdCallTest.cpp */; };
 		703093D017BE67F8009662A1 /* MdFpFlagTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 703093C817BE67CE009662A1 /* MdFpFlagTest.cpp */; };
 		703093D117BE6804009662A1 /* Shift64Test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 703093CA17BE67CE009662A1 /* Shift64Test.cpp */; };
+		70320D0B1A998CD3001E9C4B /* Logic64Test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70320D091A998CD3001E9C4B /* Logic64Test.cpp */; };
 		705E54EE1A58C50B009E67F1 /* libFramework.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 705E54ED1A58C4E1009E67F1 /* libFramework.a */; };
 		705E55031A58C6B9009E67F1 /* Cmp64Test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 705E54F51A58C6B9009E67F1 /* Cmp64Test.cpp */; };
 		705E55041A58C6B9009E67F1 /* LogicMdTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 705E54F71A58C6B9009E67F1 /* LogicMdTest.cpp */; };
@@ -97,6 +98,8 @@
 		703093C917BE67CE009662A1 /* MdFpFlagTest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = MdFpFlagTest.h; path = ../tests/MdFpFlagTest.h; sourceTree = "<group>"; };
 		703093CA17BE67CE009662A1 /* Shift64Test.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Shift64Test.cpp; path = ../tests/Shift64Test.cpp; sourceTree = "<group>"; };
 		703093CB17BE67CE009662A1 /* Shift64Test.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Shift64Test.h; path = ../tests/Shift64Test.h; sourceTree = "<group>"; };
+		70320D091A998CD3001E9C4B /* Logic64Test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Logic64Test.cpp; path = ../tests/Logic64Test.cpp; sourceTree = "<group>"; };
+		70320D0A1A998CD3001E9C4B /* Logic64Test.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Logic64Test.h; path = ../tests/Logic64Test.h; sourceTree = "<group>"; };
 		705E54E81A58C4E1009E67F1 /* Framework.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Framework.xcodeproj; path = ../../Framework/build_ios/Framework.xcodeproj; sourceTree = "<group>"; };
 		705E54F51A58C6B9009E67F1 /* Cmp64Test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Cmp64Test.cpp; path = ../tests/Cmp64Test.cpp; sourceTree = "<group>"; };
 		705E54F61A58C6B9009E67F1 /* Cmp64Test.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Cmp64Test.h; path = ../tests/Cmp64Test.h; sourceTree = "<group>"; };
@@ -259,6 +262,8 @@
 				703093C517BE67CE009662A1 /* HalfMultTest.h */,
 				7E3018521341A22000FEAF04 /* HugeJumpTest.cpp */,
 				7E3018531341A22000FEAF04 /* HugeJumpTest.h */,
+				70320D091A998CD3001E9C4B /* Logic64Test.cpp */,
+				70320D0A1A998CD3001E9C4B /* Logic64Test.h */,
 				705E54F71A58C6B9009E67F1 /* LogicMdTest.cpp */,
 				705E54F81A58C6B9009E67F1 /* LogicMdTest.h */,
 				705E54F91A58C6B9009E67F1 /* LzcTest.cpp */,
@@ -421,6 +426,7 @@
 				7EF8380512DAB5D300EA0F1C /* AliasTest.cpp in Sources */,
 				703093CC17BE67E5009662A1 /* Alu64Test.cpp in Sources */,
 				705E55041A58C6B9009E67F1 /* LogicMdTest.cpp in Sources */,
+				70320D0B1A998CD3001E9C4B /* Logic64Test.cpp in Sources */,
 				705E55091A58C6B9009E67F1 /* SimpleMdTest.cpp in Sources */,
 				7EF8380612DAB5D300EA0F1C /* FpIntMixTest.cpp in Sources */,
 				7EF8380712DAB5D300EA0F1C /* MdFpTest.cpp in Sources */,

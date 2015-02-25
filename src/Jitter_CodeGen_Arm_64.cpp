@@ -146,6 +146,205 @@ void CCodeGen_Arm::Emit_And64_MemMemMem(const STATEMENT& statement)
 	StoreRegistersInMemory64(dst, regLo1, regHi1);
 }
 
+void CCodeGen_Arm::Emit_Sr64Var_MemMem(CSymbol* dst, CSymbol* src, CArmAssembler::REGISTER saReg, CArmAssembler::SHIFT shiftType)
+{
+	assert((shiftType == CArmAssembler::SHIFT_ASR) || (shiftType == CArmAssembler::SHIFT_LSR));
+
+	//saReg will be modified by this function, do not use PrepareRegister
+
+	assert(saReg == CArmAssembler::r0);
+
+	auto lessThan32Label = m_assembler.CreateLabel();
+	auto doneLabel = m_assembler.CreateLabel();
+
+	m_assembler.Cmp(saReg, CArmAssembler::MakeImmediateAluOperand(32, 0));
+	m_assembler.BCc(CArmAssembler::CONDITION_LT, lessThan32Label);
+
+	//greaterOrEqualThan32:
+	{
+		auto workReg = CArmAssembler::r1;
+		auto dstLo = CArmAssembler::r2;
+		auto dstHi = CArmAssembler::r3;
+
+		LoadMemory64HighInRegister(workReg, src);
+
+		auto fixedSaReg = CArmAssembler::r0;
+		m_assembler.Sub(fixedSaReg, saReg, CArmAssembler::MakeImmediateAluOperand(32, 0));
+
+		auto shiftLo = CArmAssembler::MakeVariableShift(shiftType, fixedSaReg);
+		m_assembler.Mov(dstLo, CArmAssembler::MakeRegisterAluOperand(workReg, shiftLo));
+
+		if(shiftType == CArmAssembler::SHIFT_LSR)
+		{
+			m_assembler.Mov(dstHi, CArmAssembler::MakeImmediateAluOperand(0, 0));
+		}
+		else
+		{
+			auto shiftHi = CArmAssembler::MakeConstantShift(CArmAssembler::SHIFT_ASR, 31);
+			m_assembler.Mov(dstHi, CArmAssembler::MakeRegisterAluOperand(workReg, shiftHi));
+		}
+
+		StoreRegistersInMemory64(dst, dstLo, dstHi);
+
+		m_assembler.BCc(CArmAssembler::CONDITION_AL, doneLabel);
+	}
+
+	//lessThan32:
+	m_assembler.MarkLabel(lessThan32Label);
+	{
+		auto dstReg = CArmAssembler::r1;
+		auto loReg = CArmAssembler::r2;
+		auto hiReg = CArmAssembler::r3;
+
+		//Hi part -> (hi >> sa)
+		auto shiftHi = CArmAssembler::MakeVariableShift(shiftType, saReg);
+		LoadMemory64HighInRegister(hiReg, src);
+		m_assembler.Mov(dstReg, CArmAssembler::MakeRegisterAluOperand(hiReg, shiftHi));
+		StoreRegisterInMemory64High(dst, dstReg);
+
+		//Lo part -> (hi << (32 - sa)) | (lo >> sa)
+		auto shiftLo1 = CArmAssembler::MakeVariableShift(CArmAssembler::SHIFT_LSR, saReg);
+		LoadMemory64LowInRegister(loReg, src);
+		m_assembler.Mov(dstReg, CArmAssembler::MakeRegisterAluOperand(loReg, shiftLo1));
+
+		auto shiftLo2 = CArmAssembler::MakeVariableShift(CArmAssembler::SHIFT_LSL, saReg);
+		m_assembler.Rsb(saReg, saReg, CArmAssembler::MakeImmediateAluOperand(32, 0));
+		m_assembler.Mov(hiReg, CArmAssembler::MakeRegisterAluOperand(hiReg, shiftLo2));
+		m_assembler.Or(dstReg, dstReg, hiReg);
+
+		StoreRegisterInMemory64Low(dst, dstReg);
+	}
+
+	//done:
+	m_assembler.MarkLabel(doneLabel);
+}
+
+void CCodeGen_Arm::Emit_Sr64Cst_MemMem(CSymbol* dst, CSymbol* src, uint32 shiftAmount, CArmAssembler::SHIFT shiftType)
+{
+	assert(shiftAmount < 0x40);
+	assert(shiftAmount != 0);
+
+	assert((shiftType == CArmAssembler::SHIFT_ASR) || (shiftType == CArmAssembler::SHIFT_LSR));
+
+	auto srcLo = CArmAssembler::r0;
+	auto srcHi = CArmAssembler::r1;
+	auto dstLo = CArmAssembler::r2;
+	auto dstHi = CArmAssembler::r3;
+
+	if(shiftAmount >= 32)
+	{
+		shiftAmount -= 32;
+
+		LoadMemory64HighInRegister(srcHi, src);
+
+		auto shiftLo = CArmAssembler::MakeConstantShift(shiftType, shiftAmount);
+		m_assembler.Mov(dstLo, CArmAssembler::MakeRegisterAluOperand(srcHi, shiftLo));
+
+		if(shiftType == CArmAssembler::SHIFT_LSR)
+		{
+			m_assembler.Mov(dstHi, CArmAssembler::MakeImmediateAluOperand(0, 0));
+		}
+		else
+		{
+			auto shiftHi = CArmAssembler::MakeConstantShift(CArmAssembler::SHIFT_ASR, 31);
+			m_assembler.Mov(dstHi, CArmAssembler::MakeRegisterAluOperand(srcHi, shiftHi));
+		}
+
+		StoreRegistersInMemory64(dst, dstLo, dstHi);
+	}
+	else //Amount < 32
+	{
+		LoadMemory64InRegisters(srcLo, srcHi, src);
+
+		//Hi part -> (hi >> sa)
+		auto shiftHi = CArmAssembler::MakeConstantShift(shiftType, shiftAmount);
+
+		m_assembler.Mov(dstHi, CArmAssembler::MakeRegisterAluOperand(srcHi, shiftHi));
+
+		//Lo part -> (hi << (32 - sa)) | (lo >> sa)
+		auto shiftLo1 = CArmAssembler::MakeConstantShift(CArmAssembler::SHIFT_LSR, shiftAmount);
+		auto shiftLo2 = CArmAssembler::MakeConstantShift(CArmAssembler::SHIFT_LSL, 32 - shiftAmount);
+
+		m_assembler.Mov(srcLo, CArmAssembler::MakeRegisterAluOperand(srcLo, shiftLo1));
+		m_assembler.Mov(srcHi, CArmAssembler::MakeRegisterAluOperand(srcHi, shiftLo2));
+		m_assembler.Or(dstLo, srcLo, srcHi);
+
+		StoreRegistersInMemory64(dst, dstLo, dstHi);
+	}
+}
+
+void CCodeGen_Arm::Emit_Srl64_MemMemVar(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	auto saReg = CArmAssembler::r0;
+
+	switch(src2->m_type)
+	{
+	case SYM_REGISTER:
+		m_assembler.Mov(saReg, g_registers[src2->m_valueLow]);
+		break;
+	case SYM_RELATIVE:
+	case SYM_TEMPORARY:
+		LoadMemoryInRegister(saReg, src2);
+		break;
+	default:
+		assert(0);
+		break;
+	}
+
+	Emit_Sr64Var_MemMem(dst, src1, saReg, CArmAssembler::SHIFT_LSR);
+}
+
+void CCodeGen_Arm::Emit_Sra64_MemMemVar(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	auto saReg = CArmAssembler::r0;
+
+	switch(src2->m_type)
+	{
+	case SYM_REGISTER:
+		m_assembler.Mov(saReg, g_registers[src2->m_valueLow]);
+		break;
+	case SYM_RELATIVE:
+	case SYM_TEMPORARY:
+		LoadMemoryInRegister(saReg, src2);
+		break;
+	default:
+		assert(0);
+		break;
+	}
+
+	Emit_Sr64Var_MemMem(dst, src1, saReg, CArmAssembler::SHIFT_ASR);
+}
+
+void CCodeGen_Arm::Emit_Srl64_MemMemCst(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	auto shiftAmount = static_cast<uint8>(src2->m_valueLow);
+
+	Emit_Sr64Cst_MemMem(dst, src1, shiftAmount, CArmAssembler::SHIFT_LSR);
+}
+
+void CCodeGen_Arm::Emit_Sra64_MemMemCst(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	auto shiftAmount = static_cast<uint8>(src2->m_valueLow);
+
+	Emit_Sr64Cst_MemMem(dst, src1, shiftAmount, CArmAssembler::SHIFT_ASR);
+}
+
 void CCodeGen_Arm::Cmp64_RegSymLo(CArmAssembler::REGISTER src1Reg, CSymbol* src2, CArmAssembler::REGISTER src2Reg)
 {
 	switch(src2->m_type)
@@ -312,6 +511,12 @@ CCodeGen_Arm::CONSTMATCHER CCodeGen_Arm::g_64ConstMatchers[] =
 	{ OP_EXTHIGH64,		MATCH_VARIABLE,		MATCH_MEMORY64,		MATCH_NIL,			&CCodeGen_Arm::Emit_ExtHigh64VarMem64			},
 
 	{ OP_AND64,			MATCH_MEMORY64,		MATCH_MEMORY64,		MATCH_MEMORY64,		&CCodeGen_Arm::Emit_And64_MemMemMem,			},
+
+	{ OP_SRL64,			MATCH_MEMORY64,		MATCH_MEMORY64,		MATCH_VARIABLE,		&CCodeGen_Arm::Emit_Srl64_MemMemVar				},
+	{ OP_SRL64,			MATCH_MEMORY64,		MATCH_MEMORY64,		MATCH_CONSTANT,		&CCodeGen_Arm::Emit_Srl64_MemMemCst				},
+
+	{ OP_SRA64,			MATCH_MEMORY64,		MATCH_MEMORY64,		MATCH_VARIABLE,		&CCodeGen_Arm::Emit_Sra64_MemMemVar				},
+	{ OP_SRA64,			MATCH_MEMORY64,		MATCH_MEMORY64,		MATCH_CONSTANT,		&CCodeGen_Arm::Emit_Sra64_MemMemCst				},
 
 	{ OP_CMP64,			MATCH_VARIABLE,		MATCH_MEMORY64,		MATCH_MEMORY64,		&CCodeGen_Arm::Emit_Cmp64_VarMemAny				},
 	{ OP_CMP64,			MATCH_VARIABLE,		MATCH_MEMORY64,		MATCH_CONSTANT64,	&CCodeGen_Arm::Emit_Cmp64_VarMemAny				},

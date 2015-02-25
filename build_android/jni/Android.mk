@@ -50,7 +50,8 @@ LOCAL_SRC_FILES			:=	../../tests/Cmp64Test.cpp \
 							../../tests/RandomAluTest.cpp \
 							../../tests/RandomAluTest2.cpp \
 							../../tests/RandomAluTest3.cpp \
-							../../tests/RegAllocTest.cpp
+							../../tests/RegAllocTest.cpp \
+							../../tests/Shift64Test.cpp
 LOCAL_CFLAGS			:= -Wno-extern-c-compat
 LOCAL_C_INCLUDES		:= $(FRAMEWORK_PATH)/include $(LOCAL_PATH)/../../include
 LOCAL_CPP_FEATURES		:= exceptions rtti

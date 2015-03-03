@@ -337,14 +337,21 @@ namespace Jitter
 		//AND64
 		void									Emit_And64_MemMemMem(const STATEMENT&);
 
+		//SLL64
+		void									Emit_Sl64Var_MemMem(CSymbol*, CSymbol*, CArmAssembler::REGISTER);
+		void									Emit_Sll64_MemMemVar(const STATEMENT&);
+		void									Emit_Sll64_MemMemCst(const STATEMENT&);
+
 		//SR64
 		void									Emit_Sr64Var_MemMem(CSymbol*, CSymbol*, CArmAssembler::REGISTER, CArmAssembler::SHIFT);
 		void									Emit_Sr64Cst_MemMem(CSymbol*, CSymbol*, uint32, CArmAssembler::SHIFT);
 
-		//SRA64
+		//SRL64
 		void									Emit_Srl64_MemMemVar(const STATEMENT&);
-		void									Emit_Sra64_MemMemVar(const STATEMENT&);
 		void									Emit_Srl64_MemMemCst(const STATEMENT&);
+
+		//SRA64
+		void									Emit_Sra64_MemMemVar(const STATEMENT&);
 		void									Emit_Sra64_MemMemCst(const STATEMENT&);
 
 		//CMP64

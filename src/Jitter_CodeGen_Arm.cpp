@@ -1022,6 +1022,10 @@ void CCodeGen_Arm::Cmp_GetFlag(CArmAssembler::REGISTER registerId, Jitter::CONDI
 			m_assembler.MovCc(CArmAssembler::CONDITION_GE, registerId, falseOperand);
 			m_assembler.MovCc(CArmAssembler::CONDITION_LT, registerId, trueOperand);
 			break;
+		case CONDITION_LE:
+			m_assembler.MovCc(CArmAssembler::CONDITION_GT, registerId, falseOperand);
+			m_assembler.MovCc(CArmAssembler::CONDITION_LE, registerId, trueOperand);
+			break;
 		case CONDITION_GT:
 			m_assembler.MovCc(CArmAssembler::CONDITION_LE, registerId, falseOperand);
 			m_assembler.MovCc(CArmAssembler::CONDITION_GT, registerId, trueOperand);
@@ -1029,6 +1033,10 @@ void CCodeGen_Arm::Cmp_GetFlag(CArmAssembler::REGISTER registerId, Jitter::CONDI
 		case CONDITION_BL:
 			m_assembler.MovCc(CArmAssembler::CONDITION_CS, registerId, falseOperand);
 			m_assembler.MovCc(CArmAssembler::CONDITION_CC, registerId, trueOperand);
+			break;
+		case CONDITION_BE:
+			m_assembler.MovCc(CArmAssembler::CONDITION_HI, registerId, falseOperand);
+			m_assembler.MovCc(CArmAssembler::CONDITION_LS, registerId, trueOperand);
 			break;
 		case CONDITION_AB:
 			m_assembler.MovCc(CArmAssembler::CONDITION_LS, registerId, falseOperand);

@@ -602,6 +602,9 @@ void CCodeGen_Arm::Cmp64_Order(const STATEMENT& statement)
 	case Jitter::CONDITION_LT:
 		unsignedCondition = Jitter::CONDITION_BL;
 		break;
+	case Jitter::CONDITION_LE:
+		unsignedCondition = Jitter::CONDITION_BE;
+		break;
 	case Jitter::CONDITION_GT:
 		unsignedCondition = Jitter::CONDITION_AB;
 		break;

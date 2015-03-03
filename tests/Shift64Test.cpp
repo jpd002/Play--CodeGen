@@ -28,15 +28,23 @@ void CShift64Test::Run()
 	TEST_VERIFY(m_context.resultSraVar0 == 0xFFF8000FFFF01234ULL);
 	TEST_VERIFY(m_context.resultSraVar1 == 0xFFFFFFFFFFFF8000ULL);
 
-	TEST_VERIFY(m_context.resultShlVar0 == 0x0FFFF01234567000ULL);
-	TEST_VERIFY(m_context.resultShlVar1 == 0x4567000000000000ULL);
+	TEST_VERIFY(m_context.resultSrl0 == 0x0000000000000123ULL);
+	TEST_VERIFY(m_context.resultSrl1 == 0x00000123456789ABULL);
 
 	TEST_VERIFY(m_context.resultSrlVar0 == 0x0000123456789ABCULL);
 	TEST_VERIFY(m_context.resultSrlVar1 == 0x0000000000000123ULL);
+
+	TEST_VERIFY(m_context.resultShl0 == 0xCDEF000000000000ULL);
+	TEST_VERIFY(m_context.resultShl1 == 0x456789ABCDEF0000ULL);
+
+	TEST_VERIFY(m_context.resultShlVar0 == 0x0FFFF01234567000ULL);
+	TEST_VERIFY(m_context.resultShlVar1 == 0x4567000000000000ULL);
 }
 
 void CShift64Test::Compile(Jitter::CJitter& jitter)
 {
+	//TODO: Check result if shift amount is greater than 0x40 for variable shifts
+
 	Framework::CMemStream codeStream;
 	jitter.SetStream(&codeStream);
 
@@ -65,6 +73,16 @@ void CShift64Test::Compile(Jitter::CJitter& jitter)
 		jitter.PullRel64(offsetof(CONTEXT, resultSraVar1));
 
 		//------------------
+		//SRL Constant
+		jitter.PushRel64(offsetof(CONTEXT, value1));
+		jitter.Srl64(48);
+		jitter.PullRel64(offsetof(CONTEXT, resultSrl0));
+
+		jitter.PushRel64(offsetof(CONTEXT, value1));
+		jitter.Srl64(16);
+		jitter.PullRel64(offsetof(CONTEXT, resultSrl1));
+
+		//------------------
 		//SRL Variable
 		jitter.PushRel64(offsetof(CONTEXT, value1));
 		jitter.PushRel(offsetof(CONTEXT, shiftAmount0));
@@ -75,6 +93,16 @@ void CShift64Test::Compile(Jitter::CJitter& jitter)
 		jitter.PushRel(offsetof(CONTEXT, shiftAmount1));
 		jitter.Srl64();
 		jitter.PullRel64(offsetof(CONTEXT, resultSrlVar1));
+
+		//------------------
+		//SHL Constant
+		jitter.PushRel64(offsetof(CONTEXT, value1));
+		jitter.Shl64(48);
+		jitter.PullRel64(offsetof(CONTEXT, resultShl0));
+
+		jitter.PushRel64(offsetof(CONTEXT, value1));
+		jitter.Shl64(16);
+		jitter.PullRel64(offsetof(CONTEXT, resultShl1));
 
 		//------------------
 		//SHL Variable

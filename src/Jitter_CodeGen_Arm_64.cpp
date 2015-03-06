@@ -375,8 +375,15 @@ void CCodeGen_Arm::Emit_Sr64Cst_MemMem(CSymbol* dst, CSymbol* src, uint32 shiftA
 
 		LoadMemory64HighInRegister(srcHi, src);
 
-		auto shiftLo = CArmAssembler::MakeConstantShift(shiftType, shiftAmount);
-		m_assembler.Mov(dstLo, CArmAssembler::MakeRegisterAluOperand(srcHi, shiftLo));
+		if(shiftAmount != 0)
+		{
+			auto shiftLo = CArmAssembler::MakeConstantShift(shiftType, shiftAmount);
+			m_assembler.Mov(dstLo, CArmAssembler::MakeRegisterAluOperand(srcHi, shiftLo));
+		}
+		else
+		{
+			m_assembler.Mov(dstLo, srcHi);
+		}
 
 		if(shiftType == CArmAssembler::SHIFT_LSR)
 		{

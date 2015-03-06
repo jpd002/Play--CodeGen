@@ -54,6 +54,9 @@ CArmAssembler::RegisterAluOperand CArmAssembler::MakeRegisterAluOperand(CArmAsse
 
 CArmAssembler::AluLdrShift CArmAssembler::MakeConstantShift(SHIFT shiftType, uint8 amount)
 {
+	assert(!(shiftType == SHIFT_ASR && amount == 0));
+	assert(!(shiftType == SHIFT_LSR && amount == 0));
+
 	AluLdrShift result;
 	result.typeBit = 0;
 	result.type = shiftType;

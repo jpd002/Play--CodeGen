@@ -242,6 +242,7 @@ public:
 
 	void									MovdVo(XMMREGISTER, const CAddress&);
 	void									MovdVo(const CAddress&, XMMREGISTER);
+	void									MovqVo(XMMREGISTER, const CAddress&);
 	void									MovdquVo(const CAddress&, XMMREGISTER);
 	void									MovdquVo(XMMREGISTER, const CAddress&);
 	void									MovapsVo(const CAddress&, XMMREGISTER);
@@ -396,6 +397,7 @@ private:
 	void									WriteEdVdOp(uint8, const CAddress&, XMMREGISTER);
 	void									WriteEdVdOp_0F(uint8, const CAddress&, XMMREGISTER);
 	void									WriteEdVdOp_66_0F(uint8, const CAddress&, XMMREGISTER);
+	void									WriteEdVdOp_66_0F_64b(uint8, const CAddress&, XMMREGISTER);
 	void									WriteEdVdOp_66_0F_38(uint8, const CAddress&, XMMREGISTER);
 	void									WriteEdVdOp_F3_0F(uint8, const CAddress&, XMMREGISTER);
 	void									WriteVrOp_66_0F(uint8, uint8, XMMREGISTER);

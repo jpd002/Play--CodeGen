@@ -208,6 +208,7 @@ CCodeGen_x86_64::CONSTMATCHER CCodeGen_x86_64::g_constMatchers[] =
 	{ OP_RETVAL,		MATCH_REGISTER,		MATCH_NIL,			MATCH_NIL,			&CCodeGen_x86_64::Emit_RetVal_Reg							},
 	{ OP_RETVAL,		MATCH_MEMORY,		MATCH_NIL,			MATCH_NIL,			&CCodeGen_x86_64::Emit_RetVal_Mem							},
 	{ OP_RETVAL,		MATCH_MEMORY64,		MATCH_NIL,			MATCH_NIL,			&CCodeGen_x86_64::Emit_RetVal_Mem64							},
+	{ OP_RETVAL,		MATCH_REGISTER128,	MATCH_NIL,			MATCH_NIL,			&CCodeGen_x86_64::Emit_RetVal_Reg128						},
 	{ OP_RETVAL,		MATCH_MEMORY128,	MATCH_NIL,			MATCH_NIL,			&CCodeGen_x86_64::Emit_RetVal_Mem128						},
 
 	{ OP_MOV,			MATCH_MEMORY64,		MATCH_MEMORY64,		MATCH_NIL,			&CCodeGen_x86_64::Emit_Mov_Mem64Mem64						},
@@ -539,6 +540,16 @@ void CCodeGen_x86_64::Emit_RetVal_Mem64(const STATEMENT& statement)
 {
 	CSymbol* dst = statement.dst->GetSymbol().get();
 	m_assembler.MovGq(MakeMemory64SymbolAddress(dst), CX86Assembler::rAX);
+}
+
+void CCodeGen_x86_64::Emit_RetVal_Reg128(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	
+	//TODO: Use only integer operations
+	m_assembler.MovqVo(m_mdRegisters[dst->m_valueLow], CX86Assembler::MakeRegisterAddress(CX86Assembler::rAX));
+	m_assembler.MovqVo(CX86Assembler::xMM0, CX86Assembler::MakeRegisterAddress(CX86Assembler::rDX));
+	m_assembler.ShufpsVo(m_mdRegisters[dst->m_valueLow], CX86Assembler::MakeXmmRegisterAddress(CX86Assembler::xMM0), 0x44);
 }
 
 void CCodeGen_x86_64::Emit_RetVal_Mem128(const STATEMENT& statement)

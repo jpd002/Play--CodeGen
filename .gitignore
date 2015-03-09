@@ -1,3 +1,7 @@
 Debug
 Release
+build_android/bin
+build_android/gen
+build_android/libs
+build_android/obj
 *.userprops

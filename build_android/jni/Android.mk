@@ -35,7 +35,8 @@ include $(BUILD_STATIC_LIBRARY)
 include $(CLEAR_VARS)
 
 LOCAL_MODULE			:= libCodeGenTestSuite
-LOCAL_SRC_FILES			:=	../../tests/Cmp64Test.cpp \
+LOCAL_SRC_FILES			:=	../../tests/Alu64Test.cpp \
+							../../tests/Cmp64Test.cpp \
 							../../tests/Call64Test.cpp \
 							../../tests/CompareTest.cpp \
 							../../tests/Crc32Test.cpp \

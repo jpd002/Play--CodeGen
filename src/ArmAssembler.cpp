@@ -111,38 +111,58 @@ void CArmAssembler::ResolveLabelReferences()
 	m_labelReferences.clear();
 }
 
+void CArmAssembler::GenericAlu(ALU_OPCODE op, bool setFlags, REGISTER rd, REGISTER rn, REGISTER rm)
+{
+	InstructionAlu instruction;
+	instruction.operand		= rm;
+	instruction.rn			= rn;
+	instruction.rd			= rd;
+	instruction.setFlags	= setFlags ? 1 : 0;
+	instruction.opcode		= op;
+	instruction.immediate	= 0;
+	instruction.condition	= CONDITION_AL;
+	uint32 opcode = *reinterpret_cast<uint32*>(&instruction);
+	WriteWord(opcode);
+}
+
+void CArmAssembler::GenericAlu(ALU_OPCODE op, bool setFlags, REGISTER rd, REGISTER rn, const ImmediateAluOperand& operand)
+{
+	InstructionAlu instruction;
+	instruction.operand		= *reinterpret_cast<const unsigned int*>(&operand);
+	instruction.rd			= rd;
+	instruction.rn			= rn;
+	instruction.setFlags	= setFlags ? 1 : 0;
+	instruction.opcode		= op;
+	instruction.immediate	= 1;
+	instruction.condition	= CONDITION_AL;
+	uint32 opcode = *reinterpret_cast<uint32*>(&instruction);
+	WriteWord(opcode);
+}
+
 void CArmAssembler::CreateLabelReference(LABEL label)
 {
 	LABELREF reference = static_cast<size_t>(m_stream->Tell());
 	m_labelReferences.insert(LabelReferenceMapType::value_type(label, reference));
 }
 
+void CArmAssembler::Adc(REGISTER rd, REGISTER rn, REGISTER rm)
+{
+	GenericAlu(ALU_OPCODE_ADC, false, rd, rn, rm);
+}
+
 void CArmAssembler::Add(REGISTER rd, REGISTER rn, REGISTER rm)
 {
-	InstructionAlu instruction;
-	instruction.operand = rm;
-	instruction.rn = rn;
-	instruction.rd = rd;
-	instruction.setFlags = 0;
-	instruction.opcode = ALU_OPCODE_ADD;
-	instruction.immediate = 0;
-	instruction.condition = CONDITION_AL;
-	uint32 opcode = *reinterpret_cast<uint32*>(&instruction);
-	WriteWord(opcode);
+	GenericAlu(ALU_OPCODE_ADD, false, rd, rn, rm);
 }
 
 void CArmAssembler::Add(REGISTER rd, REGISTER rn, const ImmediateAluOperand& operand)
 {
-	InstructionAlu instruction;
-	instruction.operand = *reinterpret_cast<const unsigned int*>(&operand);
-	instruction.rd = rd;
-	instruction.rn = rn;
-	instruction.setFlags = 0;
-	instruction.opcode = ALU_OPCODE_ADD;
-	instruction.immediate = 1;
-	instruction.condition = CONDITION_AL;
-	uint32 opcode = *reinterpret_cast<uint32*>(&instruction);
-	WriteWord(opcode);
+	GenericAlu(ALU_OPCODE_ADD, false, rd, rn, operand);
+}
+
+void CArmAssembler::Adds(REGISTER rd, REGISTER rn, REGISTER rm)
+{
+	GenericAlu(ALU_OPCODE_ADD, true, rd, rn, rm);
 }
 
 void CArmAssembler::And(REGISTER rd, REGISTER rn, REGISTER rm)
@@ -432,6 +452,11 @@ void CArmAssembler::Rsb(REGISTER rd, REGISTER rn, const ImmediateAluOperand& ope
 	WriteWord(opcode);
 }
 
+void CArmAssembler::Sbc(REGISTER rd, REGISTER rn, REGISTER rm)
+{
+	GenericAlu(ALU_OPCODE_SBC, false, rd, rn, rm);
+}
+
 void CArmAssembler::Smull(REGISTER rdLow, REGISTER rdHigh, REGISTER rn, REGISTER rm)
 {
 	uint32 opcode = 0;
@@ -463,30 +488,17 @@ void CArmAssembler::Str(REGISTER rd, REGISTER rbase, const LdrAddress& address)
 
 void CArmAssembler::Sub(REGISTER rd, REGISTER rn, REGISTER rm)
 {
-	InstructionAlu instruction;
-	instruction.operand = rm;
-	instruction.rn = rn;
-	instruction.rd = rd;
-	instruction.setFlags = 0;
-	instruction.opcode = ALU_OPCODE_SUB;
-	instruction.immediate = 0;
-	instruction.condition = CONDITION_AL;
-	uint32 opcode = *reinterpret_cast<uint32*>(&instruction);
-	WriteWord(opcode);
+	GenericAlu(ALU_OPCODE_SUB, false, rd, rn, rm);
 }
 
 void CArmAssembler::Sub(REGISTER rd, REGISTER rn, const ImmediateAluOperand& operand)
 {
-	InstructionAlu instruction;
-	instruction.operand = *reinterpret_cast<const unsigned int*>(&operand);
-	instruction.rd = rd;
-	instruction.rn = rn;
-	instruction.setFlags = 0;
-	instruction.opcode = ALU_OPCODE_SUB;
-	instruction.immediate = 1;
-	instruction.condition = CONDITION_AL;
-	uint32 opcode = *reinterpret_cast<uint32*>(&instruction);
-	WriteWord(opcode);
+	GenericAlu(ALU_OPCODE_SUB, false, rd, rn, operand);
+}
+
+void CArmAssembler::Subs(REGISTER rd, REGISTER rn, REGISTER rm)
+{
+	GenericAlu(ALU_OPCODE_SUB, true, rd, rn, rm);
 }
 
 void CArmAssembler::Teq(REGISTER rn, const ImmediateAluOperand& operand)

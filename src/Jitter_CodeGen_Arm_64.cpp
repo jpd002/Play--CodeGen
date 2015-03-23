@@ -126,6 +126,68 @@ void CCodeGen_Arm::Emit_ExtHigh64VarMem64(const STATEMENT& statement)
 	CommitSymbolRegister(dst, dstReg);
 }
 
+void CCodeGen_Arm::Emit_Add64_MemMemMem(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	auto regLo1 = CArmAssembler::r0;
+	auto regHi1 = CArmAssembler::r1;
+	auto regLo2 = CArmAssembler::r2;
+	auto regHi2 = CArmAssembler::r3;
+
+	LoadMemory64InRegisters(regLo1, regHi1, src1);
+	LoadMemory64InRegisters(regLo2, regHi2, src2);
+
+	m_assembler.Adds(regLo1, regLo1, regLo2);
+	m_assembler.Adc(regHi1, regHi1, regHi2);
+
+	StoreRegistersInMemory64(dst, regLo1, regHi1);
+}
+
+void CCodeGen_Arm::Emit_Add64_MemMemCst(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	auto regLo1 = CArmAssembler::r0;
+	auto regHi1 = CArmAssembler::r1;
+	auto regLo2 = CArmAssembler::r2;
+	auto regHi2 = CArmAssembler::r3;
+
+	LoadMemory64InRegisters(regLo1, regHi1, src1);
+	LoadConstantInRegister(regLo2, src2->m_valueLow);
+	LoadConstantInRegister(regHi2, src2->m_valueHigh);
+
+	//TODO: Improve this by using immediate operands instead of loading constants in registers
+	m_assembler.Adds(regLo1, regLo1, regLo2);
+	m_assembler.Adc(regHi1, regHi1, regHi2);
+
+	StoreRegistersInMemory64(dst, regLo1, regHi1);
+}
+
+void CCodeGen_Arm::Emit_Sub64_MemMemMem(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	auto regLo1 = CArmAssembler::r0;
+	auto regHi1 = CArmAssembler::r1;
+	auto regLo2 = CArmAssembler::r2;
+	auto regHi2 = CArmAssembler::r3;
+
+	LoadMemory64InRegisters(regLo1, regHi1, src1);
+	LoadMemory64InRegisters(regLo2, regHi2, src2);
+
+	m_assembler.Subs(regLo1, regLo1, regLo2);
+	m_assembler.Sbc(regHi1, regHi1, regHi2);
+
+	StoreRegistersInMemory64(dst, regLo1, regHi1);
+}
+
 void CCodeGen_Arm::Emit_And64_MemMemMem(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
@@ -657,6 +719,11 @@ CCodeGen_Arm::CONSTMATCHER CCodeGen_Arm::g_64ConstMatchers[] =
 {
 	{ OP_EXTLOW64,		MATCH_VARIABLE,		MATCH_MEMORY64,		MATCH_NIL,			&CCodeGen_Arm::Emit_ExtLow64VarMem64			},
 	{ OP_EXTHIGH64,		MATCH_VARIABLE,		MATCH_MEMORY64,		MATCH_NIL,			&CCodeGen_Arm::Emit_ExtHigh64VarMem64			},
+
+	{ OP_ADD64,			MATCH_MEMORY64,		MATCH_MEMORY64,		MATCH_MEMORY64,		&CCodeGen_Arm::Emit_Add64_MemMemMem				},
+	{ OP_ADD64,			MATCH_MEMORY64,		MATCH_MEMORY64,		MATCH_CONSTANT64,	&CCodeGen_Arm::Emit_Add64_MemMemCst				},
+
+	{ OP_SUB64,			MATCH_MEMORY64,		MATCH_MEMORY64,		MATCH_MEMORY64,		&CCodeGen_Arm::Emit_Sub64_MemMemMem				},
 
 	{ OP_AND64,			MATCH_MEMORY64,		MATCH_MEMORY64,		MATCH_MEMORY64,		&CCodeGen_Arm::Emit_And64_MemMemMem,			},
 

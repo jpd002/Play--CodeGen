@@ -184,8 +184,10 @@ public:
 	void									MarkLabel(LABEL);
 	void									ResolveLabelReferences();
 	
+	void									Adc(REGISTER, REGISTER, REGISTER);
 	void									Add(REGISTER, REGISTER, REGISTER);
 	void									Add(REGISTER, REGISTER, const ImmediateAluOperand&);
+	void									Adds(REGISTER, REGISTER, REGISTER);
 	void									And(REGISTER, REGISTER, REGISTER);
 	void									And(REGISTER, REGISTER, const ImmediateAluOperand&);
 	void									BCc(CONDITION, LABEL);
@@ -210,11 +212,13 @@ public:
 	void									Or(REGISTER, REGISTER, REGISTER);
 	void									Or(REGISTER, REGISTER, const ImmediateAluOperand&);
 	void									Rsb(REGISTER, REGISTER, const ImmediateAluOperand&);
+	void									Sbc(REGISTER, REGISTER, REGISTER);
 	void									Smull(REGISTER, REGISTER, REGISTER, REGISTER);
 	void									Stmdb(REGISTER, uint16);
 	void									Str(REGISTER, REGISTER, const LdrAddress&);
 	void									Sub(REGISTER, REGISTER, REGISTER);
 	void									Sub(REGISTER, REGISTER, const ImmediateAluOperand&);
+	void									Subs(REGISTER, REGISTER, REGISTER);
 	void									Teq(REGISTER, const ImmediateAluOperand&);
 	void									Umull(REGISTER, REGISTER, REGISTER, REGISTER);
 
@@ -254,6 +258,9 @@ private:
 	typedef std::map<LABEL, size_t> LabelMapType;
 	typedef std::multimap<LABEL, LABELREF> LabelReferenceMapType;
 	
+	void									GenericAlu(ALU_OPCODE, bool, REGISTER, REGISTER, REGISTER);
+	void									GenericAlu(ALU_OPCODE, bool, REGISTER, REGISTER, const ImmediateAluOperand&);
+
 	void									CreateLabelReference(LABEL);
 	void									WriteWord(uint32);
 

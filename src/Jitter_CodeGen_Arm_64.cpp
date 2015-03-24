@@ -677,6 +677,7 @@ void CCodeGen_Arm::Cmp64_Order(const STATEMENT& statement)
 	case Jitter::CONDITION_GT:
 		unsignedCondition = Jitter::CONDITION_AB;
 		break;
+	case Jitter::CONDITION_AB:
 	case Jitter::CONDITION_BL:
 		unsignedCondition = statement.jmpCondition;
 		break;

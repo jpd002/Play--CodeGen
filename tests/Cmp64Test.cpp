@@ -23,6 +23,7 @@ void CCmp64Test::Run()
 	uint32 resultBl = static_cast<uint64>(m_value0) < static_cast<uint64>(m_value1) ? 1 : 0;
 	uint32 resultLt = static_cast<int64>(m_value0) < static_cast<int64>(m_value1) ? 1 : 0;
 	uint32 resultLe = static_cast<int64>(m_value0) <= static_cast<int64>(m_value1) ? 1 : 0;
+	uint32 resultAb = static_cast<uint64>(m_value0) > static_cast<uint64>(m_value1) ? 1 : 0;
 	uint32 resultGt = static_cast<int64>(m_value0) > static_cast<int64>(m_value1) ? 1 : 0;
 
 	TEST_VERIFY(m_context.resultEq == resultEq);
@@ -30,6 +31,7 @@ void CCmp64Test::Run()
 	TEST_VERIFY(m_context.resultBl == resultBl);
 	TEST_VERIFY(m_context.resultLt == resultLt);
 	TEST_VERIFY(m_context.resultLe == resultLe);
+	TEST_VERIFY(m_context.resultAb == resultAb);
 	TEST_VERIFY(m_context.resultGt == resultGt);
 }
 
@@ -109,6 +111,20 @@ void CCmp64Test::Compile(Jitter::CJitter& jitter)
 		}
 		jitter.Cmp64(Jitter::CONDITION_LE);
 		jitter.PullRel(offsetof(CONTEXT, resultLe));
+
+		//Greater Than (unsigned)
+		//---------------------------------
+		jitter.PushRel64(offsetof(CONTEXT, value0));
+		if(m_useConstant)
+		{
+			jitter.PushCst64(m_value1);
+		}
+		else
+		{
+			jitter.PushRel64(offsetof(CONTEXT, value1));
+		}
+		jitter.Cmp64(Jitter::CONDITION_AB);
+		jitter.PullRel(offsetof(CONTEXT, resultAb));
 
 		//Greater Than (signed)
 		//---------------------------------

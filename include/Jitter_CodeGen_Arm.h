@@ -340,6 +340,7 @@ namespace Jitter
 
 		//SUB64
 		void									Emit_Sub64_MemMemMem(const STATEMENT&);
+		void									Emit_Sub64_MemCstMem(const STATEMENT&);
 
 		//AND64
 		void									Emit_And64_MemMemMem(const STATEMENT&);

@@ -477,7 +477,7 @@ namespace Jitter
 		void						Emit_Not_RegRel(const STATEMENT&);
 		void						Emit_Not_RegTmp(const STATEMENT&);
 		void						Emit_Not_RelReg(const STATEMENT&);
-		void						Emit_Not_RelTmp(const STATEMENT&);
+		void						Emit_Not_MemMem(const STATEMENT&);
 
 		//LZC
 		void						Emit_Lzc(CX86Assembler::REGISTER, const CX86Assembler::CAddress&);
@@ -495,7 +495,7 @@ namespace Jitter
 		void						Emit_Cmp_RelRegRel(const STATEMENT&);
 		void						Emit_Cmp_RelRegCst(const STATEMENT&);
 		void						Emit_Cmp_RelRelRel(const STATEMENT&);
-		void						Emit_Cmp_RelRelCst(const STATEMENT&);
+		void						Emit_Cmp_MemMemCst(const STATEMENT&);
 
 		//MUL/MULS
 		template<bool> void			Emit_MulTmp64RegRel(const STATEMENT&);

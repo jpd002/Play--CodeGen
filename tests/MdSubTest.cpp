@@ -10,6 +10,11 @@ void CMdSubTest::Compile(Jitter::CJitter& jitter)
 	{
 		jitter.MD_PushRel(offsetof(CONTEXT, src3));
 		jitter.MD_PushRel(offsetof(CONTEXT, src1));
+		jitter.MD_SubB();
+		jitter.MD_PullRel(offsetof(CONTEXT, dstSubB));
+
+		jitter.MD_PushRel(offsetof(CONTEXT, src3));
+		jitter.MD_PushRel(offsetof(CONTEXT, src1));
 		jitter.MD_SubBUS();
 		jitter.MD_PullRel(offsetof(CONTEXT, dstSubBUS));
 
@@ -54,6 +59,14 @@ void CMdSubTest::Run()
 	}
 
 	m_function(&context);
+
+	static const uint8 dstSubBRes[16] =
+	{
+		0xC0, 0xB0, 0xA0, 0x90,
+		0x80, 0x70, 0x60, 0x50,
+		0x40, 0x30, 0x20, 0x10,
+		0x00, 0xF0, 0xE0, 0xD0
+	};
 
 	static const uint8 dstSubBUSRes[16] =
 	{
@@ -110,6 +123,7 @@ void CMdSubTest::Run()
 
 	for(unsigned int i = 0; i < 16; i++)
 	{
+		TEST_VERIFY(dstSubBRes[i]			== context.dstSubB[i]);
 		TEST_VERIFY(dstSubBUSRes[i]			== context.dstSubBUS[i]);
 		TEST_VERIFY(dstSubHRes[i]			== context.dstSubH[i]);
 		TEST_VERIFY(dstSubHSSRes[i]			== context.dstSubHSS[i]);

@@ -18,6 +18,7 @@ void CMdLogicTest::Run()
 
 	for(unsigned int i = 0; i < 4; i++)
 	{
+		TEST_VERIFY(m_context.resultOr[i] == (CONSTANT_1 | CONSTANT_2));
 		TEST_VERIFY(m_context.resultNot[i] == ~CONSTANT_1);
 	}
 }
@@ -29,6 +30,11 @@ void CMdLogicTest::Compile(Jitter::CJitter& jitter)
 
 	jitter.Begin();
 	{
+		jitter.MD_PushRel(offsetof(CONTEXT, op1));
+		jitter.MD_PushRel(offsetof(CONTEXT, op2));
+		jitter.MD_Or();
+		jitter.MD_PullRel(offsetof(CONTEXT, resultOr));
+
 		jitter.MD_PushRel(offsetof(CONTEXT, op1));
 		jitter.MD_Not();
 		jitter.MD_PullRel(offsetof(CONTEXT, resultNot));

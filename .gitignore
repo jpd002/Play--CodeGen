@@ -5,3 +5,5 @@ build_android/gen
 build_android/libs
 build_android/obj
 *.userprops
+xcuserdata
+

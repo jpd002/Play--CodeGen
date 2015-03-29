@@ -1,10 +1,10 @@
-#include "LogicMdTest.h"
+#include "MdLogicTest.h"
 #include "MemStream.h"
 
 #define CONSTANT_1 (0x55555555)
 #define CONSTANT_2 (0xCCCCCCCC)
 
-void CLogicMdTest::Run()
+void CMdLogicTest::Run()
 {
 	memset(&m_context, 0, sizeof(m_context));
 
@@ -22,7 +22,7 @@ void CLogicMdTest::Run()
 	}
 }
 
-void CLogicMdTest::Compile(Jitter::CJitter& jitter)
+void CMdLogicTest::Compile(Jitter::CJitter& jitter)
 {
 	Framework::CMemStream codeStream;
 	jitter.SetStream(&codeStream);

@@ -4,7 +4,7 @@
 #include "Align16.h"
 #include "MemoryFunction.h"
 
-class CLogicMdTest : public CTest
+class CMdLogicTest : public CTest
 {
 public:
 	void				Run() override;

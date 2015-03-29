@@ -245,6 +245,27 @@ namespace Jitter
 			static OpRegType OpReg() { return &CArmAssembler::Vmax_F32; }
 		};
 
+		//MDOP -----------------------------------------------------------
+		struct MDOP_BASE3
+		{
+			typedef void (CArmAssembler::*OpRegType)(CArmAssembler::QUAD_REGISTER, CArmAssembler::QUAD_REGISTER, CArmAssembler::QUAD_REGISTER);
+		};
+
+		struct MDOP_ADDW : public MDOP_BASE3
+		{
+			static OpRegType OpReg() { return &CArmAssembler::Vadd_I32; }
+		};
+
+		struct MDOP_SUBB : public MDOP_BASE3
+		{
+			static OpRegType OpReg() { return &CArmAssembler::Vsub_I8; }
+		};
+
+		struct MDOP_OR : public MDOP_BASE3
+		{
+			static OpRegType OpReg() { return &CArmAssembler::Vorr; }
+		};
+
 		//ALUOP
 		template <typename> void				Emit_Alu_GenericAnyAny(const STATEMENT&);
 		template <typename> void				Emit_Alu_GenericAnyCst(const STATEMENT&);
@@ -380,8 +401,8 @@ namespace Jitter
 		void									Emit_Fp_LdCst_TmpCst(const STATEMENT&);
 		
 		//MDOP
+		template <typename> void				Emit_Md_MemMemMem(const STATEMENT&);
 		void									Emit_Md_Mov_MemMem(const STATEMENT&);
-		void									Emit_Md_AddW_MemMemMem(const STATEMENT&);
 
 		static CONSTMATCHER						g_constMatchers[];
 		static CONSTMATCHER						g_64ConstMatchers[];

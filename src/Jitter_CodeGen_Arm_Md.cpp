@@ -58,7 +58,8 @@ void CCodeGen_Arm::Emit_Md_Mov_MemMem(const STATEMENT& statement)
 	m_assembler.Vst1_32x4(tmpReg, dstAddrReg);
 }
 
-void CCodeGen_Arm::Emit_Md_AddW_MemMemMem(const STATEMENT& statement)
+template <typename MDOP>
+void CCodeGen_Arm::Emit_Md_MemMemMem(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
@@ -70,18 +71,24 @@ void CCodeGen_Arm::Emit_Md_AddW_MemMemMem(const STATEMENT& statement)
 	auto dstReg = CArmAssembler::q0;
 	auto src1Reg = CArmAssembler::q1;
 	auto src2Reg = CArmAssembler::q2;
+
 	LoadMemory128AddressInRegister(dstAddrReg, dst);
 	LoadMemory128AddressInRegister(src1AddrReg, src1);
 	LoadMemory128AddressInRegister(src2AddrReg, src2);
+
 	m_assembler.Vld1_32x4(src1Reg, src1AddrReg);
 	m_assembler.Vld1_32x4(src2Reg, src2AddrReg);
-	m_assembler.Vadd_I32(dstReg, src1Reg, src2Reg);
+	((m_assembler).*(MDOP::OpReg()))(dstReg, src1Reg, src2Reg);
 	m_assembler.Vst1_32x4(dstReg, dstAddrReg);
 }
 
 CCodeGen_Arm::CONSTMATCHER CCodeGen_Arm::g_mdConstMatchers[] = 
 {
-	{ OP_MD_ADD_W,				MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_Arm::Emit_Md_AddW_MemMemMem						},
+	{ OP_MD_ADD_W,				MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_Arm::Emit_Md_MemMemMem<MDOP_ADDW>					},
+
+	{ OP_MD_SUB_B,				MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_Arm::Emit_Md_MemMemMem<MDOP_SUBB>					},
+
+	{ OP_MD_OR,					MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_Arm::Emit_Md_MemMemMem<MDOP_OR>					},
 
 	{ OP_MOV,					MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_NIL,				&CCodeGen_Arm::Emit_Md_Mov_MemMem							},
 

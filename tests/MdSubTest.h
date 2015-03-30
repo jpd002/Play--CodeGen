@@ -20,6 +20,7 @@ private:
 		uint8			src2[16];
 		uint8			src3[16];
 
+		uint8			dstSubB[16];
 		uint8			dstSubBUS[16];
 		uint8			dstSubH[16];
 		uint8			dstSubHSS[16];

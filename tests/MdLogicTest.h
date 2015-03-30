@@ -19,6 +19,8 @@ private:
 		uint32			op2[4];
 
 		uint32			resultOr[4];
+		uint32			resultXor[4];
+		uint32			resultAnd[4];
 		uint32			resultNot[4];
 	};
 

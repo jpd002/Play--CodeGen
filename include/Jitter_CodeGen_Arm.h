@@ -403,6 +403,7 @@ namespace Jitter
 		//MDOP
 		template <typename> void				Emit_Md_MemMemMem(const STATEMENT&);
 		void									Emit_Md_Mov_MemMem(const STATEMENT&);
+		void									Emit_Md_Not_MemMem(const STATEMENT&);
 
 		static CONSTMATCHER						g_constMatchers[];
 		static CONSTMATCHER						g_64ConstMatchers[];

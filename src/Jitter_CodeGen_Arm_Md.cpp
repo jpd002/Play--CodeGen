@@ -107,7 +107,9 @@ CCodeGen_Arm::CONSTMATCHER CCodeGen_Arm::g_mdConstMatchers[] =
 
 	{ OP_MD_SUB_B,				MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_Arm::Emit_Md_MemMemMem<MDOP_SUBB>					},
 
+	{ OP_MD_AND,				MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_Arm::Emit_Md_MemMemMem<MDOP_AND>					},
 	{ OP_MD_OR,					MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_Arm::Emit_Md_MemMemMem<MDOP_OR>					},
+	{ OP_MD_XOR,				MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_Arm::Emit_Md_MemMemMem<MDOP_XOR>					},
 
 	{ OP_MD_NOT,				MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_NIL,				&CCodeGen_Arm::Emit_Md_Not_MemMem							},
 

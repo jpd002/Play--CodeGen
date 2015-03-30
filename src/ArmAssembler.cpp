@@ -663,6 +663,15 @@ void CArmAssembler::Vdiv_F32(SINGLE_REGISTER sd, SINGLE_REGISTER sn, SINGLE_REGI
 	WriteWord(opcode);
 }
 
+void CArmAssembler::Vand(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER qm)
+{
+	uint32 opcode = 0xF2000150;
+	opcode |= FPSIMD_EncodeQd(qd);
+	opcode |= FPSIMD_EncodeQn(qn);
+	opcode |= FPSIMD_EncodeQm(qm);
+	WriteWord(opcode);
+}
+
 void CArmAssembler::Vorn(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER qm)
 {
 	uint32 opcode = 0xF2300150;

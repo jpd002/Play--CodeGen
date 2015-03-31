@@ -25,6 +25,7 @@ private:
 		uint8			dstSubH[16];
 		uint8			dstSubHSS[16];
 		uint8			dstSubHUS[16];
+		uint8			dstSubW[16];
 	};
 
 	CMemoryFunction		m_function;

@@ -49,6 +49,7 @@ LOCAL_SRC_FILES			:=	../../tests/Alu64Test.cpp \
 							../../tests/MdLogicTest.cpp \
 							../../tests/MdSubTest.cpp \
 							../../tests/MemAccessTest.cpp \
+							../../tests/Merge64Test.cpp \
 							../../tests/MultTest.cpp \
 							../../tests/RandomAluTest.cpp \
 							../../tests/RandomAluTest2.cpp \

@@ -27,6 +27,7 @@
 #include "Shift64Test.h"
 #include "Logic64Test.h"
 #include "Call64Test.h"
+#include "Merge64Test.h"
 #include "LzcTest.h"
 
 #ifdef __APPLE__
@@ -81,6 +82,7 @@ static const TestFactoryFunction s_factories[] =
 	[] () { return new CShift64Test(12); },
 	[] () { return new CShift64Test(32); },
 	[] () { return new CShift64Test(52); },
+	[] () { return new CMerge64Test(); },
 	[] () { return new CCall64Test(); },
 #endif
 };

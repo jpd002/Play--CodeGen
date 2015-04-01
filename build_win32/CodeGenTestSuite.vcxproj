@@ -173,6 +173,7 @@
     <ClCompile Include="..\tests\MdTest.cpp" />
     <ClCompile Include="..\tests\MdUnpackTest.cpp" />
     <ClCompile Include="..\tests\MemAccessTest.cpp" />
+    <ClCompile Include="..\tests\Merge64Test.cpp" />
     <ClCompile Include="..\tests\MultTest.cpp" />
     <ClCompile Include="..\tests\RandomAluTest.cpp" />
     <ClCompile Include="..\tests\RandomAluTest2.cpp" />
@@ -204,6 +205,7 @@
     <ClInclude Include="..\tests\MdTest.h" />
     <ClInclude Include="..\tests\MdUnpackTest.h" />
     <ClInclude Include="..\tests\MemAccessTest.h" />
+    <ClInclude Include="..\tests\Merge64Test.h" />
     <ClInclude Include="..\tests\MultTest.h" />
     <ClInclude Include="..\tests\RandomAluTest.h" />
     <ClInclude Include="..\tests\RandomAluTest2.h" />

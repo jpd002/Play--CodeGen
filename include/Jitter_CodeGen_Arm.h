@@ -335,6 +335,11 @@ namespace Jitter
 		//EXTHIGH64
 		void									Emit_ExtHigh64VarMem64(const STATEMENT&);
 
+		//MERGETO64
+		void									Emit_MergeTo64_Mem64RegMem(const STATEMENT&);
+		void									Emit_MergeTo64_Mem64CstReg(const STATEMENT&);
+		void									Emit_MergeTo64_Mem64CstMem(const STATEMENT&);
+
 		//CMP
 		void									Cmp_GetFlag(CArmAssembler::REGISTER, CONDITION);
 		void									Cmp_GenericRegCst(CArmAssembler::REGISTER, uint32, CArmAssembler::REGISTER);

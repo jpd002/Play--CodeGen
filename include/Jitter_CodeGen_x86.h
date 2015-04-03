@@ -565,11 +565,11 @@ namespace Jitter
 		template <typename> void	Emit_MulSH_MemMemMem(const STATEMENT&);
 
 		//MERGETO64
-		void						Emit_MergeTo64_Tmp64RegReg(const STATEMENT&);
-		void						Emit_MergeTo64_Tmp64RegMem(const STATEMENT&);
-		void						Emit_MergeTo64_Tmp64MemMem(const STATEMENT&);
-		void						Emit_MergeTo64_Tmp64CstReg(const STATEMENT&);
-		void						Emit_MergeTo64_Tmp64CstMem(const STATEMENT&);
+		void						Emit_MergeTo64_Mem64RegReg(const STATEMENT&);
+		void						Emit_MergeTo64_Mem64RegMem(const STATEMENT&);
+		void						Emit_MergeTo64_Mem64MemMem(const STATEMENT&);
+		void						Emit_MergeTo64_Mem64CstReg(const STATEMENT&);
+		void						Emit_MergeTo64_Mem64CstMem(const STATEMENT&);
 
 		//EXTLOW64
 		void						Emit_ExtLow64RegTmp64(const STATEMENT&);

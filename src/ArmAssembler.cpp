@@ -228,6 +228,15 @@ void CArmAssembler::Blx(REGISTER rn)
 	WriteWord(opcode);
 }
 
+void CArmAssembler::Clz(REGISTER rd, REGISTER rm)
+{
+	uint32 opcode = 0x016F0F10;
+	opcode |= CONDITION_AL << 28;
+	opcode |= rm;
+	opcode |= (rd << 12);
+	WriteWord(opcode);
+}
+
 void CArmAssembler::Cmn(REGISTER rn, const ImmediateAluOperand& operand)
 {
 	InstructionAlu instruction;
@@ -513,6 +522,11 @@ void CArmAssembler::Teq(REGISTER rn, const ImmediateAluOperand& operand)
 	instruction.condition = CONDITION_AL;
 	uint32 opcode = *reinterpret_cast<uint32*>(&instruction);
 	WriteWord(opcode);
+}
+
+void CArmAssembler::Tst(REGISTER rn, REGISTER rm)
+{
+	GenericAlu(ALU_OPCODE_TST, true, CArmAssembler::r0, rn, rm);
 }
 
 void CArmAssembler::Umull(REGISTER rdLow, REGISTER rdHigh, REGISTER rn, REGISTER rm)

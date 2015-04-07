@@ -194,6 +194,7 @@ public:
 	void									Bic(REGISTER, REGISTER, const ImmediateAluOperand&);
 	void									Bx(REGISTER);
 	void									Blx(REGISTER);
+	void									Clz(REGISTER, REGISTER);
 	void									Cmn(REGISTER, const ImmediateAluOperand&);
 	void									Cmp(REGISTER, REGISTER);
 	void									Cmp(REGISTER, const ImmediateAluOperand&);
@@ -220,6 +221,7 @@ public:
 	void									Sub(REGISTER, REGISTER, const ImmediateAluOperand&);
 	void									Subs(REGISTER, REGISTER, REGISTER);
 	void									Teq(REGISTER, const ImmediateAluOperand&);
+	void									Tst(REGISTER, REGISTER);
 	void									Umull(REGISTER, REGISTER, REGISTER, REGISTER);
 
 	//VFP/NEON

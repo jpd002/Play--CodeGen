@@ -168,6 +168,9 @@ CCodeGen_Arm::CONSTMATCHER CCodeGen_Arm::g_constMatchers[] =
 	ALU_CONST_MATCHERS(OP_OR,  ALUOP_OR)
 	ALU_CONST_MATCHERS(OP_XOR, ALUOP_XOR)
 	
+	{ OP_LZC,			MATCH_REGISTER,		MATCH_REGISTER,		MATCH_NIL,			&CCodeGen_Arm::Emit_Lzc_RegReg								},
+	{ OP_LZC,			MATCH_MEMORY,		MATCH_REGISTER,		MATCH_NIL,			&CCodeGen_Arm::Emit_Lzc_MemReg								},
+
 	{ OP_SRL,			MATCH_ANY,			MATCH_ANY,			MATCH_ANY,			&CCodeGen_Arm::Emit_Shift_Generic<CArmAssembler::SHIFT_LSR>	},
 	{ OP_SRA,			MATCH_ANY,			MATCH_ANY,			MATCH_ANY,			&CCodeGen_Arm::Emit_Shift_Generic<CArmAssembler::SHIFT_ASR>	},
 	{ OP_SLL,			MATCH_ANY,			MATCH_ANY,			MATCH_ANY,			&CCodeGen_Arm::Emit_Shift_Generic<CArmAssembler::SHIFT_LSL>	},
@@ -954,6 +957,59 @@ void CCodeGen_Arm::Emit_Mov_MemCst(const STATEMENT& statement)
 	auto tmpReg = CArmAssembler::r0;
 	LoadConstantInRegister(tmpReg, src1->m_valueLow);
 	StoreRegisterInMemory(dst, tmpReg);
+}
+
+void CCodeGen_Arm::Lzc_RegReg(CArmAssembler::REGISTER dstRegister, CArmAssembler::REGISTER src1Register)
+{
+	auto set32Label = m_assembler.CreateLabel();
+	auto startCountLabel = m_assembler.CreateLabel();
+	auto doneLabel = m_assembler.CreateLabel();
+
+	m_assembler.Mov(dstRegister, src1Register);
+	m_assembler.Tst(dstRegister, dstRegister);
+	m_assembler.BCc(CArmAssembler::CONDITION_EQ, set32Label);
+	m_assembler.BCc(CArmAssembler::CONDITION_PL, startCountLabel);
+
+	//reverse:
+	m_assembler.Mvn(dstRegister, dstRegister);
+	m_assembler.Tst(dstRegister, dstRegister);
+	m_assembler.BCc(CArmAssembler::CONDITION_EQ, set32Label);
+
+	//startCount:
+	m_assembler.MarkLabel(startCountLabel);
+	m_assembler.Clz(dstRegister, dstRegister);
+	m_assembler.Sub(dstRegister, dstRegister, CArmAssembler::MakeImmediateAluOperand(1, 0));
+	m_assembler.BCc(CArmAssembler::CONDITION_AL, doneLabel);
+
+	//set32:
+	m_assembler.MarkLabel(set32Label);
+	LoadConstantInRegister(dstRegister, 0x1F);
+
+	//done
+	m_assembler.MarkLabel(doneLabel);
+}
+
+void CCodeGen_Arm::Emit_Lzc_RegReg(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+
+	auto dstRegister = g_registers[dst->m_valueLow];
+	auto src1Register = g_registers[src1->m_valueLow];
+
+	Lzc_RegReg(dstRegister, src1Register);
+}
+
+void CCodeGen_Arm::Emit_Lzc_MemReg(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+
+	auto dstRegister = CArmAssembler::r0;
+	auto src1Register = g_registers[src1->m_valueLow];
+
+	Lzc_RegReg(dstRegister, src1Register);
+	StoreRegisterInMemory(dst, dstRegister);
 }
 
 void CCodeGen_Arm::Emit_Jmp(const STATEMENT& statement)

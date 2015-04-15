@@ -17,9 +17,6 @@ public:
 private:
 	struct CONTEXT
 	{
-		uint32			dstIsNegative;
-		uint32			dstIsZero;
-
 		ALIGN16
 
 		float			src0[4];

@@ -63,16 +63,6 @@ void CMdFpTest::Compile(Jitter::CJitter& jitter)
 		jitter.MD_PushRel(offsetof(CONTEXT, dstSub));
 		jitter.MD_PullRel(offsetof(CONTEXT, dstMasked), false, true, true, false);
 
-		//Is Negative
-		jitter.MD_PushRel(offsetof(CONTEXT, dstMasked));
-		jitter.MD_IsNegative();
-		jitter.PullRel(offsetof(CONTEXT, dstIsNegative));
-
-		//Is Zero
-		jitter.MD_PushRel(offsetof(CONTEXT, dstMasked));
-		jitter.MD_IsZero();
-		jitter.PullRel(offsetof(CONTEXT, dstIsZero));
-
 		//Push Rel Expand
 		jitter.MD_PushRelExpand(offsetof(CONTEXT, src0[1]));
 		jitter.MD_PullRel(offsetof(CONTEXT, dstExpandRel));
@@ -157,9 +147,6 @@ void CMdFpTest::Run()
 	TEST_VERIFY(context.dstMasked[1] == -550.f);
 	TEST_VERIFY(context.dstMasked[2] ==  440.f);
 	TEST_VERIFY(context.dstMasked[3] ==    0.f);
-
-	TEST_VERIFY(context.dstIsNegative == 0x4);
-	TEST_VERIFY(context.dstIsZero == 0x9);
 
 	TEST_VERIFY(context.dstExpandRel[0] == 50.0f);
 	TEST_VERIFY(context.dstExpandRel[1] == 50.0f);

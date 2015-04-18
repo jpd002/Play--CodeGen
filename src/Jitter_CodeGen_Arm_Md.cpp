@@ -78,6 +78,25 @@ void CCodeGen_Arm::Emit_Md_Not_MemMem(const STATEMENT& statement)
 }
 
 template <typename MDOP>
+void CCodeGen_Arm::Emit_Md_MemMem(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+
+	auto dstAddrReg = CArmAssembler::r0;
+	auto src1AddrReg = CArmAssembler::r1;
+	auto dstReg = CArmAssembler::q0;
+	auto src1Reg = CArmAssembler::q1;
+
+	LoadMemory128AddressInRegister(dstAddrReg, dst);
+	LoadMemory128AddressInRegister(src1AddrReg, src1);
+
+	m_assembler.Vld1_32x4(src1Reg, src1AddrReg);
+	((m_assembler).*(MDOP::OpReg()))(dstReg, src1Reg);
+	m_assembler.Vst1_32x4(dstReg, dstAddrReg);
+}
+
+template <typename MDOP>
 void CCodeGen_Arm::Emit_Md_MemMemMem(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
@@ -158,6 +177,8 @@ CCodeGen_Arm::CONSTMATCHER CCodeGen_Arm::g_mdConstMatchers[] =
 	{ OP_MD_ADD_S,				MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_Arm::Emit_Md_MemMemMem<MDOP_ADDS>					},
 	{ OP_MD_SUB_S,				MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_Arm::Emit_Md_MemMemMem<MDOP_SUBS>					},
 	{ OP_MD_MUL_S,				MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_Arm::Emit_Md_MemMemMem<MDOP_MULS>					},
+
+	{ OP_MD_ABS_S,				MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_NIL,				&CCodeGen_Arm::Emit_Md_MemMem<MDOP_ABSS>					},
 
 	{ OP_MD_AND,				MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_Arm::Emit_Md_MemMemMem<MDOP_AND>					},
 	{ OP_MD_OR,					MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_Arm::Emit_Md_MemMemMem<MDOP_OR>					},

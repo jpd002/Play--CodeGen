@@ -767,6 +767,14 @@ void CArmAssembler::Vabs_F32(SINGLE_REGISTER sd, SINGLE_REGISTER sm)
 	WriteWord(opcode);
 }
 
+void CArmAssembler::Vabs_F32(QUAD_REGISTER qd, QUAD_REGISTER qm)
+{
+	uint32 opcode = 0xF3B90740;
+	opcode |= FPSIMD_EncodeQd(qd);
+	opcode |= FPSIMD_EncodeQm(qm);
+	WriteWord(opcode);
+}
+
 void CArmAssembler::Vneg_F32(SINGLE_REGISTER sd, SINGLE_REGISTER sm)
 {
 	uint32 opcode = 0x0EB10A40;

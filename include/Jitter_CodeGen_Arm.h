@@ -246,6 +246,11 @@ namespace Jitter
 		};
 
 		//MDOP -----------------------------------------------------------
+		struct MDOP_BASE2
+		{
+			typedef void (CArmAssembler::*OpRegType)(CArmAssembler::QUAD_REGISTER, CArmAssembler::QUAD_REGISTER);
+		};
+
 		struct MDOP_BASE3
 		{
 			typedef void (CArmAssembler::*OpRegType)(CArmAssembler::QUAD_REGISTER, CArmAssembler::QUAD_REGISTER, CArmAssembler::QUAD_REGISTER);
@@ -294,6 +299,11 @@ namespace Jitter
 		struct MDOP_MULS : public MDOP_BASE3
 		{
 			static OpRegType OpReg() { return &CArmAssembler::Vmul_F32; }
+		};
+
+		struct MDOP_ABSS : public MDOP_BASE2
+		{
+			static OpRegType OpReg() { return &CArmAssembler::Vabs_F32; }
 		};
 
 		//ALUOP
@@ -442,6 +452,7 @@ namespace Jitter
 		void									Emit_Fp_LdCst_TmpCst(const STATEMENT&);
 		
 		//MDOP
+		template <typename> void				Emit_Md_MemMem(const STATEMENT&);
 		template <typename> void				Emit_Md_MemMemMem(const STATEMENT&);
 		void									Emit_Md_Mov_MemMem(const STATEMENT&);
 		void									Emit_Md_Not_MemMem(const STATEMENT&);

@@ -431,6 +431,10 @@ namespace Jitter
 		void									Emit_Md_Mov_MemMem(const STATEMENT&);
 		void									Emit_Md_Not_MemMem(const STATEMENT&);
 
+		void									Emit_Md_Expand_MemReg(const STATEMENT&);
+		void									Emit_Md_Expand_MemMem(const STATEMENT&);
+		void									Emit_Md_Expand_MemCst(const STATEMENT&);
+
 		static CONSTMATCHER						g_constMatchers[];
 		static CONSTMATCHER						g_64ConstMatchers[];
 		static CONSTMATCHER						g_fpuConstMatchers[];

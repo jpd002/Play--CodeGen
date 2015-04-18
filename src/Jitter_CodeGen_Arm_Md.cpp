@@ -101,6 +101,53 @@ void CCodeGen_Arm::Emit_Md_MemMemMem(const STATEMENT& statement)
 	m_assembler.Vst1_32x4(dstReg, dstAddrReg);
 }
 
+void CCodeGen_Arm::Emit_Md_Expand_MemReg(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+
+	auto dstAddrReg = CArmAssembler::r0;
+	auto src1AddrReg = CArmAssembler::r1;
+	auto tmpReg = CArmAssembler::q0;
+
+	LoadMemory128AddressInRegister(dstAddrReg, dst);
+
+	m_assembler.Vdup(tmpReg, g_registers[src1->m_valueLow]);
+	m_assembler.Vst1_32x4(tmpReg, dstAddrReg);
+}
+
+void CCodeGen_Arm::Emit_Md_Expand_MemMem(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+
+	auto dstAddrReg = CArmAssembler::r0;
+	auto src1Reg = CArmAssembler::r1;
+	auto tmpReg = CArmAssembler::q0;
+
+	LoadMemoryInRegister(src1Reg, src1);
+	LoadMemory128AddressInRegister(dstAddrReg, dst);
+
+	m_assembler.Vdup(tmpReg, src1Reg);
+	m_assembler.Vst1_32x4(tmpReg, dstAddrReg);
+}
+
+void CCodeGen_Arm::Emit_Md_Expand_MemCst(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+
+	auto dstAddrReg = CArmAssembler::r0;
+	auto src1Reg = CArmAssembler::r1;
+	auto tmpReg = CArmAssembler::q0;
+
+	LoadConstantInRegister(src1Reg, src1->m_valueLow);
+	LoadMemory128AddressInRegister(dstAddrReg, dst);
+
+	m_assembler.Vdup(tmpReg, src1Reg);
+	m_assembler.Vst1_32x4(tmpReg, dstAddrReg);
+}
+
 CCodeGen_Arm::CONSTMATCHER CCodeGen_Arm::g_mdConstMatchers[] = 
 {
 	{ OP_MD_ADD_W,				MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_Arm::Emit_Md_MemMemMem<MDOP_ADDW>					},
@@ -115,6 +162,10 @@ CCodeGen_Arm::CONSTMATCHER CCodeGen_Arm::g_mdConstMatchers[] =
 	{ OP_MD_NOT,				MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_NIL,				&CCodeGen_Arm::Emit_Md_Not_MemMem							},
 
 	{ OP_MOV,					MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_NIL,				&CCodeGen_Arm::Emit_Md_Mov_MemMem							},
+
+	{ OP_MD_EXPAND,				MATCH_MEMORY128,			MATCH_REGISTER,				MATCH_NIL,				&CCodeGen_Arm::Emit_Md_Expand_MemReg						},
+	{ OP_MD_EXPAND,				MATCH_MEMORY128,			MATCH_MEMORY,				MATCH_NIL,				&CCodeGen_Arm::Emit_Md_Expand_MemMem						},
+	{ OP_MD_EXPAND,				MATCH_MEMORY128,			MATCH_CONSTANT,				MATCH_NIL,				&CCodeGen_Arm::Emit_Md_Expand_MemCst						},
 
 	{ OP_MOV,					MATCH_NIL,					MATCH_NIL,					MATCH_NIL,				NULL														},
 };

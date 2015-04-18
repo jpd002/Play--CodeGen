@@ -229,6 +229,7 @@ public:
 	void									Vld1_32x4(QUAD_REGISTER, REGISTER);
 	void									Vstr(SINGLE_REGISTER, REGISTER, const LdrAddress&);
 	void									Vst1_32x4(QUAD_REGISTER, REGISTER);
+	void									Vdup(QUAD_REGISTER, REGISTER);
 	void									Vadd_F32(SINGLE_REGISTER, SINGLE_REGISTER, SINGLE_REGISTER);
 	void									Vadd_I32(QUAD_REGISTER, QUAD_REGISTER, QUAD_REGISTER);
 	void									Vsub_I8(QUAD_REGISTER, QUAD_REGISTER, QUAD_REGISTER);

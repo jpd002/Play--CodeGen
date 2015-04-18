@@ -619,6 +619,15 @@ void CArmAssembler::Vst1_32x4(QUAD_REGISTER qd, REGISTER rn)
 	WriteWord(opcode);
 }
 
+void CArmAssembler::Vdup(QUAD_REGISTER qd, REGISTER rt)
+{
+	uint32 opcode = 0x0EA00B10;
+	opcode |= (CONDITION_AL << 28);
+	opcode |= FPSIMD_EncodeQn(qd);
+	opcode |= (rt << 12);
+	WriteWord(opcode);
+}
+
 void CArmAssembler::Vadd_F32(SINGLE_REGISTER sd, SINGLE_REGISTER sn, SINGLE_REGISTER sm)
 {
 	uint32 opcode = 0x0E300A00;

@@ -96,6 +96,11 @@ void CX86Assembler::MovqVo(XMMREGISTER registerId, const CAddress& address)
 	WriteEdVdOp_66_0F_64b(0x6E, address, registerId);
 }
 
+void CX86Assembler::MovdqaVo(const CAddress& address, XMMREGISTER registerId)
+{
+	WriteEdVdOp_66_0F(0x7F, address, registerId);
+}
+
 void CX86Assembler::MovdquVo(XMMREGISTER registerId, const CAddress& address)
 {
 	WriteEdVdOp_F3_0F(0x6F, address, registerId);
@@ -214,6 +219,12 @@ void CX86Assembler::PmovmskbVo(REGISTER srcReg, XMMREGISTER dstReg)
 void CX86Assembler::PorVo(XMMREGISTER registerId, const CAddress& address)
 {
 	WriteEdVdOp_66_0F(0xEB, address, registerId);
+}
+
+void CX86Assembler::PshufdVo(XMMREGISTER registerId, const CAddress& address, uint8 shuffleByte)
+{
+	WriteEdVdOp_66_0F(0x70, address, registerId);
+	WriteByte(shuffleByte);
 }
 
 void CX86Assembler::PsllwVo(XMMREGISTER registerId, uint8 amount)

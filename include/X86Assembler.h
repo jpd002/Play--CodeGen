@@ -243,6 +243,7 @@ public:
 	void									MovdVo(XMMREGISTER, const CAddress&);
 	void									MovdVo(const CAddress&, XMMREGISTER);
 	void									MovqVo(XMMREGISTER, const CAddress&);
+	void									MovdqaVo(const CAddress&, XMMREGISTER);
 	void									MovdquVo(const CAddress&, XMMREGISTER);
 	void									MovdquVo(XMMREGISTER, const CAddress&);
 	void									MovapsVo(const CAddress&, XMMREGISTER);
@@ -269,6 +270,7 @@ public:
 	void									PminsdVo(XMMREGISTER, const CAddress&);
 	void									PmovmskbVo(REGISTER, XMMREGISTER);
 	void									PorVo(XMMREGISTER, const CAddress&);
+	void									PshufdVo(XMMREGISTER, const CAddress&, uint8);
 	void									PsllwVo(XMMREGISTER, uint8);
 	void									PslldVo(XMMREGISTER, uint8);
 	void									PsrawVo(XMMREGISTER, uint8);

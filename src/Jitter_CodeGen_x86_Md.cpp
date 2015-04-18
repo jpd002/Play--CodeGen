@@ -683,8 +683,8 @@ void CCodeGen_x86::Emit_Md_Expand_MemCst(const STATEMENT& statement)
 
 	m_assembler.MovId(cstRegister, src1->m_valueLow);
 	m_assembler.MovdVo(resultRegister, CX86Assembler::MakeRegisterAddress(cstRegister));
-	m_assembler.ShufpsVo(resultRegister, CX86Assembler::MakeXmmRegisterAddress(resultRegister), 0x00);
-	m_assembler.MovapsVo(MakeMemory128SymbolAddress(dst), resultRegister);
+	m_assembler.PshufdVo(resultRegister, CX86Assembler::MakeXmmRegisterAddress(resultRegister), 0x00);
+	m_assembler.MovdqaVo(MakeMemory128SymbolAddress(dst), resultRegister);
 }
 
 void CCodeGen_x86::Emit_Md_Srl256_VarMem(CSymbol* dst, CSymbol* src1, const CX86Assembler::CAddress& offsetAddress)

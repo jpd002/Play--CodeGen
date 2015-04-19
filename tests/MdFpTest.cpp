@@ -59,18 +59,6 @@ void CMdFpTest::Compile(Jitter::CJitter& jitter)
 		jitter.MD_MaxS();
 		jitter.MD_PullRel(offsetof(CONTEXT, dstMax));
 
-		//Masked Mov
-		jitter.MD_PushRel(offsetof(CONTEXT, dstSub));
-		jitter.MD_PullRel(offsetof(CONTEXT, dstMasked), false, true, true, false);
-
-		//Push Rel Expand
-		jitter.MD_PushRelExpand(offsetof(CONTEXT, src0[1]));
-		jitter.MD_PullRel(offsetof(CONTEXT, dstExpandRel));
-
-		//Push Cst Expand
-		jitter.MD_PushCstExpand(31415.f);
-		jitter.MD_PullRel(offsetof(CONTEXT, dstExpandCst));
-
 		//ToWord Truncate
 		jitter.MD_PushRel(offsetof(CONTEXT, src2));
 		jitter.MD_ToWordTruncate();
@@ -142,21 +130,6 @@ void CMdFpTest::Run()
 	TEST_VERIFY(context.dstMax[1] ==   600.f);
 	TEST_VERIFY(context.dstMax[2] ==   500.f);
 	TEST_VERIFY(context.dstMax[3] ==  5000.f);
-
-	TEST_VERIFY(context.dstMasked[0] ==    0.f);
-	TEST_VERIFY(context.dstMasked[1] == -550.f);
-	TEST_VERIFY(context.dstMasked[2] ==  440.f);
-	TEST_VERIFY(context.dstMasked[3] ==    0.f);
-
-	TEST_VERIFY(context.dstExpandRel[0] == 50.0f);
-	TEST_VERIFY(context.dstExpandRel[1] == 50.0f);
-	TEST_VERIFY(context.dstExpandRel[2] == 50.0f);
-	TEST_VERIFY(context.dstExpandRel[3] == 50.0f);
-
-	TEST_VERIFY(context.dstExpandCst[0] == 31415.0f);
-	TEST_VERIFY(context.dstExpandCst[1] == 31415.0f);
-	TEST_VERIFY(context.dstExpandCst[2] == 31415.0f);
-	TEST_VERIFY(context.dstExpandCst[3] == 31415.0f);
 
 	TEST_VERIFY(context.dstCvtWord[0] == 5);
 	TEST_VERIFY(context.dstCvtWord[1] == 6);

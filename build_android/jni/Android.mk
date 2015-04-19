@@ -53,6 +53,7 @@ LOCAL_SRC_FILES			:=	../../tests/AliasTest.cpp \
 							../../tests/MdFpTest.cpp \
 							../../tests/MdLogicTest.cpp \
 							../../tests/MdMemAccessTest.cpp \
+							../../tests/MdManipTest.cpp \
 							../../tests/MdSubTest.cpp \
 							../../tests/MdTest.cpp \
 							../../tests/MdUnpackTest.cpp \

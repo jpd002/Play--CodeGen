@@ -1057,10 +1057,11 @@ void CJitter::MD_PullRel(size_t offset, bool save0, bool save1, bool save2, bool
 		assert(mask != 0);
 
 		STATEMENT statement;
-		statement.op		= OP_MD_MOV_MASKED;
-		statement.src1		= MakeSymbolRef(m_shadow.Pull());
-		statement.src2		= MakeSymbolRef(MakeSymbol(SYM_CONSTANT, mask));
-		statement.dst		= MakeSymbolRef(MakeSymbol(SYM_RELATIVE128, static_cast<uint32>(offset)));
+		statement.op			= OP_MD_MOV_MASKED;
+		statement.dst			= MakeSymbolRef(MakeSymbol(SYM_RELATIVE128, static_cast<uint32>(offset)));
+		statement.src1			= MakeSymbolRef(MakeSymbol(SYM_RELATIVE128, static_cast<uint32>(offset)));
+		statement.src2			= MakeSymbolRef(m_shadow.Pull());
+		statement.jmpCondition	= static_cast<Jitter::CONDITION>(mask);
 		InsertStatement(statement);
 
 		assert(GetSymbolSize(statement.src1) == GetSymbolSize(statement.dst));

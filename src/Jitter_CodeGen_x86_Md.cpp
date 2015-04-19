@@ -622,7 +622,7 @@ void CCodeGen_x86::Emit_Md_Expand_RegReg(const STATEMENT& statement)
 	auto resultRegister = m_mdRegisters[dst->m_valueLow];
 
 	m_assembler.MovdVo(resultRegister, CX86Assembler::MakeRegisterAddress(m_registers[src1->m_valueLow]));
-	m_assembler.ShufpsVo(resultRegister, CX86Assembler::MakeXmmRegisterAddress(resultRegister), 0x00);
+	m_assembler.PshufdVo(resultRegister, CX86Assembler::MakeXmmRegisterAddress(resultRegister), 0x00);
 }
 
 void CCodeGen_x86::Emit_Md_Expand_RegMem(const STATEMENT& statement)
@@ -646,7 +646,7 @@ void CCodeGen_x86::Emit_Md_Expand_RegCst(const STATEMENT& statement)
 
 	m_assembler.MovId(cstRegister, src1->m_valueLow);
 	m_assembler.MovdVo(resultRegister, CX86Assembler::MakeRegisterAddress(cstRegister));
-	m_assembler.ShufpsVo(resultRegister, CX86Assembler::MakeXmmRegisterAddress(resultRegister), 0x00);
+	m_assembler.PshufdVo(resultRegister, CX86Assembler::MakeXmmRegisterAddress(resultRegister), 0x00);
 }
 
 void CCodeGen_x86::Emit_Md_Expand_MemReg(const STATEMENT& statement)

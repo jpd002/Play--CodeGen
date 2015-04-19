@@ -120,6 +120,43 @@ void CCodeGen_Arm::Emit_Md_MemMemMem(const STATEMENT& statement)
 	m_assembler.Vst1_32x4(dstReg, dstAddrReg);
 }
 
+void CCodeGen_Arm::Emit_Md_MovMasked_MemMemMem(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	assert(dst->Equals(src1));
+
+	auto mask = static_cast<uint8>(statement.jmpCondition);
+
+	auto dstAddrReg = CArmAssembler::r0;
+	auto src2AddrReg = CArmAssembler::r2;
+	auto tmpReg = CArmAssembler::r3;
+	auto dstReg = CArmAssembler::q0;
+	auto src2Reg = CArmAssembler::q2;
+	auto dstRegLo = static_cast<CArmAssembler::DOUBLE_REGISTER>(dstReg + 0);
+	auto dstRegHi = static_cast<CArmAssembler::DOUBLE_REGISTER>(dstReg + 1);
+	auto src2RegLo = static_cast<CArmAssembler::DOUBLE_REGISTER>(src2Reg + 0);
+	auto src2RegHi = static_cast<CArmAssembler::DOUBLE_REGISTER>(src2Reg + 1);
+
+	LoadMemory128AddressInRegister(dstAddrReg, dst);
+	LoadMemory128AddressInRegister(src2AddrReg, src2);
+
+	m_assembler.Vld1_32x4(dstReg, dstAddrReg);
+	m_assembler.Vld1_32x4(src2Reg, src2AddrReg);
+	for(unsigned int i = 0; i < 4; i++)
+	{
+		if(mask & (1 << i))
+		{
+			m_assembler.Vmov(tmpReg, (i & 2) ? src2RegHi : src2RegLo, (i & 1));
+			m_assembler.Vmov((i & 2) ? dstRegHi : dstRegLo, tmpReg, (i & 1));
+		}
+	}
+
+	m_assembler.Vst1_32x4(dstReg, dstAddrReg);
+}
+
 void CCodeGen_Arm::Emit_Md_Expand_MemReg(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
@@ -189,6 +226,8 @@ CCodeGen_Arm::CONSTMATCHER CCodeGen_Arm::g_mdConstMatchers[] =
 	{ OP_MD_NOT,				MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_NIL,				&CCodeGen_Arm::Emit_Md_Not_MemMem							},
 
 	{ OP_MOV,					MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_NIL,				&CCodeGen_Arm::Emit_Md_Mov_MemMem							},
+
+	{ OP_MD_MOV_MASKED,			MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_Arm::Emit_Md_MovMasked_MemMemMem					},
 
 	{ OP_MD_EXPAND,				MATCH_MEMORY128,			MATCH_REGISTER,				MATCH_NIL,				&CCodeGen_Arm::Emit_Md_Expand_MemReg						},
 	{ OP_MD_EXPAND,				MATCH_MEMORY128,			MATCH_MEMORY,				MATCH_NIL,				&CCodeGen_Arm::Emit_Md_Expand_MemMem						},

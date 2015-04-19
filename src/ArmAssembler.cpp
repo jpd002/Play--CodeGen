@@ -555,6 +555,11 @@ uint32 CArmAssembler::FPSIMD_EncodeSm(SINGLE_REGISTER sm)
 	return ((sm >> 1) <<  0) | ((sm & 1) <<  5);
 }
 
+uint32 CArmAssembler::FPSIMD_EncodeDn(DOUBLE_REGISTER dn)
+{
+	return ((dn & 0xF) << 16) | ((dn >> 4) <<  7);
+}
+
 uint32 CArmAssembler::FPSIMD_EncodeQd(QUAD_REGISTER qd)
 {
 	assert((qd & 1) == 0);
@@ -616,6 +621,26 @@ void CArmAssembler::Vst1_32x4(QUAD_REGISTER qd, REGISTER rn)
 	uint32 opcode = 0xF4000A8F;
 	opcode |= FPSIMD_EncodeQd(qd);
 	opcode |= static_cast<uint32>(rn) << 16;
+	WriteWord(opcode);
+}
+
+void CArmAssembler::Vmov(DOUBLE_REGISTER dd, REGISTER rt, uint8 offset)
+{
+	uint32 opcode = 0x0E000B10;
+	opcode |= (CONDITION_AL << 28);
+	opcode |= (offset != 0) ? 0x00200000 : 0;
+	opcode |= FPSIMD_EncodeDn(dd);
+	opcode |= (rt << 12);
+	WriteWord(opcode);
+}
+
+void CArmAssembler::Vmov(REGISTER rt, DOUBLE_REGISTER dn, uint8 offset)
+{
+	uint32 opcode = 0x0E100B10;
+	opcode |= (CONDITION_AL << 28);
+	opcode |= (offset != 0) ? 0x00200000 : 0;
+	opcode |= FPSIMD_EncodeDn(dn);
+	opcode |= (rt << 12);
 	WriteWord(opcode);
 }
 

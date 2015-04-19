@@ -29,9 +29,6 @@ private:
 		uint8			dstAddWUS[16];
 		uint8			dstAddWSS[16];
 
-		uint8			dstCmpEqW[16];
-		uint8			dstCmpGtH[16];
-
 		uint8			dstMinH[16];
 		uint8			dstMaxH[16];
 		uint8			dstMaxW[16];

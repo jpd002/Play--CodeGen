@@ -311,6 +311,16 @@ namespace Jitter
 			static OpRegType OpReg() { return &CArmAssembler::Vabs_F32; }
 		};
 
+		struct MDOP_TOSINGLE : public MDOP_BASE2
+		{
+			static OpRegType OpReg() { return &CArmAssembler::Vcvt_F32_S32; }
+		};
+
+		struct MDOP_TOWORD : public MDOP_BASE2
+		{
+			static OpRegType OpReg() { return &CArmAssembler::Vcvt_S32_F32; }
+		};
+
 		//ALUOP
 		template <typename> void				Emit_Alu_GenericAnyAny(const STATEMENT&);
 		template <typename> void				Emit_Alu_GenericAnyCst(const STATEMENT&);

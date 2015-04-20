@@ -17,6 +17,8 @@
 		703093D017BE67F8009662A1 /* MdFpFlagTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 703093C817BE67CE009662A1 /* MdFpFlagTest.cpp */; };
 		703093D117BE6804009662A1 /* Shift64Test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 703093CA17BE67CE009662A1 /* Shift64Test.cpp */; };
 		70320D0B1A998CD3001E9C4B /* Logic64Test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70320D091A998CD3001E9C4B /* Logic64Test.cpp */; };
+		703D964A1AE497D000B3974D /* MdCmpTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 703D96461AE497D000B3974D /* MdCmpTest.cpp */; };
+		703D964B1AE497D000B3974D /* MdManipTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 703D96481AE497D000B3974D /* MdManipTest.cpp */; };
 		703F73811AD0C60C00887F65 /* Merge64Test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 703F737F1AD0C60C00887F65 /* Merge64Test.cpp */; };
 		705E54EE1A58C50B009E67F1 /* libFramework.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 705E54ED1A58C4E1009E67F1 /* libFramework.a */; };
 		705E55031A58C6B9009E67F1 /* Cmp64Test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 705E54F51A58C6B9009E67F1 /* Cmp64Test.cpp */; };
@@ -101,6 +103,10 @@
 		703093CB17BE67CE009662A1 /* Shift64Test.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Shift64Test.h; path = ../tests/Shift64Test.h; sourceTree = "<group>"; };
 		70320D091A998CD3001E9C4B /* Logic64Test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Logic64Test.cpp; path = ../tests/Logic64Test.cpp; sourceTree = "<group>"; };
 		70320D0A1A998CD3001E9C4B /* Logic64Test.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Logic64Test.h; path = ../tests/Logic64Test.h; sourceTree = "<group>"; };
+		703D96461AE497D000B3974D /* MdCmpTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MdCmpTest.cpp; path = ../tests/MdCmpTest.cpp; sourceTree = "<group>"; };
+		703D96471AE497D000B3974D /* MdCmpTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MdCmpTest.h; path = ../tests/MdCmpTest.h; sourceTree = "<group>"; };
+		703D96481AE497D000B3974D /* MdManipTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MdManipTest.cpp; path = ../tests/MdManipTest.cpp; sourceTree = "<group>"; };
+		703D96491AE497D000B3974D /* MdManipTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MdManipTest.h; path = ../tests/MdManipTest.h; sourceTree = "<group>"; };
 		703F737F1AD0C60C00887F65 /* Merge64Test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Merge64Test.cpp; path = ../tests/Merge64Test.cpp; sourceTree = "<group>"; };
 		703F73801AD0C60C00887F65 /* Merge64Test.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Merge64Test.h; path = ../tests/Merge64Test.h; sourceTree = "<group>"; };
 		705E54E81A58C4E1009E67F1 /* Framework.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Framework.xcodeproj; path = ../../Framework/build_ios/Framework.xcodeproj; sourceTree = "<group>"; };
@@ -272,12 +278,16 @@
 				7E27203B1212598B00C0DEBF /* Main.cpp */,
 				703093C617BE67CE009662A1 /* MdCallTest.cpp */,
 				703093C717BE67CE009662A1 /* MdCallTest.h */,
+				703D96461AE497D000B3974D /* MdCmpTest.cpp */,
+				703D96471AE497D000B3974D /* MdCmpTest.h */,
 				703093C817BE67CE009662A1 /* MdFpFlagTest.cpp */,
 				703093C917BE67CE009662A1 /* MdFpFlagTest.h */,
 				7EF837FF12DAB5D300EA0F1C /* MdFpTest.cpp */,
 				7EF8380012DAB5D300EA0F1C /* MdFpTest.h */,
 				70C01F311AC8D8BE004DA1B2 /* MdLogicTest.cpp */,
 				70C01F321AC8D8BE004DA1B2 /* MdLogicTest.h */,
+				703D96481AE497D000B3974D /* MdManipTest.cpp */,
+				703D96491AE497D000B3974D /* MdManipTest.h */,
 				705E54FB1A58C6B9009E67F1 /* MdMemAccessTest.cpp */,
 				705E54FC1A58C6B9009E67F1 /* MdMemAccessTest.h */,
 				705E54FD1A58C6B9009E67F1 /* MdSubTest.cpp */,
@@ -417,6 +427,7 @@
 				7E2720461212598B00C0DEBF /* Crc32Test.cpp in Sources */,
 				703093CD17BE67E8009662A1 /* Call64Test.cpp in Sources */,
 				7E2720471212598B00C0DEBF /* FpuTest.cpp in Sources */,
+				703D964B1AE497D000B3974D /* MdManipTest.cpp in Sources */,
 				705E55031A58C6B9009E67F1 /* Cmp64Test.cpp in Sources */,
 				705E55061A58C6B9009E67F1 /* MdMemAccessTest.cpp in Sources */,
 				705E55081A58C6B9009E67F1 /* MdUnpackTest.cpp in Sources */,
@@ -430,6 +441,7 @@
 				7E27204C1212598B00C0DEBF /* RandomAluTest3.cpp in Sources */,
 				703093D017BE67F8009662A1 /* MdFpFlagTest.cpp in Sources */,
 				7EE2D43A1228842C00C2C057 /* RegAllocTest.cpp in Sources */,
+				703D964A1AE497D000B3974D /* MdCmpTest.cpp in Sources */,
 				7EF8380512DAB5D300EA0F1C /* AliasTest.cpp in Sources */,
 				703093CC17BE67E5009662A1 /* Alu64Test.cpp in Sources */,
 				70320D0B1A998CD3001E9C4B /* Logic64Test.cpp in Sources */,

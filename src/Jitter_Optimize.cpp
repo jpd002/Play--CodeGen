@@ -165,10 +165,8 @@ void CJitter::Compile()
 {
 	while(1)
 	{
-		for(BasicBlockList::iterator blockIterator(m_basicBlocks.begin());
-			m_basicBlocks.end() != blockIterator; blockIterator++)
+		for(auto& basicBlock : m_basicBlocks)
 		{
-			BASIC_BLOCK& basicBlock(blockIterator->second);
 			if(!basicBlock.optimized)
 			{
 				m_currentBlock = &basicBlock;
@@ -202,9 +200,8 @@ void CJitter::Compile()
 	}
 
 	//Allocate registers
-	for(auto& basicBlockPair : m_basicBlocks)
+	for(auto& basicBlock : m_basicBlocks)
 	{
-		auto& basicBlock(basicBlockPair.second);
 		m_currentBlock = &basicBlock;
 
 		CoalesceTemporaries(basicBlock);
@@ -227,20 +224,6 @@ void CJitter::Compile()
 	m_codeGen->GenerateCode(result.statements, stackSize);
 
 	m_labels.clear();
-}
-
-uint32 CJitter::CreateBlock()
-{
-	uint32 newId = m_nextBlockId++;
-	m_basicBlocks[newId] = BASIC_BLOCK();
-	return newId;
-}
-
-CJitter::BASIC_BLOCK* CJitter::GetBlock(uint32 blockId)
-{
-	auto blockIterator(m_basicBlocks.find(blockId));
-	if(blockIterator == m_basicBlocks.end()) return nullptr;
-	return &blockIterator->second;
 }
 
 void CJitter::InsertStatement(const STATEMENT& statement)
@@ -771,16 +754,12 @@ void CJitter::MergeBasicBlocks(BASIC_BLOCK& dstBlock, const BASIC_BLOCK& srcBloc
 CJitter::BASIC_BLOCK CJitter::ConcatBlocks(const BasicBlockList& blocks)
 {
 	BASIC_BLOCK result;
-	for(BasicBlockList::const_iterator blockIterator(blocks.begin());
-		blockIterator != blocks.end(); blockIterator++)
+	for(const auto& basicBlock : blocks)
 	{
-		const BASIC_BLOCK& basicBlock(blockIterator->second);
-		//const StatementList& statements(basicBlock.statements);
-
 		//First, add a mark label statement
 		STATEMENT labelStatement;
 		labelStatement.op		= OP_LABEL;
-		labelStatement.jmpBlock	= blockIterator->first;
+		labelStatement.jmpBlock	= basicBlock.id;
 		result.statements.push_back(labelStatement);
 
 		MergeBasicBlocks(result, basicBlock);
@@ -797,21 +776,21 @@ bool CJitter::PruneBlocks()
 	{
 		changed = false;
 
-		int toDelete = -1;
+		auto toDeleteIterator = m_basicBlocks.cend();
 		for(BasicBlockList::const_iterator outerBlockIterator(m_basicBlocks.begin());
 			outerBlockIterator != m_basicBlocks.end(); outerBlockIterator++)
 		{
 			//First block is always referenced
 			if(outerBlockIterator == m_basicBlocks.begin()) continue;
 
-			unsigned int blockId = outerBlockIterator->first;
+			auto candidateBlockIterator = outerBlockIterator;
 			bool referenced = false;
 
 			//Check if there's a reference to this block in here
 			for(BasicBlockList::const_iterator innerBlockIterator(m_basicBlocks.begin());
 				innerBlockIterator != m_basicBlocks.end(); innerBlockIterator++)
 			{
-				const BASIC_BLOCK& block(innerBlockIterator->second);
+				const auto& block(*innerBlockIterator);
 				if(block.statements.size() == 0) continue;
 
 				//Check if this block references the next one or if it jumps to another one
@@ -822,7 +801,7 @@ bool CJitter::PruneBlocks()
 				//It jumps to a block, so check if it references the one we're looking for
 				if(statement.op == OP_JMP || statement.op == OP_CONDJMP)
 				{
-					if(statement.jmpBlock == blockId)
+					if(statement.jmpBlock == candidateBlockIterator->id)
 					{
 						referenced = true;
 						break;
@@ -832,11 +811,11 @@ bool CJitter::PruneBlocks()
 				//Otherwise, it references the next one if it's not a jump
 				if(statement.op != OP_JMP)
 				{
-					BasicBlockList::const_iterator nextBlockIterator(innerBlockIterator);
+					auto nextBlockIterator(innerBlockIterator);
 					nextBlockIterator++;
 					if(nextBlockIterator != m_basicBlocks.end())
 					{
-						if(nextBlockIterator->first == blockId)
+						if(nextBlockIterator->id == candidateBlockIterator->id)
 						{
 							referenced = true;
 							break;
@@ -847,13 +826,13 @@ bool CJitter::PruneBlocks()
 
 			if(!referenced)
 			{
-				toDelete = blockId;
+				toDeleteIterator = candidateBlockIterator;
 				break;
 			}
 		}
-		if(toDelete == -1) continue;
+		if(toDeleteIterator == m_basicBlocks.end()) continue;
 
-		m_basicBlocks.erase(toDelete);
+		m_basicBlocks.erase(toDeleteIterator);
 		deletedBlocks++;
 		changed = true;
 	}
@@ -872,16 +851,14 @@ void CJitter::HarmonizeBlocks()
 		nextBlockIterator++;
 		if(nextBlockIterator == m_basicBlocks.end()) continue;
 
-		BASIC_BLOCK& basicBlock(blockIterator->second);
-//		BASIC_BLOCK& nextBlock(nextBlockIterator->second);
-
+		auto& basicBlock(*blockIterator);
 		if(basicBlock.statements.size() == 0) continue;
 
 		StatementList::iterator lastStatementIterator(basicBlock.statements.end());
 		lastStatementIterator--;
 		const STATEMENT& statement(*lastStatementIterator);
 		if(statement.op != OP_JMP) continue;
-		if(statement.jmpBlock != nextBlockIterator->first) continue;
+		if(statement.jmpBlock != nextBlockIterator->id) continue;
 
 		//Remove the jump
 		basicBlock.statements.erase(lastStatementIterator);
@@ -891,13 +868,13 @@ void CJitter::HarmonizeBlocks()
 	for(BasicBlockList::iterator outerBlockIterator(m_basicBlocks.begin());
 		outerBlockIterator != m_basicBlocks.end(); outerBlockIterator++)
 	{
-		BASIC_BLOCK& outerBlock(outerBlockIterator->second);
+		auto& outerBlock(*outerBlockIterator);
 		outerBlock.hasJumpRef = false;
 
 		for(BasicBlockList::const_iterator innerBlockIterator(m_basicBlocks.begin());
 			innerBlockIterator != m_basicBlocks.end(); innerBlockIterator++)
 		{
-			const BASIC_BLOCK& block(innerBlockIterator->second);
+			const auto& block(*innerBlockIterator);
 			if(block.statements.size() == 0) continue;
 
 			//Check if this block references the next one or if it jumps to another one
@@ -908,7 +885,7 @@ void CJitter::HarmonizeBlocks()
 			//It jumps to a block, so check if it references the one we're looking for
 			if(statement.op == OP_JMP || statement.op == OP_CONDJMP)
 			{
-				if(statement.jmpBlock == outerBlockIterator->first)
+				if(statement.jmpBlock == outerBlockIterator->id)
 				{
 					outerBlock.hasJumpRef = true;
 					break;
@@ -932,8 +909,8 @@ bool CJitter::MergeBlocks()
 			nextBlockIterator++;
 			if(nextBlockIterator == m_basicBlocks.end()) continue;
 
-			auto& basicBlock(blockIterator->second);
-			auto& nextBlock(nextBlockIterator->second);
+			auto& basicBlock(*blockIterator);
+			auto& nextBlock(*nextBlockIterator);
 
 			if(nextBlock.hasJumpRef) continue;
 

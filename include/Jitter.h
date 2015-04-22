@@ -258,14 +258,13 @@ namespace Jitter
 
 		struct BASIC_BLOCK
 		{
-			BASIC_BLOCK() : optimized(false), hasJumpRef(false) { }
-
+			uint32						id = 0;
 			StatementList				statements;
 			CSymbolTable				symbolTable;
-			bool						optimized;
-			bool						hasJumpRef;
+			bool						optimized = false;
+			bool						hasJumpRef = false;
 		};
-		typedef std::map<unsigned int, BASIC_BLOCK> BasicBlockList;
+		typedef std::list<BASIC_BLOCK> BasicBlockList;
 
 		struct VERSIONED_STATEMENT_LIST
 		{
@@ -294,8 +293,7 @@ namespace Jitter
 		void							HarmonizeBlocks();
 		void							MergeBasicBlocks(BASIC_BLOCK&, const BASIC_BLOCK&);
 
-		uint32							CreateBlock();
-		BASIC_BLOCK*					GetBlock(uint32);
+		void							StartBlock(uint32);
 
 		void							InsertStatement(const STATEMENT&);
 

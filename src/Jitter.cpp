@@ -35,8 +35,7 @@ void CJitter::Begin()
 	m_nextBlockId = 1;
 	m_basicBlocks.clear();
 
-	uint32 blockId = CreateBlock();
-	m_currentBlock = GetBlock(blockId);
+	StartBlock(m_nextBlockId++);
 }
 
 void CJitter::End()
@@ -53,6 +52,13 @@ bool CJitter::IsStackEmpty()
 	return m_shadow.GetCount() == 0;
 }
 
+void CJitter::StartBlock(uint32 blockId)
+{
+	auto blockIterator = m_basicBlocks.emplace(m_basicBlocks.end(), BASIC_BLOCK());
+	m_currentBlock = &(*blockIterator);
+	m_currentBlock->id = blockId;
+}
+
 CJitter::LABEL CJitter::CreateLabel()
 {
 	return m_nextLabelId++;
@@ -60,9 +66,9 @@ CJitter::LABEL CJitter::CreateLabel()
 
 void CJitter::MarkLabel(LABEL label)
 {
-	uint32 blockId = CreateBlock();
-	m_currentBlock = GetBlock(blockId);
-	m_labels[label] = blockId;
+	uint32 newBlockId = m_nextBlockId++;
+	StartBlock(newBlockId);
+	m_labels[label] = newBlockId;
 }
 
 void CJitter::Goto(LABEL label)
@@ -100,8 +106,8 @@ CONDITION CJitter::GetReverseCondition(CONDITION condition)
 
 void CJitter::BeginIf(CONDITION condition)
 {
-	uint32 nextBlockId = CreateBlock();
-	uint32 jumpBlockId = CreateBlock();
+	uint32 jumpBlockId = m_nextBlockId++;
+	m_ifStack.Push(jumpBlockId);
 
 	STATEMENT statement;
 	statement.op			= OP_CONDJMP;
@@ -113,8 +119,8 @@ void CJitter::BeginIf(CONDITION condition)
 
 	assert(m_shadow.GetCount() == 0);
 
-	m_currentBlock = GetBlock(nextBlockId);
-	m_ifStack.Push(jumpBlockId);
+	uint32 newBlockId = m_nextBlockId++;
+	StartBlock(newBlockId);
 }
 
 void CJitter::Else()
@@ -123,15 +129,16 @@ void CJitter::Else()
 	assert(m_shadow.GetCount() == 0);
 
 	uint32 nextBlockId = m_ifStack.Pull();
-	uint32 jumpBlockId = CreateBlock();
+
+	uint32 jumpBlockId = m_nextBlockId++;
+	m_ifStack.Push(jumpBlockId);
 
 	STATEMENT statement;
 	statement.op			= OP_JMP;
 	statement.jmpBlock		= jumpBlockId;
 	InsertStatement(statement);
 
-	m_currentBlock = GetBlock(nextBlockId);
-	m_ifStack.Push(jumpBlockId);
+	StartBlock(nextBlockId);
 }
 
 void CJitter::EndIf()
@@ -140,7 +147,7 @@ void CJitter::EndIf()
 	assert(m_shadow.GetCount() == 0);
 
 	uint32 nextBlockId = m_ifStack.Pull();
-	m_currentBlock = GetBlock(nextBlockId);
+	StartBlock(nextBlockId);
 }
 
 void CJitter::PushCtx()

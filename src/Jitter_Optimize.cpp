@@ -915,11 +915,14 @@ bool CJitter::MergeBlocks()
 			if(nextBlock.hasJumpRef) continue;
 
 			//Check if the last statement is a jump
-			auto lastStatementIterator(basicBlock.statements.end());
-			lastStatementIterator--;
-			const auto& statement(*lastStatementIterator);
-			if(statement.op == OP_CONDJMP) continue;
-			if(statement.op == OP_JMP) continue;
+			if(!basicBlock.statements.empty())
+			{
+				auto lastStatementIterator(basicBlock.statements.end());
+				lastStatementIterator--;
+				const auto& statement(*lastStatementIterator);
+				if(statement.op == OP_CONDJMP) continue;
+				if(statement.op == OP_JMP) continue;
+			}
 
 			//Blocks can be merged
 			MergeBasicBlocks(basicBlock, nextBlock);

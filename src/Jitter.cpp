@@ -7,9 +7,7 @@ using namespace std;
 using namespace Jitter;
 
 CJitter::CJitter(CCodeGen* codeGen)
-: m_blockStarted(false)
-, m_codeGen(codeGen)
-, m_nextLabelId(1)
+: m_codeGen(codeGen)
 {
 
 }

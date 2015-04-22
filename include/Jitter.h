@@ -324,19 +324,19 @@ namespace Jitter
 		void							NormalizeStatements(BASIC_BLOCK&);
 		unsigned int					AllocateStack(BASIC_BLOCK&);
 
-		bool							m_blockStarted;
+		bool							m_blockStarted = false;
 
 		CArrayStack<SymbolPtr>			m_shadow;
 		CArrayStack<uint32>				m_ifStack;
 
-		unsigned int					m_nextTemporary;
-		unsigned int					m_nextBlockId;
+		unsigned int					m_nextTemporary = 1;
+		unsigned int					m_nextBlockId = 1;
 
-		BASIC_BLOCK*					m_currentBlock;
+		BASIC_BLOCK*					m_currentBlock = nullptr;
 		BasicBlockList					m_basicBlocks;
-		CCodeGen*						m_codeGen;
+		CCodeGen*						m_codeGen = nullptr;
 
-		unsigned int					m_nextLabelId;
+		unsigned int					m_nextLabelId = 1;
 		LabelMapType					m_labels;
 	};
 

@@ -30,6 +30,24 @@ namespace Jitter
 			unsigned int index = 0;
 		};
 
+		class CTempRegisterContext
+		{
+		public:
+			CArmAssembler::REGISTER Allocate()
+			{
+				return static_cast<CArmAssembler::REGISTER>(m_nextRegister++);
+			}
+
+			void Release(CArmAssembler::REGISTER reg)
+			{
+				m_nextRegister--;
+				assert(reg == m_nextRegister);
+			}
+
+		private:
+			uint8 m_nextRegister = CArmAssembler::r0;
+		};
+
 		typedef std::function<void (PARAM_STATE&)> ParamEmitterFunction;
 		typedef std::deque<ParamEmitterFunction> ParamStack;
 		
@@ -82,14 +100,14 @@ namespace Jitter
 		void									StoreRegisterInMemory64High(CSymbol*, CArmAssembler::REGISTER);
 		void									StoreRegistersInMemory64(CSymbol*, CArmAssembler::REGISTER, CArmAssembler::REGISTER);
 
-		void									LoadMemoryFpSingleInRegister(CArmAssembler::SINGLE_REGISTER, CSymbol*);
-		void									StoreRegisterInMemoryFpSingle(CSymbol*, CArmAssembler::SINGLE_REGISTER);
+		void									LoadMemoryFpSingleInRegister(CTempRegisterContext&, CArmAssembler::SINGLE_REGISTER, CSymbol*);
+		void									StoreRegisterInMemoryFpSingle(CTempRegisterContext&, CSymbol*, CArmAssembler::SINGLE_REGISTER);
 
-		void									LoadRelativeFpSingleInRegister(CArmAssembler::SINGLE_REGISTER, CSymbol*);
-		void									StoreRelativeFpSingleInRegister(CSymbol*, CArmAssembler::SINGLE_REGISTER);
+		void									LoadRelativeFpSingleInRegister(CTempRegisterContext&, CArmAssembler::SINGLE_REGISTER, CSymbol*);
+		void									StoreRelativeFpSingleInRegister(CTempRegisterContext&, CSymbol*, CArmAssembler::SINGLE_REGISTER);
 
-		void									LoadTemporaryFpSingleInRegister(CArmAssembler::SINGLE_REGISTER, CSymbol*);
-		void									StoreTemporaryFpSingleInRegister(CSymbol*, CArmAssembler::SINGLE_REGISTER);
+		void									LoadTemporaryFpSingleInRegister(CTempRegisterContext&, CArmAssembler::SINGLE_REGISTER, CSymbol*);
+		void									StoreTemporaryFpSingleInRegister(CTempRegisterContext&, CSymbol*, CArmAssembler::SINGLE_REGISTER);
 
 		void									LoadMemory128AddressInRegister(CArmAssembler::REGISTER, CSymbol*);
 		void									LoadRelative128AddressInRegister(CArmAssembler::REGISTER, CSymbol*);

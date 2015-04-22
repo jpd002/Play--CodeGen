@@ -115,6 +115,9 @@
     <ClCompile Include="..\tests\MdCmpTest.cpp">
       <Filter>Source Files\Tests\Md</Filter>
     </ClCompile>
+    <ClCompile Include="..\tests\NestedIfTest.cpp">
+      <Filter>Source Files\Tests</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\tests\Test.h">
@@ -215,6 +218,9 @@
     </ClInclude>
     <ClInclude Include="..\tests\MdCmpTest.h">
       <Filter>Source Files\Tests\Md</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tests\NestedIfTest.h">
+      <Filter>Source Files\Tests</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

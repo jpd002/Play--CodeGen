@@ -31,6 +31,7 @@
 #include "Call64Test.h"
 #include "Merge64Test.h"
 #include "LzcTest.h"
+#include "NestedIfTest.h"
 
 #ifdef __APPLE__
 #include "TargetConditionals.h"
@@ -57,6 +58,7 @@ static const TestFactoryFunction s_factories[] =
 	[] () { return new CMultTest(false); },
 	[] () { return new CMemAccessTest(); },
 	[] () { return new CHugeJumpTest(); },
+	[] () { return new CNestedIfTest(); },
 #ifdef HAS_ADVANCED_OPS
 	[] () { return new CLzcTest(); },
 	[] () { return new CHalfMultTest(); },

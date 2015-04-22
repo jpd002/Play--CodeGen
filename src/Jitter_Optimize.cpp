@@ -777,8 +777,8 @@ bool CJitter::PruneBlocks()
 		changed = false;
 
 		auto toDeleteIterator = m_basicBlocks.cend();
-		for(BasicBlockList::const_iterator outerBlockIterator(m_basicBlocks.begin());
-			outerBlockIterator != m_basicBlocks.end(); outerBlockIterator++)
+		for(auto outerBlockIterator(m_basicBlocks.cbegin());
+			outerBlockIterator != m_basicBlocks.cend(); outerBlockIterator++)
 		{
 			//First block is always referenced
 			if(outerBlockIterator == m_basicBlocks.begin()) continue;
@@ -787,8 +787,8 @@ bool CJitter::PruneBlocks()
 			bool referenced = false;
 
 			//Check if there's a reference to this block in here
-			for(BasicBlockList::const_iterator innerBlockIterator(m_basicBlocks.begin());
-				innerBlockIterator != m_basicBlocks.end(); innerBlockIterator++)
+			for(auto innerBlockIterator(m_basicBlocks.cbegin());
+				innerBlockIterator != m_basicBlocks.cend(); innerBlockIterator++)
 			{
 				const auto& block(*innerBlockIterator);
 				if(block.statements.size() == 0) continue;

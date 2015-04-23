@@ -791,25 +791,38 @@ bool CJitter::PruneBlocks()
 				innerBlockIterator != m_basicBlocks.cend(); innerBlockIterator++)
 			{
 				const auto& block(*innerBlockIterator);
-				if(block.statements.size() == 0) continue;
+				bool referencesNext = false;
 
-				//Check if this block references the next one or if it jumps to another one
-				StatementList::const_iterator lastInstruction(block.statements.end());
-				lastInstruction--;
-				const STATEMENT& statement(*lastInstruction);
-
-				//It jumps to a block, so check if it references the one we're looking for
-				if(statement.op == OP_JMP || statement.op == OP_CONDJMP)
+				if(block.statements.empty())
 				{
-					if(statement.jmpBlock == candidateBlockIterator->id)
+					//Empty blocks references next one
+					referencesNext = true;
+				}
+				else
+				{
+					//Check if this block references the next one or if it jumps to another one
+					auto lastInstruction(block.statements.end());
+					lastInstruction--;
+					const auto& statement(*lastInstruction);
+
+					//It jumps to a block, so check if it references the one we're looking for
+					if(statement.op == OP_JMP || statement.op == OP_CONDJMP)
 					{
-						referenced = true;
-						break;
+						if(statement.jmpBlock == candidateBlockIterator->id)
+						{
+							referenced = true;
+							break;
+						}
+					}
+
+					//Otherwise, it references the next one if it's not a jump
+					if(statement.op != OP_JMP)
+					{
+						referencesNext = true;
 					}
 				}
 
-				//Otherwise, it references the next one if it's not a jump
-				if(statement.op != OP_JMP)
+				if(referencesNext)
 				{
 					auto nextBlockIterator(innerBlockIterator);
 					nextBlockIterator++;

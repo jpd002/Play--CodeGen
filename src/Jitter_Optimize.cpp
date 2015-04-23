@@ -337,6 +337,14 @@ bool CJitter::FoldConstantOperation(STATEMENT& statement)
 			statement.src2.reset();
 			changed = true;
 		}
+		else if(src2cst && src2cst->m_valueLow == 0)
+		{
+			//Anding with zero
+			statement.op = OP_MOV;
+			statement.src1 = MakeSymbolRef(MakeSymbol(SYM_CONSTANT, 0));
+			statement.src2.reset();
+			changed = true;
+		}
 	}
 	else if(statement.op == OP_OR)
 	{

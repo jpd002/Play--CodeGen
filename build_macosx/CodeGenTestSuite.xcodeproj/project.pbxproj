@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		7031AA571AED88B800FA7B53 /* MdAddTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7031AA531AED88B800FA7B53 /* MdAddTest.cpp */; };
+		7031AA581AED88B800FA7B53 /* NestedIfTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7031AA551AED88B800FA7B53 /* NestedIfTest.cpp */; };
 		70320D061A998C2A001E9C4B /* Logic64Test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70320D041A998C2A001E9C4B /* Logic64Test.cpp */; };
 		703D96521AE4985100B3974D /* MdCmpTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 703D964E1AE4985100B3974D /* MdCmpTest.cpp */; };
 		703D96531AE4985100B3974D /* MdManipTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 703D96501AE4985100B3974D /* MdManipTest.cpp */; };
@@ -87,6 +89,10 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		7031AA531AED88B800FA7B53 /* MdAddTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MdAddTest.cpp; path = ../tests/MdAddTest.cpp; sourceTree = "<group>"; };
+		7031AA541AED88B800FA7B53 /* MdAddTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MdAddTest.h; path = ../tests/MdAddTest.h; sourceTree = "<group>"; };
+		7031AA551AED88B800FA7B53 /* NestedIfTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = NestedIfTest.cpp; path = ../tests/NestedIfTest.cpp; sourceTree = "<group>"; };
+		7031AA561AED88B800FA7B53 /* NestedIfTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NestedIfTest.h; path = ../tests/NestedIfTest.h; sourceTree = "<group>"; };
 		70320D041A998C2A001E9C4B /* Logic64Test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Logic64Test.cpp; path = ../tests/Logic64Test.cpp; sourceTree = "<group>"; };
 		70320D051A998C2A001E9C4B /* Logic64Test.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Logic64Test.h; path = ../tests/Logic64Test.h; sourceTree = "<group>"; };
 		703D964E1AE4985100B3974D /* MdCmpTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MdCmpTest.cpp; path = ../tests/MdCmpTest.cpp; sourceTree = "<group>"; };
@@ -251,6 +257,8 @@
 				70BFC4FA1A5530EF0094CD9F /* LzcTest.cpp */,
 				70BFC4FB1A5530EF0094CD9F /* LzcTest.h */,
 				7E207C241507D5F200EE8C4F /* Main.cpp */,
+				7031AA531AED88B800FA7B53 /* MdAddTest.cpp */,
+				7031AA541AED88B800FA7B53 /* MdAddTest.h */,
 				7E207C251507D5F200EE8C4F /* MdCallTest.cpp */,
 				7E207C261507D5F200EE8C4F /* MdCallTest.h */,
 				703D964E1AE4985100B3974D /* MdCmpTest.cpp */,
@@ -277,6 +285,8 @@
 				703F73851AD0C64800887F65 /* Merge64Test.h */,
 				7E207C2F1507D5F200EE8C4F /* MultTest.cpp */,
 				7E207C301507D5F200EE8C4F /* MultTest.h */,
+				7031AA551AED88B800FA7B53 /* NestedIfTest.cpp */,
+				7031AA561AED88B800FA7B53 /* NestedIfTest.h */,
 				7E207C311507D5F200EE8C4F /* RandomAluTest.cpp */,
 				7E207C321507D5F200EE8C4F /* RandomAluTest.h */,
 				7E207C331507D5F200EE8C4F /* RandomAluTest2.cpp */,
@@ -398,8 +408,10 @@
 				70BFC5081A5530EF0094CD9F /* MdSubTest.cpp in Sources */,
 				703F73861AD0C64800887F65 /* Merge64Test.cpp in Sources */,
 				7E207C451507D5F200EE8C4F /* Main.cpp in Sources */,
+				7031AA581AED88B800FA7B53 /* NestedIfTest.cpp in Sources */,
 				7E207C461507D5F200EE8C4F /* MdCallTest.cpp in Sources */,
 				7E207C471507D5F200EE8C4F /* MdFpFlagTest.cpp in Sources */,
+				7031AA571AED88B800FA7B53 /* MdAddTest.cpp in Sources */,
 				7E207C481507D5F200EE8C4F /* MdFpTest.cpp in Sources */,
 				703D96521AE4985100B3974D /* MdCmpTest.cpp in Sources */,
 				7E207C491507D5F200EE8C4F /* MdTest.cpp in Sources */,

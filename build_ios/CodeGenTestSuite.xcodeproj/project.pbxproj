@@ -16,6 +16,8 @@
 		703093CF17BE67F5009662A1 /* MdCallTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 703093C617BE67CE009662A1 /* MdCallTest.cpp */; };
 		703093D017BE67F8009662A1 /* MdFpFlagTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 703093C817BE67CE009662A1 /* MdFpFlagTest.cpp */; };
 		703093D117BE6804009662A1 /* Shift64Test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 703093CA17BE67CE009662A1 /* Shift64Test.cpp */; };
+		7031AA4D1AED887C00FA7B53 /* MdAddTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7031AA491AED887C00FA7B53 /* MdAddTest.cpp */; };
+		7031AA4E1AED887C00FA7B53 /* NestedIfTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7031AA4B1AED887C00FA7B53 /* NestedIfTest.cpp */; };
 		70320D0B1A998CD3001E9C4B /* Logic64Test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70320D091A998CD3001E9C4B /* Logic64Test.cpp */; };
 		703D964A1AE497D000B3974D /* MdCmpTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 703D96461AE497D000B3974D /* MdCmpTest.cpp */; };
 		703D964B1AE497D000B3974D /* MdManipTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 703D96481AE497D000B3974D /* MdManipTest.cpp */; };
@@ -101,6 +103,10 @@
 		703093C917BE67CE009662A1 /* MdFpFlagTest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = MdFpFlagTest.h; path = ../tests/MdFpFlagTest.h; sourceTree = "<group>"; };
 		703093CA17BE67CE009662A1 /* Shift64Test.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Shift64Test.cpp; path = ../tests/Shift64Test.cpp; sourceTree = "<group>"; };
 		703093CB17BE67CE009662A1 /* Shift64Test.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Shift64Test.h; path = ../tests/Shift64Test.h; sourceTree = "<group>"; };
+		7031AA491AED887C00FA7B53 /* MdAddTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MdAddTest.cpp; path = ../tests/MdAddTest.cpp; sourceTree = "<group>"; };
+		7031AA4A1AED887C00FA7B53 /* MdAddTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MdAddTest.h; path = ../tests/MdAddTest.h; sourceTree = "<group>"; };
+		7031AA4B1AED887C00FA7B53 /* NestedIfTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = NestedIfTest.cpp; path = ../tests/NestedIfTest.cpp; sourceTree = "<group>"; };
+		7031AA4C1AED887C00FA7B53 /* NestedIfTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NestedIfTest.h; path = ../tests/NestedIfTest.h; sourceTree = "<group>"; };
 		70320D091A998CD3001E9C4B /* Logic64Test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Logic64Test.cpp; path = ../tests/Logic64Test.cpp; sourceTree = "<group>"; };
 		70320D0A1A998CD3001E9C4B /* Logic64Test.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Logic64Test.h; path = ../tests/Logic64Test.h; sourceTree = "<group>"; };
 		703D96461AE497D000B3974D /* MdCmpTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MdCmpTest.cpp; path = ../tests/MdCmpTest.cpp; sourceTree = "<group>"; };
@@ -276,6 +282,8 @@
 				705E54F91A58C6B9009E67F1 /* LzcTest.cpp */,
 				705E54FA1A58C6B9009E67F1 /* LzcTest.h */,
 				7E27203B1212598B00C0DEBF /* Main.cpp */,
+				7031AA491AED887C00FA7B53 /* MdAddTest.cpp */,
+				7031AA4A1AED887C00FA7B53 /* MdAddTest.h */,
 				703093C617BE67CE009662A1 /* MdCallTest.cpp */,
 				703093C717BE67CE009662A1 /* MdCallTest.h */,
 				703D96461AE497D000B3974D /* MdCmpTest.cpp */,
@@ -302,6 +310,8 @@
 				703F73801AD0C60C00887F65 /* Merge64Test.h */,
 				7E27203C1212598B00C0DEBF /* MultTest.cpp */,
 				7E27203D1212598B00C0DEBF /* MultTest.h */,
+				7031AA4B1AED887C00FA7B53 /* NestedIfTest.cpp */,
+				7031AA4C1AED887C00FA7B53 /* NestedIfTest.h */,
 				7E27203E1212598B00C0DEBF /* RandomAluTest.cpp */,
 				7E27203F1212598B00C0DEBF /* RandomAluTest.h */,
 				7E2720401212598B00C0DEBF /* RandomAluTest2.cpp */,
@@ -438,8 +448,10 @@
 				705E55071A58C6B9009E67F1 /* MdSubTest.cpp in Sources */,
 				703F73811AD0C60C00887F65 /* Merge64Test.cpp in Sources */,
 				7E27204B1212598B00C0DEBF /* RandomAluTest2.cpp in Sources */,
+				7031AA4E1AED887C00FA7B53 /* NestedIfTest.cpp in Sources */,
 				7E27204C1212598B00C0DEBF /* RandomAluTest3.cpp in Sources */,
 				703093D017BE67F8009662A1 /* MdFpFlagTest.cpp in Sources */,
+				7031AA4D1AED887C00FA7B53 /* MdAddTest.cpp in Sources */,
 				7EE2D43A1228842C00C2C057 /* RegAllocTest.cpp in Sources */,
 				703D964A1AE497D000B3974D /* MdCmpTest.cpp in Sources */,
 				7EF8380512DAB5D300EA0F1C /* AliasTest.cpp in Sources */,

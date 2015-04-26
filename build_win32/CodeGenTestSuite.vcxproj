@@ -178,6 +178,7 @@
     <ClCompile Include="..\tests\MemAccessTest.cpp" />
     <ClCompile Include="..\tests\Merge64Test.cpp" />
     <ClCompile Include="..\tests\MultTest.cpp" />
+    <ClCompile Include="..\tests\NestedIfTest.cpp" />
     <ClCompile Include="..\tests\RandomAluTest.cpp" />
     <ClCompile Include="..\tests\RandomAluTest2.cpp" />
     <ClCompile Include="..\tests\RandomAluTest3.cpp" />
@@ -213,6 +214,7 @@
     <ClInclude Include="..\tests\MemAccessTest.h" />
     <ClInclude Include="..\tests\Merge64Test.h" />
     <ClInclude Include="..\tests\MultTest.h" />
+    <ClInclude Include="..\tests\NestedIfTest.h" />
     <ClInclude Include="..\tests\RandomAluTest.h" />
     <ClInclude Include="..\tests\RandomAluTest2.h" />
     <ClInclude Include="..\tests\RandomAluTest3.h" />

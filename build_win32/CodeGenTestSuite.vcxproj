@@ -162,6 +162,7 @@
     <ClCompile Include="..\tests\HalfMultTest.cpp" />
     <ClCompile Include="..\tests\HugeJumpTest.cpp" />
     <ClCompile Include="..\tests\Logic64Test.cpp" />
+    <ClCompile Include="..\tests\MdAddTest.cpp" />
     <ClCompile Include="..\tests\MdCmpTest.cpp" />
     <ClCompile Include="..\tests\MdLogicTest.cpp" />
     <ClCompile Include="..\tests\LzcTest.cpp" />
@@ -197,6 +198,7 @@
     <ClInclude Include="..\tests\HalfMultTest.h" />
     <ClInclude Include="..\tests\HugeJumpTest.h" />
     <ClInclude Include="..\tests\Logic64Test.h" />
+    <ClInclude Include="..\tests\MdAddTest.h" />
     <ClInclude Include="..\tests\MdCmpTest.h" />
     <ClInclude Include="..\tests\MdLogicTest.h" />
     <ClInclude Include="..\tests\LzcTest.h" />

@@ -48,6 +48,7 @@ LOCAL_SRC_FILES			:=	../../tests/AliasTest.cpp \
 							../../tests/Logic64Test.cpp \
 							../../tests/LzcTest.cpp \
 							../../tests/Main.cpp \
+							../../tests/MdAddTest.cpp \
 							../../tests/MdCallTest.cpp \
 							../../tests/MdCmpTest.cpp \
 							../../tests/MdFpFlagTest.cpp \

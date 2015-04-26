@@ -11,6 +11,7 @@
 #include "SimpleMdTest.h"
 #include "MdLogicTest.h"
 #include "MdTest.h"
+#include "MdAddTest.h"
 #include "MdSubTest.h"
 #include "MdCmpTest.h"
 #include "MdUnpackTest.h"
@@ -66,6 +67,7 @@ static const TestFactoryFunction s_factories[] =
 	[] () { return new CSimpleMdTest(); },
 	[] () { return new CMdTest(); },
 	[] () { return new CMdLogicTest(); },
+	[] () { return new CMdAddTest(); },
 	[] () { return new CMdSubTest(); },
 	[] () { return new CMdUnpackTest(); },
 	[] () { return new CMdCmpTest(); },

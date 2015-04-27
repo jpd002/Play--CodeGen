@@ -232,17 +232,6 @@ namespace Jitter
 		typedef std::unordered_map<SymbolPtr, SYMBOL_REGALLOCINFO, SymbolHasher, SymbolComparator> SymbolRegAllocInfo;
 		typedef std::unordered_map<CSymbol*, unsigned int> SymbolUseCountMap;
 
-		enum MAX_STACK
-		{
-			MAX_STACK = 0x100,
-		};
-
-		enum IFBLOCKS
-		{
-			IFBLOCK,
-			IFELSEBLOCK,
-		};
-
 		class CRelativeVersionManager
 		{
 		public:

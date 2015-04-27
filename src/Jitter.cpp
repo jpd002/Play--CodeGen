@@ -201,30 +201,12 @@ void CJitter::Swap()
 
 void CJitter::Add()
 {
-	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY, m_nextTemporary++);
-
-	STATEMENT statement;
-	statement.op	= OP_ADD;
-	statement.src2	= MakeSymbolRef(m_shadow.Pull());
-	statement.src1	= MakeSymbolRef(m_shadow.Pull());
-	statement.dst	= MakeSymbolRef(tempSym);
-	InsertStatement(statement);
-
-	m_shadow.Push(tempSym);
+	InsertBinaryStatement(OP_ADD);
 }
 
 void CJitter::And()
 {
-	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY, m_nextTemporary++);
-
-	STATEMENT statement;
-	statement.op	= OP_AND;
-	statement.src2	= MakeSymbolRef(m_shadow.Pull());
-	statement.src1	= MakeSymbolRef(m_shadow.Pull());
-	statement.dst	= MakeSymbolRef(tempSym);
-	InsertStatement(statement);
-
-	m_shadow.Push(tempSym);
+	InsertBinaryStatement(OP_AND);
 }
 
 void CJitter::Call(void* func, unsigned int paramCount, bool keepRet)
@@ -418,16 +400,7 @@ void CJitter::Not()
 
 void CJitter::Or()
 {
-	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY, m_nextTemporary++);
-
-	STATEMENT statement;
-	statement.op	= OP_OR;
-	statement.src2	= MakeSymbolRef(m_shadow.Pull());
-	statement.src1	= MakeSymbolRef(m_shadow.Pull());
-	statement.dst	= MakeSymbolRef(tempSym);
-	InsertStatement(statement);
-
-	m_shadow.Push(tempSym);
+	InsertBinaryStatement(OP_OR);
 }
 
 void CJitter::SignExt()
@@ -533,30 +506,12 @@ void CJitter::Srl(uint8 nAmount)
 
 void CJitter::Sub()
 {
-	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY, m_nextTemporary++);
-
-	STATEMENT statement;
-	statement.op	= OP_SUB;
-	statement.src2	= MakeSymbolRef(m_shadow.Pull());
-	statement.src1	= MakeSymbolRef(m_shadow.Pull());
-	statement.dst	= MakeSymbolRef(tempSym);
-	InsertStatement(statement);
-
-	m_shadow.Push(tempSym);
+	InsertBinaryStatement(OP_SUB);
 }
 
 void CJitter::Xor()
 {
-	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY, m_nextTemporary++);
-
-	STATEMENT statement;
-	statement.op	= OP_XOR;
-	statement.src2	= MakeSymbolRef(m_shadow.Pull());
-	statement.src1	= MakeSymbolRef(m_shadow.Pull());
-	statement.dst	= MakeSymbolRef(tempSym);
-	InsertStatement(statement);
-
-	m_shadow.Push(tempSym);
+	InsertBinaryStatement(OP_XOR);
 }
 
 //Memory Functions
@@ -1484,6 +1439,23 @@ void CJitter::MD_ToWordTruncate()
 void CJitter::MD_ToSingle()
 {
 	InsertUnaryMdStatement(OP_MD_TOSINGLE);
+}
+
+//Generic Statement Inserters
+//------------------------------------------------
+
+void CJitter::InsertBinaryStatement(Jitter::OPERATION operation)
+{
+	auto tempSym = MakeSymbol(SYM_TEMPORARY, m_nextTemporary++);
+
+	STATEMENT statement;
+	statement.op	= operation;
+	statement.src2	= MakeSymbolRef(m_shadow.Pull());
+	statement.src1	= MakeSymbolRef(m_shadow.Pull());
+	statement.dst	= MakeSymbolRef(tempSym);
+	InsertStatement(statement);
+
+	m_shadow.Push(tempSym);
 }
 
 void CJitter::InsertUnaryMdStatement(Jitter::OPERATION operation)

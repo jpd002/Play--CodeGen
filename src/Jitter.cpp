@@ -1129,67 +1129,67 @@ void CJitter::MD_StoreAtRef()
 
 void CJitter::MD_AddB()
 {
-	InsertGenericMdStatement(OP_MD_ADD_B);
+	InsertBinaryMdStatement(OP_MD_ADD_B);
 }
 
 void CJitter::MD_AddBUS()
 {
-	InsertGenericMdStatement(OP_MD_ADDUS_B);
+	InsertBinaryMdStatement(OP_MD_ADDUS_B);
 }
 
 void CJitter::MD_AddH()
 {
-	InsertGenericMdStatement(OP_MD_ADD_H);
+	InsertBinaryMdStatement(OP_MD_ADD_H);
 }
 
 void CJitter::MD_AddHSS()
 {
-	InsertGenericMdStatement(OP_MD_ADDSS_H);
+	InsertBinaryMdStatement(OP_MD_ADDSS_H);
 }
 
 void CJitter::MD_AddW()
 {
-	InsertGenericMdStatement(OP_MD_ADD_W);
+	InsertBinaryMdStatement(OP_MD_ADD_W);
 }
 
 void CJitter::MD_AddWSS()
 {
-	InsertGenericMdStatement(OP_MD_ADDSS_W);
+	InsertBinaryMdStatement(OP_MD_ADDSS_W);
 }
 
 void CJitter::MD_AddWUS()
 {
-	InsertGenericMdStatement(OP_MD_ADDUS_W);
+	InsertBinaryMdStatement(OP_MD_ADDUS_W);
 }
 
 void CJitter::MD_SubB()
 {
-	InsertGenericMdStatement(OP_MD_SUB_B);
+	InsertBinaryMdStatement(OP_MD_SUB_B);
 }
 
 void CJitter::MD_SubBUS()
 {
-	InsertGenericMdStatement(OP_MD_SUBUS_B);
+	InsertBinaryMdStatement(OP_MD_SUBUS_B);
 }
 
 void CJitter::MD_SubHSS()
 {
-	InsertGenericMdStatement(OP_MD_SUBSS_H);
+	InsertBinaryMdStatement(OP_MD_SUBSS_H);
 }
 
 void CJitter::MD_SubHUS()
 {
-	InsertGenericMdStatement(OP_MD_SUBUS_H);
+	InsertBinaryMdStatement(OP_MD_SUBUS_H);
 }
 
 void CJitter::MD_SubH()
 {
-	InsertGenericMdStatement(OP_MD_SUB_H);
+	InsertBinaryMdStatement(OP_MD_SUB_H);
 }
 
 void CJitter::MD_SubW()
 {
-	InsertGenericMdStatement(OP_MD_SUB_W);
+	InsertBinaryMdStatement(OP_MD_SUB_W);
 }
 
 void CJitter::MD_And()
@@ -1423,57 +1423,57 @@ void CJitter::MD_MaxW()
 
 void CJitter::MD_CmpEqB()
 {
-	InsertGenericMdStatement(OP_MD_CMPEQ_B);
+	InsertBinaryMdStatement(OP_MD_CMPEQ_B);
 }
 
 void CJitter::MD_CmpEqH()
 {
-	InsertGenericMdStatement(OP_MD_CMPEQ_H);
+	InsertBinaryMdStatement(OP_MD_CMPEQ_H);
 }
 
 void CJitter::MD_CmpEqW()
 {
-	InsertGenericMdStatement(OP_MD_CMPEQ_W);
+	InsertBinaryMdStatement(OP_MD_CMPEQ_W);
 }
 
 void CJitter::MD_CmpGtH()
 {
-	InsertGenericMdStatement(OP_MD_CMPGT_H);
+	InsertBinaryMdStatement(OP_MD_CMPGT_H);
 }
 
 void CJitter::MD_CmpGtW()
 {
-	InsertGenericMdStatement(OP_MD_CMPGT_W);
+	InsertBinaryMdStatement(OP_MD_CMPGT_W);
 }
 
 void CJitter::MD_UnpackLowerBH()
 {
-	InsertGenericMdStatement(OP_MD_UNPACK_LOWER_BH);
+	InsertBinaryMdStatement(OP_MD_UNPACK_LOWER_BH);
 }
 
 void CJitter::MD_UnpackLowerHW()
 {
-	InsertGenericMdStatement(OP_MD_UNPACK_LOWER_HW);
+	InsertBinaryMdStatement(OP_MD_UNPACK_LOWER_HW);
 }
 
 void CJitter::MD_UnpackLowerWD()
 {
-	InsertGenericMdStatement(OP_MD_UNPACK_LOWER_WD);
+	InsertBinaryMdStatement(OP_MD_UNPACK_LOWER_WD);
 }
 
 void CJitter::MD_UnpackUpperBH()
 {
-	InsertGenericMdStatement(OP_MD_UNPACK_UPPER_BH);
+	InsertBinaryMdStatement(OP_MD_UNPACK_UPPER_BH);
 }
 
 void CJitter::MD_UnpackUpperHW()
 {
-	InsertGenericMdStatement(OP_MD_UNPACK_UPPER_HW);
+	InsertBinaryMdStatement(OP_MD_UNPACK_UPPER_HW);
 }
 
 void CJitter::MD_UnpackUpperWD()
 {
-	InsertGenericMdStatement(OP_MD_UNPACK_UPPER_WD);
+	InsertBinaryMdStatement(OP_MD_UNPACK_UPPER_WD);
 }
 
 void CJitter::MD_PackHB()
@@ -1653,7 +1653,7 @@ void CJitter::MD_ToSingle()
 	m_shadow.Push(tempSym);
 }
 
-void CJitter::InsertGenericMdStatement(Jitter::OPERATION operation)
+void CJitter::InsertBinaryMdStatement(Jitter::OPERATION operation)
 {
 	auto tempSym = MakeSymbol(SYM_TEMPORARY128, m_nextTemporary++);
 

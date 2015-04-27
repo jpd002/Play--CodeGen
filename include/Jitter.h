@@ -47,7 +47,7 @@ namespace Jitter
 		virtual void					Begin();
 		virtual void					End();
 		
-		bool							IsStackEmpty();
+		bool							IsStackEmpty() const;
 
 		void							BeginIf(CONDITION);
 		void							Else();

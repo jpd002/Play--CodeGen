@@ -47,7 +47,7 @@ void CJitter::End()
 	Compile();
 }
 
-bool CJitter::IsStackEmpty()
+bool CJitter::IsStackEmpty() const
 {
 	return m_shadow.GetCount() == 0;
 }

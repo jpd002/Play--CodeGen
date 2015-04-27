@@ -6,6 +6,7 @@
 #include <map>
 #include <unordered_map>
 #include <vector>
+#include <stack>
 #include "ArrayStack.h"
 #include "Stream.h"
 #include "Jitter_SymbolTable.h"
@@ -231,6 +232,7 @@ namespace Jitter
 		typedef std::vector<AllocationRange> AllocationRangeArray;
 		typedef std::unordered_map<SymbolPtr, SYMBOL_REGALLOCINFO, SymbolHasher, SymbolComparator> SymbolRegAllocInfo;
 		typedef std::unordered_map<CSymbol*, unsigned int> SymbolUseCountMap;
+		typedef std::stack<uint32> IntStack;
 
 		class CRelativeVersionManager
 		{
@@ -314,7 +316,7 @@ namespace Jitter
 		bool							m_blockStarted = false;
 
 		CArrayStack<SymbolPtr>			m_shadow;
-		CArrayStack<uint32>				m_ifStack;
+		IntStack						m_ifStack;
 
 		unsigned int					m_nextTemporary = 1;
 		unsigned int					m_nextBlockId = 1;

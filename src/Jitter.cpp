@@ -107,7 +107,7 @@ CONDITION CJitter::GetReverseCondition(CONDITION condition)
 void CJitter::BeginIf(CONDITION condition)
 {
 	uint32 jumpBlockId = m_nextBlockId++;
-	m_ifStack.Push(jumpBlockId);
+	m_ifStack.push(jumpBlockId);
 
 	STATEMENT statement;
 	statement.op			= OP_CONDJMP;
@@ -125,13 +125,13 @@ void CJitter::BeginIf(CONDITION condition)
 
 void CJitter::Else()
 {
-	assert(m_ifStack.GetCount() > 0);
+	assert(!m_ifStack.empty());
 	assert(m_shadow.GetCount() == 0);
 
-	uint32 nextBlockId = m_ifStack.Pull();
+	uint32 nextBlockId = m_ifStack.top(); m_ifStack.pop();
 
 	uint32 jumpBlockId = m_nextBlockId++;
-	m_ifStack.Push(jumpBlockId);
+	m_ifStack.push(jumpBlockId);
 
 	STATEMENT statement;
 	statement.op			= OP_JMP;
@@ -143,10 +143,10 @@ void CJitter::Else()
 
 void CJitter::EndIf()
 {
-	assert(m_ifStack.GetCount() > 0);
+	assert(!m_ifStack.empty());
 	assert(m_shadow.GetCount() == 0);
 
-	uint32 nextBlockId = m_ifStack.Pull();
+	uint32 nextBlockId = m_ifStack.top(); m_ifStack.pop();
 	StartBlock(nextBlockId);
 }
 

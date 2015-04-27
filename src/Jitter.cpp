@@ -1209,15 +1209,7 @@ void CJitter::MD_Xor()
 
 void CJitter::MD_Not()
 {
-	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY128, m_nextTemporary++);
-
-	STATEMENT statement;
-	statement.op	= OP_MD_NOT;
-	statement.src1	= MakeSymbolRef(m_shadow.Pull());
-	statement.dst	= MakeSymbolRef(tempSym);
-	InsertStatement(statement);
-
-	m_shadow.Push(tempSym);
+	InsertUnaryMdStatement(OP_MD_NOT);
 }
 
 void CJitter::MD_SllH(uint8 amount)
@@ -1445,15 +1437,7 @@ void CJitter::MD_DivS()
 
 void CJitter::MD_AbsS()
 {
-	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY128, m_nextTemporary++);
-
-	STATEMENT statement;
-	statement.op	= OP_MD_ABS_S;
-	statement.src1	= MakeSymbolRef(m_shadow.Pull());
-	statement.dst	= MakeSymbolRef(tempSym);
-	InsertStatement(statement);
-
-	m_shadow.Push(tempSym);
+	InsertUnaryMdStatement(OP_MD_ABS_S);
 }
 
 void CJitter::MD_MinS()
@@ -1494,23 +1478,20 @@ void CJitter::MD_IsNegative()
 
 void CJitter::MD_ToWordTruncate()
 {
-	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY128, m_nextTemporary++);
-
-	STATEMENT statement;
-	statement.op	= OP_MD_TOWORD_TRUNCATE;
-	statement.src1	= MakeSymbolRef(m_shadow.Pull());
-	statement.dst	= MakeSymbolRef(tempSym);
-	InsertStatement(statement);
-
-	m_shadow.Push(tempSym);
+	InsertUnaryMdStatement(OP_MD_TOWORD_TRUNCATE);
 }
 
 void CJitter::MD_ToSingle()
 {
-	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY128, m_nextTemporary++);
+	InsertUnaryMdStatement(OP_MD_TOSINGLE);
+}
+
+void CJitter::InsertUnaryMdStatement(Jitter::OPERATION operation)
+{
+	auto tempSym = MakeSymbol(SYM_TEMPORARY128, m_nextTemporary++);
 
 	STATEMENT statement;
-	statement.op	= OP_MD_TOSINGLE;
+	statement.op	= operation;
 	statement.src1	= MakeSymbolRef(m_shadow.Pull());
 	statement.dst	= MakeSymbolRef(tempSym);
 	InsertStatement(statement);

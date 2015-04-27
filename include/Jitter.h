@@ -263,6 +263,7 @@ namespace Jitter
 			CRelativeVersionManager		relativeVersions;
 		};
 
+		void							InsertUnaryMdStatement(Jitter::OPERATION);
 		void							InsertBinaryMdStatement(Jitter::OPERATION);
 
 		void							Compile();

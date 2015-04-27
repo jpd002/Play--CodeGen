@@ -96,6 +96,11 @@ void CX86Assembler::MovqVo(XMMREGISTER registerId, const CAddress& address)
 	WriteEdVdOp_66_0F_64b(0x6E, address, registerId);
 }
 
+void CX86Assembler::MovdqaVo(XMMREGISTER registerId, const CAddress& address)
+{
+	WriteEdVdOp_66_0F(0x6F, address, registerId);
+}
+
 void CX86Assembler::MovdqaVo(const CAddress& address, XMMREGISTER registerId)
 {
 	WriteEdVdOp_66_0F(0x7F, address, registerId);

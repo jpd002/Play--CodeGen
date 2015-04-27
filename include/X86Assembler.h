@@ -243,9 +243,10 @@ public:
 	void									MovdVo(XMMREGISTER, const CAddress&);
 	void									MovdVo(const CAddress&, XMMREGISTER);
 	void									MovqVo(XMMREGISTER, const CAddress&);
+	void									MovdqaVo(XMMREGISTER, const CAddress&);
 	void									MovdqaVo(const CAddress&, XMMREGISTER);
-	void									MovdquVo(const CAddress&, XMMREGISTER);
 	void									MovdquVo(XMMREGISTER, const CAddress&);
+	void									MovdquVo(const CAddress&, XMMREGISTER);
 	void									MovapsVo(const CAddress&, XMMREGISTER);
 	void									MovapsVo(XMMREGISTER, const CAddress&);
 	void									PackssdwVo(XMMREGISTER, const CAddress&);

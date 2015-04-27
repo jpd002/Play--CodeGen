@@ -1,6 +1,11 @@
 #include "Jitter_CodeGen_Arm.h"
 #include "ObjectFile.h"
 
+#ifdef _MSC_VER
+#include <intrin.h>
+#define __builtin_popcount __popcnt
+#endif
+
 using namespace Jitter;
 
 CArmAssembler::REGISTER CCodeGen_Arm::g_baseRegister = CArmAssembler::r11;
@@ -312,6 +317,9 @@ void CCodeGen_Arm::RegisterExternalSymbols(CObjectFile* objectFile) const
 
 void CCodeGen_Arm::GenerateCode(const StatementList& statements, unsigned int stackSize)
 {
+	//Align stack size (must be aligned on 8 bytes boundary)
+	stackSize = (stackSize + 0x7) & ~0x7;
+
 	uint16 registerSave = GetSavedRegisterList(GetRegisterUsage(statements));
 
 	Emit_Prolog(stackSize, registerSave);
@@ -359,6 +367,14 @@ uint16 CCodeGen_Arm::GetSavedRegisterList(uint32 registerUsage)
 	registerSave |= (1 << g_callAddressRegister);
 	registerSave |= (1 << g_baseRegister);
 	registerSave |= (1 << CArmAssembler::rLR);
+
+	//Make sure we're aligned on 8 bytes
+	unsigned int registerSaveCount = __builtin_popcount(registerSave);
+	if(registerSaveCount & 1)
+	{
+		assert((registerSave & (1 << CArmAssembler::r12)) == 0);
+		registerSave |= (1 << CArmAssembler::r12);
+	}
 	return registerSave;
 }
 

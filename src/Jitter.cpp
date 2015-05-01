@@ -91,6 +91,9 @@ CONDITION CJitter::GetReverseCondition(CONDITION condition)
 	case CONDITION_NE:
 		return CONDITION_EQ;
 		break;
+	case CONDITION_LT:
+		return CONDITION_GE;
+		break;
 	case CONDITION_LE:
 		return CONDITION_GT;
 		break;

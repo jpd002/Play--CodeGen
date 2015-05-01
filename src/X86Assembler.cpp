@@ -474,6 +474,11 @@ void CX86Assembler::JleJx(LABEL label)
 	CreateLabelReference(label, JMP_LE);
 }
 
+void CX86Assembler::JnlJx(LABEL label)
+{
+	CreateLabelReference(label, JMP_NL);
+}
+
 void CX86Assembler::JnleJx(LABEL label)
 {
 	CreateLabelReference(label, JMP_NLE);

@@ -140,6 +140,7 @@ public:
 	void									JbJx(LABEL);
 	void									JnbJx(LABEL);
 	void									JzJx(LABEL);
+	void									JnlJx(LABEL);
 	void									JnleJx(LABEL);
 	void									JlJx(LABEL);
 	void									JleJx(LABEL);

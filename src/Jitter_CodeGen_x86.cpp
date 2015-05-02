@@ -1102,6 +1102,9 @@ void CCodeGen_x86::CondJmp_JumpTo(CX86Assembler::LABEL label, Jitter::CONDITION 
 	case CONDITION_GT:
 		m_assembler.JnleJx(label);
 		break;
+	case CONDITION_GE:
+		m_assembler.JnlJx(label);
+		break;
 	default:
 		assert(0);
 		break;

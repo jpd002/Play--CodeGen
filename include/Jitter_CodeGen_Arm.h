@@ -92,7 +92,7 @@ namespace Jitter
 		void									LoadRelativeReferenceInRegister(CArmAssembler::REGISTER, CSymbol*);
 
 		void									LoadTemporaryReferenceInRegister(CArmAssembler::REGISTER, CSymbol*);
-		void									StoreInRegisterTemporaryReference(CSymbol*, CArmAssembler::REGISTER);
+		void									StoreRegisterInTemporaryReference(CSymbol*, CArmAssembler::REGISTER);
 		
 		void									LoadMemory64LowInRegister(CArmAssembler::REGISTER, CSymbol*);
 		void									LoadMemory64HighInRegister(CArmAssembler::REGISTER, CSymbol*);

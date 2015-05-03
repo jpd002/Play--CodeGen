@@ -1223,7 +1223,7 @@ void CCodeGen_Arm::Emit_AddRef_TmpRelReg(const STATEMENT& statement)
 	
 	LoadRelativeReferenceInRegister(tmpReg, src1);
 	m_assembler.Add(tmpReg, tmpReg, g_registers[src2->m_valueLow]);
-	StoreInRegisterTemporaryReference(dst, tmpReg);
+	StoreRegisterInTemporaryReference(dst, tmpReg);
 }
 
 void CCodeGen_Arm::Emit_AddRef_TmpRelCst(const STATEMENT& statement)
@@ -1242,7 +1242,7 @@ void CCodeGen_Arm::Emit_AddRef_TmpRelCst(const STATEMENT& statement)
 	LoadRelativeReferenceInRegister(tmpReg0, src1);
 	LoadConstantInRegister(tmpReg1, src2->m_valueLow);
 	m_assembler.Add(tmpReg0, tmpReg0, tmpReg1);
-	StoreInRegisterTemporaryReference(dst, tmpReg0);
+	StoreRegisterInTemporaryReference(dst, tmpReg0);
 }
 
 void CCodeGen_Arm::Emit_LoadFromRef_RegTmp(const STATEMENT& statement)

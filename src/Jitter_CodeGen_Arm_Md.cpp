@@ -44,37 +44,17 @@ void CCodeGen_Arm::LoadTemporary128AddressInRegister(CArmAssembler::REGISTER dst
 	m_assembler.Add(dstReg, CArmAssembler::rSP, CArmAssembler::MakeImmediateAluOperand(immediate, shiftAmount));
 }
 
-void CCodeGen_Arm::Emit_Md_Mov_MemMem(const STATEMENT& statement)
+void CCodeGen_Arm::LoadTemporary256ElementAddressInRegister(CArmAssembler::REGISTER dstReg, CSymbol* symbol, uint32 offset)
 {
-	auto dst = statement.dst->GetSymbol().get();
-	auto src1 = statement.src1->GetSymbol().get();
+	assert(symbol->m_type == SYM_TEMPORARY256);
 
-	auto dstAddrReg = CArmAssembler::r0;
-	auto src1AddrReg = CArmAssembler::r1;
-	auto tmpReg = CArmAssembler::q0;
-	LoadMemory128AddressInRegister(dstAddrReg, dst);
-	LoadMemory128AddressInRegister(src1AddrReg, src1);
-	m_assembler.Vld1_32x4(tmpReg, src1AddrReg);
-	m_assembler.Vst1_32x4(tmpReg, dstAddrReg);
-}
-
-void CCodeGen_Arm::Emit_Md_Not_MemMem(const STATEMENT& statement)
-{
-	auto dst = statement.dst->GetSymbol().get();
-	auto src1 = statement.src1->GetSymbol().get();
-
-	auto dstAddrReg = CArmAssembler::r0;
-	auto src1AddrReg = CArmAssembler::r1;
-	auto zeroReg = CArmAssembler::q0;
-	auto tmpReg = CArmAssembler::q1;
-
-	LoadMemory128AddressInRegister(dstAddrReg, dst);
-	LoadMemory128AddressInRegister(src1AddrReg, src1);
-
-	m_assembler.Vld1_32x4(tmpReg, src1AddrReg);
-	m_assembler.Veor(zeroReg, zeroReg, zeroReg);
-	m_assembler.Vorn(tmpReg, zeroReg, tmpReg);
-	m_assembler.Vst1_32x4(tmpReg, dstAddrReg);
+	uint8 immediate = 0;
+	uint8 shiftAmount = 0;
+	if(!TryGetAluImmediateParams(symbol->m_stackLocation + m_stackLevel + offset, immediate, shiftAmount))
+	{
+		throw std::runtime_error("Failed to build immediate for symbol.");
+	}
+	m_assembler.Add(dstReg, CArmAssembler::rSP, CArmAssembler::MakeImmediateAluOperand(immediate, shiftAmount));
 }
 
 template <typename MDOP>
@@ -117,6 +97,90 @@ void CCodeGen_Arm::Emit_Md_MemMemMem(const STATEMENT& statement)
 	m_assembler.Vld1_32x4(src1Reg, src1AddrReg);
 	m_assembler.Vld1_32x4(src2Reg, src2AddrReg);
 	((m_assembler).*(MDOP::OpReg()))(dstReg, src1Reg, src2Reg);
+	m_assembler.Vst1_32x4(dstReg, dstAddrReg);
+}
+
+void CCodeGen_Arm::Emit_Md_Mov_MemMem(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+
+	auto dstAddrReg = CArmAssembler::r0;
+	auto src1AddrReg = CArmAssembler::r1;
+	auto tmpReg = CArmAssembler::q0;
+	LoadMemory128AddressInRegister(dstAddrReg, dst);
+	LoadMemory128AddressInRegister(src1AddrReg, src1);
+	m_assembler.Vld1_32x4(tmpReg, src1AddrReg);
+	m_assembler.Vst1_32x4(tmpReg, dstAddrReg);
+}
+
+void CCodeGen_Arm::Emit_Md_Not_MemMem(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+
+	auto dstAddrReg = CArmAssembler::r0;
+	auto src1AddrReg = CArmAssembler::r1;
+	auto zeroReg = CArmAssembler::q0;
+	auto tmpReg = CArmAssembler::q1;
+
+	LoadMemory128AddressInRegister(dstAddrReg, dst);
+	LoadMemory128AddressInRegister(src1AddrReg, src1);
+
+	m_assembler.Vld1_32x4(tmpReg, src1AddrReg);
+	m_assembler.Veor(zeroReg, zeroReg, zeroReg);
+	m_assembler.Vorn(tmpReg, zeroReg, tmpReg);
+	m_assembler.Vst1_32x4(tmpReg, dstAddrReg);
+}
+
+void CCodeGen_Arm::Emit_Md_Srl256_MemMemCst(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	assert(src1->m_type == SYM_TEMPORARY256);
+	assert(src2->m_type == SYM_CONSTANT);
+
+	auto dstAddrReg = CArmAssembler::r0;
+	auto src1AddrReg = CArmAssembler::r1;
+	auto dstReg = CArmAssembler::q0;
+
+	uint32 offset = (src2->m_valueLow & 0x7F) / 8;
+
+	LoadMemory128AddressInRegister(dstAddrReg, dst);
+	LoadTemporary256ElementAddressInRegister(src1AddrReg, src1, offset);
+
+	m_assembler.Vld1_32x4(dstReg, src1AddrReg);
+	m_assembler.Vst1_32x4(dstReg, dstAddrReg);
+}
+
+void CCodeGen_Arm::Emit_Md_Srl256_MemMemVar(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	assert(src1->m_type == SYM_TEMPORARY256);
+
+	auto offsetRegister = CArmAssembler::r0;
+	auto dstAddrReg = CArmAssembler::r1;
+	auto src1AddrReg = CArmAssembler::r2;
+	auto src2Register = PrepareSymbolRegisterUse(src2, CArmAssembler::r3);
+
+	auto dstReg = CArmAssembler::q0;
+
+	auto offsetShift = CArmAssembler::MakeConstantShift(CArmAssembler::SHIFT_LSR, 3);
+
+	LoadMemory128AddressInRegister(dstAddrReg, dst);
+	LoadTemporary256ElementAddressInRegister(src1AddrReg, src1, 0);
+
+	//Compute offset and modify address
+	m_assembler.And(offsetRegister, src2Register, CArmAssembler::MakeImmediateAluOperand(0x7F, 0));
+	m_assembler.Mov(offsetRegister, CArmAssembler::MakeRegisterAluOperand(offsetRegister, offsetShift));
+	m_assembler.Add(src1AddrReg, src1AddrReg, offsetRegister);
+
+	m_assembler.Vld1_32x4(dstReg, src1AddrReg);
 	m_assembler.Vst1_32x4(dstReg, dstAddrReg);
 }
 
@@ -204,6 +268,32 @@ void CCodeGen_Arm::Emit_Md_Expand_MemCst(const STATEMENT& statement)
 	m_assembler.Vst1_32x4(tmpReg, dstAddrReg);
 }
 
+void CCodeGen_Arm::Emit_MergeTo256_MemMemMem(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	assert(dst->m_type == SYM_TEMPORARY256);
+
+	auto dstLoAddrReg = CArmAssembler::r0;
+	auto dstHiAddrReg = CArmAssembler::r1;
+	auto src1AddrReg = CArmAssembler::r2;
+	auto src2AddrReg = CArmAssembler::r3;
+	auto src1Reg = CArmAssembler::q0;
+	auto src2Reg = CArmAssembler::q1;
+
+	LoadTemporary256ElementAddressInRegister(dstLoAddrReg, dst, 0x00);
+	LoadTemporary256ElementAddressInRegister(dstHiAddrReg, dst, 0x10);
+	LoadMemory128AddressInRegister(src1AddrReg, src1);
+	LoadMemory128AddressInRegister(src2AddrReg, src2);
+
+	m_assembler.Vld1_32x4(src1Reg, src1AddrReg);
+	m_assembler.Vld1_32x4(src2Reg, src2AddrReg);
+	m_assembler.Vst1_32x4(src1Reg, dstLoAddrReg);
+	m_assembler.Vst1_32x4(src2Reg, dstHiAddrReg);
+}
+
 CCodeGen_Arm::CONSTMATCHER CCodeGen_Arm::g_mdConstMatchers[] = 
 {
 	{ OP_MD_ADD_W,				MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_Arm::Emit_Md_MemMemMem<MDOP_ADDW>					},
@@ -230,6 +320,12 @@ CCodeGen_Arm::CONSTMATCHER CCodeGen_Arm::g_mdConstMatchers[] =
 
 	{ OP_MD_NOT,				MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_NIL,				&CCodeGen_Arm::Emit_Md_Not_MemMem							},
 
+	{ OP_MD_SRL256,				MATCH_VARIABLE128,			MATCH_MEMORY256,			MATCH_VARIABLE,			&CCodeGen_Arm::Emit_Md_Srl256_MemMemVar						},
+	{ OP_MD_SRL256,				MATCH_VARIABLE128,			MATCH_MEMORY256,			MATCH_CONSTANT,			&CCodeGen_Arm::Emit_Md_Srl256_MemMemCst						},
+
+	{ OP_MD_TOSINGLE,			MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_NIL,				&CCodeGen_Arm::Emit_Md_MemMem<MDOP_TOSINGLE>				},
+	{ OP_MD_TOWORD_TRUNCATE,	MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_NIL,				&CCodeGen_Arm::Emit_Md_MemMem<MDOP_TOWORD>					},
+
 	{ OP_MOV,					MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_NIL,				&CCodeGen_Arm::Emit_Md_Mov_MemMem							},
 
 	{ OP_MD_MOV_MASKED,			MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_Arm::Emit_Md_MovMasked_MemMemMem					},
@@ -238,8 +334,7 @@ CCodeGen_Arm::CONSTMATCHER CCodeGen_Arm::g_mdConstMatchers[] =
 	{ OP_MD_EXPAND,				MATCH_MEMORY128,			MATCH_MEMORY,				MATCH_NIL,				&CCodeGen_Arm::Emit_Md_Expand_MemMem						},
 	{ OP_MD_EXPAND,				MATCH_MEMORY128,			MATCH_CONSTANT,				MATCH_NIL,				&CCodeGen_Arm::Emit_Md_Expand_MemCst						},
 
-	{ OP_MD_TOSINGLE,			MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_NIL,				&CCodeGen_Arm::Emit_Md_MemMem<MDOP_TOSINGLE>				},
-	{ OP_MD_TOWORD_TRUNCATE,	MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_NIL,				&CCodeGen_Arm::Emit_Md_MemMem<MDOP_TOWORD>					},
+	{ OP_MERGETO256,			MATCH_MEMORY256,			MATCH_VARIABLE128,			MATCH_VARIABLE128,		&CCodeGen_Arm::Emit_MergeTo256_MemMemMem					},
 
 	{ OP_MOV,					MATCH_NIL,					MATCH_NIL,					MATCH_NIL,				NULL														},
 };

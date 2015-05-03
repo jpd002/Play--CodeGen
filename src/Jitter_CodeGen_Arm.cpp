@@ -1,10 +1,6 @@
 #include "Jitter_CodeGen_Arm.h"
 #include "ObjectFile.h"
-
-#ifdef _MSC_VER
-#include <intrin.h>
-#define __builtin_popcount __popcnt
-#endif
+#include "BitManip.h"
 
 using namespace Jitter;
 

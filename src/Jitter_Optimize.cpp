@@ -1,6 +1,7 @@
 #include <assert.h>
 #include <vector>
 #include "Jitter.h"
+#include "BitManip.h"
 
 #ifdef _DEBUG
 //#define DUMP_STATEMENTS
@@ -436,6 +437,19 @@ bool CJitter::FoldConstantOperation(STATEMENT& statement)
 		if(src1cst && src2cst)
 		{
 			uint32 result = src1cst->m_valueLow << src2cst->m_valueLow;
+			statement.op = OP_MOV;
+			statement.src1 = MakeSymbolRef(MakeSymbol(SYM_CONSTANT, result));
+			statement.src2.reset();
+			changed = true;
+		}
+	}
+	else if(statement.op == OP_LZC)
+	{
+		if(src1cst)
+		{
+			uint32 result = src1cst->m_valueLow;
+			if(result & 0x80000000) result = ~result;
+			result = __builtin_clz(result);
 			statement.op = OP_MOV;
 			statement.src1 = MakeSymbolRef(MakeSymbol(SYM_CONSTANT, result));
 			statement.src2.reset();

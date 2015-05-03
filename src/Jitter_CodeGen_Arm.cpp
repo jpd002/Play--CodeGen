@@ -545,6 +545,22 @@ void CCodeGen_Arm::StoreRegisterInTemporary(CSymbol* dst, CArmAssembler::REGISTE
 	m_assembler.Str(registerId, CArmAssembler::rSP, CArmAssembler::MakeImmediateLdrAddress(dst->m_stackLocation + m_stackLevel));
 }
 
+void CCodeGen_Arm::LoadMemoryReferenceInRegister(CArmAssembler::REGISTER registerId, CSymbol* src)
+{
+	switch(src->m_type)
+	{
+	case SYM_REL_REFERENCE:
+		LoadRelativeReferenceInRegister(registerId, src);
+		break;
+	case SYM_TMP_REFERENCE:
+		LoadTemporaryReferenceInRegister(registerId, src);
+		break;
+	default:
+		assert(false);
+		break;
+	}
+}
+
 void CCodeGen_Arm::LoadRelativeReferenceInRegister(CArmAssembler::REGISTER registerId, CSymbol* src)
 {
 	assert(src->m_type == SYM_REL_REFERENCE);

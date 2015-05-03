@@ -87,6 +87,8 @@ namespace Jitter
 		void									LoadTemporaryInRegister(CArmAssembler::REGISTER, CSymbol*);
 		void									StoreRegisterInTemporary(CSymbol*, CArmAssembler::REGISTER);
 		
+		void									LoadMemoryReferenceInRegister(CArmAssembler::REGISTER, CSymbol*);
+
 		void									LoadRelativeReferenceInRegister(CArmAssembler::REGISTER, CSymbol*);
 
 		void									LoadTemporaryReferenceInRegister(CArmAssembler::REGISTER, CSymbol*);
@@ -501,6 +503,9 @@ namespace Jitter
 		void									Emit_Md_Not_MemMem(const STATEMENT&);
 		void									Emit_Md_Srl256_MemMemVar(const STATEMENT&);
 		void									Emit_Md_Srl256_MemMemCst(const STATEMENT&);
+
+		void									Emit_Md_LoadFromRef_MemMem(const STATEMENT&);
+		void									Emit_Md_StoreAtRef_MemMem(const STATEMENT&);
 
 		void									Emit_Md_MovMasked_MemMemMem(const STATEMENT&);
 		void									Emit_Md_Expand_MemReg(const STATEMENT&);

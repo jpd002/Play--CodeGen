@@ -184,6 +184,40 @@ void CCodeGen_Arm::Emit_Md_Srl256_MemMemVar(const STATEMENT& statement)
 	m_assembler.Vst1_32x4(dstReg, dstAddrReg);
 }
 
+void CCodeGen_Arm::Emit_Md_LoadFromRef_MemMem(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+
+	auto src1AddrReg = CArmAssembler::r0;
+	auto dstAddrReg = CArmAssembler::r1;
+
+	auto dstReg = CArmAssembler::q0;
+
+	LoadMemory128AddressInRegister(dstAddrReg, dst);
+	LoadMemoryReferenceInRegister(src1AddrReg, src1);
+
+	m_assembler.Vld1_32x4(dstReg, src1AddrReg);
+	m_assembler.Vst1_32x4(dstReg, dstAddrReg);
+}
+
+void CCodeGen_Arm::Emit_Md_StoreAtRef_MemMem(const STATEMENT& statement)
+{
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	auto src1AddrReg = CArmAssembler::r0;
+	auto src2AddrReg = CArmAssembler::r1;
+
+	auto src2Reg = CArmAssembler::q0;
+
+	LoadMemoryReferenceInRegister(src1AddrReg, src1);
+	LoadMemory128AddressInRegister(src2AddrReg, src2);
+
+	m_assembler.Vld1_32x4(src2Reg, src2AddrReg);
+	m_assembler.Vst1_32x4(src2Reg, src1AddrReg);
+}
+
 void CCodeGen_Arm::Emit_Md_MovMasked_MemMemMem(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
@@ -327,6 +361,9 @@ CCodeGen_Arm::CONSTMATCHER CCodeGen_Arm::g_mdConstMatchers[] =
 	{ OP_MD_TOWORD_TRUNCATE,	MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_NIL,				&CCodeGen_Arm::Emit_Md_MemMem<MDOP_TOWORD>					},
 
 	{ OP_MOV,					MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_NIL,				&CCodeGen_Arm::Emit_Md_Mov_MemMem							},
+
+	{ OP_LOADFROMREF,			MATCH_MEMORY128,			MATCH_MEM_REF,				MATCH_NIL,				&CCodeGen_Arm::Emit_Md_LoadFromRef_MemMem					},
+	{ OP_STOREATREF,			MATCH_NIL,					MATCH_MEM_REF,				MATCH_MEMORY128,		&CCodeGen_Arm::Emit_Md_StoreAtRef_MemMem					},
 
 	{ OP_MD_MOV_MASKED,			MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_Arm::Emit_Md_MovMasked_MemMemMem					},
 

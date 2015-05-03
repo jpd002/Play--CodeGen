@@ -397,9 +397,7 @@ namespace Jitter
 		void									Emit_Mov_MemCst(const STATEMENT&);
 
 		//LZC
-		void									Lzc_RegReg(CArmAssembler::REGISTER, CArmAssembler::REGISTER);
-		void									Emit_Lzc_RegReg(const STATEMENT&);
-		void									Emit_Lzc_MemReg(const STATEMENT&);
+		void									Emit_Lzc_VarVar(const STATEMENT&);
 
 		//NOP
 		void									Emit_Nop(const STATEMENT&);

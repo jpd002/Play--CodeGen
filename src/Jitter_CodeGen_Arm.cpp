@@ -216,10 +216,12 @@ CCodeGen_Arm::CONSTMATCHER CCodeGen_Arm::g_constMatchers[] =
 	{ OP_MUL,			MATCH_TEMPORARY64,	MATCH_ANY,			MATCH_ANY,			&CCodeGen_Arm::Emit_MulTmp64AnyAny<false>					},
 	{ OP_MULS,			MATCH_TEMPORARY64,	MATCH_ANY,			MATCH_ANY,			&CCodeGen_Arm::Emit_MulTmp64AnyAny<true>					},
 
-	{ OP_ADDREF,		MATCH_TMP_REF,		MATCH_REL_REF,		MATCH_REGISTER,		&CCodeGen_Arm::Emit_AddRef_TmpRelReg						},
-	{ OP_ADDREF,		MATCH_TMP_REF,		MATCH_REL_REF,		MATCH_CONSTANT,		&CCodeGen_Arm::Emit_AddRef_TmpRelCst						},
+	{ OP_RELTOREF,		MATCH_TMP_REF,		MATCH_CONSTANT,		MATCH_ANY,			&CCodeGen_Arm::Emit_RelToRef_TmpCst							},
+
+	{ OP_ADDREF,		MATCH_TMP_REF,		MATCH_MEM_REF,		MATCH_REGISTER,		&CCodeGen_Arm::Emit_AddRef_TmpMemReg						},
+	{ OP_ADDREF,		MATCH_TMP_REF,		MATCH_MEM_REF,		MATCH_CONSTANT,		&CCodeGen_Arm::Emit_AddRef_TmpMemCst						},
 	
-	{ OP_LOADFROMREF,	MATCH_REGISTER,		MATCH_TMP_REF,		MATCH_NIL,			&CCodeGen_Arm::Emit_LoadFromRef_RegTmp						},
+	{ OP_LOADFROMREF,	MATCH_VARIABLE,		MATCH_TMP_REF,		MATCH_NIL,			&CCodeGen_Arm::Emit_LoadFromRef_VarTmp						},
 
 	{ OP_STOREATREF,	MATCH_NIL,			MATCH_TMP_REF,		MATCH_REGISTER,		&CCodeGen_Arm::Emit_StoreAtRef_TmpReg						},
 	{ OP_STOREATREF,	MATCH_NIL,			MATCH_TMP_REF,		MATCH_RELATIVE,		&CCodeGen_Arm::Emit_StoreAtRef_TmpRel						},
@@ -1209,53 +1211,71 @@ void CCodeGen_Arm::Emit_Not_MemMem(const STATEMENT& statement)
 	StoreRegisterInMemory(dst, dstReg);
 }
 
-void CCodeGen_Arm::Emit_AddRef_TmpRelReg(const STATEMENT& statement)
+void CCodeGen_Arm::Emit_RelToRef_TmpCst(const STATEMENT& statement)
 {
-	CSymbol* dst = statement.dst->GetSymbol().get();
-	CSymbol* src1 = statement.src1->GetSymbol().get();
-	CSymbol* src2 = statement.src2->GetSymbol().get();
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+
+	assert(src1->m_type == SYM_CONSTANT);
+
+	auto tmpReg = CArmAssembler::r0;
+
+	uint8 immediate = 0;
+	uint8 shiftAmount = 0;
+
+	if(!TryGetAluImmediateParams(src1->m_valueLow, immediate, shiftAmount))
+	{
+		assert(false);
+	}
+
+	m_assembler.Add(tmpReg, g_baseRegister, CArmAssembler::MakeImmediateAluOperand(immediate, shiftAmount));
+	StoreRegisterInTemporaryReference(dst, tmpReg);
+}
+
+void CCodeGen_Arm::Emit_AddRef_TmpMemReg(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
 	
-	assert(dst->m_type  == SYM_TMP_REFERENCE);
-	assert(src1->m_type == SYM_REL_REFERENCE);
 	assert(src2->m_type == SYM_REGISTER);
 	
-	CArmAssembler::REGISTER tmpReg = CArmAssembler::r0;
+	auto tmpReg = CArmAssembler::r0;
 	
-	LoadRelativeReferenceInRegister(tmpReg, src1);
+	LoadMemoryReferenceInRegister(tmpReg, src1);
 	m_assembler.Add(tmpReg, tmpReg, g_registers[src2->m_valueLow]);
 	StoreRegisterInTemporaryReference(dst, tmpReg);
 }
 
-void CCodeGen_Arm::Emit_AddRef_TmpRelCst(const STATEMENT& statement)
+void CCodeGen_Arm::Emit_AddRef_TmpMemCst(const STATEMENT& statement)
 {
-	CSymbol* dst = statement.dst->GetSymbol().get();
-	CSymbol* src1 = statement.src1->GetSymbol().get();
-	CSymbol* src2 = statement.src2->GetSymbol().get();
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
 	
-	assert(dst->m_type  == SYM_TMP_REFERENCE);
-	assert(src1->m_type == SYM_REL_REFERENCE);
 	assert(src2->m_type == SYM_CONSTANT);
 	
-	CArmAssembler::REGISTER tmpReg0 = CArmAssembler::r0;
-	CArmAssembler::REGISTER tmpReg1 = CArmAssembler::r1;
+	auto tmpReg0 = CArmAssembler::r0;
+	auto tmpReg1 = CArmAssembler::r1;
 	
-	LoadRelativeReferenceInRegister(tmpReg0, src1);
+	LoadMemoryReferenceInRegister(tmpReg0, src1);
 	LoadConstantInRegister(tmpReg1, src2->m_valueLow);
 	m_assembler.Add(tmpReg0, tmpReg0, tmpReg1);
 	StoreRegisterInTemporaryReference(dst, tmpReg0);
 }
 
-void CCodeGen_Arm::Emit_LoadFromRef_RegTmp(const STATEMENT& statement)
+void CCodeGen_Arm::Emit_LoadFromRef_VarTmp(const STATEMENT& statement)
 {
-	CSymbol* dst = statement.dst->GetSymbol().get();
-	CSymbol* src1 = statement.src1->GetSymbol().get();
-	
-	assert(dst->m_type  == SYM_REGISTER);
-	assert(src1->m_type == SYM_TMP_REFERENCE);
-	
-	CArmAssembler::REGISTER addressReg = CArmAssembler::r0;
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+		
+	auto addressReg = CArmAssembler::r0;
+	auto dstReg = PrepareSymbolRegisterDef(dst, CArmAssembler::r1);
+
 	LoadTemporaryReferenceInRegister(addressReg, src1);
-	m_assembler.Ldr(g_registers[dst->m_valueLow], addressReg, CArmAssembler::MakeImmediateLdrAddress(0));
+	m_assembler.Ldr(dstReg, addressReg, CArmAssembler::MakeImmediateLdrAddress(0));
+
+	CommitSymbolRegister(dst, dstReg);
 }
 
 void CCodeGen_Arm::Emit_StoreAtRef_TmpReg(const STATEMENT& statement)

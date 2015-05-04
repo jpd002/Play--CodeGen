@@ -435,12 +435,15 @@ namespace Jitter
 		void									Emit_Not_MemReg(const STATEMENT&);
 		void									Emit_Not_MemMem(const STATEMENT&);
 
+		//RELTOREF
+		void									Emit_RelToRef_TmpCst(const STATEMENT&);
+
 		//ADDREF
-		void									Emit_AddRef_TmpRelReg(const STATEMENT&);
-		void									Emit_AddRef_TmpRelCst(const STATEMENT&);
+		void									Emit_AddRef_TmpMemReg(const STATEMENT&);
+		void									Emit_AddRef_TmpMemCst(const STATEMENT&);
 		
 		//LOADFROMREF
-		void									Emit_LoadFromRef_RegTmp(const STATEMENT&);
+		void									Emit_LoadFromRef_VarTmp(const STATEMENT&);
 		
 		//STOREATREF
 		void									Emit_StoreAtRef_TmpReg(const STATEMENT&);

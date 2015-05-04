@@ -153,6 +153,10 @@ void CCodeGen_Arm::Emit_Fp_Cmp_AnyMemMem(const STATEMENT& statement)
 	m_assembler.Vmrs(CArmAssembler::rPC);	//Move to general purpose status register
 	switch(statement.jmpCondition)
 	{
+	case Jitter::CONDITION_AB:
+		m_assembler.MovCc(CArmAssembler::CONDITION_GT, dstReg, CArmAssembler::MakeImmediateAluOperand(1, 0));
+		m_assembler.MovCc(CArmAssembler::CONDITION_LE, dstReg, CArmAssembler::MakeImmediateAluOperand(0, 0));
+		break;
 	case Jitter::CONDITION_BE:
 		m_assembler.MovCc(CArmAssembler::CONDITION_LE, dstReg, CArmAssembler::MakeImmediateAluOperand(1, 0));
 		m_assembler.MovCc(CArmAssembler::CONDITION_GT, dstReg, CArmAssembler::MakeImmediateAluOperand(0, 0));

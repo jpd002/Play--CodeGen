@@ -1043,6 +1043,9 @@ void CCodeGen_Arm::Emit_CondJmp(const STATEMENT& statement)
 		case CONDITION_NE:
 			m_assembler.BCc(CArmAssembler::CONDITION_NE, label);
 			break;
+		case CONDITION_LT:
+			m_assembler.BCc(CArmAssembler::CONDITION_LT, label);
+			break;
 		case CONDITION_LE:
 			m_assembler.BCc(CArmAssembler::CONDITION_LE, label);
 			break;

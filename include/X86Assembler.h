@@ -264,6 +264,7 @@ public:
 	void									PcmpeqbVo(XMMREGISTER, const CAddress&);
 	void									PcmpeqwVo(XMMREGISTER, const CAddress&);
 	void									PcmpeqdVo(XMMREGISTER, const CAddress&);
+	void									PcmpgtbVo(XMMREGISTER, const CAddress&);
 	void									PcmpgtwVo(XMMREGISTER, const CAddress&);
 	void									PcmpgtdVo(XMMREGISTER, const CAddress&);
 	void									PmaxswVo(XMMREGISTER, const CAddress&);

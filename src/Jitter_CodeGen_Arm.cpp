@@ -1,5 +1,6 @@
 #include "Jitter_CodeGen_Arm.h"
 #include "ObjectFile.h"
+#include "BitManip.h"
 
 using namespace Jitter;
 
@@ -168,6 +169,8 @@ CCodeGen_Arm::CONSTMATCHER CCodeGen_Arm::g_constMatchers[] =
 	ALU_CONST_MATCHERS(OP_OR,  ALUOP_OR)
 	ALU_CONST_MATCHERS(OP_XOR, ALUOP_XOR)
 	
+	{ OP_LZC,			MATCH_VARIABLE,		MATCH_VARIABLE,		MATCH_NIL,			&CCodeGen_Arm::Emit_Lzc_VarVar								},
+
 	{ OP_SRL,			MATCH_ANY,			MATCH_ANY,			MATCH_ANY,			&CCodeGen_Arm::Emit_Shift_Generic<CArmAssembler::SHIFT_LSR>	},
 	{ OP_SRA,			MATCH_ANY,			MATCH_ANY,			MATCH_ANY,			&CCodeGen_Arm::Emit_Shift_Generic<CArmAssembler::SHIFT_ASR>	},
 	{ OP_SLL,			MATCH_ANY,			MATCH_ANY,			MATCH_ANY,			&CCodeGen_Arm::Emit_Shift_Generic<CArmAssembler::SHIFT_LSL>	},
@@ -213,10 +216,12 @@ CCodeGen_Arm::CONSTMATCHER CCodeGen_Arm::g_constMatchers[] =
 	{ OP_MUL,			MATCH_TEMPORARY64,	MATCH_ANY,			MATCH_ANY,			&CCodeGen_Arm::Emit_MulTmp64AnyAny<false>					},
 	{ OP_MULS,			MATCH_TEMPORARY64,	MATCH_ANY,			MATCH_ANY,			&CCodeGen_Arm::Emit_MulTmp64AnyAny<true>					},
 
-	{ OP_ADDREF,		MATCH_TMP_REF,		MATCH_REL_REF,		MATCH_REGISTER,		&CCodeGen_Arm::Emit_AddRef_TmpRelReg						},
-	{ OP_ADDREF,		MATCH_TMP_REF,		MATCH_REL_REF,		MATCH_CONSTANT,		&CCodeGen_Arm::Emit_AddRef_TmpRelCst						},
+	{ OP_RELTOREF,		MATCH_TMP_REF,		MATCH_CONSTANT,		MATCH_ANY,			&CCodeGen_Arm::Emit_RelToRef_TmpCst							},
+
+	{ OP_ADDREF,		MATCH_TMP_REF,		MATCH_MEM_REF,		MATCH_REGISTER,		&CCodeGen_Arm::Emit_AddRef_TmpMemReg						},
+	{ OP_ADDREF,		MATCH_TMP_REF,		MATCH_MEM_REF,		MATCH_CONSTANT,		&CCodeGen_Arm::Emit_AddRef_TmpMemCst						},
 	
-	{ OP_LOADFROMREF,	MATCH_REGISTER,		MATCH_TMP_REF,		MATCH_NIL,			&CCodeGen_Arm::Emit_LoadFromRef_RegTmp						},
+	{ OP_LOADFROMREF,	MATCH_VARIABLE,		MATCH_TMP_REF,		MATCH_NIL,			&CCodeGen_Arm::Emit_LoadFromRef_VarTmp						},
 
 	{ OP_STOREATREF,	MATCH_NIL,			MATCH_TMP_REF,		MATCH_REGISTER,		&CCodeGen_Arm::Emit_StoreAtRef_TmpReg						},
 	{ OP_STOREATREF,	MATCH_NIL,			MATCH_TMP_REF,		MATCH_RELATIVE,		&CCodeGen_Arm::Emit_StoreAtRef_TmpRel						},
@@ -309,6 +314,9 @@ void CCodeGen_Arm::RegisterExternalSymbols(CObjectFile* objectFile) const
 
 void CCodeGen_Arm::GenerateCode(const StatementList& statements, unsigned int stackSize)
 {
+	//Align stack size (must be aligned on 8 bytes boundary)
+	stackSize = (stackSize + 0x7) & ~0x7;
+
 	uint16 registerSave = GetSavedRegisterList(GetRegisterUsage(statements));
 
 	Emit_Prolog(stackSize, registerSave);
@@ -356,6 +364,14 @@ uint16 CCodeGen_Arm::GetSavedRegisterList(uint32 registerUsage)
 	registerSave |= (1 << g_callAddressRegister);
 	registerSave |= (1 << g_baseRegister);
 	registerSave |= (1 << CArmAssembler::rLR);
+
+	//Make sure we're aligned on 8 bytes
+	unsigned int registerSaveCount = __builtin_popcount(registerSave);
+	if(registerSaveCount & 1)
+	{
+		assert((registerSave & (1 << CArmAssembler::r12)) == 0);
+		registerSave |= (1 << CArmAssembler::r12);
+	}
 	return registerSave;
 }
 
@@ -364,7 +380,10 @@ void CCodeGen_Arm::Emit_Prolog(unsigned int stackSize, uint16 registerSave)
 	m_assembler.Stmdb(CArmAssembler::rSP, registerSave);
 	if(stackSize != 0)
 	{
-		m_assembler.Sub(CArmAssembler::rSP, CArmAssembler::rSP, CArmAssembler::MakeImmediateAluOperand(stackSize, 0));
+		uint8 allocImm = 0, allocSa = 0;
+		bool succeeded = TryGetAluImmediateParams(stackSize, allocImm, allocSa);
+		assert(succeeded);
+		m_assembler.Sub(CArmAssembler::rSP, CArmAssembler::rSP, CArmAssembler::MakeImmediateAluOperand(allocImm, allocSa));
 	}
 	m_assembler.Mov(CArmAssembler::r11, CArmAssembler::r0);
 	m_stackLevel = 0;
@@ -374,7 +393,10 @@ void CCodeGen_Arm::Emit_Epilog(unsigned int stackSize, uint16 registerSave)
 {
 	if(stackSize != 0)
 	{
-		m_assembler.Add(CArmAssembler::rSP, CArmAssembler::rSP, CArmAssembler::MakeImmediateAluOperand(stackSize, 0));
+		uint8 allocImm = 0, allocSa = 0;
+		bool succeeded = TryGetAluImmediateParams(stackSize, allocImm, allocSa);
+		assert(succeeded);
+		m_assembler.Add(CArmAssembler::rSP, CArmAssembler::rSP, CArmAssembler::MakeImmediateAluOperand(allocImm, allocSa));
 	}
 	m_assembler.Ldmia(CArmAssembler::rSP, registerSave);
 	m_assembler.Bx(CArmAssembler::rLR);
@@ -525,6 +547,22 @@ void CCodeGen_Arm::StoreRegisterInTemporary(CSymbol* dst, CArmAssembler::REGISTE
 	m_assembler.Str(registerId, CArmAssembler::rSP, CArmAssembler::MakeImmediateLdrAddress(dst->m_stackLocation + m_stackLevel));
 }
 
+void CCodeGen_Arm::LoadMemoryReferenceInRegister(CArmAssembler::REGISTER registerId, CSymbol* src)
+{
+	switch(src->m_type)
+	{
+	case SYM_REL_REFERENCE:
+		LoadRelativeReferenceInRegister(registerId, src);
+		break;
+	case SYM_TMP_REFERENCE:
+		LoadTemporaryReferenceInRegister(registerId, src);
+		break;
+	default:
+		assert(false);
+		break;
+	}
+}
+
 void CCodeGen_Arm::LoadRelativeReferenceInRegister(CArmAssembler::REGISTER registerId, CSymbol* src)
 {
 	assert(src->m_type == SYM_REL_REFERENCE);
@@ -538,7 +576,7 @@ void CCodeGen_Arm::LoadTemporaryReferenceInRegister(CArmAssembler::REGISTER regi
 	m_assembler.Ldr(registerId, CArmAssembler::rSP, CArmAssembler::MakeImmediateLdrAddress(src->m_stackLocation + m_stackLevel));
 }
 
-void CCodeGen_Arm::StoreInRegisterTemporaryReference(CSymbol* dst, CArmAssembler::REGISTER registerId)
+void CCodeGen_Arm::StoreRegisterInTemporaryReference(CSymbol* dst, CArmAssembler::REGISTER registerId)
 {
 	assert(dst->m_type == SYM_TMP_REFERENCE);
 	m_assembler.Str(registerId, CArmAssembler::rSP, CArmAssembler::MakeImmediateLdrAddress(dst->m_stackLocation + m_stackLevel));
@@ -950,6 +988,44 @@ void CCodeGen_Arm::Emit_Mov_MemCst(const STATEMENT& statement)
 	StoreRegisterInMemory(dst, tmpReg);
 }
 
+void CCodeGen_Arm::Emit_Lzc_VarVar(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+
+	auto dstRegister = PrepareSymbolRegisterDef(dst, CArmAssembler::r0);
+	auto src1Register = PrepareSymbolRegisterUse(src1, CArmAssembler::r1);
+
+	auto set32Label = m_assembler.CreateLabel();
+	auto startCountLabel = m_assembler.CreateLabel();
+	auto doneLabel = m_assembler.CreateLabel();
+
+	m_assembler.Mov(dstRegister, src1Register);
+	m_assembler.Tst(dstRegister, dstRegister);
+	m_assembler.BCc(CArmAssembler::CONDITION_EQ, set32Label);
+	m_assembler.BCc(CArmAssembler::CONDITION_PL, startCountLabel);
+
+	//reverse:
+	m_assembler.Mvn(dstRegister, dstRegister);
+	m_assembler.Tst(dstRegister, dstRegister);
+	m_assembler.BCc(CArmAssembler::CONDITION_EQ, set32Label);
+
+	//startCount:
+	m_assembler.MarkLabel(startCountLabel);
+	m_assembler.Clz(dstRegister, dstRegister);
+	m_assembler.Sub(dstRegister, dstRegister, CArmAssembler::MakeImmediateAluOperand(1, 0));
+	m_assembler.BCc(CArmAssembler::CONDITION_AL, doneLabel);
+
+	//set32:
+	m_assembler.MarkLabel(set32Label);
+	LoadConstantInRegister(dstRegister, 0x1F);
+
+	//done
+	m_assembler.MarkLabel(doneLabel);
+
+	CommitSymbolRegister(dst, dstRegister);
+}
+
 void CCodeGen_Arm::Emit_Jmp(const STATEMENT& statement)
 {
 	m_assembler.BCc(CArmAssembler::CONDITION_AL, GetLabel(statement.jmpBlock));
@@ -966,6 +1042,9 @@ void CCodeGen_Arm::Emit_CondJmp(const STATEMENT& statement)
 			break;
 		case CONDITION_NE:
 			m_assembler.BCc(CArmAssembler::CONDITION_NE, label);
+			break;
+		case CONDITION_LT:
+			m_assembler.BCc(CArmAssembler::CONDITION_LT, label);
 			break;
 		case CONDITION_LE:
 			m_assembler.BCc(CArmAssembler::CONDITION_LE, label);
@@ -1022,6 +1101,10 @@ void CCodeGen_Arm::Cmp_GetFlag(CArmAssembler::REGISTER registerId, Jitter::CONDI
 			m_assembler.MovCc(CArmAssembler::CONDITION_GE, registerId, falseOperand);
 			m_assembler.MovCc(CArmAssembler::CONDITION_LT, registerId, trueOperand);
 			break;
+		case CONDITION_LE:
+			m_assembler.MovCc(CArmAssembler::CONDITION_GT, registerId, falseOperand);
+			m_assembler.MovCc(CArmAssembler::CONDITION_LE, registerId, trueOperand);
+			break;
 		case CONDITION_GT:
 			m_assembler.MovCc(CArmAssembler::CONDITION_LE, registerId, falseOperand);
 			m_assembler.MovCc(CArmAssembler::CONDITION_GT, registerId, trueOperand);
@@ -1029,6 +1112,10 @@ void CCodeGen_Arm::Cmp_GetFlag(CArmAssembler::REGISTER registerId, Jitter::CONDI
 		case CONDITION_BL:
 			m_assembler.MovCc(CArmAssembler::CONDITION_CS, registerId, falseOperand);
 			m_assembler.MovCc(CArmAssembler::CONDITION_CC, registerId, trueOperand);
+			break;
+		case CONDITION_BE:
+			m_assembler.MovCc(CArmAssembler::CONDITION_HI, registerId, falseOperand);
+			m_assembler.MovCc(CArmAssembler::CONDITION_LS, registerId, trueOperand);
 			break;
 		case CONDITION_AB:
 			m_assembler.MovCc(CArmAssembler::CONDITION_LS, registerId, falseOperand);
@@ -1127,53 +1214,71 @@ void CCodeGen_Arm::Emit_Not_MemMem(const STATEMENT& statement)
 	StoreRegisterInMemory(dst, dstReg);
 }
 
-void CCodeGen_Arm::Emit_AddRef_TmpRelReg(const STATEMENT& statement)
+void CCodeGen_Arm::Emit_RelToRef_TmpCst(const STATEMENT& statement)
 {
-	CSymbol* dst = statement.dst->GetSymbol().get();
-	CSymbol* src1 = statement.src1->GetSymbol().get();
-	CSymbol* src2 = statement.src2->GetSymbol().get();
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+
+	assert(src1->m_type == SYM_CONSTANT);
+
+	auto tmpReg = CArmAssembler::r0;
+
+	uint8 immediate = 0;
+	uint8 shiftAmount = 0;
+
+	if(!TryGetAluImmediateParams(src1->m_valueLow, immediate, shiftAmount))
+	{
+		assert(false);
+	}
+
+	m_assembler.Add(tmpReg, g_baseRegister, CArmAssembler::MakeImmediateAluOperand(immediate, shiftAmount));
+	StoreRegisterInTemporaryReference(dst, tmpReg);
+}
+
+void CCodeGen_Arm::Emit_AddRef_TmpMemReg(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
 	
-	assert(dst->m_type  == SYM_TMP_REFERENCE);
-	assert(src1->m_type == SYM_REL_REFERENCE);
 	assert(src2->m_type == SYM_REGISTER);
 	
-	CArmAssembler::REGISTER tmpReg = CArmAssembler::r0;
+	auto tmpReg = CArmAssembler::r0;
 	
-	LoadRelativeReferenceInRegister(tmpReg, src1);
+	LoadMemoryReferenceInRegister(tmpReg, src1);
 	m_assembler.Add(tmpReg, tmpReg, g_registers[src2->m_valueLow]);
-	StoreInRegisterTemporaryReference(dst, tmpReg);
+	StoreRegisterInTemporaryReference(dst, tmpReg);
 }
 
-void CCodeGen_Arm::Emit_AddRef_TmpRelCst(const STATEMENT& statement)
+void CCodeGen_Arm::Emit_AddRef_TmpMemCst(const STATEMENT& statement)
 {
-	CSymbol* dst = statement.dst->GetSymbol().get();
-	CSymbol* src1 = statement.src1->GetSymbol().get();
-	CSymbol* src2 = statement.src2->GetSymbol().get();
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
 	
-	assert(dst->m_type  == SYM_TMP_REFERENCE);
-	assert(src1->m_type == SYM_REL_REFERENCE);
 	assert(src2->m_type == SYM_CONSTANT);
 	
-	CArmAssembler::REGISTER tmpReg0 = CArmAssembler::r0;
-	CArmAssembler::REGISTER tmpReg1 = CArmAssembler::r1;
+	auto tmpReg0 = CArmAssembler::r0;
+	auto tmpReg1 = CArmAssembler::r1;
 	
-	LoadRelativeReferenceInRegister(tmpReg0, src1);
+	LoadMemoryReferenceInRegister(tmpReg0, src1);
 	LoadConstantInRegister(tmpReg1, src2->m_valueLow);
 	m_assembler.Add(tmpReg0, tmpReg0, tmpReg1);
-	StoreInRegisterTemporaryReference(dst, tmpReg0);
+	StoreRegisterInTemporaryReference(dst, tmpReg0);
 }
 
-void CCodeGen_Arm::Emit_LoadFromRef_RegTmp(const STATEMENT& statement)
+void CCodeGen_Arm::Emit_LoadFromRef_VarTmp(const STATEMENT& statement)
 {
-	CSymbol* dst = statement.dst->GetSymbol().get();
-	CSymbol* src1 = statement.src1->GetSymbol().get();
-	
-	assert(dst->m_type  == SYM_REGISTER);
-	assert(src1->m_type == SYM_TMP_REFERENCE);
-	
-	CArmAssembler::REGISTER addressReg = CArmAssembler::r0;
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+		
+	auto addressReg = CArmAssembler::r0;
+	auto dstReg = PrepareSymbolRegisterDef(dst, CArmAssembler::r1);
+
 	LoadTemporaryReferenceInRegister(addressReg, src1);
-	m_assembler.Ldr(g_registers[dst->m_valueLow], addressReg, CArmAssembler::MakeImmediateLdrAddress(0));
+	m_assembler.Ldr(dstReg, addressReg, CArmAssembler::MakeImmediateLdrAddress(0));
+
+	CommitSymbolRegister(dst, dstReg);
 }
 
 void CCodeGen_Arm::Emit_StoreAtRef_TmpReg(const STATEMENT& statement)

@@ -35,22 +35,40 @@ include $(BUILD_STATIC_LIBRARY)
 include $(CLEAR_VARS)
 
 LOCAL_MODULE			:= libCodeGenTestSuite
-LOCAL_SRC_FILES			:=	../../tests/Cmp64Test.cpp \
+LOCAL_SRC_FILES			:=	../../tests/AliasTest.cpp \
+							../../tests/Alu64Test.cpp \
 							../../tests/Call64Test.cpp \
+							../../tests/Cmp64Test.cpp \
 							../../tests/CompareTest.cpp \
 							../../tests/Crc32Test.cpp \
 							../../tests/FpuTest.cpp \
 							../../tests/FpIntMixTest.cpp \
+							../../tests/HalfMultTest.cpp \
 							../../tests/HugeJumpTest.cpp \
 							../../tests/Logic64Test.cpp \
+							../../tests/LzcTest.cpp \
 							../../tests/Main.cpp \
+							../../tests/MdAddTest.cpp \
 							../../tests/MdCallTest.cpp \
+							../../tests/MdCmpTest.cpp \
+							../../tests/MdFpFlagTest.cpp \
+							../../tests/MdFpTest.cpp \
+							../../tests/MdLogicTest.cpp \
+							../../tests/MdMemAccessTest.cpp \
+							../../tests/MdManipTest.cpp \
+							../../tests/MdSubTest.cpp \
+							../../tests/MdTest.cpp \
+							../../tests/MdUnpackTest.cpp \
 							../../tests/MemAccessTest.cpp \
+							../../tests/Merge64Test.cpp \
 							../../tests/MultTest.cpp \
+							../../tests/NestedIfTest.cpp \
 							../../tests/RandomAluTest.cpp \
 							../../tests/RandomAluTest2.cpp \
 							../../tests/RandomAluTest3.cpp \
-							../../tests/RegAllocTest.cpp
+							../../tests/RegAllocTest.cpp \
+							../../tests/Shift64Test.cpp \
+							../../tests/SimpleMdTest.cpp
 LOCAL_CFLAGS			:= -Wno-extern-c-compat
 LOCAL_C_INCLUDES		:= $(FRAMEWORK_PATH)/include $(LOCAL_PATH)/../../include
 LOCAL_CPP_FEATURES		:= exceptions rtti

@@ -88,6 +88,7 @@ namespace Jitter
 
 		//ADDREF
 		void								Emit_AddRef_MemMemReg(const STATEMENT&);
+		void								Emit_AddRef_MemMemMem(const STATEMENT&);
 		void								Emit_AddRef_MemMemCst(const STATEMENT&);
 
 		//LOADFROMREF

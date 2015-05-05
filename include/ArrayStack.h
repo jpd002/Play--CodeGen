@@ -54,7 +54,7 @@ public:
 		return result;
 	}
 
-	unsigned int GetCount()
+	unsigned int GetCount() const
 	{
 		return MAXSIZE - m_nStackPointer;
 	}

@@ -1,5 +1,4 @@
-#ifndef _MDFPTEST_H_
-#define _MDFPTEST_H_
+#pragma once
 
 #include "Test.h"
 #include "Align16.h"
@@ -17,9 +16,6 @@ public:
 private:
 	struct CONTEXT
 	{
-		uint32			dstIsNegative;
-		uint32			dstIsZero;
-
 		ALIGN16
 
 		float			src0[4];
@@ -34,16 +30,9 @@ private:
 		float			dstMax[4];
 		float			dstMin[4];
 
-		float			dstMasked[4];
-
-		float			dstExpandRel[4];
-		float			dstExpandCst[4];
-
 		uint32			dstCvtWord[4];
 		float			dstCvtSingle[4];
 	};
 
 	CMemoryFunction		m_function;
 };
-
-#endif

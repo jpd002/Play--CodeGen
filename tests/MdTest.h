@@ -21,16 +21,6 @@ private:
 		uint8			src3[16];
 
 		uint8			dstMov[16];
-		uint8			dstAddB[16];
-		uint8			dstAddBUS[16];
-		uint8			dstAddH[16];
-		uint8			dstAddHSS[16];
-		uint8			dstAddW[16];
-		uint8			dstAddWUS[16];
-		uint8			dstAddWSS[16];
-
-		uint8			dstCmpEqW[16];
-		uint8			dstCmpGtH[16];
 
 		uint8			dstMinH[16];
 		uint8			dstMaxH[16];
@@ -52,9 +42,6 @@ private:
 
 		uint32			shiftAmount;
 	};
-
-	uint32				ComputeWordUnsignedSaturation(uint32, uint32);
-	uint32				ComputeWordSignedSaturation(uint32, uint32);
 
 	CMemoryFunction		m_function;
 };

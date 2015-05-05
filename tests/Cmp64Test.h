@@ -21,6 +21,8 @@ private:
 		uint32			resultNe;
 		uint32			resultBl;
 		uint32			resultLt;
+		uint32			resultLe;
+		uint32			resultAb;
 		uint32			resultGt;
 	};
 

@@ -140,6 +140,7 @@ public:
 	void									JbJx(LABEL);
 	void									JnbJx(LABEL);
 	void									JzJx(LABEL);
+	void									JnlJx(LABEL);
 	void									JnleJx(LABEL);
 	void									JlJx(LABEL);
 	void									JleJx(LABEL);
@@ -242,8 +243,11 @@ public:
 
 	void									MovdVo(XMMREGISTER, const CAddress&);
 	void									MovdVo(const CAddress&, XMMREGISTER);
-	void									MovdquVo(const CAddress&, XMMREGISTER);
+	void									MovqVo(XMMREGISTER, const CAddress&);
+	void									MovdqaVo(XMMREGISTER, const CAddress&);
+	void									MovdqaVo(const CAddress&, XMMREGISTER);
 	void									MovdquVo(XMMREGISTER, const CAddress&);
+	void									MovdquVo(const CAddress&, XMMREGISTER);
 	void									MovapsVo(const CAddress&, XMMREGISTER);
 	void									MovapsVo(XMMREGISTER, const CAddress&);
 	void									PackssdwVo(XMMREGISTER, const CAddress&);
@@ -260,6 +264,7 @@ public:
 	void									PcmpeqbVo(XMMREGISTER, const CAddress&);
 	void									PcmpeqwVo(XMMREGISTER, const CAddress&);
 	void									PcmpeqdVo(XMMREGISTER, const CAddress&);
+	void									PcmpgtbVo(XMMREGISTER, const CAddress&);
 	void									PcmpgtwVo(XMMREGISTER, const CAddress&);
 	void									PcmpgtdVo(XMMREGISTER, const CAddress&);
 	void									PmaxswVo(XMMREGISTER, const CAddress&);
@@ -268,6 +273,7 @@ public:
 	void									PminsdVo(XMMREGISTER, const CAddress&);
 	void									PmovmskbVo(REGISTER, XMMREGISTER);
 	void									PorVo(XMMREGISTER, const CAddress&);
+	void									PshufdVo(XMMREGISTER, const CAddress&, uint8);
 	void									PsllwVo(XMMREGISTER, uint8);
 	void									PslldVo(XMMREGISTER, uint8);
 	void									PsrawVo(XMMREGISTER, uint8);
@@ -396,6 +402,7 @@ private:
 	void									WriteEdVdOp(uint8, const CAddress&, XMMREGISTER);
 	void									WriteEdVdOp_0F(uint8, const CAddress&, XMMREGISTER);
 	void									WriteEdVdOp_66_0F(uint8, const CAddress&, XMMREGISTER);
+	void									WriteEdVdOp_66_0F_64b(uint8, const CAddress&, XMMREGISTER);
 	void									WriteEdVdOp_66_0F_38(uint8, const CAddress&, XMMREGISTER);
 	void									WriteEdVdOp_F3_0F(uint8, const CAddress&, XMMREGISTER);
 	void									WriteVrOp_66_0F(uint8, uint8, XMMREGISTER);

@@ -4,7 +4,7 @@
 #include "Align16.h"
 #include "MemoryFunction.h"
 
-class CMdSubTest : public CTest
+class CMdAddTest : public CTest
 {
 public:
 	void				Compile(Jitter::CJitter&) override;
@@ -20,13 +20,17 @@ private:
 		uint8			src2[16];
 		uint8			src3[16];
 
-		uint8			dstSubB[16];
-		uint8			dstSubBUS[16];
-		uint8			dstSubH[16];
-		uint8			dstSubHSS[16];
-		uint8			dstSubHUS[16];
-		uint8			dstSubW[16];
+		uint8			dstAddB[16];
+		uint8			dstAddBUS[16];
+		uint8			dstAddH[16];
+		uint8			dstAddHSS[16];
+		uint8			dstAddW[16];
+		uint8			dstAddWUS[16];
+		uint8			dstAddWSS[16];
 	};
+
+	uint32				ComputeWordUnsignedSaturation(uint32, uint32);
+	uint32				ComputeWordSignedSaturation(uint32, uint32);
 
 	CMemoryFunction		m_function;
 };

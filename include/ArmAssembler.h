@@ -46,6 +46,19 @@ public:
 		s28,	s29,	s30,	s31,
 	};
 	
+	enum DOUBLE_REGISTER
+	{
+		d0,		d1,		d2,		d3,
+		d4,		d5,		d6,		d7,
+		d8,		d9,		d10,	d11,
+		d12,	d13,	d14,	d15,
+
+		d16,	d17,	d18,	d19,
+		d20,	d21,	d22,	d23,
+		d24,	d25,	d26,	d27,
+		d28,	d29,	d30,	d31,
+	};
+
 	enum QUAD_REGISTER
 	{
 		q0 = 0,		q1 = 2,		q2 = 4,		q3 = 6,
@@ -184,14 +197,17 @@ public:
 	void									MarkLabel(LABEL);
 	void									ResolveLabelReferences();
 	
+	void									Adc(REGISTER, REGISTER, REGISTER);
 	void									Add(REGISTER, REGISTER, REGISTER);
 	void									Add(REGISTER, REGISTER, const ImmediateAluOperand&);
+	void									Adds(REGISTER, REGISTER, REGISTER);
 	void									And(REGISTER, REGISTER, REGISTER);
 	void									And(REGISTER, REGISTER, const ImmediateAluOperand&);
 	void									BCc(CONDITION, LABEL);
 	void									Bic(REGISTER, REGISTER, const ImmediateAluOperand&);
 	void									Bx(REGISTER);
 	void									Blx(REGISTER);
+	void									Clz(REGISTER, REGISTER);
 	void									Cmn(REGISTER, const ImmediateAluOperand&);
 	void									Cmp(REGISTER, REGISTER);
 	void									Cmp(REGISTER, const ImmediateAluOperand&);
@@ -209,30 +225,53 @@ public:
 	void									Mvn(REGISTER, const ImmediateAluOperand&);	
 	void									Or(REGISTER, REGISTER, REGISTER);
 	void									Or(REGISTER, REGISTER, const ImmediateAluOperand&);
+	void									Rsb(REGISTER, REGISTER, const ImmediateAluOperand&);
+	void									Sbc(REGISTER, REGISTER, REGISTER);
 	void									Smull(REGISTER, REGISTER, REGISTER, REGISTER);
 	void									Stmdb(REGISTER, uint16);
 	void									Str(REGISTER, REGISTER, const LdrAddress&);
 	void									Sub(REGISTER, REGISTER, REGISTER);
 	void									Sub(REGISTER, REGISTER, const ImmediateAluOperand&);
+	void									Subs(REGISTER, REGISTER, REGISTER);
 	void									Teq(REGISTER, const ImmediateAluOperand&);
+	void									Tst(REGISTER, REGISTER);
 	void									Umull(REGISTER, REGISTER, REGISTER, REGISTER);
 
 	//VFP/NEON
 	void									Vldr(SINGLE_REGISTER, REGISTER, const LdrAddress&);
+	void									Vld1_32x1(QUAD_REGISTER, REGISTER);
 	void									Vld1_32x4(QUAD_REGISTER, REGISTER);
 	void									Vstr(SINGLE_REGISTER, REGISTER, const LdrAddress&);
 	void									Vst1_32x4(QUAD_REGISTER, REGISTER);
+	void									Vmov(DOUBLE_REGISTER, REGISTER, uint8);
+	void									Vmov(REGISTER, DOUBLE_REGISTER, uint8);
+	void									Vdup(QUAD_REGISTER, REGISTER);
 	void									Vadd_F32(SINGLE_REGISTER, SINGLE_REGISTER, SINGLE_REGISTER);
+	void									Vadd_F32(QUAD_REGISTER, QUAD_REGISTER, QUAD_REGISTER);
 	void									Vadd_I32(QUAD_REGISTER, QUAD_REGISTER, QUAD_REGISTER);
+	void									Vqadd_U8(QUAD_REGISTER, QUAD_REGISTER, QUAD_REGISTER);
+	void									Vqadd_U32(QUAD_REGISTER, QUAD_REGISTER, QUAD_REGISTER);
 	void									Vsub_F32(SINGLE_REGISTER, SINGLE_REGISTER, SINGLE_REGISTER);
+	void									Vsub_F32(QUAD_REGISTER, QUAD_REGISTER, QUAD_REGISTER);
+	void									Vsub_I8(QUAD_REGISTER, QUAD_REGISTER, QUAD_REGISTER);
+	void									Vsub_I32(QUAD_REGISTER, QUAD_REGISTER, QUAD_REGISTER);
 	void									Vmul_F32(SINGLE_REGISTER, SINGLE_REGISTER, SINGLE_REGISTER);
+	void									Vmul_F32(QUAD_REGISTER, QUAD_REGISTER, QUAD_REGISTER);
 	void									Vdiv_F32(SINGLE_REGISTER, SINGLE_REGISTER, SINGLE_REGISTER);
+	void									Vand(QUAD_REGISTER, QUAD_REGISTER, QUAD_REGISTER);
+	void									Vorn(QUAD_REGISTER, QUAD_REGISTER, QUAD_REGISTER);
+	void									Vorr(QUAD_REGISTER, QUAD_REGISTER, QUAD_REGISTER);
+	void									Veor(QUAD_REGISTER, QUAD_REGISTER, QUAD_REGISTER);
 	void									Vabs_F32(SINGLE_REGISTER, SINGLE_REGISTER);
+	void									Vabs_F32(QUAD_REGISTER, QUAD_REGISTER);
 	void									Vneg_F32(SINGLE_REGISTER, SINGLE_REGISTER);
 	void									Vsqrt_F32(SINGLE_REGISTER, SINGLE_REGISTER);
+	void									Vceq_I32(QUAD_REGISTER, QUAD_REGISTER, QUAD_REGISTER);
 	void									Vcmp_F32(SINGLE_REGISTER, SINGLE_REGISTER);
 	void									Vcvt_F32_S32(SINGLE_REGISTER, SINGLE_REGISTER);
+	void									Vcvt_F32_S32(QUAD_REGISTER, QUAD_REGISTER);
 	void									Vcvt_S32_F32(SINGLE_REGISTER, SINGLE_REGISTER);
+	void									Vcvt_S32_F32(QUAD_REGISTER, QUAD_REGISTER);
 	void									Vmrs(REGISTER);
 
 	void									Vrecpe_F32(QUAD_REGISTER, QUAD_REGISTER);
@@ -253,12 +292,16 @@ private:
 	typedef std::map<LABEL, size_t> LabelMapType;
 	typedef std::multimap<LABEL, LABELREF> LabelReferenceMapType;
 	
+	void									GenericAlu(ALU_OPCODE, bool, REGISTER, REGISTER, REGISTER);
+	void									GenericAlu(ALU_OPCODE, bool, REGISTER, REGISTER, const ImmediateAluOperand&);
+
 	void									CreateLabelReference(LABEL);
 	void									WriteWord(uint32);
 
 	static uint32							FPSIMD_EncodeSd(SINGLE_REGISTER);
 	static uint32							FPSIMD_EncodeSn(SINGLE_REGISTER);
 	static uint32							FPSIMD_EncodeSm(SINGLE_REGISTER);
+	static uint32							FPSIMD_EncodeDn(DOUBLE_REGISTER);
 	static uint32							FPSIMD_EncodeQd(QUAD_REGISTER);
 	static uint32							FPSIMD_EncodeQn(QUAD_REGISTER);
 	static uint32							FPSIMD_EncodeQm(QUAD_REGISTER);

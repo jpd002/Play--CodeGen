@@ -30,6 +30,24 @@ namespace Jitter
 			unsigned int index = 0;
 		};
 
+		class CTempRegisterContext
+		{
+		public:
+			CArmAssembler::REGISTER Allocate()
+			{
+				return static_cast<CArmAssembler::REGISTER>(m_nextRegister++);
+			}
+
+			void Release(CArmAssembler::REGISTER reg)
+			{
+				m_nextRegister--;
+				assert(reg == m_nextRegister);
+			}
+
+		private:
+			uint8 m_nextRegister = CArmAssembler::r0;
+		};
+
 		typedef std::function<void (PARAM_STATE&)> ParamEmitterFunction;
 		typedef std::deque<ParamEmitterFunction> ParamStack;
 		
@@ -69,10 +87,12 @@ namespace Jitter
 		void									LoadTemporaryInRegister(CArmAssembler::REGISTER, CSymbol*);
 		void									StoreRegisterInTemporary(CSymbol*, CArmAssembler::REGISTER);
 		
+		void									LoadMemoryReferenceInRegister(CArmAssembler::REGISTER, CSymbol*);
+
 		void									LoadRelativeReferenceInRegister(CArmAssembler::REGISTER, CSymbol*);
 
 		void									LoadTemporaryReferenceInRegister(CArmAssembler::REGISTER, CSymbol*);
-		void									StoreInRegisterTemporaryReference(CSymbol*, CArmAssembler::REGISTER);
+		void									StoreRegisterInTemporaryReference(CSymbol*, CArmAssembler::REGISTER);
 		
 		void									LoadMemory64LowInRegister(CArmAssembler::REGISTER, CSymbol*);
 		void									LoadMemory64HighInRegister(CArmAssembler::REGISTER, CSymbol*);
@@ -82,18 +102,20 @@ namespace Jitter
 		void									StoreRegisterInMemory64High(CSymbol*, CArmAssembler::REGISTER);
 		void									StoreRegistersInMemory64(CSymbol*, CArmAssembler::REGISTER, CArmAssembler::REGISTER);
 
-		void									LoadMemoryFpSingleInRegister(CArmAssembler::SINGLE_REGISTER, CSymbol*);
-		void									StoreRegisterInMemoryFpSingle(CSymbol*, CArmAssembler::SINGLE_REGISTER);
+		void									LoadMemoryFpSingleInRegister(CTempRegisterContext&, CArmAssembler::SINGLE_REGISTER, CSymbol*);
+		void									StoreRegisterInMemoryFpSingle(CTempRegisterContext&, CSymbol*, CArmAssembler::SINGLE_REGISTER);
 
-		void									LoadRelativeFpSingleInRegister(CArmAssembler::SINGLE_REGISTER, CSymbol*);
-		void									StoreRelativeFpSingleInRegister(CSymbol*, CArmAssembler::SINGLE_REGISTER);
+		void									LoadRelativeFpSingleInRegister(CTempRegisterContext&, CArmAssembler::SINGLE_REGISTER, CSymbol*);
+		void									StoreRelativeFpSingleInRegister(CTempRegisterContext&, CSymbol*, CArmAssembler::SINGLE_REGISTER);
 
-		void									LoadTemporaryFpSingleInRegister(CArmAssembler::SINGLE_REGISTER, CSymbol*);
-		void									StoreTemporaryFpSingleInRegister(CSymbol*, CArmAssembler::SINGLE_REGISTER);
+		void									LoadTemporaryFpSingleInRegister(CTempRegisterContext&, CArmAssembler::SINGLE_REGISTER, CSymbol*);
+		void									StoreTemporaryFpSingleInRegister(CTempRegisterContext&, CSymbol*, CArmAssembler::SINGLE_REGISTER);
 
 		void									LoadMemory128AddressInRegister(CArmAssembler::REGISTER, CSymbol*);
 		void									LoadRelative128AddressInRegister(CArmAssembler::REGISTER, CSymbol*);
 		void									LoadTemporary128AddressInRegister(CArmAssembler::REGISTER, CSymbol*);
+
+		void									LoadTemporary256ElementAddressInRegister(CArmAssembler::REGISTER, CSymbol*, uint32);
 
 		CArmAssembler::REGISTER					PrepareSymbolRegisterDef(CSymbol*, CArmAssembler::REGISTER);
 		CArmAssembler::REGISTER					PrepareSymbolRegisterUse(CSymbol*, CArmAssembler::REGISTER);
@@ -245,6 +267,92 @@ namespace Jitter
 			static OpRegType OpReg() { return &CArmAssembler::Vmax_F32; }
 		};
 
+		//MDOP -----------------------------------------------------------
+		struct MDOP_BASE2
+		{
+			typedef void (CArmAssembler::*OpRegType)(CArmAssembler::QUAD_REGISTER, CArmAssembler::QUAD_REGISTER);
+		};
+
+		struct MDOP_BASE3
+		{
+			typedef void (CArmAssembler::*OpRegType)(CArmAssembler::QUAD_REGISTER, CArmAssembler::QUAD_REGISTER, CArmAssembler::QUAD_REGISTER);
+		};
+
+		struct MDOP_ADDW : public MDOP_BASE3
+		{
+			static OpRegType OpReg() { return &CArmAssembler::Vadd_I32; }
+		};
+
+		struct MDOP_ADDBUS : public MDOP_BASE3
+		{
+			static OpRegType OpReg() { return &CArmAssembler::Vqadd_U8; }
+		};
+
+		struct MDOP_ADDWUS : public MDOP_BASE3
+		{
+			static OpRegType OpReg() { return &CArmAssembler::Vqadd_U32; }
+		};
+
+		struct MDOP_SUBB : public MDOP_BASE3
+		{
+			static OpRegType OpReg() { return &CArmAssembler::Vsub_I8; }
+		};
+
+		struct MDOP_SUBW : public MDOP_BASE3
+		{
+			static OpRegType OpReg() { return &CArmAssembler::Vsub_I32; }
+		};
+
+		struct MDOP_CMPEQW : public MDOP_BASE3
+		{
+			static OpRegType OpReg() { return &CArmAssembler::Vceq_I32; }
+		};
+
+		struct MDOP_AND : public MDOP_BASE3
+		{
+			static OpRegType OpReg() { return &CArmAssembler::Vand; }
+		};
+
+		struct MDOP_OR : public MDOP_BASE3
+		{
+			static OpRegType OpReg() { return &CArmAssembler::Vorr; }
+		};
+
+		struct MDOP_XOR : public MDOP_BASE3
+		{
+			static OpRegType OpReg() { return &CArmAssembler::Veor; }
+		};
+
+		struct MDOP_ADDS : public MDOP_BASE3
+		{
+			static OpRegType OpReg() { return &CArmAssembler::Vadd_F32; }
+		};
+
+		struct MDOP_SUBS : public MDOP_BASE3
+		{
+			static OpRegType OpReg() { return &CArmAssembler::Vsub_F32; }
+		};
+
+		struct MDOP_MULS : public MDOP_BASE3
+		{
+			static OpRegType OpReg() { return &CArmAssembler::Vmul_F32; }
+		};
+
+		struct MDOP_ABSS : public MDOP_BASE2
+		{
+			static OpRegType OpReg() { return &CArmAssembler::Vabs_F32; }
+		};
+
+		struct MDOP_TOSINGLE : public MDOP_BASE2
+		{
+			static OpRegType OpReg() { return &CArmAssembler::Vcvt_F32_S32; }
+		};
+
+		struct MDOP_TOWORD : public MDOP_BASE2
+		{
+			static OpRegType OpReg() { return &CArmAssembler::Vcvt_S32_F32; }
+		};
+
 		//ALUOP
 		template <typename> void				Emit_Alu_GenericAnyAny(const STATEMENT&);
 		template <typename> void				Emit_Alu_GenericAnyCst(const STATEMENT&);
@@ -290,6 +398,9 @@ namespace Jitter
 		void									Emit_Mov_MemMem(const STATEMENT&);
 		void									Emit_Mov_MemCst(const STATEMENT&);
 
+		//LZC
+		void									Emit_Lzc_VarVar(const STATEMENT&);
+
 		//NOP
 		void									Emit_Nop(const STATEMENT&);
 		
@@ -298,6 +409,12 @@ namespace Jitter
 
 		//EXTHIGH64
 		void									Emit_ExtHigh64VarMem64(const STATEMENT&);
+
+		//MERGETO64
+		void									Emit_MergeTo64_Mem64RegReg(const STATEMENT&);
+		void									Emit_MergeTo64_Mem64RegMem(const STATEMENT&);
+		void									Emit_MergeTo64_Mem64CstReg(const STATEMENT&);
+		void									Emit_MergeTo64_Mem64CstMem(const STATEMENT&);
 
 		//CMP
 		void									Cmp_GetFlag(CArmAssembler::REGISTER, CONDITION);
@@ -318,12 +435,15 @@ namespace Jitter
 		void									Emit_Not_MemReg(const STATEMENT&);
 		void									Emit_Not_MemMem(const STATEMENT&);
 
+		//RELTOREF
+		void									Emit_RelToRef_TmpCst(const STATEMENT&);
+
 		//ADDREF
-		void									Emit_AddRef_TmpRelReg(const STATEMENT&);
-		void									Emit_AddRef_TmpRelCst(const STATEMENT&);
+		void									Emit_AddRef_TmpMemReg(const STATEMENT&);
+		void									Emit_AddRef_TmpMemCst(const STATEMENT&);
 		
 		//LOADFROMREF
-		void									Emit_LoadFromRef_RegTmp(const STATEMENT&);
+		void									Emit_LoadFromRef_VarTmp(const STATEMENT&);
 		
 		//STOREATREF
 		void									Emit_StoreAtRef_TmpReg(const STATEMENT&);
@@ -334,8 +454,33 @@ namespace Jitter
 		void									Emit_Mov_Mem64Mem64(const STATEMENT&);
 		void									Emit_Mov_Mem64Cst64(const STATEMENT&);
 
+		//ADD64
+		void									Emit_Add64_MemMemMem(const STATEMENT&);
+		void									Emit_Add64_MemMemCst(const STATEMENT&);
+
+		//SUB64
+		void									Emit_Sub64_MemMemMem(const STATEMENT&);
+		void									Emit_Sub64_MemCstMem(const STATEMENT&);
+
 		//AND64
 		void									Emit_And64_MemMemMem(const STATEMENT&);
+
+		//SLL64
+		void									Emit_Sl64Var_MemMem(CSymbol*, CSymbol*, CArmAssembler::REGISTER);
+		void									Emit_Sll64_MemMemVar(const STATEMENT&);
+		void									Emit_Sll64_MemMemCst(const STATEMENT&);
+
+		//SR64
+		void									Emit_Sr64Var_MemMem(CSymbol*, CSymbol*, CArmAssembler::REGISTER, CArmAssembler::SHIFT);
+		void									Emit_Sr64Cst_MemMem(CSymbol*, CSymbol*, uint32, CArmAssembler::SHIFT);
+
+		//SRL64
+		void									Emit_Srl64_MemMemVar(const STATEMENT&);
+		void									Emit_Srl64_MemMemCst(const STATEMENT&);
+
+		//SRA64
+		void									Emit_Sra64_MemMemVar(const STATEMENT&);
+		void									Emit_Sra64_MemMemCst(const STATEMENT&);
 
 		//CMP64
 		void									Cmp64_RegSymLo(CArmAssembler::REGISTER, CSymbol*, CArmAssembler::REGISTER);
@@ -355,8 +500,22 @@ namespace Jitter
 		void									Emit_Fp_LdCst_TmpCst(const STATEMENT&);
 		
 		//MDOP
+		template <typename> void				Emit_Md_MemMem(const STATEMENT&);
+		template <typename> void				Emit_Md_MemMemMem(const STATEMENT&);
 		void									Emit_Md_Mov_MemMem(const STATEMENT&);
-		void									Emit_Md_AddW_MemMemMem(const STATEMENT&);
+		void									Emit_Md_Not_MemMem(const STATEMENT&);
+		void									Emit_Md_Srl256_MemMemVar(const STATEMENT&);
+		void									Emit_Md_Srl256_MemMemCst(const STATEMENT&);
+
+		void									Emit_Md_LoadFromRef_MemMem(const STATEMENT&);
+		void									Emit_Md_StoreAtRef_MemMem(const STATEMENT&);
+
+		void									Emit_Md_MovMasked_MemMemMem(const STATEMENT&);
+		void									Emit_Md_Expand_MemReg(const STATEMENT&);
+		void									Emit_Md_Expand_MemMem(const STATEMENT&);
+		void									Emit_Md_Expand_MemCst(const STATEMENT&);
+
+		void									Emit_MergeTo256_MemMemMem(const STATEMENT&);
 
 		static CONSTMATCHER						g_constMatchers[];
 		static CONSTMATCHER						g_64ConstMatchers[];

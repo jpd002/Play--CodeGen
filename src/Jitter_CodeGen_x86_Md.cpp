@@ -445,24 +445,18 @@ void CCodeGen_x86::Emit_Md_PackWH_VarVarVar(const STATEMENT& statement)
 	m_assembler.MovapsVo(MakeVariable128SymbolAddress(dst), resultRegister);
 }
 
-void CCodeGen_x86::Emit_Md_MovMasked_VarVarCst(const STATEMENT& statement)
+void CCodeGen_x86::Emit_Md_MovMasked_VarVarVar(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
 	auto src2 = statement.src2->GetSymbol().get();
 
-	assert(src2->m_type == SYM_CONSTANT);
-
+	uint8 mask = static_cast<uint8>(statement.jmpCondition);
 	auto mask0Register = CX86Assembler::xMM0;
 	auto mask1Register = CX86Assembler::xMM1;
 
-	//mask0 = 0x00000000
-	//mask1 = 0xFFFFFFFF
-	m_assembler.PxorVo(mask0Register, CX86Assembler::MakeXmmRegisterAddress(mask0Register));
-	m_assembler.PcmpeqdVo(mask1Register, CX86Assembler::MakeXmmRegisterAddress(mask1Register));
-
-	//mask0 -> 0xFFFFFFFF, 0xFFFFFFFF, 0x00000000, 0x00000000 (use movhlps?)
-	m_assembler.ShufpsVo(mask0Register, CX86Assembler::MakeXmmRegisterAddress(mask1Register), 0x00);
+	m_assembler.MovId(CX86Assembler::rAX, ~0);
+	m_assembler.MovdVo(mask0Register, CX86Assembler::MakeRegisterAddress(CX86Assembler::rAX));
 
 	//Generate shuffle selector
 	//0x00 -> gives us 0x00000000
@@ -470,24 +464,25 @@ void CCodeGen_x86::Emit_Md_MovMasked_VarVarCst(const STATEMENT& statement)
 	uint8 shuffleSelector = 0;
 	for(unsigned int i = 0; i < 4; i++)
 	{
-		if(src2->m_valueLow & (1 << i))
+		if(mask & (1 << i))
 		{
 			shuffleSelector |= (0x02) << (i * 2);
 		}
 	}
 
 	//mask0 -> proper mask
-	m_assembler.ShufpsVo(mask0Register, CX86Assembler::MakeXmmRegisterAddress(mask0Register), shuffleSelector);
+	m_assembler.PshufdVo(mask0Register, CX86Assembler::MakeXmmRegisterAddress(mask0Register), shuffleSelector);
 
 	//mask1 -> mask inverse
+	m_assembler.PcmpeqdVo(mask1Register, CX86Assembler::MakeXmmRegisterAddress(mask1Register));
 	m_assembler.PxorVo(mask1Register, CX86Assembler::MakeXmmRegisterAddress(mask0Register));
 
 	//Generate result
 	m_assembler.PandVo(mask0Register, MakeVariable128SymbolAddress(src1));
-	m_assembler.PandVo(mask1Register, MakeVariable128SymbolAddress(dst));
+	m_assembler.PandVo(mask1Register, MakeVariable128SymbolAddress(src2));
 	m_assembler.PorVo(mask0Register, CX86Assembler::MakeXmmRegisterAddress(mask1Register));
 
-	m_assembler.MovapsVo(MakeVariable128SymbolAddress(dst), mask0Register);
+	m_assembler.MovdqaVo(MakeVariable128SymbolAddress(dst), mask0Register);
 }
 
 void CCodeGen_x86::Emit_Md_Mov_RegVar(const STATEMENT& statement)
@@ -622,7 +617,7 @@ void CCodeGen_x86::Emit_Md_Expand_RegReg(const STATEMENT& statement)
 	auto resultRegister = m_mdRegisters[dst->m_valueLow];
 
 	m_assembler.MovdVo(resultRegister, CX86Assembler::MakeRegisterAddress(m_registers[src1->m_valueLow]));
-	m_assembler.ShufpsVo(resultRegister, CX86Assembler::MakeXmmRegisterAddress(resultRegister), 0x00);
+	m_assembler.PshufdVo(resultRegister, CX86Assembler::MakeXmmRegisterAddress(resultRegister), 0x00);
 }
 
 void CCodeGen_x86::Emit_Md_Expand_RegMem(const STATEMENT& statement)
@@ -646,7 +641,7 @@ void CCodeGen_x86::Emit_Md_Expand_RegCst(const STATEMENT& statement)
 
 	m_assembler.MovId(cstRegister, src1->m_valueLow);
 	m_assembler.MovdVo(resultRegister, CX86Assembler::MakeRegisterAddress(cstRegister));
-	m_assembler.ShufpsVo(resultRegister, CX86Assembler::MakeXmmRegisterAddress(resultRegister), 0x00);
+	m_assembler.PshufdVo(resultRegister, CX86Assembler::MakeXmmRegisterAddress(resultRegister), 0x00);
 }
 
 void CCodeGen_x86::Emit_Md_Expand_MemReg(const STATEMENT& statement)
@@ -683,8 +678,8 @@ void CCodeGen_x86::Emit_Md_Expand_MemCst(const STATEMENT& statement)
 
 	m_assembler.MovId(cstRegister, src1->m_valueLow);
 	m_assembler.MovdVo(resultRegister, CX86Assembler::MakeRegisterAddress(cstRegister));
-	m_assembler.ShufpsVo(resultRegister, CX86Assembler::MakeXmmRegisterAddress(resultRegister), 0x00);
-	m_assembler.MovapsVo(MakeMemory128SymbolAddress(dst), resultRegister);
+	m_assembler.PshufdVo(resultRegister, CX86Assembler::MakeXmmRegisterAddress(resultRegister), 0x00);
+	m_assembler.MovdqaVo(MakeMemory128SymbolAddress(dst), resultRegister);
 }
 
 void CCodeGen_x86::Emit_Md_Srl256_VarMem(CSymbol* dst, CSymbol* src1, const CX86Assembler::CAddress& offsetAddress)
@@ -700,7 +695,7 @@ void CCodeGen_x86::Emit_Md_Srl256_VarMem(CSymbol* dst, CSymbol* src1, const CX86
 	m_assembler.AddId(CX86Assembler::MakeRegisterAddress(offsetRegister), src1->m_stackLocation + m_stackLevel);
 
 	m_assembler.MovdquVo(resultRegister, CX86Assembler::MakeBaseIndexScaleAddress(CX86Assembler::rSP, offsetRegister, 1));
-	m_assembler.MovapsVo(MakeVariable128SymbolAddress(dst), resultRegister);
+	m_assembler.MovdqaVo(MakeVariable128SymbolAddress(dst), resultRegister);
 }
 
 void CCodeGen_x86::Emit_Md_Srl256_VarMemVar(const STATEMENT& statement)
@@ -726,7 +721,7 @@ void CCodeGen_x86::Emit_Md_Srl256_VarMemCst(const STATEMENT& statement)
 	uint32 offset = (src2->m_valueLow & 0x7F) / 8;
 
 	m_assembler.MovdquVo(resultRegister, MakeTemporary256SymbolElementAddress(src1, offset));
-	m_assembler.MovapsVo(MakeVariable128SymbolAddress(dst), resultRegister);
+	m_assembler.MovdqaVo(MakeVariable128SymbolAddress(dst), resultRegister);
 }
 
 void CCodeGen_x86::Emit_MergeTo256_MemVarVar(const STATEMENT& statement)
@@ -743,11 +738,11 @@ void CCodeGen_x86::Emit_MergeTo256_MemVarVar(const STATEMENT& statement)
 	//TODO: Improve this to write out registers directly to temporary's memory space
 	//instead of passing by temporary registers
 
-	m_assembler.MovapsVo(src1Register, MakeVariable128SymbolAddress(src1));
-	m_assembler.MovapsVo(src2Register, MakeVariable128SymbolAddress(src2));
+	m_assembler.MovdqaVo(src1Register, MakeVariable128SymbolAddress(src1));
+	m_assembler.MovdqaVo(src2Register, MakeVariable128SymbolAddress(src2));
 
-	m_assembler.MovapsVo(MakeTemporary256SymbolElementAddress(dst, 0x00), src1Register);
-	m_assembler.MovapsVo(MakeTemporary256SymbolElementAddress(dst, 0x10), src2Register);
+	m_assembler.MovdqaVo(MakeTemporary256SymbolElementAddress(dst, 0x00), src1Register);
+	m_assembler.MovdqaVo(MakeTemporary256SymbolElementAddress(dst, 0x10), src2Register);
 }
 
 #define MD_CONST_MATCHERS_SHIFT(MDOP_CST, MDOP) \
@@ -795,6 +790,7 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdConstMatchers[] =
 	MD_CONST_MATCHERS_3OPS(OP_MD_CMPEQ_B,	MDOP_CMPEQB)
 	MD_CONST_MATCHERS_3OPS(OP_MD_CMPEQ_H,	MDOP_CMPEQH)
 	MD_CONST_MATCHERS_3OPS(OP_MD_CMPEQ_W,	MDOP_CMPEQW)
+	MD_CONST_MATCHERS_3OPS(OP_MD_CMPGT_B,	MDOP_CMPGTB)
 	MD_CONST_MATCHERS_3OPS(OP_MD_CMPGT_H,	MDOP_CMPGTH)
 	MD_CONST_MATCHERS_3OPS(OP_MD_CMPGT_W,	MDOP_CMPGTW)
 
@@ -860,7 +856,7 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdConstMatchers[] =
 	{ OP_MOV,					MATCH_REGISTER128,			MATCH_VARIABLE128,			MATCH_NIL,				&CCodeGen_x86::Emit_Md_Mov_RegVar,							},
 	{ OP_MOV,					MATCH_MEMORY128,			MATCH_REGISTER128,			MATCH_NIL,				&CCodeGen_x86::Emit_Md_Mov_MemReg							},
 	{ OP_MOV,					MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_NIL,				&CCodeGen_x86::Emit_Md_Mov_MemMem							},
-	{ OP_MD_MOV_MASKED,			MATCH_VARIABLE128,			MATCH_VARIABLE128,			MATCH_CONSTANT,			&CCodeGen_x86::Emit_Md_MovMasked_VarVarCst					},
+	{ OP_MD_MOV_MASKED,			MATCH_VARIABLE128,			MATCH_VARIABLE128,			MATCH_VARIABLE128,		&CCodeGen_x86::Emit_Md_MovMasked_VarVarVar					},
 
 	{ OP_MERGETO256,			MATCH_MEMORY256,			MATCH_VARIABLE128,			MATCH_VARIABLE128,		&CCodeGen_x86::Emit_MergeTo256_MemVarVar					},
 

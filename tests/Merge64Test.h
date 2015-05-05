@@ -1,10 +1,9 @@
 #pragma once
 
 #include "Test.h"
-#include "Align16.h"
 #include "MemoryFunction.h"
 
-class CLogicMdTest : public CTest
+class CMerge64Test : public CTest
 {
 public:
 	void				Run() override;
@@ -13,12 +12,11 @@ public:
 private:
 	struct CONTEXT
 	{
-		ALIGN16
+		uint32			op1;
+		uint32			op2;
 
-		uint32			op1[4];
-		uint32			op2[4];
-
-		uint32			resultNot[4];
+		uint64			resultMemMem;
+		uint64			resultMemCst;
 	};
 
 	CONTEXT				m_context;

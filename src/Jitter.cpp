@@ -7,9 +7,7 @@ using namespace std;
 using namespace Jitter;
 
 CJitter::CJitter(CCodeGen* codeGen)
-: m_blockStarted(false)
-, m_codeGen(codeGen)
-, m_nextLabelId(1)
+: m_codeGen(codeGen)
 {
 
 }
@@ -37,8 +35,7 @@ void CJitter::Begin()
 	m_nextBlockId = 1;
 	m_basicBlocks.clear();
 
-	uint32 blockId = CreateBlock();
-	m_currentBlock = GetBlock(blockId);
+	StartBlock(m_nextBlockId++);
 }
 
 void CJitter::End()
@@ -50,9 +47,16 @@ void CJitter::End()
 	Compile();
 }
 
-bool CJitter::IsStackEmpty()
+bool CJitter::IsStackEmpty() const
 {
 	return m_shadow.GetCount() == 0;
+}
+
+void CJitter::StartBlock(uint32 blockId)
+{
+	auto blockIterator = m_basicBlocks.emplace(m_basicBlocks.end(), BASIC_BLOCK());
+	m_currentBlock = &(*blockIterator);
+	m_currentBlock->id = blockId;
 }
 
 CJitter::LABEL CJitter::CreateLabel()
@@ -62,9 +66,9 @@ CJitter::LABEL CJitter::CreateLabel()
 
 void CJitter::MarkLabel(LABEL label)
 {
-	uint32 blockId = CreateBlock();
-	m_currentBlock = GetBlock(blockId);
-	m_labels[label] = blockId;
+	uint32 newBlockId = m_nextBlockId++;
+	StartBlock(newBlockId);
+	m_labels[label] = newBlockId;
 }
 
 void CJitter::Goto(LABEL label)
@@ -87,6 +91,9 @@ CONDITION CJitter::GetReverseCondition(CONDITION condition)
 	case CONDITION_NE:
 		return CONDITION_EQ;
 		break;
+	case CONDITION_LT:
+		return CONDITION_GE;
+		break;
 	case CONDITION_LE:
 		return CONDITION_GT;
 		break;
@@ -102,8 +109,8 @@ CONDITION CJitter::GetReverseCondition(CONDITION condition)
 
 void CJitter::BeginIf(CONDITION condition)
 {
-	uint32 nextBlockId = CreateBlock();
-	uint32 jumpBlockId = CreateBlock();
+	uint32 jumpBlockId = m_nextBlockId++;
+	m_ifStack.push(jumpBlockId);
 
 	STATEMENT statement;
 	statement.op			= OP_CONDJMP;
@@ -115,34 +122,35 @@ void CJitter::BeginIf(CONDITION condition)
 
 	assert(m_shadow.GetCount() == 0);
 
-	m_currentBlock = GetBlock(nextBlockId);
-	m_ifStack.Push(jumpBlockId);
+	uint32 newBlockId = m_nextBlockId++;
+	StartBlock(newBlockId);
 }
 
 void CJitter::Else()
 {
-	assert(m_ifStack.GetCount() > 0);
+	assert(!m_ifStack.empty());
 	assert(m_shadow.GetCount() == 0);
 
-	uint32 nextBlockId = m_ifStack.Pull();
-	uint32 jumpBlockId = CreateBlock();
+	uint32 nextBlockId = m_ifStack.top(); m_ifStack.pop();
+
+	uint32 jumpBlockId = m_nextBlockId++;
+	m_ifStack.push(jumpBlockId);
 
 	STATEMENT statement;
 	statement.op			= OP_JMP;
 	statement.jmpBlock		= jumpBlockId;
 	InsertStatement(statement);
 
-	m_currentBlock = GetBlock(nextBlockId);
-	m_ifStack.Push(jumpBlockId);
+	StartBlock(nextBlockId);
 }
 
 void CJitter::EndIf()
 {
-	assert(m_ifStack.GetCount() > 0);
+	assert(!m_ifStack.empty());
 	assert(m_shadow.GetCount() == 0);
 
-	uint32 nextBlockId = m_ifStack.Pull();
-	m_currentBlock = GetBlock(nextBlockId);
+	uint32 nextBlockId = m_ifStack.top(); m_ifStack.pop();
+	StartBlock(nextBlockId);
 }
 
 void CJitter::PushCtx()
@@ -196,30 +204,12 @@ void CJitter::Swap()
 
 void CJitter::Add()
 {
-	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY, m_nextTemporary++);
-
-	STATEMENT statement;
-	statement.op	= OP_ADD;
-	statement.src2	= MakeSymbolRef(m_shadow.Pull());
-	statement.src1	= MakeSymbolRef(m_shadow.Pull());
-	statement.dst	= MakeSymbolRef(tempSym);
-	InsertStatement(statement);
-
-	m_shadow.Push(tempSym);
+	InsertBinaryStatement(OP_ADD);
 }
 
 void CJitter::And()
 {
-	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY, m_nextTemporary++);
-
-	STATEMENT statement;
-	statement.op	= OP_AND;
-	statement.src2	= MakeSymbolRef(m_shadow.Pull());
-	statement.src1	= MakeSymbolRef(m_shadow.Pull());
-	statement.dst	= MakeSymbolRef(tempSym);
-	InsertStatement(statement);
-
-	m_shadow.Push(tempSym);
+	InsertBinaryStatement(OP_AND);
 }
 
 void CJitter::Call(void* func, unsigned int paramCount, bool keepRet)
@@ -413,16 +403,7 @@ void CJitter::Not()
 
 void CJitter::Or()
 {
-	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY, m_nextTemporary++);
-
-	STATEMENT statement;
-	statement.op	= OP_OR;
-	statement.src2	= MakeSymbolRef(m_shadow.Pull());
-	statement.src1	= MakeSymbolRef(m_shadow.Pull());
-	statement.dst	= MakeSymbolRef(tempSym);
-	InsertStatement(statement);
-
-	m_shadow.Push(tempSym);
+	InsertBinaryStatement(OP_OR);
 }
 
 void CJitter::SignExt()
@@ -528,30 +509,12 @@ void CJitter::Srl(uint8 nAmount)
 
 void CJitter::Sub()
 {
-	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY, m_nextTemporary++);
-
-	STATEMENT statement;
-	statement.op	= OP_SUB;
-	statement.src2	= MakeSymbolRef(m_shadow.Pull());
-	statement.src1	= MakeSymbolRef(m_shadow.Pull());
-	statement.dst	= MakeSymbolRef(tempSym);
-	InsertStatement(statement);
-
-	m_shadow.Push(tempSym);
+	InsertBinaryStatement(OP_SUB);
 }
 
 void CJitter::Xor()
 {
-	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY, m_nextTemporary++);
-
-	STATEMENT statement;
-	statement.op	= OP_XOR;
-	statement.src2	= MakeSymbolRef(m_shadow.Pull());
-	statement.src1	= MakeSymbolRef(m_shadow.Pull());
-	statement.dst	= MakeSymbolRef(tempSym);
-	InsertStatement(statement);
-
-	m_shadow.Push(tempSym);
+	InsertBinaryStatement(OP_XOR);
 }
 
 //Memory Functions
@@ -1057,10 +1020,11 @@ void CJitter::MD_PullRel(size_t offset, bool save0, bool save1, bool save2, bool
 		assert(mask != 0);
 
 		STATEMENT statement;
-		statement.op		= OP_MD_MOV_MASKED;
-		statement.src1		= MakeSymbolRef(m_shadow.Pull());
-		statement.src2		= MakeSymbolRef(MakeSymbol(SYM_CONSTANT, mask));
-		statement.dst		= MakeSymbolRef(MakeSymbol(SYM_RELATIVE128, static_cast<uint32>(offset)));
+		statement.op			= OP_MD_MOV_MASKED;
+		statement.dst			= MakeSymbolRef(MakeSymbol(SYM_RELATIVE128, static_cast<uint32>(offset)));
+		statement.src1			= MakeSymbolRef(MakeSymbol(SYM_RELATIVE128, static_cast<uint32>(offset)));
+		statement.src2			= MakeSymbolRef(m_shadow.Pull());
+		statement.jmpCondition	= static_cast<Jitter::CONDITION>(mask);
 		InsertStatement(statement);
 
 		assert(GetSymbolSize(statement.src1) == GetSymbolSize(statement.dst));
@@ -1123,122 +1087,87 @@ void CJitter::MD_StoreAtRef()
 
 void CJitter::MD_AddB()
 {
-	InsertGenericMdStatement(OP_MD_ADD_B);
+	InsertBinaryMdStatement(OP_MD_ADD_B);
 }
 
 void CJitter::MD_AddBUS()
 {
-	InsertGenericMdStatement(OP_MD_ADDUS_B);
+	InsertBinaryMdStatement(OP_MD_ADDUS_B);
 }
 
 void CJitter::MD_AddH()
 {
-	InsertGenericMdStatement(OP_MD_ADD_H);
+	InsertBinaryMdStatement(OP_MD_ADD_H);
 }
 
 void CJitter::MD_AddHSS()
 {
-	InsertGenericMdStatement(OP_MD_ADDSS_H);
+	InsertBinaryMdStatement(OP_MD_ADDSS_H);
 }
 
 void CJitter::MD_AddW()
 {
-	InsertGenericMdStatement(OP_MD_ADD_W);
+	InsertBinaryMdStatement(OP_MD_ADD_W);
 }
 
 void CJitter::MD_AddWSS()
 {
-	InsertGenericMdStatement(OP_MD_ADDSS_W);
+	InsertBinaryMdStatement(OP_MD_ADDSS_W);
 }
 
 void CJitter::MD_AddWUS()
 {
-	InsertGenericMdStatement(OP_MD_ADDUS_W);
+	InsertBinaryMdStatement(OP_MD_ADDUS_W);
 }
 
 void CJitter::MD_SubB()
 {
-	InsertGenericMdStatement(OP_MD_SUB_B);
+	InsertBinaryMdStatement(OP_MD_SUB_B);
 }
 
 void CJitter::MD_SubBUS()
 {
-	InsertGenericMdStatement(OP_MD_SUBUS_B);
+	InsertBinaryMdStatement(OP_MD_SUBUS_B);
 }
 
 void CJitter::MD_SubHSS()
 {
-	InsertGenericMdStatement(OP_MD_SUBSS_H);
+	InsertBinaryMdStatement(OP_MD_SUBSS_H);
 }
 
 void CJitter::MD_SubHUS()
 {
-	InsertGenericMdStatement(OP_MD_SUBUS_H);
+	InsertBinaryMdStatement(OP_MD_SUBUS_H);
 }
 
 void CJitter::MD_SubH()
 {
-	InsertGenericMdStatement(OP_MD_SUB_H);
+	InsertBinaryMdStatement(OP_MD_SUB_H);
 }
 
 void CJitter::MD_SubW()
 {
-	InsertGenericMdStatement(OP_MD_SUB_W);
+	InsertBinaryMdStatement(OP_MD_SUB_W);
 }
 
 void CJitter::MD_And()
 {
-	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY128, m_nextTemporary++);
-
-	STATEMENT statement;
-	statement.op	= OP_MD_AND;
-	statement.src2	= MakeSymbolRef(m_shadow.Pull());
-	statement.src1	= MakeSymbolRef(m_shadow.Pull());
-	statement.dst	= MakeSymbolRef(tempSym);
-	InsertStatement(statement);
-
-	m_shadow.Push(tempSym);
+	InsertBinaryMdStatement(OP_MD_AND);
 }
 
 void CJitter::MD_Or()
 {
-	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY128, m_nextTemporary++);
-
-	STATEMENT statement;
-	statement.op	= OP_MD_OR;
-	statement.src2	= MakeSymbolRef(m_shadow.Pull());
-	statement.src1	= MakeSymbolRef(m_shadow.Pull());
-	statement.dst	= MakeSymbolRef(tempSym);
-	InsertStatement(statement);
-
-	m_shadow.Push(tempSym);
+	InsertBinaryMdStatement(OP_MD_OR);
 }
 
 void CJitter::MD_Xor()
 {
-	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY128, m_nextTemporary++);
-
-	STATEMENT statement;
-	statement.op	= OP_MD_XOR;
-	statement.src2	= MakeSymbolRef(m_shadow.Pull());
-	statement.src1	= MakeSymbolRef(m_shadow.Pull());
-	statement.dst	= MakeSymbolRef(tempSym);
-	InsertStatement(statement);
-
-	m_shadow.Push(tempSym);
+	InsertBinaryMdStatement(OP_MD_XOR);
 }
 
 void CJitter::MD_Not()
 {
-	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY128, m_nextTemporary++);
-
-	STATEMENT statement;
-	statement.op	= OP_MD_NOT;
-	statement.src1	= MakeSymbolRef(m_shadow.Pull());
-	statement.dst	= MakeSymbolRef(tempSym);
-	InsertStatement(statement);
-
-	m_shadow.Push(tempSym);
+	InsertUnaryMdStatement(OP_MD_NOT);
 }
 
 void CJitter::MD_SllH(uint8 amount)
@@ -1361,238 +1290,127 @@ void CJitter::MD_Srl256()
 
 void CJitter::MD_MinH()
 {
-	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY128, m_nextTemporary++);
-
-	STATEMENT statement;
-	statement.op	= OP_MD_MIN_H;
-	statement.src2	= MakeSymbolRef(m_shadow.Pull());
-	statement.src1	= MakeSymbolRef(m_shadow.Pull());
-	statement.dst	= MakeSymbolRef(tempSym);
-	InsertStatement(statement);
-
-	m_shadow.Push(tempSym);
+	InsertBinaryMdStatement(OP_MD_MIN_H);
 }
 
 void CJitter::MD_MinW()
 {
-	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY128, m_nextTemporary++);
-
-	STATEMENT statement;
-	statement.op	= OP_MD_MIN_W;
-	statement.src2	= MakeSymbolRef(m_shadow.Pull());
-	statement.src1	= MakeSymbolRef(m_shadow.Pull());
-	statement.dst	= MakeSymbolRef(tempSym);
-	InsertStatement(statement);
-
-	m_shadow.Push(tempSym);
+	InsertBinaryMdStatement(OP_MD_MIN_W);
 }
 
 void CJitter::MD_MaxH()
 {
-	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY128, m_nextTemporary++);
-
-	STATEMENT statement;
-	statement.op	= OP_MD_MAX_H;
-	statement.src2	= MakeSymbolRef(m_shadow.Pull());
-	statement.src1	= MakeSymbolRef(m_shadow.Pull());
-	statement.dst	= MakeSymbolRef(tempSym);
-	InsertStatement(statement);
-
-	m_shadow.Push(tempSym);
+	InsertBinaryMdStatement(OP_MD_MAX_H);
 }
 
 void CJitter::MD_MaxW()
 {
-	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY128, m_nextTemporary++);
-
-	STATEMENT statement;
-	statement.op	= OP_MD_MAX_W;
-	statement.src2	= MakeSymbolRef(m_shadow.Pull());
-	statement.src1	= MakeSymbolRef(m_shadow.Pull());
-	statement.dst	= MakeSymbolRef(tempSym);
-	InsertStatement(statement);
-
-	m_shadow.Push(tempSym);
+	InsertBinaryMdStatement(OP_MD_MAX_W);
 }
 
 void CJitter::MD_CmpEqB()
 {
-	InsertGenericMdStatement(OP_MD_CMPEQ_B);
+	InsertBinaryMdStatement(OP_MD_CMPEQ_B);
 }
 
 void CJitter::MD_CmpEqH()
 {
-	InsertGenericMdStatement(OP_MD_CMPEQ_H);
+	InsertBinaryMdStatement(OP_MD_CMPEQ_H);
 }
 
 void CJitter::MD_CmpEqW()
 {
-	InsertGenericMdStatement(OP_MD_CMPEQ_W);
+	InsertBinaryMdStatement(OP_MD_CMPEQ_W);
+}
+
+void CJitter::MD_CmpGtB()
+{
+	InsertBinaryMdStatement(OP_MD_CMPGT_B);
 }
 
 void CJitter::MD_CmpGtH()
 {
-	InsertGenericMdStatement(OP_MD_CMPGT_H);
+	InsertBinaryMdStatement(OP_MD_CMPGT_H);
 }
 
 void CJitter::MD_CmpGtW()
 {
-	InsertGenericMdStatement(OP_MD_CMPGT_W);
+	InsertBinaryMdStatement(OP_MD_CMPGT_W);
 }
 
 void CJitter::MD_UnpackLowerBH()
 {
-	InsertGenericMdStatement(OP_MD_UNPACK_LOWER_BH);
+	InsertBinaryMdStatement(OP_MD_UNPACK_LOWER_BH);
 }
 
 void CJitter::MD_UnpackLowerHW()
 {
-	InsertGenericMdStatement(OP_MD_UNPACK_LOWER_HW);
+	InsertBinaryMdStatement(OP_MD_UNPACK_LOWER_HW);
 }
 
 void CJitter::MD_UnpackLowerWD()
 {
-	InsertGenericMdStatement(OP_MD_UNPACK_LOWER_WD);
+	InsertBinaryMdStatement(OP_MD_UNPACK_LOWER_WD);
 }
 
 void CJitter::MD_UnpackUpperBH()
 {
-	InsertGenericMdStatement(OP_MD_UNPACK_UPPER_BH);
+	InsertBinaryMdStatement(OP_MD_UNPACK_UPPER_BH);
 }
 
 void CJitter::MD_UnpackUpperHW()
 {
-	InsertGenericMdStatement(OP_MD_UNPACK_UPPER_HW);
+	InsertBinaryMdStatement(OP_MD_UNPACK_UPPER_HW);
 }
 
 void CJitter::MD_UnpackUpperWD()
 {
-	InsertGenericMdStatement(OP_MD_UNPACK_UPPER_WD);
+	InsertBinaryMdStatement(OP_MD_UNPACK_UPPER_WD);
 }
 
 void CJitter::MD_PackHB()
 {
-	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY128, m_nextTemporary++);
-
-	STATEMENT statement;
-	statement.op	= OP_MD_PACK_HB;
-	statement.src2	= MakeSymbolRef(m_shadow.Pull());
-	statement.src1	= MakeSymbolRef(m_shadow.Pull());
-	statement.dst	= MakeSymbolRef(tempSym);
-	InsertStatement(statement);
-
-	m_shadow.Push(tempSym);
+	InsertBinaryMdStatement(OP_MD_PACK_HB);
 }
 
 void CJitter::MD_PackWH()
 {
-	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY128, m_nextTemporary++);
-
-	STATEMENT statement;
-	statement.op	= OP_MD_PACK_WH;
-	statement.src2	= MakeSymbolRef(m_shadow.Pull());
-	statement.src1	= MakeSymbolRef(m_shadow.Pull());
-	statement.dst	= MakeSymbolRef(tempSym);
-	InsertStatement(statement);
-
-	m_shadow.Push(tempSym);
+	InsertBinaryMdStatement(OP_MD_PACK_WH);
 }
 
 void CJitter::MD_AddS()
 {
-	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY128, m_nextTemporary++);
-
-	STATEMENT statement;
-	statement.op	= OP_MD_ADD_S;
-	statement.src2	= MakeSymbolRef(m_shadow.Pull());
-	statement.src1	= MakeSymbolRef(m_shadow.Pull());
-	statement.dst	= MakeSymbolRef(tempSym);
-	InsertStatement(statement);
-
-	m_shadow.Push(tempSym);
+	InsertBinaryMdStatement(OP_MD_ADD_S);
 }
 
 void CJitter::MD_SubS()
 {
-	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY128, m_nextTemporary++);
-
-	STATEMENT statement;
-	statement.op	= OP_MD_SUB_S;
-	statement.src2	= MakeSymbolRef(m_shadow.Pull());
-	statement.src1	= MakeSymbolRef(m_shadow.Pull());
-	statement.dst	= MakeSymbolRef(tempSym);
-	InsertStatement(statement);
-
-	m_shadow.Push(tempSym);
+	InsertBinaryMdStatement(OP_MD_SUB_S);
 }
 
 void CJitter::MD_MulS()
 {
-	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY128, m_nextTemporary++);
-
-	STATEMENT statement;
-	statement.op	= OP_MD_MUL_S;
-	statement.src2	= MakeSymbolRef(m_shadow.Pull());
-	statement.src1	= MakeSymbolRef(m_shadow.Pull());
-	statement.dst	= MakeSymbolRef(tempSym);
-	InsertStatement(statement);
-
-	m_shadow.Push(tempSym);
+	InsertBinaryMdStatement(OP_MD_MUL_S);
 }
 
 void CJitter::MD_DivS()
 {
-	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY128, m_nextTemporary++);
-
-	STATEMENT statement;
-	statement.op	= OP_MD_DIV_S;
-	statement.src2	= MakeSymbolRef(m_shadow.Pull());
-	statement.src1	= MakeSymbolRef(m_shadow.Pull());
-	statement.dst	= MakeSymbolRef(tempSym);
-	InsertStatement(statement);
-
-	m_shadow.Push(tempSym);
+	InsertBinaryMdStatement(OP_MD_DIV_S);
 }
 
 void CJitter::MD_AbsS()
 {
-	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY128, m_nextTemporary++);
-
-	STATEMENT statement;
-	statement.op	= OP_MD_ABS_S;
-	statement.src1	= MakeSymbolRef(m_shadow.Pull());
-	statement.dst	= MakeSymbolRef(tempSym);
-	InsertStatement(statement);
-
-	m_shadow.Push(tempSym);
+	InsertUnaryMdStatement(OP_MD_ABS_S);
 }
 
 void CJitter::MD_MinS()
 {
-	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY128, m_nextTemporary++);
-
-	STATEMENT statement;
-	statement.op	= OP_MD_MIN_S;
-	statement.src2	= MakeSymbolRef(m_shadow.Pull());
-	statement.src1	= MakeSymbolRef(m_shadow.Pull());
-	statement.dst	= MakeSymbolRef(tempSym);
-	InsertStatement(statement);
-
-	m_shadow.Push(tempSym);
+	InsertBinaryMdStatement(OP_MD_MIN_S);
 }
 
 void CJitter::MD_MaxS()
 {
-	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY128, m_nextTemporary++);
-
-	STATEMENT statement;
-	statement.op	= OP_MD_MAX_S;
-	statement.src2	= MakeSymbolRef(m_shadow.Pull());
-	statement.src1	= MakeSymbolRef(m_shadow.Pull());
-	statement.dst	= MakeSymbolRef(tempSym);
-	InsertStatement(statement);
-
-	m_shadow.Push(tempSym);
+	InsertBinaryMdStatement(OP_MD_MAX_S);
 }
 
 void CJitter::MD_IsZero()
@@ -1623,23 +1441,24 @@ void CJitter::MD_IsNegative()
 
 void CJitter::MD_ToWordTruncate()
 {
-	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY128, m_nextTemporary++);
-
-	STATEMENT statement;
-	statement.op	= OP_MD_TOWORD_TRUNCATE;
-	statement.src1	= MakeSymbolRef(m_shadow.Pull());
-	statement.dst	= MakeSymbolRef(tempSym);
-	InsertStatement(statement);
-
-	m_shadow.Push(tempSym);
+	InsertUnaryMdStatement(OP_MD_TOWORD_TRUNCATE);
 }
 
 void CJitter::MD_ToSingle()
 {
-	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY128, m_nextTemporary++);
+	InsertUnaryMdStatement(OP_MD_TOSINGLE);
+}
+
+//Generic Statement Inserters
+//------------------------------------------------
+
+void CJitter::InsertBinaryStatement(Jitter::OPERATION operation)
+{
+	auto tempSym = MakeSymbol(SYM_TEMPORARY, m_nextTemporary++);
 
 	STATEMENT statement;
-	statement.op	= OP_MD_TOSINGLE;
+	statement.op	= operation;
+	statement.src2	= MakeSymbolRef(m_shadow.Pull());
 	statement.src1	= MakeSymbolRef(m_shadow.Pull());
 	statement.dst	= MakeSymbolRef(tempSym);
 	InsertStatement(statement);
@@ -1647,7 +1466,20 @@ void CJitter::MD_ToSingle()
 	m_shadow.Push(tempSym);
 }
 
-void CJitter::InsertGenericMdStatement(Jitter::OPERATION operation)
+void CJitter::InsertUnaryMdStatement(Jitter::OPERATION operation)
+{
+	auto tempSym = MakeSymbol(SYM_TEMPORARY128, m_nextTemporary++);
+
+	STATEMENT statement;
+	statement.op	= operation;
+	statement.src1	= MakeSymbolRef(m_shadow.Pull());
+	statement.dst	= MakeSymbolRef(tempSym);
+	InsertStatement(statement);
+
+	m_shadow.Push(tempSym);
+}
+
+void CJitter::InsertBinaryMdStatement(Jitter::OPERATION operation)
 {
 	auto tempSym = MakeSymbol(SYM_TEMPORARY128, m_nextTemporary++);
 

@@ -208,6 +208,11 @@ namespace Jitter
 			static OpVoType OpVo() { return &CX86Assembler::PcmpeqdVo; }
 		};
 
+		struct MDOP_CMPGTB : public MDOP_BASE
+		{
+			static OpVoType OpVo() { return &CX86Assembler::PcmpgtbVo; }
+		};
+
 		struct MDOP_CMPGTH : public MDOP_BASE
 		{
 			static OpVoType OpVo() { return &CX86Assembler::PcmpgtwVo; }
@@ -477,7 +482,7 @@ namespace Jitter
 		void						Emit_Not_RegRel(const STATEMENT&);
 		void						Emit_Not_RegTmp(const STATEMENT&);
 		void						Emit_Not_RelReg(const STATEMENT&);
-		void						Emit_Not_RelTmp(const STATEMENT&);
+		void						Emit_Not_MemMem(const STATEMENT&);
 
 		//LZC
 		void						Emit_Lzc(CX86Assembler::REGISTER, const CX86Assembler::CAddress&);
@@ -495,7 +500,7 @@ namespace Jitter
 		void						Emit_Cmp_RelRegRel(const STATEMENT&);
 		void						Emit_Cmp_RelRegCst(const STATEMENT&);
 		void						Emit_Cmp_RelRelRel(const STATEMENT&);
-		void						Emit_Cmp_RelRelCst(const STATEMENT&);
+		void						Emit_Cmp_MemMemCst(const STATEMENT&);
 
 		//MUL/MULS
 		template<bool> void			Emit_MulTmp64RegRel(const STATEMENT&);
@@ -565,11 +570,11 @@ namespace Jitter
 		template <typename> void	Emit_MulSH_MemMemMem(const STATEMENT&);
 
 		//MERGETO64
-		void						Emit_MergeTo64_Tmp64RegReg(const STATEMENT&);
-		void						Emit_MergeTo64_Tmp64RegMem(const STATEMENT&);
-		void						Emit_MergeTo64_Tmp64MemMem(const STATEMENT&);
-		void						Emit_MergeTo64_Tmp64CstReg(const STATEMENT&);
-		void						Emit_MergeTo64_Tmp64CstMem(const STATEMENT&);
+		void						Emit_MergeTo64_Mem64RegReg(const STATEMENT&);
+		void						Emit_MergeTo64_Mem64RegMem(const STATEMENT&);
+		void						Emit_MergeTo64_Mem64MemMem(const STATEMENT&);
+		void						Emit_MergeTo64_Mem64CstReg(const STATEMENT&);
+		void						Emit_MergeTo64_Mem64CstMem(const STATEMENT&);
 
 		//EXTLOW64
 		void						Emit_ExtLow64RegTmp64(const STATEMENT&);
@@ -627,7 +632,7 @@ namespace Jitter
 		void						Emit_Md_Mov_RegVar(const STATEMENT&);
 		void						Emit_Md_Mov_MemReg(const STATEMENT&);
 		void						Emit_Md_Mov_MemMem(const STATEMENT&);
-		void						Emit_Md_MovMasked_VarVarCst(const STATEMENT&);
+		void						Emit_Md_MovMasked_VarVarVar(const STATEMENT&);
 		template <typename> void	Emit_Md_GetFlag_RegVar(const STATEMENT&);
 		template <typename> void	Emit_Md_GetFlag_MemVar(const STATEMENT&);
 		void						Emit_Md_Expand_RegReg(const STATEMENT&);

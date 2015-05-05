@@ -6,6 +6,7 @@
 #include <map>
 #include <unordered_map>
 #include <vector>
+#include <stack>
 #include "ArrayStack.h"
 #include "Stream.h"
 #include "Jitter_SymbolTable.h"
@@ -47,7 +48,7 @@ namespace Jitter
 		virtual void					Begin();
 		virtual void					End();
 		
-		bool							IsStackEmpty();
+		bool							IsStackEmpty() const;
 
 		void							BeginIf(CONDITION);
 		void							Else();
@@ -167,6 +168,7 @@ namespace Jitter
 		void							MD_CmpEqB();
 		void							MD_CmpEqH();
 		void							MD_CmpEqW();
+		void							MD_CmpGtB();
 		void							MD_CmpGtH();
 		void							MD_CmpGtW();
 		void							MD_DivS();
@@ -231,17 +233,7 @@ namespace Jitter
 		typedef std::vector<AllocationRange> AllocationRangeArray;
 		typedef std::unordered_map<SymbolPtr, SYMBOL_REGALLOCINFO, SymbolHasher, SymbolComparator> SymbolRegAllocInfo;
 		typedef std::unordered_map<CSymbol*, unsigned int> SymbolUseCountMap;
-
-		enum MAX_STACK
-		{
-			MAX_STACK = 0x100,
-		};
-
-		enum IFBLOCKS
-		{
-			IFBLOCK,
-			IFELSEBLOCK,
-		};
+		typedef std::stack<uint32> IntStack;
 
 		class CRelativeVersionManager
 		{
@@ -258,14 +250,13 @@ namespace Jitter
 
 		struct BASIC_BLOCK
 		{
-			BASIC_BLOCK() : optimized(false), hasJumpRef(false) { }
-
+			uint32						id = 0;
 			StatementList				statements;
 			CSymbolTable				symbolTable;
-			bool						optimized;
-			bool						hasJumpRef;
+			bool						optimized = false;
+			bool						hasJumpRef = false;
 		};
-		typedef std::map<unsigned int, BASIC_BLOCK> BasicBlockList;
+		typedef std::list<BASIC_BLOCK> BasicBlockList;
 
 		struct VERSIONED_STATEMENT_LIST
 		{
@@ -273,7 +264,9 @@ namespace Jitter
 			CRelativeVersionManager		relativeVersions;
 		};
 
-		void							InsertGenericMdStatement(Jitter::OPERATION);
+		void							InsertBinaryStatement(Jitter::OPERATION);
+		void							InsertUnaryMdStatement(Jitter::OPERATION);
+		void							InsertBinaryMdStatement(Jitter::OPERATION);
 
 		void							Compile();
 
@@ -294,8 +287,7 @@ namespace Jitter
 		void							HarmonizeBlocks();
 		void							MergeBasicBlocks(BASIC_BLOCK&, const BASIC_BLOCK&);
 
-		uint32							CreateBlock();
-		BASIC_BLOCK*					GetBlock(uint32);
+		void							StartBlock(uint32);
 
 		void							InsertStatement(const STATEMENT&);
 
@@ -324,19 +316,19 @@ namespace Jitter
 		void							NormalizeStatements(BASIC_BLOCK&);
 		unsigned int					AllocateStack(BASIC_BLOCK&);
 
-		bool							m_blockStarted;
+		bool							m_blockStarted = false;
 
 		CArrayStack<SymbolPtr>			m_shadow;
-		CArrayStack<uint32>				m_ifStack;
+		IntStack						m_ifStack;
 
-		unsigned int					m_nextTemporary;
-		unsigned int					m_nextBlockId;
+		unsigned int					m_nextTemporary = 1;
+		unsigned int					m_nextBlockId = 1;
 
-		BASIC_BLOCK*					m_currentBlock;
+		BASIC_BLOCK*					m_currentBlock = nullptr;
 		BasicBlockList					m_basicBlocks;
-		CCodeGen*						m_codeGen;
+		CCodeGen*						m_codeGen = nullptr;
 
-		unsigned int					m_nextLabelId;
+		unsigned int					m_nextLabelId = 1;
 		LabelMapType					m_labels;
 	};
 

@@ -85,9 +85,6 @@
     <ClCompile Include="..\tests\SimpleMdTest.cpp">
       <Filter>Source Files\Tests\Md</Filter>
     </ClCompile>
-    <ClCompile Include="..\tests\LogicMdTest.cpp">
-      <Filter>Source Files\Tests\Md</Filter>
-    </ClCompile>
     <ClCompile Include="..\tests\LzcTest.cpp">
       <Filter>Source Files\Tests</Filter>
     </ClCompile>
@@ -105,6 +102,24 @@
     </ClCompile>
     <ClCompile Include="..\tests\Logic64Test.cpp">
       <Filter>Source Files\Tests\64bits</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tests\MdLogicTest.cpp">
+      <Filter>Source Files\Tests\Md</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tests\Merge64Test.cpp">
+      <Filter>Source Files\Tests\64bits</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tests\MdManipTest.cpp">
+      <Filter>Source Files\Tests\Md</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tests\MdCmpTest.cpp">
+      <Filter>Source Files\Tests\Md</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tests\NestedIfTest.cpp">
+      <Filter>Source Files\Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tests\MdAddTest.cpp">
+      <Filter>Source Files\Tests\Md</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -177,9 +192,6 @@
     <ClInclude Include="..\tests\SimpleMdTest.h">
       <Filter>Source Files\Tests\Md</Filter>
     </ClInclude>
-    <ClInclude Include="..\tests\LogicMdTest.h">
-      <Filter>Source Files\Tests\Md</Filter>
-    </ClInclude>
     <ClInclude Include="..\tests\LzcTest.h">
       <Filter>Source Files\Tests</Filter>
     </ClInclude>
@@ -197,6 +209,24 @@
     </ClInclude>
     <ClInclude Include="..\tests\Logic64Test.h">
       <Filter>Source Files\Tests\64bits</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tests\MdLogicTest.h">
+      <Filter>Source Files\Tests\Md</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tests\Merge64Test.h">
+      <Filter>Source Files\Tests\64bits</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tests\MdManipTest.h">
+      <Filter>Source Files\Tests\Md</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tests\MdCmpTest.h">
+      <Filter>Source Files\Tests\Md</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tests\NestedIfTest.h">
+      <Filter>Source Files\Tests</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tests\MdAddTest.h">
+      <Filter>Source Files\Tests\Md</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

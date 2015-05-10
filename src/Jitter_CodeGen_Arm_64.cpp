@@ -126,66 +126,14 @@ void CCodeGen_Arm::Emit_ExtHigh64VarMem64(const STATEMENT& statement)
 	CommitSymbolRegister(dst, dstReg);
 }
 
-void CCodeGen_Arm::Emit_MergeTo64_Mem64RegReg(const STATEMENT& statement)
+void CCodeGen_Arm::Emit_MergeTo64_Mem64AnyAny(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
 	auto src2 = statement.src2->GetSymbol().get();
 
-	assert(src1->m_type == SYM_REGISTER);
-	assert(src2->m_type == SYM_REGISTER);
-
-	auto regLo = CArmAssembler::r0;
-	auto regHi = CArmAssembler::r1;
-
-	StoreRegistersInMemory64(dst, regLo, regHi);
-}
-
-void CCodeGen_Arm::Emit_MergeTo64_Mem64RegMem(const STATEMENT& statement)
-{
-	auto dst = statement.dst->GetSymbol().get();
-	auto src1 = statement.src1->GetSymbol().get();
-	auto src2 = statement.src2->GetSymbol().get();
-
-	assert(src1->m_type == SYM_REGISTER);
-
-	auto regLo = g_registers[src1->m_valueLow];
-	auto regHi = CArmAssembler::r1;
-
-	LoadMemoryInRegister(regHi, src2);
-
-	StoreRegistersInMemory64(dst, regLo, regHi);
-}
-
-void CCodeGen_Arm::Emit_MergeTo64_Mem64CstReg(const STATEMENT& statement)
-{
-	auto dst = statement.dst->GetSymbol().get();
-	auto src1 = statement.src1->GetSymbol().get();
-	auto src2 = statement.src2->GetSymbol().get();
-
-	assert(src2->m_type == SYM_REGISTER);
-
-	auto regLo = CArmAssembler::r0;
-	auto regHi = g_registers[src2->m_valueLow];
-
-	LoadConstantInRegister(regLo, src1->m_valueLow);
-
-	StoreRegistersInMemory64(dst, regLo, regHi);
-}
-
-void CCodeGen_Arm::Emit_MergeTo64_Mem64CstMem(const STATEMENT& statement)
-{
-	auto dst = statement.dst->GetSymbol().get();
-	auto src1 = statement.src1->GetSymbol().get();
-	auto src2 = statement.src2->GetSymbol().get();
-
-	assert(src1->m_type == SYM_CONSTANT);
-
-	auto regLo = CArmAssembler::r0;
-	auto regHi = CArmAssembler::r1;
-
-	LoadConstantInRegister(regLo, src1->m_valueLow);
-	LoadMemoryInRegister(regHi, src2);
+	auto regLo = PrepareSymbolRegisterUse(src1, CArmAssembler::r0);
+	auto regHi = PrepareSymbolRegisterUse(src2, CArmAssembler::r1);
 
 	StoreRegistersInMemory64(dst, regLo, regHi);
 }
@@ -807,10 +755,7 @@ CCodeGen_Arm::CONSTMATCHER CCodeGen_Arm::g_64ConstMatchers[] =
 	{ OP_EXTLOW64,		MATCH_VARIABLE,		MATCH_MEMORY64,		MATCH_NIL,			&CCodeGen_Arm::Emit_ExtLow64VarMem64			},
 	{ OP_EXTHIGH64,		MATCH_VARIABLE,		MATCH_MEMORY64,		MATCH_NIL,			&CCodeGen_Arm::Emit_ExtHigh64VarMem64			},
 
-	{ OP_MERGETO64,		MATCH_MEMORY64,		MATCH_REGISTER,		MATCH_REGISTER,		&CCodeGen_Arm::Emit_MergeTo64_Mem64RegReg		},
-	{ OP_MERGETO64,		MATCH_MEMORY64,		MATCH_REGISTER,		MATCH_MEMORY,		&CCodeGen_Arm::Emit_MergeTo64_Mem64RegMem		},
-	{ OP_MERGETO64,		MATCH_MEMORY64,		MATCH_CONSTANT,		MATCH_REGISTER,		&CCodeGen_Arm::Emit_MergeTo64_Mem64CstReg		},
-	{ OP_MERGETO64,		MATCH_MEMORY64,		MATCH_CONSTANT,		MATCH_MEMORY,		&CCodeGen_Arm::Emit_MergeTo64_Mem64CstMem		},
+	{ OP_MERGETO64,		MATCH_MEMORY64,		MATCH_ANY,			MATCH_ANY,			&CCodeGen_Arm::Emit_MergeTo64_Mem64AnyAny		},
 
 	{ OP_ADD64,			MATCH_MEMORY64,		MATCH_MEMORY64,		MATCH_MEMORY64,		&CCodeGen_Arm::Emit_Add64_MemMemMem				},
 	{ OP_ADD64,			MATCH_MEMORY64,		MATCH_MEMORY64,		MATCH_CONSTANT64,	&CCodeGen_Arm::Emit_Add64_MemMemCst				},

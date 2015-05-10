@@ -586,15 +586,17 @@ CArmAssembler::AluLdrShift CCodeGen_Arm::GetAluShiftFromSymbol(CArmAssembler::SH
 	switch(symbol->m_type)
 	{
 	case SYM_REGISTER:
-		return CArmAssembler::MakeVariableShift(shiftType, g_registers[symbol->m_valueLow]);
+		m_assembler.And(preferedRegister, g_registers[symbol->m_valueLow], CArmAssembler::MakeImmediateAluOperand(0x1F, 0));
+		return CArmAssembler::MakeVariableShift(shiftType, preferedRegister);
 		break;
 	case SYM_TEMPORARY:
 	case SYM_RELATIVE:
 		LoadMemoryInRegister(preferedRegister, symbol);
+		m_assembler.And(preferedRegister, preferedRegister, CArmAssembler::MakeImmediateAluOperand(0x1F, 0));
 		return CArmAssembler::MakeVariableShift(shiftType, preferedRegister);
 		break;
 	case SYM_CONSTANT:
-		return CArmAssembler::MakeConstantShift(shiftType, static_cast<uint8>(symbol->m_valueLow));
+		return CArmAssembler::MakeConstantShift(shiftType, static_cast<uint8>(symbol->m_valueLow & 0x1F));
 		break;
 	default:
 		throw std::runtime_error("Invalid symbol type.");

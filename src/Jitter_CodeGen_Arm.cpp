@@ -1052,6 +1052,9 @@ void CCodeGen_Arm::Emit_CondJmp(const STATEMENT& statement)
 		case CONDITION_GT:
 			m_assembler.BCc(CArmAssembler::CONDITION_GT, label);
 			break;
+		case CONDITION_GE:
+			m_assembler.BCc(CArmAssembler::CONDITION_GE, label);
+			break;
 		default:
 			assert(0);
 			break;

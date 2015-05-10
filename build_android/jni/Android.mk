@@ -67,6 +67,7 @@ LOCAL_SRC_FILES			:=	../../tests/AliasTest.cpp \
 							../../tests/RandomAluTest2.cpp \
 							../../tests/RandomAluTest3.cpp \
 							../../tests/RegAllocTest.cpp \
+							../../tests/ShiftTest.cpp \
 							../../tests/Shift64Test.cpp \
 							../../tests/SimpleMdTest.cpp
 LOCAL_CFLAGS			:= -Wno-extern-c-compat

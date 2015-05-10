@@ -5,6 +5,7 @@
 #include "RandomAluTest.h"
 #include "RandomAluTest2.h"
 #include "RandomAluTest3.h"
+#include "ShiftTest.h"
 #include "AliasTest.h"
 #include "FpuTest.h"
 #include "FpIntMixTest.h"
@@ -54,6 +55,11 @@ static const TestFactoryFunction s_factories[] =
 	[] () { return new CRandomAluTest2(false); },
 	[] () { return new CRandomAluTest3(true); },
 	[] () { return new CRandomAluTest3(false); },
+	[] () { return new CShiftTest(0); },
+	[] () { return new CShiftTest(12); },
+	[] () { return new CShiftTest(31); },
+	[] () { return new CShiftTest(32); },
+	[] () { return new CShiftTest(44); },
 	[] () { return new CCrc32Test("Hello World!", 0x67FCDACC); },
 	[] () { return new CMultTest(true); },
 	[] () { return new CMultTest(false); },

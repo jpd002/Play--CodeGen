@@ -184,6 +184,7 @@
     <ClCompile Include="..\tests\RandomAluTest3.cpp" />
     <ClCompile Include="..\tests\RegAllocTest.cpp" />
     <ClCompile Include="..\tests\Shift64Test.cpp" />
+    <ClCompile Include="..\tests\ShiftTest.cpp" />
     <ClCompile Include="..\tests\SimpleMdTest.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -220,6 +221,7 @@
     <ClInclude Include="..\tests\RandomAluTest3.h" />
     <ClInclude Include="..\tests\RegAllocTest.h" />
     <ClInclude Include="..\tests\Shift64Test.h" />
+    <ClInclude Include="..\tests\ShiftTest.h" />
     <ClInclude Include="..\tests\SimpleMdTest.h" />
     <ClInclude Include="..\tests\Test.h" />
   </ItemGroup>

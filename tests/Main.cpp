@@ -90,6 +90,9 @@ static const TestFactoryFunction s_factories[] =
 	[] () { return new CShift64Test(12); },
 	[] () { return new CShift64Test(32); },
 	[] () { return new CShift64Test(52); },
+	[] () { return new CShift64Test(63); },
+	[] () { return new CShift64Test(64); },
+	[] () { return new CShift64Test(76); },
 	[] () { return new CMerge64Test(); },
 	[] () { return new CCall64Test(); },
 #endif

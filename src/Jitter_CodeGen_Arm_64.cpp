@@ -251,10 +251,11 @@ void CCodeGen_Arm::Emit_Sl64Var_MemMem(CSymbol* dst, CSymbol* src, CArmAssembler
 	auto lessThan32Label = m_assembler.CreateLabel();
 	auto doneLabel = m_assembler.CreateLabel();
 
+	m_assembler.And(saReg, saReg, CArmAssembler::MakeImmediateAluOperand(0x3F, 0));
 	m_assembler.Cmp(saReg, CArmAssembler::MakeImmediateAluOperand(32, 0));
 	m_assembler.BCc(CArmAssembler::CONDITION_LT, lessThan32Label);
 
-	//greaterOrEqualThan32:
+	//greaterThanOrEqual32:
 	{
 		auto workReg = CArmAssembler::r1;
 		auto dstLo = CArmAssembler::r2;
@@ -336,9 +337,7 @@ void CCodeGen_Arm::Emit_Sll64_MemMemCst(const STATEMENT& statement)
 	auto src1 = statement.src1->GetSymbol().get();
 	auto src2 = statement.src2->GetSymbol().get();
 
-	auto shiftAmount = src2->m_valueLow;
-
-	assert(shiftAmount < 0x40);
+	auto shiftAmount = src2->m_valueLow & 0x3F;
 	assert(shiftAmount != 0);
 
 	auto srcLo = CArmAssembler::r0;
@@ -391,10 +390,11 @@ void CCodeGen_Arm::Emit_Sr64Var_MemMem(CSymbol* dst, CSymbol* src, CArmAssembler
 	auto lessThan32Label = m_assembler.CreateLabel();
 	auto doneLabel = m_assembler.CreateLabel();
 
+	m_assembler.And(saReg, saReg, CArmAssembler::MakeImmediateAluOperand(0x3F, 0));
 	m_assembler.Cmp(saReg, CArmAssembler::MakeImmediateAluOperand(32, 0));
 	m_assembler.BCc(CArmAssembler::CONDITION_LT, lessThan32Label);
 
-	//greaterOrEqualThan32:
+	//greaterThanOrEqual32:
 	{
 		auto workReg = CArmAssembler::r1;
 		auto dstLo = CArmAssembler::r2;
@@ -545,7 +545,7 @@ void CCodeGen_Arm::Emit_Srl64_MemMemCst(const STATEMENT& statement)
 	auto src1 = statement.src1->GetSymbol().get();
 	auto src2 = statement.src2->GetSymbol().get();
 
-	auto shiftAmount = src2->m_valueLow;
+	auto shiftAmount = src2->m_valueLow & 0x3F;
 
 	Emit_Sr64Cst_MemMem(dst, src1, shiftAmount, CArmAssembler::SHIFT_LSR);
 }
@@ -581,7 +581,7 @@ void CCodeGen_Arm::Emit_Sra64_MemMemCst(const STATEMENT& statement)
 	auto src1 = statement.src1->GetSymbol().get();
 	auto src2 = statement.src2->GetSymbol().get();
 
-	auto shiftAmount = src2->m_valueLow;
+	auto shiftAmount = src2->m_valueLow & 0x3F;
 
 	Emit_Sr64Cst_MemMem(dst, src1, shiftAmount, CArmAssembler::SHIFT_ASR);
 }

@@ -54,8 +54,9 @@ LOCAL_SRC_FILES			:=	../../tests/AliasTest.cpp \
 							../../tests/MdFpFlagTest.cpp \
 							../../tests/MdFpTest.cpp \
 							../../tests/MdLogicTest.cpp \
-							../../tests/MdMemAccessTest.cpp \
 							../../tests/MdManipTest.cpp \
+							../../tests/MdMemAccessTest.cpp \
+							../../tests/MdMinMaxTest.cpp \
 							../../tests/MdSubTest.cpp \
 							../../tests/MdTest.cpp \
 							../../tests/MdUnpackTest.cpp \

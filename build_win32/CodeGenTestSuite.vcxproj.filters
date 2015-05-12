@@ -124,6 +124,9 @@
     <ClCompile Include="..\tests\ShiftTest.cpp">
       <Filter>Source Files\Tests</Filter>
     </ClCompile>
+    <ClCompile Include="..\tests\MdMinMaxTest.cpp">
+      <Filter>Source Files\Tests\Md</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\tests\Test.h">
@@ -233,6 +236,9 @@
     </ClInclude>
     <ClInclude Include="..\tests\ShiftTest.h">
       <Filter>Source Files\Tests</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tests\MdMinMaxTest.h">
+      <Filter>Source Files\Tests\Md</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

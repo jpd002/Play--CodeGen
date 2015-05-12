@@ -22,12 +22,6 @@ private:
 
 		uint8			dstMov[16];
 
-		uint8			dstMinH[16];
-		uint8			dstMaxH[16];
-		uint8			dstMaxW[16];
-
-		uint8			dstMinW[16];
-
 		uint8			dstSrlH[16];
 		uint8			dstSllH[16];
 		uint8			dstSraH[16];

@@ -845,6 +845,15 @@ void CArmAssembler::Vceq_I32(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER q
 	WriteWord(opcode);
 }
 
+void CArmAssembler::Vcgt_I16(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER qm)
+{
+	uint32 opcode = 0xF2100340;
+	opcode |= FPSIMD_EncodeQd(qd);
+	opcode |= FPSIMD_EncodeQn(qn);
+	opcode |= FPSIMD_EncodeQm(qm);
+	WriteWord(opcode);
+}
+
 void CArmAssembler::Vcmp_F32(SINGLE_REGISTER sd, SINGLE_REGISTER sm)
 {
 	uint32 opcode = 0x0EB40A40;

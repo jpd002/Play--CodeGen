@@ -245,6 +245,7 @@ public:
 	void									Vst1_32x4(QUAD_REGISTER, REGISTER);
 	void									Vmov(DOUBLE_REGISTER, REGISTER, uint8);
 	void									Vmov(REGISTER, DOUBLE_REGISTER, uint8);
+	void									Vmovn_I16(DOUBLE_REGISTER, QUAD_REGISTER);
 	void									Vdup(QUAD_REGISTER, REGISTER);
 	void									Vadd_F32(SINGLE_REGISTER, SINGLE_REGISTER, SINGLE_REGISTER);
 	void									Vadd_F32(QUAD_REGISTER, QUAD_REGISTER, QUAD_REGISTER);
@@ -306,6 +307,7 @@ private:
 	static uint32							FPSIMD_EncodeSd(SINGLE_REGISTER);
 	static uint32							FPSIMD_EncodeSn(SINGLE_REGISTER);
 	static uint32							FPSIMD_EncodeSm(SINGLE_REGISTER);
+	static uint32							FPSIMD_EncodeDd(DOUBLE_REGISTER);
 	static uint32							FPSIMD_EncodeDn(DOUBLE_REGISTER);
 	static uint32							FPSIMD_EncodeQd(QUAD_REGISTER);
 	static uint32							FPSIMD_EncodeQn(QUAD_REGISTER);

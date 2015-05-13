@@ -10,6 +10,7 @@
 		1D60589F0D05DD5A006BFB54 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1D30AB110D05D00D00671497 /* Foundation.framework */; };
 		1DF5F4E00D08C38300B7A737 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1DF5F4DF0D08C38300B7A737 /* UIKit.framework */; };
 		288765FD0DF74451002DB57D /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 288765FC0DF74451002DB57D /* CoreGraphics.framework */; };
+		7012497E1B02E930005F341A /* MdMinMaxTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7012497C1B02E930005F341A /* MdMinMaxTest.cpp */; };
 		703093CC17BE67E5009662A1 /* Alu64Test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 703093C017BE67CE009662A1 /* Alu64Test.cpp */; };
 		703093CD17BE67E8009662A1 /* Call64Test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 703093C217BE67CE009662A1 /* Call64Test.cpp */; };
 		703093CE17BE67EF009662A1 /* HalfMultTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 703093C417BE67CE009662A1 /* HalfMultTest.cpp */; };
@@ -89,6 +90,8 @@
 		1D6058910D05DD3D006BFB54 /* CodeGenTestSuite.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CodeGenTestSuite.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1DF5F4DF0D08C38300B7A737 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		288765FC0DF74451002DB57D /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
+		7012497C1B02E930005F341A /* MdMinMaxTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MdMinMaxTest.cpp; path = ../tests/MdMinMaxTest.cpp; sourceTree = "<group>"; };
+		7012497D1B02E930005F341A /* MdMinMaxTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MdMinMaxTest.h; path = ../tests/MdMinMaxTest.h; sourceTree = "<group>"; };
 		703093BD17BE6628009662A1 /* CodeGenTestSuite-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "CodeGenTestSuite-Info.plist"; sourceTree = "<group>"; };
 		703093BE17BE6678009662A1 /* CodeGenTestSuite_Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CodeGenTestSuite_Prefix.pch; sourceTree = "<group>"; };
 		703093BF17BE67CE009662A1 /* Align16.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Align16.h; path = ../tests/Align16.h; sourceTree = "<group>"; };
@@ -301,6 +304,8 @@
 				703D96491AE497D000B3974D /* MdManipTest.h */,
 				705E54FB1A58C6B9009E67F1 /* MdMemAccessTest.cpp */,
 				705E54FC1A58C6B9009E67F1 /* MdMemAccessTest.h */,
+				7012497C1B02E930005F341A /* MdMinMaxTest.cpp */,
+				7012497D1B02E930005F341A /* MdMinMaxTest.h */,
 				705E54FD1A58C6B9009E67F1 /* MdSubTest.cpp */,
 				705E54FE1A58C6B9009E67F1 /* MdSubTest.h */,
 				7EF8380112DAB5D300EA0F1C /* MdTest.cpp */,
@@ -464,6 +469,7 @@
 				703093CC17BE67E5009662A1 /* Alu64Test.cpp in Sources */,
 				70320D0B1A998CD3001E9C4B /* Logic64Test.cpp in Sources */,
 				705E55091A58C6B9009E67F1 /* SimpleMdTest.cpp in Sources */,
+				7012497E1B02E930005F341A /* MdMinMaxTest.cpp in Sources */,
 				7EF8380612DAB5D300EA0F1C /* FpIntMixTest.cpp in Sources */,
 				7EF8380712DAB5D300EA0F1C /* MdFpTest.cpp in Sources */,
 				703093CF17BE67F5009662A1 /* MdCallTest.cpp in Sources */,

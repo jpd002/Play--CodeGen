@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		701249831B02E97A005F341A /* MdMinMaxTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 701249811B02E97A005F341A /* MdMinMaxTest.cpp */; };
 		7031AA571AED88B800FA7B53 /* MdAddTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7031AA531AED88B800FA7B53 /* MdAddTest.cpp */; };
 		7031AA581AED88B800FA7B53 /* NestedIfTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7031AA551AED88B800FA7B53 /* NestedIfTest.cpp */; };
 		70320D061A998C2A001E9C4B /* Logic64Test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70320D041A998C2A001E9C4B /* Logic64Test.cpp */; };
@@ -90,6 +91,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		701249811B02E97A005F341A /* MdMinMaxTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MdMinMaxTest.cpp; path = ../tests/MdMinMaxTest.cpp; sourceTree = "<group>"; };
+		701249821B02E97A005F341A /* MdMinMaxTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MdMinMaxTest.h; path = ../tests/MdMinMaxTest.h; sourceTree = "<group>"; };
 		7031AA531AED88B800FA7B53 /* MdAddTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MdAddTest.cpp; path = ../tests/MdAddTest.cpp; sourceTree = "<group>"; };
 		7031AA541AED88B800FA7B53 /* MdAddTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MdAddTest.h; path = ../tests/MdAddTest.h; sourceTree = "<group>"; };
 		7031AA551AED88B800FA7B53 /* NestedIfTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = NestedIfTest.cpp; path = ../tests/NestedIfTest.cpp; sourceTree = "<group>"; };
@@ -276,6 +279,8 @@
 				703D96511AE4985100B3974D /* MdManipTest.h */,
 				70BFC4FC1A5530EF0094CD9F /* MdMemAccessTest.cpp */,
 				70BFC4FD1A5530EF0094CD9F /* MdMemAccessTest.h */,
+				701249811B02E97A005F341A /* MdMinMaxTest.cpp */,
+				701249821B02E97A005F341A /* MdMinMaxTest.h */,
 				70BFC4FE1A5530EF0094CD9F /* MdSubTest.cpp */,
 				70BFC4FF1A5530EF0094CD9F /* MdSubTest.h */,
 				7E207C2B1507D5F200EE8C4F /* MdTest.cpp */,
@@ -424,6 +429,7 @@
 				7E207C4A1507D5F200EE8C4F /* MemAccessTest.cpp in Sources */,
 				70320D061A998C2A001E9C4B /* Logic64Test.cpp in Sources */,
 				70BFC50A1A5530EF0094CD9F /* SimpleMdTest.cpp in Sources */,
+				701249831B02E97A005F341A /* MdMinMaxTest.cpp in Sources */,
 				7E207C4B1507D5F200EE8C4F /* MultTest.cpp in Sources */,
 				7E207C4C1507D5F200EE8C4F /* RandomAluTest.cpp in Sources */,
 				7E207C4D1507D5F200EE8C4F /* RandomAluTest2.cpp in Sources */,

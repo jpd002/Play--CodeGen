@@ -111,9 +111,9 @@ namespace Jitter
 		void									LoadTemporaryFpSingleInRegister(CTempRegisterContext&, CArmAssembler::SINGLE_REGISTER, CSymbol*);
 		void									StoreTemporaryFpSingleInRegister(CTempRegisterContext&, CSymbol*, CArmAssembler::SINGLE_REGISTER);
 
-		void									LoadMemory128AddressInRegister(CArmAssembler::REGISTER, CSymbol*);
-		void									LoadRelative128AddressInRegister(CArmAssembler::REGISTER, CSymbol*);
-		void									LoadTemporary128AddressInRegister(CArmAssembler::REGISTER, CSymbol*);
+		void									LoadMemory128AddressInRegister(CArmAssembler::REGISTER, CSymbol*, uint32 = 0);
+		void									LoadRelative128AddressInRegister(CArmAssembler::REGISTER, CSymbol*, uint32);
+		void									LoadTemporary128AddressInRegister(CArmAssembler::REGISTER, CSymbol*, uint32);
 
 		void									LoadTemporary256ElementAddressInRegister(CArmAssembler::REGISTER, CSymbol*, uint32);
 
@@ -536,6 +536,8 @@ namespace Jitter
 
 		void									Emit_Md_PackHB_MemMemMem(const STATEMENT&);
 
+		template <uint32> void					Emit_Md_UnpackBH_MemMemMem(const STATEMENT&);
+		
 		void									Emit_MergeTo256_MemMemMem(const STATEMENT&);
 
 		static CONSTMATCHER						g_constMatchers[];

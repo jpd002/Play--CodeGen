@@ -2,15 +2,15 @@
 
 using namespace Jitter;
 
-void CCodeGen_Arm::LoadMemory128AddressInRegister(CArmAssembler::REGISTER dstReg, CSymbol* symbol)
+void CCodeGen_Arm::LoadMemory128AddressInRegister(CArmAssembler::REGISTER dstReg, CSymbol* symbol, uint32 offset)
 {
 	switch(symbol->m_type)
 	{
 	case SYM_RELATIVE128:
-		LoadRelative128AddressInRegister(dstReg, symbol);
+		LoadRelative128AddressInRegister(dstReg, symbol, offset);
 		break;
 	case SYM_TEMPORARY128:
-		LoadTemporary128AddressInRegister(dstReg, symbol);
+		LoadTemporary128AddressInRegister(dstReg, symbol, offset);
 		break;
 	default:
 		assert(0);
@@ -18,26 +18,26 @@ void CCodeGen_Arm::LoadMemory128AddressInRegister(CArmAssembler::REGISTER dstReg
 	}
 }
 
-void CCodeGen_Arm::LoadRelative128AddressInRegister(CArmAssembler::REGISTER dstReg, CSymbol* symbol)
+void CCodeGen_Arm::LoadRelative128AddressInRegister(CArmAssembler::REGISTER dstReg, CSymbol* symbol, uint32 offset)
 {
 	assert(symbol->m_type == SYM_RELATIVE128);
 
 	uint8 immediate = 0;
 	uint8 shiftAmount = 0;
-	if(!TryGetAluImmediateParams(symbol->m_valueLow, immediate, shiftAmount))
+	if(!TryGetAluImmediateParams(symbol->m_valueLow + offset, immediate, shiftAmount))
 	{
 		throw std::runtime_error("Failed to build immediate for symbol.");
 	}
 	m_assembler.Add(dstReg, g_baseRegister, CArmAssembler::MakeImmediateAluOperand(immediate, shiftAmount));
 }
 
-void CCodeGen_Arm::LoadTemporary128AddressInRegister(CArmAssembler::REGISTER dstReg, CSymbol* symbol)
+void CCodeGen_Arm::LoadTemporary128AddressInRegister(CArmAssembler::REGISTER dstReg, CSymbol* symbol, uint32 offset)
 {
 	assert(symbol->m_type == SYM_TEMPORARY128);
 
 	uint8 immediate = 0;
 	uint8 shiftAmount = 0;
-	if(!TryGetAluImmediateParams(symbol->m_stackLocation + m_stackLevel, immediate, shiftAmount))
+	if(!TryGetAluImmediateParams(symbol->m_stackLocation + m_stackLevel + offset, immediate, shiftAmount))
 	{
 		throw std::runtime_error("Failed to build immediate for symbol.");
 	}
@@ -326,6 +326,30 @@ void CCodeGen_Arm::Emit_Md_PackHB_MemMemMem(const STATEMENT& statement)
 	m_assembler.Vst1_32x4(dstReg, dstAddrReg);
 }
 
+template <uint32 offset>
+void CCodeGen_Arm::Emit_Md_UnpackBH_MemMemMem(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	auto dstAddrReg = CArmAssembler::r0;
+	auto src1AddrReg = CArmAssembler::r1;
+	auto src2AddrReg = CArmAssembler::r2;
+	auto src1Reg = CArmAssembler::d0;
+	auto src2Reg = CArmAssembler::d1;
+
+	LoadMemory128AddressInRegister(dstAddrReg, dst);
+	LoadMemory128AddressInRegister(src1AddrReg, src1, offset);
+	LoadMemory128AddressInRegister(src2AddrReg, src2, offset);
+
+	//Warning: VZIP modifies both registers
+	m_assembler.Vld1_32x2(src1Reg, src2AddrReg);
+	m_assembler.Vld1_32x2(src2Reg, src1AddrReg);
+	m_assembler.Vzip_I8(src1Reg, src2Reg);
+	m_assembler.Vst1_32x4(static_cast<CArmAssembler::QUAD_REGISTER>(src1Reg), dstAddrReg);
+}
+
 void CCodeGen_Arm::Emit_MergeTo256_MemMemMem(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
@@ -404,6 +428,10 @@ CCodeGen_Arm::CONSTMATCHER CCodeGen_Arm::g_mdConstMatchers[] =
 	{ OP_MD_EXPAND,				MATCH_MEMORY128,			MATCH_CONSTANT,				MATCH_NIL,				&CCodeGen_Arm::Emit_Md_Expand_MemCst						},
 
 	{ OP_MD_PACK_HB,			MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_Arm::Emit_Md_PackHB_MemMemMem						},
+
+	{ OP_MD_UNPACK_LOWER_BH,	MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_Arm::Emit_Md_UnpackBH_MemMemMem<0>				},
+
+	{ OP_MD_UNPACK_UPPER_BH,	MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_Arm::Emit_Md_UnpackBH_MemMemMem<8>				},
 
 	{ OP_MERGETO256,			MATCH_MEMORY256,			MATCH_VARIABLE128,			MATCH_VARIABLE128,		&CCodeGen_Arm::Emit_MergeTo256_MemMemMem					},
 

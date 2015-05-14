@@ -565,6 +565,11 @@ uint32 CArmAssembler::FPSIMD_EncodeDn(DOUBLE_REGISTER dn)
 	return ((dn & 0xF) << 16) | ((dn >> 4) <<  7);
 }
 
+uint32 CArmAssembler::FPSIMD_EncodeDm(DOUBLE_REGISTER dm)
+{
+	return ((dm & 0x0F) <<  0) | ((dm >> 4) <<  5);
+}
+
 uint32 CArmAssembler::FPSIMD_EncodeQd(QUAD_REGISTER qd)
 {
 	assert((qd & 1) == 0);
@@ -593,6 +598,16 @@ void CArmAssembler::Vldr(SINGLE_REGISTER sd, REGISTER rbase, const LdrAddress& a
 	opcode |= (CONDITION_AL << 28);
 	opcode |= FPSIMD_EncodeSd(sd);
 	opcode |= (static_cast<uint32>(rbase) << 16) | (static_cast<uint32>(address.immediate / 4));
+	WriteWord(opcode);
+}
+
+void CArmAssembler::Vld1_32x2(DOUBLE_REGISTER dd, REGISTER rn)
+{
+	//TODO: Make this aligned
+
+	uint32 opcode = 0xF420078F;
+	opcode |= FPSIMD_EncodeDd(dd);
+	opcode |= static_cast<uint32>(rn) << 16;
 	WriteWord(opcode);
 }
 
@@ -663,6 +678,14 @@ void CArmAssembler::Vdup(QUAD_REGISTER qd, REGISTER rt)
 	opcode |= (CONDITION_AL << 28);
 	opcode |= FPSIMD_EncodeQn(qd);
 	opcode |= (rt << 12);
+	WriteWord(opcode);
+}
+
+void CArmAssembler::Vzip_I8(DOUBLE_REGISTER dd, DOUBLE_REGISTER dm)
+{
+	uint32 opcode = 0xF3B20180;
+	opcode |= FPSIMD_EncodeDd(dd);
+	opcode |= FPSIMD_EncodeDm(dm);
 	WriteWord(opcode);
 }
 

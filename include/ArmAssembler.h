@@ -239,7 +239,7 @@ public:
 
 	//VFP/NEON
 	void									Vldr(SINGLE_REGISTER, REGISTER, const LdrAddress&);
-	void									Vld1_32x1(QUAD_REGISTER, REGISTER);
+	void									Vld1_32x2(DOUBLE_REGISTER, REGISTER);
 	void									Vld1_32x4(QUAD_REGISTER, REGISTER);
 	void									Vstr(SINGLE_REGISTER, REGISTER, const LdrAddress&);
 	void									Vst1_32x4(QUAD_REGISTER, REGISTER);
@@ -247,6 +247,7 @@ public:
 	void									Vmov(REGISTER, DOUBLE_REGISTER, uint8);
 	void									Vmovn_I16(DOUBLE_REGISTER, QUAD_REGISTER);
 	void									Vdup(QUAD_REGISTER, REGISTER);
+	void									Vzip_I8(DOUBLE_REGISTER, DOUBLE_REGISTER);
 	void									Vadd_F32(SINGLE_REGISTER, SINGLE_REGISTER, SINGLE_REGISTER);
 	void									Vadd_F32(QUAD_REGISTER, QUAD_REGISTER, QUAD_REGISTER);
 	void									Vadd_I32(QUAD_REGISTER, QUAD_REGISTER, QUAD_REGISTER);
@@ -309,6 +310,7 @@ private:
 	static uint32							FPSIMD_EncodeSm(SINGLE_REGISTER);
 	static uint32							FPSIMD_EncodeDd(DOUBLE_REGISTER);
 	static uint32							FPSIMD_EncodeDn(DOUBLE_REGISTER);
+	static uint32							FPSIMD_EncodeDm(DOUBLE_REGISTER);
 	static uint32							FPSIMD_EncodeQd(QUAD_REGISTER);
 	static uint32							FPSIMD_EncodeQn(QUAD_REGISTER);
 	static uint32							FPSIMD_EncodeQm(QUAD_REGISTER);

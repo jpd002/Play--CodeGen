@@ -25,29 +25,29 @@ void CShift64Test::Run()
 
 	m_function(&m_context);
 
-	TEST_VERIFY(m_context.resultSra0 == static_cast<int64>(CONSTANT_1) >> static_cast<int32>(m_shiftAmount));
-	TEST_VERIFY(m_context.resultSra1 == static_cast<int64>(CONSTANT_2) >> static_cast<int32>(m_shiftAmount));
+	//Amounts are masked here because shift operations are expected to mask the shift amounts
 
-	TEST_VERIFY(m_context.resultSraVar0 == static_cast<int64>(CONSTANT_1) >> static_cast<int32>(m_shiftAmount));
-	TEST_VERIFY(m_context.resultSraVar1 == static_cast<int64>(CONSTANT_2) >> static_cast<int32>(m_shiftAmount));
+	TEST_VERIFY(m_context.resultSra0 == static_cast<int64>(CONSTANT_1) >> static_cast<int32>(m_shiftAmount & 0x3F));
+	TEST_VERIFY(m_context.resultSra1 == static_cast<int64>(CONSTANT_2) >> static_cast<int32>(m_shiftAmount & 0x3F));
 
-	TEST_VERIFY(m_context.resultSrl0 == static_cast<uint64>(CONSTANT_1) >> static_cast<uint32>(m_shiftAmount));
-	TEST_VERIFY(m_context.resultSrl1 == static_cast<uint64>(CONSTANT_2) >> static_cast<uint32>(m_shiftAmount));
+	TEST_VERIFY(m_context.resultSraVar0 == static_cast<int64>(CONSTANT_1) >> static_cast<int32>(m_shiftAmount & 0x3F));
+	TEST_VERIFY(m_context.resultSraVar1 == static_cast<int64>(CONSTANT_2) >> static_cast<int32>(m_shiftAmount & 0x3F));
 
-	TEST_VERIFY(m_context.resultSrlVar0 == static_cast<uint64>(CONSTANT_1) >> static_cast<uint32>(m_shiftAmount));
-	TEST_VERIFY(m_context.resultSrlVar1 == static_cast<uint64>(CONSTANT_2) >> static_cast<uint32>(m_shiftAmount));
+	TEST_VERIFY(m_context.resultSrl0 == static_cast<uint64>(CONSTANT_1) >> static_cast<uint32>(m_shiftAmount & 0x3F));
+	TEST_VERIFY(m_context.resultSrl1 == static_cast<uint64>(CONSTANT_2) >> static_cast<uint32>(m_shiftAmount & 0x3F));
 
-	TEST_VERIFY(m_context.resultShl0 == static_cast<uint64>(CONSTANT_1) << static_cast<uint32>(m_shiftAmount));
-	TEST_VERIFY(m_context.resultShl1 == static_cast<uint64>(CONSTANT_2) << static_cast<uint32>(m_shiftAmount));
+	TEST_VERIFY(m_context.resultSrlVar0 == static_cast<uint64>(CONSTANT_1) >> static_cast<uint32>(m_shiftAmount & 0x3F));
+	TEST_VERIFY(m_context.resultSrlVar1 == static_cast<uint64>(CONSTANT_2) >> static_cast<uint32>(m_shiftAmount & 0x3F));
 
-	TEST_VERIFY(m_context.resultShlVar0 == static_cast<uint64>(CONSTANT_1) << static_cast<uint32>(m_shiftAmount));
-	TEST_VERIFY(m_context.resultShlVar1 == static_cast<uint64>(CONSTANT_2) << static_cast<uint32>(m_shiftAmount));
+	TEST_VERIFY(m_context.resultShl0 == static_cast<uint64>(CONSTANT_1) << static_cast<uint32>(m_shiftAmount & 0x3F));
+	TEST_VERIFY(m_context.resultShl1 == static_cast<uint64>(CONSTANT_2) << static_cast<uint32>(m_shiftAmount & 0x3F));
+
+	TEST_VERIFY(m_context.resultShlVar0 == static_cast<uint64>(CONSTANT_1) << static_cast<uint32>(m_shiftAmount & 0x3F));
+	TEST_VERIFY(m_context.resultShlVar1 == static_cast<uint64>(CONSTANT_2) << static_cast<uint32>(m_shiftAmount & 0x3F));
 }
 
 void CShift64Test::Compile(Jitter::CJitter& jitter)
 {
-	//TODO: Check result if shift amount is greater than 0x40 for variable shifts
-
 	Framework::CMemStream codeStream;
 	jitter.SetStream(&codeStream);
 

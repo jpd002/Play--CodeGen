@@ -245,6 +245,7 @@ public:
 	void									Vst1_32x4(QUAD_REGISTER, REGISTER);
 	void									Vmov(DOUBLE_REGISTER, REGISTER, uint8);
 	void									Vmov(REGISTER, DOUBLE_REGISTER, uint8);
+	void									Vmovn_I16(DOUBLE_REGISTER, QUAD_REGISTER);
 	void									Vdup(QUAD_REGISTER, REGISTER);
 	void									Vadd_F32(SINGLE_REGISTER, SINGLE_REGISTER, SINGLE_REGISTER);
 	void									Vadd_F32(QUAD_REGISTER, QUAD_REGISTER, QUAD_REGISTER);
@@ -267,6 +268,7 @@ public:
 	void									Vneg_F32(SINGLE_REGISTER, SINGLE_REGISTER);
 	void									Vsqrt_F32(SINGLE_REGISTER, SINGLE_REGISTER);
 	void									Vceq_I32(QUAD_REGISTER, QUAD_REGISTER, QUAD_REGISTER);
+	void									Vcgt_I16(QUAD_REGISTER, QUAD_REGISTER, QUAD_REGISTER);
 	void									Vcmp_F32(SINGLE_REGISTER, SINGLE_REGISTER);
 	void									Vcvt_F32_S32(SINGLE_REGISTER, SINGLE_REGISTER);
 	void									Vcvt_F32_S32(QUAD_REGISTER, QUAD_REGISTER);
@@ -277,7 +279,11 @@ public:
 	void									Vrecpe_F32(QUAD_REGISTER, QUAD_REGISTER);
 	void									Vrsqrte_F32(QUAD_REGISTER, QUAD_REGISTER);
 	void									Vmin_F32(QUAD_REGISTER, QUAD_REGISTER, QUAD_REGISTER);
+	void									Vmin_I16(QUAD_REGISTER, QUAD_REGISTER, QUAD_REGISTER);
+	void									Vmin_I32(QUAD_REGISTER, QUAD_REGISTER, QUAD_REGISTER);
 	void									Vmax_F32(QUAD_REGISTER, QUAD_REGISTER, QUAD_REGISTER);
+	void									Vmax_I16(QUAD_REGISTER, QUAD_REGISTER, QUAD_REGISTER);
+	void									Vmax_I32(QUAD_REGISTER, QUAD_REGISTER, QUAD_REGISTER);
 
 	static LdrAddress						MakeImmediateLdrAddress(int32);
 	static ImmediateAluOperand				MakeImmediateAluOperand(uint8, uint8);
@@ -301,6 +307,7 @@ private:
 	static uint32							FPSIMD_EncodeSd(SINGLE_REGISTER);
 	static uint32							FPSIMD_EncodeSn(SINGLE_REGISTER);
 	static uint32							FPSIMD_EncodeSm(SINGLE_REGISTER);
+	static uint32							FPSIMD_EncodeDd(DOUBLE_REGISTER);
 	static uint32							FPSIMD_EncodeDn(DOUBLE_REGISTER);
 	static uint32							FPSIMD_EncodeQd(QUAD_REGISTER);
 	static uint32							FPSIMD_EncodeQn(QUAD_REGISTER);

@@ -54,8 +54,9 @@ LOCAL_SRC_FILES			:=	../../tests/AliasTest.cpp \
 							../../tests/MdFpFlagTest.cpp \
 							../../tests/MdFpTest.cpp \
 							../../tests/MdLogicTest.cpp \
-							../../tests/MdMemAccessTest.cpp \
 							../../tests/MdManipTest.cpp \
+							../../tests/MdMemAccessTest.cpp \
+							../../tests/MdMinMaxTest.cpp \
 							../../tests/MdSubTest.cpp \
 							../../tests/MdTest.cpp \
 							../../tests/MdUnpackTest.cpp \
@@ -67,6 +68,7 @@ LOCAL_SRC_FILES			:=	../../tests/AliasTest.cpp \
 							../../tests/RandomAluTest2.cpp \
 							../../tests/RandomAluTest3.cpp \
 							../../tests/RegAllocTest.cpp \
+							../../tests/ShiftTest.cpp \
 							../../tests/Shift64Test.cpp \
 							../../tests/SimpleMdTest.cpp
 LOCAL_CFLAGS			:= -Wno-extern-c-compat

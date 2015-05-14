@@ -218,14 +218,13 @@ CCodeGen_Arm::CONSTMATCHER CCodeGen_Arm::g_constMatchers[] =
 
 	{ OP_RELTOREF,		MATCH_TMP_REF,		MATCH_CONSTANT,		MATCH_ANY,			&CCodeGen_Arm::Emit_RelToRef_TmpCst							},
 
-	{ OP_ADDREF,		MATCH_TMP_REF,		MATCH_MEM_REF,		MATCH_REGISTER,		&CCodeGen_Arm::Emit_AddRef_TmpMemReg						},
-	{ OP_ADDREF,		MATCH_TMP_REF,		MATCH_MEM_REF,		MATCH_CONSTANT,		&CCodeGen_Arm::Emit_AddRef_TmpMemCst						},
+	{ OP_ADDREF,		MATCH_TMP_REF,		MATCH_MEM_REF,		MATCH_ANY,			&CCodeGen_Arm::Emit_AddRef_TmpMemAny						},
 	
 	{ OP_LOADFROMREF,	MATCH_VARIABLE,		MATCH_TMP_REF,		MATCH_NIL,			&CCodeGen_Arm::Emit_LoadFromRef_VarTmp						},
 
-	{ OP_STOREATREF,	MATCH_NIL,			MATCH_TMP_REF,		MATCH_REGISTER,		&CCodeGen_Arm::Emit_StoreAtRef_TmpReg						},
-	{ OP_STOREATREF,	MATCH_NIL,			MATCH_TMP_REF,		MATCH_RELATIVE,		&CCodeGen_Arm::Emit_StoreAtRef_TmpRel						},
-	{ OP_STOREATREF,	MATCH_NIL,			MATCH_TMP_REF,		MATCH_CONSTANT,		&CCodeGen_Arm::Emit_StoreAtRef_TmpCst						},
+	//Cannot use MATCH_ANY here because it will match SYM_RELATIVE128
+	{ OP_STOREATREF,	MATCH_NIL,			MATCH_TMP_REF,		MATCH_VARIABLE,		&CCodeGen_Arm::Emit_StoreAtRef_TmpAny						},
+	{ OP_STOREATREF,	MATCH_NIL,			MATCH_TMP_REF,		MATCH_CONSTANT,		&CCodeGen_Arm::Emit_StoreAtRef_TmpAny						},
 	
 	{ OP_MOV,			MATCH_NIL,			MATCH_NIL,			MATCH_NIL,			NULL														},
 };
@@ -587,15 +586,17 @@ CArmAssembler::AluLdrShift CCodeGen_Arm::GetAluShiftFromSymbol(CArmAssembler::SH
 	switch(symbol->m_type)
 	{
 	case SYM_REGISTER:
-		return CArmAssembler::MakeVariableShift(shiftType, g_registers[symbol->m_valueLow]);
+		m_assembler.And(preferedRegister, g_registers[symbol->m_valueLow], CArmAssembler::MakeImmediateAluOperand(0x1F, 0));
+		return CArmAssembler::MakeVariableShift(shiftType, preferedRegister);
 		break;
 	case SYM_TEMPORARY:
 	case SYM_RELATIVE:
 		LoadMemoryInRegister(preferedRegister, symbol);
+		m_assembler.And(preferedRegister, preferedRegister, CArmAssembler::MakeImmediateAluOperand(0x1F, 0));
 		return CArmAssembler::MakeVariableShift(shiftType, preferedRegister);
 		break;
 	case SYM_CONSTANT:
-		return CArmAssembler::MakeConstantShift(shiftType, static_cast<uint8>(symbol->m_valueLow));
+		return CArmAssembler::MakeConstantShift(shiftType, static_cast<uint8>(symbol->m_valueLow & 0x1F));
 		break;
 	default:
 		throw std::runtime_error("Invalid symbol type.");
@@ -1052,6 +1053,9 @@ void CCodeGen_Arm::Emit_CondJmp(const STATEMENT& statement)
 		case CONDITION_GT:
 			m_assembler.BCc(CArmAssembler::CONDITION_GT, label);
 			break;
+		case CONDITION_GE:
+			m_assembler.BCc(CArmAssembler::CONDITION_GE, label);
+			break;
 		default:
 			assert(0);
 			break;
@@ -1235,36 +1239,18 @@ void CCodeGen_Arm::Emit_RelToRef_TmpCst(const STATEMENT& statement)
 	StoreRegisterInTemporaryReference(dst, tmpReg);
 }
 
-void CCodeGen_Arm::Emit_AddRef_TmpMemReg(const STATEMENT& statement)
+void CCodeGen_Arm::Emit_AddRef_TmpMemAny(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
 	auto src2 = statement.src2->GetSymbol().get();
-	
-	assert(src2->m_type == SYM_REGISTER);
 	
 	auto tmpReg = CArmAssembler::r0;
-	
-	LoadMemoryReferenceInRegister(tmpReg, src1);
-	m_assembler.Add(tmpReg, tmpReg, g_registers[src2->m_valueLow]);
-	StoreRegisterInTemporaryReference(dst, tmpReg);
-}
+	auto src2Reg = PrepareSymbolRegisterUse(src2, CArmAssembler::r1);
 
-void CCodeGen_Arm::Emit_AddRef_TmpMemCst(const STATEMENT& statement)
-{
-	auto dst = statement.dst->GetSymbol().get();
-	auto src1 = statement.src1->GetSymbol().get();
-	auto src2 = statement.src2->GetSymbol().get();
-	
-	assert(src2->m_type == SYM_CONSTANT);
-	
-	auto tmpReg0 = CArmAssembler::r0;
-	auto tmpReg1 = CArmAssembler::r1;
-	
-	LoadMemoryReferenceInRegister(tmpReg0, src1);
-	LoadConstantInRegister(tmpReg1, src2->m_valueLow);
-	m_assembler.Add(tmpReg0, tmpReg0, tmpReg1);
-	StoreRegisterInTemporaryReference(dst, tmpReg0);
+	LoadMemoryReferenceInRegister(tmpReg, src1);
+	m_assembler.Add(tmpReg, tmpReg, src2Reg);
+	StoreRegisterInTemporaryReference(dst, tmpReg);
 }
 
 void CCodeGen_Arm::Emit_LoadFromRef_VarTmp(const STATEMENT& statement)
@@ -1281,48 +1267,16 @@ void CCodeGen_Arm::Emit_LoadFromRef_VarTmp(const STATEMENT& statement)
 	CommitSymbolRegister(dst, dstReg);
 }
 
-void CCodeGen_Arm::Emit_StoreAtRef_TmpReg(const STATEMENT& statement)
+void CCodeGen_Arm::Emit_StoreAtRef_TmpAny(const STATEMENT& statement)
 {
-	CSymbol* src1 = statement.src1->GetSymbol().get();
-	CSymbol* src2 = statement.src2->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
 	
 	assert(src1->m_type == SYM_TMP_REFERENCE);
-	assert(src2->m_type == SYM_REGISTER);
 	
-	CArmAssembler::REGISTER addressReg = CArmAssembler::r0;
-	
-	LoadTemporaryReferenceInRegister(addressReg, src1);
-	m_assembler.Str(g_registers[src2->m_valueLow], addressReg, CArmAssembler::MakeImmediateLdrAddress(0));
-}
-
-void CCodeGen_Arm::Emit_StoreAtRef_TmpRel(const STATEMENT& statement)
-{
-	CSymbol* src1 = statement.src1->GetSymbol().get();
-	CSymbol* src2 = statement.src2->GetSymbol().get();
-	
-	assert(src1->m_type == SYM_TMP_REFERENCE);
-	assert(src2->m_type == SYM_RELATIVE);
-	
-	CArmAssembler::REGISTER addressReg = CArmAssembler::r0;
-	CArmAssembler::REGISTER valueReg = CArmAssembler::r1;
+	auto addressReg = CArmAssembler::r0;
+	auto valueReg = PrepareSymbolRegisterUse(src2, CArmAssembler::r1);
 	
 	LoadTemporaryReferenceInRegister(addressReg, src1);
-	LoadRelativeInRegister(valueReg, src2);
-	m_assembler.Str(valueReg, addressReg, CArmAssembler::MakeImmediateLdrAddress(0));
-}
-
-void CCodeGen_Arm::Emit_StoreAtRef_TmpCst(const STATEMENT& statement)
-{
-	CSymbol* src1 = statement.src1->GetSymbol().get();
-	CSymbol* src2 = statement.src2->GetSymbol().get();
-	
-	assert(src1->m_type == SYM_TMP_REFERENCE);
-	assert(src2->m_type == SYM_CONSTANT);
-	
-	CArmAssembler::REGISTER addressReg = CArmAssembler::r0;
-	CArmAssembler::REGISTER valueReg = CArmAssembler::r1;
-	
-	LoadTemporaryReferenceInRegister(addressReg, src1);
-	LoadConstantInRegister(valueReg, src2->m_valueLow);
 	m_assembler.Str(valueReg, addressReg, CArmAssembler::MakeImmediateLdrAddress(0));
 }

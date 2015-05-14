@@ -11,26 +11,6 @@ void CMdTest::Compile(Jitter::CJitter& jitter)
 		jitter.MD_PushRel(offsetof(CONTEXT, src1));
 		jitter.MD_PullRel(offsetof(CONTEXT, dstMov));
 
-		jitter.MD_PushRel(offsetof(CONTEXT, src0));
-		jitter.MD_PushRel(offsetof(CONTEXT, src2));
-		jitter.MD_MinH();
-		jitter.MD_PullRel(offsetof(CONTEXT, dstMinH));
-
-		jitter.MD_PushRel(offsetof(CONTEXT, src0));
-		jitter.MD_PushRel(offsetof(CONTEXT, src2));
-		jitter.MD_MinW();
-		jitter.MD_PullRel(offsetof(CONTEXT, dstMinW));
-
-		jitter.MD_PushRel(offsetof(CONTEXT, src0));
-		jitter.MD_PushRel(offsetof(CONTEXT, src2));
-		jitter.MD_MaxH();
-		jitter.MD_PullRel(offsetof(CONTEXT, dstMaxH));
-
-		jitter.MD_PushRel(offsetof(CONTEXT, src0));
-		jitter.MD_PushRel(offsetof(CONTEXT, src2));
-		jitter.MD_MaxW();
-		jitter.MD_PullRel(offsetof(CONTEXT, dstMaxW));
-
 		//Shifts
 		jitter.MD_PushRel(offsetof(CONTEXT, src0));
 		jitter.MD_SrlH(9);
@@ -113,54 +93,6 @@ void CMdTest::Run()
 		0x40, 0x50, 0x60, 0x70,
 		0x80, 0x90, 0xA0, 0xB0,
 		0xC0, 0xD0, 0xE0, 0xF0
-	};
-
-	static const uint8 dstMinHRes[16] =
-	{
-		0x00, 0x01,
-		0x02, 0x03,
-		0x04, 0x05,
-		0x06, 0x07,
-		0x08, 0x09,
-		0x0A, 0x0B,
-		0xC0, 0xD0,
-		0xE0, 0xF0,
-	};
-
-	static const uint8 dstMinWRes[16] =
-	{
-		0x00, 0x01,
-		0x02, 0x03,
-		0x04, 0x05,
-		0x06, 0x07,
-		0x08, 0x09,
-		0x0A, 0x0B,
-		0xC0, 0xD0,
-		0xE0, 0xF0,
-	};
-
-	static const uint8 dstMaxHRes[16] =
-	{
-		0x00, 0x01,
-		0x02, 0x03,
-		0x40, 0x50,
-		0x60, 0x70,
-		0x08, 0x09,
-		0x0A, 0x0B,
-		0x0C, 0x0D,
-		0x0E, 0x0F,
-	};
-
-	static const uint8 dstMaxWRes[16] =
-	{
-		0x00, 0x01,
-		0x02, 0x03,
-		0x40, 0x50,
-		0x60, 0x70,
-		0x08, 0x09,
-		0x0A, 0x0B,
-		0x0C, 0x0D,
-		0x0E, 0x0F,
 	};
 
 	static const uint8 dstSrlH[16] =
@@ -268,10 +200,6 @@ void CMdTest::Run()
 	for(unsigned int i = 0; i < 16; i++)
 	{
 		TEST_VERIFY(dstMovRes[i]			== context.dstMov[i]);
-		TEST_VERIFY(dstMinHRes[i]			== context.dstMinH[i]);
-		TEST_VERIFY(dstMinWRes[i]			== context.dstMinW[i]);
-		TEST_VERIFY(dstMaxHRes[i]			== context.dstMaxH[i]);
-		TEST_VERIFY(dstMaxWRes[i]			== context.dstMaxW[i]);
 		TEST_VERIFY(dstSrlH[i]				== context.dstSrlH[i]);
 		TEST_VERIFY(dstSraH[i]				== context.dstSraH[i]);
 		TEST_VERIFY(dstSllH[i]				== context.dstSllH[i]);

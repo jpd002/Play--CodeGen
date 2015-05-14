@@ -5,6 +5,7 @@
 #include "RandomAluTest.h"
 #include "RandomAluTest2.h"
 #include "RandomAluTest3.h"
+#include "ShiftTest.h"
 #include "AliasTest.h"
 #include "FpuTest.h"
 #include "FpIntMixTest.h"
@@ -14,6 +15,7 @@
 #include "MdAddTest.h"
 #include "MdSubTest.h"
 #include "MdCmpTest.h"
+#include "MdMinMaxTest.h"
 #include "MdUnpackTest.h"
 #include "MdFpTest.h"
 #include "MdFpFlagTest.h"
@@ -54,6 +56,11 @@ static const TestFactoryFunction s_factories[] =
 	[] () { return new CRandomAluTest2(false); },
 	[] () { return new CRandomAluTest3(true); },
 	[] () { return new CRandomAluTest3(false); },
+	[] () { return new CShiftTest(0); },
+	[] () { return new CShiftTest(12); },
+	[] () { return new CShiftTest(31); },
+	[] () { return new CShiftTest(32); },
+	[] () { return new CShiftTest(44); },
 	[] () { return new CCrc32Test("Hello World!", 0x67FCDACC); },
 	[] () { return new CMultTest(true); },
 	[] () { return new CMultTest(false); },
@@ -73,6 +80,7 @@ static const TestFactoryFunction s_factories[] =
 	[] () { return new CMdSubTest(); },
 	[] () { return new CMdUnpackTest(); },
 	[] () { return new CMdCmpTest(); },
+	[] () { return new CMdMinMaxTest(); },
 	[] () { return new CMdFpTest(); },
 	[] () { return new CMdFpFlagTest(); },
 	[] () { return new CMdCallTest(); },
@@ -90,6 +98,9 @@ static const TestFactoryFunction s_factories[] =
 	[] () { return new CShift64Test(12); },
 	[] () { return new CShift64Test(32); },
 	[] () { return new CShift64Test(52); },
+	[] () { return new CShift64Test(63); },
+	[] () { return new CShift64Test(64); },
+	[] () { return new CShift64Test(76); },
 	[] () { return new CMerge64Test(); },
 	[] () { return new CCall64Test(); },
 #endif

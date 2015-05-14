@@ -308,6 +308,31 @@ namespace Jitter
 			static OpRegType OpReg() { return &CArmAssembler::Vceq_I32; }
 		};
 
+		struct MDOP_CMPGTH : public MDOP_BASE3
+		{
+			static OpRegType OpReg() { return &CArmAssembler::Vcgt_I16; }
+		};
+
+		struct MDOP_MINH : public MDOP_BASE3
+		{
+			static OpRegType OpReg() { return &CArmAssembler::Vmin_I16; }
+		};
+
+		struct MDOP_MINW : public MDOP_BASE3
+		{
+			static OpRegType OpReg() { return &CArmAssembler::Vmin_I32; }
+		};
+
+		struct MDOP_MAXH : public MDOP_BASE3
+		{
+			static OpRegType OpReg() { return &CArmAssembler::Vmax_I16; }
+		};
+
+		struct MDOP_MAXW : public MDOP_BASE3
+		{
+			static OpRegType OpReg() { return &CArmAssembler::Vmax_I32; }
+		};
+
 		struct MDOP_AND : public MDOP_BASE3
 		{
 			static OpRegType OpReg() { return &CArmAssembler::Vand; }
@@ -411,10 +436,7 @@ namespace Jitter
 		void									Emit_ExtHigh64VarMem64(const STATEMENT&);
 
 		//MERGETO64
-		void									Emit_MergeTo64_Mem64RegReg(const STATEMENT&);
-		void									Emit_MergeTo64_Mem64RegMem(const STATEMENT&);
-		void									Emit_MergeTo64_Mem64CstReg(const STATEMENT&);
-		void									Emit_MergeTo64_Mem64CstMem(const STATEMENT&);
+		void									Emit_MergeTo64_Mem64AnyAny(const STATEMENT&);
 
 		//CMP
 		void									Cmp_GetFlag(CArmAssembler::REGISTER, CONDITION);
@@ -439,16 +461,13 @@ namespace Jitter
 		void									Emit_RelToRef_TmpCst(const STATEMENT&);
 
 		//ADDREF
-		void									Emit_AddRef_TmpMemReg(const STATEMENT&);
-		void									Emit_AddRef_TmpMemCst(const STATEMENT&);
+		void									Emit_AddRef_TmpMemAny(const STATEMENT&);
 		
 		//LOADFROMREF
 		void									Emit_LoadFromRef_VarTmp(const STATEMENT&);
 		
 		//STOREATREF
-		void									Emit_StoreAtRef_TmpReg(const STATEMENT&);
-		void									Emit_StoreAtRef_TmpRel(const STATEMENT&);
-		void									Emit_StoreAtRef_TmpCst(const STATEMENT&);
+		void									Emit_StoreAtRef_TmpAny(const STATEMENT&);
 		
 		//MOV64
 		void									Emit_Mov_Mem64Mem64(const STATEMENT&);
@@ -514,6 +533,8 @@ namespace Jitter
 		void									Emit_Md_Expand_MemReg(const STATEMENT&);
 		void									Emit_Md_Expand_MemMem(const STATEMENT&);
 		void									Emit_Md_Expand_MemCst(const STATEMENT&);
+
+		void									Emit_Md_PackHB_MemMemMem(const STATEMENT&);
 
 		void									Emit_MergeTo256_MemMemMem(const STATEMENT&);
 

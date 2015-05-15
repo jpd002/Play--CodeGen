@@ -689,6 +689,22 @@ void CArmAssembler::Vzip_I8(DOUBLE_REGISTER dd, DOUBLE_REGISTER dm)
 	WriteWord(opcode);
 }
 
+void CArmAssembler::Vzip_I16(DOUBLE_REGISTER dd, DOUBLE_REGISTER dm)
+{
+	uint32 opcode = 0xF3B60180;
+	opcode |= FPSIMD_EncodeDd(dd);
+	opcode |= FPSIMD_EncodeDm(dm);
+	WriteWord(opcode);
+}
+
+void CArmAssembler::Vzip_I32(QUAD_REGISTER qd, QUAD_REGISTER qm)
+{
+	uint32 opcode = 0xF3BA01C0;
+	opcode |= FPSIMD_EncodeQd(qd);
+	opcode |= FPSIMD_EncodeQm(qm);
+	WriteWord(opcode);
+}
+
 void CArmAssembler::Vadd_F32(SINGLE_REGISTER sd, SINGLE_REGISTER sn, SINGLE_REGISTER sm)
 {
 	uint32 opcode = 0x0E300A00;

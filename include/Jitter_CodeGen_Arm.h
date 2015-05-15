@@ -537,7 +537,9 @@ namespace Jitter
 		void									Emit_Md_PackHB_MemMemMem(const STATEMENT&);
 
 		template <uint32> void					Emit_Md_UnpackBH_MemMemMem(const STATEMENT&);
-		
+		template <uint32> void					Emit_Md_UnpackHW_MemMemMem(const STATEMENT&);
+		template <uint32> void					Emit_Md_UnpackWD_MemMemMem(const STATEMENT&);
+
 		void									Emit_MergeTo256_MemMemMem(const STATEMENT&);
 
 		static CONSTMATCHER						g_constMatchers[];

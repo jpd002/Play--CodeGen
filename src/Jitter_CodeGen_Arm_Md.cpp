@@ -350,6 +350,54 @@ void CCodeGen_Arm::Emit_Md_UnpackBH_MemMemMem(const STATEMENT& statement)
 	m_assembler.Vst1_32x4(static_cast<CArmAssembler::QUAD_REGISTER>(src1Reg), dstAddrReg);
 }
 
+template <uint32 offset>
+void CCodeGen_Arm::Emit_Md_UnpackHW_MemMemMem(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	auto dstAddrReg = CArmAssembler::r0;
+	auto src1AddrReg = CArmAssembler::r1;
+	auto src2AddrReg = CArmAssembler::r2;
+	auto src1Reg = CArmAssembler::d0;
+	auto src2Reg = CArmAssembler::d1;
+
+	LoadMemory128AddressInRegister(dstAddrReg, dst);
+	LoadMemory128AddressInRegister(src1AddrReg, src1, offset);
+	LoadMemory128AddressInRegister(src2AddrReg, src2, offset);
+
+	//Warning: VZIP modifies both registers
+	m_assembler.Vld1_32x2(src1Reg, src2AddrReg);
+	m_assembler.Vld1_32x2(src2Reg, src1AddrReg);
+	m_assembler.Vzip_I16(src1Reg, src2Reg);
+	m_assembler.Vst1_32x4(static_cast<CArmAssembler::QUAD_REGISTER>(src1Reg), dstAddrReg);
+}
+
+template <uint32 offset>
+void CCodeGen_Arm::Emit_Md_UnpackWD_MemMemMem(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	auto dstAddrReg = CArmAssembler::r0;
+	auto src1AddrReg = CArmAssembler::r1;
+	auto src2AddrReg = CArmAssembler::r2;
+	auto src1Reg = CArmAssembler::d0;
+	auto src2Reg = CArmAssembler::d2;
+
+	LoadMemory128AddressInRegister(dstAddrReg, dst);
+	LoadMemory128AddressInRegister(src1AddrReg, src1, offset);
+	LoadMemory128AddressInRegister(src2AddrReg, src2, offset);
+
+	//Warning: VZIP modifies both registers
+	m_assembler.Vld1_32x2(src1Reg, src2AddrReg);
+	m_assembler.Vld1_32x2(src2Reg, src1AddrReg);
+	m_assembler.Vzip_I32(static_cast<CArmAssembler::QUAD_REGISTER>(src1Reg), static_cast<CArmAssembler::QUAD_REGISTER>(src2Reg));
+	m_assembler.Vst1_32x4(static_cast<CArmAssembler::QUAD_REGISTER>(src1Reg), dstAddrReg);
+}
+
 void CCodeGen_Arm::Emit_MergeTo256_MemMemMem(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
@@ -430,8 +478,12 @@ CCodeGen_Arm::CONSTMATCHER CCodeGen_Arm::g_mdConstMatchers[] =
 	{ OP_MD_PACK_HB,			MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_Arm::Emit_Md_PackHB_MemMemMem						},
 
 	{ OP_MD_UNPACK_LOWER_BH,	MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_Arm::Emit_Md_UnpackBH_MemMemMem<0>				},
+	{ OP_MD_UNPACK_LOWER_HW,	MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_Arm::Emit_Md_UnpackHW_MemMemMem<0>				},
+	{ OP_MD_UNPACK_LOWER_WD,	MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_Arm::Emit_Md_UnpackWD_MemMemMem<0>				},
 
 	{ OP_MD_UNPACK_UPPER_BH,	MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_Arm::Emit_Md_UnpackBH_MemMemMem<8>				},
+	{ OP_MD_UNPACK_UPPER_HW,	MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_Arm::Emit_Md_UnpackHW_MemMemMem<8>				},
+	{ OP_MD_UNPACK_UPPER_WD,	MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_Arm::Emit_Md_UnpackWD_MemMemMem<8>				},
 
 	{ OP_MERGETO256,			MATCH_MEMORY256,			MATCH_VARIABLE128,			MATCH_VARIABLE128,		&CCodeGen_Arm::Emit_MergeTo256_MemMemMem					},
 

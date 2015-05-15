@@ -68,16 +68,40 @@ void CCodeGen_Arm::StoreRelativeFpSingleInRegister(CTempRegisterContext& tempReg
 	}
 }
 
-void CCodeGen_Arm::LoadTemporaryFpSingleInRegister(CTempRegisterContext&, CArmAssembler::SINGLE_REGISTER reg, CSymbol* symbol)
+void CCodeGen_Arm::LoadTemporaryFpSingleInRegister(CTempRegisterContext& tempRegContext, CArmAssembler::SINGLE_REGISTER reg, CSymbol* symbol)
 {
 	assert(symbol->m_type == SYM_FP_TMP_SINGLE);
-	m_assembler.Vldr(reg, CArmAssembler::rSP, CArmAssembler::MakeImmediateLdrAddress(symbol->m_stackLocation + m_stackLevel));
+	auto offset = symbol->m_stackLocation + m_stackLevel;
+	if((offset / 4) < 0x100)
+	{
+		m_assembler.Vldr(reg, CArmAssembler::rSP, CArmAssembler::MakeImmediateLdrAddress(symbol->m_stackLocation + m_stackLevel));
+	}
+	else
+	{
+		auto offsetRegister = tempRegContext.Allocate();
+		LoadConstantInRegister(offsetRegister, offset);
+		m_assembler.Add(offsetRegister, offsetRegister, CArmAssembler::rSP);
+		m_assembler.Vldr(reg, offsetRegister, CArmAssembler::MakeImmediateLdrAddress(0));
+		tempRegContext.Release(offsetRegister);
+	}
 }
 
-void CCodeGen_Arm::StoreTemporaryFpSingleInRegister(CTempRegisterContext&, CSymbol* symbol, CArmAssembler::SINGLE_REGISTER reg)
+void CCodeGen_Arm::StoreTemporaryFpSingleInRegister(CTempRegisterContext& tempRegContext, CSymbol* symbol, CArmAssembler::SINGLE_REGISTER reg)
 {
 	assert(symbol->m_type == SYM_FP_TMP_SINGLE);
-	m_assembler.Vstr(reg, CArmAssembler::rSP, CArmAssembler::MakeImmediateLdrAddress(symbol->m_stackLocation + m_stackLevel));
+	auto offset = symbol->m_stackLocation + m_stackLevel;
+	if((offset / 4) < 0x100)
+	{
+		m_assembler.Vstr(reg, CArmAssembler::rSP, CArmAssembler::MakeImmediateLdrAddress(symbol->m_stackLocation + m_stackLevel));
+	}
+	else
+	{
+		auto offsetRegister = tempRegContext.Allocate();
+		LoadConstantInRegister(offsetRegister, offset);
+		m_assembler.Add(offsetRegister, offsetRegister,CArmAssembler::rSP);
+		m_assembler.Vstr(reg, offsetRegister, CArmAssembler::MakeImmediateLdrAddress(0));
+		tempRegContext.Release(offsetRegister);
+	}
 }
 
 template <typename FPUOP>

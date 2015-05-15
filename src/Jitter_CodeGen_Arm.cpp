@@ -377,14 +377,22 @@ uint16 CCodeGen_Arm::GetSavedRegisterList(uint32 registerUsage)
 void CCodeGen_Arm::Emit_Prolog(unsigned int stackSize, uint16 registerSave)
 {
 	m_assembler.Stmdb(CArmAssembler::rSP, registerSave);
+	m_assembler.Mov(CArmAssembler::r11, CArmAssembler::r0);
 	if(stackSize != 0)
 	{
 		uint8 allocImm = 0, allocSa = 0;
 		bool succeeded = TryGetAluImmediateParams(stackSize, allocImm, allocSa);
-		assert(succeeded);
-		m_assembler.Sub(CArmAssembler::rSP, CArmAssembler::rSP, CArmAssembler::MakeImmediateAluOperand(allocImm, allocSa));
+		if(succeeded)
+		{
+			m_assembler.Sub(CArmAssembler::rSP, CArmAssembler::rSP, CArmAssembler::MakeImmediateAluOperand(allocImm, allocSa));
+		}
+		else
+		{
+			auto stackResReg = CArmAssembler::r0;
+			LoadConstantInRegister(stackResReg, stackSize);
+			m_assembler.Sub(CArmAssembler::rSP, CArmAssembler::rSP, stackResReg);
+		}
 	}
-	m_assembler.Mov(CArmAssembler::r11, CArmAssembler::r0);
 	m_stackLevel = 0;
 }
 
@@ -394,8 +402,16 @@ void CCodeGen_Arm::Emit_Epilog(unsigned int stackSize, uint16 registerSave)
 	{
 		uint8 allocImm = 0, allocSa = 0;
 		bool succeeded = TryGetAluImmediateParams(stackSize, allocImm, allocSa);
-		assert(succeeded);
-		m_assembler.Add(CArmAssembler::rSP, CArmAssembler::rSP, CArmAssembler::MakeImmediateAluOperand(allocImm, allocSa));
+		if(succeeded)
+		{
+			m_assembler.Add(CArmAssembler::rSP, CArmAssembler::rSP, CArmAssembler::MakeImmediateAluOperand(allocImm, allocSa));
+		}
+		else
+		{
+			auto stackResReg = CArmAssembler::r0;
+			LoadConstantInRegister(stackResReg, stackSize);
+			m_assembler.Add(CArmAssembler::rSP, CArmAssembler::rSP, stackResReg);
+		}
 	}
 	m_assembler.Ldmia(CArmAssembler::rSP, registerSave);
 	m_assembler.Bx(CArmAssembler::rLR);

@@ -16,6 +16,12 @@ namespace Jitter
 		bool								CanHold128BitsReturnValueInRegisters() const override;
 		
 	protected:
+		enum SHIFTRIGHT_TYPE
+		{
+			SHIFTRIGHT_LOGICAL,
+			SHIFTRIGHT_ARITHMETIC
+		};
+
 		virtual void						Emit_Prolog(const StatementList&, unsigned int, uint32);
 		virtual void						Emit_Epilog(unsigned int, uint32);
 
@@ -55,17 +61,19 @@ namespace Jitter
 		//AND64
 		void								Emit_And64_RelRelRel(const STATEMENT&);
 
+		//SR64
+		void								Emit_Sr64Var_MemMem(CSymbol*, CSymbol*, CX86Assembler::REGISTER, SHIFTRIGHT_TYPE);
+		void								Emit_Sr64Cst_MemMem(CSymbol*, CSymbol*, uint32, SHIFTRIGHT_TYPE);
+
 		//SRL64
-		void								Emit_Srl64_MemMemVar(const STATEMENT&, CX86Assembler::REGISTER);
 		void								Emit_Srl64_MemMemReg(const STATEMENT&);
 		void								Emit_Srl64_MemMemMem(const STATEMENT&);
-		void								Emit_Srl64_RelRelCst(const STATEMENT&);
+		void								Emit_Srl64_MemMemCst(const STATEMENT&);
 
 		//SRA64
-		void								Emit_Sra64_MemMemVar(const STATEMENT&, CX86Assembler::REGISTER);
 		void								Emit_Sra64_MemMemReg(const STATEMENT&);
 		void								Emit_Sra64_MemMemMem(const STATEMENT&);
-		void								Emit_Sra64_RelRelCst(const STATEMENT&);
+		void								Emit_Sra64_MemMemCst(const STATEMENT&);
 
 		//SLL64
 		void								Emit_Sll64_MemMemVar(const STATEMENT&, CX86Assembler::REGISTER);

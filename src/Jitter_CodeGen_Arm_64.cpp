@@ -87,10 +87,8 @@ void CCodeGen_Arm::Emit_Mov_Mem64Mem64(const STATEMENT& statement)
 
 	auto regLo = CArmAssembler::r0;
 	auto regHi = CArmAssembler::r1;
-	LoadMemory64LowInRegister(regLo, src1);
-	LoadMemory64HighInRegister(regHi, src1);
-	StoreRegisterInMemory64Low(dst, regLo);
-	StoreRegisterInMemory64High(dst, regHi);
+	LoadMemory64InRegisters(regLo, regHi, src1);
+	StoreRegistersInMemory64(dst, regLo, regHi);
 }
 
 void CCodeGen_Arm::Emit_Mov_Mem64Cst64(const STATEMENT& statement)
@@ -102,8 +100,7 @@ void CCodeGen_Arm::Emit_Mov_Mem64Cst64(const STATEMENT& statement)
 	auto regHi = CArmAssembler::r1;
 	LoadConstantInRegister(regLo, src1->m_valueLow);
 	LoadConstantInRegister(regHi, src1->m_valueHigh);
-	StoreRegisterInMemory64Low(dst, regLo);
-	StoreRegisterInMemory64High(dst, regHi);
+	StoreRegistersInMemory64(dst, regLo, regHi);
 }
 
 void CCodeGen_Arm::Emit_ExtLow64VarMem64(const STATEMENT& statement)

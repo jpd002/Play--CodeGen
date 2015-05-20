@@ -313,8 +313,8 @@ void CCodeGen_Arm::RegisterExternalSymbols(CObjectFile* objectFile) const
 
 void CCodeGen_Arm::GenerateCode(const StatementList& statements, unsigned int stackSize)
 {
-	//Align stack size (must be aligned on 8 bytes boundary)
-	stackSize = (stackSize + 0x7) & ~0x7;
+	//Align stack size (must be aligned on 16 bytes boundary)
+	stackSize = (stackSize + 0xF) & ~0xF;
 
 	uint16 registerSave = GetSavedRegisterList(GetRegisterUsage(statements));
 
@@ -363,14 +363,6 @@ uint16 CCodeGen_Arm::GetSavedRegisterList(uint32 registerUsage)
 	registerSave |= (1 << g_callAddressRegister);
 	registerSave |= (1 << g_baseRegister);
 	registerSave |= (1 << CArmAssembler::rLR);
-
-	//Make sure we're aligned on 8 bytes
-	unsigned int registerSaveCount = __builtin_popcount(registerSave);
-	if(registerSaveCount & 1)
-	{
-		assert((registerSave & (1 << CArmAssembler::r12)) == 0);
-		registerSave |= (1 << CArmAssembler::r12);
-	}
 	return registerSave;
 }
 
@@ -378,6 +370,13 @@ void CCodeGen_Arm::Emit_Prolog(unsigned int stackSize, uint16 registerSave)
 {
 	m_assembler.Stmdb(CArmAssembler::rSP, registerSave);
 	m_assembler.Mov(CArmAssembler::r11, CArmAssembler::r0);
+
+	//Align stack to 16 bytes boundary
+	m_assembler.Mov(CArmAssembler::r0, CArmAssembler::rSP);
+	m_assembler.Bic(CArmAssembler::rSP, CArmAssembler::rSP, CArmAssembler::MakeImmediateAluOperand(0xF, 0));
+	m_assembler.Sub(CArmAssembler::rSP, CArmAssembler::rSP, CArmAssembler::MakeImmediateAluOperand(0xC, 0));
+	m_assembler.Stmdb(CArmAssembler::rSP, (1 << CArmAssembler::r0));
+
 	if(stackSize != 0)
 	{
 		uint8 allocImm = 0, allocSa = 0;
@@ -413,6 +412,11 @@ void CCodeGen_Arm::Emit_Epilog(unsigned int stackSize, uint16 registerSave)
 			m_assembler.Add(CArmAssembler::rSP, CArmAssembler::rSP, stackResReg);
 		}
 	}
+
+	//Restore previous unaligned SP
+	m_assembler.Ldmia(CArmAssembler::rSP, (1 << CArmAssembler::r0));
+	m_assembler.Mov(CArmAssembler::rSP, CArmAssembler::r0);
+
 	m_assembler.Ldmia(CArmAssembler::rSP, registerSave);
 	m_assembler.Bx(CArmAssembler::rLR);
 }

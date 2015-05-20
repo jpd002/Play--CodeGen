@@ -151,7 +151,7 @@ void CCodeGen_Arm::Emit_Md_Srl256_MemMemCst(const STATEMENT& statement)
 	LoadMemory128AddressInRegister(dstAddrReg, dst);
 	LoadTemporary256ElementAddressInRegister(src1AddrReg, src1, offset);
 
-	m_assembler.Vld1_32x4(dstReg, src1AddrReg);
+	m_assembler.Vld1_32x4_u(dstReg, src1AddrReg);
 	m_assembler.Vst1_32x4(dstReg, dstAddrReg);
 }
 
@@ -180,7 +180,7 @@ void CCodeGen_Arm::Emit_Md_Srl256_MemMemVar(const STATEMENT& statement)
 	m_assembler.Mov(offsetRegister, CArmAssembler::MakeRegisterAluOperand(offsetRegister, offsetShift));
 	m_assembler.Add(src1AddrReg, src1AddrReg, offsetRegister);
 
-	m_assembler.Vld1_32x4(dstReg, src1AddrReg);
+	m_assembler.Vld1_32x4_u(dstReg, src1AddrReg);
 	m_assembler.Vst1_32x4(dstReg, dstAddrReg);
 }
 

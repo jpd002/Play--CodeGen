@@ -613,8 +613,15 @@ void CArmAssembler::Vld1_32x2(DOUBLE_REGISTER dd, REGISTER rn)
 
 void CArmAssembler::Vld1_32x4(QUAD_REGISTER qd, REGISTER rn)
 {
-	//TODO: Make this aligned
+	uint32 opcode = 0xF4200AAF;
+	opcode |= FPSIMD_EncodeQd(qd);
+	opcode |= static_cast<uint32>(rn) << 16;
+	WriteWord(opcode);
+}
 
+void CArmAssembler::Vld1_32x4_u(QUAD_REGISTER qd, REGISTER rn)
+{
+	//Unaligned variant
 	uint32 opcode = 0xF4200A8F;
 	opcode |= FPSIMD_EncodeQd(qd);
 	opcode |= static_cast<uint32>(rn) << 16;
@@ -636,9 +643,7 @@ void CArmAssembler::Vstr(SINGLE_REGISTER sd, REGISTER rbase, const LdrAddress& a
 
 void CArmAssembler::Vst1_32x4(QUAD_REGISTER qd, REGISTER rn)
 {
-	//TODO: Make this aligned
-
-	uint32 opcode = 0xF4000A8F;
+	uint32 opcode = 0xF4000AAF;
 	opcode |= FPSIMD_EncodeQd(qd);
 	opcode |= static_cast<uint32>(rn) << 16;
 	WriteWord(opcode);

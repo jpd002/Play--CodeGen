@@ -241,6 +241,7 @@ public:
 	void									Vldr(SINGLE_REGISTER, REGISTER, const LdrAddress&);
 	void									Vld1_32x2(DOUBLE_REGISTER, REGISTER);
 	void									Vld1_32x4(QUAD_REGISTER, REGISTER);
+	void									Vld1_32x4_u(QUAD_REGISTER, REGISTER);
 	void									Vstr(SINGLE_REGISTER, REGISTER, const LdrAddress&);
 	void									Vst1_32x4(QUAD_REGISTER, REGISTER);
 	void									Vmov(DOUBLE_REGISTER, REGISTER, uint8);

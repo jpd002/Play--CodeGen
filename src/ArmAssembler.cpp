@@ -327,6 +327,20 @@ void CArmAssembler::Ldr(REGISTER rd, REGISTER rbase, const LdrAddress& address)
 	WriteWord(opcode);
 }
 
+void CArmAssembler::Ldrd(REGISTER rt, REGISTER rn, const LdrAddress& address)
+{
+	assert(address.isImmediate);
+	assert(!address.isNegative);
+	assert(address.immediate < 0x100);
+	uint32 opcode = 0x01C000D0;
+	opcode |= (CONDITION_AL << 28);
+	opcode |= (rn << 16);
+	opcode |= (rt << 12);
+	opcode |= (address.immediate >> 4) << 8;
+	opcode |= (address.immediate & 0xF);
+	WriteWord(opcode);
+}
+
 void CArmAssembler::Mov(REGISTER rd, REGISTER rm)
 {
 	InstructionAlu instruction;
@@ -492,6 +506,20 @@ void CArmAssembler::Str(REGISTER rd, REGISTER rbase, const LdrAddress& address)
 	opcode |= static_cast<uint32>(rbase) << 16;
 	opcode |= static_cast<uint32>(rd) << 12;
 	opcode |= static_cast<uint32>(address.immediate);
+	WriteWord(opcode);
+}
+
+void CArmAssembler::Strd(REGISTER rt, REGISTER rn, const LdrAddress& address)
+{
+	assert(address.isImmediate);
+	assert(!address.isNegative);
+	assert(address.immediate < 0x100);
+	uint32 opcode = 0x01C000F0;
+	opcode |= (CONDITION_AL << 28);
+	opcode |= (rn << 16);
+	opcode |= (rt << 12);
+	opcode |= (address.immediate >> 4) << 8;
+	opcode |= (address.immediate & 0xF);
 	WriteWord(opcode);
 }
 

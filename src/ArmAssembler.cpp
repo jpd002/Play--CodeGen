@@ -167,30 +167,12 @@ void CArmAssembler::Adds(REGISTER rd, REGISTER rn, REGISTER rm)
 
 void CArmAssembler::And(REGISTER rd, REGISTER rn, REGISTER rm)
 {
-	InstructionAlu instruction;
-	instruction.operand = rm;
-	instruction.rn = rn;
-	instruction.rd = rd;
-	instruction.setFlags = 0;
-	instruction.opcode = ALU_OPCODE_AND;
-	instruction.immediate = 0;
-	instruction.condition = CONDITION_AL;
-	uint32 opcode = *reinterpret_cast<uint32*>(&instruction);
-	WriteWord(opcode);
+	GenericAlu(ALU_OPCODE_AND, false, rd, rn, rm);
 }
 
 void CArmAssembler::And(REGISTER rd, REGISTER rn, const ImmediateAluOperand& operand)
 {
-	InstructionAlu instruction;
-	instruction.operand = *reinterpret_cast<const unsigned int*>(&operand);
-	instruction.rd = rd;
-	instruction.rn = rn;
-	instruction.setFlags = 0;
-	instruction.opcode = ALU_OPCODE_AND;
-	instruction.immediate = 1;
-	instruction.condition = CONDITION_AL;
-	uint32 opcode = *reinterpret_cast<uint32*>(&instruction);
-	WriteWord(opcode);
+	GenericAlu(ALU_OPCODE_AND, false, rd, rn, operand);
 }
 
 void CArmAssembler::BCc(CONDITION condition, LABEL label)
@@ -202,16 +184,7 @@ void CArmAssembler::BCc(CONDITION condition, LABEL label)
 
 void CArmAssembler::Bic(REGISTER rd, REGISTER rn, const ImmediateAluOperand& operand)
 {
-	InstructionAlu instruction;
-	instruction.operand = *reinterpret_cast<const unsigned int*>(&operand);
-	instruction.rd = rd;
-	instruction.rn = rn;
-	instruction.setFlags = 0;
-	instruction.opcode = ALU_OPCODE_BIC;
-	instruction.immediate = 1;
-	instruction.condition = CONDITION_AL;
-	uint32 opcode = *reinterpret_cast<uint32*>(&instruction);
-	WriteWord(opcode);
+	GenericAlu(ALU_OPCODE_BIC, false, rd, rn, operand);
 }
 
 void CArmAssembler::Bx(REGISTER rn)
@@ -281,30 +254,12 @@ void CArmAssembler::Cmp(REGISTER rn, const ImmediateAluOperand& operand)
 
 void CArmAssembler::Eor(REGISTER rd, REGISTER rn, REGISTER rm)
 {
-	InstructionAlu instruction;
-	instruction.operand = rm;
-	instruction.rn = rn;
-	instruction.rd = rd;
-	instruction.setFlags = 0;
-	instruction.opcode = ALU_OPCODE_EOR;
-	instruction.immediate = 0;
-	instruction.condition = CONDITION_AL;
-	uint32 opcode = *reinterpret_cast<uint32*>(&instruction);
-	WriteWord(opcode);
+	GenericAlu(ALU_OPCODE_EOR, false, rd, rn, rm);
 }
 
 void CArmAssembler::Eor(REGISTER rd, REGISTER rn, const ImmediateAluOperand& operand)
 {
-	InstructionAlu instruction;
-	instruction.operand = *reinterpret_cast<const unsigned int*>(&operand);
-	instruction.rd = rd;
-	instruction.rn = rn;
-	instruction.setFlags = 0;
-	instruction.opcode = ALU_OPCODE_EOR;
-	instruction.immediate = 1;
-	instruction.condition = CONDITION_AL;
-	uint32 opcode = *reinterpret_cast<uint32*>(&instruction);
-	WriteWord(opcode);
+	GenericAlu(ALU_OPCODE_EOR, false, rd, rn, operand);
 }
 
 void CArmAssembler::Ldmia(REGISTER rbase, uint16 regList)
@@ -435,44 +390,17 @@ void CArmAssembler::Mvn(REGISTER rd, const ImmediateAluOperand& operand)
 
 void CArmAssembler::Or(REGISTER rd, REGISTER rn, REGISTER rm)
 {
-	InstructionAlu instruction;
-	instruction.operand = rm;
-	instruction.rn = rn;
-	instruction.rd = rd;
-	instruction.setFlags = 0;
-	instruction.opcode = ALU_OPCODE_ORR;
-	instruction.immediate = 0;
-	instruction.condition = CONDITION_AL;
-	uint32 opcode = *reinterpret_cast<uint32*>(&instruction);
-	WriteWord(opcode);
+	GenericAlu(ALU_OPCODE_ORR, false, rd, rn, rm);
 }
 
 void CArmAssembler::Or(REGISTER rd, REGISTER rn, const ImmediateAluOperand& operand)
 {
-	InstructionAlu instruction;
-	instruction.operand = *reinterpret_cast<const unsigned int*>(&operand);
-	instruction.rd = rd;
-	instruction.rn = rn;
-	instruction.setFlags = 0;
-	instruction.opcode = ALU_OPCODE_ORR;
-	instruction.immediate = 1;
-	instruction.condition = CONDITION_AL;
-	uint32 opcode = *reinterpret_cast<uint32*>(&instruction);
-	WriteWord(opcode);
+	GenericAlu(ALU_OPCODE_ORR, false, rd, rn, operand);
 }
 
 void CArmAssembler::Rsb(REGISTER rd, REGISTER rn, const ImmediateAluOperand& operand)
 {
-	InstructionAlu instruction;
-	instruction.operand = *reinterpret_cast<const unsigned int*>(&operand);
-	instruction.rd = rd;
-	instruction.rn = rn;
-	instruction.setFlags = 0;
-	instruction.opcode = ALU_OPCODE_RSB;
-	instruction.immediate = 1;
-	instruction.condition = CONDITION_AL;
-	uint32 opcode = *reinterpret_cast<uint32*>(&instruction);
-	WriteWord(opcode);
+	GenericAlu(ALU_OPCODE_RSB, false, rd, rn, operand);
 }
 
 void CArmAssembler::Sbc(REGISTER rd, REGISTER rn, REGISTER rm)

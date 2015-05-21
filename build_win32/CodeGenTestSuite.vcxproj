@@ -159,7 +159,6 @@
     <ClCompile Include="..\tests\Crc32Test.cpp" />
     <ClCompile Include="..\tests\FpIntMixTest.cpp" />
     <ClCompile Include="..\tests\FpuTest.cpp" />
-    <ClCompile Include="..\tests\HalfMultTest.cpp" />
     <ClCompile Include="..\tests\HugeJumpTest.cpp" />
     <ClCompile Include="..\tests\Logic64Test.cpp" />
     <ClCompile Include="..\tests\MdAddTest.cpp" />
@@ -198,7 +197,6 @@
     <ClInclude Include="..\tests\Crc32Test.h" />
     <ClInclude Include="..\tests\FpIntMixTest.h" />
     <ClInclude Include="..\tests\FpuTest.h" />
-    <ClInclude Include="..\tests\HalfMultTest.h" />
     <ClInclude Include="..\tests\HugeJumpTest.h" />
     <ClInclude Include="..\tests\Logic64Test.h" />
     <ClInclude Include="..\tests\MdAddTest.h" />

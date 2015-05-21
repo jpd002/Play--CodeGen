@@ -25,7 +25,6 @@
 #include "CompareTest.h"
 #include "RegAllocTest.h"
 #include "MemAccessTest.h"
-#include "HalfMultTest.h"
 #include "HugeJumpTest.h"
 #include "Alu64Test.h"
 #include "Cmp64Test.h"
@@ -69,7 +68,6 @@ static const TestFactoryFunction s_factories[] =
 	[] () { return new CNestedIfTest(); },
 #ifdef HAS_ADVANCED_OPS
 	[] () { return new CLzcTest(); },
-	[] () { return new CHalfMultTest(); },
 	[] () { return new CAliasTest(); },
 	[] () { return new CFpuTest(); },
 	[] () { return new CFpIntMixTest(); },

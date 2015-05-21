@@ -1421,8 +1421,6 @@ void CJitter::NormalizeStatements(BASIC_BLOCK& basicBlock)
 			case OP_XOR:
 			case OP_MUL:
 			case OP_MULS:
-			case OP_MULSHL:
-			case OP_MULSHH:
 			case OP_MD_AND:
 			case OP_MD_OR:
 			case OP_MD_XOR:

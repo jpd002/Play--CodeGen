@@ -542,33 +542,6 @@ namespace Jitter
 		void						Emit_CondJmp_RelRel(const STATEMENT&);
 		void						Emit_CondJmp_MemCst(const STATEMENT&);
 
-		//MULSH
-		void						Emit_MulSHL(const CX86Assembler::CAddress&, const CX86Assembler::CAddress&, const CX86Assembler::CAddress&);
-		void						Emit_MulSHH(const CX86Assembler::CAddress&, const CX86Assembler::CAddress&, const CX86Assembler::CAddress&);
-		
-		struct MULTSHOP_BASE
-		{
-			typedef void (CCodeGen_x86::*OpType)(const CX86Assembler::CAddress&, const CX86Assembler::CAddress&, const CX86Assembler::CAddress&);
-		};
-
-		struct MULTSHOP_LOW : public MULTSHOP_BASE
-		{
-			static OpType Op() { return &CCodeGen_x86::Emit_MulSHL; }
-		};
-
-		struct MULTSHOP_HIGH : public MULTSHOP_BASE
-		{
-			static OpType Op() { return &CCodeGen_x86::Emit_MulSHH; }
-		};
-
-		template <typename>	void	Emit_MulSH_RegRegReg(const STATEMENT&);
-		template <typename>	void	Emit_MulSH_RegRegMem(const STATEMENT&);
-		template <typename>	void	Emit_MulSH_RegMemMem(const STATEMENT&);
-		template <typename>	void	Emit_MulSH_MemRegMem(const STATEMENT&);
-		template <typename>	void	Emit_MulSH_MemRegReg(const STATEMENT&);
-		template <typename>	void	Emit_MulSH_MemMemReg(const STATEMENT&);
-		template <typename> void	Emit_MulSH_MemMemMem(const STATEMENT&);
-
 		//MERGETO64
 		void						Emit_MergeTo64_Mem64RegReg(const STATEMENT&);
 		void						Emit_MergeTo64_Mem64RegMem(const STATEMENT&);

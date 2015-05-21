@@ -31,9 +31,6 @@
     <ClCompile Include="..\tests\Crc32Test.cpp">
       <Filter>Source Files\Tests</Filter>
     </ClCompile>
-    <ClCompile Include="..\tests\HalfMultTest.cpp">
-      <Filter>Source Files\Tests</Filter>
-    </ClCompile>
     <ClCompile Include="..\tests\HugeJumpTest.cpp">
       <Filter>Source Files\Tests</Filter>
     </ClCompile>
@@ -142,9 +139,6 @@
       <Filter>Source Files\Tests</Filter>
     </ClInclude>
     <ClInclude Include="..\tests\Crc32Test.h">
-      <Filter>Source Files\Tests</Filter>
-    </ClInclude>
-    <ClInclude Include="..\tests\HalfMultTest.h">
       <Filter>Source Files\Tests</Filter>
     </ClInclude>
     <ClInclude Include="..\tests\HugeJumpTest.h">

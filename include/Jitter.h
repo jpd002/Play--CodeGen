@@ -79,8 +79,6 @@ namespace Jitter
 		void							Lzc();
 		void							Mult();
 		void							MultS();
-		void							MultSHL();
-		void							MultSHH();
 		void							Not();
 		void							Or();
 		void							SignExt();

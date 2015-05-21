@@ -360,34 +360,6 @@ void CJitter::MultS()
 	m_shadow.Push(tempSym);
 }
 
-void CJitter::MultSHL()
-{
-	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY, m_nextTemporary++);
-
-	STATEMENT statement;
-	statement.op	= OP_MULSHL;
-	statement.src2	= MakeSymbolRef(m_shadow.Pull());
-	statement.src1	= MakeSymbolRef(m_shadow.Pull());
-	statement.dst	= MakeSymbolRef(tempSym);
-	InsertStatement(statement);
-
-	m_shadow.Push(tempSym);
-}
-
-void CJitter::MultSHH()
-{
-	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY, m_nextTemporary++);
-
-	STATEMENT statement;
-	statement.op	= OP_MULSHH;
-	statement.src2	= MakeSymbolRef(m_shadow.Pull());
-	statement.src1	= MakeSymbolRef(m_shadow.Pull());
-	statement.dst	= MakeSymbolRef(tempSym);
-	InsertStatement(statement);
-
-	m_shadow.Push(tempSym);
-}
-
 void CJitter::Not()
 {
 	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY, m_nextTemporary++);

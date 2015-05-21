@@ -180,7 +180,6 @@ void CCodeGen_x86_32::Emit_Prolog(const StatementList& statements, unsigned int 
 
 	//Align stack
 	m_assembler.MovEd(CX86Assembler::rAX, CX86Assembler::MakeRegisterAddress(CX86Assembler::rSP));
-	m_assembler.SubId(CX86Assembler::MakeRegisterAddress(CX86Assembler::rSP), 0x10);
 	m_assembler.AndId(CX86Assembler::MakeRegisterAddress(CX86Assembler::rSP), ~0x0F);
 	m_assembler.SubId(CX86Assembler::MakeRegisterAddress(CX86Assembler::rSP), 0x0C);
 	m_assembler.Push(CX86Assembler::rAX);

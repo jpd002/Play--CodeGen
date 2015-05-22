@@ -278,6 +278,11 @@ namespace Jitter
 			typedef void (CArmAssembler::*OpRegType)(CArmAssembler::QUAD_REGISTER, CArmAssembler::QUAD_REGISTER, CArmAssembler::QUAD_REGISTER);
 		};
 
+		struct MDOP_ADDH : public MDOP_BASE3
+		{
+			static OpRegType OpReg() { return &CArmAssembler::Vadd_I16; }
+		};
+
 		struct MDOP_ADDW : public MDOP_BASE3
 		{
 			static OpRegType OpReg() { return &CArmAssembler::Vadd_I32; }

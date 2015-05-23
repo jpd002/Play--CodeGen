@@ -278,6 +278,11 @@ namespace Jitter
 			typedef void (CArmAssembler::*OpRegType)(CArmAssembler::QUAD_REGISTER, CArmAssembler::QUAD_REGISTER, CArmAssembler::QUAD_REGISTER);
 		};
 
+		struct MDOP_SHIFT
+		{
+			typedef void (CArmAssembler::*OpRegType)(CArmAssembler::QUAD_REGISTER, CArmAssembler::QUAD_REGISTER, uint8);
+		};
+
 		struct MDOP_ADDH : public MDOP_BASE3
 		{
 			static OpRegType OpReg() { return &CArmAssembler::Vadd_I16; }
@@ -351,6 +356,11 @@ namespace Jitter
 		struct MDOP_XOR : public MDOP_BASE3
 		{
 			static OpRegType OpReg() { return &CArmAssembler::Veor; }
+		};
+
+		struct MDOP_SRLW : public MDOP_SHIFT
+		{
+			static OpRegType OpReg() { return &CArmAssembler::Vshr_U32; }
 		};
 
 		struct MDOP_ADDS : public MDOP_BASE3
@@ -526,6 +536,7 @@ namespace Jitter
 		//MDOP
 		template <typename> void				Emit_Md_MemMem(const STATEMENT&);
 		template <typename> void				Emit_Md_MemMemMem(const STATEMENT&);
+		template <typename> void				Emit_Md_Shift_MemMemCst(const STATEMENT&);
 		void									Emit_Md_Mov_MemMem(const STATEMENT&);
 		void									Emit_Md_Not_MemMem(const STATEMENT&);
 		void									Emit_Md_DivS_MemMemMem(const STATEMENT&);

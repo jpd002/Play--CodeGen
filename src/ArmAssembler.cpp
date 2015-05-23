@@ -823,6 +823,15 @@ void CArmAssembler::Veor(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER qm)
 	WriteWord(opcode);
 }
 
+void CArmAssembler::Vshr_U32(QUAD_REGISTER qd, QUAD_REGISTER qm, uint8 shiftAmount)
+{
+	uint32 opcode = 0xF3800050;
+	opcode |= (0x40 - (shiftAmount & 0x1F)) << 16;
+	opcode |= FPSIMD_EncodeQd(qd);
+	opcode |= FPSIMD_EncodeQm(qm);
+	WriteWord(opcode);
+}
+
 void CArmAssembler::Vabs_F32(SINGLE_REGISTER sd, SINGLE_REGISTER sm)
 {
 	uint32 opcode = 0x0EB00AC0;

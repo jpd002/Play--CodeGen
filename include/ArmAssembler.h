@@ -249,6 +249,7 @@ public:
 	void									Vmov(DOUBLE_REGISTER, REGISTER, uint8);
 	void									Vmov(REGISTER, DOUBLE_REGISTER, uint8);
 	void									Vmovn_I16(DOUBLE_REGISTER, QUAD_REGISTER);
+	void									Vmovn_I32(DOUBLE_REGISTER, QUAD_REGISTER);
 	void									Vdup(QUAD_REGISTER, REGISTER);
 	void									Vzip_I8(DOUBLE_REGISTER, DOUBLE_REGISTER);
 	void									Vzip_I16(DOUBLE_REGISTER, DOUBLE_REGISTER);

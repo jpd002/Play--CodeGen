@@ -633,6 +633,14 @@ void CArmAssembler::Vmovn_I16(DOUBLE_REGISTER dd, QUAD_REGISTER qm)
 	WriteWord(opcode);
 }
 
+void CArmAssembler::Vmovn_I32(DOUBLE_REGISTER dd, QUAD_REGISTER qm)
+{
+	uint32 opcode = 0xF3B60200;
+	opcode |= FPSIMD_EncodeDd(dd);
+	opcode |= FPSIMD_EncodeQm(qm);
+	WriteWord(opcode);
+}
+
 void CArmAssembler::Vdup(QUAD_REGISTER qd, REGISTER rt)
 {
 	uint32 opcode = 0x0EA00B10;

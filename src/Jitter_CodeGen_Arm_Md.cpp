@@ -378,6 +378,30 @@ void CCodeGen_Arm::Emit_Md_PackHB_MemMemMem(const STATEMENT& statement)
 	m_assembler.Vst1_32x4(dstReg, dstAddrReg);
 }
 
+void CCodeGen_Arm::Emit_Md_PackWH_MemMemMem(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	auto dstAddrReg = CArmAssembler::r0;
+	auto src1AddrReg = CArmAssembler::r1;
+	auto src2AddrReg = CArmAssembler::r2;
+	auto dstReg = CArmAssembler::q0;
+	auto src1Reg = CArmAssembler::q1;
+	auto src2Reg = CArmAssembler::q2;
+
+	LoadMemory128AddressInRegister(dstAddrReg, dst);
+	LoadMemory128AddressInRegister(src1AddrReg, src1);
+	LoadMemory128AddressInRegister(src2AddrReg, src2);
+
+	m_assembler.Vld1_32x4(src1Reg, src1AddrReg);
+	m_assembler.Vld1_32x4(src2Reg, src2AddrReg);
+	m_assembler.Vmovn_I32(static_cast<CArmAssembler::DOUBLE_REGISTER>(dstReg + 1), src1Reg);
+	m_assembler.Vmovn_I32(static_cast<CArmAssembler::DOUBLE_REGISTER>(dstReg + 0), src2Reg);
+	m_assembler.Vst1_32x4(dstReg, dstAddrReg);
+}
+
 template <uint32 offset>
 void CCodeGen_Arm::Emit_Md_UnpackBH_MemMemMem(const STATEMENT& statement)
 {
@@ -532,6 +556,7 @@ CCodeGen_Arm::CONSTMATCHER CCodeGen_Arm::g_mdConstMatchers[] =
 	{ OP_MD_EXPAND,				MATCH_MEMORY128,			MATCH_CONSTANT,				MATCH_NIL,				&CCodeGen_Arm::Emit_Md_Expand_MemCst						},
 
 	{ OP_MD_PACK_HB,			MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_Arm::Emit_Md_PackHB_MemMemMem						},
+	{ OP_MD_PACK_WH,			MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_Arm::Emit_Md_PackWH_MemMemMem						},
 
 	{ OP_MD_UNPACK_LOWER_BH,	MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_Arm::Emit_Md_UnpackBH_MemMemMem<0>				},
 	{ OP_MD_UNPACK_LOWER_HW,	MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_Arm::Emit_Md_UnpackHW_MemMemMem<0>				},

@@ -553,6 +553,7 @@ namespace Jitter
 		void									Emit_Md_Expand_MemCst(const STATEMENT&);
 
 		void									Emit_Md_PackHB_MemMemMem(const STATEMENT&);
+		void									Emit_Md_PackWH_MemMemMem(const STATEMENT&);
 
 		template <uint32> void					Emit_Md_UnpackBH_MemMemMem(const STATEMENT&);
 		template <uint32> void					Emit_Md_UnpackHW_MemMemMem(const STATEMENT&);

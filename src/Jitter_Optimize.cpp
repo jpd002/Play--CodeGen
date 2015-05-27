@@ -264,14 +264,14 @@ SymbolPtr CJitter::MakeSymbol(BASIC_BLOCK* basicBlock, SYM_TYPE type, uint32 val
 	return currentSymbolTable.MakeSymbol(type, valueLo, valueHi);
 }
 
-int CJitter::GetSymbolSize(const SymbolRefPtr& symbolRef)
-{
-	return symbolRef->GetSymbol().get()->GetSize();
-}
-
 SymbolRefPtr CJitter::MakeSymbolRef(const SymbolPtr& symbol)
 {
 	return std::make_shared<CSymbolRef>(symbol);
+}
+
+int CJitter::GetSymbolSize(const SymbolRefPtr& symbolRef)
+{
+	return symbolRef->GetSymbol().get()->GetSize();
 }
 
 bool CJitter::FoldConstantOperation(STATEMENT& statement)

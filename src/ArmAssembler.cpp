@@ -125,7 +125,8 @@ void CArmAssembler::GenericAlu(ALU_OPCODE op, bool setFlags, REGISTER rd, REGIST
 	WriteWord(opcode);
 }
 
-void CArmAssembler::GenericAlu(ALU_OPCODE op, bool setFlags, REGISTER rd, REGISTER rn, const ImmediateAluOperand& operand)
+void CArmAssembler::GenericAlu(ALU_OPCODE op, bool setFlags, REGISTER rd, REGISTER rn, 
+	const ImmediateAluOperand& operand, CONDITION conditionCode)
 {
 	InstructionAlu instruction;
 	instruction.operand		= *reinterpret_cast<const unsigned int*>(&operand);
@@ -134,7 +135,7 @@ void CArmAssembler::GenericAlu(ALU_OPCODE op, bool setFlags, REGISTER rd, REGIST
 	instruction.setFlags	= setFlags ? 1 : 0;
 	instruction.opcode		= op;
 	instruction.immediate	= 1;
-	instruction.condition	= CONDITION_AL;
+	instruction.condition	= conditionCode;
 	uint32 opcode = *reinterpret_cast<uint32*>(&instruction);
 	WriteWord(opcode);
 }
@@ -396,6 +397,11 @@ void CArmAssembler::Or(REGISTER rd, REGISTER rn, REGISTER rm)
 void CArmAssembler::Or(REGISTER rd, REGISTER rn, const ImmediateAluOperand& operand)
 {
 	GenericAlu(ALU_OPCODE_ORR, false, rd, rn, operand);
+}
+
+void CArmAssembler::Or(CONDITION cc, REGISTER rd, REGISTER rn, const ImmediateAluOperand& operand)
+{
+	GenericAlu(ALU_OPCODE_ORR, false, rd, rn, operand, cc);
 }
 
 void CArmAssembler::Rsb(REGISTER rd, REGISTER rn, const ImmediateAluOperand& operand)

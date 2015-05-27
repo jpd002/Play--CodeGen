@@ -226,6 +226,7 @@ public:
 	void									Mvn(REGISTER, const ImmediateAluOperand&);	
 	void									Or(REGISTER, REGISTER, REGISTER);
 	void									Or(REGISTER, REGISTER, const ImmediateAluOperand&);
+	void									Or(CONDITION, REGISTER, REGISTER, const ImmediateAluOperand&);
 	void									Rsb(REGISTER, REGISTER, const ImmediateAluOperand&);
 	void									Sbc(REGISTER, REGISTER, REGISTER);
 	void									Smull(REGISTER, REGISTER, REGISTER, REGISTER);
@@ -310,7 +311,7 @@ private:
 	typedef std::multimap<LABEL, LABELREF> LabelReferenceMapType;
 	
 	void									GenericAlu(ALU_OPCODE, bool, REGISTER, REGISTER, REGISTER);
-	void									GenericAlu(ALU_OPCODE, bool, REGISTER, REGISTER, const ImmediateAluOperand&);
+	void									GenericAlu(ALU_OPCODE, bool, REGISTER, REGISTER, const ImmediateAluOperand&, CONDITION = CONDITION_AL);
 
 	void									CreateLabelReference(LABEL);
 	void									WriteWord(uint32);

@@ -467,7 +467,14 @@ bool CJitter::FoldConstantOperation(STATEMENT& statement)
 		{
 			uint32 result = src1cst->m_valueLow;
 			if(result & 0x80000000) result = ~result;
-			result = __builtin_clz(result);
+			if(result == 0)
+			{
+				result = 0x1F;
+			}
+			else
+			{
+				result = __builtin_clz(result) - 1;
+			}
 			statement.op = OP_MOV;
 			statement.src1 = MakeSymbolRef(MakeSymbol(SYM_CONSTANT, result));
 			statement.src2.reset();

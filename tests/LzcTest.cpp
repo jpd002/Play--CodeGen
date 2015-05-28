@@ -15,6 +15,8 @@ void CLzcTest::Run()
 	TEST_VERIFY(m_context.result0 == 18);
 	TEST_VERIFY(m_context.result1 == 31);
 	TEST_VERIFY(m_context.result2 == 7);
+	TEST_VERIFY(m_context.result3 == 31);		//Constant ~0
+	TEST_VERIFY(m_context.result4 == 30);		//Constant 1
 }
 
 void CLzcTest::Compile(Jitter::CJitter& jitter)
@@ -35,6 +37,14 @@ void CLzcTest::Compile(Jitter::CJitter& jitter)
 		jitter.PushRel(offsetof(CONTEXT, input2));
 		jitter.Lzc();
 		jitter.PullRel(offsetof(CONTEXT, result2));
+
+		jitter.PushCst(~0);
+		jitter.Lzc();
+		jitter.PullRel(offsetof(CONTEXT, result3));
+
+		jitter.PushCst(1);
+		jitter.Lzc();
+		jitter.PullRel(offsetof(CONTEXT, result4));
 	}
 	jitter.End();
 

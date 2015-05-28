@@ -1189,25 +1189,26 @@ void CJitter::CoalesceTemporaries(BASIC_BLOCK& basicBlock)
 	typedef std::vector<CSymbol*> EncounteredTempList;
 	EncounteredTempList encounteredTemps;
 
-	for(StatementList::iterator outerStatementIterator(basicBlock.statements.begin());
+	for(auto outerStatementIterator(basicBlock.statements.begin());
 		basicBlock.statements.end() != outerStatementIterator; outerStatementIterator++)
 	{
-		STATEMENT& outerStatement(*outerStatementIterator);
+		auto& outerStatement(*outerStatementIterator);
 
-		CSymbol* tempSymbol = dynamic_symbolref_cast(SYM_TEMPORARY, outerStatement.dst);
-		if(tempSymbol == NULL) continue;
+		if(!outerStatement.dst) continue;
+		if(!outerStatement.dst->GetSymbol()->IsTemporary()) continue;
 
-		CSymbol* candidate = NULL;
+		auto tempSymbol = outerStatement.dst->GetSymbol().get();
+		CSymbol* candidate = nullptr;
 
 		//Check for a possible replacement
-		for(EncounteredTempList::const_iterator tempIterator(encounteredTemps.begin());
-			tempIterator != encounteredTemps.end(); tempIterator++)
+		for(auto* encounteredTemp : encounteredTemps)
 		{
+			if(encounteredTemp->m_type != tempSymbol->m_type) continue;
+
 			//Look for any possible use of this symbol
-			CSymbol* encounteredTemp = *tempIterator;
 			bool used = false;
 
-			for(StatementList::iterator innerStatementIterator(outerStatementIterator);
+			for(auto innerStatementIterator(outerStatementIterator);
 				basicBlock.statements.end() != innerStatementIterator; innerStatementIterator++)
 			{
 				if(outerStatementIterator == innerStatementIterator) continue;
@@ -1216,7 +1217,7 @@ void CJitter::CoalesceTemporaries(BASIC_BLOCK& basicBlock)
 
 				if(innerStatement.dst)
 				{
-					SymbolPtr symbol(innerStatement.dst->GetSymbol());
+					auto symbol(innerStatement.dst->GetSymbol());
 					if(symbol->Equals(encounteredTemp))
 					{
 						used = true;
@@ -1225,7 +1226,7 @@ void CJitter::CoalesceTemporaries(BASIC_BLOCK& basicBlock)
 				}
 				if(innerStatement.src1)
 				{
-					SymbolPtr symbol(innerStatement.src1->GetSymbol());
+					auto symbol(innerStatement.src1->GetSymbol());
 					if(symbol->Equals(encounteredTemp))
 					{
 						used = true;
@@ -1234,7 +1235,7 @@ void CJitter::CoalesceTemporaries(BASIC_BLOCK& basicBlock)
 				}
 				if(innerStatement.src2)
 				{
-					SymbolPtr symbol(innerStatement.src2->GetSymbol());
+					auto symbol(innerStatement.src2->GetSymbol());
 					if(symbol->Equals(encounteredTemp))
 					{
 						used = true;
@@ -1250,27 +1251,27 @@ void CJitter::CoalesceTemporaries(BASIC_BLOCK& basicBlock)
 			}
 		}
 
-		if(candidate == NULL)
+		if(candidate == nullptr)
 		{
 			encounteredTemps.push_back(tempSymbol);
 		}
 		else
 		{
-			SymbolPtr candidatePtr = MakeSymbol(candidate->m_type, candidate->m_valueLow);
+			auto candidatePtr = MakeSymbol(candidate->m_type, candidate->m_valueLow);
 
 			outerStatement.dst = MakeSymbolRef(candidatePtr);
 
 			//Replace all occurences of this temp with the candidate
-			for(StatementList::iterator innerStatementIterator(outerStatementIterator);
+			for(auto innerStatementIterator(outerStatementIterator);
 				basicBlock.statements.end() != innerStatementIterator; innerStatementIterator++)
 			{
 				if(outerStatementIterator == innerStatementIterator) continue;
 
-				STATEMENT& innerStatement(*innerStatementIterator);
+				auto& innerStatement(*innerStatementIterator);
 
 				if(innerStatement.dst)
 				{
-					SymbolPtr symbol(innerStatement.dst->GetSymbol());
+					auto symbol(innerStatement.dst->GetSymbol());
 					if(symbol->Equals(tempSymbol))
 					{
 						innerStatement.dst = MakeSymbolRef(candidatePtr);
@@ -1278,7 +1279,7 @@ void CJitter::CoalesceTemporaries(BASIC_BLOCK& basicBlock)
 				}
 				if(innerStatement.src1)
 				{
-					SymbolPtr symbol(innerStatement.src1->GetSymbol());
+					auto symbol(innerStatement.src1->GetSymbol());
 					if(symbol->Equals(tempSymbol))
 					{
 						innerStatement.src1 = MakeSymbolRef(candidatePtr);
@@ -1286,7 +1287,7 @@ void CJitter::CoalesceTemporaries(BASIC_BLOCK& basicBlock)
 				}
 				if(innerStatement.src2)
 				{
-					SymbolPtr symbol(innerStatement.src2->GetSymbol());
+					auto symbol(innerStatement.src2->GetSymbol());
 					if(symbol->Equals(tempSymbol))
 					{
 						innerStatement.src2 = MakeSymbolRef(candidatePtr);

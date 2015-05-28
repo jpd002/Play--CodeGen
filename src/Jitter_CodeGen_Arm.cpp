@@ -1250,12 +1250,16 @@ void CCodeGen_Arm::Emit_RelToRef_TmpCst(const STATEMENT& statement)
 	uint8 immediate = 0;
 	uint8 shiftAmount = 0;
 
-	if(!TryGetAluImmediateParams(src1->m_valueLow, immediate, shiftAmount))
+	if(TryGetAluImmediateParams(src1->m_valueLow, immediate, shiftAmount))
 	{
-		assert(false);
+		m_assembler.Add(tmpReg, g_baseRegister, CArmAssembler::MakeImmediateAluOperand(immediate, shiftAmount));
+	}
+	else
+	{
+		LoadConstantInRegister(tmpReg, src1->m_valueLow);
+		m_assembler.Add(tmpReg, tmpReg, g_baseRegister);
 	}
 
-	m_assembler.Add(tmpReg, g_baseRegister, CArmAssembler::MakeImmediateAluOperand(immediate, shiftAmount));
 	StoreRegisterInTemporaryReference(dst, tmpReg);
 }
 

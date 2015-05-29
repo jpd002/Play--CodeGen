@@ -573,8 +573,13 @@ CCodeGen_Arm::CONSTMATCHER CCodeGen_Arm::g_mdConstMatchers[] =
 
 	{ OP_MD_NOT,				MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_NIL,				&CCodeGen_Arm::Emit_Md_Not_MemMem							},
 
+	{ OP_MD_SLLH,				MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_CONSTANT,			&CCodeGen_Arm::Emit_Md_Shift_MemMemCst<MDOP_SLLH>			},
 	{ OP_MD_SLLW,				MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_CONSTANT,			&CCodeGen_Arm::Emit_Md_Shift_MemMemCst<MDOP_SLLW>			},
+
+	{ OP_MD_SRLH,				MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_CONSTANT,			&CCodeGen_Arm::Emit_Md_Shift_MemMemCst<MDOP_SRLH>			},
 	{ OP_MD_SRLW,				MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_CONSTANT,			&CCodeGen_Arm::Emit_Md_Shift_MemMemCst<MDOP_SRLW>			},
+
+	{ OP_MD_SRAH,				MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_CONSTANT,			&CCodeGen_Arm::Emit_Md_Shift_MemMemCst<MDOP_SRAH>			},
 	{ OP_MD_SRAW,				MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_CONSTANT,			&CCodeGen_Arm::Emit_Md_Shift_MemMemCst<MDOP_SRAW>			},
 
 	{ OP_MD_SRL256,				MATCH_VARIABLE128,			MATCH_MEMORY256,			MATCH_VARIABLE,			&CCodeGen_Arm::Emit_Md_Srl256_MemMemVar						},

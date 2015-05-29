@@ -272,8 +272,11 @@ public:
 	void									Vorn(QUAD_REGISTER, QUAD_REGISTER, QUAD_REGISTER);
 	void									Vorr(QUAD_REGISTER, QUAD_REGISTER, QUAD_REGISTER);
 	void									Veor(QUAD_REGISTER, QUAD_REGISTER, QUAD_REGISTER);
+	void									Vshl_I16(QUAD_REGISTER, QUAD_REGISTER, uint8);
 	void									Vshl_I32(QUAD_REGISTER, QUAD_REGISTER, uint8);
+	void									Vshr_U16(QUAD_REGISTER, QUAD_REGISTER, uint8);
 	void									Vshr_U32(QUAD_REGISTER, QUAD_REGISTER, uint8);
+	void									Vshr_I16(QUAD_REGISTER, QUAD_REGISTER, uint8);
 	void									Vshr_I32(QUAD_REGISTER, QUAD_REGISTER, uint8);
 	void									Vabs_F32(SINGLE_REGISTER, SINGLE_REGISTER);
 	void									Vabs_F32(QUAD_REGISTER, QUAD_REGISTER);

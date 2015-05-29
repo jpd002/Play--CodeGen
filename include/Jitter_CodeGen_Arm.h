@@ -358,6 +358,21 @@ namespace Jitter
 			static OpRegType OpReg() { return &CArmAssembler::Veor; }
 		};
 
+		struct MDOP_SLLH : public MDOP_SHIFT
+		{
+			static OpRegType OpReg() { return &CArmAssembler::Vshl_I16; }
+		};
+
+		struct MDOP_SRLH : public MDOP_SHIFT
+		{
+			static OpRegType OpReg() { return &CArmAssembler::Vshr_U16; }
+		};
+
+		struct MDOP_SRAH : public MDOP_SHIFT
+		{
+			static OpRegType OpReg() { return &CArmAssembler::Vshr_I16; }
+		};
+
 		struct MDOP_SLLW : public MDOP_SHIFT
 		{
 			static OpRegType OpReg() { return &CArmAssembler::Vshl_I32; }

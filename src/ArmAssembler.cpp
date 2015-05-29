@@ -837,6 +837,15 @@ void CArmAssembler::Veor(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER qm)
 	WriteWord(opcode);
 }
 
+void CArmAssembler::Vshl_I16(QUAD_REGISTER qd, QUAD_REGISTER qm, uint8 shiftAmount)
+{
+	uint32 opcode = 0xF2800550;
+	opcode |= (0x10 + (shiftAmount & 0xF)) << 16;
+	opcode |= FPSIMD_EncodeQd(qd);
+	opcode |= FPSIMD_EncodeQm(qm);
+	WriteWord(opcode);
+}
+
 void CArmAssembler::Vshl_I32(QUAD_REGISTER qd, QUAD_REGISTER qm, uint8 shiftAmount)
 {
 	uint32 opcode = 0xF2800550;
@@ -846,10 +855,28 @@ void CArmAssembler::Vshl_I32(QUAD_REGISTER qd, QUAD_REGISTER qm, uint8 shiftAmou
 	WriteWord(opcode);
 }
 
+void CArmAssembler::Vshr_U16(QUAD_REGISTER qd, QUAD_REGISTER qm, uint8 shiftAmount)
+{
+	uint32 opcode = 0xF3800050;
+	opcode |= (0x20 - (shiftAmount & 0xF)) << 16;
+	opcode |= FPSIMD_EncodeQd(qd);
+	opcode |= FPSIMD_EncodeQm(qm);
+	WriteWord(opcode);
+}
+
 void CArmAssembler::Vshr_U32(QUAD_REGISTER qd, QUAD_REGISTER qm, uint8 shiftAmount)
 {
 	uint32 opcode = 0xF3800050;
 	opcode |= (0x40 - (shiftAmount & 0x1F)) << 16;
+	opcode |= FPSIMD_EncodeQd(qd);
+	opcode |= FPSIMD_EncodeQm(qm);
+	WriteWord(opcode);
+}
+
+void CArmAssembler::Vshr_I16(QUAD_REGISTER qd, QUAD_REGISTER qm, uint8 shiftAmount)
+{
+	uint32 opcode = 0xF2800050;
+	opcode |= (0x20 - (shiftAmount & 0xF)) << 16;
 	opcode |= FPSIMD_EncodeQd(qd);
 	opcode |= FPSIMD_EncodeQm(qm);
 	WriteWord(opcode);

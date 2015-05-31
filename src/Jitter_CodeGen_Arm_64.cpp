@@ -53,7 +53,11 @@ void CCodeGen_Arm::LoadMemory64HighInRegister(CArmAssembler::REGISTER registerId
 
 void CCodeGen_Arm::LoadMemory64InRegisters(CArmAssembler::REGISTER regLo, CArmAssembler::REGISTER regHi, CSymbol* symbol)
 {
-	if(regHi == (regLo + 1) && GetMemory64Offset(symbol) < 0x100)
+	if(
+		((regLo & 1) == 0) && 
+		(regHi == (regLo + 1)) && 
+		(GetMemory64Offset(symbol) < 0x100)
+		)
 	{
 		switch(symbol->m_type)
 		{
@@ -74,7 +78,11 @@ void CCodeGen_Arm::LoadMemory64InRegisters(CArmAssembler::REGISTER regLo, CArmAs
 
 void CCodeGen_Arm::StoreRegistersInMemory64(CSymbol* symbol, CArmAssembler::REGISTER regLo, CArmAssembler::REGISTER regHi)
 {
-	if(regHi == (regLo + 1) && GetMemory64Offset(symbol) < 0x100)
+	if(
+		((regLo & 1) == 0) && 
+		(regHi == (regLo + 1)) && 
+		(GetMemory64Offset(symbol) < 0x100)
+		)
 	{
 		switch(symbol->m_type)
 		{

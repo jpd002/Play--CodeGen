@@ -2,6 +2,23 @@
 
 using namespace Jitter;
 
+uint32 CCodeGen_Arm::GetMemory64Offset(CSymbol* symbol) const
+{
+	switch(symbol->m_type)
+	{
+	case SYM_RELATIVE64:
+		return symbol->m_valueLow;
+		break;
+	case SYM_TEMPORARY64:
+		return symbol->m_stackLocation + m_stackLevel;
+		break;
+	default:
+		assert(false);
+		return 0;
+		break;
+	}
+}
+
 void CCodeGen_Arm::LoadMemory64LowInRegister(CArmAssembler::REGISTER registerId, CSymbol* symbol)
 {
 	switch(symbol->m_type)
@@ -36,16 +53,44 @@ void CCodeGen_Arm::LoadMemory64HighInRegister(CArmAssembler::REGISTER registerId
 
 void CCodeGen_Arm::LoadMemory64InRegisters(CArmAssembler::REGISTER regLo, CArmAssembler::REGISTER regHi, CSymbol* symbol)
 {
-	//Could probably be replaced by LDM
-	LoadMemory64LowInRegister(regLo, symbol);
-	LoadMemory64HighInRegister(regHi, symbol);
+	if(regHi == (regLo + 1) && GetMemory64Offset(symbol) < 0x100)
+	{
+		switch(symbol->m_type)
+		{
+		case SYM_RELATIVE64:
+			m_assembler.Ldrd(regLo, g_baseRegister, CArmAssembler::MakeImmediateLdrAddress(symbol->m_valueLow));
+			break;
+		case SYM_TEMPORARY64:
+			m_assembler.Ldrd(regLo, CArmAssembler::rSP, CArmAssembler::MakeImmediateLdrAddress(symbol->m_stackLocation + m_stackLevel));
+			break;
+		}
+	}
+	else
+	{
+		LoadMemory64LowInRegister(regLo, symbol);
+		LoadMemory64HighInRegister(regHi, symbol);
+	}
 }
 
 void CCodeGen_Arm::StoreRegistersInMemory64(CSymbol* symbol, CArmAssembler::REGISTER regLo, CArmAssembler::REGISTER regHi)
 {
-	//Could probably be replaced by STM
-	StoreRegisterInMemory64Low(symbol, regLo);
-	StoreRegisterInMemory64High(symbol, regHi);
+	if(regHi == (regLo + 1) && GetMemory64Offset(symbol) < 0x100)
+	{
+		switch(symbol->m_type)
+		{
+		case SYM_RELATIVE64:
+			m_assembler.Strd(regLo, g_baseRegister, CArmAssembler::MakeImmediateLdrAddress(symbol->m_valueLow));
+			break;
+		case SYM_TEMPORARY64:
+			m_assembler.Strd(regLo, CArmAssembler::rSP, CArmAssembler::MakeImmediateLdrAddress(symbol->m_stackLocation + m_stackLevel));
+			break;
+		}
+	}
+	else
+	{
+		StoreRegisterInMemory64Low(symbol, regLo);
+		StoreRegisterInMemory64High(symbol, regHi);
+	}
 }
 
 void CCodeGen_Arm::StoreRegisterInMemory64Low(CSymbol* symbol, CArmAssembler::REGISTER registerId)

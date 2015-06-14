@@ -94,6 +94,8 @@ namespace Jitter
 		void									LoadTemporaryReferenceInRegister(CArmAssembler::REGISTER, CSymbol*);
 		void									StoreRegisterInTemporaryReference(CSymbol*, CArmAssembler::REGISTER);
 		
+		uint32									GetMemory64Offset(CSymbol*) const;
+
 		void									LoadMemory64LowInRegister(CArmAssembler::REGISTER, CSymbol*);
 		void									LoadMemory64HighInRegister(CArmAssembler::REGISTER, CSymbol*);
 		void									LoadMemory64InRegisters(CArmAssembler::REGISTER, CArmAssembler::REGISTER, CSymbol*);
@@ -111,9 +113,9 @@ namespace Jitter
 		void									LoadTemporaryFpSingleInRegister(CTempRegisterContext&, CArmAssembler::SINGLE_REGISTER, CSymbol*);
 		void									StoreTemporaryFpSingleInRegister(CTempRegisterContext&, CSymbol*, CArmAssembler::SINGLE_REGISTER);
 
-		void									LoadMemory128AddressInRegister(CArmAssembler::REGISTER, CSymbol*);
-		void									LoadRelative128AddressInRegister(CArmAssembler::REGISTER, CSymbol*);
-		void									LoadTemporary128AddressInRegister(CArmAssembler::REGISTER, CSymbol*);
+		void									LoadMemory128AddressInRegister(CArmAssembler::REGISTER, CSymbol*, uint32 = 0);
+		void									LoadRelative128AddressInRegister(CArmAssembler::REGISTER, CSymbol*, uint32);
+		void									LoadTemporary128AddressInRegister(CArmAssembler::REGISTER, CSymbol*, uint32);
 
 		void									LoadTemporary256ElementAddressInRegister(CArmAssembler::REGISTER, CSymbol*, uint32);
 
@@ -278,6 +280,21 @@ namespace Jitter
 			typedef void (CArmAssembler::*OpRegType)(CArmAssembler::QUAD_REGISTER, CArmAssembler::QUAD_REGISTER, CArmAssembler::QUAD_REGISTER);
 		};
 
+		struct MDOP_SHIFT
+		{
+			typedef void (CArmAssembler::*OpRegType)(CArmAssembler::QUAD_REGISTER, CArmAssembler::QUAD_REGISTER, uint8);
+		};
+
+		struct MDOP_ADDB : public MDOP_BASE3
+		{
+			static OpRegType OpReg() { return &CArmAssembler::Vadd_I8; }
+		};
+
+		struct MDOP_ADDH : public MDOP_BASE3
+		{
+			static OpRegType OpReg() { return &CArmAssembler::Vadd_I16; }
+		};
+
 		struct MDOP_ADDW : public MDOP_BASE3
 		{
 			static OpRegType OpReg() { return &CArmAssembler::Vadd_I32; }
@@ -346,6 +363,36 @@ namespace Jitter
 		struct MDOP_XOR : public MDOP_BASE3
 		{
 			static OpRegType OpReg() { return &CArmAssembler::Veor; }
+		};
+
+		struct MDOP_SLLH : public MDOP_SHIFT
+		{
+			static OpRegType OpReg() { return &CArmAssembler::Vshl_I16; }
+		};
+
+		struct MDOP_SRLH : public MDOP_SHIFT
+		{
+			static OpRegType OpReg() { return &CArmAssembler::Vshr_U16; }
+		};
+
+		struct MDOP_SRAH : public MDOP_SHIFT
+		{
+			static OpRegType OpReg() { return &CArmAssembler::Vshr_I16; }
+		};
+
+		struct MDOP_SLLW : public MDOP_SHIFT
+		{
+			static OpRegType OpReg() { return &CArmAssembler::Vshl_I32; }
+		};
+
+		struct MDOP_SRLW : public MDOP_SHIFT
+		{
+			static OpRegType OpReg() { return &CArmAssembler::Vshr_U32; }
+		};
+
+		struct MDOP_SRAW : public MDOP_SHIFT
+		{
+			static OpRegType OpReg() { return &CArmAssembler::Vshr_I32; }
 		};
 
 		struct MDOP_ADDS : public MDOP_BASE3
@@ -521,8 +568,13 @@ namespace Jitter
 		//MDOP
 		template <typename> void				Emit_Md_MemMem(const STATEMENT&);
 		template <typename> void				Emit_Md_MemMemMem(const STATEMENT&);
+		template <typename> void				Emit_Md_Shift_MemMemCst(const STATEMENT&);
+		template <uint32> void					Emit_Md_Test_VarMem(const STATEMENT&);
+
 		void									Emit_Md_Mov_MemMem(const STATEMENT&);
 		void									Emit_Md_Not_MemMem(const STATEMENT&);
+		void									Emit_Md_DivS_MemMemMem(const STATEMENT&);
+
 		void									Emit_Md_Srl256_MemMemVar(const STATEMENT&);
 		void									Emit_Md_Srl256_MemMemCst(const STATEMENT&);
 
@@ -535,6 +587,11 @@ namespace Jitter
 		void									Emit_Md_Expand_MemCst(const STATEMENT&);
 
 		void									Emit_Md_PackHB_MemMemMem(const STATEMENT&);
+		void									Emit_Md_PackWH_MemMemMem(const STATEMENT&);
+
+		template <uint32> void					Emit_Md_UnpackBH_MemMemMem(const STATEMENT&);
+		template <uint32> void					Emit_Md_UnpackHW_MemMemMem(const STATEMENT&);
+		template <uint32> void					Emit_Md_UnpackWD_MemMemMem(const STATEMENT&);
 
 		void									Emit_MergeTo256_MemMemMem(const STATEMENT&);
 

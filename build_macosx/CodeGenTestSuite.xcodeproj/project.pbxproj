@@ -30,7 +30,6 @@
 		7E207C401507D5F200EE8C4F /* Crc32Test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E207C1A1507D5F200EE8C4F /* Crc32Test.cpp */; };
 		7E207C411507D5F200EE8C4F /* FpIntMixTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E207C1C1507D5F200EE8C4F /* FpIntMixTest.cpp */; };
 		7E207C421507D5F200EE8C4F /* FpuTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E207C1E1507D5F200EE8C4F /* FpuTest.cpp */; };
-		7E207C431507D5F200EE8C4F /* HalfMultTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E207C201507D5F200EE8C4F /* HalfMultTest.cpp */; };
 		7E207C441507D5F200EE8C4F /* HugeJumpTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E207C221507D5F200EE8C4F /* HugeJumpTest.cpp */; };
 		7E207C451507D5F200EE8C4F /* Main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E207C241507D5F200EE8C4F /* Main.cpp */; };
 		7E207C461507D5F200EE8C4F /* MdCallTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E207C251507D5F200EE8C4F /* MdCallTest.cpp */; };
@@ -143,8 +142,6 @@
 		7E207C1D1507D5F200EE8C4F /* FpIntMixTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FpIntMixTest.h; path = ../tests/FpIntMixTest.h; sourceTree = "<group>"; };
 		7E207C1E1507D5F200EE8C4F /* FpuTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = FpuTest.cpp; path = ../tests/FpuTest.cpp; sourceTree = "<group>"; };
 		7E207C1F1507D5F200EE8C4F /* FpuTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FpuTest.h; path = ../tests/FpuTest.h; sourceTree = "<group>"; };
-		7E207C201507D5F200EE8C4F /* HalfMultTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = HalfMultTest.cpp; path = ../tests/HalfMultTest.cpp; sourceTree = "<group>"; };
-		7E207C211507D5F200EE8C4F /* HalfMultTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HalfMultTest.h; path = ../tests/HalfMultTest.h; sourceTree = "<group>"; };
 		7E207C221507D5F200EE8C4F /* HugeJumpTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = HugeJumpTest.cpp; path = ../tests/HugeJumpTest.cpp; sourceTree = "<group>"; };
 		7E207C231507D5F200EE8C4F /* HugeJumpTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HugeJumpTest.h; path = ../tests/HugeJumpTest.h; sourceTree = "<group>"; };
 		7E207C241507D5F200EE8C4F /* Main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Main.cpp; path = ../tests/Main.cpp; sourceTree = "<group>"; };
@@ -254,8 +251,6 @@
 				7E207C1D1507D5F200EE8C4F /* FpIntMixTest.h */,
 				7E207C1E1507D5F200EE8C4F /* FpuTest.cpp */,
 				7E207C1F1507D5F200EE8C4F /* FpuTest.h */,
-				7E207C201507D5F200EE8C4F /* HalfMultTest.cpp */,
-				7E207C211507D5F200EE8C4F /* HalfMultTest.h */,
 				7E207C221507D5F200EE8C4F /* HugeJumpTest.cpp */,
 				7E207C231507D5F200EE8C4F /* HugeJumpTest.h */,
 				70320D041A998C2A001E9C4B /* Logic64Test.cpp */,
@@ -412,7 +407,6 @@
 				70BFC5071A5530EF0094CD9F /* MdMemAccessTest.cpp in Sources */,
 				70BFC5091A5530EF0094CD9F /* MdUnpackTest.cpp in Sources */,
 				7E207C421507D5F200EE8C4F /* FpuTest.cpp in Sources */,
-				7E207C431507D5F200EE8C4F /* HalfMultTest.cpp in Sources */,
 				7E207C441507D5F200EE8C4F /* HugeJumpTest.cpp in Sources */,
 				70C01F381AC8D8F1004DA1B2 /* MdLogicTest.cpp in Sources */,
 				70BFC5081A5530EF0094CD9F /* MdSubTest.cpp in Sources */,

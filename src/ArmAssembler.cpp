@@ -125,7 +125,8 @@ void CArmAssembler::GenericAlu(ALU_OPCODE op, bool setFlags, REGISTER rd, REGIST
 	WriteWord(opcode);
 }
 
-void CArmAssembler::GenericAlu(ALU_OPCODE op, bool setFlags, REGISTER rd, REGISTER rn, const ImmediateAluOperand& operand)
+void CArmAssembler::GenericAlu(ALU_OPCODE op, bool setFlags, REGISTER rd, REGISTER rn, 
+	const ImmediateAluOperand& operand, CONDITION conditionCode)
 {
 	InstructionAlu instruction;
 	instruction.operand		= *reinterpret_cast<const unsigned int*>(&operand);
@@ -134,7 +135,7 @@ void CArmAssembler::GenericAlu(ALU_OPCODE op, bool setFlags, REGISTER rd, REGIST
 	instruction.setFlags	= setFlags ? 1 : 0;
 	instruction.opcode		= op;
 	instruction.immediate	= 1;
-	instruction.condition	= CONDITION_AL;
+	instruction.condition	= conditionCode;
 	uint32 opcode = *reinterpret_cast<uint32*>(&instruction);
 	WriteWord(opcode);
 }
@@ -167,30 +168,12 @@ void CArmAssembler::Adds(REGISTER rd, REGISTER rn, REGISTER rm)
 
 void CArmAssembler::And(REGISTER rd, REGISTER rn, REGISTER rm)
 {
-	InstructionAlu instruction;
-	instruction.operand = rm;
-	instruction.rn = rn;
-	instruction.rd = rd;
-	instruction.setFlags = 0;
-	instruction.opcode = ALU_OPCODE_AND;
-	instruction.immediate = 0;
-	instruction.condition = CONDITION_AL;
-	uint32 opcode = *reinterpret_cast<uint32*>(&instruction);
-	WriteWord(opcode);
+	GenericAlu(ALU_OPCODE_AND, false, rd, rn, rm);
 }
 
 void CArmAssembler::And(REGISTER rd, REGISTER rn, const ImmediateAluOperand& operand)
 {
-	InstructionAlu instruction;
-	instruction.operand = *reinterpret_cast<const unsigned int*>(&operand);
-	instruction.rd = rd;
-	instruction.rn = rn;
-	instruction.setFlags = 0;
-	instruction.opcode = ALU_OPCODE_AND;
-	instruction.immediate = 1;
-	instruction.condition = CONDITION_AL;
-	uint32 opcode = *reinterpret_cast<uint32*>(&instruction);
-	WriteWord(opcode);
+	GenericAlu(ALU_OPCODE_AND, false, rd, rn, operand);
 }
 
 void CArmAssembler::BCc(CONDITION condition, LABEL label)
@@ -202,16 +185,7 @@ void CArmAssembler::BCc(CONDITION condition, LABEL label)
 
 void CArmAssembler::Bic(REGISTER rd, REGISTER rn, const ImmediateAluOperand& operand)
 {
-	InstructionAlu instruction;
-	instruction.operand = *reinterpret_cast<const unsigned int*>(&operand);
-	instruction.rd = rd;
-	instruction.rn = rn;
-	instruction.setFlags = 0;
-	instruction.opcode = ALU_OPCODE_BIC;
-	instruction.immediate = 1;
-	instruction.condition = CONDITION_AL;
-	uint32 opcode = *reinterpret_cast<uint32*>(&instruction);
-	WriteWord(opcode);
+	GenericAlu(ALU_OPCODE_BIC, false, rd, rn, operand);
 }
 
 void CArmAssembler::Bx(REGISTER rn)
@@ -281,30 +255,12 @@ void CArmAssembler::Cmp(REGISTER rn, const ImmediateAluOperand& operand)
 
 void CArmAssembler::Eor(REGISTER rd, REGISTER rn, REGISTER rm)
 {
-	InstructionAlu instruction;
-	instruction.operand = rm;
-	instruction.rn = rn;
-	instruction.rd = rd;
-	instruction.setFlags = 0;
-	instruction.opcode = ALU_OPCODE_EOR;
-	instruction.immediate = 0;
-	instruction.condition = CONDITION_AL;
-	uint32 opcode = *reinterpret_cast<uint32*>(&instruction);
-	WriteWord(opcode);
+	GenericAlu(ALU_OPCODE_EOR, false, rd, rn, rm);
 }
 
 void CArmAssembler::Eor(REGISTER rd, REGISTER rn, const ImmediateAluOperand& operand)
 {
-	InstructionAlu instruction;
-	instruction.operand = *reinterpret_cast<const unsigned int*>(&operand);
-	instruction.rd = rd;
-	instruction.rn = rn;
-	instruction.setFlags = 0;
-	instruction.opcode = ALU_OPCODE_EOR;
-	instruction.immediate = 1;
-	instruction.condition = CONDITION_AL;
-	uint32 opcode = *reinterpret_cast<uint32*>(&instruction);
-	WriteWord(opcode);
+	GenericAlu(ALU_OPCODE_EOR, false, rd, rn, operand);
 }
 
 void CArmAssembler::Ldmia(REGISTER rbase, uint16 regList)
@@ -324,6 +280,20 @@ void CArmAssembler::Ldr(REGISTER rd, REGISTER rbase, const LdrAddress& address)
 	assert(address.isImmediate);
 	assert(!address.isNegative);
 	opcode = (CONDITION_AL << 28) | (1 << 26) | (1 << 24) | (1 << 23) | (1 << 20) | (static_cast<uint32>(rbase) << 16) | (static_cast<uint32>(rd) << 12) | (static_cast<uint32>(address.immediate));
+	WriteWord(opcode);
+}
+
+void CArmAssembler::Ldrd(REGISTER rt, REGISTER rn, const LdrAddress& address)
+{
+	assert(address.isImmediate);
+	assert(!address.isNegative);
+	assert(address.immediate < 0x100);
+	uint32 opcode = 0x01C000D0;
+	opcode |= (CONDITION_AL << 28);
+	opcode |= (rn << 16);
+	opcode |= (rt << 12);
+	opcode |= (address.immediate >> 4) << 8;
+	opcode |= (address.immediate & 0xF);
 	WriteWord(opcode);
 }
 
@@ -421,44 +391,22 @@ void CArmAssembler::Mvn(REGISTER rd, const ImmediateAluOperand& operand)
 
 void CArmAssembler::Or(REGISTER rd, REGISTER rn, REGISTER rm)
 {
-	InstructionAlu instruction;
-	instruction.operand = rm;
-	instruction.rn = rn;
-	instruction.rd = rd;
-	instruction.setFlags = 0;
-	instruction.opcode = ALU_OPCODE_ORR;
-	instruction.immediate = 0;
-	instruction.condition = CONDITION_AL;
-	uint32 opcode = *reinterpret_cast<uint32*>(&instruction);
-	WriteWord(opcode);
+	GenericAlu(ALU_OPCODE_ORR, false, rd, rn, rm);
 }
 
 void CArmAssembler::Or(REGISTER rd, REGISTER rn, const ImmediateAluOperand& operand)
 {
-	InstructionAlu instruction;
-	instruction.operand = *reinterpret_cast<const unsigned int*>(&operand);
-	instruction.rd = rd;
-	instruction.rn = rn;
-	instruction.setFlags = 0;
-	instruction.opcode = ALU_OPCODE_ORR;
-	instruction.immediate = 1;
-	instruction.condition = CONDITION_AL;
-	uint32 opcode = *reinterpret_cast<uint32*>(&instruction);
-	WriteWord(opcode);
+	GenericAlu(ALU_OPCODE_ORR, false, rd, rn, operand);
+}
+
+void CArmAssembler::Or(CONDITION cc, REGISTER rd, REGISTER rn, const ImmediateAluOperand& operand)
+{
+	GenericAlu(ALU_OPCODE_ORR, false, rd, rn, operand, cc);
 }
 
 void CArmAssembler::Rsb(REGISTER rd, REGISTER rn, const ImmediateAluOperand& operand)
 {
-	InstructionAlu instruction;
-	instruction.operand = *reinterpret_cast<const unsigned int*>(&operand);
-	instruction.rd = rd;
-	instruction.rn = rn;
-	instruction.setFlags = 0;
-	instruction.opcode = ALU_OPCODE_RSB;
-	instruction.immediate = 1;
-	instruction.condition = CONDITION_AL;
-	uint32 opcode = *reinterpret_cast<uint32*>(&instruction);
-	WriteWord(opcode);
+	GenericAlu(ALU_OPCODE_RSB, false, rd, rn, operand);
 }
 
 void CArmAssembler::Sbc(REGISTER rd, REGISTER rn, REGISTER rm)
@@ -492,6 +440,20 @@ void CArmAssembler::Str(REGISTER rd, REGISTER rbase, const LdrAddress& address)
 	opcode |= static_cast<uint32>(rbase) << 16;
 	opcode |= static_cast<uint32>(rd) << 12;
 	opcode |= static_cast<uint32>(address.immediate);
+	WriteWord(opcode);
+}
+
+void CArmAssembler::Strd(REGISTER rt, REGISTER rn, const LdrAddress& address)
+{
+	assert(address.isImmediate);
+	assert(!address.isNegative);
+	assert(address.immediate < 0x100);
+	uint32 opcode = 0x01C000F0;
+	opcode |= (CONDITION_AL << 28);
+	opcode |= (rn << 16);
+	opcode |= (rt << 12);
+	opcode |= (address.immediate >> 4) << 8;
+	opcode |= (address.immediate & 0xF);
 	WriteWord(opcode);
 }
 
@@ -565,6 +527,11 @@ uint32 CArmAssembler::FPSIMD_EncodeDn(DOUBLE_REGISTER dn)
 	return ((dn & 0xF) << 16) | ((dn >> 4) <<  7);
 }
 
+uint32 CArmAssembler::FPSIMD_EncodeDm(DOUBLE_REGISTER dm)
+{
+	return ((dm & 0x0F) <<  0) | ((dm >> 4) <<  5);
+}
+
 uint32 CArmAssembler::FPSIMD_EncodeQd(QUAD_REGISTER qd)
 {
 	assert((qd & 1) == 0);
@@ -596,10 +563,27 @@ void CArmAssembler::Vldr(SINGLE_REGISTER sd, REGISTER rbase, const LdrAddress& a
 	WriteWord(opcode);
 }
 
-void CArmAssembler::Vld1_32x4(QUAD_REGISTER qd, REGISTER rn)
+void CArmAssembler::Vld1_32x2(DOUBLE_REGISTER dd, REGISTER rn)
 {
 	//TODO: Make this aligned
 
+	uint32 opcode = 0xF420078F;
+	opcode |= FPSIMD_EncodeDd(dd);
+	opcode |= static_cast<uint32>(rn) << 16;
+	WriteWord(opcode);
+}
+
+void CArmAssembler::Vld1_32x4(QUAD_REGISTER qd, REGISTER rn)
+{
+	uint32 opcode = 0xF4200AAF;
+	opcode |= FPSIMD_EncodeQd(qd);
+	opcode |= static_cast<uint32>(rn) << 16;
+	WriteWord(opcode);
+}
+
+void CArmAssembler::Vld1_32x4_u(QUAD_REGISTER qd, REGISTER rn)
+{
+	//Unaligned variant
 	uint32 opcode = 0xF4200A8F;
 	opcode |= FPSIMD_EncodeQd(qd);
 	opcode |= static_cast<uint32>(rn) << 16;
@@ -621,9 +605,7 @@ void CArmAssembler::Vstr(SINGLE_REGISTER sd, REGISTER rbase, const LdrAddress& a
 
 void CArmAssembler::Vst1_32x4(QUAD_REGISTER qd, REGISTER rn)
 {
-	//TODO: Make this aligned
-
-	uint32 opcode = 0xF4000A8F;
+	uint32 opcode = 0xF4000AAF;
 	opcode |= FPSIMD_EncodeQd(qd);
 	opcode |= static_cast<uint32>(rn) << 16;
 	WriteWord(opcode);
@@ -657,12 +639,44 @@ void CArmAssembler::Vmovn_I16(DOUBLE_REGISTER dd, QUAD_REGISTER qm)
 	WriteWord(opcode);
 }
 
+void CArmAssembler::Vmovn_I32(DOUBLE_REGISTER dd, QUAD_REGISTER qm)
+{
+	uint32 opcode = 0xF3B60200;
+	opcode |= FPSIMD_EncodeDd(dd);
+	opcode |= FPSIMD_EncodeQm(qm);
+	WriteWord(opcode);
+}
+
 void CArmAssembler::Vdup(QUAD_REGISTER qd, REGISTER rt)
 {
 	uint32 opcode = 0x0EA00B10;
 	opcode |= (CONDITION_AL << 28);
 	opcode |= FPSIMD_EncodeQn(qd);
 	opcode |= (rt << 12);
+	WriteWord(opcode);
+}
+
+void CArmAssembler::Vzip_I8(DOUBLE_REGISTER dd, DOUBLE_REGISTER dm)
+{
+	uint32 opcode = 0xF3B20180;
+	opcode |= FPSIMD_EncodeDd(dd);
+	opcode |= FPSIMD_EncodeDm(dm);
+	WriteWord(opcode);
+}
+
+void CArmAssembler::Vzip_I16(DOUBLE_REGISTER dd, DOUBLE_REGISTER dm)
+{
+	uint32 opcode = 0xF3B60180;
+	opcode |= FPSIMD_EncodeDd(dd);
+	opcode |= FPSIMD_EncodeDm(dm);
+	WriteWord(opcode);
+}
+
+void CArmAssembler::Vzip_I32(QUAD_REGISTER qd, QUAD_REGISTER qm)
+{
+	uint32 opcode = 0xF3BA01C0;
+	opcode |= FPSIMD_EncodeQd(qd);
+	opcode |= FPSIMD_EncodeQm(qm);
 	WriteWord(opcode);
 }
 
@@ -679,6 +693,24 @@ void CArmAssembler::Vadd_F32(SINGLE_REGISTER sd, SINGLE_REGISTER sn, SINGLE_REGI
 void CArmAssembler::Vadd_F32(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER qm)
 {
 	uint32 opcode = 0xF2000D40;
+	opcode |= FPSIMD_EncodeQd(qd);
+	opcode |= FPSIMD_EncodeQn(qn);
+	opcode |= FPSIMD_EncodeQm(qm);
+	WriteWord(opcode);
+}
+
+void CArmAssembler::Vadd_I8(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER qm)
+{
+	uint32 opcode = 0xF2000840;
+	opcode |= FPSIMD_EncodeQd(qd);
+	opcode |= FPSIMD_EncodeQn(qn);
+	opcode |= FPSIMD_EncodeQm(qm);
+	WriteWord(opcode);
+}
+
+void CArmAssembler::Vadd_I16(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER qm)
+{
+	uint32 opcode = 0xF2100840;
 	opcode |= FPSIMD_EncodeQd(qd);
 	opcode |= FPSIMD_EncodeQn(qn);
 	opcode |= FPSIMD_EncodeQm(qm);
@@ -810,6 +842,60 @@ void CArmAssembler::Veor(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER qm)
 	uint32 opcode = 0xF3000150;
 	opcode |= FPSIMD_EncodeQd(qd);
 	opcode |= FPSIMD_EncodeQn(qn);
+	opcode |= FPSIMD_EncodeQm(qm);
+	WriteWord(opcode);
+}
+
+void CArmAssembler::Vshl_I16(QUAD_REGISTER qd, QUAD_REGISTER qm, uint8 shiftAmount)
+{
+	uint32 opcode = 0xF2800550;
+	opcode |= (0x10 + (shiftAmount & 0xF)) << 16;
+	opcode |= FPSIMD_EncodeQd(qd);
+	opcode |= FPSIMD_EncodeQm(qm);
+	WriteWord(opcode);
+}
+
+void CArmAssembler::Vshl_I32(QUAD_REGISTER qd, QUAD_REGISTER qm, uint8 shiftAmount)
+{
+	uint32 opcode = 0xF2800550;
+	opcode |= (0x20 + (shiftAmount & 0x1F)) << 16;
+	opcode |= FPSIMD_EncodeQd(qd);
+	opcode |= FPSIMD_EncodeQm(qm);
+	WriteWord(opcode);
+}
+
+void CArmAssembler::Vshr_U16(QUAD_REGISTER qd, QUAD_REGISTER qm, uint8 shiftAmount)
+{
+	uint32 opcode = 0xF3800050;
+	opcode |= (0x20 - (shiftAmount & 0xF)) << 16;
+	opcode |= FPSIMD_EncodeQd(qd);
+	opcode |= FPSIMD_EncodeQm(qm);
+	WriteWord(opcode);
+}
+
+void CArmAssembler::Vshr_U32(QUAD_REGISTER qd, QUAD_REGISTER qm, uint8 shiftAmount)
+{
+	uint32 opcode = 0xF3800050;
+	opcode |= (0x40 - (shiftAmount & 0x1F)) << 16;
+	opcode |= FPSIMD_EncodeQd(qd);
+	opcode |= FPSIMD_EncodeQm(qm);
+	WriteWord(opcode);
+}
+
+void CArmAssembler::Vshr_I16(QUAD_REGISTER qd, QUAD_REGISTER qm, uint8 shiftAmount)
+{
+	uint32 opcode = 0xF2800050;
+	opcode |= (0x20 - (shiftAmount & 0xF)) << 16;
+	opcode |= FPSIMD_EncodeQd(qd);
+	opcode |= FPSIMD_EncodeQm(qm);
+	WriteWord(opcode);
+}
+
+void CArmAssembler::Vshr_I32(QUAD_REGISTER qd, QUAD_REGISTER qm, uint8 shiftAmount)
+{
+	uint32 opcode = 0xF2800050;
+	opcode |= (0x40 - (shiftAmount & 0x1F)) << 16;
+	opcode |= FPSIMD_EncodeQd(qd);
 	opcode |= FPSIMD_EncodeQm(qm);
 	WriteWord(opcode);
 }

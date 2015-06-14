@@ -13,7 +13,6 @@
 		7012497E1B02E930005F341A /* MdMinMaxTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7012497C1B02E930005F341A /* MdMinMaxTest.cpp */; };
 		703093CC17BE67E5009662A1 /* Alu64Test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 703093C017BE67CE009662A1 /* Alu64Test.cpp */; };
 		703093CD17BE67E8009662A1 /* Call64Test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 703093C217BE67CE009662A1 /* Call64Test.cpp */; };
-		703093CE17BE67EF009662A1 /* HalfMultTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 703093C417BE67CE009662A1 /* HalfMultTest.cpp */; };
 		703093CF17BE67F5009662A1 /* MdCallTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 703093C617BE67CE009662A1 /* MdCallTest.cpp */; };
 		703093D017BE67F8009662A1 /* MdFpFlagTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 703093C817BE67CE009662A1 /* MdFpFlagTest.cpp */; };
 		703093D117BE6804009662A1 /* Shift64Test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 703093CA17BE67CE009662A1 /* Shift64Test.cpp */; };
@@ -99,8 +98,6 @@
 		703093C117BE67CE009662A1 /* Alu64Test.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Alu64Test.h; path = ../tests/Alu64Test.h; sourceTree = "<group>"; };
 		703093C217BE67CE009662A1 /* Call64Test.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Call64Test.cpp; path = ../tests/Call64Test.cpp; sourceTree = "<group>"; };
 		703093C317BE67CE009662A1 /* Call64Test.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Call64Test.h; path = ../tests/Call64Test.h; sourceTree = "<group>"; };
-		703093C417BE67CE009662A1 /* HalfMultTest.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = HalfMultTest.cpp; path = ../tests/HalfMultTest.cpp; sourceTree = "<group>"; };
-		703093C517BE67CE009662A1 /* HalfMultTest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = HalfMultTest.h; path = ../tests/HalfMultTest.h; sourceTree = "<group>"; };
 		703093C617BE67CE009662A1 /* MdCallTest.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = MdCallTest.cpp; path = ../tests/MdCallTest.cpp; sourceTree = "<group>"; };
 		703093C717BE67CE009662A1 /* MdCallTest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = MdCallTest.h; path = ../tests/MdCallTest.h; sourceTree = "<group>"; };
 		703093C817BE67CE009662A1 /* MdFpFlagTest.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = MdFpFlagTest.cpp; path = ../tests/MdFpFlagTest.cpp; sourceTree = "<group>"; };
@@ -279,8 +276,6 @@
 				7EF837FE12DAB5D300EA0F1C /* FpIntMixTest.h */,
 				7E2720391212598B00C0DEBF /* FpuTest.cpp */,
 				7E27203A1212598B00C0DEBF /* FpuTest.h */,
-				703093C417BE67CE009662A1 /* HalfMultTest.cpp */,
-				703093C517BE67CE009662A1 /* HalfMultTest.h */,
 				7E3018521341A22000FEAF04 /* HugeJumpTest.cpp */,
 				7E3018531341A22000FEAF04 /* HugeJumpTest.h */,
 				70320D091A998CD3001E9C4B /* Logic64Test.cpp */,
@@ -442,7 +437,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				703093D117BE6804009662A1 /* Shift64Test.cpp in Sources */,
-				703093CE17BE67EF009662A1 /* HalfMultTest.cpp in Sources */,
 				7E2720451212598B00C0DEBF /* CompareTest.cpp in Sources */,
 				7E2720461212598B00C0DEBF /* Crc32Test.cpp in Sources */,
 				703093CD17BE67E8009662A1 /* Call64Test.cpp in Sources */,

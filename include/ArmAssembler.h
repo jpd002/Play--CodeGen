@@ -215,6 +215,7 @@ public:
 	void									Eor(REGISTER, REGISTER, const ImmediateAluOperand&);
 	void									Ldmia(REGISTER, uint16);
 	void									Ldr(REGISTER, REGISTER, const LdrAddress&);
+	void									Ldrd(REGISTER, REGISTER, const LdrAddress&);
 	void									Mov(REGISTER, REGISTER);
 	void									Mov(REGISTER, const RegisterAluOperand&);
 	void									Mov(REGISTER, const ImmediateAluOperand&);
@@ -225,11 +226,13 @@ public:
 	void									Mvn(REGISTER, const ImmediateAluOperand&);	
 	void									Or(REGISTER, REGISTER, REGISTER);
 	void									Or(REGISTER, REGISTER, const ImmediateAluOperand&);
+	void									Or(CONDITION, REGISTER, REGISTER, const ImmediateAluOperand&);
 	void									Rsb(REGISTER, REGISTER, const ImmediateAluOperand&);
 	void									Sbc(REGISTER, REGISTER, REGISTER);
 	void									Smull(REGISTER, REGISTER, REGISTER, REGISTER);
 	void									Stmdb(REGISTER, uint16);
 	void									Str(REGISTER, REGISTER, const LdrAddress&);
+	void									Strd(REGISTER, REGISTER, const LdrAddress&);
 	void									Sub(REGISTER, REGISTER, REGISTER);
 	void									Sub(REGISTER, REGISTER, const ImmediateAluOperand&);
 	void									Subs(REGISTER, REGISTER, REGISTER);
@@ -239,16 +242,23 @@ public:
 
 	//VFP/NEON
 	void									Vldr(SINGLE_REGISTER, REGISTER, const LdrAddress&);
-	void									Vld1_32x1(QUAD_REGISTER, REGISTER);
+	void									Vld1_32x2(DOUBLE_REGISTER, REGISTER);
 	void									Vld1_32x4(QUAD_REGISTER, REGISTER);
+	void									Vld1_32x4_u(QUAD_REGISTER, REGISTER);
 	void									Vstr(SINGLE_REGISTER, REGISTER, const LdrAddress&);
 	void									Vst1_32x4(QUAD_REGISTER, REGISTER);
 	void									Vmov(DOUBLE_REGISTER, REGISTER, uint8);
 	void									Vmov(REGISTER, DOUBLE_REGISTER, uint8);
 	void									Vmovn_I16(DOUBLE_REGISTER, QUAD_REGISTER);
+	void									Vmovn_I32(DOUBLE_REGISTER, QUAD_REGISTER);
 	void									Vdup(QUAD_REGISTER, REGISTER);
+	void									Vzip_I8(DOUBLE_REGISTER, DOUBLE_REGISTER);
+	void									Vzip_I16(DOUBLE_REGISTER, DOUBLE_REGISTER);
+	void									Vzip_I32(QUAD_REGISTER, QUAD_REGISTER);
 	void									Vadd_F32(SINGLE_REGISTER, SINGLE_REGISTER, SINGLE_REGISTER);
 	void									Vadd_F32(QUAD_REGISTER, QUAD_REGISTER, QUAD_REGISTER);
+	void									Vadd_I8(QUAD_REGISTER, QUAD_REGISTER, QUAD_REGISTER);
+	void									Vadd_I16(QUAD_REGISTER, QUAD_REGISTER, QUAD_REGISTER);
 	void									Vadd_I32(QUAD_REGISTER, QUAD_REGISTER, QUAD_REGISTER);
 	void									Vqadd_U8(QUAD_REGISTER, QUAD_REGISTER, QUAD_REGISTER);
 	void									Vqadd_U32(QUAD_REGISTER, QUAD_REGISTER, QUAD_REGISTER);
@@ -263,6 +273,12 @@ public:
 	void									Vorn(QUAD_REGISTER, QUAD_REGISTER, QUAD_REGISTER);
 	void									Vorr(QUAD_REGISTER, QUAD_REGISTER, QUAD_REGISTER);
 	void									Veor(QUAD_REGISTER, QUAD_REGISTER, QUAD_REGISTER);
+	void									Vshl_I16(QUAD_REGISTER, QUAD_REGISTER, uint8);
+	void									Vshl_I32(QUAD_REGISTER, QUAD_REGISTER, uint8);
+	void									Vshr_U16(QUAD_REGISTER, QUAD_REGISTER, uint8);
+	void									Vshr_U32(QUAD_REGISTER, QUAD_REGISTER, uint8);
+	void									Vshr_I16(QUAD_REGISTER, QUAD_REGISTER, uint8);
+	void									Vshr_I32(QUAD_REGISTER, QUAD_REGISTER, uint8);
 	void									Vabs_F32(SINGLE_REGISTER, SINGLE_REGISTER);
 	void									Vabs_F32(QUAD_REGISTER, QUAD_REGISTER);
 	void									Vneg_F32(SINGLE_REGISTER, SINGLE_REGISTER);
@@ -299,7 +315,7 @@ private:
 	typedef std::multimap<LABEL, LABELREF> LabelReferenceMapType;
 	
 	void									GenericAlu(ALU_OPCODE, bool, REGISTER, REGISTER, REGISTER);
-	void									GenericAlu(ALU_OPCODE, bool, REGISTER, REGISTER, const ImmediateAluOperand&);
+	void									GenericAlu(ALU_OPCODE, bool, REGISTER, REGISTER, const ImmediateAluOperand&, CONDITION = CONDITION_AL);
 
 	void									CreateLabelReference(LABEL);
 	void									WriteWord(uint32);
@@ -309,6 +325,7 @@ private:
 	static uint32							FPSIMD_EncodeSm(SINGLE_REGISTER);
 	static uint32							FPSIMD_EncodeDd(DOUBLE_REGISTER);
 	static uint32							FPSIMD_EncodeDn(DOUBLE_REGISTER);
+	static uint32							FPSIMD_EncodeDm(DOUBLE_REGISTER);
 	static uint32							FPSIMD_EncodeQd(QUAD_REGISTER);
 	static uint32							FPSIMD_EncodeQn(QUAD_REGISTER);
 	static uint32							FPSIMD_EncodeQm(QUAD_REGISTER);

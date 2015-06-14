@@ -195,7 +195,7 @@ void CCodeGen_x86::Emit_Md_VarVarVarRev(const STATEMENT& statement)
 	m_assembler.MovapsVo(MakeVariable128SymbolAddress(dst), dstRegister);
 }
 
-template <typename MDOPSHIFT> 
+template <typename MDOPSHIFT, uint8 SAMASK>
 void CCodeGen_x86::Emit_Md_Shift_RegVarCst(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
@@ -209,10 +209,10 @@ void CCodeGen_x86::Emit_Md_Shift_RegVarCst(const STATEMENT& statement)
 		m_assembler.MovapsVo(dstRegister, MakeVariable128SymbolAddress(src1));
 	}
 
-	((m_assembler).*(MDOPSHIFT::OpVo()))(dstRegister, static_cast<uint8>(src2->m_valueLow));
+	((m_assembler).*(MDOPSHIFT::OpVo()))(dstRegister, static_cast<uint8>(src2->m_valueLow & SAMASK));
 }
 
-template <typename MDOPSHIFT> 
+template <typename MDOPSHIFT, uint8 SAMASK>
 void CCodeGen_x86::Emit_Md_Shift_MemVarCst(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
@@ -222,7 +222,7 @@ void CCodeGen_x86::Emit_Md_Shift_MemVarCst(const STATEMENT& statement)
 	auto tmpRegister = CX86Assembler::xMM0;
 
 	m_assembler.MovapsVo(tmpRegister, MakeVariable128SymbolAddress(src1));
-	((m_assembler).*(MDOPSHIFT::OpVo()))(tmpRegister, static_cast<uint8>(src2->m_valueLow));
+	((m_assembler).*(MDOPSHIFT::OpVo()))(tmpRegister, static_cast<uint8>(src2->m_valueLow & SAMASK));
 	m_assembler.MovapsVo(MakeMemory128SymbolAddress(dst), tmpRegister);
 }
 
@@ -745,9 +745,9 @@ void CCodeGen_x86::Emit_MergeTo256_MemVarVar(const STATEMENT& statement)
 	m_assembler.MovdqaVo(MakeTemporary256SymbolElementAddress(dst, 0x10), src2Register);
 }
 
-#define MD_CONST_MATCHERS_SHIFT(MDOP_CST, MDOP) \
-	{ MDOP_CST,				MATCH_REGISTER128,			MATCH_VARIABLE128,			MATCH_CONSTANT,			&CCodeGen_x86::Emit_Md_Shift_RegVarCst<MDOP>			}, \
-	{ MDOP_CST,				MATCH_MEMORY128,			MATCH_VARIABLE128,			MATCH_CONSTANT,			&CCodeGen_x86::Emit_Md_Shift_MemVarCst<MDOP>			},
+#define MD_CONST_MATCHERS_SHIFT(MDOP_CST, MDOP, SAMASK) \
+	{ MDOP_CST,				MATCH_REGISTER128,			MATCH_VARIABLE128,			MATCH_CONSTANT,			&CCodeGen_x86::Emit_Md_Shift_RegVarCst<MDOP, SAMASK>	}, \
+	{ MDOP_CST,				MATCH_MEMORY128,			MATCH_VARIABLE128,			MATCH_CONSTANT,			&CCodeGen_x86::Emit_Md_Shift_MemVarCst<MDOP, SAMASK>	},
 
 #define MD_CONST_MATCHERS_2OPS(MDOP_CST, MDOP) \
 	{ MDOP_CST,				MATCH_REGISTER128,			MATCH_VARIABLE128,			MATCH_NIL,				&CCodeGen_x86::Emit_Md_RegVar<MDOP>						}, \
@@ -804,13 +804,13 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdConstMatchers[] =
 	MD_CONST_MATCHERS_3OPS(OP_MD_OR,		MDOP_OR)
 	MD_CONST_MATCHERS_3OPS(OP_MD_XOR,		MDOP_XOR)
 
-	MD_CONST_MATCHERS_SHIFT(OP_MD_SRLH,		MDOP_SRLH)
-	MD_CONST_MATCHERS_SHIFT(OP_MD_SRAH,		MDOP_SRAH)
-	MD_CONST_MATCHERS_SHIFT(OP_MD_SLLH,		MDOP_SLLH)
+	MD_CONST_MATCHERS_SHIFT(OP_MD_SRLH,		MDOP_SRLH, 0x0F)
+	MD_CONST_MATCHERS_SHIFT(OP_MD_SRAH,		MDOP_SRAH, 0x0F)
+	MD_CONST_MATCHERS_SHIFT(OP_MD_SLLH,		MDOP_SLLH, 0x0F)
 
-	MD_CONST_MATCHERS_SHIFT(OP_MD_SRLW,		MDOP_SRLW)
-	MD_CONST_MATCHERS_SHIFT(OP_MD_SRAW,		MDOP_SRAW)
-	MD_CONST_MATCHERS_SHIFT(OP_MD_SLLW,		MDOP_SLLW)
+	MD_CONST_MATCHERS_SHIFT(OP_MD_SRLW,		MDOP_SRLW, 0x1F)
+	MD_CONST_MATCHERS_SHIFT(OP_MD_SRAW,		MDOP_SRAW, 0x1F)
+	MD_CONST_MATCHERS_SHIFT(OP_MD_SLLW,		MDOP_SLLW, 0x1F)
 
 	{ OP_MD_SRL256,				MATCH_VARIABLE128,			MATCH_MEMORY256,			MATCH_VARIABLE,			&CCodeGen_x86::Emit_Md_Srl256_VarMemVar						},
 	{ OP_MD_SRL256,				MATCH_VARIABLE128,			MATCH_MEMORY256,			MATCH_CONSTANT,			&CCodeGen_x86::Emit_Md_Srl256_VarMemCst						},

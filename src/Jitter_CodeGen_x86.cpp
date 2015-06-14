@@ -9,129 +9,6 @@ using namespace Jitter;
 #include "Jitter_CodeGen_x86_Mul.h"
 #include "Jitter_CodeGen_x86_Div.h"
 
-template <typename MULTSHOP>
-void CCodeGen_x86::Emit_MulSH_RegRegReg(const STATEMENT& statement)
-{
-	CSymbol* dst = statement.dst->GetSymbol().get();
-	CSymbol* src1 = statement.src1->GetSymbol().get();
-	CSymbol* src2 = statement.src2->GetSymbol().get();
-
-	assert(dst->m_type  == SYM_REGISTER);
-	assert(src1->m_type == SYM_REGISTER);
-	assert(src2->m_type == SYM_REGISTER);
-
-	((this)->*(MULTSHOP::Op()))(
-		CX86Assembler::MakeRegisterAddress(m_registers[dst->m_valueLow]), 
-		CX86Assembler::MakeRegisterAddress(m_registers[src1->m_valueLow]),
-		CX86Assembler::MakeRegisterAddress(m_registers[src2->m_valueLow])
-		);
-}
-
-template <typename MULTSHOP>
-void CCodeGen_x86::Emit_MulSH_RegRegMem(const STATEMENT& statement)
-{
-	CSymbol* dst = statement.dst->GetSymbol().get();
-	CSymbol* src1 = statement.src1->GetSymbol().get();
-	CSymbol* src2 = statement.src2->GetSymbol().get();
-
-	assert(dst->m_type  == SYM_REGISTER);
-	assert(src1->m_type == SYM_REGISTER);
-
-	((this)->*(MULTSHOP::Op()))(
-		CX86Assembler::MakeRegisterAddress(m_registers[dst->m_valueLow]),
-		CX86Assembler::MakeRegisterAddress(m_registers[src1->m_valueLow]),
-		MakeMemorySymbolAddress(src2)
-		);
-}
-
-template <typename MULTSHOP>
-void CCodeGen_x86::Emit_MulSH_RegMemMem(const STATEMENT& statement)
-{
-	CSymbol* dst = statement.dst->GetSymbol().get();
-	CSymbol* src1 = statement.src1->GetSymbol().get();
-	CSymbol* src2 = statement.src2->GetSymbol().get();
-
-	assert(dst->m_type  == SYM_REGISTER);
-
-	((this)->*(MULTSHOP::Op()))(
-		CX86Assembler::MakeRegisterAddress(m_registers[dst->m_valueLow]), 
-		MakeMemorySymbolAddress(src1),
-		MakeMemorySymbolAddress(src2)
-		);
-}
-
-template <typename MULTSHOP>
-void CCodeGen_x86::Emit_MulSH_MemRegMem(const STATEMENT& statement)
-{
-	CSymbol* dst = statement.dst->GetSymbol().get();
-	CSymbol* src1 = statement.src1->GetSymbol().get();
-	CSymbol* src2 = statement.src2->GetSymbol().get();
-
-	assert(src1->m_type == SYM_REGISTER);
-
-	((this)->*(MULTSHOP::Op()))(
-		MakeMemorySymbolAddress(dst), 
-		CX86Assembler::MakeRegisterAddress(m_registers[src1->m_valueLow]),
-		MakeMemorySymbolAddress(src2)
-		);
-}
-
-template <typename MULTSHOP>
-void CCodeGen_x86::Emit_MulSH_MemRegReg(const STATEMENT& statement)
-{
-	CSymbol* dst = statement.dst->GetSymbol().get();
-	CSymbol* src1 = statement.src1->GetSymbol().get();
-	CSymbol* src2 = statement.src2->GetSymbol().get();
-
-	assert(src1->m_type == SYM_REGISTER);
-	assert(src2->m_type == SYM_REGISTER);
-
-	((this)->*(MULTSHOP::Op()))(
-		MakeMemorySymbolAddress(dst), 
-		CX86Assembler::MakeRegisterAddress(m_registers[src1->m_valueLow]), 
-		CX86Assembler::MakeRegisterAddress(m_registers[src2->m_valueLow])
-		);
-}
-
-template <typename MULTSHOP>
-void CCodeGen_x86::Emit_MulSH_MemMemReg(const STATEMENT& statement)
-{
-	CSymbol* dst = statement.dst->GetSymbol().get();
-	CSymbol* src1 = statement.src1->GetSymbol().get();
-	CSymbol* src2 = statement.src2->GetSymbol().get();
-
-	assert(src2->m_type == SYM_REGISTER);
-
-	((this)->*(MULTSHOP::Op()))(
-		MakeMemorySymbolAddress(dst), 
-		MakeMemorySymbolAddress(src1),
-		CX86Assembler::MakeRegisterAddress(m_registers[src2->m_valueLow])
-		);
-}
-
-template <typename MULTSHOP>
-void CCodeGen_x86::Emit_MulSH_MemMemMem(const STATEMENT& statement)
-{
-	CSymbol* dst = statement.dst->GetSymbol().get();
-	CSymbol* src1 = statement.src1->GetSymbol().get();
-	CSymbol* src2 = statement.src2->GetSymbol().get();
-
-	((this)->*(MULTSHOP::Op()))(
-		MakeMemorySymbolAddress(dst), 
-		MakeMemorySymbolAddress(src1),
-		MakeMemorySymbolAddress(src2)
-		);
-}
-
-#define MULTSH_CONST_MATCHERS(MULTSH_CST, MULTSHOP) \
-	{ MULTSH_CST,	MATCH_REGISTER,		MATCH_REGISTER,		MATCH_REGISTER,		&CCodeGen_x86::Emit_MulSH_RegRegReg<MULTSHOP>		}, \
-	{ MULTSH_CST,	MATCH_REGISTER,		MATCH_REGISTER,		MATCH_MEMORY,		&CCodeGen_x86::Emit_MulSH_RegRegMem<MULTSHOP>		}, \
-	{ MULTSH_CST,	MATCH_REGISTER,		MATCH_MEMORY,		MATCH_MEMORY,		&CCodeGen_x86::Emit_MulSH_RegMemMem<MULTSHOP>		}, \
-	{ MULTSH_CST,	MATCH_MEMORY,		MATCH_REGISTER,		MATCH_REGISTER,		&CCodeGen_x86::Emit_MulSH_MemRegReg<MULTSHOP>		}, \
-	{ MULTSH_CST,	MATCH_MEMORY,		MATCH_REGISTER,		MATCH_MEMORY,		&CCodeGen_x86::Emit_MulSH_MemRegMem<MULTSHOP>		}, \
-	{ MULTSH_CST,	MATCH_MEMORY,		MATCH_MEMORY,		MATCH_REGISTER,		&CCodeGen_x86::Emit_MulSH_MemMemReg<MULTSHOP>		}, \
-	{ MULTSH_CST,	MATCH_MEMORY,		MATCH_MEMORY,		MATCH_MEMORY,		&CCodeGen_x86::Emit_MulSH_MemMemMem<MULTSHOP>		},
-
 CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_constMatchers[] = 
 { 
 	{ OP_LABEL,		MATCH_NIL,			MATCH_NIL,			MATCH_NIL,			&CCodeGen_x86::MarkLabel							},
@@ -216,9 +93,6 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_constMatchers[] =
 	{ OP_MULS,		MATCH_TEMPORARY64,	MATCH_REGISTER,		MATCH_CONSTANT,		&CCodeGen_x86::Emit_MulTmp64RegCst<true>			},
 	{ OP_MULS,		MATCH_TEMPORARY64,	MATCH_RELATIVE,		MATCH_RELATIVE,		&CCodeGen_x86::Emit_MulTmp64RelRel<true>			},
 	{ OP_MULS,		MATCH_TEMPORARY64,	MATCH_RELATIVE,		MATCH_CONSTANT,		&CCodeGen_x86::Emit_MulTmp64RelCst<true>			},
-
-	MULTSH_CONST_MATCHERS(OP_MULSHL, MULTSHOP_LOW)
-	MULTSH_CONST_MATCHERS(OP_MULSHH, MULTSHOP_HIGH)
 
 	{ OP_MERGETO64,	MATCH_MEMORY64,		MATCH_REGISTER,		MATCH_REGISTER,		&CCodeGen_x86::Emit_MergeTo64_Mem64RegReg			},
 	{ OP_MERGETO64,	MATCH_MEMORY64,		MATCH_REGISTER,		MATCH_MEMORY,		&CCodeGen_x86::Emit_MergeTo64_Mem64RegMem			},
@@ -1189,39 +1063,4 @@ void CCodeGen_x86::Emit_CondJmp_MemCst(const STATEMENT& statement)
 	}
 
 	CondJmp_JumpTo(GetLabel(statement.jmpBlock), statement.jmpCondition);
-}
-
-void CCodeGen_x86::Emit_MulSHL(const CX86Assembler::CAddress& dst, const CX86Assembler::CAddress& src1, const CX86Assembler::CAddress& src2)
-{
-	CX86Assembler::REGISTER lowRegister = CX86Assembler::rAX;
-	CX86Assembler::REGISTER highRegister = CX86Assembler::rDX;
-
-	m_assembler.MovEw(lowRegister, src1);
-	m_assembler.ImulEw(src2);
-
-	m_assembler.AndId(CX86Assembler::MakeRegisterAddress(lowRegister), 0xFFFF);
-	m_assembler.ShlEd(CX86Assembler::MakeRegisterAddress(highRegister), 16);
-	m_assembler.OrEd(lowRegister, CX86Assembler::MakeRegisterAddress(highRegister));
-
-	m_assembler.MovGd(dst, lowRegister);
-}
-
-void CCodeGen_x86::Emit_MulSHH(const CX86Assembler::CAddress& dst, const CX86Assembler::CAddress& src1, const CX86Assembler::CAddress& src2)
-{
-	CX86Assembler::REGISTER lowRegister = CX86Assembler::rAX;
-	CX86Assembler::REGISTER highRegister = CX86Assembler::rDX;
-
-	m_assembler.MovEd(lowRegister, src1);
-	m_assembler.ShrEd(CX86Assembler::MakeRegisterAddress(lowRegister), 16);
-
-	m_assembler.MovEd(highRegister, src2);
-	m_assembler.ShrEd(CX86Assembler::MakeRegisterAddress(highRegister), 16);
-
-	m_assembler.ImulEw(CX86Assembler::MakeRegisterAddress(highRegister));
-
-	m_assembler.AndId(CX86Assembler::MakeRegisterAddress(lowRegister), 0xFFFF);
-	m_assembler.ShlEd(CX86Assembler::MakeRegisterAddress(highRegister), 16);
-	m_assembler.OrEd(lowRegister, CX86Assembler::MakeRegisterAddress(highRegister));
-
-	m_assembler.MovGd(dst, lowRegister);
 }

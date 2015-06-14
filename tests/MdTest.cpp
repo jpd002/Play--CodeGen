@@ -25,6 +25,18 @@ void CMdTest::Compile(Jitter::CJitter& jitter)
 		jitter.MD_PullRel(offsetof(CONTEXT, dstSraH));
 
 		jitter.MD_PushRel(offsetof(CONTEXT, src0));
+		jitter.MD_SrlH(9 + 16);
+		jitter.MD_PullRel(offsetof(CONTEXT, dstSrlH_P16));
+
+		jitter.MD_PushRel(offsetof(CONTEXT, src0));
+		jitter.MD_SllH(12 + 16);
+		jitter.MD_PullRel(offsetof(CONTEXT, dstSllH_P16));
+
+		jitter.MD_PushRel(offsetof(CONTEXT, src1));
+		jitter.MD_SraH(8 + 16);
+		jitter.MD_PullRel(offsetof(CONTEXT, dstSraH_P16));
+
+		jitter.MD_PushRel(offsetof(CONTEXT, src0));
 		jitter.MD_SrlW(15);
 		jitter.MD_PullRel(offsetof(CONTEXT, dstSrlW));
 
@@ -203,6 +215,9 @@ void CMdTest::Run()
 		TEST_VERIFY(dstSrlH[i]				== context.dstSrlH[i]);
 		TEST_VERIFY(dstSraH[i]				== context.dstSraH[i]);
 		TEST_VERIFY(dstSllH[i]				== context.dstSllH[i]);
+		TEST_VERIFY(dstSrlH[i]				== context.dstSrlH_P16[i]);
+		TEST_VERIFY(dstSraH[i]				== context.dstSraH_P16[i]);
+		TEST_VERIFY(dstSllH[i]				== context.dstSllH_P16[i]);
 		TEST_VERIFY(dstSrlW[i]				== context.dstSrlW[i]);
 		TEST_VERIFY(dstSraW[i]				== context.dstSraW[i]);
 		TEST_VERIFY(dstSllW[i]				== context.dstSllW[i]);

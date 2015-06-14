@@ -26,8 +26,6 @@ namespace Jitter
 
 		OP_MUL,
 		OP_MULS,
-		OP_MULSHL,
-		OP_MULSHH,
 		OP_DIV,
 		OP_DIVS,
 

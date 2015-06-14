@@ -72,12 +72,6 @@ void Jitter::DumpStatementList(const StatementList& statements)
 		case OP_FP_MUL:
 			std::cout << " * ";
 			break;
-		case OP_MULSHL:
-			std::cout << " *(HL) ";
-			break;
-		case OP_MULSHH:
-			std::cout << " *(HH) ";
-			break;
 		case OP_DIV:
 		case OP_DIVS:
 		case OP_FP_DIV:

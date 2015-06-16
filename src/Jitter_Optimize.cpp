@@ -414,7 +414,7 @@ bool CJitter::FoldConstantOperation(STATEMENT& statement)
 	{
 		if(src1cst && src2cst)
 		{
-			uint32 result = static_cast<int32>(src1cst->m_valueLow) >> static_cast<int32>(src2cst->m_valueLow);
+			uint32 result = static_cast<int32>(src1cst->m_valueLow) >> static_cast<int32>(src2cst->m_valueLow & 0x1F);
 			statement.op = OP_MOV;
 			statement.src1 = MakeSymbolRef(MakeSymbol(SYM_CONSTANT, result));
 			statement.src2.reset();
@@ -431,7 +431,7 @@ bool CJitter::FoldConstantOperation(STATEMENT& statement)
 	{
 		if(src1cst && src2cst)
 		{
-			uint32 result = src1cst->m_valueLow >> src2cst->m_valueLow;
+			uint32 result = src1cst->m_valueLow >> (src2cst->m_valueLow & 0x1F);
 			statement.op = OP_MOV;
 			statement.src1 = MakeSymbolRef(MakeSymbol(SYM_CONSTANT, result));
 			statement.src2.reset();
@@ -448,7 +448,7 @@ bool CJitter::FoldConstantOperation(STATEMENT& statement)
 	{
 		if(src1cst && src2cst)
 		{
-			uint32 result = src1cst->m_valueLow << src2cst->m_valueLow;
+			uint32 result = src1cst->m_valueLow << (src2cst->m_valueLow & 0x1F);
 			statement.op = OP_MOV;
 			statement.src1 = MakeSymbolRef(MakeSymbol(SYM_CONSTANT, result));
 			statement.src2.reset();

@@ -358,6 +358,85 @@ void CCodeGen_x86::Emit_Md_AddSSW_VarVarVar(const STATEMENT& statement)
 	m_assembler.MovapsVo(MakeVariable128SymbolAddress(dst), resRegister);
 }
 
+void CCodeGen_x86::Emit_Md_SubSSW_VarVarVar(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	auto uxRegister = CX86Assembler::xMM0;
+	auto uyRegister = CX86Assembler::xMM1;
+	auto resRegister = CX86Assembler::xMM2;
+	auto cstRegister = CX86Assembler::xMM3;
+
+//	This is based on code from http://locklessinc.com/articles/sat_arithmetic/ modified to work without cmovns
+//	s32b sat_subs32b(s32b x, s32b y)
+//	{
+//		u32b ux = x;
+//		u32b uy = y;
+//		u32b res = ux - uy;
+//		
+//		ux = (ux >> 31) + INT_MAX;
+//		
+//		s32b sign = (s32b) ((ux ^ uy) & (ux ^ res))
+//		sign >>= 31;		/* Arithmetic shift, either 0 or ~0*/
+//		res = (res & ~sign) | (ux & sign);
+//			
+//		return res;
+//	}
+
+	//ux = src1
+	//uy = src2
+	m_assembler.MovdqaVo(uxRegister, MakeVariable128SymbolAddress(src1));
+	m_assembler.MovdqaVo(uyRegister, MakeVariable128SymbolAddress(src2));
+	
+	//res = ux - uy
+	m_assembler.MovdqaVo(resRegister, CX86Assembler::MakeXmmRegisterAddress(uxRegister));
+	m_assembler.PsubdVo(resRegister, CX86Assembler::MakeXmmRegisterAddress(uyRegister));
+
+	//cst = 0x7FFFFFFF
+	m_assembler.PcmpeqdVo(cstRegister, CX86Assembler::MakeXmmRegisterAddress(cstRegister));
+	m_assembler.PsrldVo(cstRegister, 1);
+
+	//ux = (ux >> 31)
+	m_assembler.PsrldVo(uxRegister, 31);
+
+	//ux += 0x7FFFFFFF
+	m_assembler.PadddVo(uxRegister, CX86Assembler::MakeXmmRegisterAddress(cstRegister));
+
+	//uy = (ux ^ res)
+	//------
+	//ux ^ res
+	m_assembler.MovdqaVo(uyRegister, CX86Assembler::MakeXmmRegisterAddress(uxRegister));
+	m_assembler.PxorVo(uyRegister, CX86Assembler::MakeXmmRegisterAddress(resRegister));
+
+	//cst = ux ^ uy (reloading uy from src2 because we don't have any registers available)
+	m_assembler.MovdqaVo(cstRegister ,CX86Assembler::MakeXmmRegisterAddress(uxRegister));
+	m_assembler.PxorVo(cstRegister, MakeVariable128SymbolAddress(src2));
+
+	//uy = ((ux ^ uy) & (ux ^ res)) >> 31; (signed operation)
+	m_assembler.PandVo(uyRegister, CX86Assembler::MakeXmmRegisterAddress(cstRegister));
+	m_assembler.PsradVo(uyRegister, 31);
+
+	//ux = (ux & uy)	(uy is the sign value)
+	m_assembler.PandVo(uxRegister, CX86Assembler::MakeXmmRegisterAddress(uyRegister));
+
+	//res = (res & ~uy)
+	//------
+	//~uy
+	m_assembler.PcmpeqdVo(cstRegister, CX86Assembler::MakeXmmRegisterAddress(cstRegister));
+	m_assembler.PxorVo(uyRegister, CX86Assembler::MakeXmmRegisterAddress(cstRegister));
+
+	//res & ~uy
+	m_assembler.PandVo(resRegister, CX86Assembler::MakeXmmRegisterAddress(uyRegister));
+
+	//res = (res & ~uy) | (ux & uy)
+	m_assembler.PorVo(resRegister, CX86Assembler::MakeXmmRegisterAddress(uxRegister));
+
+	//Copy final result
+	m_assembler.MovdqaVo(MakeVariable128SymbolAddress(dst), resRegister);
+}
+
 void CCodeGen_x86::Emit_Md_AddUSW_VarVarVar(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
@@ -783,6 +862,7 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdConstMatchers[] =
 	MD_CONST_MATCHERS_3OPS(OP_MD_SUB_W,		MDOP_SUBW)
 
 	MD_CONST_MATCHERS_3OPS(OP_MD_SUBSS_H,	MDOP_SUBSSH)
+	{ OP_MD_SUBSS_W,			MATCH_VARIABLE128,			MATCH_VARIABLE128,			MATCH_VARIABLE128,		&CCodeGen_x86::Emit_Md_SubSSW_VarVarVar						},
 
 	MD_CONST_MATCHERS_3OPS(OP_MD_SUBUS_B,	MDOP_SUBUSB)
 	MD_CONST_MATCHERS_3OPS(OP_MD_SUBUS_H,	MDOP_SUBUSH)

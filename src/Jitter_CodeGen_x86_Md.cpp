@@ -297,7 +297,7 @@ void CCodeGen_x86::Emit_Md_AddSSW_VarVarVar(const STATEMENT& statement)
 //		ux = (ux >> 31) + INT_MAX;
 //	
 //		s32b sign = (s32b) ((ux ^ uy) | ~(uy ^ res))
-//		sign >>= 31;
+//		sign >>= 31;		/* Arithmetic shift, either 0 or ~0*/
 //		res = (res & sign) | (ux & ~sign);
 //		
 //		return res;

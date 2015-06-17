@@ -22,6 +22,7 @@
 #include "MdCallTest.h"
 #include "MdMemAccessTest.h"
 #include "MdManipTest.h"
+#include "MdShiftTest.h"
 #include "CompareTest.h"
 #include "RegAllocTest.h"
 #include "MemAccessTest.h"
@@ -84,6 +85,12 @@ static const TestFactoryFunction s_factories[] =
 	[] () { return new CMdCallTest(); },
 	[] () { return new CMdMemAccessTest(); },
 	[] () { return new CMdManipTest(); },
+	[] () { return new CMdShiftTest(0); },
+	[] () { return new CMdShiftTest(15); },
+	[] () { return new CMdShiftTest(16); },
+	[] () { return new CMdShiftTest(31); },
+	[] () { return new CMdShiftTest(32); },
+	[] () { return new CMdShiftTest(38); },
 	[] () { return new CAlu64Test(); },
 	[] () { return new CCmp64Test(false,	0xFEDCBA9876543210ULL, 0x012389AB4567CDEFULL); },
 	[] () { return new CCmp64Test(true,		0xFEDCBA9876543210ULL, 0x012389AB4567CDEFULL); },

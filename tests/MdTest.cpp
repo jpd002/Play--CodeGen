@@ -13,42 +13,6 @@ void CMdTest::Compile(Jitter::CJitter& jitter)
 
 		//Shifts
 		jitter.MD_PushRel(offsetof(CONTEXT, src0));
-		jitter.MD_SrlH(9);
-		jitter.MD_PullRel(offsetof(CONTEXT, dstSrlH));
-
-		jitter.MD_PushRel(offsetof(CONTEXT, src0));
-		jitter.MD_SllH(12);
-		jitter.MD_PullRel(offsetof(CONTEXT, dstSllH));
-
-		jitter.MD_PushRel(offsetof(CONTEXT, src1));
-		jitter.MD_SraH(8);
-		jitter.MD_PullRel(offsetof(CONTEXT, dstSraH));
-
-		jitter.MD_PushRel(offsetof(CONTEXT, src0));
-		jitter.MD_SrlH(9 + 16);
-		jitter.MD_PullRel(offsetof(CONTEXT, dstSrlH_P16));
-
-		jitter.MD_PushRel(offsetof(CONTEXT, src0));
-		jitter.MD_SllH(12 + 16);
-		jitter.MD_PullRel(offsetof(CONTEXT, dstSllH_P16));
-
-		jitter.MD_PushRel(offsetof(CONTEXT, src1));
-		jitter.MD_SraH(8 + 16);
-		jitter.MD_PullRel(offsetof(CONTEXT, dstSraH_P16));
-
-		jitter.MD_PushRel(offsetof(CONTEXT, src0));
-		jitter.MD_SrlW(15);
-		jitter.MD_PullRel(offsetof(CONTEXT, dstSrlW));
-
-		jitter.MD_PushRel(offsetof(CONTEXT, src1));
-		jitter.MD_SraW(12);
-		jitter.MD_PullRel(offsetof(CONTEXT, dstSraW));
-
-		jitter.MD_PushRel(offsetof(CONTEXT, src0));
-		jitter.MD_SllW(12);
-		jitter.MD_PullRel(offsetof(CONTEXT, dstSllW));
-
-		jitter.MD_PushRel(offsetof(CONTEXT, src0));
 		jitter.MD_PushRel(offsetof(CONTEXT, src1));
 		jitter.PushCst(48);
 		jitter.MD_Srl256();
@@ -212,15 +176,6 @@ void CMdTest::Run()
 	for(unsigned int i = 0; i < 16; i++)
 	{
 		TEST_VERIFY(dstMovRes[i]			== context.dstMov[i]);
-		TEST_VERIFY(dstSrlH[i]				== context.dstSrlH[i]);
-		TEST_VERIFY(dstSraH[i]				== context.dstSraH[i]);
-		TEST_VERIFY(dstSllH[i]				== context.dstSllH[i]);
-		TEST_VERIFY(dstSrlH[i]				== context.dstSrlH_P16[i]);
-		TEST_VERIFY(dstSraH[i]				== context.dstSraH_P16[i]);
-		TEST_VERIFY(dstSllH[i]				== context.dstSllH_P16[i]);
-		TEST_VERIFY(dstSrlW[i]				== context.dstSrlW[i]);
-		TEST_VERIFY(dstSraW[i]				== context.dstSraW[i]);
-		TEST_VERIFY(dstSllW[i]				== context.dstSllW[i]);
 		TEST_VERIFY(dstSrl256_1[i]			== context.dstSrl256_1[i]);
 		TEST_VERIFY(dstSrl256_2[i]			== context.dstSrl256_2[i]);
 		TEST_VERIFY(dstPackHBRes[i]			== context.dstPackHB[i]);

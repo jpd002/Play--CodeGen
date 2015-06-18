@@ -175,6 +175,8 @@ void CCodeGen_Arm::Emit_Fp_Cmp_AnyMemMem(const STATEMENT& statement)
 	LoadMemoryFpSingleInRegister(tempRegisterContext, CArmAssembler::s1, src2);
 	m_assembler.Vcmp_F32(CArmAssembler::s0, CArmAssembler::s1);
 	m_assembler.Vmrs(CArmAssembler::rPC);	//Move to general purpose status register
+	//Make sure we clear the result if unordered
+	m_assembler.MovCc(CArmAssembler::CONDITION_VS, dstReg, CArmAssembler::MakeImmediateAluOperand(0, 0));
 	switch(statement.jmpCondition)
 	{
 	case Jitter::CONDITION_AB:
@@ -182,11 +184,11 @@ void CCodeGen_Arm::Emit_Fp_Cmp_AnyMemMem(const STATEMENT& statement)
 		m_assembler.MovCc(CArmAssembler::CONDITION_LE, dstReg, CArmAssembler::MakeImmediateAluOperand(0, 0));
 		break;
 	case Jitter::CONDITION_BE:
-		m_assembler.MovCc(CArmAssembler::CONDITION_LE, dstReg, CArmAssembler::MakeImmediateAluOperand(1, 0));
+		m_assembler.MovCc(CArmAssembler::CONDITION_LS, dstReg, CArmAssembler::MakeImmediateAluOperand(1, 0));
 		m_assembler.MovCc(CArmAssembler::CONDITION_GT, dstReg, CArmAssembler::MakeImmediateAluOperand(0, 0));
 		break;
 	case Jitter::CONDITION_BL:
-		m_assembler.MovCc(CArmAssembler::CONDITION_LT, dstReg, CArmAssembler::MakeImmediateAluOperand(1, 0));
+		m_assembler.MovCc(CArmAssembler::CONDITION_MI, dstReg, CArmAssembler::MakeImmediateAluOperand(1, 0));
 		m_assembler.MovCc(CArmAssembler::CONDITION_GE, dstReg, CArmAssembler::MakeImmediateAluOperand(0, 0));
 		break;
 	case Jitter::CONDITION_EQ:

@@ -718,6 +718,43 @@ bool CJitter::FoldConstant6432Operation(STATEMENT& statement)
 	return changed;
 }
 
+bool CJitter::FoldConstant12832Operation(STATEMENT& statement)
+{
+	auto src2cst = dynamic_symbolref_cast(SYM_CONSTANT, statement.src2);
+
+	//Nothing we can do
+	if(src2cst == nullptr) return false;
+
+	bool changed = false;
+
+	if(
+		statement.op == OP_MD_SLLH ||
+		statement.op == OP_MD_SRLH ||
+		statement.op == OP_MD_SRAH)
+	{
+		if(src2cst && ((src2cst->m_valueLow & 0xF) == 0))
+		{
+			statement.op = OP_MOV;
+			statement.src2.reset();
+			changed = true;
+		}
+	}
+	else if(
+		statement.op == OP_MD_SLLW ||
+		statement.op == OP_MD_SRLW ||
+		statement.op == OP_MD_SRAW)
+	{
+		if(src2cst && ((src2cst->m_valueLow & 0x1F) == 0))
+		{
+			statement.op = OP_MOV;
+			statement.src2.reset();
+			changed = true;
+		}
+	}
+
+	return changed;
+}
+
 bool CJitter::ConstantFolding(StatementList& statements)
 {
 	bool changed = false;
@@ -729,6 +766,7 @@ bool CJitter::ConstantFolding(StatementList& statements)
 		changed |= FoldConstantOperation(statement);
 		changed |= FoldConstant64Operation(statement);
 		changed |= FoldConstant6432Operation(statement);
+		changed |= FoldConstant12832Operation(statement);
 	}
 	return changed;
 }

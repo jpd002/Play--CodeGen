@@ -279,6 +279,7 @@ namespace Jitter
 		bool							FoldConstantOperation(STATEMENT&);
 		bool							FoldConstant64Operation(STATEMENT&);
 		bool							FoldConstant6432Operation(STATEMENT&);
+		bool							FoldConstant12832Operation(STATEMENT&);
 
 		BASIC_BLOCK						ConcatBlocks(const BasicBlockList&);
 		bool							MergeBlocks();

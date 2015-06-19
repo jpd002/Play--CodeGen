@@ -790,6 +790,15 @@ void CArmAssembler::Vsub_I8(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER qm
 	WriteWord(opcode);
 }
 
+void CArmAssembler::Vsub_I16(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER qm)
+{
+	uint32 opcode = 0xF3100840;
+	opcode |= FPSIMD_EncodeQd(qd);
+	opcode |= FPSIMD_EncodeQn(qn);
+	opcode |= FPSIMD_EncodeQm(qm);
+	WriteWord(opcode);
+}
+
 void CArmAssembler::Vsub_I32(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER qm)
 {
 	uint32 opcode = 0xF3200840;

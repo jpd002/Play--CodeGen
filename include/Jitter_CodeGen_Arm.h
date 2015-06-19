@@ -325,6 +325,11 @@ namespace Jitter
 			static OpRegType OpReg() { return &CArmAssembler::Vsub_I8; }
 		};
 
+		struct MDOP_SUBH : public MDOP_BASE3
+		{
+			static OpRegType OpReg() { return &CArmAssembler::Vsub_I16; }
+		};
+
 		struct MDOP_SUBW : public MDOP_BASE3
 		{
 			static OpRegType OpReg() { return &CArmAssembler::Vsub_I32; }

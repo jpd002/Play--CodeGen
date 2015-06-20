@@ -41,6 +41,7 @@ LOCAL_SRC_FILES			:=	../../tests/AliasTest.cpp \
 							../../tests/Cmp64Test.cpp \
 							../../tests/CompareTest.cpp \
 							../../tests/Crc32Test.cpp \
+							../../tests/DivTest.cpp \
 							../../tests/FpuTest.cpp \
 							../../tests/FpIntMixTest.cpp \
 							../../tests/HugeJumpTest.cpp \

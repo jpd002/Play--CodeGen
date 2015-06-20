@@ -157,6 +157,7 @@
     <ClCompile Include="..\tests\Cmp64Test.cpp" />
     <ClCompile Include="..\tests\CompareTest.cpp" />
     <ClCompile Include="..\tests\Crc32Test.cpp" />
+    <ClCompile Include="..\tests\DivTest.cpp" />
     <ClCompile Include="..\tests\FpIntMixTest.cpp" />
     <ClCompile Include="..\tests\FpuTest.cpp" />
     <ClCompile Include="..\tests\HugeJumpTest.cpp" />
@@ -196,6 +197,7 @@
     <ClInclude Include="..\tests\Cmp64Test.h" />
     <ClInclude Include="..\tests\CompareTest.h" />
     <ClInclude Include="..\tests\Crc32Test.h" />
+    <ClInclude Include="..\tests\DivTest.h" />
     <ClInclude Include="..\tests\FpIntMixTest.h" />
     <ClInclude Include="..\tests\FpuTest.h" />
     <ClInclude Include="..\tests\HugeJumpTest.h" />

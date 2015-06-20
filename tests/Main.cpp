@@ -2,6 +2,7 @@
 
 #include "Crc32Test.h"
 #include "MultTest.h"
+#include "DivTest.h"
 #include "RandomAluTest.h"
 #include "RandomAluTest2.h"
 #include "RandomAluTest3.h"
@@ -64,6 +65,8 @@ static const TestFactoryFunction s_factories[] =
 	[] () { return new CCrc32Test("Hello World!", 0x67FCDACC); },
 	[] () { return new CMultTest(true); },
 	[] () { return new CMultTest(false); },
+	[] () { return new CDivTest(true); },
+	[] () { return new CDivTest(false); },
 	[] () { return new CMemAccessTest(); },
 	[] () { return new CHugeJumpTest(); },
 	[] () { return new CNestedIfTest(); },

@@ -641,10 +641,10 @@ namespace Jitter
 		static CArmAssembler::REGISTER			g_tempParamRegister0;
 		static CArmAssembler::REGISTER			g_tempParamRegister1;
 
-		Framework::CStream*						m_stream;
+		Framework::CStream*						m_stream = nullptr;
 		CArmAssembler							m_assembler;
 		LabelMapType							m_labels;
 		ParamStack								m_params;
-		uint32									m_stackLevel;
+		uint32									m_stackLevel = 0;
 	};
 };

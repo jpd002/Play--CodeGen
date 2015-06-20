@@ -230,7 +230,6 @@ CCodeGen_Arm::CONSTMATCHER CCodeGen_Arm::g_constMatchers[] =
 };
 
 CCodeGen_Arm::CCodeGen_Arm()
-: m_stream(nullptr)
 {
 	for(auto* constMatcher = g_constMatchers; constMatcher->emitter != nullptr; constMatcher++)
 	{

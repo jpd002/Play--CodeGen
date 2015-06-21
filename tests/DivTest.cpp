@@ -21,21 +21,21 @@ void CDivTest::Run()
 
 	m_function(&m_context);
 
-	if(!m_isSigned)
-	{
-		TEST_VERIFY(m_context.cstResultLo == static_cast<uint32>(VALUE_CST0) / static_cast<uint32>(VALUE_CST1));
-		TEST_VERIFY(m_context.cstResultHi == static_cast<uint32>(VALUE_CST0) % static_cast<uint32>(VALUE_CST1));
-
-		TEST_VERIFY(m_context.relResultLo == static_cast<uint32>(VALUE_REL0) / static_cast<uint32>(VALUE_REL1));
-		TEST_VERIFY(m_context.relResultHi == static_cast<uint32>(VALUE_REL0) % static_cast<uint32>(VALUE_REL1));
-	}
-	else
+	if(m_isSigned)
 	{
 		TEST_VERIFY(m_context.cstResultLo == static_cast<int32>(VALUE_CST0) / static_cast<int32>(VALUE_CST1));
 		TEST_VERIFY(m_context.cstResultHi == static_cast<int32>(VALUE_CST0) % static_cast<int32>(VALUE_CST1));
 
 		TEST_VERIFY(m_context.relResultLo == static_cast<int32>(VALUE_REL0) / static_cast<int32>(VALUE_REL1));
 		TEST_VERIFY(m_context.relResultHi == static_cast<int32>(VALUE_REL0) % static_cast<int32>(VALUE_REL1));
+	}
+	else
+	{
+		TEST_VERIFY(m_context.cstResultLo == static_cast<uint32>(VALUE_CST0) / static_cast<uint32>(VALUE_CST1));
+		TEST_VERIFY(m_context.cstResultHi == static_cast<uint32>(VALUE_CST0) % static_cast<uint32>(VALUE_CST1));
+
+		TEST_VERIFY(m_context.relResultLo == static_cast<uint32>(VALUE_REL0) / static_cast<uint32>(VALUE_REL1));
+		TEST_VERIFY(m_context.relResultHi == static_cast<uint32>(VALUE_REL0) % static_cast<uint32>(VALUE_REL1));
 	}
 }
 

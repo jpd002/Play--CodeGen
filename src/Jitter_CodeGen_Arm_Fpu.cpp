@@ -171,29 +171,24 @@ void CCodeGen_Arm::Emit_Fp_Cmp_AnyMemMem(const STATEMENT& statement)
 	auto tmpReg = tempRegisterContext.Allocate();
 	auto dstReg = PrepareSymbolRegisterDef(dst, tmpReg);
 
+	m_assembler.Mov(dstReg, CArmAssembler::MakeImmediateAluOperand(0, 0));
 	LoadMemoryFpSingleInRegister(tempRegisterContext, CArmAssembler::s0, src1);
 	LoadMemoryFpSingleInRegister(tempRegisterContext, CArmAssembler::s1, src2);
 	m_assembler.Vcmp_F32(CArmAssembler::s0, CArmAssembler::s1);
 	m_assembler.Vmrs(CArmAssembler::rPC);	//Move to general purpose status register
-	//Make sure we clear the result if unordered
-	m_assembler.MovCc(CArmAssembler::CONDITION_VS, dstReg, CArmAssembler::MakeImmediateAluOperand(0, 0));
 	switch(statement.jmpCondition)
 	{
 	case Jitter::CONDITION_AB:
 		m_assembler.MovCc(CArmAssembler::CONDITION_GT, dstReg, CArmAssembler::MakeImmediateAluOperand(1, 0));
-		m_assembler.MovCc(CArmAssembler::CONDITION_LE, dstReg, CArmAssembler::MakeImmediateAluOperand(0, 0));
 		break;
 	case Jitter::CONDITION_BE:
 		m_assembler.MovCc(CArmAssembler::CONDITION_LS, dstReg, CArmAssembler::MakeImmediateAluOperand(1, 0));
-		m_assembler.MovCc(CArmAssembler::CONDITION_GT, dstReg, CArmAssembler::MakeImmediateAluOperand(0, 0));
 		break;
 	case Jitter::CONDITION_BL:
 		m_assembler.MovCc(CArmAssembler::CONDITION_MI, dstReg, CArmAssembler::MakeImmediateAluOperand(1, 0));
-		m_assembler.MovCc(CArmAssembler::CONDITION_GE, dstReg, CArmAssembler::MakeImmediateAluOperand(0, 0));
 		break;
 	case Jitter::CONDITION_EQ:
 		m_assembler.MovCc(CArmAssembler::CONDITION_EQ, dstReg, CArmAssembler::MakeImmediateAluOperand(1, 0));
-		m_assembler.MovCc(CArmAssembler::CONDITION_NE, dstReg, CArmAssembler::MakeImmediateAluOperand(0, 0));
 		break;
 	default:
 		assert(0);

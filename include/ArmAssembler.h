@@ -229,6 +229,7 @@ public:
 	void									Or(CONDITION, REGISTER, REGISTER, const ImmediateAluOperand&);
 	void									Rsb(REGISTER, REGISTER, const ImmediateAluOperand&);
 	void									Sbc(REGISTER, REGISTER, REGISTER);
+	void									Sdiv(REGISTER, REGISTER, REGISTER);
 	void									Smull(REGISTER, REGISTER, REGISTER, REGISTER);
 	void									Stmdb(REGISTER, uint16);
 	void									Str(REGISTER, REGISTER, const LdrAddress&);
@@ -238,6 +239,7 @@ public:
 	void									Subs(REGISTER, REGISTER, REGISTER);
 	void									Teq(REGISTER, const ImmediateAluOperand&);
 	void									Tst(REGISTER, REGISTER);
+	void									Udiv(REGISTER, REGISTER, REGISTER);
 	void									Umull(REGISTER, REGISTER, REGISTER, REGISTER);
 
 	//VFP/NEON

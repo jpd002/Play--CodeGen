@@ -414,6 +414,16 @@ void CArmAssembler::Sbc(REGISTER rd, REGISTER rn, REGISTER rm)
 	GenericAlu(ALU_OPCODE_SBC, false, rd, rn, rm);
 }
 
+void CArmAssembler::Sdiv(REGISTER rd, REGISTER rn, REGISTER rm)
+{
+	uint32 opcode = 0x0710F010;
+	opcode |= (CONDITION_AL << 28);
+	opcode |= (rd << 16);
+	opcode |= (rm <<  8);
+	opcode |= (rn <<  0);
+	WriteWord(opcode);
+}
+
 void CArmAssembler::Smull(REGISTER rdLow, REGISTER rdHigh, REGISTER rn, REGISTER rm)
 {
 	uint32 opcode = 0;
@@ -489,6 +499,16 @@ void CArmAssembler::Teq(REGISTER rn, const ImmediateAluOperand& operand)
 void CArmAssembler::Tst(REGISTER rn, REGISTER rm)
 {
 	GenericAlu(ALU_OPCODE_TST, true, CArmAssembler::r0, rn, rm);
+}
+
+void CArmAssembler::Udiv(REGISTER rd, REGISTER rn, REGISTER rm)
+{
+	uint32 opcode = 0x0730F010;
+	opcode |= (CONDITION_AL << 28);
+	opcode |= (rd << 16);
+	opcode |= (rm <<  8);
+	opcode |= (rn <<  0);
+	WriteWord(opcode);
 }
 
 void CArmAssembler::Umull(REGISTER rdLow, REGISTER rdHigh, REGISTER rn, REGISTER rm)

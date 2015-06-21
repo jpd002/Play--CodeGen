@@ -491,11 +491,9 @@ namespace Jitter
 		template<bool> void						Emit_MulTmp64AnyAny(const STATEMENT&);
 
 		//DIV/DIVS
-		template<bool> void						Div_GenericTmp64RegReg_Quotient(CSymbol*);
-		template<bool> void						Div_GenericTmp64RegReg_Remainder(CSymbol*);
-		template<bool> void						Emit_DivTmp64RegReg(const STATEMENT&);
-		template<bool> void						Emit_DivTmp64RegCst(const STATEMENT&);
-		template<bool> void						Emit_DivTmp64MemCst(const STATEMENT&);
+		template<bool> void						Div_GenericTmp64AnyAny(const STATEMENT&);
+		template<bool> void						Div_GenericTmp64AnyAnySoft(const STATEMENT&);
+		template<bool> void						Emit_DivTmp64AnyAny(const STATEMENT&);
 
 		//MOV
 		void									Emit_Mov_RegReg(const STATEMENT&);

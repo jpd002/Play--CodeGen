@@ -646,5 +646,6 @@ namespace Jitter
 		LabelMapType							m_labels;
 		ParamStack								m_params;
 		uint32									m_stackLevel = 0;
+		bool									m_hasIntegerDiv = false;
 	};
 };

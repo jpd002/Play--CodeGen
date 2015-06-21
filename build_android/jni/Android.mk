@@ -27,7 +27,7 @@ LOCAL_SRC_FILES		:=	../../src/ArmAssembler.cpp \
 						../../src/MemoryFunction.cpp \
 						../../src/ObjectFile.cpp
 LOCAL_CFLAGS		:= -Wno-extern-c-compat
-LOCAL_C_INCLUDES	:= $(FRAMEWORK_PATH)/include $(LOCAL_PATH)/../../include
+LOCAL_C_INCLUDES	:= $(FRAMEWORK_PATH)/include $(LOCAL_PATH)/../../include $(NDK_ROOT)/sources/android/cpufeatures
 LOCAL_CPP_FEATURES	:= exceptions rtti
 
 include $(BUILD_STATIC_LIBRARY)
@@ -76,6 +76,8 @@ LOCAL_CFLAGS			:= -Wno-extern-c-compat
 LOCAL_C_INCLUDES		:= $(FRAMEWORK_PATH)/include $(LOCAL_PATH)/../../include
 LOCAL_CPP_FEATURES		:= exceptions rtti
 LOCAL_LDLIBS 			:= -landroid
-LOCAL_STATIC_LIBRARIES	:= libCodeGen libFramework
+LOCAL_STATIC_LIBRARIES	:= libCodeGen libFramework cpufeatures
 
 include $(BUILD_SHARED_LIBRARY)
+
+$(call import-module,android/cpufeatures)

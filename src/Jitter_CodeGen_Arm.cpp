@@ -1,6 +1,9 @@
 #include "Jitter_CodeGen_Arm.h"
 #include "ObjectFile.h"
 #include "BitManip.h"
+#ifdef __ANDROID__
+#include <cpu-features.h>
+#endif
 
 using namespace Jitter;
 
@@ -231,6 +234,14 @@ CCodeGen_Arm::CONSTMATCHER CCodeGen_Arm::g_constMatchers[] =
 
 CCodeGen_Arm::CCodeGen_Arm()
 {
+#ifdef __ANDROID__
+	auto cpuFeatures = android_getCpuFeatures();
+	if(cpuFeatures & ANDROID_CPU_ARM_FEATURE_IDIV_ARM)
+	{
+		m_hasIntegerDiv = true;
+	}
+#endif
+
 	for(auto* constMatcher = g_constMatchers; constMatcher->emitter != nullptr; constMatcher++)
 	{
 		MATCHER matcher;

@@ -66,6 +66,7 @@ namespace Jitter
 		OP_MD_SUB_W,
 
 		OP_MD_SUBSS_H,
+		OP_MD_SUBSS_W,
 
 		OP_MD_SUBUS_B,
 		OP_MD_SUBUS_H,

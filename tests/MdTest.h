@@ -22,16 +22,6 @@ private:
 
 		uint8			dstMov[16];
 
-		uint8			dstSrlH[16];
-		uint8			dstSllH[16];
-		uint8			dstSraH[16];
-		uint8			dstSrlH_P16[16];
-		uint8			dstSllH_P16[16];
-		uint8			dstSraH_P16[16];
-
-		uint8			dstSrlW[16];
-		uint8			dstSraW[16];
-		uint8			dstSllW[16];
 		uint8			dstSrl256_1[16];
 		uint8			dstSrl256_2[16];
 

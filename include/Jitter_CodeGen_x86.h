@@ -602,6 +602,7 @@ namespace Jitter
 		template <typename> void	Emit_Md_SingleOp_MemVar(const STATEMENT&);
 		void						Emit_Md_AddSSW_VarVarVar(const STATEMENT&);
 		void						Emit_Md_AddUSW_VarVarVar(const STATEMENT&);
+		void						Emit_Md_SubSSW_VarVarVar(const STATEMENT&);
 		void						Emit_Md_PackHB_VarVarVar(const STATEMENT&);
 		void						Emit_Md_PackWH_VarVarVar(const STATEMENT&);
 		void						Emit_Md_Mov_RegVar(const STATEMENT&);

@@ -310,14 +310,49 @@ namespace Jitter
 			static OpRegType OpReg() { return &CArmAssembler::Vqadd_U32; }
 		};
 
+		struct MDOP_ADDHSS : public MDOP_BASE3
+		{
+			static OpRegType OpReg() { return &CArmAssembler::Vqadd_I16; }
+		};
+
+		struct MDOP_ADDWSS : public MDOP_BASE3
+		{
+			static OpRegType OpReg() { return &CArmAssembler::Vqadd_I32; }
+		};
+
 		struct MDOP_SUBB : public MDOP_BASE3
 		{
 			static OpRegType OpReg() { return &CArmAssembler::Vsub_I8; }
 		};
 
+		struct MDOP_SUBH : public MDOP_BASE3
+		{
+			static OpRegType OpReg() { return &CArmAssembler::Vsub_I16; }
+		};
+
 		struct MDOP_SUBW : public MDOP_BASE3
 		{
 			static OpRegType OpReg() { return &CArmAssembler::Vsub_I32; }
+		};
+
+		struct MDOP_SUBBUS : public MDOP_BASE3
+		{
+			static OpRegType OpReg() { return &CArmAssembler::Vqsub_U8; }
+		};
+
+		struct MDOP_SUBHUS : public MDOP_BASE3
+		{
+			static OpRegType OpReg() { return &CArmAssembler::Vqsub_U16; }
+		};
+
+		struct MDOP_SUBHSS : public MDOP_BASE3
+		{
+			static OpRegType OpReg() { return &CArmAssembler::Vqsub_I16; }
+		};
+
+		struct MDOP_SUBWSS : public MDOP_BASE3
+		{
+			static OpRegType OpReg() { return &CArmAssembler::Vqsub_I32; }
 		};
 
 		struct MDOP_CMPEQW : public MDOP_BASE3
@@ -456,11 +491,9 @@ namespace Jitter
 		template<bool> void						Emit_MulTmp64AnyAny(const STATEMENT&);
 
 		//DIV/DIVS
-		template<bool> void						Div_GenericTmp64RegReg_Quotient(CSymbol*);
-		template<bool> void						Div_GenericTmp64RegReg_Remainder(CSymbol*);
-		template<bool> void						Emit_DivTmp64RegReg(const STATEMENT&);
-		template<bool> void						Emit_DivTmp64RegCst(const STATEMENT&);
-		template<bool> void						Emit_DivTmp64MemCst(const STATEMENT&);
+		template<bool> void						Div_GenericTmp64AnyAny(const STATEMENT&);
+		template<bool> void						Div_GenericTmp64AnyAnySoft(const STATEMENT&);
+		template<bool> void						Emit_DivTmp64AnyAny(const STATEMENT&);
 
 		//MOV
 		void									Emit_Mov_RegReg(const STATEMENT&);
@@ -606,10 +639,11 @@ namespace Jitter
 		static CArmAssembler::REGISTER			g_tempParamRegister0;
 		static CArmAssembler::REGISTER			g_tempParamRegister1;
 
-		Framework::CStream*						m_stream;
+		Framework::CStream*						m_stream = nullptr;
 		CArmAssembler							m_assembler;
 		LabelMapType							m_labels;
 		ParamStack								m_params;
-		uint32									m_stackLevel;
+		uint32									m_stackLevel = 0;
+		bool									m_hasIntegerDiv = false;
 	};
 };

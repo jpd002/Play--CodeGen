@@ -414,7 +414,7 @@ bool CJitter::FoldConstantOperation(STATEMENT& statement)
 	{
 		if(src1cst && src2cst)
 		{
-			uint32 result = static_cast<int32>(src1cst->m_valueLow) >> static_cast<int32>(src2cst->m_valueLow);
+			uint32 result = static_cast<int32>(src1cst->m_valueLow) >> static_cast<int32>(src2cst->m_valueLow & 0x1F);
 			statement.op = OP_MOV;
 			statement.src1 = MakeSymbolRef(MakeSymbol(SYM_CONSTANT, result));
 			statement.src2.reset();
@@ -431,7 +431,7 @@ bool CJitter::FoldConstantOperation(STATEMENT& statement)
 	{
 		if(src1cst && src2cst)
 		{
-			uint32 result = src1cst->m_valueLow >> src2cst->m_valueLow;
+			uint32 result = src1cst->m_valueLow >> (src2cst->m_valueLow & 0x1F);
 			statement.op = OP_MOV;
 			statement.src1 = MakeSymbolRef(MakeSymbol(SYM_CONSTANT, result));
 			statement.src2.reset();
@@ -448,7 +448,7 @@ bool CJitter::FoldConstantOperation(STATEMENT& statement)
 	{
 		if(src1cst && src2cst)
 		{
-			uint32 result = src1cst->m_valueLow << src2cst->m_valueLow;
+			uint32 result = src1cst->m_valueLow << (src2cst->m_valueLow & 0x1F);
 			statement.op = OP_MOV;
 			statement.src1 = MakeSymbolRef(MakeSymbol(SYM_CONSTANT, result));
 			statement.src2.reset();
@@ -546,6 +546,9 @@ bool CJitter::FoldConstantOperation(STATEMENT& statement)
 				break;
 			case CONDITION_LT:
 				result = static_cast<int32>(src1cst->m_valueLow) < static_cast<int32>(src2cst->m_valueLow);
+				break;
+			case CONDITION_LE:
+				result = static_cast<int32>(src1cst->m_valueLow) <= static_cast<int32>(src2cst->m_valueLow);
 				break;
 			case CONDITION_EQ:
 				result = static_cast<int32>(src1cst->m_valueLow) == static_cast<int32>(src2cst->m_valueLow);
@@ -715,6 +718,43 @@ bool CJitter::FoldConstant6432Operation(STATEMENT& statement)
 	return changed;
 }
 
+bool CJitter::FoldConstant12832Operation(STATEMENT& statement)
+{
+	auto src2cst = dynamic_symbolref_cast(SYM_CONSTANT, statement.src2);
+
+	//Nothing we can do
+	if(src2cst == nullptr) return false;
+
+	bool changed = false;
+
+	if(
+		statement.op == OP_MD_SLLH ||
+		statement.op == OP_MD_SRLH ||
+		statement.op == OP_MD_SRAH)
+	{
+		if(src2cst && ((src2cst->m_valueLow & 0xF) == 0))
+		{
+			statement.op = OP_MOV;
+			statement.src2.reset();
+			changed = true;
+		}
+	}
+	else if(
+		statement.op == OP_MD_SLLW ||
+		statement.op == OP_MD_SRLW ||
+		statement.op == OP_MD_SRAW)
+	{
+		if(src2cst && ((src2cst->m_valueLow & 0x1F) == 0))
+		{
+			statement.op = OP_MOV;
+			statement.src2.reset();
+			changed = true;
+		}
+	}
+
+	return changed;
+}
+
 bool CJitter::ConstantFolding(StatementList& statements)
 {
 	bool changed = false;
@@ -726,6 +766,7 @@ bool CJitter::ConstantFolding(StatementList& statements)
 		changed |= FoldConstantOperation(statement);
 		changed |= FoldConstant64Operation(statement);
 		changed |= FoldConstant6432Operation(statement);
+		changed |= FoldConstant12832Operation(statement);
 	}
 	return changed;
 }

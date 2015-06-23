@@ -196,6 +196,7 @@ namespace Jitter
 		void							MD_SubHUS();
 		void							MD_SubH();
 		void							MD_SubW();
+		void							MD_SubWSS();
 		void							MD_SubS();
 		void							MD_ToSingle();
 		void							MD_ToWordTruncate();
@@ -278,6 +279,7 @@ namespace Jitter
 		bool							FoldConstantOperation(STATEMENT&);
 		bool							FoldConstant64Operation(STATEMENT&);
 		bool							FoldConstant6432Operation(STATEMENT&);
+		bool							FoldConstant12832Operation(STATEMENT&);
 
 		BASIC_BLOCK						ConcatBlocks(const BasicBlockList&);
 		bool							MergeBlocks();

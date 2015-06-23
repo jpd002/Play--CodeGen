@@ -124,6 +124,12 @@
     <ClCompile Include="..\tests\MdMinMaxTest.cpp">
       <Filter>Source Files\Tests\Md</Filter>
     </ClCompile>
+    <ClCompile Include="..\tests\MdShiftTest.cpp">
+      <Filter>Source Files\Tests\Md</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tests\DivTest.cpp">
+      <Filter>Source Files\Tests</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\tests\Test.h">
@@ -233,6 +239,12 @@
     </ClInclude>
     <ClInclude Include="..\tests\MdMinMaxTest.h">
       <Filter>Source Files\Tests\Md</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tests\MdShiftTest.h">
+      <Filter>Source Files\Tests\Md</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tests\DivTest.h">
+      <Filter>Source Files\Tests</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

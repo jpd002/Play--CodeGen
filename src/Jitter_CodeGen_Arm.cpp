@@ -1,6 +1,9 @@
 #include "Jitter_CodeGen_Arm.h"
 #include "ObjectFile.h"
 #include "BitManip.h"
+#ifdef __ANDROID__
+#include <cpu-features.h>
+#endif
 
 using namespace Jitter;
 
@@ -26,26 +29,6 @@ CArmAssembler::REGISTER CCodeGen_Arm::g_paramRegs[MAX_PARAM_REGS] =
 	CArmAssembler::r2,
 	CArmAssembler::r3,
 };
-
-extern "C" uint32 CodeGen_Arm_div_unsigned(uint32 a, uint32 b)
-{
-	return a / b;
-}
-
-extern "C" int32 CodeGen_Arm_div_signed(int32 a, int32 b)
-{
-	return a / b;
-}
-
-extern "C" uint32 CodeGen_Arm_mod_unsigned(uint32 a, uint32 b)
-{
-	return a % b;
-}
-
-extern "C" int32 CodeGen_Arm_mod_signed(int32 a, int32 b)
-{
-	return a % b;
-}
 
 template <typename ALUOP>
 void CCodeGen_Arm::Emit_Alu_GenericAnyAny(const STATEMENT& statement)
@@ -203,15 +186,8 @@ CCodeGen_Arm::CONSTMATCHER CCodeGen_Arm::g_constMatchers[] =
 	{ OP_NOT,			MATCH_MEMORY,		MATCH_REGISTER,		MATCH_NIL,			&CCodeGen_Arm::Emit_Not_MemReg								},
 	{ OP_NOT,			MATCH_MEMORY,		MATCH_MEMORY,		MATCH_NIL,			&CCodeGen_Arm::Emit_Not_MemMem								},
 	
-	{ OP_DIV,			MATCH_TEMPORARY64,	MATCH_REGISTER,		MATCH_REGISTER,		&CCodeGen_Arm::Emit_DivTmp64RegReg<false>					},
-	{ OP_DIV,			MATCH_TEMPORARY64,	MATCH_REGISTER,		MATCH_CONSTANT,		&CCodeGen_Arm::Emit_DivTmp64RegCst<false>					},
-	{ OP_DIV,			MATCH_TEMPORARY64,	MATCH_MEMORY,		MATCH_CONSTANT,		&CCodeGen_Arm::Emit_DivTmp64MemCst<false>					},
-//	{ OP_DIV,			MATCH_TEMPORARY64,	MATCH_RELATIVE,		MATCH_REGISTER,		&CCodeGen_Arm::Emit_DivTmp64RelReg<false>					},
-
-	{ OP_DIVS,			MATCH_TEMPORARY64,	MATCH_REGISTER,		MATCH_REGISTER,		&CCodeGen_Arm::Emit_DivTmp64RegReg<true>					},
-	{ OP_DIVS,			MATCH_TEMPORARY64,	MATCH_REGISTER,		MATCH_CONSTANT,		&CCodeGen_Arm::Emit_DivTmp64RegCst<true>					},
-	{ OP_DIVS,			MATCH_TEMPORARY64,	MATCH_MEMORY,		MATCH_CONSTANT,		&CCodeGen_Arm::Emit_DivTmp64MemCst<true>					},
-//	{ OP_DIVS,			MATCH_TEMPORARY64,	MATCH_RELATIVE,		MATCH_REGISTER,		&CCodeGen_Arm::Emit_DivTmp64RelReg<true>					},
+	{ OP_DIV,			MATCH_TEMPORARY64,	MATCH_ANY,			MATCH_ANY,			&CCodeGen_Arm::Emit_DivTmp64AnyAny<false>					},
+	{ OP_DIVS,			MATCH_TEMPORARY64,	MATCH_ANY,			MATCH_ANY,			&CCodeGen_Arm::Emit_DivTmp64AnyAny<true>					},
 	
 	{ OP_MUL,			MATCH_TEMPORARY64,	MATCH_ANY,			MATCH_ANY,			&CCodeGen_Arm::Emit_MulTmp64AnyAny<false>					},
 	{ OP_MULS,			MATCH_TEMPORARY64,	MATCH_ANY,			MATCH_ANY,			&CCodeGen_Arm::Emit_MulTmp64AnyAny<true>					},
@@ -230,8 +206,15 @@ CCodeGen_Arm::CONSTMATCHER CCodeGen_Arm::g_constMatchers[] =
 };
 
 CCodeGen_Arm::CCodeGen_Arm()
-: m_stream(nullptr)
 {
+#ifdef __ANDROID__
+	auto cpuFeatures = android_getCpuFeatures();
+	if(cpuFeatures & ANDROID_CPU_ARM_FEATURE_IDIV_ARM)
+	{
+		m_hasIntegerDiv = true;
+	}
+#endif
+
 	for(auto* constMatcher = g_constMatchers; constMatcher->emitter != nullptr; constMatcher++)
 	{
 		MATCHER matcher;

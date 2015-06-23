@@ -2,6 +2,7 @@
 
 #include "Crc32Test.h"
 #include "MultTest.h"
+#include "DivTest.h"
 #include "RandomAluTest.h"
 #include "RandomAluTest2.h"
 #include "RandomAluTest3.h"
@@ -22,6 +23,7 @@
 #include "MdCallTest.h"
 #include "MdMemAccessTest.h"
 #include "MdManipTest.h"
+#include "MdShiftTest.h"
 #include "CompareTest.h"
 #include "RegAllocTest.h"
 #include "MemAccessTest.h"
@@ -34,14 +36,6 @@
 #include "Merge64Test.h"
 #include "LzcTest.h"
 #include "NestedIfTest.h"
-
-#ifdef __APPLE__
-#include "TargetConditionals.h"
-#endif
-
-#if !TARGET_CPU_ARM
-#define HAS_ADVANCED_OPS
-#endif
 
 typedef std::function<CTest* ()> TestFactoryFunction;
 
@@ -63,10 +57,11 @@ static const TestFactoryFunction s_factories[] =
 	[] () { return new CCrc32Test("Hello World!", 0x67FCDACC); },
 	[] () { return new CMultTest(true); },
 	[] () { return new CMultTest(false); },
+	[] () { return new CDivTest(true); },
+	[] () { return new CDivTest(false); },
 	[] () { return new CMemAccessTest(); },
 	[] () { return new CHugeJumpTest(); },
 	[] () { return new CNestedIfTest(); },
-#ifdef HAS_ADVANCED_OPS
 	[] () { return new CLzcTest(); },
 	[] () { return new CAliasTest(); },
 	[] () { return new CFpuTest(); },
@@ -84,6 +79,12 @@ static const TestFactoryFunction s_factories[] =
 	[] () { return new CMdCallTest(); },
 	[] () { return new CMdMemAccessTest(); },
 	[] () { return new CMdManipTest(); },
+	[] () { return new CMdShiftTest(0); },
+	[] () { return new CMdShiftTest(15); },
+	[] () { return new CMdShiftTest(16); },
+	[] () { return new CMdShiftTest(31); },
+	[] () { return new CMdShiftTest(32); },
+	[] () { return new CMdShiftTest(38); },
 	[] () { return new CAlu64Test(); },
 	[] () { return new CCmp64Test(false,	0xFEDCBA9876543210ULL, 0x012389AB4567CDEFULL); },
 	[] () { return new CCmp64Test(true,		0xFEDCBA9876543210ULL, 0x012389AB4567CDEFULL); },
@@ -101,7 +102,6 @@ static const TestFactoryFunction s_factories[] =
 	[] () { return new CShift64Test(76); },
 	[] () { return new CMerge64Test(); },
 	[] () { return new CCall64Test(); },
-#endif
 };
 
 int main(int argc, const char** argv)

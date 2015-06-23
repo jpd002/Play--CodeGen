@@ -37,14 +37,6 @@
 #include "LzcTest.h"
 #include "NestedIfTest.h"
 
-#ifdef __APPLE__
-#include "TargetConditionals.h"
-#endif
-
-#if !TARGET_CPU_ARM
-#define HAS_ADVANCED_OPS
-#endif
-
 typedef std::function<CTest* ()> TestFactoryFunction;
 
 static const TestFactoryFunction s_factories[] =
@@ -70,7 +62,6 @@ static const TestFactoryFunction s_factories[] =
 	[] () { return new CMemAccessTest(); },
 	[] () { return new CHugeJumpTest(); },
 	[] () { return new CNestedIfTest(); },
-#ifdef HAS_ADVANCED_OPS
 	[] () { return new CLzcTest(); },
 	[] () { return new CAliasTest(); },
 	[] () { return new CFpuTest(); },
@@ -111,7 +102,6 @@ static const TestFactoryFunction s_factories[] =
 	[] () { return new CShift64Test(76); },
 	[] () { return new CMerge64Test(); },
 	[] () { return new CCall64Test(); },
-#endif
 };
 
 int main(int argc, const char** argv)

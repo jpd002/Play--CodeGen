@@ -30,6 +30,11 @@ uint64 CCall64Test::AddMul64(uint32 v1, uint64 v2, uint64 v3)
 	return v1 + (v2 * v3);
 }
 
+uint64 CCall64Test::AddMul64_2(uint32 v1, uint64 v2, uint32 v3)
+{
+	return v2 + (v1 * v3);
+}
+
 void CCall64Test::Compile(Jitter::CJitter& jitter)
 {
 	Framework::CMemStream codeStream;
@@ -61,6 +66,15 @@ void CCall64Test::Compile(Jitter::CJitter& jitter)
 			jitter.Call(reinterpret_cast<void*>(&CCall64Test::AddMul64), 3, Jitter::CJitter::RETURN_VALUE_64);
 			jitter.PullRel64(offsetof(CONTEXT, result2));
 		}
+		
+		//Result 3
+		{
+			jitter.PushCst(CONSTANT_3);
+			jitter.PushCst64(CONSTANT_1);
+			jitter.PushCst(CONSTANT_3);
+			jitter.Call(reinterpret_cast<void*>(&CCall64Test::AddMul64_2), 3, Jitter::CJitter::RETURN_VALUE_64);
+			jitter.PullRel64(offsetof(CONTEXT, result3));
+		}
 	}
 	jitter.End();
 
@@ -80,4 +94,5 @@ void CCall64Test::Run()
 	TEST_VERIFY(context.result0 == (CONSTANT_1 + CONSTANT_2));
 	TEST_VERIFY(context.result1 == (CONSTANT_1 - CONSTANT_2));
 	TEST_VERIFY(context.result2 == ((CONSTANT_1 * CONSTANT_2) + CONSTANT_3));
+	TEST_VERIFY(context.result3 == ((CONSTANT_3 * CONSTANT_3) + CONSTANT_1));
 }

@@ -828,8 +828,7 @@ void CCodeGen_Arm::Emit_Param_Mem64(const STATEMENT& statement)
 		[this, src1] (PARAM_STATE& paramState)
 		{
 			auto paramRegs = PrepareParam64(paramState);
-			LoadMemory64LowInRegister(paramRegs.first, src1);
-			LoadMemory64HighInRegister(paramRegs.second, src1);
+			LoadMemory64InRegisters(paramRegs.first, paramRegs.second, src1);
 			CommitParam64(paramState);
 		}
 	);
@@ -929,8 +928,7 @@ void CCodeGen_Arm::Emit_RetVal_Mem64(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
 
-	StoreRegisterInMemory64Low(dst, CArmAssembler::r0);
-	StoreRegisterInMemory64High(dst, CArmAssembler::r1);
+	StoreRegistersInMemory64(dst, CArmAssembler::r0, CArmAssembler::r1);
 }
 
 void CCodeGen_Arm::Emit_Mov_RegReg(const STATEMENT& statement)

@@ -4,6 +4,7 @@
 #include "ArmAssembler.h"
 #include <deque>
 #include <functional>
+#include <array>
 
 namespace Jitter
 {
@@ -123,7 +124,7 @@ namespace Jitter
 		CArmAssembler::REGISTER					PrepareSymbolRegisterUse(CSymbol*, CArmAssembler::REGISTER);
 		void									CommitSymbolRegister(CSymbol*, CArmAssembler::REGISTER);
 
-		typedef std::pair<CArmAssembler::REGISTER, CArmAssembler::REGISTER> ParamRegisterPair;
+		typedef std::array<CArmAssembler::REGISTER, 2> ParamRegisterPair;
 
 		CArmAssembler::REGISTER					PrepareParam(PARAM_STATE&);
 		ParamRegisterPair						PrepareParam64(PARAM_STATE&);

@@ -630,11 +630,11 @@ namespace Jitter
 		void						Emit_Md_IsNegative(CX86Assembler::REGISTER, const CX86Assembler::CAddress&);
 
 		CX86Assembler				m_assembler;
-		CX86Assembler::REGISTER*	m_registers;
-		CX86Assembler::XMMREGISTER*	m_mdRegisters;
+		CX86Assembler::REGISTER*	m_registers = nullptr;
+		CX86Assembler::XMMREGISTER*	m_mdRegisters = nullptr;
 		LabelMapType				m_labels;
 		SymbolReferenceLabelArray	m_symbolReferenceLabels;
-		uint32						m_stackLevel;
+		uint32						m_stackLevel = 0;
 		
 	private:
 		typedef void (CCodeGen_x86::*ConstCodeEmitterType)(const STATEMENT&);

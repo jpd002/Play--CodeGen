@@ -112,7 +112,6 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_constMatchers[] =
 };
 
 CCodeGen_x86::CCodeGen_x86()
-: m_registers(NULL)
 {
 	for(CONSTMATCHER* constMatcher = g_constMatchers; constMatcher->emitter != NULL; constMatcher++)
 	{

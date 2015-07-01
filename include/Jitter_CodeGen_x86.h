@@ -648,6 +648,8 @@ namespace Jitter
 			ConstCodeEmitterType	emitter;
 		};
 
+		void						InsertMatchers(const CONSTMATCHER*);
+
 		static CONSTMATCHER			g_constMatchers[];
 		static CONSTMATCHER			g_fpuConstMatchers[];
 		static CONSTMATCHER			g_mdConstMatchers[];

@@ -113,38 +113,9 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_constMatchers[] =
 
 CCodeGen_x86::CCodeGen_x86()
 {
-	for(CONSTMATCHER* constMatcher = g_constMatchers; constMatcher->emitter != NULL; constMatcher++)
-	{
-		MATCHER matcher;
-		matcher.op			= constMatcher->op;
-		matcher.dstType		= constMatcher->dstType;
-		matcher.src1Type	= constMatcher->src1Type;
-		matcher.src2Type	= constMatcher->src2Type;
-		matcher.emitter		= std::bind(constMatcher->emitter, this, std::placeholders::_1);
-		m_matchers.insert(MatcherMapType::value_type(matcher.op, matcher));
-	}
-
-	for(CONSTMATCHER* constMatcher = g_fpuConstMatchers; constMatcher->emitter != NULL; constMatcher++)
-	{
-		MATCHER matcher;
-		matcher.op			= constMatcher->op;
-		matcher.dstType		= constMatcher->dstType;
-		matcher.src1Type	= constMatcher->src1Type;
-		matcher.src2Type	= constMatcher->src2Type;
-		matcher.emitter		= std::bind(constMatcher->emitter, this, std::placeholders::_1);
-		m_matchers.insert(MatcherMapType::value_type(matcher.op, matcher));
-	}
-
-	for(CONSTMATCHER* constMatcher = g_mdConstMatchers; constMatcher->emitter != NULL; constMatcher++)
-	{
-		MATCHER matcher;
-		matcher.op			= constMatcher->op;
-		matcher.dstType		= constMatcher->dstType;
-		matcher.src1Type	= constMatcher->src1Type;
-		matcher.src2Type	= constMatcher->src2Type;
-		matcher.emitter		= std::bind(constMatcher->emitter, this, std::placeholders::_1);
-		m_matchers.insert(MatcherMapType::value_type(matcher.op, matcher));
-	}
+	InsertMatchers(g_constMatchers);
+	InsertMatchers(g_fpuConstMatchers);
+	InsertMatchers(g_mdConstMatchers);
 }
 
 CCodeGen_x86::~CCodeGen_x86()
@@ -208,6 +179,20 @@ void CCodeGen_x86::GenerateCode(const StatementList& statements, unsigned int st
 
 	m_labels.clear();
 	m_symbolReferenceLabels.clear();
+}
+
+void CCodeGen_x86::InsertMatchers(const CONSTMATCHER* constMatchers)
+{
+	for(auto* constMatcher = constMatchers; constMatcher->emitter != nullptr; constMatcher++)
+	{
+		MATCHER matcher;
+		matcher.op			= constMatcher->op;
+		matcher.dstType		= constMatcher->dstType;
+		matcher.src1Type	= constMatcher->src1Type;
+		matcher.src2Type	= constMatcher->src2Type;
+		matcher.emitter		= std::bind(constMatcher->emitter, this, std::placeholders::_1);
+		m_matchers.insert(MatcherMapType::value_type(matcher.op, matcher));
+	}
 }
 
 void CCodeGen_x86::SetStream(Framework::CStream* stream)

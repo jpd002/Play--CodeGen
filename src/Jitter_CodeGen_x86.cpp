@@ -122,6 +122,15 @@ CCodeGen_x86::CCodeGen_x86()
 	InsertMatchers(g_constMatchers);
 	InsertMatchers(g_fpuConstMatchers);
 	InsertMatchers(g_mdConstMatchers);
+
+	if(m_hasSse41)
+	{
+		InsertMatchers(g_mdMinMaxWSse41ConstMatchers);
+	}
+	else
+	{
+		InsertMatchers(g_mdMinMaxWConstMatchers);
+	}
 }
 
 CCodeGen_x86::~CCodeGen_x86()

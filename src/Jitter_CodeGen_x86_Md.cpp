@@ -472,6 +472,56 @@ void CCodeGen_x86::Emit_Md_AddUSW_VarVarVar(const STATEMENT& statement)
 	m_assembler.MovapsVo(MakeVariable128SymbolAddress(dst), resRegister);
 }
 
+void CCodeGen_x86::Emit_Md_MinW_VarVarVar(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	auto src1Register = CX86Assembler::xMM0;
+	auto src2Register = CX86Assembler::xMM1;
+	auto mask1Register = CX86Assembler::xMM2;
+	auto mask2Register = CX86Assembler::xMM3;
+
+	m_assembler.MovdqaVo(src1Register, MakeVariable128SymbolAddress(src1));
+	m_assembler.MovdqaVo(src2Register, MakeVariable128SymbolAddress(src2));
+
+	m_assembler.MovdqaVo(mask1Register, CX86Assembler::MakeXmmRegisterAddress(src2Register));
+	m_assembler.PcmpgtdVo(mask1Register, CX86Assembler::MakeXmmRegisterAddress(src1Register));
+	m_assembler.MovdqaVo(mask2Register, CX86Assembler::MakeXmmRegisterAddress(mask1Register));
+
+	m_assembler.PandVo(mask1Register, CX86Assembler::MakeXmmRegisterAddress(src1Register));
+	m_assembler.PandnVo(mask2Register, CX86Assembler::MakeXmmRegisterAddress(src2Register));
+	m_assembler.PorVo(mask1Register, CX86Assembler::MakeXmmRegisterAddress(mask2Register));
+
+	m_assembler.MovdqaVo(MakeVariable128SymbolAddress(dst), mask1Register);
+}
+
+void CCodeGen_x86::Emit_Md_MaxW_VarVarVar(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	auto src1Register = CX86Assembler::xMM0;
+	auto src2Register = CX86Assembler::xMM1;
+	auto mask1Register = CX86Assembler::xMM2;
+	auto mask2Register = CX86Assembler::xMM3;
+
+	m_assembler.MovdqaVo(src1Register, MakeVariable128SymbolAddress(src1));
+	m_assembler.MovdqaVo(src2Register, MakeVariable128SymbolAddress(src2));
+
+	m_assembler.MovdqaVo(mask1Register, CX86Assembler::MakeXmmRegisterAddress(src1Register));
+	m_assembler.PcmpgtdVo(mask1Register, CX86Assembler::MakeXmmRegisterAddress(src2Register));
+	m_assembler.MovdqaVo(mask2Register, CX86Assembler::MakeXmmRegisterAddress(mask1Register));
+
+	m_assembler.PandVo(mask1Register, CX86Assembler::MakeXmmRegisterAddress(src1Register));
+	m_assembler.PandnVo(mask2Register, CX86Assembler::MakeXmmRegisterAddress(src2Register));
+	m_assembler.PorVo(mask1Register, CX86Assembler::MakeXmmRegisterAddress(mask2Register));
+
+	m_assembler.MovdqaVo(MakeVariable128SymbolAddress(dst), mask1Register);
+}
+
 void CCodeGen_x86::Emit_Md_PackHB_VarVarVar(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
@@ -875,10 +925,8 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdConstMatchers[] =
 	MD_CONST_MATCHERS_3OPS(OP_MD_CMPGT_W,	MDOP_CMPGTW)
 
 	MD_CONST_MATCHERS_3OPS(OP_MD_MIN_H,		MDOP_MINH)
-	MD_CONST_MATCHERS_3OPS(OP_MD_MIN_W,		MDOP_MINW)
 
 	MD_CONST_MATCHERS_3OPS(OP_MD_MAX_H,		MDOP_MAXH)
-	MD_CONST_MATCHERS_3OPS(OP_MD_MAX_W,		MDOP_MAXW)
 
 	MD_CONST_MATCHERS_3OPS(OP_MD_AND,		MDOP_AND)
 	MD_CONST_MATCHERS_3OPS(OP_MD_OR,		MDOP_OR)
@@ -941,4 +989,20 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdConstMatchers[] =
 	{ OP_MERGETO256,			MATCH_MEMORY256,			MATCH_VARIABLE128,			MATCH_VARIABLE128,		&CCodeGen_x86::Emit_MergeTo256_MemVarVar					},
 
 	{ OP_MOV,					MATCH_NIL,					MATCH_NIL,					MATCH_NIL,				NULL														},
+};
+
+CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdMinMaxWConstMatchers[] =
+{
+	{ OP_MD_MIN_W,	MATCH_VARIABLE128,	MATCH_VARIABLE128,	MATCH_VARIABLE128,	&CCodeGen_x86::Emit_Md_MinW_VarVarVar	},
+	{ OP_MD_MAX_W,	MATCH_VARIABLE128,	MATCH_VARIABLE128,	MATCH_VARIABLE128,	&CCodeGen_x86::Emit_Md_MaxW_VarVarVar	},
+
+	{ OP_MOV, MATCH_NIL, MATCH_NIL, MATCH_NIL, nullptr },
+};
+
+CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdMinMaxWSse41ConstMatchers[] = 
+{
+	MD_CONST_MATCHERS_3OPS(OP_MD_MIN_W,		MDOP_MINW)
+	MD_CONST_MATCHERS_3OPS(OP_MD_MAX_W,		MDOP_MAXW)
+
+	{ OP_MOV, MATCH_NIL, MATCH_NIL, MATCH_NIL, nullptr },
 };

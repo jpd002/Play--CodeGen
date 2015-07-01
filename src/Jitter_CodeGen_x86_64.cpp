@@ -684,13 +684,13 @@ void CCodeGen_x86_64::Emit_RelToRef_TmpCst(const STATEMENT& statement)
 
 void CCodeGen_x86_64::Emit_AddRef_MemMemReg(const STATEMENT& statement)
 {
-	CSymbol* dst = statement.dst->GetSymbol().get();
-	CSymbol* src1 = statement.src1->GetSymbol().get();
-	CSymbol* src2 = statement.src2->GetSymbol().get();
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
 
 	assert(src2->m_type == SYM_REGISTER);
 
-	CX86Assembler::REGISTER tmpReg = CX86Assembler::rAX;
+	auto tmpReg = CX86Assembler::rAX;
 	m_assembler.MovEq(tmpReg, MakeMemoryReferenceSymbolAddress(src1));
 	m_assembler.AddEq(tmpReg, CX86Assembler::MakeRegisterAddress(m_registers[src2->m_valueLow]));
 	m_assembler.MovGq(MakeMemoryReferenceSymbolAddress(dst), tmpReg);
@@ -698,13 +698,13 @@ void CCodeGen_x86_64::Emit_AddRef_MemMemReg(const STATEMENT& statement)
 
 void CCodeGen_x86_64::Emit_AddRef_MemMemCst(const STATEMENT& statement)
 {
-	CSymbol* dst = statement.dst->GetSymbol().get();
-	CSymbol* src1 = statement.src1->GetSymbol().get();
-	CSymbol* src2 = statement.src2->GetSymbol().get();
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
 
 	assert(src2->m_type == SYM_CONSTANT);
 
-	CX86Assembler::REGISTER tmpReg = CX86Assembler::rAX;
+	auto tmpReg = CX86Assembler::rAX;
 	m_assembler.MovEq(tmpReg, MakeMemoryReferenceSymbolAddress(src1));
 	m_assembler.AddIq(CX86Assembler::MakeRegisterAddress(tmpReg), src2->m_valueLow);
 	m_assembler.MovGq(MakeMemoryReferenceSymbolAddress(dst), tmpReg);

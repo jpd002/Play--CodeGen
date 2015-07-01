@@ -1,5 +1,9 @@
 #include <functional>
+#include <array>
 #include <assert.h>
+#ifdef _WIN32
+#include <intrin.h>
+#endif
 #include "Jitter_CodeGen_x86.h"
 
 using namespace Jitter;
@@ -113,6 +117,8 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_constMatchers[] =
 
 CCodeGen_x86::CCodeGen_x86()
 {
+	SetGenerationFlags();
+
 	InsertMatchers(g_constMatchers);
 	InsertMatchers(g_fpuConstMatchers);
 	InsertMatchers(g_mdConstMatchers);
@@ -193,6 +199,16 @@ void CCodeGen_x86::InsertMatchers(const CONSTMATCHER* constMatchers)
 		matcher.emitter		= std::bind(constMatcher->emitter, this, std::placeholders::_1);
 		m_matchers.insert(MatcherMapType::value_type(matcher.op, matcher));
 	}
+}
+
+void CCodeGen_x86::SetGenerationFlags()
+{
+#ifdef _WIN32
+	static uint32 CPUID_FLAG_SSE41 = 0x080000;
+	std::array<int, 4> cpuInfo;
+	__cpuid(cpuInfo.data(), 1);
+	m_hasSse41 = (cpuInfo[2] & CPUID_FLAG_SSE41) != 0;
+#endif
 }
 
 void CCodeGen_x86::SetStream(Framework::CStream* stream)

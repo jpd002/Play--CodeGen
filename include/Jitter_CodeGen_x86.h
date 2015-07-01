@@ -649,6 +649,9 @@ namespace Jitter
 		};
 
 		void						InsertMatchers(const CONSTMATCHER*);
+		void						SetGenerationFlags();
+		
+		bool						m_hasSse41 = false;
 
 		static CONSTMATCHER			g_constMatchers[];
 		static CONSTMATCHER			g_fpuConstMatchers[];

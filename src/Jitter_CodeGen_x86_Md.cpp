@@ -444,8 +444,9 @@ void CCodeGen_x86::Emit_Md_AddUSW_VarVarVar(const STATEMENT& statement)
 	auto src2 = statement.src2->GetSymbol().get();
 
 	auto xRegister = CX86Assembler::xMM0;
-	auto tmpRegister = CX86Assembler::xMM1;
-	auto resRegister = CX86Assembler::xMM2;
+	auto resRegister = CX86Assembler::xMM1;
+	auto tmpRegister = CX86Assembler::xMM2;
+	auto tmp2Register = CX86Assembler::xMM3;
 
 //	This is based on code from http://locklessinc.com/articles/sat_arithmetic/
 //	u32b sat_addu32b(u32b x, u32b y)
@@ -456,20 +457,26 @@ void CCodeGen_x86::Emit_Md_AddUSW_VarVarVar(const STATEMENT& statement)
 //		return res;
 //	}
 
-	m_assembler.MovapsVo(xRegister, MakeVariable128SymbolAddress(src1));
-	m_assembler.MovapsVo(resRegister, CX86Assembler::MakeXmmRegisterAddress(xRegister));
+	m_assembler.MovdqaVo(xRegister, MakeVariable128SymbolAddress(src1));
+	m_assembler.MovdqaVo(resRegister, CX86Assembler::MakeXmmRegisterAddress(xRegister));
 	m_assembler.PadddVo(resRegister, MakeVariable128SymbolAddress(src2));
 	
 	//-(res < x)
-	m_assembler.MovapsVo(tmpRegister, CX86Assembler::MakeXmmRegisterAddress(resRegister));
-	m_assembler.PsubdVo(tmpRegister, CX86Assembler::MakeXmmRegisterAddress(xRegister));
-	m_assembler.PsradVo(tmpRegister, 31);
+	m_assembler.PcmpeqdVo(tmpRegister, CX86Assembler::MakeXmmRegisterAddress(tmpRegister));
+	m_assembler.PslldVo(tmpRegister, 31);
+	m_assembler.PadddVo(tmpRegister, CX86Assembler::MakeXmmRegisterAddress(resRegister));
+
+	m_assembler.PcmpeqdVo(tmp2Register, CX86Assembler::MakeXmmRegisterAddress(tmp2Register));
+	m_assembler.PslldVo(tmp2Register, 31);
+	m_assembler.PadddVo(tmp2Register, CX86Assembler::MakeXmmRegisterAddress(xRegister));
+
+	m_assembler.PcmpgtdVo(tmp2Register, CX86Assembler::MakeXmmRegisterAddress(tmpRegister));
 
 	//res |= -(res < x)
-	m_assembler.PorVo(resRegister, CX86Assembler::MakeXmmRegisterAddress(tmpRegister));
+	m_assembler.PorVo(resRegister, CX86Assembler::MakeXmmRegisterAddress(tmp2Register));
 
 	//Store result
-	m_assembler.MovapsVo(MakeVariable128SymbolAddress(dst), resRegister);
+	m_assembler.MovdqaVo(MakeVariable128SymbolAddress(dst), resRegister);
 }
 
 void CCodeGen_x86::Emit_Md_MinW_VarVarVar(const STATEMENT& statement)

@@ -23,7 +23,13 @@
 
 #elif defined(__ANDROID__)
 
-	#include "Jitter_CodeGen_Arm.h"
+	#if defined(__arm__)
+		#include "Jitter_CodeGen_Arm.h"
+	#elif defined(__i386__)
+		#include "Jitter_CodeGen_x86_32.h"
+	#else
+		#warning Architecture not supported
+	#endif
 
 #endif
 
@@ -51,7 +57,13 @@ Jitter::CCodeGen* Jitter::CreateCodeGen()
 
 #elif defined(__ANDROID__)
 
-	return new Jitter::CCodeGen_Arm();
+	#if defined(__arm__)
+		return new Jitter::CCodeGen_Arm();
+	#elif defined(__i386__)
+		return new Jitter::CCodeGen_x86_32();
+	#else
+		throw std::runtime_error("Unsupported architecture.");
+	#endif
 
 #endif
 }

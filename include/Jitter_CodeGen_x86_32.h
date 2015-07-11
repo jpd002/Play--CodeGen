@@ -22,8 +22,8 @@ namespace Jitter
 			SHIFTRIGHT_ARITHMETIC
 		};
 
-		virtual void						Emit_Prolog(const StatementList&, unsigned int, uint32);
-		virtual void						Emit_Epilog(unsigned int, uint32);
+		virtual void						Emit_Prolog(const StatementList&, unsigned int, uint32) override;
+		virtual void						Emit_Epilog(unsigned int, uint32) override;
 
 		//PARAM
 		void								Emit_Param_Ctx(const STATEMENT&);

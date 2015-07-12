@@ -386,7 +386,7 @@ void CCodeGen_x86_32::Emit_Call(const STATEMENT& statement)
 	m_symbolReferenceLabels.push_back(std::make_pair(src1->GetConstantPtr(), symbolRefLabel));
 	m_assembler.CallEd(CX86Assembler::MakeRegisterAddress(CX86Assembler::rAX));
 	
-#ifdef __APPLE__
+#if defined(__APPLE__) || defined(__ANDROID__)
 	if(m_hasImplicitRetValueParam)
 	{
 		//Allocated stack space for the extra parameter is cleaned up by the callee. 

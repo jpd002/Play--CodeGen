@@ -1,6 +1,6 @@
 LOCAL_PATH:= $(call my-dir)
 
-include $(LOCAL_PATH)/ExternalDependencies.mk
+FRAMEWORK_PATH := $(realpath $(LOCAL_PATH))/../../../Framework
 
 include $(CLEAR_VARS)
 

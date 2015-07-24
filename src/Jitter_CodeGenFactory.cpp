@@ -27,6 +27,8 @@
 		#include "Jitter_CodeGen_Arm.h"
 	#elif defined(__i386__)
 		#include "Jitter_CodeGen_x86_32.h"
+	#elif defined(__x86_64__)
+		#include "Jitter_CodeGen_x86_64.h"
 	#else
 		#warning Architecture not supported
 	#endif
@@ -61,6 +63,8 @@ Jitter::CCodeGen* Jitter::CreateCodeGen()
 		return new Jitter::CCodeGen_Arm();
 	#elif defined(__i386__)
 		return new Jitter::CCodeGen_x86_32();
+	#elif defined(__x86_64__)
+		return new Jitter::CCodeGen_x86_64();
 	#else
 		throw std::runtime_error("Unsupported architecture.");
 	#endif

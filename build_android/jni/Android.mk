@@ -1,4 +1,4 @@
-LOCAL_PATH:= $(call my-dir)
+LOCAL_PATH := $(call my-dir)
 
 FRAMEWORK_PATH := $(realpath $(LOCAL_PATH))/../../../Framework
 
@@ -21,6 +21,7 @@ LOCAL_SRC_FILES		:=	../../src/ArmAssembler.cpp \
 						../../src/Jitter_CodeGen_Arm_Md.cpp \
 						../../src/Jitter_CodeGen_x86.cpp \
 						../../src/Jitter_CodeGen_x86_32.cpp \
+						../../src/Jitter_CodeGen_x86_64.cpp \
 						../../src/Jitter_CodeGen_x86_Fpu.cpp \
 						../../src/Jitter_CodeGen_x86_Md.cpp \
 						../../src/Jitter_CodeGenFactory.cpp \

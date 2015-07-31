@@ -1,5 +1,6 @@
 #pragma once
 
+#include <string.h>
 #include <functional>
 #include <map>
 #include "Stream.h"

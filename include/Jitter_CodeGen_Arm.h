@@ -205,11 +205,6 @@ namespace Jitter
 			typedef void (CArmAssembler::*OpRegType)(CArmAssembler::SINGLE_REGISTER, CArmAssembler::SINGLE_REGISTER, CArmAssembler::SINGLE_REGISTER);
 		};
 
-		struct FPUMDOP_BASE2
-		{
-			typedef void (CArmAssembler::*OpRegType)(CArmAssembler::QUAD_REGISTER, CArmAssembler::QUAD_REGISTER);
-		};
-
 		struct FPUMDOP_BASE3
 		{
 			typedef void (CArmAssembler::*OpRegType)(CArmAssembler::QUAD_REGISTER, CArmAssembler::QUAD_REGISTER, CArmAssembler::QUAD_REGISTER);
@@ -248,16 +243,6 @@ namespace Jitter
 		struct FPUOP_DIV : public FPUOP_BASE3
 		{
 			static OpRegType OpReg() { return &CArmAssembler::Vdiv_F32; }
-		};
-
-		struct FPUMDOP_RCPL : public FPUMDOP_BASE2
-		{
-			static OpRegType OpReg() { return &CArmAssembler::Vrecpe_F32; }
-		};
-
-		struct FPUMDOP_RSQRT : public FPUMDOP_BASE2
-		{
-			static OpRegType OpReg() { return &CArmAssembler::Vrsqrte_F32; }
 		};
 
 		struct FPUMDOP_MIN : public FPUMDOP_BASE3
@@ -592,8 +577,9 @@ namespace Jitter
 		//FPUOP
 		template <typename> void				Emit_Fpu_MemMem(const STATEMENT&);
 		template <typename> void				Emit_Fpu_MemMemMem(const STATEMENT&);
-		template <typename> void				Emit_FpuMd_MemMem(const STATEMENT&);
 		template <typename> void				Emit_FpuMd_MemMemMem(const STATEMENT&);
+		void									Emit_Fp_Rcpl_MemMem(const STATEMENT&);
+		void									Emit_Fp_Rsqrt_MemMem(const STATEMENT&);
 		void									Emit_Fp_Cmp_AnyMemMem(const STATEMENT&);
 		void									Emit_Fp_Mov_MemSRelI32(const STATEMENT&);
 		void									Emit_Fp_ToIntTrunc_MemMem(const STATEMENT&);

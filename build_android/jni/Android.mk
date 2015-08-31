@@ -1,6 +1,6 @@
-LOCAL_PATH:= $(call my-dir)
+LOCAL_PATH := $(call my-dir)
 
-include $(LOCAL_PATH)/ExternalDependencies.mk
+FRAMEWORK_PATH := $(realpath $(LOCAL_PATH))/../../../Framework
 
 include $(CLEAR_VARS)
 
@@ -19,13 +19,21 @@ LOCAL_SRC_FILES		:=	../../src/ArmAssembler.cpp \
 						../../src/Jitter_CodeGen_Arm_64.cpp \
 						../../src/Jitter_CodeGen_Arm_Fpu.cpp \
 						../../src/Jitter_CodeGen_Arm_Md.cpp \
+						../../src/Jitter_CodeGen_x86.cpp \
+						../../src/Jitter_CodeGen_x86_32.cpp \
+						../../src/Jitter_CodeGen_x86_64.cpp \
+						../../src/Jitter_CodeGen_x86_Fpu.cpp \
+						../../src/Jitter_CodeGen_x86_Md.cpp \
 						../../src/Jitter_CodeGenFactory.cpp \
 						../../src/Jitter_Optimize.cpp \
 						../../src/Jitter_RegAlloc.cpp \
 						../../src/Jitter_Statement.cpp \
 						../../src/Jitter_SymbolTable.cpp \
 						../../src/MemoryFunction.cpp \
-						../../src/ObjectFile.cpp
+						../../src/ObjectFile.cpp \
+						../../src/X86Assembler.cpp \
+						../../src/X86Assembler_Fpu.cpp \
+						../../src/X86Assembler_Sse.cpp
 LOCAL_CFLAGS		:= -Wno-extern-c-compat
 LOCAL_C_INCLUDES	:= $(FRAMEWORK_PATH)/include $(LOCAL_PATH)/../../include $(NDK_ROOT)/sources/android/cpufeatures
 LOCAL_CPP_FEATURES	:= exceptions rtti

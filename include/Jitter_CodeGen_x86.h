@@ -603,6 +603,8 @@ namespace Jitter
 		void						Emit_Md_AddSSW_VarVarVar(const STATEMENT&);
 		void						Emit_Md_AddUSW_VarVarVar(const STATEMENT&);
 		void						Emit_Md_SubSSW_VarVarVar(const STATEMENT&);
+		void						Emit_Md_MinW_VarVarVar(const STATEMENT&);
+		void						Emit_Md_MaxW_VarVarVar(const STATEMENT&);
 		void						Emit_Md_PackHB_VarVarVar(const STATEMENT&);
 		void						Emit_Md_PackWH_VarVarVar(const STATEMENT&);
 		void						Emit_Md_Mov_RegVar(const STATEMENT&);
@@ -630,11 +632,11 @@ namespace Jitter
 		void						Emit_Md_IsNegative(CX86Assembler::REGISTER, const CX86Assembler::CAddress&);
 
 		CX86Assembler				m_assembler;
-		CX86Assembler::REGISTER*	m_registers;
-		CX86Assembler::XMMREGISTER*	m_mdRegisters;
+		CX86Assembler::REGISTER*	m_registers = nullptr;
+		CX86Assembler::XMMREGISTER*	m_mdRegisters = nullptr;
 		LabelMapType				m_labels;
 		SymbolReferenceLabelArray	m_symbolReferenceLabels;
-		uint32						m_stackLevel;
+		uint32						m_stackLevel = 0;
 		
 	private:
 		typedef void (CCodeGen_x86::*ConstCodeEmitterType)(const STATEMENT&);
@@ -648,8 +650,16 @@ namespace Jitter
 			ConstCodeEmitterType	emitter;
 		};
 
+		void						InsertMatchers(const CONSTMATCHER*);
+		void						SetGenerationFlags();
+		
+		bool						m_hasSse41 = false;
+
 		static CONSTMATCHER			g_constMatchers[];
 		static CONSTMATCHER			g_fpuConstMatchers[];
 		static CONSTMATCHER			g_mdConstMatchers[];
+
+		static CONSTMATCHER			g_mdMinMaxWConstMatchers[];
+		static CONSTMATCHER			g_mdMinMaxWSse41ConstMatchers[];
 	};
 }

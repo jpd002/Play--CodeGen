@@ -61,8 +61,8 @@ void CMdAddTest::Compile(Jitter::CJitter& jitter)
 		jitter.MD_AddW();
 		jitter.MD_PullRel(offsetof(CONTEXT, dstAddW));
 
-		jitter.MD_PushRel(offsetof(CONTEXT, src1));
-		jitter.MD_PushRel(offsetof(CONTEXT, src1));
+		jitter.MD_PushRel(offsetof(CONTEXT, src2));
+		jitter.MD_PushRel(offsetof(CONTEXT, src3));
 		jitter.MD_AddWUS();
 		jitter.MD_PullRel(offsetof(CONTEXT, dstAddWUS));
 
@@ -95,6 +95,9 @@ void CMdAddTest::Run()
 		}
 		context.src3[i] = 0xC0;
 	}
+
+	*reinterpret_cast<uint32*>(&context.src2[0]) = ~0;
+	*reinterpret_cast<uint32*>(&context.src3[0]) = 1;
 
 	m_function(&context);
 
@@ -163,9 +166,10 @@ void CMdAddTest::Run()
 
 	for(unsigned int i = 0; i < 4; i++)
 	{
-		uint32 value = *reinterpret_cast<uint32*>(&context.src1[i * 4]);
+		uint32 value2 = *reinterpret_cast<uint32*>(&context.src2[i * 4]);
+		uint32 value3 = *reinterpret_cast<uint32*>(&context.src3[i * 4]);
 		uint32 result = *reinterpret_cast<uint32*>(&context.dstAddWUS[i * 4]);
-		TEST_VERIFY(result == ComputeWordUnsignedSaturation(value, value));
+		TEST_VERIFY(result == ComputeWordUnsignedSaturation(value2, value3));
 	}
 
 	for(unsigned int i = 0; i < 4; i++)

@@ -681,18 +681,26 @@ CCodeGen_Arm::ParamRegisterPair CCodeGen_Arm::PrepareParam64(PARAM_STATE& paramS
 {
 	assert(!paramState.prepared);
 	paramState.prepared = true;
+#ifdef __ANDROID__
+	//TODO: This needs to be an ABI flag or something
 	if(paramState.index & 1)
 	{
 		paramState.index++;
 	}
-	if(paramState.index < MAX_PARAM_REGS)
+#endif
+	ParamRegisterPair result;
+	for(unsigned int i = 0; i < 2; i++)
 	{
-		return std::make_pair(g_paramRegs[paramState.index], g_paramRegs[paramState.index + 1]);
+		if((paramState.index + i) < MAX_PARAM_REGS)
+		{
+			result[i] = g_paramRegs[paramState.index + i];
+		}
+		else
+		{
+			result[i] = (i == 0) ? g_tempParamRegister0 : g_tempParamRegister1;
+		}
 	}
-	else
-	{
-		return std::make_pair(g_tempParamRegister0, g_tempParamRegister1);
-	}
+	return result;
 }
 
 void CCodeGen_Arm::CommitParam(PARAM_STATE& paramState)
@@ -716,17 +724,28 @@ void CCodeGen_Arm::CommitParam64(PARAM_STATE& paramState)
 {
 	assert(paramState.prepared);
 	paramState.prepared = false;
-	if(paramState.index < MAX_PARAM_REGS)
+	uint32 stackPosition = std::max<int>((paramState.index - MAX_PARAM_REGS) + 2, 0);
+	for(unsigned int i = 0; i < 2; i++)
 	{
-		//Nothing to do 
-	}
-	else
-	{
-		uint32 stackSlot = ((paramState.index - MAX_PARAM_REGS) + 2) * 4;
-		m_assembler.Str(g_tempParamRegister0, CArmAssembler::rSP, 
-			CArmAssembler::MakeImmediateLdrAddress(m_stackLevel - stackSlot + 0));
-		m_assembler.Str(g_tempParamRegister1, CArmAssembler::rSP, 
-			CArmAssembler::MakeImmediateLdrAddress(m_stackLevel - stackSlot + 4));
+		if(paramState.index < MAX_PARAM_REGS)
+		{
+			//Nothing to do
+		}
+		else
+		{
+			assert(stackPosition > 0);
+			auto tempParamReg = (i == 0) ? g_tempParamRegister0 : g_tempParamRegister1;
+			uint32 stackSlot = i;
+			if(stackPosition == 1)
+			{
+				//Special case for when parameters are spread between
+				//registers and stack
+				assert(i == 1);
+				stackSlot = 0;
+			}
+			m_assembler.Str(tempParamReg, CArmAssembler::rSP,
+				CArmAssembler::MakeImmediateLdrAddress(m_stackLevel - (stackPosition * 4) + (stackSlot * 4)));
+		}
 	}
 	paramState.index += 2;
 }
@@ -828,8 +847,7 @@ void CCodeGen_Arm::Emit_Param_Mem64(const STATEMENT& statement)
 		[this, src1] (PARAM_STATE& paramState)
 		{
 			auto paramRegs = PrepareParam64(paramState);
-			LoadMemory64LowInRegister(paramRegs.first, src1);
-			LoadMemory64HighInRegister(paramRegs.second, src1);
+			LoadMemory64InRegisters(paramRegs[0], paramRegs[1], src1);
 			CommitParam64(paramState);
 		}
 	);
@@ -843,8 +861,8 @@ void CCodeGen_Arm::Emit_Param_Cst64(const STATEMENT& statement)
 		[this, src1] (PARAM_STATE& paramState)
 		{
 			auto paramRegs = PrepareParam64(paramState);
-			LoadConstantInRegister(paramRegs.first, src1->m_valueLow);
-			LoadConstantInRegister(paramRegs.second, src1->m_valueHigh);
+			LoadConstantInRegister(paramRegs[0], src1->m_valueLow);
+			LoadConstantInRegister(paramRegs[1], src1->m_valueHigh);
 			CommitParam64(paramState);
 		}
 	);
@@ -929,8 +947,7 @@ void CCodeGen_Arm::Emit_RetVal_Mem64(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
 
-	StoreRegisterInMemory64Low(dst, CArmAssembler::r0);
-	StoreRegisterInMemory64High(dst, CArmAssembler::r1);
+	StoreRegistersInMemory64(dst, CArmAssembler::r0, CArmAssembler::r1);
 }
 
 void CCodeGen_Arm::Emit_Mov_RegReg(const STATEMENT& statement)

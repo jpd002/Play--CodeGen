@@ -133,19 +133,6 @@ void CCodeGen_Arm::Emit_Fpu_MemMemMem(const STATEMENT& statement)
 }
 
 template <typename FPUMDOP>
-void CCodeGen_Arm::Emit_FpuMd_MemMem(const STATEMENT& statement)
-{
-	auto dst = statement.dst->GetSymbol().get();
-	auto src1 = statement.src1->GetSymbol().get();
-
-	CTempRegisterContext tempRegisterContext;
-
-	LoadMemoryFpSingleInRegister(tempRegisterContext, CArmAssembler::s0, src1);
-	((m_assembler).*(FPUMDOP::OpReg()))(CArmAssembler::q1, CArmAssembler::q0);
-	StoreRegisterInMemoryFpSingle(tempRegisterContext, dst, CArmAssembler::s4);
-}
-
-template <typename FPUMDOP>
 void CCodeGen_Arm::Emit_FpuMd_MemMemMem(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
@@ -158,6 +145,35 @@ void CCodeGen_Arm::Emit_FpuMd_MemMemMem(const STATEMENT& statement)
 	LoadMemoryFpSingleInRegister(tempRegisterContext, CArmAssembler::s4, src2);
 	((m_assembler).*(FPUMDOP::OpReg()))(CArmAssembler::q2, CArmAssembler::q0, CArmAssembler::q1);
 	StoreRegisterInMemoryFpSingle(tempRegisterContext, dst, CArmAssembler::s8);
+}
+
+void CCodeGen_Arm::Emit_Fp_Rcpl_MemMem(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+
+	CTempRegisterContext tempRegisterContext;
+
+	LoadMemoryFpSingleInRegister(tempRegisterContext, CArmAssembler::s0, src1);
+	m_assembler.Vrecpe_F32(CArmAssembler::q1, CArmAssembler::q0);
+	m_assembler.Vrecps_F32(CArmAssembler::q2, CArmAssembler::q1, CArmAssembler::q0);
+	m_assembler.Vmul_F32(CArmAssembler::s4, CArmAssembler::s4, CArmAssembler::s8);
+	StoreRegisterInMemoryFpSingle(tempRegisterContext, dst, CArmAssembler::s4);
+}
+
+void CCodeGen_Arm::Emit_Fp_Rsqrt_MemMem(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+
+	CTempRegisterContext tempRegisterContext;
+
+	LoadMemoryFpSingleInRegister(tempRegisterContext, CArmAssembler::s0, src1);
+	m_assembler.Vrsqrte_F32(CArmAssembler::q1, CArmAssembler::q0);
+	m_assembler.Vmul_F32(CArmAssembler::s8, CArmAssembler::s0, CArmAssembler::s4);
+	m_assembler.Vrsqrts_F32(CArmAssembler::q3, CArmAssembler::q2, CArmAssembler::q1);
+	m_assembler.Vmul_F32(CArmAssembler::s4, CArmAssembler::s4, CArmAssembler::s12);
+	StoreRegisterInMemoryFpSingle(tempRegisterContext, dst, CArmAssembler::s4);
 }
 
 void CCodeGen_Arm::Emit_Fp_Cmp_AnyMemMem(const STATEMENT& statement)
@@ -255,9 +271,9 @@ CCodeGen_Arm::CONSTMATCHER CCodeGen_Arm::g_fpuConstMatchers[] =
 	{ OP_FP_MIN,			MATCH_MEMORY_FP_SINGLE,		MATCH_MEMORY_FP_SINGLE,		MATCH_MEMORY_FP_SINGLE,	&CCodeGen_Arm::Emit_FpuMd_MemMemMem<FPUMDOP_MIN>	},
 	{ OP_FP_MAX,			MATCH_MEMORY_FP_SINGLE,		MATCH_MEMORY_FP_SINGLE,		MATCH_MEMORY_FP_SINGLE,	&CCodeGen_Arm::Emit_FpuMd_MemMemMem<FPUMDOP_MAX>	},
 
-	{ OP_FP_RCPL,			MATCH_MEMORY_FP_SINGLE,		MATCH_MEMORY_FP_SINGLE,		MATCH_NIL,				&CCodeGen_Arm::Emit_FpuMd_MemMem<FPUMDOP_RCPL>		},
+	{ OP_FP_RCPL,			MATCH_MEMORY_FP_SINGLE,		MATCH_MEMORY_FP_SINGLE,		MATCH_NIL,				&CCodeGen_Arm::Emit_Fp_Rcpl_MemMem					},
 	{ OP_FP_SQRT,			MATCH_MEMORY_FP_SINGLE,		MATCH_MEMORY_FP_SINGLE,		MATCH_NIL,				&CCodeGen_Arm::Emit_Fpu_MemMem<FPUOP_SQRT>			},
-	{ OP_FP_RSQRT,			MATCH_MEMORY_FP_SINGLE,		MATCH_MEMORY_FP_SINGLE,		MATCH_NIL,				&CCodeGen_Arm::Emit_FpuMd_MemMem<FPUMDOP_RSQRT>		},
+	{ OP_FP_RSQRT,			MATCH_MEMORY_FP_SINGLE,		MATCH_MEMORY_FP_SINGLE,		MATCH_NIL,				&CCodeGen_Arm::Emit_Fp_Rsqrt_MemMem					},
 
 	{ OP_FP_ABS,			MATCH_MEMORY_FP_SINGLE,		MATCH_MEMORY_FP_SINGLE,		MATCH_NIL,				&CCodeGen_Arm::Emit_Fpu_MemMem<FPUOP_ABS>			},
 	{ OP_FP_NEG,			MATCH_MEMORY_FP_SINGLE,		MATCH_MEMORY_FP_SINGLE,		MATCH_NIL,				&CCodeGen_Arm::Emit_Fpu_MemMem<FPUOP_NEG>			},

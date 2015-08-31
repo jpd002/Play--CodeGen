@@ -20,10 +20,16 @@ private:
 		float number3;
 		float number4;
 		
+		float resAdd;
 		float resSub;
+		float resMul;
+		float resDiv;
 		float resAbs;
-		float resRsqrt;
+		float resNeg;
+		float resSqrt;
 		float resSqrtCst;
+		float resRcpl;
+		float resRsqrt;
 
 		float resMax;
 		float resMin;

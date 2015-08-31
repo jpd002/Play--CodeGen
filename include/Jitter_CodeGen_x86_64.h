@@ -66,8 +66,8 @@ namespace Jitter
 			static OpVarType OpVar() { return &CX86Assembler::SarEq; }
 		};
 
-		virtual void						Emit_Prolog(const StatementList&, unsigned int, uint32);
-		virtual void						Emit_Epilog(unsigned int, uint32);
+		virtual void						Emit_Prolog(const StatementList&, unsigned int, uint32) override;
+		virtual void						Emit_Epilog(unsigned int, uint32) override;
 
 		//PARAM
 		void								Emit_Param_Ctx(const STATEMENT&);
@@ -118,6 +118,7 @@ namespace Jitter
 
 		//ADDREF
 		void								Emit_AddRef_MemMemReg(const STATEMENT&);
+		void								Emit_AddRef_MemMemMem(const STATEMENT&);
 		void								Emit_AddRef_MemMemCst(const STATEMENT&);
 
 		//LOADFROMREF

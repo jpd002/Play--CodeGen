@@ -64,12 +64,6 @@
     <ClCompile Include="..\src\Jitter_CodeGen_x86.cpp">
       <Filter>Source Files\x86</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\Jitter_CodeGen_Arm.cpp">
-      <Filter>Source Files\arm\aarch32</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\Jitter_CodeGen_Arm_Fpu.cpp">
-      <Filter>Source Files\arm\aarch32</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\CoffObjectFile.cpp">
       <Filter>Source Files\object</Filter>
     </ClCompile>
@@ -82,13 +76,19 @@
     <ClCompile Include="..\src\Jitter_Statement.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\Jitter_CodeGen_Arm_Md.cpp">
-      <Filter>Source Files\arm\aarch32</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\Jitter_CodeGen_Arm_64.cpp">
-      <Filter>Source Files\arm\aarch32</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\AArch32Assembler.cpp">
+      <Filter>Source Files\arm\aarch32</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jitter_CodeGen_AArch32.cpp">
+      <Filter>Source Files\arm\aarch32</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jitter_CodeGen_AArch32_64.cpp">
+      <Filter>Source Files\arm\aarch32</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jitter_CodeGen_AArch32_Fpu.cpp">
+      <Filter>Source Files\arm\aarch32</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jitter_CodeGen_AArch32_Md.cpp">
       <Filter>Source Files\arm\aarch32</Filter>
     </ClCompile>
   </ItemGroup>
@@ -141,12 +141,6 @@
     <ClInclude Include="..\include\Jitter_CodeGen_x86.h">
       <Filter>Source Files\x86</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Jitter_CodeGen_Arm.h">
-      <Filter>Source Files\arm\aarch32</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\Jitter_CodeGen_Arm_Div.h">
-      <Filter>Source Files\arm\aarch32</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\MemoryFunction.h">
       <Filter>Source Files</Filter>
     </ClInclude>
@@ -166,6 +160,12 @@
       <Filter>Source Files\object</Filter>
     </ClInclude>
     <ClInclude Include="..\include\AArch32Assembler.h">
+      <Filter>Source Files\arm\aarch32</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jitter_CodeGen_AArch32.h">
+      <Filter>Source Files\arm\aarch32</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Jitter_CodeGen_AArch32_Div.h">
       <Filter>Source Files\arm\aarch32</Filter>
     </ClInclude>
   </ItemGroup>

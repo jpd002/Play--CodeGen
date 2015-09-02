@@ -1,6 +1,6 @@
 #include <assert.h>
 #include <stdexcept>
-#include "Aarch32Assembler.h"
+#include "AArch32Assembler.h"
 
 #define OPCODE_BKPT (0xE1200070)
 

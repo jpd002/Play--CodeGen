@@ -2,7 +2,7 @@
 
 using namespace Jitter;
 
-void CCodeGen_Arm::LoadMemory128AddressInRegister(CArmAssembler::REGISTER dstReg, CSymbol* symbol, uint32 offset)
+void CCodeGen_Arm::LoadMemory128AddressInRegister(CAArch32Assembler::REGISTER dstReg, CSymbol* symbol, uint32 offset)
 {
 	switch(symbol->m_type)
 	{
@@ -18,7 +18,7 @@ void CCodeGen_Arm::LoadMemory128AddressInRegister(CArmAssembler::REGISTER dstReg
 	}
 }
 
-void CCodeGen_Arm::LoadRelative128AddressInRegister(CArmAssembler::REGISTER dstReg, CSymbol* symbol, uint32 offset)
+void CCodeGen_Arm::LoadRelative128AddressInRegister(CAArch32Assembler::REGISTER dstReg, CSymbol* symbol, uint32 offset)
 {
 	assert(symbol->m_type == SYM_RELATIVE128);
 
@@ -28,10 +28,10 @@ void CCodeGen_Arm::LoadRelative128AddressInRegister(CArmAssembler::REGISTER dstR
 	{
 		throw std::runtime_error("Failed to build immediate for symbol.");
 	}
-	m_assembler.Add(dstReg, g_baseRegister, CArmAssembler::MakeImmediateAluOperand(immediate, shiftAmount));
+	m_assembler.Add(dstReg, g_baseRegister, CAArch32Assembler::MakeImmediateAluOperand(immediate, shiftAmount));
 }
 
-void CCodeGen_Arm::LoadTemporary128AddressInRegister(CArmAssembler::REGISTER dstReg, CSymbol* symbol, uint32 offset)
+void CCodeGen_Arm::LoadTemporary128AddressInRegister(CAArch32Assembler::REGISTER dstReg, CSymbol* symbol, uint32 offset)
 {
 	assert(symbol->m_type == SYM_TEMPORARY128);
 
@@ -41,10 +41,10 @@ void CCodeGen_Arm::LoadTemporary128AddressInRegister(CArmAssembler::REGISTER dst
 	{
 		throw std::runtime_error("Failed to build immediate for symbol.");
 	}
-	m_assembler.Add(dstReg, CArmAssembler::rSP, CArmAssembler::MakeImmediateAluOperand(immediate, shiftAmount));
+	m_assembler.Add(dstReg, CAArch32Assembler::rSP, CAArch32Assembler::MakeImmediateAluOperand(immediate, shiftAmount));
 }
 
-void CCodeGen_Arm::LoadTemporary256ElementAddressInRegister(CArmAssembler::REGISTER dstReg, CSymbol* symbol, uint32 offset)
+void CCodeGen_Arm::LoadTemporary256ElementAddressInRegister(CAArch32Assembler::REGISTER dstReg, CSymbol* symbol, uint32 offset)
 {
 	assert(symbol->m_type == SYM_TEMPORARY256);
 
@@ -54,7 +54,7 @@ void CCodeGen_Arm::LoadTemporary256ElementAddressInRegister(CArmAssembler::REGIS
 	{
 		throw std::runtime_error("Failed to build immediate for symbol.");
 	}
-	m_assembler.Add(dstReg, CArmAssembler::rSP, CArmAssembler::MakeImmediateAluOperand(immediate, shiftAmount));
+	m_assembler.Add(dstReg, CAArch32Assembler::rSP, CAArch32Assembler::MakeImmediateAluOperand(immediate, shiftAmount));
 }
 
 template <typename MDOP>
@@ -63,10 +63,10 @@ void CCodeGen_Arm::Emit_Md_MemMem(const STATEMENT& statement)
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
 
-	auto dstAddrReg = CArmAssembler::r0;
-	auto src1AddrReg = CArmAssembler::r1;
-	auto dstReg = CArmAssembler::q0;
-	auto src1Reg = CArmAssembler::q1;
+	auto dstAddrReg = CAArch32Assembler::r0;
+	auto src1AddrReg = CAArch32Assembler::r1;
+	auto dstReg = CAArch32Assembler::q0;
+	auto src1Reg = CAArch32Assembler::q1;
 
 	LoadMemory128AddressInRegister(dstAddrReg, dst);
 	LoadMemory128AddressInRegister(src1AddrReg, src1);
@@ -83,12 +83,12 @@ void CCodeGen_Arm::Emit_Md_MemMemMem(const STATEMENT& statement)
 	auto src1 = statement.src1->GetSymbol().get();
 	auto src2 = statement.src2->GetSymbol().get();
 
-	auto dstAddrReg = CArmAssembler::r0;
-	auto src1AddrReg = CArmAssembler::r1;
-	auto src2AddrReg = CArmAssembler::r2;
-	auto dstReg = CArmAssembler::q0;
-	auto src1Reg = CArmAssembler::q1;
-	auto src2Reg = CArmAssembler::q2;
+	auto dstAddrReg = CAArch32Assembler::r0;
+	auto src1AddrReg = CAArch32Assembler::r1;
+	auto src2AddrReg = CAArch32Assembler::r2;
+	auto dstReg = CAArch32Assembler::q0;
+	auto src1Reg = CAArch32Assembler::q1;
+	auto src2Reg = CAArch32Assembler::q2;
 
 	LoadMemory128AddressInRegister(dstAddrReg, dst);
 	LoadMemory128AddressInRegister(src1AddrReg, src1);
@@ -107,10 +107,10 @@ void CCodeGen_Arm::Emit_Md_Shift_MemMemCst(const STATEMENT& statement)
 	auto src1 = statement.src1->GetSymbol().get();
 	auto src2 = statement.src2->GetSymbol().get();
 
-	auto dstAddrReg = CArmAssembler::r0;
-	auto src1AddrReg = CArmAssembler::r1;
-	auto dstReg = CArmAssembler::q0;
-	auto src1Reg = CArmAssembler::q1;
+	auto dstAddrReg = CAArch32Assembler::r0;
+	auto src1AddrReg = CAArch32Assembler::r1;
+	auto dstReg = CAArch32Assembler::q0;
+	auto src1Reg = CAArch32Assembler::q1;
 
 	LoadMemory128AddressInRegister(dstAddrReg, dst);
 	LoadMemory128AddressInRegister(src1AddrReg, src1);
@@ -126,32 +126,32 @@ void CCodeGen_Arm::Emit_Md_Test_VarMem(const STATEMENT& statement)
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
 
-	auto src1AddrReg = CArmAssembler::r0;
-	auto src1Reg = CArmAssembler::q0;
+	auto src1AddrReg = CAArch32Assembler::r0;
+	auto src1Reg = CAArch32Assembler::q0;
 
 	LoadMemory128AddressInRegister(src1AddrReg, src1);
 	m_assembler.Vld1_32x4(src1Reg, src1AddrReg);
 
-	auto dstReg = PrepareSymbolRegisterDef(dst, CArmAssembler::r0);
+	auto dstReg = PrepareSymbolRegisterDef(dst, CAArch32Assembler::r0);
 
-	static CArmAssembler::REGISTER regs[4] =
+	static CAArch32Assembler::REGISTER regs[4] =
 	{
-		CArmAssembler::r2,
-		CArmAssembler::r3
+		CAArch32Assembler::r2,
+		CAArch32Assembler::r3
 	};
 
 	m_assembler.Eor(dstReg, dstReg, dstReg);
 	for(unsigned int i = 0; i < 4; i++)
 	{
-		m_assembler.Vmov(regs[i & 1], static_cast<CArmAssembler::DOUBLE_REGISTER>(src1Reg + (i / 2)), i & 1);
+		m_assembler.Vmov(regs[i & 1], static_cast<CAArch32Assembler::DOUBLE_REGISTER>(src1Reg + (i / 2)), i & 1);
 		m_assembler.Tst(regs[i & 1], regs[i & 1]);
 		uint8 immediate = 0, shiftAmount = 0;
 		if(!TryGetAluImmediateParams(1 << (3 - i), immediate, shiftAmount))
 		{
 			assert(false);
 		}
-		m_assembler.Or(static_cast<CArmAssembler::CONDITION>(condition), dstReg, dstReg, 
-			CArmAssembler::MakeImmediateAluOperand(immediate, shiftAmount));
+		m_assembler.Or(static_cast<CAArch32Assembler::CONDITION>(condition), dstReg, dstReg, 
+			CAArch32Assembler::MakeImmediateAluOperand(immediate, shiftAmount));
 	}
 
 	CommitSymbolRegister(dst, dstReg);
@@ -162,9 +162,9 @@ void CCodeGen_Arm::Emit_Md_Mov_MemMem(const STATEMENT& statement)
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
 
-	auto dstAddrReg = CArmAssembler::r0;
-	auto src1AddrReg = CArmAssembler::r1;
-	auto tmpReg = CArmAssembler::q0;
+	auto dstAddrReg = CAArch32Assembler::r0;
+	auto src1AddrReg = CAArch32Assembler::r1;
+	auto tmpReg = CAArch32Assembler::q0;
 	LoadMemory128AddressInRegister(dstAddrReg, dst);
 	LoadMemory128AddressInRegister(src1AddrReg, src1);
 	m_assembler.Vld1_32x4(tmpReg, src1AddrReg);
@@ -176,10 +176,10 @@ void CCodeGen_Arm::Emit_Md_Not_MemMem(const STATEMENT& statement)
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
 
-	auto dstAddrReg = CArmAssembler::r0;
-	auto src1AddrReg = CArmAssembler::r1;
-	auto zeroReg = CArmAssembler::q0;
-	auto tmpReg = CArmAssembler::q1;
+	auto dstAddrReg = CAArch32Assembler::r0;
+	auto src1AddrReg = CAArch32Assembler::r1;
+	auto zeroReg = CAArch32Assembler::q0;
+	auto tmpReg = CAArch32Assembler::q1;
 
 	LoadMemory128AddressInRegister(dstAddrReg, dst);
 	LoadMemory128AddressInRegister(src1AddrReg, src1);
@@ -196,12 +196,12 @@ void CCodeGen_Arm::Emit_Md_DivS_MemMemMem(const STATEMENT& statement)
 	auto src1 = statement.src1->GetSymbol().get();
 	auto src2 = statement.src2->GetSymbol().get();
 
-	auto dstAddrReg = CArmAssembler::r0;
-	auto src1AddrReg = CArmAssembler::r1;
-	auto src2AddrReg = CArmAssembler::r2;
-	auto dstReg = CArmAssembler::q0;
-	auto src1Reg = CArmAssembler::q1;
-	auto src2Reg = CArmAssembler::q2;
+	auto dstAddrReg = CAArch32Assembler::r0;
+	auto src1AddrReg = CAArch32Assembler::r1;
+	auto src2AddrReg = CAArch32Assembler::r2;
+	auto dstReg = CAArch32Assembler::q0;
+	auto src1Reg = CAArch32Assembler::q1;
+	auto src2Reg = CAArch32Assembler::q2;
 
 	LoadMemory128AddressInRegister(dstAddrReg, dst);
 	LoadMemory128AddressInRegister(src1AddrReg, src1);
@@ -213,9 +213,9 @@ void CCodeGen_Arm::Emit_Md_DivS_MemMemMem(const STATEMENT& statement)
 	//No vector floating point divide on NEON, gotta do it 4x
 	for(unsigned int i = 0; i < 4; i++)
 	{
-		auto subDstReg = static_cast<CArmAssembler::SINGLE_REGISTER>(dstReg * 2 + i);
-		auto subSrc1Reg = static_cast<CArmAssembler::SINGLE_REGISTER>(src1Reg * 2 + i);
-		auto subSrc2Reg = static_cast<CArmAssembler::SINGLE_REGISTER>(src2Reg * 2 + i);
+		auto subDstReg = static_cast<CAArch32Assembler::SINGLE_REGISTER>(dstReg * 2 + i);
+		auto subSrc1Reg = static_cast<CAArch32Assembler::SINGLE_REGISTER>(src1Reg * 2 + i);
+		auto subSrc2Reg = static_cast<CAArch32Assembler::SINGLE_REGISTER>(src2Reg * 2 + i);
 		m_assembler.Vdiv_F32(subDstReg, subSrc1Reg, subSrc2Reg);
 	}
 
@@ -231,9 +231,9 @@ void CCodeGen_Arm::Emit_Md_Srl256_MemMemCst(const STATEMENT& statement)
 	assert(src1->m_type == SYM_TEMPORARY256);
 	assert(src2->m_type == SYM_CONSTANT);
 
-	auto dstAddrReg = CArmAssembler::r0;
-	auto src1AddrReg = CArmAssembler::r1;
-	auto dstReg = CArmAssembler::q0;
+	auto dstAddrReg = CAArch32Assembler::r0;
+	auto src1AddrReg = CAArch32Assembler::r1;
+	auto dstReg = CAArch32Assembler::q0;
 
 	uint32 offset = (src2->m_valueLow & 0x7F) / 8;
 
@@ -252,21 +252,21 @@ void CCodeGen_Arm::Emit_Md_Srl256_MemMemVar(const STATEMENT& statement)
 
 	assert(src1->m_type == SYM_TEMPORARY256);
 
-	auto offsetRegister = CArmAssembler::r0;
-	auto dstAddrReg = CArmAssembler::r1;
-	auto src1AddrReg = CArmAssembler::r2;
-	auto src2Register = PrepareSymbolRegisterUse(src2, CArmAssembler::r3);
+	auto offsetRegister = CAArch32Assembler::r0;
+	auto dstAddrReg = CAArch32Assembler::r1;
+	auto src1AddrReg = CAArch32Assembler::r2;
+	auto src2Register = PrepareSymbolRegisterUse(src2, CAArch32Assembler::r3);
 
-	auto dstReg = CArmAssembler::q0;
+	auto dstReg = CAArch32Assembler::q0;
 
-	auto offsetShift = CArmAssembler::MakeConstantShift(CArmAssembler::SHIFT_LSR, 3);
+	auto offsetShift = CAArch32Assembler::MakeConstantShift(CAArch32Assembler::SHIFT_LSR, 3);
 
 	LoadMemory128AddressInRegister(dstAddrReg, dst);
 	LoadTemporary256ElementAddressInRegister(src1AddrReg, src1, 0);
 
 	//Compute offset and modify address
-	m_assembler.And(offsetRegister, src2Register, CArmAssembler::MakeImmediateAluOperand(0x7F, 0));
-	m_assembler.Mov(offsetRegister, CArmAssembler::MakeRegisterAluOperand(offsetRegister, offsetShift));
+	m_assembler.And(offsetRegister, src2Register, CAArch32Assembler::MakeImmediateAluOperand(0x7F, 0));
+	m_assembler.Mov(offsetRegister, CAArch32Assembler::MakeRegisterAluOperand(offsetRegister, offsetShift));
 	m_assembler.Add(src1AddrReg, src1AddrReg, offsetRegister);
 
 	m_assembler.Vld1_32x4_u(dstReg, src1AddrReg);
@@ -278,10 +278,10 @@ void CCodeGen_Arm::Emit_Md_LoadFromRef_MemMem(const STATEMENT& statement)
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
 
-	auto src1AddrReg = CArmAssembler::r0;
-	auto dstAddrReg = CArmAssembler::r1;
+	auto src1AddrReg = CAArch32Assembler::r0;
+	auto dstAddrReg = CAArch32Assembler::r1;
 
-	auto dstReg = CArmAssembler::q0;
+	auto dstReg = CAArch32Assembler::q0;
 
 	LoadMemory128AddressInRegister(dstAddrReg, dst);
 	LoadMemoryReferenceInRegister(src1AddrReg, src1);
@@ -295,10 +295,10 @@ void CCodeGen_Arm::Emit_Md_StoreAtRef_MemMem(const STATEMENT& statement)
 	auto src1 = statement.src1->GetSymbol().get();
 	auto src2 = statement.src2->GetSymbol().get();
 
-	auto src1AddrReg = CArmAssembler::r0;
-	auto src2AddrReg = CArmAssembler::r1;
+	auto src1AddrReg = CAArch32Assembler::r0;
+	auto src2AddrReg = CAArch32Assembler::r1;
 
-	auto src2Reg = CArmAssembler::q0;
+	auto src2Reg = CAArch32Assembler::q0;
 
 	LoadMemoryReferenceInRegister(src1AddrReg, src1);
 	LoadMemory128AddressInRegister(src2AddrReg, src2);
@@ -317,15 +317,15 @@ void CCodeGen_Arm::Emit_Md_MovMasked_MemMemMem(const STATEMENT& statement)
 
 	auto mask = static_cast<uint8>(statement.jmpCondition);
 
-	auto dstAddrReg = CArmAssembler::r0;
-	auto src2AddrReg = CArmAssembler::r2;
-	auto tmpReg = CArmAssembler::r3;
-	auto dstReg = CArmAssembler::q0;
-	auto src2Reg = CArmAssembler::q2;
-	auto dstRegLo = static_cast<CArmAssembler::DOUBLE_REGISTER>(dstReg + 0);
-	auto dstRegHi = static_cast<CArmAssembler::DOUBLE_REGISTER>(dstReg + 1);
-	auto src2RegLo = static_cast<CArmAssembler::DOUBLE_REGISTER>(src2Reg + 0);
-	auto src2RegHi = static_cast<CArmAssembler::DOUBLE_REGISTER>(src2Reg + 1);
+	auto dstAddrReg = CAArch32Assembler::r0;
+	auto src2AddrReg = CAArch32Assembler::r2;
+	auto tmpReg = CAArch32Assembler::r3;
+	auto dstReg = CAArch32Assembler::q0;
+	auto src2Reg = CAArch32Assembler::q2;
+	auto dstRegLo = static_cast<CAArch32Assembler::DOUBLE_REGISTER>(dstReg + 0);
+	auto dstRegHi = static_cast<CAArch32Assembler::DOUBLE_REGISTER>(dstReg + 1);
+	auto src2RegLo = static_cast<CAArch32Assembler::DOUBLE_REGISTER>(src2Reg + 0);
+	auto src2RegHi = static_cast<CAArch32Assembler::DOUBLE_REGISTER>(src2Reg + 1);
 
 	LoadMemory128AddressInRegister(dstAddrReg, dst);
 	LoadMemory128AddressInRegister(src2AddrReg, src2);
@@ -349,9 +349,9 @@ void CCodeGen_Arm::Emit_Md_Expand_MemReg(const STATEMENT& statement)
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
 
-	auto dstAddrReg = CArmAssembler::r0;
-	auto src1AddrReg = CArmAssembler::r1;
-	auto tmpReg = CArmAssembler::q0;
+	auto dstAddrReg = CAArch32Assembler::r0;
+	auto src1AddrReg = CAArch32Assembler::r1;
+	auto tmpReg = CAArch32Assembler::q0;
 
 	LoadMemory128AddressInRegister(dstAddrReg, dst);
 
@@ -364,9 +364,9 @@ void CCodeGen_Arm::Emit_Md_Expand_MemMem(const STATEMENT& statement)
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
 
-	auto dstAddrReg = CArmAssembler::r0;
-	auto src1Reg = CArmAssembler::r1;
-	auto tmpReg = CArmAssembler::q0;
+	auto dstAddrReg = CAArch32Assembler::r0;
+	auto src1Reg = CAArch32Assembler::r1;
+	auto tmpReg = CAArch32Assembler::q0;
 
 	LoadMemoryInRegister(src1Reg, src1);
 	LoadMemory128AddressInRegister(dstAddrReg, dst);
@@ -380,9 +380,9 @@ void CCodeGen_Arm::Emit_Md_Expand_MemCst(const STATEMENT& statement)
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
 
-	auto dstAddrReg = CArmAssembler::r0;
-	auto src1Reg = CArmAssembler::r1;
-	auto tmpReg = CArmAssembler::q0;
+	auto dstAddrReg = CAArch32Assembler::r0;
+	auto src1Reg = CAArch32Assembler::r1;
+	auto tmpReg = CAArch32Assembler::q0;
 
 	LoadConstantInRegister(src1Reg, src1->m_valueLow);
 	LoadMemory128AddressInRegister(dstAddrReg, dst);
@@ -397,12 +397,12 @@ void CCodeGen_Arm::Emit_Md_PackHB_MemMemMem(const STATEMENT& statement)
 	auto src1 = statement.src1->GetSymbol().get();
 	auto src2 = statement.src2->GetSymbol().get();
 
-	auto dstAddrReg = CArmAssembler::r0;
-	auto src1AddrReg = CArmAssembler::r1;
-	auto src2AddrReg = CArmAssembler::r2;
-	auto dstReg = CArmAssembler::q0;
-	auto src1Reg = CArmAssembler::q1;
-	auto src2Reg = CArmAssembler::q2;
+	auto dstAddrReg = CAArch32Assembler::r0;
+	auto src1AddrReg = CAArch32Assembler::r1;
+	auto src2AddrReg = CAArch32Assembler::r2;
+	auto dstReg = CAArch32Assembler::q0;
+	auto src1Reg = CAArch32Assembler::q1;
+	auto src2Reg = CAArch32Assembler::q2;
 
 	LoadMemory128AddressInRegister(dstAddrReg, dst);
 	LoadMemory128AddressInRegister(src1AddrReg, src1);
@@ -410,8 +410,8 @@ void CCodeGen_Arm::Emit_Md_PackHB_MemMemMem(const STATEMENT& statement)
 
 	m_assembler.Vld1_32x4(src1Reg, src1AddrReg);
 	m_assembler.Vld1_32x4(src2Reg, src2AddrReg);
-	m_assembler.Vmovn_I16(static_cast<CArmAssembler::DOUBLE_REGISTER>(dstReg + 1), src1Reg);
-	m_assembler.Vmovn_I16(static_cast<CArmAssembler::DOUBLE_REGISTER>(dstReg + 0), src2Reg);
+	m_assembler.Vmovn_I16(static_cast<CAArch32Assembler::DOUBLE_REGISTER>(dstReg + 1), src1Reg);
+	m_assembler.Vmovn_I16(static_cast<CAArch32Assembler::DOUBLE_REGISTER>(dstReg + 0), src2Reg);
 	m_assembler.Vst1_32x4(dstReg, dstAddrReg);
 }
 
@@ -421,12 +421,12 @@ void CCodeGen_Arm::Emit_Md_PackWH_MemMemMem(const STATEMENT& statement)
 	auto src1 = statement.src1->GetSymbol().get();
 	auto src2 = statement.src2->GetSymbol().get();
 
-	auto dstAddrReg = CArmAssembler::r0;
-	auto src1AddrReg = CArmAssembler::r1;
-	auto src2AddrReg = CArmAssembler::r2;
-	auto dstReg = CArmAssembler::q0;
-	auto src1Reg = CArmAssembler::q1;
-	auto src2Reg = CArmAssembler::q2;
+	auto dstAddrReg = CAArch32Assembler::r0;
+	auto src1AddrReg = CAArch32Assembler::r1;
+	auto src2AddrReg = CAArch32Assembler::r2;
+	auto dstReg = CAArch32Assembler::q0;
+	auto src1Reg = CAArch32Assembler::q1;
+	auto src2Reg = CAArch32Assembler::q2;
 
 	LoadMemory128AddressInRegister(dstAddrReg, dst);
 	LoadMemory128AddressInRegister(src1AddrReg, src1);
@@ -434,8 +434,8 @@ void CCodeGen_Arm::Emit_Md_PackWH_MemMemMem(const STATEMENT& statement)
 
 	m_assembler.Vld1_32x4(src1Reg, src1AddrReg);
 	m_assembler.Vld1_32x4(src2Reg, src2AddrReg);
-	m_assembler.Vmovn_I32(static_cast<CArmAssembler::DOUBLE_REGISTER>(dstReg + 1), src1Reg);
-	m_assembler.Vmovn_I32(static_cast<CArmAssembler::DOUBLE_REGISTER>(dstReg + 0), src2Reg);
+	m_assembler.Vmovn_I32(static_cast<CAArch32Assembler::DOUBLE_REGISTER>(dstReg + 1), src1Reg);
+	m_assembler.Vmovn_I32(static_cast<CAArch32Assembler::DOUBLE_REGISTER>(dstReg + 0), src2Reg);
 	m_assembler.Vst1_32x4(dstReg, dstAddrReg);
 }
 
@@ -446,11 +446,11 @@ void CCodeGen_Arm::Emit_Md_UnpackBH_MemMemMem(const STATEMENT& statement)
 	auto src1 = statement.src1->GetSymbol().get();
 	auto src2 = statement.src2->GetSymbol().get();
 
-	auto dstAddrReg = CArmAssembler::r0;
-	auto src1AddrReg = CArmAssembler::r1;
-	auto src2AddrReg = CArmAssembler::r2;
-	auto src1Reg = CArmAssembler::d0;
-	auto src2Reg = CArmAssembler::d1;
+	auto dstAddrReg = CAArch32Assembler::r0;
+	auto src1AddrReg = CAArch32Assembler::r1;
+	auto src2AddrReg = CAArch32Assembler::r2;
+	auto src1Reg = CAArch32Assembler::d0;
+	auto src2Reg = CAArch32Assembler::d1;
 
 	LoadMemory128AddressInRegister(dstAddrReg, dst);
 	LoadMemory128AddressInRegister(src1AddrReg, src1, offset);
@@ -460,7 +460,7 @@ void CCodeGen_Arm::Emit_Md_UnpackBH_MemMemMem(const STATEMENT& statement)
 	m_assembler.Vld1_32x2(src1Reg, src2AddrReg);
 	m_assembler.Vld1_32x2(src2Reg, src1AddrReg);
 	m_assembler.Vzip_I8(src1Reg, src2Reg);
-	m_assembler.Vst1_32x4(static_cast<CArmAssembler::QUAD_REGISTER>(src1Reg), dstAddrReg);
+	m_assembler.Vst1_32x4(static_cast<CAArch32Assembler::QUAD_REGISTER>(src1Reg), dstAddrReg);
 }
 
 template <uint32 offset>
@@ -470,11 +470,11 @@ void CCodeGen_Arm::Emit_Md_UnpackHW_MemMemMem(const STATEMENT& statement)
 	auto src1 = statement.src1->GetSymbol().get();
 	auto src2 = statement.src2->GetSymbol().get();
 
-	auto dstAddrReg = CArmAssembler::r0;
-	auto src1AddrReg = CArmAssembler::r1;
-	auto src2AddrReg = CArmAssembler::r2;
-	auto src1Reg = CArmAssembler::d0;
-	auto src2Reg = CArmAssembler::d1;
+	auto dstAddrReg = CAArch32Assembler::r0;
+	auto src1AddrReg = CAArch32Assembler::r1;
+	auto src2AddrReg = CAArch32Assembler::r2;
+	auto src1Reg = CAArch32Assembler::d0;
+	auto src2Reg = CAArch32Assembler::d1;
 
 	LoadMemory128AddressInRegister(dstAddrReg, dst);
 	LoadMemory128AddressInRegister(src1AddrReg, src1, offset);
@@ -484,7 +484,7 @@ void CCodeGen_Arm::Emit_Md_UnpackHW_MemMemMem(const STATEMENT& statement)
 	m_assembler.Vld1_32x2(src1Reg, src2AddrReg);
 	m_assembler.Vld1_32x2(src2Reg, src1AddrReg);
 	m_assembler.Vzip_I16(src1Reg, src2Reg);
-	m_assembler.Vst1_32x4(static_cast<CArmAssembler::QUAD_REGISTER>(src1Reg), dstAddrReg);
+	m_assembler.Vst1_32x4(static_cast<CAArch32Assembler::QUAD_REGISTER>(src1Reg), dstAddrReg);
 }
 
 template <uint32 offset>
@@ -494,11 +494,11 @@ void CCodeGen_Arm::Emit_Md_UnpackWD_MemMemMem(const STATEMENT& statement)
 	auto src1 = statement.src1->GetSymbol().get();
 	auto src2 = statement.src2->GetSymbol().get();
 
-	auto dstAddrReg = CArmAssembler::r0;
-	auto src1AddrReg = CArmAssembler::r1;
-	auto src2AddrReg = CArmAssembler::r2;
-	auto src1Reg = CArmAssembler::d0;
-	auto src2Reg = CArmAssembler::d2;
+	auto dstAddrReg = CAArch32Assembler::r0;
+	auto src1AddrReg = CAArch32Assembler::r1;
+	auto src2AddrReg = CAArch32Assembler::r2;
+	auto src1Reg = CAArch32Assembler::d0;
+	auto src2Reg = CAArch32Assembler::d2;
 
 	LoadMemory128AddressInRegister(dstAddrReg, dst);
 	LoadMemory128AddressInRegister(src1AddrReg, src1, offset);
@@ -507,8 +507,8 @@ void CCodeGen_Arm::Emit_Md_UnpackWD_MemMemMem(const STATEMENT& statement)
 	//Warning: VZIP modifies both registers
 	m_assembler.Vld1_32x2(src1Reg, src2AddrReg);
 	m_assembler.Vld1_32x2(src2Reg, src1AddrReg);
-	m_assembler.Vzip_I32(static_cast<CArmAssembler::QUAD_REGISTER>(src1Reg), static_cast<CArmAssembler::QUAD_REGISTER>(src2Reg));
-	m_assembler.Vst1_32x4(static_cast<CArmAssembler::QUAD_REGISTER>(src1Reg), dstAddrReg);
+	m_assembler.Vzip_I32(static_cast<CAArch32Assembler::QUAD_REGISTER>(src1Reg), static_cast<CAArch32Assembler::QUAD_REGISTER>(src2Reg));
+	m_assembler.Vst1_32x4(static_cast<CAArch32Assembler::QUAD_REGISTER>(src1Reg), dstAddrReg);
 }
 
 void CCodeGen_Arm::Emit_MergeTo256_MemMemMem(const STATEMENT& statement)
@@ -519,12 +519,12 @@ void CCodeGen_Arm::Emit_MergeTo256_MemMemMem(const STATEMENT& statement)
 
 	assert(dst->m_type == SYM_TEMPORARY256);
 
-	auto dstLoAddrReg = CArmAssembler::r0;
-	auto dstHiAddrReg = CArmAssembler::r1;
-	auto src1AddrReg = CArmAssembler::r2;
-	auto src2AddrReg = CArmAssembler::r3;
-	auto src1Reg = CArmAssembler::q0;
-	auto src2Reg = CArmAssembler::q1;
+	auto dstLoAddrReg = CAArch32Assembler::r0;
+	auto dstHiAddrReg = CAArch32Assembler::r1;
+	auto src1AddrReg = CAArch32Assembler::r2;
+	auto src2AddrReg = CAArch32Assembler::r3;
+	auto src1Reg = CAArch32Assembler::q0;
+	auto src2Reg = CAArch32Assembler::q1;
 
 	LoadTemporary256ElementAddressInRegister(dstLoAddrReg, dst, 0x00);
 	LoadTemporary256ElementAddressInRegister(dstHiAddrReg, dst, 0x10);
@@ -596,8 +596,8 @@ CCodeGen_Arm::CONSTMATCHER CCodeGen_Arm::g_mdConstMatchers[] =
 	{ OP_MD_SRL256,				MATCH_VARIABLE128,			MATCH_MEMORY256,			MATCH_VARIABLE,			&CCodeGen_Arm::Emit_Md_Srl256_MemMemVar						},
 	{ OP_MD_SRL256,				MATCH_VARIABLE128,			MATCH_MEMORY256,			MATCH_CONSTANT,			&CCodeGen_Arm::Emit_Md_Srl256_MemMemCst						},
 
-	{ OP_MD_ISNEGATIVE,			MATCH_VARIABLE,				MATCH_MEMORY128,			MATCH_NIL,				&CCodeGen_Arm::Emit_Md_Test_VarMem<CArmAssembler::CONDITION_MI> },
-	{ OP_MD_ISZERO,				MATCH_VARIABLE,				MATCH_MEMORY128,			MATCH_NIL,				&CCodeGen_Arm::Emit_Md_Test_VarMem<CArmAssembler::CONDITION_EQ> },
+	{ OP_MD_ISNEGATIVE,			MATCH_VARIABLE,				MATCH_MEMORY128,			MATCH_NIL,				&CCodeGen_Arm::Emit_Md_Test_VarMem<CAArch32Assembler::CONDITION_MI> },
+	{ OP_MD_ISZERO,				MATCH_VARIABLE,				MATCH_MEMORY128,			MATCH_NIL,				&CCodeGen_Arm::Emit_Md_Test_VarMem<CAArch32Assembler::CONDITION_EQ> },
 
 	{ OP_MD_TOSINGLE,			MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_NIL,				&CCodeGen_Arm::Emit_Md_MemMem<MDOP_TOSINGLE>				},
 	{ OP_MD_TOWORD_TRUNCATE,	MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_NIL,				&CCodeGen_Arm::Emit_Md_MemMem<MDOP_TOWORD>					},

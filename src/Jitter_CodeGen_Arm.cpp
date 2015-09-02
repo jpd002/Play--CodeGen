@@ -7,27 +7,27 @@
 
 using namespace Jitter;
 
-CArmAssembler::REGISTER CCodeGen_Arm::g_baseRegister = CArmAssembler::r11;
-CArmAssembler::REGISTER CCodeGen_Arm::g_callAddressRegister = CArmAssembler::r4;
-CArmAssembler::REGISTER CCodeGen_Arm::g_tempParamRegister0 = CArmAssembler::r4;
-CArmAssembler::REGISTER CCodeGen_Arm::g_tempParamRegister1 = CArmAssembler::r5;
+CAArch32Assembler::REGISTER CCodeGen_Arm::g_baseRegister = CAArch32Assembler::r11;
+CAArch32Assembler::REGISTER CCodeGen_Arm::g_callAddressRegister = CAArch32Assembler::r4;
+CAArch32Assembler::REGISTER CCodeGen_Arm::g_tempParamRegister0 = CAArch32Assembler::r4;
+CAArch32Assembler::REGISTER CCodeGen_Arm::g_tempParamRegister1 = CAArch32Assembler::r5;
 
-CArmAssembler::REGISTER CCodeGen_Arm::g_registers[MAX_REGISTERS] =
+CAArch32Assembler::REGISTER CCodeGen_Arm::g_registers[MAX_REGISTERS] =
 {
-	CArmAssembler::r4,
-	CArmAssembler::r5,
-	CArmAssembler::r6,
-	CArmAssembler::r7,
-	CArmAssembler::r8,
-	CArmAssembler::r10,
+	CAArch32Assembler::r4,
+	CAArch32Assembler::r5,
+	CAArch32Assembler::r6,
+	CAArch32Assembler::r7,
+	CAArch32Assembler::r8,
+	CAArch32Assembler::r10,
 };
 
-CArmAssembler::REGISTER CCodeGen_Arm::g_paramRegs[MAX_PARAM_REGS] =
+CAArch32Assembler::REGISTER CCodeGen_Arm::g_paramRegs[MAX_PARAM_REGS] =
 {
-	CArmAssembler::r0,
-	CArmAssembler::r1,
-	CArmAssembler::r2,
-	CArmAssembler::r3,
+	CAArch32Assembler::r0,
+	CAArch32Assembler::r1,
+	CAArch32Assembler::r2,
+	CAArch32Assembler::r3,
 };
 
 template <typename ALUOP>
@@ -37,9 +37,9 @@ void CCodeGen_Arm::Emit_Alu_GenericAnyAny(const STATEMENT& statement)
 	auto src1 = statement.src1->GetSymbol().get();
 	auto src2 = statement.src2->GetSymbol().get();
 
-	auto dstReg = PrepareSymbolRegisterDef(dst, CArmAssembler::r0);
-	auto src1Reg = PrepareSymbolRegisterUse(src1, CArmAssembler::r1);
-	auto src2Reg = PrepareSymbolRegisterUse(src2, CArmAssembler::r2);
+	auto dstReg = PrepareSymbolRegisterDef(dst, CAArch32Assembler::r0);
+	auto src1Reg = PrepareSymbolRegisterUse(src1, CAArch32Assembler::r1);
+	auto src2Reg = PrepareSymbolRegisterUse(src2, CAArch32Assembler::r2);
 	((m_assembler).*(ALUOP::OpReg()))(dstReg, src1Reg, src2Reg);
 	CommitSymbolRegister(dst, dstReg);
 }
@@ -53,8 +53,8 @@ void CCodeGen_Arm::Emit_Alu_GenericAnyCst(const STATEMENT& statement)
 
 	assert(src2->m_type == SYM_CONSTANT);
 
-	auto dstReg = PrepareSymbolRegisterDef(dst, CArmAssembler::r0);
-	auto src1Reg = PrepareSymbolRegisterUse(src1, CArmAssembler::r1);
+	auto dstReg = PrepareSymbolRegisterDef(dst, CAArch32Assembler::r0);
+	auto src1Reg = PrepareSymbolRegisterUse(src1, CAArch32Assembler::r1);
 	uint32 cst = src2->m_valueLow;
 
 	bool supportsNegative	= ALUOP::OpImmNeg() != NULL;
@@ -64,19 +64,19 @@ void CCodeGen_Arm::Emit_Alu_GenericAnyCst(const STATEMENT& statement)
 	uint8 shiftAmount = 0;
 	if(TryGetAluImmediateParams(cst, immediate, shiftAmount))
 	{
-		((m_assembler).*(ALUOP::OpImm()))(dstReg, src1Reg, CArmAssembler::MakeImmediateAluOperand(immediate, shiftAmount));
+		((m_assembler).*(ALUOP::OpImm()))(dstReg, src1Reg, CAArch32Assembler::MakeImmediateAluOperand(immediate, shiftAmount));
 	}
 	else if(supportsNegative && TryGetAluImmediateParams(-static_cast<int32>(cst), immediate, shiftAmount))
 	{
-		((m_assembler).*(ALUOP::OpImmNeg()))(dstReg, src1Reg, CArmAssembler::MakeImmediateAluOperand(immediate, shiftAmount));
+		((m_assembler).*(ALUOP::OpImmNeg()))(dstReg, src1Reg, CAArch32Assembler::MakeImmediateAluOperand(immediate, shiftAmount));
 	}
 	else if(supportsComplement && TryGetAluImmediateParams(~cst, immediate, shiftAmount))
 	{
-		((m_assembler).*(ALUOP::OpImmNot()))(dstReg, src1Reg, CArmAssembler::MakeImmediateAluOperand(immediate, shiftAmount));
+		((m_assembler).*(ALUOP::OpImmNot()))(dstReg, src1Reg, CAArch32Assembler::MakeImmediateAluOperand(immediate, shiftAmount));
 	}
 	else
 	{
-		auto cstReg = PrepareSymbolRegisterUse(src2, CArmAssembler::r2);
+		auto cstReg = PrepareSymbolRegisterUse(src2, CAArch32Assembler::r2);
 		assert(cstReg != dstReg && cstReg != src1Reg);
 		((m_assembler).*(ALUOP::OpReg()))(dstReg, src1Reg, cstReg);
 	}
@@ -97,10 +97,10 @@ void CCodeGen_Arm::Emit_MulTmp64AnyAny(const STATEMENT& statement)
 	auto src1 = statement.src1->GetSymbol().get();
 	auto src2 = statement.src2->GetSymbol().get();
 
-	auto resLoReg = CArmAssembler::r0;
-	auto resHiReg = CArmAssembler::r1;
-	auto src1Reg = PrepareSymbolRegisterUse(src1, CArmAssembler::r2);
-	auto src2Reg = PrepareSymbolRegisterUse(src2, CArmAssembler::r3);
+	auto resLoReg = CAArch32Assembler::r0;
+	auto resHiReg = CAArch32Assembler::r1;
+	auto src1Reg = PrepareSymbolRegisterUse(src1, CAArch32Assembler::r2);
+	auto src2Reg = PrepareSymbolRegisterUse(src2, CAArch32Assembler::r3);
 	
 	assert(dst->m_type == SYM_TEMPORARY64);
 	assert(resLoReg != src1Reg && resLoReg != src2Reg);
@@ -115,21 +115,21 @@ void CCodeGen_Arm::Emit_MulTmp64AnyAny(const STATEMENT& statement)
 		m_assembler.Umull(resLoReg, resHiReg, src1Reg, src2Reg);
 	}
 	
-	m_assembler.Str(resLoReg, CArmAssembler::rSP, CArmAssembler::MakeImmediateLdrAddress(dst->m_stackLocation + m_stackLevel + 0));
-	m_assembler.Str(resHiReg, CArmAssembler::rSP, CArmAssembler::MakeImmediateLdrAddress(dst->m_stackLocation + m_stackLevel + 4));
+	m_assembler.Str(resLoReg, CAArch32Assembler::rSP, CAArch32Assembler::MakeImmediateLdrAddress(dst->m_stackLocation + m_stackLevel + 0));
+	m_assembler.Str(resHiReg, CAArch32Assembler::rSP, CAArch32Assembler::MakeImmediateLdrAddress(dst->m_stackLocation + m_stackLevel + 4));
 }
 
-template <CArmAssembler::SHIFT shiftType>
+template <CAArch32Assembler::SHIFT shiftType>
 void CCodeGen_Arm::Emit_Shift_Generic(const STATEMENT& statement)
 {
 	CSymbol* dst = statement.dst->GetSymbol().get();
 	CSymbol* src1 = statement.src1->GetSymbol().get();
 	CSymbol* src2 = statement.src2->GetSymbol().get();
 
-	auto dstReg = PrepareSymbolRegisterDef(dst, CArmAssembler::r0);
-	auto src1Reg = PrepareSymbolRegisterUse(src1, CArmAssembler::r1);
-	auto shift = GetAluShiftFromSymbol(shiftType, src2, CArmAssembler::r2);
-	m_assembler.Mov(dstReg, CArmAssembler::MakeRegisterAluOperand(src1Reg, shift));
+	auto dstReg = PrepareSymbolRegisterDef(dst, CAArch32Assembler::r0);
+	auto src1Reg = PrepareSymbolRegisterUse(src1, CAArch32Assembler::r1);
+	auto shift = GetAluShiftFromSymbol(shiftType, src2, CAArch32Assembler::r2);
+	m_assembler.Mov(dstReg, CAArch32Assembler::MakeRegisterAluOperand(src1Reg, shift));
 	CommitSymbolRegister(dst, dstReg);
 }
 
@@ -154,9 +154,9 @@ CCodeGen_Arm::CONSTMATCHER CCodeGen_Arm::g_constMatchers[] =
 	
 	{ OP_LZC,			MATCH_VARIABLE,		MATCH_VARIABLE,		MATCH_NIL,			&CCodeGen_Arm::Emit_Lzc_VarVar								},
 
-	{ OP_SRL,			MATCH_ANY,			MATCH_ANY,			MATCH_ANY,			&CCodeGen_Arm::Emit_Shift_Generic<CArmAssembler::SHIFT_LSR>	},
-	{ OP_SRA,			MATCH_ANY,			MATCH_ANY,			MATCH_ANY,			&CCodeGen_Arm::Emit_Shift_Generic<CArmAssembler::SHIFT_ASR>	},
-	{ OP_SLL,			MATCH_ANY,			MATCH_ANY,			MATCH_ANY,			&CCodeGen_Arm::Emit_Shift_Generic<CArmAssembler::SHIFT_LSL>	},
+	{ OP_SRL,			MATCH_ANY,			MATCH_ANY,			MATCH_ANY,			&CCodeGen_Arm::Emit_Shift_Generic<CAArch32Assembler::SHIFT_LSR>	},
+	{ OP_SRA,			MATCH_ANY,			MATCH_ANY,			MATCH_ANY,			&CCodeGen_Arm::Emit_Shift_Generic<CAArch32Assembler::SHIFT_ASR>	},
+	{ OP_SLL,			MATCH_ANY,			MATCH_ANY,			MATCH_ANY,			&CCodeGen_Arm::Emit_Shift_Generic<CAArch32Assembler::SHIFT_LSL>	},
 
 	{ OP_PARAM,			MATCH_NIL,			MATCH_CONTEXT,		MATCH_NIL,			&CCodeGen_Arm::Emit_Param_Ctx								},
 	{ OP_PARAM,			MATCH_NIL,			MATCH_REGISTER,		MATCH_NIL,			&CCodeGen_Arm::Emit_Param_Reg								},
@@ -345,20 +345,20 @@ uint16 CCodeGen_Arm::GetSavedRegisterList(uint32 registerUsage)
 	}
 	registerSave |= (1 << g_callAddressRegister);
 	registerSave |= (1 << g_baseRegister);
-	registerSave |= (1 << CArmAssembler::rLR);
+	registerSave |= (1 << CAArch32Assembler::rLR);
 	return registerSave;
 }
 
 void CCodeGen_Arm::Emit_Prolog(unsigned int stackSize, uint16 registerSave)
 {
-	m_assembler.Stmdb(CArmAssembler::rSP, registerSave);
-	m_assembler.Mov(CArmAssembler::r11, CArmAssembler::r0);
+	m_assembler.Stmdb(CAArch32Assembler::rSP, registerSave);
+	m_assembler.Mov(CAArch32Assembler::r11, CAArch32Assembler::r0);
 
 	//Align stack to 16 bytes boundary
-	m_assembler.Mov(CArmAssembler::r0, CArmAssembler::rSP);
-	m_assembler.Bic(CArmAssembler::rSP, CArmAssembler::rSP, CArmAssembler::MakeImmediateAluOperand(0xF, 0));
-	m_assembler.Sub(CArmAssembler::rSP, CArmAssembler::rSP, CArmAssembler::MakeImmediateAluOperand(0xC, 0));
-	m_assembler.Stmdb(CArmAssembler::rSP, (1 << CArmAssembler::r0));
+	m_assembler.Mov(CAArch32Assembler::r0, CAArch32Assembler::rSP);
+	m_assembler.Bic(CAArch32Assembler::rSP, CAArch32Assembler::rSP, CAArch32Assembler::MakeImmediateAluOperand(0xF, 0));
+	m_assembler.Sub(CAArch32Assembler::rSP, CAArch32Assembler::rSP, CAArch32Assembler::MakeImmediateAluOperand(0xC, 0));
+	m_assembler.Stmdb(CAArch32Assembler::rSP, (1 << CAArch32Assembler::r0));
 
 	if(stackSize != 0)
 	{
@@ -366,13 +366,13 @@ void CCodeGen_Arm::Emit_Prolog(unsigned int stackSize, uint16 registerSave)
 		bool succeeded = TryGetAluImmediateParams(stackSize, allocImm, allocSa);
 		if(succeeded)
 		{
-			m_assembler.Sub(CArmAssembler::rSP, CArmAssembler::rSP, CArmAssembler::MakeImmediateAluOperand(allocImm, allocSa));
+			m_assembler.Sub(CAArch32Assembler::rSP, CAArch32Assembler::rSP, CAArch32Assembler::MakeImmediateAluOperand(allocImm, allocSa));
 		}
 		else
 		{
-			auto stackResReg = CArmAssembler::r0;
+			auto stackResReg = CAArch32Assembler::r0;
 			LoadConstantInRegister(stackResReg, stackSize);
-			m_assembler.Sub(CArmAssembler::rSP, CArmAssembler::rSP, stackResReg);
+			m_assembler.Sub(CAArch32Assembler::rSP, CAArch32Assembler::rSP, stackResReg);
 		}
 	}
 	m_stackLevel = 0;
@@ -386,22 +386,22 @@ void CCodeGen_Arm::Emit_Epilog(unsigned int stackSize, uint16 registerSave)
 		bool succeeded = TryGetAluImmediateParams(stackSize, allocImm, allocSa);
 		if(succeeded)
 		{
-			m_assembler.Add(CArmAssembler::rSP, CArmAssembler::rSP, CArmAssembler::MakeImmediateAluOperand(allocImm, allocSa));
+			m_assembler.Add(CAArch32Assembler::rSP, CAArch32Assembler::rSP, CAArch32Assembler::MakeImmediateAluOperand(allocImm, allocSa));
 		}
 		else
 		{
-			auto stackResReg = CArmAssembler::r0;
+			auto stackResReg = CAArch32Assembler::r0;
 			LoadConstantInRegister(stackResReg, stackSize);
-			m_assembler.Add(CArmAssembler::rSP, CArmAssembler::rSP, stackResReg);
+			m_assembler.Add(CAArch32Assembler::rSP, CAArch32Assembler::rSP, stackResReg);
 		}
 	}
 
 	//Restore previous unaligned SP
-	m_assembler.Ldmia(CArmAssembler::rSP, (1 << CArmAssembler::r0));
-	m_assembler.Mov(CArmAssembler::rSP, CArmAssembler::r0);
+	m_assembler.Ldmia(CAArch32Assembler::rSP, (1 << CAArch32Assembler::r0));
+	m_assembler.Mov(CAArch32Assembler::rSP, CAArch32Assembler::r0);
 
-	m_assembler.Ldmia(CArmAssembler::rSP, registerSave);
-	m_assembler.Bx(CArmAssembler::rLR);
+	m_assembler.Ldmia(CAArch32Assembler::rSP, registerSave);
+	m_assembler.Bx(CAArch32Assembler::rLR);
 }
 
 uint32 CCodeGen_Arm::RotateRight(uint32 value)
@@ -447,7 +447,7 @@ bool CCodeGen_Arm::TryGetAluImmediateParams(uint32 constant, uint8& immediate, u
 	}
 }
 
-void CCodeGen_Arm::LoadConstantInRegister(CArmAssembler::REGISTER registerId, uint32 constant)
+void CCodeGen_Arm::LoadConstantInRegister(CAArch32Assembler::REGISTER registerId, uint32 constant)
 {	
 	//Try normal move
 	{
@@ -455,7 +455,7 @@ void CCodeGen_Arm::LoadConstantInRegister(CArmAssembler::REGISTER registerId, ui
 		uint8 shiftAmount = 0;
 		if(TryGetAluImmediateParams(constant, immediate, shiftAmount))
 		{
-			m_assembler.Mov(registerId, CArmAssembler::MakeImmediateAluOperand(immediate, shiftAmount));
+			m_assembler.Mov(registerId, CAArch32Assembler::MakeImmediateAluOperand(immediate, shiftAmount));
 			return;
 		}
 	}
@@ -466,7 +466,7 @@ void CCodeGen_Arm::LoadConstantInRegister(CArmAssembler::REGISTER registerId, ui
 		uint8 shiftAmount = 0;
 		if(TryGetAluImmediateParams(~constant, immediate, shiftAmount))
 		{
-			m_assembler.Mvn(registerId, CArmAssembler::MakeImmediateAluOperand(immediate, shiftAmount));
+			m_assembler.Mvn(registerId, CAArch32Assembler::MakeImmediateAluOperand(immediate, shiftAmount));
 			return;
 		}
 	}
@@ -479,7 +479,7 @@ void CCodeGen_Arm::LoadConstantInRegister(CArmAssembler::REGISTER registerId, ui
 	}
 }
 
-void CCodeGen_Arm::LoadConstantPtrInRegister(CArmAssembler::REGISTER registerId, uintptr_t constant)
+void CCodeGen_Arm::LoadConstantPtrInRegister(CAArch32Assembler::REGISTER registerId, uintptr_t constant)
 {
 	m_assembler.Movw(registerId, static_cast<uint16>(constant & 0xFFFF));
 	m_assembler.Movt(registerId, static_cast<uint16>(constant >> 16));
@@ -491,7 +491,7 @@ void CCodeGen_Arm::LoadConstantPtrInRegister(CArmAssembler::REGISTER registerId,
 	}
 }
 
-void CCodeGen_Arm::LoadMemoryInRegister(CArmAssembler::REGISTER registerId, CSymbol* src)
+void CCodeGen_Arm::LoadMemoryInRegister(CAArch32Assembler::REGISTER registerId, CSymbol* src)
 {
 	switch(src->m_type)
 	{
@@ -507,7 +507,7 @@ void CCodeGen_Arm::LoadMemoryInRegister(CArmAssembler::REGISTER registerId, CSym
 	}
 }
 
-void CCodeGen_Arm::StoreRegisterInMemory(CSymbol* dst, CArmAssembler::REGISTER registerId)
+void CCodeGen_Arm::StoreRegisterInMemory(CSymbol* dst, CAArch32Assembler::REGISTER registerId)
 {
 	switch(dst->m_type)
 	{
@@ -523,33 +523,33 @@ void CCodeGen_Arm::StoreRegisterInMemory(CSymbol* dst, CArmAssembler::REGISTER r
 	}
 }
 
-void CCodeGen_Arm::LoadRelativeInRegister(CArmAssembler::REGISTER registerId, CSymbol* src)
+void CCodeGen_Arm::LoadRelativeInRegister(CAArch32Assembler::REGISTER registerId, CSymbol* src)
 {
 	assert(src->m_type == SYM_RELATIVE);
 	assert((src->m_valueLow & 0x03) == 0x00);
-	m_assembler.Ldr(registerId, g_baseRegister, CArmAssembler::MakeImmediateLdrAddress(src->m_valueLow));
+	m_assembler.Ldr(registerId, g_baseRegister, CAArch32Assembler::MakeImmediateLdrAddress(src->m_valueLow));
 }
 
-void CCodeGen_Arm::StoreRegisterInRelative(CSymbol* dst, CArmAssembler::REGISTER registerId)
+void CCodeGen_Arm::StoreRegisterInRelative(CSymbol* dst, CAArch32Assembler::REGISTER registerId)
 {
 	assert(dst->m_type == SYM_RELATIVE);
 	assert((dst->m_valueLow & 0x03) == 0x00);
-	m_assembler.Str(registerId, g_baseRegister, CArmAssembler::MakeImmediateLdrAddress(dst->m_valueLow));
+	m_assembler.Str(registerId, g_baseRegister, CAArch32Assembler::MakeImmediateLdrAddress(dst->m_valueLow));
 }
 
-void CCodeGen_Arm::LoadTemporaryInRegister(CArmAssembler::REGISTER registerId, CSymbol* src)
+void CCodeGen_Arm::LoadTemporaryInRegister(CAArch32Assembler::REGISTER registerId, CSymbol* src)
 {
 	assert(src->m_type == SYM_TEMPORARY);
-	m_assembler.Ldr(registerId, CArmAssembler::rSP, CArmAssembler::MakeImmediateLdrAddress(src->m_stackLocation + m_stackLevel));
+	m_assembler.Ldr(registerId, CAArch32Assembler::rSP, CAArch32Assembler::MakeImmediateLdrAddress(src->m_stackLocation + m_stackLevel));
 }
 
-void CCodeGen_Arm::StoreRegisterInTemporary(CSymbol* dst, CArmAssembler::REGISTER registerId)
+void CCodeGen_Arm::StoreRegisterInTemporary(CSymbol* dst, CAArch32Assembler::REGISTER registerId)
 {
 	assert(dst->m_type == SYM_TEMPORARY);
-	m_assembler.Str(registerId, CArmAssembler::rSP, CArmAssembler::MakeImmediateLdrAddress(dst->m_stackLocation + m_stackLevel));
+	m_assembler.Str(registerId, CAArch32Assembler::rSP, CAArch32Assembler::MakeImmediateLdrAddress(dst->m_stackLocation + m_stackLevel));
 }
 
-void CCodeGen_Arm::LoadMemoryReferenceInRegister(CArmAssembler::REGISTER registerId, CSymbol* src)
+void CCodeGen_Arm::LoadMemoryReferenceInRegister(CAArch32Assembler::REGISTER registerId, CSymbol* src)
 {
 	switch(src->m_type)
 	{
@@ -565,41 +565,41 @@ void CCodeGen_Arm::LoadMemoryReferenceInRegister(CArmAssembler::REGISTER registe
 	}
 }
 
-void CCodeGen_Arm::LoadRelativeReferenceInRegister(CArmAssembler::REGISTER registerId, CSymbol* src)
+void CCodeGen_Arm::LoadRelativeReferenceInRegister(CAArch32Assembler::REGISTER registerId, CSymbol* src)
 {
 	assert(src->m_type == SYM_REL_REFERENCE);
 	assert((src->m_valueLow & 0x03) == 0x00);
-	m_assembler.Ldr(registerId, g_baseRegister, CArmAssembler::MakeImmediateLdrAddress(src->m_valueLow));
+	m_assembler.Ldr(registerId, g_baseRegister, CAArch32Assembler::MakeImmediateLdrAddress(src->m_valueLow));
 }
 
-void CCodeGen_Arm::LoadTemporaryReferenceInRegister(CArmAssembler::REGISTER registerId, CSymbol* src)
+void CCodeGen_Arm::LoadTemporaryReferenceInRegister(CAArch32Assembler::REGISTER registerId, CSymbol* src)
 {
 	assert(src->m_type == SYM_TMP_REFERENCE);
-	m_assembler.Ldr(registerId, CArmAssembler::rSP, CArmAssembler::MakeImmediateLdrAddress(src->m_stackLocation + m_stackLevel));
+	m_assembler.Ldr(registerId, CAArch32Assembler::rSP, CAArch32Assembler::MakeImmediateLdrAddress(src->m_stackLocation + m_stackLevel));
 }
 
-void CCodeGen_Arm::StoreRegisterInTemporaryReference(CSymbol* dst, CArmAssembler::REGISTER registerId)
+void CCodeGen_Arm::StoreRegisterInTemporaryReference(CSymbol* dst, CAArch32Assembler::REGISTER registerId)
 {
 	assert(dst->m_type == SYM_TMP_REFERENCE);
-	m_assembler.Str(registerId, CArmAssembler::rSP, CArmAssembler::MakeImmediateLdrAddress(dst->m_stackLocation + m_stackLevel));
+	m_assembler.Str(registerId, CAArch32Assembler::rSP, CAArch32Assembler::MakeImmediateLdrAddress(dst->m_stackLocation + m_stackLevel));
 }
 
-CArmAssembler::AluLdrShift CCodeGen_Arm::GetAluShiftFromSymbol(CArmAssembler::SHIFT shiftType, CSymbol* symbol, CArmAssembler::REGISTER preferedRegister)
+CAArch32Assembler::AluLdrShift CCodeGen_Arm::GetAluShiftFromSymbol(CAArch32Assembler::SHIFT shiftType, CSymbol* symbol, CAArch32Assembler::REGISTER preferedRegister)
 {
 	switch(symbol->m_type)
 	{
 	case SYM_REGISTER:
-		m_assembler.And(preferedRegister, g_registers[symbol->m_valueLow], CArmAssembler::MakeImmediateAluOperand(0x1F, 0));
-		return CArmAssembler::MakeVariableShift(shiftType, preferedRegister);
+		m_assembler.And(preferedRegister, g_registers[symbol->m_valueLow], CAArch32Assembler::MakeImmediateAluOperand(0x1F, 0));
+		return CAArch32Assembler::MakeVariableShift(shiftType, preferedRegister);
 		break;
 	case SYM_TEMPORARY:
 	case SYM_RELATIVE:
 		LoadMemoryInRegister(preferedRegister, symbol);
-		m_assembler.And(preferedRegister, preferedRegister, CArmAssembler::MakeImmediateAluOperand(0x1F, 0));
-		return CArmAssembler::MakeVariableShift(shiftType, preferedRegister);
+		m_assembler.And(preferedRegister, preferedRegister, CAArch32Assembler::MakeImmediateAluOperand(0x1F, 0));
+		return CAArch32Assembler::MakeVariableShift(shiftType, preferedRegister);
 		break;
 	case SYM_CONSTANT:
-		return CArmAssembler::MakeConstantShift(shiftType, static_cast<uint8>(symbol->m_valueLow & 0x1F));
+		return CAArch32Assembler::MakeConstantShift(shiftType, static_cast<uint8>(symbol->m_valueLow & 0x1F));
 		break;
 	default:
 		throw std::runtime_error("Invalid symbol type.");
@@ -607,7 +607,7 @@ CArmAssembler::AluLdrShift CCodeGen_Arm::GetAluShiftFromSymbol(CArmAssembler::SH
 	}
 }
 
-CArmAssembler::REGISTER CCodeGen_Arm::PrepareSymbolRegisterDef(CSymbol* symbol, CArmAssembler::REGISTER preferedRegister)
+CAArch32Assembler::REGISTER CCodeGen_Arm::PrepareSymbolRegisterDef(CSymbol* symbol, CAArch32Assembler::REGISTER preferedRegister)
 {
 	switch(symbol->m_type)
 	{
@@ -624,7 +624,7 @@ CArmAssembler::REGISTER CCodeGen_Arm::PrepareSymbolRegisterDef(CSymbol* symbol, 
 	}
 }
 
-CArmAssembler::REGISTER CCodeGen_Arm::PrepareSymbolRegisterUse(CSymbol* symbol, CArmAssembler::REGISTER preferedRegister)
+CAArch32Assembler::REGISTER CCodeGen_Arm::PrepareSymbolRegisterUse(CSymbol* symbol, CAArch32Assembler::REGISTER preferedRegister)
 {
 	switch(symbol->m_type)
 	{
@@ -646,7 +646,7 @@ CArmAssembler::REGISTER CCodeGen_Arm::PrepareSymbolRegisterUse(CSymbol* symbol, 
 	}
 }
 
-void CCodeGen_Arm::CommitSymbolRegister(CSymbol* symbol, CArmAssembler::REGISTER usedRegister)
+void CCodeGen_Arm::CommitSymbolRegister(CSymbol* symbol, CAArch32Assembler::REGISTER usedRegister)
 {
 	switch(symbol->m_type)
 	{
@@ -663,7 +663,7 @@ void CCodeGen_Arm::CommitSymbolRegister(CSymbol* symbol, CArmAssembler::REGISTER
 	}
 }
 
-CArmAssembler::REGISTER CCodeGen_Arm::PrepareParam(PARAM_STATE& paramState)
+CAArch32Assembler::REGISTER CCodeGen_Arm::PrepareParam(PARAM_STATE& paramState)
 {
 	assert(!paramState.prepared);
 	paramState.prepared = true;
@@ -714,8 +714,8 @@ void CCodeGen_Arm::CommitParam(PARAM_STATE& paramState)
 	else
 	{
 		uint32 stackSlot = ((paramState.index - MAX_PARAM_REGS) + 1) * 4;
-		m_assembler.Str(g_tempParamRegister0, CArmAssembler::rSP, 
-			CArmAssembler::MakeImmediateLdrAddress(m_stackLevel - stackSlot));
+		m_assembler.Str(g_tempParamRegister0, CAArch32Assembler::rSP, 
+			CAArch32Assembler::MakeImmediateLdrAddress(m_stackLevel - stackSlot));
 	}
 	paramState.index++;
 }
@@ -743,16 +743,16 @@ void CCodeGen_Arm::CommitParam64(PARAM_STATE& paramState)
 				assert(i == 1);
 				stackSlot = 0;
 			}
-			m_assembler.Str(tempParamReg, CArmAssembler::rSP,
-				CArmAssembler::MakeImmediateLdrAddress(m_stackLevel - (stackPosition * 4) + (stackSlot * 4)));
+			m_assembler.Str(tempParamReg, CAArch32Assembler::rSP,
+				CAArch32Assembler::MakeImmediateLdrAddress(m_stackLevel - (stackPosition * 4) + (stackSlot * 4)));
 		}
 	}
 	paramState.index += 2;
 }
 
-CArmAssembler::LABEL CCodeGen_Arm::GetLabel(uint32 blockId)
+CAArch32Assembler::LABEL CCodeGen_Arm::GetLabel(uint32 blockId)
 {
-	CArmAssembler::LABEL result;
+	CAArch32Assembler::LABEL result;
 	LabelMapType::const_iterator labelIterator(m_labels.find(blockId));
 	if(labelIterator == m_labels.end())
 	{
@@ -768,7 +768,7 @@ CArmAssembler::LABEL CCodeGen_Arm::GetLabel(uint32 blockId)
 
 void CCodeGen_Arm::MarkLabel(const STATEMENT& statement)
 {
-	CArmAssembler::LABEL label = GetLabel(statement.jmpBlock);
+	CAArch32Assembler::LABEL label = GetLabel(statement.jmpBlock);
 	m_assembler.MarkLabel(label);
 }
 
@@ -909,19 +909,19 @@ void CCodeGen_Arm::Emit_Call(const STATEMENT& statement)
 
 	if(stackAlloc != 0)
 	{
-		m_assembler.Sub(CArmAssembler::rSP, CArmAssembler::rSP, 
-			CArmAssembler::MakeImmediateAluOperand(stackAlloc, 0));
+		m_assembler.Sub(CAArch32Assembler::rSP, CAArch32Assembler::rSP, 
+			CAArch32Assembler::MakeImmediateAluOperand(stackAlloc, 0));
 	}
 
 	//No value should be saved in r4 at this point (register is spilled before)
 	LoadConstantPtrInRegister(g_callAddressRegister, src1->GetConstantPtr());
-	m_assembler.Mov(CArmAssembler::rLR, CArmAssembler::rPC);
-	m_assembler.Mov(CArmAssembler::rPC, g_callAddressRegister);
+	m_assembler.Mov(CAArch32Assembler::rLR, CAArch32Assembler::rPC);
+	m_assembler.Mov(CAArch32Assembler::rPC, g_callAddressRegister);
 
 	if(stackAlloc != 0)
 	{
-		m_assembler.Add(CArmAssembler::rSP, CArmAssembler::rSP, 
-			CArmAssembler::MakeImmediateAluOperand(stackAlloc, 0));
+		m_assembler.Add(CAArch32Assembler::rSP, CAArch32Assembler::rSP, 
+			CAArch32Assembler::MakeImmediateAluOperand(stackAlloc, 0));
 	}
 }
 
@@ -931,7 +931,7 @@ void CCodeGen_Arm::Emit_RetVal_Reg(const STATEMENT& statement)
 	
 	assert(dst->m_type == SYM_REGISTER);
 	
-	m_assembler.Mov(g_registers[dst->m_valueLow], CArmAssembler::r0);
+	m_assembler.Mov(g_registers[dst->m_valueLow], CAArch32Assembler::r0);
 }
 
 void CCodeGen_Arm::Emit_RetVal_Tmp(const STATEMENT& statement)
@@ -940,14 +940,14 @@ void CCodeGen_Arm::Emit_RetVal_Tmp(const STATEMENT& statement)
 	
 	assert(dst->m_type == SYM_TEMPORARY);
 	
-	StoreRegisterInTemporary(dst, CArmAssembler::r0);
+	StoreRegisterInTemporary(dst, CAArch32Assembler::r0);
 }
 
 void CCodeGen_Arm::Emit_RetVal_Mem64(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
 
-	StoreRegistersInMemory64(dst, CArmAssembler::r0, CArmAssembler::r1);
+	StoreRegistersInMemory64(dst, CAArch32Assembler::r0, CAArch32Assembler::r1);
 }
 
 void CCodeGen_Arm::Emit_Mov_RegReg(const STATEMENT& statement)
@@ -992,7 +992,7 @@ void CCodeGen_Arm::Emit_Mov_MemMem(const STATEMENT& statement)
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
 	
-	auto tmpReg = CArmAssembler::r0;
+	auto tmpReg = CAArch32Assembler::r0;
 	LoadMemoryInRegister(tmpReg, src1);
 	StoreRegisterInMemory(dst, tmpReg);
 }
@@ -1004,7 +1004,7 @@ void CCodeGen_Arm::Emit_Mov_MemCst(const STATEMENT& statement)
 	
 	assert(src1->m_type == SYM_CONSTANT);
 	
-	auto tmpReg = CArmAssembler::r0;
+	auto tmpReg = CAArch32Assembler::r0;
 	LoadConstantInRegister(tmpReg, src1->m_valueLow);
 	StoreRegisterInMemory(dst, tmpReg);
 }
@@ -1014,8 +1014,8 @@ void CCodeGen_Arm::Emit_Lzc_VarVar(const STATEMENT& statement)
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
 
-	auto dstRegister = PrepareSymbolRegisterDef(dst, CArmAssembler::r0);
-	auto src1Register = PrepareSymbolRegisterUse(src1, CArmAssembler::r1);
+	auto dstRegister = PrepareSymbolRegisterDef(dst, CAArch32Assembler::r0);
+	auto src1Register = PrepareSymbolRegisterUse(src1, CAArch32Assembler::r1);
 
 	auto set32Label = m_assembler.CreateLabel();
 	auto startCountLabel = m_assembler.CreateLabel();
@@ -1023,19 +1023,19 @@ void CCodeGen_Arm::Emit_Lzc_VarVar(const STATEMENT& statement)
 
 	m_assembler.Mov(dstRegister, src1Register);
 	m_assembler.Tst(dstRegister, dstRegister);
-	m_assembler.BCc(CArmAssembler::CONDITION_EQ, set32Label);
-	m_assembler.BCc(CArmAssembler::CONDITION_PL, startCountLabel);
+	m_assembler.BCc(CAArch32Assembler::CONDITION_EQ, set32Label);
+	m_assembler.BCc(CAArch32Assembler::CONDITION_PL, startCountLabel);
 
 	//reverse:
 	m_assembler.Mvn(dstRegister, dstRegister);
 	m_assembler.Tst(dstRegister, dstRegister);
-	m_assembler.BCc(CArmAssembler::CONDITION_EQ, set32Label);
+	m_assembler.BCc(CAArch32Assembler::CONDITION_EQ, set32Label);
 
 	//startCount:
 	m_assembler.MarkLabel(startCountLabel);
 	m_assembler.Clz(dstRegister, dstRegister);
-	m_assembler.Sub(dstRegister, dstRegister, CArmAssembler::MakeImmediateAluOperand(1, 0));
-	m_assembler.BCc(CArmAssembler::CONDITION_AL, doneLabel);
+	m_assembler.Sub(dstRegister, dstRegister, CAArch32Assembler::MakeImmediateAluOperand(1, 0));
+	m_assembler.BCc(CAArch32Assembler::CONDITION_AL, doneLabel);
 
 	//set32:
 	m_assembler.MarkLabel(set32Label);
@@ -1049,32 +1049,32 @@ void CCodeGen_Arm::Emit_Lzc_VarVar(const STATEMENT& statement)
 
 void CCodeGen_Arm::Emit_Jmp(const STATEMENT& statement)
 {
-	m_assembler.BCc(CArmAssembler::CONDITION_AL, GetLabel(statement.jmpBlock));
+	m_assembler.BCc(CAArch32Assembler::CONDITION_AL, GetLabel(statement.jmpBlock));
 }
 
 void CCodeGen_Arm::Emit_CondJmp(const STATEMENT& statement)
 {
-	CArmAssembler::LABEL label(GetLabel(statement.jmpBlock));
+	CAArch32Assembler::LABEL label(GetLabel(statement.jmpBlock));
 	
 	switch(statement.jmpCondition)
 	{
 		case CONDITION_EQ:
-			m_assembler.BCc(CArmAssembler::CONDITION_EQ, label);
+			m_assembler.BCc(CAArch32Assembler::CONDITION_EQ, label);
 			break;
 		case CONDITION_NE:
-			m_assembler.BCc(CArmAssembler::CONDITION_NE, label);
+			m_assembler.BCc(CAArch32Assembler::CONDITION_NE, label);
 			break;
 		case CONDITION_LT:
-			m_assembler.BCc(CArmAssembler::CONDITION_LT, label);
+			m_assembler.BCc(CAArch32Assembler::CONDITION_LT, label);
 			break;
 		case CONDITION_LE:
-			m_assembler.BCc(CArmAssembler::CONDITION_LE, label);
+			m_assembler.BCc(CAArch32Assembler::CONDITION_LE, label);
 			break;
 		case CONDITION_GT:
-			m_assembler.BCc(CArmAssembler::CONDITION_GT, label);
+			m_assembler.BCc(CAArch32Assembler::CONDITION_GT, label);
 			break;
 		case CONDITION_GE:
-			m_assembler.BCc(CArmAssembler::CONDITION_GE, label);
+			m_assembler.BCc(CAArch32Assembler::CONDITION_GE, label);
 			break;
 		default:
 			assert(0);
@@ -1089,8 +1089,8 @@ void CCodeGen_Arm::Emit_CondJmp_VarVar(const STATEMENT& statement)
 	
 	assert(src2->m_type != SYM_CONSTANT);	//We can do better if we have a constant
 
-	auto src1Reg = PrepareSymbolRegisterUse(src1, CArmAssembler::r1);
-	auto src2Reg = PrepareSymbolRegisterUse(src2, CArmAssembler::r2);
+	auto src1Reg = PrepareSymbolRegisterUse(src1, CAArch32Assembler::r1);
+	auto src2Reg = PrepareSymbolRegisterUse(src2, CAArch32Assembler::r2);
 	m_assembler.Cmp(src1Reg, src2Reg);
 	Emit_CondJmp(statement);
 }
@@ -1102,48 +1102,48 @@ void CCodeGen_Arm::Emit_CondJmp_VarCst(const STATEMENT& statement)
 	
 	assert(src2->m_type == SYM_CONSTANT);
 	
-	auto src1Reg = PrepareSymbolRegisterUse(src1, CArmAssembler::r1);
-	Cmp_GenericRegCst(src1Reg, src2->m_valueLow, CArmAssembler::r2);
+	auto src1Reg = PrepareSymbolRegisterUse(src1, CAArch32Assembler::r1);
+	Cmp_GenericRegCst(src1Reg, src2->m_valueLow, CAArch32Assembler::r2);
 	Emit_CondJmp(statement);
 }
 
-void CCodeGen_Arm::Cmp_GetFlag(CArmAssembler::REGISTER registerId, Jitter::CONDITION condition)
+void CCodeGen_Arm::Cmp_GetFlag(CAArch32Assembler::REGISTER registerId, Jitter::CONDITION condition)
 {
-	CArmAssembler::ImmediateAluOperand falseOperand(CArmAssembler::MakeImmediateAluOperand(0, 0));
-	CArmAssembler::ImmediateAluOperand trueOperand(CArmAssembler::MakeImmediateAluOperand(1, 0));
+	CAArch32Assembler::ImmediateAluOperand falseOperand(CAArch32Assembler::MakeImmediateAluOperand(0, 0));
+	CAArch32Assembler::ImmediateAluOperand trueOperand(CAArch32Assembler::MakeImmediateAluOperand(1, 0));
 	switch(condition)
 	{
 		case CONDITION_EQ:
-			m_assembler.MovCc(CArmAssembler::CONDITION_NE, registerId, falseOperand);
-			m_assembler.MovCc(CArmAssembler::CONDITION_EQ, registerId, trueOperand);
+			m_assembler.MovCc(CAArch32Assembler::CONDITION_NE, registerId, falseOperand);
+			m_assembler.MovCc(CAArch32Assembler::CONDITION_EQ, registerId, trueOperand);
 			break;
 		case CONDITION_NE:
-			m_assembler.MovCc(CArmAssembler::CONDITION_EQ, registerId, falseOperand);
-			m_assembler.MovCc(CArmAssembler::CONDITION_NE, registerId, trueOperand);
+			m_assembler.MovCc(CAArch32Assembler::CONDITION_EQ, registerId, falseOperand);
+			m_assembler.MovCc(CAArch32Assembler::CONDITION_NE, registerId, trueOperand);
 			break;
 		case CONDITION_LT:
-			m_assembler.MovCc(CArmAssembler::CONDITION_GE, registerId, falseOperand);
-			m_assembler.MovCc(CArmAssembler::CONDITION_LT, registerId, trueOperand);
+			m_assembler.MovCc(CAArch32Assembler::CONDITION_GE, registerId, falseOperand);
+			m_assembler.MovCc(CAArch32Assembler::CONDITION_LT, registerId, trueOperand);
 			break;
 		case CONDITION_LE:
-			m_assembler.MovCc(CArmAssembler::CONDITION_GT, registerId, falseOperand);
-			m_assembler.MovCc(CArmAssembler::CONDITION_LE, registerId, trueOperand);
+			m_assembler.MovCc(CAArch32Assembler::CONDITION_GT, registerId, falseOperand);
+			m_assembler.MovCc(CAArch32Assembler::CONDITION_LE, registerId, trueOperand);
 			break;
 		case CONDITION_GT:
-			m_assembler.MovCc(CArmAssembler::CONDITION_LE, registerId, falseOperand);
-			m_assembler.MovCc(CArmAssembler::CONDITION_GT, registerId, trueOperand);
+			m_assembler.MovCc(CAArch32Assembler::CONDITION_LE, registerId, falseOperand);
+			m_assembler.MovCc(CAArch32Assembler::CONDITION_GT, registerId, trueOperand);
 			break;
 		case CONDITION_BL:
-			m_assembler.MovCc(CArmAssembler::CONDITION_CS, registerId, falseOperand);
-			m_assembler.MovCc(CArmAssembler::CONDITION_CC, registerId, trueOperand);
+			m_assembler.MovCc(CAArch32Assembler::CONDITION_CS, registerId, falseOperand);
+			m_assembler.MovCc(CAArch32Assembler::CONDITION_CC, registerId, trueOperand);
 			break;
 		case CONDITION_BE:
-			m_assembler.MovCc(CArmAssembler::CONDITION_HI, registerId, falseOperand);
-			m_assembler.MovCc(CArmAssembler::CONDITION_LS, registerId, trueOperand);
+			m_assembler.MovCc(CAArch32Assembler::CONDITION_HI, registerId, falseOperand);
+			m_assembler.MovCc(CAArch32Assembler::CONDITION_LS, registerId, trueOperand);
 			break;
 		case CONDITION_AB:
-			m_assembler.MovCc(CArmAssembler::CONDITION_LS, registerId, falseOperand);
-			m_assembler.MovCc(CArmAssembler::CONDITION_HI, registerId, trueOperand);
+			m_assembler.MovCc(CAArch32Assembler::CONDITION_LS, registerId, falseOperand);
+			m_assembler.MovCc(CAArch32Assembler::CONDITION_HI, registerId, trueOperand);
 			break;
 		default:
 			assert(0);
@@ -1151,17 +1151,17 @@ void CCodeGen_Arm::Cmp_GetFlag(CArmAssembler::REGISTER registerId, Jitter::CONDI
 	}
 }
 
-void CCodeGen_Arm::Cmp_GenericRegCst(CArmAssembler::REGISTER src1Reg, uint32 src2, CArmAssembler::REGISTER src2Reg)
+void CCodeGen_Arm::Cmp_GenericRegCst(CAArch32Assembler::REGISTER src1Reg, uint32 src2, CAArch32Assembler::REGISTER src2Reg)
 {
 	uint8 immediate = 0;
 	uint8 shiftAmount = 0;
 	if(TryGetAluImmediateParams(src2, immediate, shiftAmount))
 	{
-		m_assembler.Cmp(src1Reg, CArmAssembler::MakeImmediateAluOperand(immediate, shiftAmount));
+		m_assembler.Cmp(src1Reg, CAArch32Assembler::MakeImmediateAluOperand(immediate, shiftAmount));
 	}
 	else if(TryGetAluImmediateParams(-static_cast<int32>(src2), immediate, shiftAmount))
 	{
-		m_assembler.Cmn(src1Reg, CArmAssembler::MakeImmediateAluOperand(immediate, shiftAmount));
+		m_assembler.Cmn(src1Reg, CAArch32Assembler::MakeImmediateAluOperand(immediate, shiftAmount));
 	}
 	else
 	{
@@ -1177,9 +1177,9 @@ void CCodeGen_Arm::Emit_Cmp_AnyAnyAny(const STATEMENT& statement)
 	auto src1 = statement.src1->GetSymbol().get();
 	auto src2 = statement.src2->GetSymbol().get();
 
-	auto dstReg = PrepareSymbolRegisterDef(dst, CArmAssembler::r0);
-	auto src1Reg = PrepareSymbolRegisterUse(src1, CArmAssembler::r1);
-	auto src2Reg = PrepareSymbolRegisterUse(src2, CArmAssembler::r2);
+	auto dstReg = PrepareSymbolRegisterDef(dst, CAArch32Assembler::r0);
+	auto src1Reg = PrepareSymbolRegisterUse(src1, CAArch32Assembler::r1);
+	auto src2Reg = PrepareSymbolRegisterUse(src2, CAArch32Assembler::r2);
 
 	m_assembler.Cmp(src1Reg, src2Reg);
 	Cmp_GetFlag(dstReg, statement.jmpCondition);
@@ -1194,11 +1194,11 @@ void CCodeGen_Arm::Emit_Cmp_AnyAnyCst(const STATEMENT& statement)
 
 	assert(src2->m_type == SYM_CONSTANT);
 
-	auto dstReg = PrepareSymbolRegisterDef(dst, CArmAssembler::r0);
-	auto src1Reg = PrepareSymbolRegisterUse(src1, CArmAssembler::r1);
+	auto dstReg = PrepareSymbolRegisterDef(dst, CAArch32Assembler::r0);
+	auto src1Reg = PrepareSymbolRegisterUse(src1, CAArch32Assembler::r1);
 	auto cst = src2->m_valueLow;
 
-	Cmp_GenericRegCst(src1Reg, cst, CArmAssembler::r2);
+	Cmp_GenericRegCst(src1Reg, cst, CAArch32Assembler::r2);
 	Cmp_GetFlag(dstReg, statement.jmpCondition);
 	CommitSymbolRegister(dst, dstReg);
 }
@@ -1221,7 +1221,7 @@ void CCodeGen_Arm::Emit_Not_MemReg(const STATEMENT& statement)
 	
 	assert(src1->m_type == SYM_REGISTER);
 	
-	auto dstReg = CArmAssembler::r1;
+	auto dstReg = CAArch32Assembler::r1;
 	m_assembler.Mvn(dstReg, g_registers[src1->m_valueLow]);
 	StoreRegisterInMemory(dst, dstReg);
 }
@@ -1231,8 +1231,8 @@ void CCodeGen_Arm::Emit_Not_MemMem(const STATEMENT& statement)
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
 
-	auto srcReg = CArmAssembler::r0;
-	auto dstReg = CArmAssembler::r1;
+	auto srcReg = CAArch32Assembler::r0;
+	auto dstReg = CAArch32Assembler::r1;
 	LoadMemoryInRegister(srcReg, src1);
 	m_assembler.Mvn(dstReg, srcReg);
 	StoreRegisterInMemory(dst, dstReg);
@@ -1245,14 +1245,14 @@ void CCodeGen_Arm::Emit_RelToRef_TmpCst(const STATEMENT& statement)
 
 	assert(src1->m_type == SYM_CONSTANT);
 
-	auto tmpReg = CArmAssembler::r0;
+	auto tmpReg = CAArch32Assembler::r0;
 
 	uint8 immediate = 0;
 	uint8 shiftAmount = 0;
 
 	if(TryGetAluImmediateParams(src1->m_valueLow, immediate, shiftAmount))
 	{
-		m_assembler.Add(tmpReg, g_baseRegister, CArmAssembler::MakeImmediateAluOperand(immediate, shiftAmount));
+		m_assembler.Add(tmpReg, g_baseRegister, CAArch32Assembler::MakeImmediateAluOperand(immediate, shiftAmount));
 	}
 	else
 	{
@@ -1269,8 +1269,8 @@ void CCodeGen_Arm::Emit_AddRef_TmpMemAny(const STATEMENT& statement)
 	auto src1 = statement.src1->GetSymbol().get();
 	auto src2 = statement.src2->GetSymbol().get();
 	
-	auto tmpReg = CArmAssembler::r0;
-	auto src2Reg = PrepareSymbolRegisterUse(src2, CArmAssembler::r1);
+	auto tmpReg = CAArch32Assembler::r0;
+	auto src2Reg = PrepareSymbolRegisterUse(src2, CAArch32Assembler::r1);
 
 	LoadMemoryReferenceInRegister(tmpReg, src1);
 	m_assembler.Add(tmpReg, tmpReg, src2Reg);
@@ -1282,11 +1282,11 @@ void CCodeGen_Arm::Emit_LoadFromRef_VarTmp(const STATEMENT& statement)
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
 		
-	auto addressReg = CArmAssembler::r0;
-	auto dstReg = PrepareSymbolRegisterDef(dst, CArmAssembler::r1);
+	auto addressReg = CAArch32Assembler::r0;
+	auto dstReg = PrepareSymbolRegisterDef(dst, CAArch32Assembler::r1);
 
 	LoadTemporaryReferenceInRegister(addressReg, src1);
-	m_assembler.Ldr(dstReg, addressReg, CArmAssembler::MakeImmediateLdrAddress(0));
+	m_assembler.Ldr(dstReg, addressReg, CAArch32Assembler::MakeImmediateLdrAddress(0));
 
 	CommitSymbolRegister(dst, dstReg);
 }
@@ -1298,9 +1298,9 @@ void CCodeGen_Arm::Emit_StoreAtRef_TmpAny(const STATEMENT& statement)
 	
 	assert(src1->m_type == SYM_TMP_REFERENCE);
 	
-	auto addressReg = CArmAssembler::r0;
-	auto valueReg = PrepareSymbolRegisterUse(src2, CArmAssembler::r1);
+	auto addressReg = CAArch32Assembler::r0;
+	auto valueReg = PrepareSymbolRegisterUse(src2, CAArch32Assembler::r1);
 	
 	LoadTemporaryReferenceInRegister(addressReg, src1);
-	m_assembler.Str(valueReg, addressReg, CArmAssembler::MakeImmediateLdrAddress(0));
+	m_assembler.Str(valueReg, addressReg, CAArch32Assembler::MakeImmediateLdrAddress(0));
 }

@@ -19,7 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\src\ArmAssembler.cpp" />
+    <ClCompile Include="..\src\AArch32Assembler.cpp" />
     <ClCompile Include="..\src\CoffObjectFile.cpp" />
     <ClCompile Include="..\src\Jitter.cpp" />
     <ClCompile Include="..\src\Jitter_CodeGen.cpp" />
@@ -45,7 +45,7 @@
     <ClCompile Include="..\src\X86Assembler_Sse.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\include\ArmAssembler.h" />
+    <ClInclude Include="..\include\AArch32Assembler.h" />
     <ClInclude Include="..\include\ArrayStack.h" />
     <ClInclude Include="..\include\CoffDefs.h" />
     <ClInclude Include="..\include\CoffObjectFile.h" />

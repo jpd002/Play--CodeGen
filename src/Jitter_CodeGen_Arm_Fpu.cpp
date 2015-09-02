@@ -2,7 +2,7 @@
 
 using namespace Jitter;
 
-void CCodeGen_Arm::LoadMemoryFpSingleInRegister(CTempRegisterContext& tempRegContext, CArmAssembler::SINGLE_REGISTER reg, CSymbol* symbol)
+void CCodeGen_Arm::LoadMemoryFpSingleInRegister(CTempRegisterContext& tempRegContext, CAArch32Assembler::SINGLE_REGISTER reg, CSymbol* symbol)
 {
 	switch(symbol->m_type)
 	{
@@ -18,7 +18,7 @@ void CCodeGen_Arm::LoadMemoryFpSingleInRegister(CTempRegisterContext& tempRegCon
 	}
 }
 
-void CCodeGen_Arm::StoreRegisterInMemoryFpSingle(CTempRegisterContext& tempRegContext, CSymbol* symbol, CArmAssembler::SINGLE_REGISTER reg)
+void CCodeGen_Arm::StoreRegisterInMemoryFpSingle(CTempRegisterContext& tempRegContext, CSymbol* symbol, CAArch32Assembler::SINGLE_REGISTER reg)
 {
 	switch(symbol->m_type)
 	{
@@ -34,72 +34,72 @@ void CCodeGen_Arm::StoreRegisterInMemoryFpSingle(CTempRegisterContext& tempRegCo
 	}
 }
 
-void CCodeGen_Arm::LoadRelativeFpSingleInRegister(CTempRegisterContext& tempRegContext, CArmAssembler::SINGLE_REGISTER reg, CSymbol* symbol)
+void CCodeGen_Arm::LoadRelativeFpSingleInRegister(CTempRegisterContext& tempRegContext, CAArch32Assembler::SINGLE_REGISTER reg, CSymbol* symbol)
 {
 	assert(symbol->m_type == SYM_FP_REL_SINGLE);
 	if((symbol->m_valueLow / 4) < 0x100)
 	{
-		m_assembler.Vldr(reg, g_baseRegister, CArmAssembler::MakeImmediateLdrAddress(symbol->m_valueLow));
+		m_assembler.Vldr(reg, g_baseRegister, CAArch32Assembler::MakeImmediateLdrAddress(symbol->m_valueLow));
 	}
 	else
 	{
 		auto offsetRegister = tempRegContext.Allocate();
 		LoadConstantInRegister(offsetRegister, symbol->m_valueLow);
 		m_assembler.Add(offsetRegister, offsetRegister, g_baseRegister);
-		m_assembler.Vldr(reg, offsetRegister, CArmAssembler::MakeImmediateLdrAddress(0));
+		m_assembler.Vldr(reg, offsetRegister, CAArch32Assembler::MakeImmediateLdrAddress(0));
 		tempRegContext.Release(offsetRegister);
 	}
 }
 
-void CCodeGen_Arm::StoreRelativeFpSingleInRegister(CTempRegisterContext& tempRegContext, CSymbol* symbol, CArmAssembler::SINGLE_REGISTER reg)
+void CCodeGen_Arm::StoreRelativeFpSingleInRegister(CTempRegisterContext& tempRegContext, CSymbol* symbol, CAArch32Assembler::SINGLE_REGISTER reg)
 {
 	assert(symbol->m_type == SYM_FP_REL_SINGLE);
 	if((symbol->m_valueLow / 4) < 0x100)
 	{
-		m_assembler.Vstr(reg, g_baseRegister, CArmAssembler::MakeImmediateLdrAddress(symbol->m_valueLow));
+		m_assembler.Vstr(reg, g_baseRegister, CAArch32Assembler::MakeImmediateLdrAddress(symbol->m_valueLow));
 	}
 	else
 	{
 		auto offsetRegister = tempRegContext.Allocate();
 		LoadConstantInRegister(offsetRegister, symbol->m_valueLow);
 		m_assembler.Add(offsetRegister, offsetRegister, g_baseRegister);
-		m_assembler.Vstr(reg, offsetRegister, CArmAssembler::MakeImmediateLdrAddress(0));
+		m_assembler.Vstr(reg, offsetRegister, CAArch32Assembler::MakeImmediateLdrAddress(0));
 		tempRegContext.Release(offsetRegister);
 	}
 }
 
-void CCodeGen_Arm::LoadTemporaryFpSingleInRegister(CTempRegisterContext& tempRegContext, CArmAssembler::SINGLE_REGISTER reg, CSymbol* symbol)
+void CCodeGen_Arm::LoadTemporaryFpSingleInRegister(CTempRegisterContext& tempRegContext, CAArch32Assembler::SINGLE_REGISTER reg, CSymbol* symbol)
 {
 	assert(symbol->m_type == SYM_FP_TMP_SINGLE);
 	auto offset = symbol->m_stackLocation + m_stackLevel;
 	if((offset / 4) < 0x100)
 	{
-		m_assembler.Vldr(reg, CArmAssembler::rSP, CArmAssembler::MakeImmediateLdrAddress(symbol->m_stackLocation + m_stackLevel));
+		m_assembler.Vldr(reg, CAArch32Assembler::rSP, CAArch32Assembler::MakeImmediateLdrAddress(symbol->m_stackLocation + m_stackLevel));
 	}
 	else
 	{
 		auto offsetRegister = tempRegContext.Allocate();
 		LoadConstantInRegister(offsetRegister, offset);
-		m_assembler.Add(offsetRegister, offsetRegister, CArmAssembler::rSP);
-		m_assembler.Vldr(reg, offsetRegister, CArmAssembler::MakeImmediateLdrAddress(0));
+		m_assembler.Add(offsetRegister, offsetRegister, CAArch32Assembler::rSP);
+		m_assembler.Vldr(reg, offsetRegister, CAArch32Assembler::MakeImmediateLdrAddress(0));
 		tempRegContext.Release(offsetRegister);
 	}
 }
 
-void CCodeGen_Arm::StoreTemporaryFpSingleInRegister(CTempRegisterContext& tempRegContext, CSymbol* symbol, CArmAssembler::SINGLE_REGISTER reg)
+void CCodeGen_Arm::StoreTemporaryFpSingleInRegister(CTempRegisterContext& tempRegContext, CSymbol* symbol, CAArch32Assembler::SINGLE_REGISTER reg)
 {
 	assert(symbol->m_type == SYM_FP_TMP_SINGLE);
 	auto offset = symbol->m_stackLocation + m_stackLevel;
 	if((offset / 4) < 0x100)
 	{
-		m_assembler.Vstr(reg, CArmAssembler::rSP, CArmAssembler::MakeImmediateLdrAddress(symbol->m_stackLocation + m_stackLevel));
+		m_assembler.Vstr(reg, CAArch32Assembler::rSP, CAArch32Assembler::MakeImmediateLdrAddress(symbol->m_stackLocation + m_stackLevel));
 	}
 	else
 	{
 		auto offsetRegister = tempRegContext.Allocate();
 		LoadConstantInRegister(offsetRegister, offset);
-		m_assembler.Add(offsetRegister, offsetRegister,CArmAssembler::rSP);
-		m_assembler.Vstr(reg, offsetRegister, CArmAssembler::MakeImmediateLdrAddress(0));
+		m_assembler.Add(offsetRegister, offsetRegister,CAArch32Assembler::rSP);
+		m_assembler.Vstr(reg, offsetRegister, CAArch32Assembler::MakeImmediateLdrAddress(0));
 		tempRegContext.Release(offsetRegister);
 	}
 }
@@ -112,9 +112,9 @@ void CCodeGen_Arm::Emit_Fpu_MemMem(const STATEMENT& statement)
 
 	CTempRegisterContext tempRegisterContext;
 
-	LoadMemoryFpSingleInRegister(tempRegisterContext, CArmAssembler::s0, src1);
-	((m_assembler).*(FPUOP::OpReg()))(CArmAssembler::s1, CArmAssembler::s0);
-	StoreRegisterInMemoryFpSingle(tempRegisterContext, dst, CArmAssembler::s1);
+	LoadMemoryFpSingleInRegister(tempRegisterContext, CAArch32Assembler::s0, src1);
+	((m_assembler).*(FPUOP::OpReg()))(CAArch32Assembler::s1, CAArch32Assembler::s0);
+	StoreRegisterInMemoryFpSingle(tempRegisterContext, dst, CAArch32Assembler::s1);
 }
 
 template <typename FPUOP>
@@ -126,10 +126,10 @@ void CCodeGen_Arm::Emit_Fpu_MemMemMem(const STATEMENT& statement)
 
 	CTempRegisterContext tempRegisterContext;
 
-	LoadMemoryFpSingleInRegister(tempRegisterContext, CArmAssembler::s0, src1);
-	LoadMemoryFpSingleInRegister(tempRegisterContext, CArmAssembler::s1, src2);
-	((m_assembler).*(FPUOP::OpReg()))(CArmAssembler::s2, CArmAssembler::s0, CArmAssembler::s1);
-	StoreRegisterInMemoryFpSingle(tempRegisterContext, dst, CArmAssembler::s2);
+	LoadMemoryFpSingleInRegister(tempRegisterContext, CAArch32Assembler::s0, src1);
+	LoadMemoryFpSingleInRegister(tempRegisterContext, CAArch32Assembler::s1, src2);
+	((m_assembler).*(FPUOP::OpReg()))(CAArch32Assembler::s2, CAArch32Assembler::s0, CAArch32Assembler::s1);
+	StoreRegisterInMemoryFpSingle(tempRegisterContext, dst, CAArch32Assembler::s2);
 }
 
 template <typename FPUMDOP>
@@ -141,10 +141,10 @@ void CCodeGen_Arm::Emit_FpuMd_MemMemMem(const STATEMENT& statement)
 
 	CTempRegisterContext tempRegisterContext;
 
-	LoadMemoryFpSingleInRegister(tempRegisterContext, CArmAssembler::s0, src1);
-	LoadMemoryFpSingleInRegister(tempRegisterContext, CArmAssembler::s4, src2);
-	((m_assembler).*(FPUMDOP::OpReg()))(CArmAssembler::q2, CArmAssembler::q0, CArmAssembler::q1);
-	StoreRegisterInMemoryFpSingle(tempRegisterContext, dst, CArmAssembler::s8);
+	LoadMemoryFpSingleInRegister(tempRegisterContext, CAArch32Assembler::s0, src1);
+	LoadMemoryFpSingleInRegister(tempRegisterContext, CAArch32Assembler::s4, src2);
+	((m_assembler).*(FPUMDOP::OpReg()))(CAArch32Assembler::q2, CAArch32Assembler::q0, CAArch32Assembler::q1);
+	StoreRegisterInMemoryFpSingle(tempRegisterContext, dst, CAArch32Assembler::s8);
 }
 
 void CCodeGen_Arm::Emit_Fp_Rcpl_MemMem(const STATEMENT& statement)
@@ -154,11 +154,11 @@ void CCodeGen_Arm::Emit_Fp_Rcpl_MemMem(const STATEMENT& statement)
 
 	CTempRegisterContext tempRegisterContext;
 
-	LoadMemoryFpSingleInRegister(tempRegisterContext, CArmAssembler::s0, src1);
-	m_assembler.Vrecpe_F32(CArmAssembler::q1, CArmAssembler::q0);
-	m_assembler.Vrecps_F32(CArmAssembler::q2, CArmAssembler::q1, CArmAssembler::q0);
-	m_assembler.Vmul_F32(CArmAssembler::s4, CArmAssembler::s4, CArmAssembler::s8);
-	StoreRegisterInMemoryFpSingle(tempRegisterContext, dst, CArmAssembler::s4);
+	LoadMemoryFpSingleInRegister(tempRegisterContext, CAArch32Assembler::s0, src1);
+	m_assembler.Vrecpe_F32(CAArch32Assembler::q1, CAArch32Assembler::q0);
+	m_assembler.Vrecps_F32(CAArch32Assembler::q2, CAArch32Assembler::q1, CAArch32Assembler::q0);
+	m_assembler.Vmul_F32(CAArch32Assembler::s4, CAArch32Assembler::s4, CAArch32Assembler::s8);
+	StoreRegisterInMemoryFpSingle(tempRegisterContext, dst, CAArch32Assembler::s4);
 }
 
 void CCodeGen_Arm::Emit_Fp_Rsqrt_MemMem(const STATEMENT& statement)
@@ -168,12 +168,12 @@ void CCodeGen_Arm::Emit_Fp_Rsqrt_MemMem(const STATEMENT& statement)
 
 	CTempRegisterContext tempRegisterContext;
 
-	LoadMemoryFpSingleInRegister(tempRegisterContext, CArmAssembler::s0, src1);
-	m_assembler.Vrsqrte_F32(CArmAssembler::q1, CArmAssembler::q0);
-	m_assembler.Vmul_F32(CArmAssembler::s8, CArmAssembler::s0, CArmAssembler::s4);
-	m_assembler.Vrsqrts_F32(CArmAssembler::q3, CArmAssembler::q2, CArmAssembler::q1);
-	m_assembler.Vmul_F32(CArmAssembler::s4, CArmAssembler::s4, CArmAssembler::s12);
-	StoreRegisterInMemoryFpSingle(tempRegisterContext, dst, CArmAssembler::s4);
+	LoadMemoryFpSingleInRegister(tempRegisterContext, CAArch32Assembler::s0, src1);
+	m_assembler.Vrsqrte_F32(CAArch32Assembler::q1, CAArch32Assembler::q0);
+	m_assembler.Vmul_F32(CAArch32Assembler::s8, CAArch32Assembler::s0, CAArch32Assembler::s4);
+	m_assembler.Vrsqrts_F32(CAArch32Assembler::q3, CAArch32Assembler::q2, CAArch32Assembler::q1);
+	m_assembler.Vmul_F32(CAArch32Assembler::s4, CAArch32Assembler::s4, CAArch32Assembler::s12);
+	StoreRegisterInMemoryFpSingle(tempRegisterContext, dst, CAArch32Assembler::s4);
 }
 
 void CCodeGen_Arm::Emit_Fp_Cmp_AnyMemMem(const STATEMENT& statement)
@@ -187,24 +187,24 @@ void CCodeGen_Arm::Emit_Fp_Cmp_AnyMemMem(const STATEMENT& statement)
 	auto tmpReg = tempRegisterContext.Allocate();
 	auto dstReg = PrepareSymbolRegisterDef(dst, tmpReg);
 
-	m_assembler.Mov(dstReg, CArmAssembler::MakeImmediateAluOperand(0, 0));
-	LoadMemoryFpSingleInRegister(tempRegisterContext, CArmAssembler::s0, src1);
-	LoadMemoryFpSingleInRegister(tempRegisterContext, CArmAssembler::s1, src2);
-	m_assembler.Vcmp_F32(CArmAssembler::s0, CArmAssembler::s1);
-	m_assembler.Vmrs(CArmAssembler::rPC);	//Move to general purpose status register
+	m_assembler.Mov(dstReg, CAArch32Assembler::MakeImmediateAluOperand(0, 0));
+	LoadMemoryFpSingleInRegister(tempRegisterContext, CAArch32Assembler::s0, src1);
+	LoadMemoryFpSingleInRegister(tempRegisterContext, CAArch32Assembler::s1, src2);
+	m_assembler.Vcmp_F32(CAArch32Assembler::s0, CAArch32Assembler::s1);
+	m_assembler.Vmrs(CAArch32Assembler::rPC);	//Move to general purpose status register
 	switch(statement.jmpCondition)
 	{
 	case Jitter::CONDITION_AB:
-		m_assembler.MovCc(CArmAssembler::CONDITION_GT, dstReg, CArmAssembler::MakeImmediateAluOperand(1, 0));
+		m_assembler.MovCc(CAArch32Assembler::CONDITION_GT, dstReg, CAArch32Assembler::MakeImmediateAluOperand(1, 0));
 		break;
 	case Jitter::CONDITION_BE:
-		m_assembler.MovCc(CArmAssembler::CONDITION_LS, dstReg, CArmAssembler::MakeImmediateAluOperand(1, 0));
+		m_assembler.MovCc(CAArch32Assembler::CONDITION_LS, dstReg, CAArch32Assembler::MakeImmediateAluOperand(1, 0));
 		break;
 	case Jitter::CONDITION_BL:
-		m_assembler.MovCc(CArmAssembler::CONDITION_MI, dstReg, CArmAssembler::MakeImmediateAluOperand(1, 0));
+		m_assembler.MovCc(CAArch32Assembler::CONDITION_MI, dstReg, CAArch32Assembler::MakeImmediateAluOperand(1, 0));
 		break;
 	case Jitter::CONDITION_EQ:
-		m_assembler.MovCc(CArmAssembler::CONDITION_EQ, dstReg, CArmAssembler::MakeImmediateAluOperand(1, 0));
+		m_assembler.MovCc(CAArch32Assembler::CONDITION_EQ, dstReg, CAArch32Assembler::MakeImmediateAluOperand(1, 0));
 		break;
 	default:
 		assert(0);
@@ -224,10 +224,10 @@ void CCodeGen_Arm::Emit_Fp_Mov_MemSRelI32(const STATEMENT& statement)
 
 	CTempRegisterContext tempRegisterContext;
 
-	auto dstReg = CArmAssembler::s0;
-	auto src1Reg = CArmAssembler::s1;
+	auto dstReg = CAArch32Assembler::s0;
+	auto src1Reg = CAArch32Assembler::s1;
 
-	m_assembler.Vldr(src1Reg, g_baseRegister, CArmAssembler::MakeImmediateLdrAddress(src1->m_valueLow));
+	m_assembler.Vldr(src1Reg, g_baseRegister, CAArch32Assembler::MakeImmediateLdrAddress(src1->m_valueLow));
 	m_assembler.Vcvt_F32_S32(dstReg, src1Reg);
 	StoreRegisterInMemoryFpSingle(tempRegisterContext, dst, dstReg);
 }
@@ -239,8 +239,8 @@ void CCodeGen_Arm::Emit_Fp_ToIntTrunc_MemMem(const STATEMENT& statement)
 
 	CTempRegisterContext tempRegisterContext;
 
-	auto dstReg = CArmAssembler::s0;
-	auto src1Reg = CArmAssembler::s1;
+	auto dstReg = CAArch32Assembler::s0;
+	auto src1Reg = CAArch32Assembler::s1;
 
 	LoadMemoryFpSingleInRegister(tempRegisterContext, src1Reg, src1);
 	m_assembler.Vcvt_S32_F32(dstReg, src1Reg);
@@ -255,8 +255,8 @@ void CCodeGen_Arm::Emit_Fp_LdCst_TmpCst(const STATEMENT& statement)
 	assert(dst->m_type  == SYM_FP_TMP_SINGLE);
 	assert(src1->m_type == SYM_CONSTANT);
 
-	LoadConstantInRegister(CArmAssembler::r0, src1->m_valueLow);
-	m_assembler.Str(CArmAssembler::r0, CArmAssembler::rSP, CArmAssembler::MakeImmediateLdrAddress(dst->m_stackLocation + m_stackLevel));
+	LoadConstantInRegister(CAArch32Assembler::r0, src1->m_valueLow);
+	m_assembler.Str(CAArch32Assembler::r0, CAArch32Assembler::rSP, CAArch32Assembler::MakeImmediateLdrAddress(dst->m_stackLocation + m_stackLevel));
 }
 
 CCodeGen_Arm::CONSTMATCHER CCodeGen_Arm::g_fpuConstMatchers[] = 

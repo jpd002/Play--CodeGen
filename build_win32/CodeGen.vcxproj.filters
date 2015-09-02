@@ -8,11 +8,14 @@
     <Filter Include="Source Files\x86">
       <UniqueIdentifier>{92c79547-6b58-42ea-8a7f-ec76f70c3bf3}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\arm">
-      <UniqueIdentifier>{95ac34a4-202e-4670-8593-a340cbfd46f2}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\object">
       <UniqueIdentifier>{cd419ed2-0ccf-4925-8dae-4b0930235eb3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\arm">
+      <UniqueIdentifier>{91d4fea7-edd8-4c3f-b82c-c85a998e3094}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\arm\aarch32">
+      <UniqueIdentifier>{95ac34a4-202e-4670-8593-a340cbfd46f2}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -61,14 +64,11 @@
     <ClCompile Include="..\src\Jitter_CodeGen_x86.cpp">
       <Filter>Source Files\x86</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\ArmAssembler.cpp">
-      <Filter>Source Files\arm</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\Jitter_CodeGen_Arm.cpp">
-      <Filter>Source Files\arm</Filter>
+      <Filter>Source Files\arm\aarch32</Filter>
     </ClCompile>
     <ClCompile Include="..\src\Jitter_CodeGen_Arm_Fpu.cpp">
-      <Filter>Source Files\arm</Filter>
+      <Filter>Source Files\arm\aarch32</Filter>
     </ClCompile>
     <ClCompile Include="..\src\CoffObjectFile.cpp">
       <Filter>Source Files\object</Filter>
@@ -83,10 +83,13 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\src\Jitter_CodeGen_Arm_Md.cpp">
-      <Filter>Source Files\arm</Filter>
+      <Filter>Source Files\arm\aarch32</Filter>
     </ClCompile>
     <ClCompile Include="..\src\Jitter_CodeGen_Arm_64.cpp">
-      <Filter>Source Files\arm</Filter>
+      <Filter>Source Files\arm\aarch32</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\AArch32Assembler.cpp">
+      <Filter>Source Files\arm\aarch32</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -138,14 +141,11 @@
     <ClInclude Include="..\include\Jitter_CodeGen_x86.h">
       <Filter>Source Files\x86</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\ArmAssembler.h">
-      <Filter>Source Files\arm</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\Jitter_CodeGen_Arm.h">
-      <Filter>Source Files\arm</Filter>
+      <Filter>Source Files\arm\aarch32</Filter>
     </ClInclude>
     <ClInclude Include="..\src\Jitter_CodeGen_Arm_Div.h">
-      <Filter>Source Files\arm</Filter>
+      <Filter>Source Files\arm\aarch32</Filter>
     </ClInclude>
     <ClInclude Include="..\include\MemoryFunction.h">
       <Filter>Source Files</Filter>
@@ -164,6 +164,9 @@
     </ClInclude>
     <ClInclude Include="..\include\CoffDefs.h">
       <Filter>Source Files\object</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\AArch32Assembler.h">
+      <Filter>Source Files\arm\aarch32</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

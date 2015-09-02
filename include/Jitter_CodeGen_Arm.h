@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Jitter_CodeGen.h"
-#include "ArmAssembler.h"
+#include "AArch32Assembler.h"
 #include <deque>
 #include <functional>
 #include <array>
@@ -22,7 +22,7 @@ namespace Jitter
 		bool									CanHold128BitsReturnValueInRegisters() const override;
 
 	private:
-		typedef std::map<uint32, CArmAssembler::LABEL> LabelMapType;
+		typedef std::map<uint32, CAArch32Assembler::LABEL> LabelMapType;
 		typedef void (CCodeGen_Arm::*ConstCodeEmitterType)(const STATEMENT&);
 
 		struct PARAM_STATE
@@ -34,19 +34,19 @@ namespace Jitter
 		class CTempRegisterContext
 		{
 		public:
-			CArmAssembler::REGISTER Allocate()
+			CAArch32Assembler::REGISTER Allocate()
 			{
-				return static_cast<CArmAssembler::REGISTER>(m_nextRegister++);
+				return static_cast<CAArch32Assembler::REGISTER>(m_nextRegister++);
 			}
 
-			void Release(CArmAssembler::REGISTER reg)
+			void Release(CAArch32Assembler::REGISTER reg)
 			{
 				m_nextRegister--;
 				assert(reg == m_nextRegister);
 			}
 
 		private:
-			uint8 m_nextRegister = CArmAssembler::r0;
+			uint8 m_nextRegister = CAArch32Assembler::r0;
 		};
 
 		typedef std::function<void (PARAM_STATE&)> ParamEmitterFunction;
@@ -76,110 +76,110 @@ namespace Jitter
 		void									Emit_Prolog(unsigned int, uint16);
 		void									Emit_Epilog(unsigned int, uint16);
 
-		CArmAssembler::LABEL					GetLabel(uint32);
+		CAArch32Assembler::LABEL					GetLabel(uint32);
 		void									MarkLabel(const STATEMENT&);
 
-		void									LoadMemoryInRegister(CArmAssembler::REGISTER, CSymbol*);
-		void									StoreRegisterInMemory(CSymbol*, CArmAssembler::REGISTER);
+		void									LoadMemoryInRegister(CAArch32Assembler::REGISTER, CSymbol*);
+		void									StoreRegisterInMemory(CSymbol*, CAArch32Assembler::REGISTER);
 
-		void									LoadRelativeInRegister(CArmAssembler::REGISTER, CSymbol*);
-		void									StoreRegisterInRelative(CSymbol*, CArmAssembler::REGISTER);
+		void									LoadRelativeInRegister(CAArch32Assembler::REGISTER, CSymbol*);
+		void									StoreRegisterInRelative(CSymbol*, CAArch32Assembler::REGISTER);
 		
-		void									LoadTemporaryInRegister(CArmAssembler::REGISTER, CSymbol*);
-		void									StoreRegisterInTemporary(CSymbol*, CArmAssembler::REGISTER);
+		void									LoadTemporaryInRegister(CAArch32Assembler::REGISTER, CSymbol*);
+		void									StoreRegisterInTemporary(CSymbol*, CAArch32Assembler::REGISTER);
 		
-		void									LoadMemoryReferenceInRegister(CArmAssembler::REGISTER, CSymbol*);
+		void									LoadMemoryReferenceInRegister(CAArch32Assembler::REGISTER, CSymbol*);
 
-		void									LoadRelativeReferenceInRegister(CArmAssembler::REGISTER, CSymbol*);
+		void									LoadRelativeReferenceInRegister(CAArch32Assembler::REGISTER, CSymbol*);
 
-		void									LoadTemporaryReferenceInRegister(CArmAssembler::REGISTER, CSymbol*);
-		void									StoreRegisterInTemporaryReference(CSymbol*, CArmAssembler::REGISTER);
+		void									LoadTemporaryReferenceInRegister(CAArch32Assembler::REGISTER, CSymbol*);
+		void									StoreRegisterInTemporaryReference(CSymbol*, CAArch32Assembler::REGISTER);
 		
 		uint32									GetMemory64Offset(CSymbol*) const;
 
-		void									LoadMemory64LowInRegister(CArmAssembler::REGISTER, CSymbol*);
-		void									LoadMemory64HighInRegister(CArmAssembler::REGISTER, CSymbol*);
-		void									LoadMemory64InRegisters(CArmAssembler::REGISTER, CArmAssembler::REGISTER, CSymbol*);
+		void									LoadMemory64LowInRegister(CAArch32Assembler::REGISTER, CSymbol*);
+		void									LoadMemory64HighInRegister(CAArch32Assembler::REGISTER, CSymbol*);
+		void									LoadMemory64InRegisters(CAArch32Assembler::REGISTER, CAArch32Assembler::REGISTER, CSymbol*);
 
-		void									StoreRegisterInMemory64Low(CSymbol*, CArmAssembler::REGISTER);
-		void									StoreRegisterInMemory64High(CSymbol*, CArmAssembler::REGISTER);
-		void									StoreRegistersInMemory64(CSymbol*, CArmAssembler::REGISTER, CArmAssembler::REGISTER);
+		void									StoreRegisterInMemory64Low(CSymbol*, CAArch32Assembler::REGISTER);
+		void									StoreRegisterInMemory64High(CSymbol*, CAArch32Assembler::REGISTER);
+		void									StoreRegistersInMemory64(CSymbol*, CAArch32Assembler::REGISTER, CAArch32Assembler::REGISTER);
 
-		void									LoadMemoryFpSingleInRegister(CTempRegisterContext&, CArmAssembler::SINGLE_REGISTER, CSymbol*);
-		void									StoreRegisterInMemoryFpSingle(CTempRegisterContext&, CSymbol*, CArmAssembler::SINGLE_REGISTER);
+		void									LoadMemoryFpSingleInRegister(CTempRegisterContext&, CAArch32Assembler::SINGLE_REGISTER, CSymbol*);
+		void									StoreRegisterInMemoryFpSingle(CTempRegisterContext&, CSymbol*, CAArch32Assembler::SINGLE_REGISTER);
 
-		void									LoadRelativeFpSingleInRegister(CTempRegisterContext&, CArmAssembler::SINGLE_REGISTER, CSymbol*);
-		void									StoreRelativeFpSingleInRegister(CTempRegisterContext&, CSymbol*, CArmAssembler::SINGLE_REGISTER);
+		void									LoadRelativeFpSingleInRegister(CTempRegisterContext&, CAArch32Assembler::SINGLE_REGISTER, CSymbol*);
+		void									StoreRelativeFpSingleInRegister(CTempRegisterContext&, CSymbol*, CAArch32Assembler::SINGLE_REGISTER);
 
-		void									LoadTemporaryFpSingleInRegister(CTempRegisterContext&, CArmAssembler::SINGLE_REGISTER, CSymbol*);
-		void									StoreTemporaryFpSingleInRegister(CTempRegisterContext&, CSymbol*, CArmAssembler::SINGLE_REGISTER);
+		void									LoadTemporaryFpSingleInRegister(CTempRegisterContext&, CAArch32Assembler::SINGLE_REGISTER, CSymbol*);
+		void									StoreTemporaryFpSingleInRegister(CTempRegisterContext&, CSymbol*, CAArch32Assembler::SINGLE_REGISTER);
 
-		void									LoadMemory128AddressInRegister(CArmAssembler::REGISTER, CSymbol*, uint32 = 0);
-		void									LoadRelative128AddressInRegister(CArmAssembler::REGISTER, CSymbol*, uint32);
-		void									LoadTemporary128AddressInRegister(CArmAssembler::REGISTER, CSymbol*, uint32);
+		void									LoadMemory128AddressInRegister(CAArch32Assembler::REGISTER, CSymbol*, uint32 = 0);
+		void									LoadRelative128AddressInRegister(CAArch32Assembler::REGISTER, CSymbol*, uint32);
+		void									LoadTemporary128AddressInRegister(CAArch32Assembler::REGISTER, CSymbol*, uint32);
 
-		void									LoadTemporary256ElementAddressInRegister(CArmAssembler::REGISTER, CSymbol*, uint32);
+		void									LoadTemporary256ElementAddressInRegister(CAArch32Assembler::REGISTER, CSymbol*, uint32);
 
-		CArmAssembler::REGISTER					PrepareSymbolRegisterDef(CSymbol*, CArmAssembler::REGISTER);
-		CArmAssembler::REGISTER					PrepareSymbolRegisterUse(CSymbol*, CArmAssembler::REGISTER);
-		void									CommitSymbolRegister(CSymbol*, CArmAssembler::REGISTER);
+		CAArch32Assembler::REGISTER					PrepareSymbolRegisterDef(CSymbol*, CAArch32Assembler::REGISTER);
+		CAArch32Assembler::REGISTER					PrepareSymbolRegisterUse(CSymbol*, CAArch32Assembler::REGISTER);
+		void									CommitSymbolRegister(CSymbol*, CAArch32Assembler::REGISTER);
 
-		typedef std::array<CArmAssembler::REGISTER, 2> ParamRegisterPair;
+		typedef std::array<CAArch32Assembler::REGISTER, 2> ParamRegisterPair;
 
-		CArmAssembler::REGISTER					PrepareParam(PARAM_STATE&);
+		CAArch32Assembler::REGISTER					PrepareParam(PARAM_STATE&);
 		ParamRegisterPair						PrepareParam64(PARAM_STATE&);
 		void									CommitParam(PARAM_STATE&);
 		void									CommitParam64(PARAM_STATE&);
 
-		CArmAssembler::AluLdrShift				GetAluShiftFromSymbol(CArmAssembler::SHIFT shiftType, CSymbol* symbol, CArmAssembler::REGISTER preferedRegister);
+		CAArch32Assembler::AluLdrShift				GetAluShiftFromSymbol(CAArch32Assembler::SHIFT shiftType, CSymbol* symbol, CAArch32Assembler::REGISTER preferedRegister);
 
 		static uint32							RotateRight(uint32);
 		static uint32							RotateLeft(uint32);
 		bool									TryGetAluImmediateParams(uint32, uint8&, uint8&);
-		void									LoadConstantInRegister(CArmAssembler::REGISTER, uint32);
-		void									LoadConstantPtrInRegister(CArmAssembler::REGISTER, uintptr_t);
+		void									LoadConstantInRegister(CAArch32Assembler::REGISTER, uint32);
+		void									LoadConstantPtrInRegister(CAArch32Assembler::REGISTER, uintptr_t);
 
 		//ALUOP ----------------------------------------------------------
 		struct ALUOP_BASE
 		{
-			typedef void (CArmAssembler::*OpImmType)(CArmAssembler::REGISTER, CArmAssembler::REGISTER, const CArmAssembler::ImmediateAluOperand&);
-			typedef void (CArmAssembler::*OpRegType)(CArmAssembler::REGISTER, CArmAssembler::REGISTER, CArmAssembler::REGISTER);
+			typedef void (CAArch32Assembler::*OpImmType)(CAArch32Assembler::REGISTER, CAArch32Assembler::REGISTER, const CAArch32Assembler::ImmediateAluOperand&);
+			typedef void (CAArch32Assembler::*OpRegType)(CAArch32Assembler::REGISTER, CAArch32Assembler::REGISTER, CAArch32Assembler::REGISTER);
 			
-			typedef void (CArmAssembler::*OpImmNegType)(CArmAssembler::REGISTER, CArmAssembler::REGISTER, const CArmAssembler::ImmediateAluOperand&);
-			typedef void (CArmAssembler::*OpImmNotType)(CArmAssembler::REGISTER, CArmAssembler::REGISTER, const CArmAssembler::ImmediateAluOperand&);
+			typedef void (CAArch32Assembler::*OpImmNegType)(CAArch32Assembler::REGISTER, CAArch32Assembler::REGISTER, const CAArch32Assembler::ImmediateAluOperand&);
+			typedef void (CAArch32Assembler::*OpImmNotType)(CAArch32Assembler::REGISTER, CAArch32Assembler::REGISTER, const CAArch32Assembler::ImmediateAluOperand&);
 		};
 		
 		struct ALUOP_ADD : public ALUOP_BASE
 		{
-			static OpImmType	OpImm()		{ return &CArmAssembler::Add; }
-			static OpRegType	OpReg()		{ return &CArmAssembler::Add; }
+			static OpImmType	OpImm()		{ return &CAArch32Assembler::Add; }
+			static OpRegType	OpReg()		{ return &CAArch32Assembler::Add; }
 			
-			static OpImmNegType OpImmNeg()	{ return &CArmAssembler::Sub; }
+			static OpImmNegType OpImmNeg()	{ return &CAArch32Assembler::Sub; }
 			static OpImmNotType OpImmNot()	{ return NULL; }
 		};
 		
 		struct ALUOP_SUB : public ALUOP_BASE
 		{
-			static OpImmType	OpImm()		{ return &CArmAssembler::Sub; }
-			static OpRegType	OpReg()		{ return &CArmAssembler::Sub; }
+			static OpImmType	OpImm()		{ return &CAArch32Assembler::Sub; }
+			static OpRegType	OpReg()		{ return &CAArch32Assembler::Sub; }
 			
-			static OpImmNegType OpImmNeg()	{ return &CArmAssembler::Add; }
+			static OpImmNegType OpImmNeg()	{ return &CAArch32Assembler::Add; }
 			static OpImmNotType OpImmNot()	{ return NULL; }
 		};
 		
 		struct ALUOP_AND : public ALUOP_BASE
 		{
-			static OpImmType	OpImm()		{ return &CArmAssembler::And; }
-			static OpRegType	OpReg()		{ return &CArmAssembler::And; }
+			static OpImmType	OpImm()		{ return &CAArch32Assembler::And; }
+			static OpRegType	OpReg()		{ return &CAArch32Assembler::And; }
 			
 			static OpImmNegType OpImmNeg()	{ return NULL; }
-			static OpImmNotType OpImmNot()	{ return &CArmAssembler::Bic; }
+			static OpImmNotType OpImmNot()	{ return &CAArch32Assembler::Bic; }
 		};
 
 		struct ALUOP_OR : public ALUOP_BASE
 		{
-			static OpImmType	OpImm()		{ return &CArmAssembler::Or; }
-			static OpRegType	OpReg()		{ return &CArmAssembler::Or; }
+			static OpImmType	OpImm()		{ return &CAArch32Assembler::Or; }
+			static OpRegType	OpReg()		{ return &CAArch32Assembler::Or; }
 			
 			static OpImmNegType OpImmNeg()	{ return NULL; }
 			static OpImmNotType OpImmNot()	{ return NULL; }
@@ -187,8 +187,8 @@ namespace Jitter
 		
 		struct ALUOP_XOR : public ALUOP_BASE
 		{
-			static OpImmType	OpImm()		{ return &CArmAssembler::Eor; }
-			static OpRegType	OpReg()		{ return &CArmAssembler::Eor; }
+			static OpImmType	OpImm()		{ return &CAArch32Assembler::Eor; }
+			static OpRegType	OpReg()		{ return &CAArch32Assembler::Eor; }
 			
 			static OpImmNegType OpImmNeg()	{ return NULL; }
 			static OpImmNotType OpImmNot()	{ return NULL; }
@@ -197,253 +197,253 @@ namespace Jitter
 		//FPUOP -----------------------------------------------------------
 		struct FPUOP_BASE2
 		{
-			typedef void (CArmAssembler::*OpRegType)(CArmAssembler::SINGLE_REGISTER, CArmAssembler::SINGLE_REGISTER);
+			typedef void (CAArch32Assembler::*OpRegType)(CAArch32Assembler::SINGLE_REGISTER, CAArch32Assembler::SINGLE_REGISTER);
 		};
 
 		struct FPUOP_BASE3
 		{
-			typedef void (CArmAssembler::*OpRegType)(CArmAssembler::SINGLE_REGISTER, CArmAssembler::SINGLE_REGISTER, CArmAssembler::SINGLE_REGISTER);
+			typedef void (CAArch32Assembler::*OpRegType)(CAArch32Assembler::SINGLE_REGISTER, CAArch32Assembler::SINGLE_REGISTER, CAArch32Assembler::SINGLE_REGISTER);
 		};
 
 		struct FPUMDOP_BASE3
 		{
-			typedef void (CArmAssembler::*OpRegType)(CArmAssembler::QUAD_REGISTER, CArmAssembler::QUAD_REGISTER, CArmAssembler::QUAD_REGISTER);
+			typedef void (CAArch32Assembler::*OpRegType)(CAArch32Assembler::QUAD_REGISTER, CAArch32Assembler::QUAD_REGISTER, CAArch32Assembler::QUAD_REGISTER);
 		};
 
 		struct FPUOP_ABS : public FPUOP_BASE2
 		{
-			static OpRegType OpReg() { return &CArmAssembler::Vabs_F32; }
+			static OpRegType OpReg() { return &CAArch32Assembler::Vabs_F32; }
 		};
 
 		struct FPUOP_NEG : public FPUOP_BASE2
 		{
-			static OpRegType OpReg() { return &CArmAssembler::Vneg_F32; }
+			static OpRegType OpReg() { return &CAArch32Assembler::Vneg_F32; }
 		};
 
 		struct FPUOP_SQRT : public FPUOP_BASE2
 		{
-			static OpRegType OpReg() { return &CArmAssembler::Vsqrt_F32; }
+			static OpRegType OpReg() { return &CAArch32Assembler::Vsqrt_F32; }
 		};
 
 		struct FPUOP_ADD : public FPUOP_BASE3
 		{
-			static OpRegType OpReg() { return &CArmAssembler::Vadd_F32; }
+			static OpRegType OpReg() { return &CAArch32Assembler::Vadd_F32; }
 		};
 
 		struct FPUOP_SUB : public FPUOP_BASE3
 		{
-			static OpRegType OpReg() { return &CArmAssembler::Vsub_F32; }
+			static OpRegType OpReg() { return &CAArch32Assembler::Vsub_F32; }
 		};
 
 		struct FPUOP_MUL : public FPUOP_BASE3
 		{
-			static OpRegType OpReg() { return &CArmAssembler::Vmul_F32; }
+			static OpRegType OpReg() { return &CAArch32Assembler::Vmul_F32; }
 		};
 
 		struct FPUOP_DIV : public FPUOP_BASE3
 		{
-			static OpRegType OpReg() { return &CArmAssembler::Vdiv_F32; }
+			static OpRegType OpReg() { return &CAArch32Assembler::Vdiv_F32; }
 		};
 
 		struct FPUMDOP_MIN : public FPUMDOP_BASE3
 		{
-			static OpRegType OpReg() { return &CArmAssembler::Vmin_F32; }
+			static OpRegType OpReg() { return &CAArch32Assembler::Vmin_F32; }
 		};
 
 		struct FPUMDOP_MAX : public FPUMDOP_BASE3
 		{
-			static OpRegType OpReg() { return &CArmAssembler::Vmax_F32; }
+			static OpRegType OpReg() { return &CAArch32Assembler::Vmax_F32; }
 		};
 
 		//MDOP -----------------------------------------------------------
 		struct MDOP_BASE2
 		{
-			typedef void (CArmAssembler::*OpRegType)(CArmAssembler::QUAD_REGISTER, CArmAssembler::QUAD_REGISTER);
+			typedef void (CAArch32Assembler::*OpRegType)(CAArch32Assembler::QUAD_REGISTER, CAArch32Assembler::QUAD_REGISTER);
 		};
 
 		struct MDOP_BASE3
 		{
-			typedef void (CArmAssembler::*OpRegType)(CArmAssembler::QUAD_REGISTER, CArmAssembler::QUAD_REGISTER, CArmAssembler::QUAD_REGISTER);
+			typedef void (CAArch32Assembler::*OpRegType)(CAArch32Assembler::QUAD_REGISTER, CAArch32Assembler::QUAD_REGISTER, CAArch32Assembler::QUAD_REGISTER);
 		};
 
 		struct MDOP_SHIFT
 		{
-			typedef void (CArmAssembler::*OpRegType)(CArmAssembler::QUAD_REGISTER, CArmAssembler::QUAD_REGISTER, uint8);
+			typedef void (CAArch32Assembler::*OpRegType)(CAArch32Assembler::QUAD_REGISTER, CAArch32Assembler::QUAD_REGISTER, uint8);
 		};
 
 		struct MDOP_ADDB : public MDOP_BASE3
 		{
-			static OpRegType OpReg() { return &CArmAssembler::Vadd_I8; }
+			static OpRegType OpReg() { return &CAArch32Assembler::Vadd_I8; }
 		};
 
 		struct MDOP_ADDH : public MDOP_BASE3
 		{
-			static OpRegType OpReg() { return &CArmAssembler::Vadd_I16; }
+			static OpRegType OpReg() { return &CAArch32Assembler::Vadd_I16; }
 		};
 
 		struct MDOP_ADDW : public MDOP_BASE3
 		{
-			static OpRegType OpReg() { return &CArmAssembler::Vadd_I32; }
+			static OpRegType OpReg() { return &CAArch32Assembler::Vadd_I32; }
 		};
 
 		struct MDOP_ADDBUS : public MDOP_BASE3
 		{
-			static OpRegType OpReg() { return &CArmAssembler::Vqadd_U8; }
+			static OpRegType OpReg() { return &CAArch32Assembler::Vqadd_U8; }
 		};
 
 		struct MDOP_ADDWUS : public MDOP_BASE3
 		{
-			static OpRegType OpReg() { return &CArmAssembler::Vqadd_U32; }
+			static OpRegType OpReg() { return &CAArch32Assembler::Vqadd_U32; }
 		};
 
 		struct MDOP_ADDHSS : public MDOP_BASE3
 		{
-			static OpRegType OpReg() { return &CArmAssembler::Vqadd_I16; }
+			static OpRegType OpReg() { return &CAArch32Assembler::Vqadd_I16; }
 		};
 
 		struct MDOP_ADDWSS : public MDOP_BASE3
 		{
-			static OpRegType OpReg() { return &CArmAssembler::Vqadd_I32; }
+			static OpRegType OpReg() { return &CAArch32Assembler::Vqadd_I32; }
 		};
 
 		struct MDOP_SUBB : public MDOP_BASE3
 		{
-			static OpRegType OpReg() { return &CArmAssembler::Vsub_I8; }
+			static OpRegType OpReg() { return &CAArch32Assembler::Vsub_I8; }
 		};
 
 		struct MDOP_SUBH : public MDOP_BASE3
 		{
-			static OpRegType OpReg() { return &CArmAssembler::Vsub_I16; }
+			static OpRegType OpReg() { return &CAArch32Assembler::Vsub_I16; }
 		};
 
 		struct MDOP_SUBW : public MDOP_BASE3
 		{
-			static OpRegType OpReg() { return &CArmAssembler::Vsub_I32; }
+			static OpRegType OpReg() { return &CAArch32Assembler::Vsub_I32; }
 		};
 
 		struct MDOP_SUBBUS : public MDOP_BASE3
 		{
-			static OpRegType OpReg() { return &CArmAssembler::Vqsub_U8; }
+			static OpRegType OpReg() { return &CAArch32Assembler::Vqsub_U8; }
 		};
 
 		struct MDOP_SUBHUS : public MDOP_BASE3
 		{
-			static OpRegType OpReg() { return &CArmAssembler::Vqsub_U16; }
+			static OpRegType OpReg() { return &CAArch32Assembler::Vqsub_U16; }
 		};
 
 		struct MDOP_SUBHSS : public MDOP_BASE3
 		{
-			static OpRegType OpReg() { return &CArmAssembler::Vqsub_I16; }
+			static OpRegType OpReg() { return &CAArch32Assembler::Vqsub_I16; }
 		};
 
 		struct MDOP_SUBWSS : public MDOP_BASE3
 		{
-			static OpRegType OpReg() { return &CArmAssembler::Vqsub_I32; }
+			static OpRegType OpReg() { return &CAArch32Assembler::Vqsub_I32; }
 		};
 
 		struct MDOP_CMPEQW : public MDOP_BASE3
 		{
-			static OpRegType OpReg() { return &CArmAssembler::Vceq_I32; }
+			static OpRegType OpReg() { return &CAArch32Assembler::Vceq_I32; }
 		};
 
 		struct MDOP_CMPGTH : public MDOP_BASE3
 		{
-			static OpRegType OpReg() { return &CArmAssembler::Vcgt_I16; }
+			static OpRegType OpReg() { return &CAArch32Assembler::Vcgt_I16; }
 		};
 
 		struct MDOP_MINH : public MDOP_BASE3
 		{
-			static OpRegType OpReg() { return &CArmAssembler::Vmin_I16; }
+			static OpRegType OpReg() { return &CAArch32Assembler::Vmin_I16; }
 		};
 
 		struct MDOP_MINW : public MDOP_BASE3
 		{
-			static OpRegType OpReg() { return &CArmAssembler::Vmin_I32; }
+			static OpRegType OpReg() { return &CAArch32Assembler::Vmin_I32; }
 		};
 
 		struct MDOP_MAXH : public MDOP_BASE3
 		{
-			static OpRegType OpReg() { return &CArmAssembler::Vmax_I16; }
+			static OpRegType OpReg() { return &CAArch32Assembler::Vmax_I16; }
 		};
 
 		struct MDOP_MAXW : public MDOP_BASE3
 		{
-			static OpRegType OpReg() { return &CArmAssembler::Vmax_I32; }
+			static OpRegType OpReg() { return &CAArch32Assembler::Vmax_I32; }
 		};
 
 		struct MDOP_AND : public MDOP_BASE3
 		{
-			static OpRegType OpReg() { return &CArmAssembler::Vand; }
+			static OpRegType OpReg() { return &CAArch32Assembler::Vand; }
 		};
 
 		struct MDOP_OR : public MDOP_BASE3
 		{
-			static OpRegType OpReg() { return &CArmAssembler::Vorr; }
+			static OpRegType OpReg() { return &CAArch32Assembler::Vorr; }
 		};
 
 		struct MDOP_XOR : public MDOP_BASE3
 		{
-			static OpRegType OpReg() { return &CArmAssembler::Veor; }
+			static OpRegType OpReg() { return &CAArch32Assembler::Veor; }
 		};
 
 		struct MDOP_SLLH : public MDOP_SHIFT
 		{
-			static OpRegType OpReg() { return &CArmAssembler::Vshl_I16; }
+			static OpRegType OpReg() { return &CAArch32Assembler::Vshl_I16; }
 		};
 
 		struct MDOP_SRLH : public MDOP_SHIFT
 		{
-			static OpRegType OpReg() { return &CArmAssembler::Vshr_U16; }
+			static OpRegType OpReg() { return &CAArch32Assembler::Vshr_U16; }
 		};
 
 		struct MDOP_SRAH : public MDOP_SHIFT
 		{
-			static OpRegType OpReg() { return &CArmAssembler::Vshr_I16; }
+			static OpRegType OpReg() { return &CAArch32Assembler::Vshr_I16; }
 		};
 
 		struct MDOP_SLLW : public MDOP_SHIFT
 		{
-			static OpRegType OpReg() { return &CArmAssembler::Vshl_I32; }
+			static OpRegType OpReg() { return &CAArch32Assembler::Vshl_I32; }
 		};
 
 		struct MDOP_SRLW : public MDOP_SHIFT
 		{
-			static OpRegType OpReg() { return &CArmAssembler::Vshr_U32; }
+			static OpRegType OpReg() { return &CAArch32Assembler::Vshr_U32; }
 		};
 
 		struct MDOP_SRAW : public MDOP_SHIFT
 		{
-			static OpRegType OpReg() { return &CArmAssembler::Vshr_I32; }
+			static OpRegType OpReg() { return &CAArch32Assembler::Vshr_I32; }
 		};
 
 		struct MDOP_ADDS : public MDOP_BASE3
 		{
-			static OpRegType OpReg() { return &CArmAssembler::Vadd_F32; }
+			static OpRegType OpReg() { return &CAArch32Assembler::Vadd_F32; }
 		};
 
 		struct MDOP_SUBS : public MDOP_BASE3
 		{
-			static OpRegType OpReg() { return &CArmAssembler::Vsub_F32; }
+			static OpRegType OpReg() { return &CAArch32Assembler::Vsub_F32; }
 		};
 
 		struct MDOP_MULS : public MDOP_BASE3
 		{
-			static OpRegType OpReg() { return &CArmAssembler::Vmul_F32; }
+			static OpRegType OpReg() { return &CAArch32Assembler::Vmul_F32; }
 		};
 
 		struct MDOP_ABSS : public MDOP_BASE2
 		{
-			static OpRegType OpReg() { return &CArmAssembler::Vabs_F32; }
+			static OpRegType OpReg() { return &CAArch32Assembler::Vabs_F32; }
 		};
 
 		struct MDOP_TOSINGLE : public MDOP_BASE2
 		{
-			static OpRegType OpReg() { return &CArmAssembler::Vcvt_F32_S32; }
+			static OpRegType OpReg() { return &CAArch32Assembler::Vcvt_F32_S32; }
 		};
 
 		struct MDOP_TOWORD : public MDOP_BASE2
 		{
-			static OpRegType OpReg() { return &CArmAssembler::Vcvt_S32_F32; }
+			static OpRegType OpReg() { return &CAArch32Assembler::Vcvt_S32_F32; }
 		};
 
 		//ALUOP
@@ -451,7 +451,7 @@ namespace Jitter
 		template <typename> void				Emit_Alu_GenericAnyCst(const STATEMENT&);
 
 		//SHIFT
-		template <CArmAssembler::SHIFT> void	Emit_Shift_Generic(const STATEMENT&);
+		template <CAArch32Assembler::SHIFT> void	Emit_Shift_Generic(const STATEMENT&);
 
 		//PARAM
 		void									Emit_Param_Ctx(const STATEMENT&);
@@ -505,8 +505,8 @@ namespace Jitter
 		void									Emit_MergeTo64_Mem64AnyAny(const STATEMENT&);
 
 		//CMP
-		void									Cmp_GetFlag(CArmAssembler::REGISTER, CONDITION);
-		void									Cmp_GenericRegCst(CArmAssembler::REGISTER, uint32, CArmAssembler::REGISTER);
+		void									Cmp_GetFlag(CAArch32Assembler::REGISTER, CONDITION);
+		void									Cmp_GenericRegCst(CAArch32Assembler::REGISTER, uint32, CAArch32Assembler::REGISTER);
 		void									Emit_Cmp_AnyAnyAny(const STATEMENT&);
 		void									Emit_Cmp_AnyAnyCst(const STATEMENT&);
 
@@ -551,13 +551,13 @@ namespace Jitter
 		void									Emit_And64_MemMemMem(const STATEMENT&);
 
 		//SLL64
-		void									Emit_Sl64Var_MemMem(CSymbol*, CSymbol*, CArmAssembler::REGISTER);
+		void									Emit_Sl64Var_MemMem(CSymbol*, CSymbol*, CAArch32Assembler::REGISTER);
 		void									Emit_Sll64_MemMemVar(const STATEMENT&);
 		void									Emit_Sll64_MemMemCst(const STATEMENT&);
 
 		//SR64
-		void									Emit_Sr64Var_MemMem(CSymbol*, CSymbol*, CArmAssembler::REGISTER, CArmAssembler::SHIFT);
-		void									Emit_Sr64Cst_MemMem(CSymbol*, CSymbol*, uint32, CArmAssembler::SHIFT);
+		void									Emit_Sr64Var_MemMem(CSymbol*, CSymbol*, CAArch32Assembler::REGISTER, CAArch32Assembler::SHIFT);
+		void									Emit_Sr64Cst_MemMem(CSymbol*, CSymbol*, uint32, CAArch32Assembler::SHIFT);
 
 		//SRL64
 		void									Emit_Srl64_MemMemVar(const STATEMENT&);
@@ -568,8 +568,8 @@ namespace Jitter
 		void									Emit_Sra64_MemMemCst(const STATEMENT&);
 
 		//CMP64
-		void									Cmp64_RegSymLo(CArmAssembler::REGISTER, CSymbol*, CArmAssembler::REGISTER);
-		void									Cmp64_RegSymHi(CArmAssembler::REGISTER, CSymbol*, CArmAssembler::REGISTER);
+		void									Cmp64_RegSymLo(CAArch32Assembler::REGISTER, CSymbol*, CAArch32Assembler::REGISTER);
+		void									Cmp64_RegSymHi(CAArch32Assembler::REGISTER, CSymbol*, CAArch32Assembler::REGISTER);
 		void									Cmp64_Equal(const STATEMENT&);
 		void									Cmp64_Order(const STATEMENT&);
 		void									Emit_Cmp64_VarMemAny(const STATEMENT&);
@@ -619,15 +619,15 @@ namespace Jitter
 		static CONSTMATCHER						g_64ConstMatchers[];
 		static CONSTMATCHER						g_fpuConstMatchers[];
 		static CONSTMATCHER						g_mdConstMatchers[];
-		static CArmAssembler::REGISTER			g_registers[MAX_REGISTERS];
-		static CArmAssembler::REGISTER			g_paramRegs[MAX_PARAM_REGS];
-		static CArmAssembler::REGISTER			g_baseRegister;
-		static CArmAssembler::REGISTER			g_callAddressRegister;
-		static CArmAssembler::REGISTER			g_tempParamRegister0;
-		static CArmAssembler::REGISTER			g_tempParamRegister1;
+		static CAArch32Assembler::REGISTER			g_registers[MAX_REGISTERS];
+		static CAArch32Assembler::REGISTER			g_paramRegs[MAX_PARAM_REGS];
+		static CAArch32Assembler::REGISTER			g_baseRegister;
+		static CAArch32Assembler::REGISTER			g_callAddressRegister;
+		static CAArch32Assembler::REGISTER			g_tempParamRegister0;
+		static CAArch32Assembler::REGISTER			g_tempParamRegister1;
 
 		Framework::CStream*						m_stream = nullptr;
-		CArmAssembler							m_assembler;
+		CAArch32Assembler							m_assembler;
 		LabelMapType							m_labels;
 		ParamStack								m_params;
 		uint32									m_stackLevel = 0;

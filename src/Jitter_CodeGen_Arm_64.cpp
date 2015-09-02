@@ -19,15 +19,15 @@ uint32 CCodeGen_Arm::GetMemory64Offset(CSymbol* symbol) const
 	}
 }
 
-void CCodeGen_Arm::LoadMemory64LowInRegister(CArmAssembler::REGISTER registerId, CSymbol* symbol)
+void CCodeGen_Arm::LoadMemory64LowInRegister(CAArch32Assembler::REGISTER registerId, CSymbol* symbol)
 {
 	switch(symbol->m_type)
 	{
 	case SYM_RELATIVE64:
-		m_assembler.Ldr(registerId, g_baseRegister, CArmAssembler::MakeImmediateLdrAddress(symbol->m_valueLow + 0));
+		m_assembler.Ldr(registerId, g_baseRegister, CAArch32Assembler::MakeImmediateLdrAddress(symbol->m_valueLow + 0));
 		break;
 	case SYM_TEMPORARY64:
-		m_assembler.Ldr(registerId, CArmAssembler::rSP, CArmAssembler::MakeImmediateLdrAddress(symbol->m_stackLocation + m_stackLevel + 0));
+		m_assembler.Ldr(registerId, CAArch32Assembler::rSP, CAArch32Assembler::MakeImmediateLdrAddress(symbol->m_stackLocation + m_stackLevel + 0));
 		break;
 	default:
 		assert(false);
@@ -35,15 +35,15 @@ void CCodeGen_Arm::LoadMemory64LowInRegister(CArmAssembler::REGISTER registerId,
 	}
 }
 
-void CCodeGen_Arm::LoadMemory64HighInRegister(CArmAssembler::REGISTER registerId, CSymbol* symbol)
+void CCodeGen_Arm::LoadMemory64HighInRegister(CAArch32Assembler::REGISTER registerId, CSymbol* symbol)
 {
 	switch(symbol->m_type)
 	{
 	case SYM_RELATIVE64:
-		m_assembler.Ldr(registerId, g_baseRegister, CArmAssembler::MakeImmediateLdrAddress(symbol->m_valueLow + 4));
+		m_assembler.Ldr(registerId, g_baseRegister, CAArch32Assembler::MakeImmediateLdrAddress(symbol->m_valueLow + 4));
 		break;
 	case SYM_TEMPORARY64:
-		m_assembler.Ldr(registerId, CArmAssembler::rSP, CArmAssembler::MakeImmediateLdrAddress(symbol->m_stackLocation + m_stackLevel + 4));
+		m_assembler.Ldr(registerId, CAArch32Assembler::rSP, CAArch32Assembler::MakeImmediateLdrAddress(symbol->m_stackLocation + m_stackLevel + 4));
 		break;
 	default:
 		assert(false);
@@ -51,7 +51,7 @@ void CCodeGen_Arm::LoadMemory64HighInRegister(CArmAssembler::REGISTER registerId
 	}
 }
 
-void CCodeGen_Arm::LoadMemory64InRegisters(CArmAssembler::REGISTER regLo, CArmAssembler::REGISTER regHi, CSymbol* symbol)
+void CCodeGen_Arm::LoadMemory64InRegisters(CAArch32Assembler::REGISTER regLo, CAArch32Assembler::REGISTER regHi, CSymbol* symbol)
 {
 	if(
 		((regLo & 1) == 0) && 
@@ -62,10 +62,10 @@ void CCodeGen_Arm::LoadMemory64InRegisters(CArmAssembler::REGISTER regLo, CArmAs
 		switch(symbol->m_type)
 		{
 		case SYM_RELATIVE64:
-			m_assembler.Ldrd(regLo, g_baseRegister, CArmAssembler::MakeImmediateLdrAddress(symbol->m_valueLow));
+			m_assembler.Ldrd(regLo, g_baseRegister, CAArch32Assembler::MakeImmediateLdrAddress(symbol->m_valueLow));
 			break;
 		case SYM_TEMPORARY64:
-			m_assembler.Ldrd(regLo, CArmAssembler::rSP, CArmAssembler::MakeImmediateLdrAddress(symbol->m_stackLocation + m_stackLevel));
+			m_assembler.Ldrd(regLo, CAArch32Assembler::rSP, CAArch32Assembler::MakeImmediateLdrAddress(symbol->m_stackLocation + m_stackLevel));
 			break;
 		}
 	}
@@ -76,7 +76,7 @@ void CCodeGen_Arm::LoadMemory64InRegisters(CArmAssembler::REGISTER regLo, CArmAs
 	}
 }
 
-void CCodeGen_Arm::StoreRegistersInMemory64(CSymbol* symbol, CArmAssembler::REGISTER regLo, CArmAssembler::REGISTER regHi)
+void CCodeGen_Arm::StoreRegistersInMemory64(CSymbol* symbol, CAArch32Assembler::REGISTER regLo, CAArch32Assembler::REGISTER regHi)
 {
 	if(
 		((regLo & 1) == 0) && 
@@ -87,10 +87,10 @@ void CCodeGen_Arm::StoreRegistersInMemory64(CSymbol* symbol, CArmAssembler::REGI
 		switch(symbol->m_type)
 		{
 		case SYM_RELATIVE64:
-			m_assembler.Strd(regLo, g_baseRegister, CArmAssembler::MakeImmediateLdrAddress(symbol->m_valueLow));
+			m_assembler.Strd(regLo, g_baseRegister, CAArch32Assembler::MakeImmediateLdrAddress(symbol->m_valueLow));
 			break;
 		case SYM_TEMPORARY64:
-			m_assembler.Strd(regLo, CArmAssembler::rSP, CArmAssembler::MakeImmediateLdrAddress(symbol->m_stackLocation + m_stackLevel));
+			m_assembler.Strd(regLo, CAArch32Assembler::rSP, CAArch32Assembler::MakeImmediateLdrAddress(symbol->m_stackLocation + m_stackLevel));
 			break;
 		}
 	}
@@ -101,15 +101,15 @@ void CCodeGen_Arm::StoreRegistersInMemory64(CSymbol* symbol, CArmAssembler::REGI
 	}
 }
 
-void CCodeGen_Arm::StoreRegisterInMemory64Low(CSymbol* symbol, CArmAssembler::REGISTER registerId)
+void CCodeGen_Arm::StoreRegisterInMemory64Low(CSymbol* symbol, CAArch32Assembler::REGISTER registerId)
 {
 	switch(symbol->m_type)
 	{
 	case SYM_RELATIVE64:
-		m_assembler.Str(registerId, g_baseRegister, CArmAssembler::MakeImmediateLdrAddress(symbol->m_valueLow + 0));
+		m_assembler.Str(registerId, g_baseRegister, CAArch32Assembler::MakeImmediateLdrAddress(symbol->m_valueLow + 0));
 		break;
 	case SYM_TEMPORARY64:
-		m_assembler.Str(registerId, CArmAssembler::rSP, CArmAssembler::MakeImmediateLdrAddress(symbol->m_stackLocation + m_stackLevel + 0));
+		m_assembler.Str(registerId, CAArch32Assembler::rSP, CAArch32Assembler::MakeImmediateLdrAddress(symbol->m_stackLocation + m_stackLevel + 0));
 		break;
 	default:
 		assert(false);
@@ -117,15 +117,15 @@ void CCodeGen_Arm::StoreRegisterInMemory64Low(CSymbol* symbol, CArmAssembler::RE
 	}
 }
 
-void CCodeGen_Arm::StoreRegisterInMemory64High(CSymbol* symbol, CArmAssembler::REGISTER registerId)
+void CCodeGen_Arm::StoreRegisterInMemory64High(CSymbol* symbol, CAArch32Assembler::REGISTER registerId)
 {
 	switch(symbol->m_type)
 	{
 	case SYM_RELATIVE64:
-		m_assembler.Str(registerId, g_baseRegister, CArmAssembler::MakeImmediateLdrAddress(symbol->m_valueLow + 4));
+		m_assembler.Str(registerId, g_baseRegister, CAArch32Assembler::MakeImmediateLdrAddress(symbol->m_valueLow + 4));
 		break;
 	case SYM_TEMPORARY64:
-		m_assembler.Str(registerId, CArmAssembler::rSP, CArmAssembler::MakeImmediateLdrAddress(symbol->m_stackLocation + m_stackLevel + 4));
+		m_assembler.Str(registerId, CAArch32Assembler::rSP, CAArch32Assembler::MakeImmediateLdrAddress(symbol->m_stackLocation + m_stackLevel + 4));
 		break;
 	default:
 		assert(false);
@@ -138,8 +138,8 @@ void CCodeGen_Arm::Emit_Mov_Mem64Mem64(const STATEMENT& statement)
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
 
-	auto regLo = CArmAssembler::r0;
-	auto regHi = CArmAssembler::r1;
+	auto regLo = CAArch32Assembler::r0;
+	auto regHi = CAArch32Assembler::r1;
 	LoadMemory64InRegisters(regLo, regHi, src1);
 	StoreRegistersInMemory64(dst, regLo, regHi);
 }
@@ -149,8 +149,8 @@ void CCodeGen_Arm::Emit_Mov_Mem64Cst64(const STATEMENT& statement)
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
 
-	auto regLo = CArmAssembler::r0;
-	auto regHi = CArmAssembler::r1;
+	auto regLo = CAArch32Assembler::r0;
+	auto regHi = CAArch32Assembler::r1;
 	LoadConstantInRegister(regLo, src1->m_valueLow);
 	LoadConstantInRegister(regHi, src1->m_valueHigh);
 	StoreRegistersInMemory64(dst, regLo, regHi);
@@ -161,7 +161,7 @@ void CCodeGen_Arm::Emit_ExtLow64VarMem64(const STATEMENT& statement)
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
 
-	auto dstReg = PrepareSymbolRegisterDef(dst, CArmAssembler::r0);
+	auto dstReg = PrepareSymbolRegisterDef(dst, CAArch32Assembler::r0);
 	LoadMemory64LowInRegister(dstReg, src1);
 	CommitSymbolRegister(dst, dstReg);
 }
@@ -171,7 +171,7 @@ void CCodeGen_Arm::Emit_ExtHigh64VarMem64(const STATEMENT& statement)
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
 
-	auto dstReg = PrepareSymbolRegisterDef(dst, CArmAssembler::r0);
+	auto dstReg = PrepareSymbolRegisterDef(dst, CAArch32Assembler::r0);
 	LoadMemory64HighInRegister(dstReg, src1);
 	CommitSymbolRegister(dst, dstReg);
 }
@@ -182,8 +182,8 @@ void CCodeGen_Arm::Emit_MergeTo64_Mem64AnyAny(const STATEMENT& statement)
 	auto src1 = statement.src1->GetSymbol().get();
 	auto src2 = statement.src2->GetSymbol().get();
 
-	auto regLo = PrepareSymbolRegisterUse(src1, CArmAssembler::r0);
-	auto regHi = PrepareSymbolRegisterUse(src2, CArmAssembler::r1);
+	auto regLo = PrepareSymbolRegisterUse(src1, CAArch32Assembler::r0);
+	auto regHi = PrepareSymbolRegisterUse(src2, CAArch32Assembler::r1);
 
 	StoreRegistersInMemory64(dst, regLo, regHi);
 }
@@ -194,10 +194,10 @@ void CCodeGen_Arm::Emit_Add64_MemMemMem(const STATEMENT& statement)
 	auto src1 = statement.src1->GetSymbol().get();
 	auto src2 = statement.src2->GetSymbol().get();
 
-	auto regLo1 = CArmAssembler::r0;
-	auto regHi1 = CArmAssembler::r1;
-	auto regLo2 = CArmAssembler::r2;
-	auto regHi2 = CArmAssembler::r3;
+	auto regLo1 = CAArch32Assembler::r0;
+	auto regHi1 = CAArch32Assembler::r1;
+	auto regLo2 = CAArch32Assembler::r2;
+	auto regHi2 = CAArch32Assembler::r3;
 
 	LoadMemory64InRegisters(regLo1, regHi1, src1);
 	LoadMemory64InRegisters(regLo2, regHi2, src2);
@@ -214,10 +214,10 @@ void CCodeGen_Arm::Emit_Add64_MemMemCst(const STATEMENT& statement)
 	auto src1 = statement.src1->GetSymbol().get();
 	auto src2 = statement.src2->GetSymbol().get();
 
-	auto regLo1 = CArmAssembler::r0;
-	auto regHi1 = CArmAssembler::r1;
-	auto regLo2 = CArmAssembler::r2;
-	auto regHi2 = CArmAssembler::r3;
+	auto regLo1 = CAArch32Assembler::r0;
+	auto regHi1 = CAArch32Assembler::r1;
+	auto regLo2 = CAArch32Assembler::r2;
+	auto regHi2 = CAArch32Assembler::r3;
 
 	LoadMemory64InRegisters(regLo1, regHi1, src1);
 	LoadConstantInRegister(regLo2, src2->m_valueLow);
@@ -236,10 +236,10 @@ void CCodeGen_Arm::Emit_Sub64_MemMemMem(const STATEMENT& statement)
 	auto src1 = statement.src1->GetSymbol().get();
 	auto src2 = statement.src2->GetSymbol().get();
 
-	auto regLo1 = CArmAssembler::r0;
-	auto regHi1 = CArmAssembler::r1;
-	auto regLo2 = CArmAssembler::r2;
-	auto regHi2 = CArmAssembler::r3;
+	auto regLo1 = CAArch32Assembler::r0;
+	auto regHi1 = CAArch32Assembler::r1;
+	auto regLo2 = CAArch32Assembler::r2;
+	auto regHi2 = CAArch32Assembler::r3;
 
 	LoadMemory64InRegisters(regLo1, regHi1, src1);
 	LoadMemory64InRegisters(regLo2, regHi2, src2);
@@ -256,10 +256,10 @@ void CCodeGen_Arm::Emit_Sub64_MemCstMem(const STATEMENT& statement)
 	auto src1 = statement.src1->GetSymbol().get();
 	auto src2 = statement.src2->GetSymbol().get();
 
-	auto regLo1 = CArmAssembler::r0;
-	auto regHi1 = CArmAssembler::r1;
-	auto regLo2 = CArmAssembler::r2;
-	auto regHi2 = CArmAssembler::r3;
+	auto regLo1 = CAArch32Assembler::r0;
+	auto regHi1 = CAArch32Assembler::r1;
+	auto regLo2 = CAArch32Assembler::r2;
+	auto regHi2 = CAArch32Assembler::r3;
 
 	LoadConstantInRegister(regLo1, src1->m_valueLow);
 	LoadConstantInRegister(regHi1, src1->m_valueHigh);
@@ -278,10 +278,10 @@ void CCodeGen_Arm::Emit_And64_MemMemMem(const STATEMENT& statement)
 	auto src1 = statement.src1->GetSymbol().get();
 	auto src2 = statement.src2->GetSymbol().get();
 
-	auto regLo1 = CArmAssembler::r0;
-	auto regHi1 = CArmAssembler::r1;
-	auto regLo2 = CArmAssembler::r2;
-	auto regHi2 = CArmAssembler::r3;
+	auto regLo1 = CAArch32Assembler::r0;
+	auto regHi1 = CAArch32Assembler::r1;
+	auto regLo2 = CAArch32Assembler::r2;
+	auto regHi2 = CAArch32Assembler::r3;
 
 	LoadMemory64InRegisters(regLo1, regHi1, src1);
 	LoadMemory64InRegisters(regLo2, regHi2, src2);
@@ -292,61 +292,61 @@ void CCodeGen_Arm::Emit_And64_MemMemMem(const STATEMENT& statement)
 	StoreRegistersInMemory64(dst, regLo1, regHi1);
 }
 
-void CCodeGen_Arm::Emit_Sl64Var_MemMem(CSymbol* dst, CSymbol* src, CArmAssembler::REGISTER saReg)
+void CCodeGen_Arm::Emit_Sl64Var_MemMem(CSymbol* dst, CSymbol* src, CAArch32Assembler::REGISTER saReg)
 {
 	//saReg will be modified by this function, do not use PrepareRegister
 
-	assert(saReg == CArmAssembler::r0);
+	assert(saReg == CAArch32Assembler::r0);
 
 	auto lessThan32Label = m_assembler.CreateLabel();
 	auto doneLabel = m_assembler.CreateLabel();
 
-	m_assembler.And(saReg, saReg, CArmAssembler::MakeImmediateAluOperand(0x3F, 0));
-	m_assembler.Cmp(saReg, CArmAssembler::MakeImmediateAluOperand(32, 0));
-	m_assembler.BCc(CArmAssembler::CONDITION_LT, lessThan32Label);
+	m_assembler.And(saReg, saReg, CAArch32Assembler::MakeImmediateAluOperand(0x3F, 0));
+	m_assembler.Cmp(saReg, CAArch32Assembler::MakeImmediateAluOperand(32, 0));
+	m_assembler.BCc(CAArch32Assembler::CONDITION_LT, lessThan32Label);
 
 	//greaterThanOrEqual32:
 	{
-		auto workReg = CArmAssembler::r1;
-		auto dstLo = CArmAssembler::r2;
-		auto dstHi = CArmAssembler::r3;
+		auto workReg = CAArch32Assembler::r1;
+		auto dstLo = CAArch32Assembler::r2;
+		auto dstHi = CAArch32Assembler::r3;
 
 		LoadMemory64LowInRegister(workReg, src);
 
-		auto fixedSaReg = CArmAssembler::r0;
-		m_assembler.Sub(fixedSaReg, saReg, CArmAssembler::MakeImmediateAluOperand(32, 0));
+		auto fixedSaReg = CAArch32Assembler::r0;
+		m_assembler.Sub(fixedSaReg, saReg, CAArch32Assembler::MakeImmediateAluOperand(32, 0));
 
-		auto shiftHi = CArmAssembler::MakeVariableShift(CArmAssembler::SHIFT_LSL, fixedSaReg);
-		m_assembler.Mov(dstHi, CArmAssembler::MakeRegisterAluOperand(workReg, shiftHi));
+		auto shiftHi = CAArch32Assembler::MakeVariableShift(CAArch32Assembler::SHIFT_LSL, fixedSaReg);
+		m_assembler.Mov(dstHi, CAArch32Assembler::MakeRegisterAluOperand(workReg, shiftHi));
 
-		m_assembler.Mov(dstLo, CArmAssembler::MakeImmediateAluOperand(0, 0));
+		m_assembler.Mov(dstLo, CAArch32Assembler::MakeImmediateAluOperand(0, 0));
 
 		StoreRegistersInMemory64(dst, dstLo, dstHi);
 
-		m_assembler.BCc(CArmAssembler::CONDITION_AL, doneLabel);
+		m_assembler.BCc(CAArch32Assembler::CONDITION_AL, doneLabel);
 	}
 
 	//lessThan32:
 	m_assembler.MarkLabel(lessThan32Label);
 	{
-		auto dstReg = CArmAssembler::r1;
-		auto loReg = CArmAssembler::r2;
-		auto hiReg = CArmAssembler::r3;
+		auto dstReg = CAArch32Assembler::r1;
+		auto loReg = CAArch32Assembler::r2;
+		auto hiReg = CAArch32Assembler::r3;
 
 		//Lo part -> (lo << sa)
-		auto shiftLo = CArmAssembler::MakeVariableShift(CArmAssembler::SHIFT_LSL, saReg);
+		auto shiftLo = CAArch32Assembler::MakeVariableShift(CAArch32Assembler::SHIFT_LSL, saReg);
 		LoadMemory64LowInRegister(loReg, src);
-		m_assembler.Mov(dstReg, CArmAssembler::MakeRegisterAluOperand(loReg, shiftLo));
+		m_assembler.Mov(dstReg, CAArch32Assembler::MakeRegisterAluOperand(loReg, shiftLo));
 		StoreRegisterInMemory64Low(dst, dstReg);
 
 		//Hi part -> (lo >> (32 - sa)) | (hi << sa)
-		auto shiftHi1 = CArmAssembler::MakeVariableShift(CArmAssembler::SHIFT_LSL, saReg);
+		auto shiftHi1 = CAArch32Assembler::MakeVariableShift(CAArch32Assembler::SHIFT_LSL, saReg);
 		LoadMemory64HighInRegister(hiReg, src);
-		m_assembler.Mov(dstReg, CArmAssembler::MakeRegisterAluOperand(hiReg, shiftHi1));
+		m_assembler.Mov(dstReg, CAArch32Assembler::MakeRegisterAluOperand(hiReg, shiftHi1));
 
-		auto shiftHi2 = CArmAssembler::MakeVariableShift(CArmAssembler::SHIFT_LSR, saReg);
-		m_assembler.Rsb(saReg, saReg, CArmAssembler::MakeImmediateAluOperand(32, 0));
-		m_assembler.Mov(loReg, CArmAssembler::MakeRegisterAluOperand(loReg, shiftHi2));
+		auto shiftHi2 = CAArch32Assembler::MakeVariableShift(CAArch32Assembler::SHIFT_LSR, saReg);
+		m_assembler.Rsb(saReg, saReg, CAArch32Assembler::MakeImmediateAluOperand(32, 0));
+		m_assembler.Mov(loReg, CAArch32Assembler::MakeRegisterAluOperand(loReg, shiftHi2));
 		m_assembler.Or(dstReg, dstReg, loReg);
 
 		StoreRegisterInMemory64High(dst, dstReg);
@@ -362,7 +362,7 @@ void CCodeGen_Arm::Emit_Sll64_MemMemVar(const STATEMENT& statement)
 	auto src1 = statement.src1->GetSymbol().get();
 	auto src2 = statement.src2->GetSymbol().get();
 
-	auto saReg = CArmAssembler::r0;
+	auto saReg = CAArch32Assembler::r0;
 
 	switch(src2->m_type)
 	{
@@ -390,10 +390,10 @@ void CCodeGen_Arm::Emit_Sll64_MemMemCst(const STATEMENT& statement)
 	auto shiftAmount = src2->m_valueLow & 0x3F;
 	assert(shiftAmount != 0);
 
-	auto srcLo = CArmAssembler::r0;
-	auto srcHi = CArmAssembler::r1;
-	auto dstLo = CArmAssembler::r2;
-	auto dstHi = CArmAssembler::r3;
+	auto srcLo = CAArch32Assembler::r0;
+	auto srcHi = CAArch32Assembler::r1;
+	auto dstLo = CAArch32Assembler::r2;
+	auto dstHi = CAArch32Assembler::r3;
 
 	if(shiftAmount >= 32)
 	{
@@ -401,10 +401,10 @@ void CCodeGen_Arm::Emit_Sll64_MemMemCst(const STATEMENT& statement)
 
 		LoadMemory64LowInRegister(srcLo, src1);
 
-		auto shiftHi = CArmAssembler::MakeConstantShift(CArmAssembler::SHIFT_LSL, shiftAmount);
-		m_assembler.Mov(dstHi, CArmAssembler::MakeRegisterAluOperand(srcLo, shiftHi));
+		auto shiftHi = CAArch32Assembler::MakeConstantShift(CAArch32Assembler::SHIFT_LSL, shiftAmount);
+		m_assembler.Mov(dstHi, CAArch32Assembler::MakeRegisterAluOperand(srcLo, shiftHi));
 
-		m_assembler.Mov(dstLo, CArmAssembler::MakeImmediateAluOperand(0, 0));
+		m_assembler.Mov(dstLo, CAArch32Assembler::MakeImmediateAluOperand(0, 0));
 
 		StoreRegistersInMemory64(dst, dstLo, dstHi);
 	}
@@ -413,87 +413,87 @@ void CCodeGen_Arm::Emit_Sll64_MemMemCst(const STATEMENT& statement)
 		LoadMemory64InRegisters(srcLo, srcHi, src1);
 
 		//Lo part -> (lo << sa)
-		auto shiftLo = CArmAssembler::MakeConstantShift(CArmAssembler::SHIFT_LSL, shiftAmount);
+		auto shiftLo = CAArch32Assembler::MakeConstantShift(CAArch32Assembler::SHIFT_LSL, shiftAmount);
 
-		m_assembler.Mov(dstLo, CArmAssembler::MakeRegisterAluOperand(srcLo, shiftLo));
+		m_assembler.Mov(dstLo, CAArch32Assembler::MakeRegisterAluOperand(srcLo, shiftLo));
 
 		//Hi part -> (lo >> (32 - sa)) | (hi << sa)
-		auto shiftHi1 = CArmAssembler::MakeConstantShift(CArmAssembler::SHIFT_LSL, shiftAmount);
-		auto shiftHi2 = CArmAssembler::MakeConstantShift(CArmAssembler::SHIFT_LSR, 32 - shiftAmount);
+		auto shiftHi1 = CAArch32Assembler::MakeConstantShift(CAArch32Assembler::SHIFT_LSL, shiftAmount);
+		auto shiftHi2 = CAArch32Assembler::MakeConstantShift(CAArch32Assembler::SHIFT_LSR, 32 - shiftAmount);
 
-		m_assembler.Mov(srcHi, CArmAssembler::MakeRegisterAluOperand(srcHi, shiftHi1));
-		m_assembler.Mov(srcLo, CArmAssembler::MakeRegisterAluOperand(srcLo, shiftHi2));
+		m_assembler.Mov(srcHi, CAArch32Assembler::MakeRegisterAluOperand(srcHi, shiftHi1));
+		m_assembler.Mov(srcLo, CAArch32Assembler::MakeRegisterAluOperand(srcLo, shiftHi2));
 		m_assembler.Or(dstHi, srcLo, srcHi);
 
 		StoreRegistersInMemory64(dst, dstLo, dstHi);
 	}
 }
 
-void CCodeGen_Arm::Emit_Sr64Var_MemMem(CSymbol* dst, CSymbol* src, CArmAssembler::REGISTER saReg, CArmAssembler::SHIFT shiftType)
+void CCodeGen_Arm::Emit_Sr64Var_MemMem(CSymbol* dst, CSymbol* src, CAArch32Assembler::REGISTER saReg, CAArch32Assembler::SHIFT shiftType)
 {
-	assert((shiftType == CArmAssembler::SHIFT_ASR) || (shiftType == CArmAssembler::SHIFT_LSR));
+	assert((shiftType == CAArch32Assembler::SHIFT_ASR) || (shiftType == CAArch32Assembler::SHIFT_LSR));
 
 	//saReg will be modified by this function, do not use PrepareRegister
 
-	assert(saReg == CArmAssembler::r0);
+	assert(saReg == CAArch32Assembler::r0);
 
 	auto lessThan32Label = m_assembler.CreateLabel();
 	auto doneLabel = m_assembler.CreateLabel();
 
-	m_assembler.And(saReg, saReg, CArmAssembler::MakeImmediateAluOperand(0x3F, 0));
-	m_assembler.Cmp(saReg, CArmAssembler::MakeImmediateAluOperand(32, 0));
-	m_assembler.BCc(CArmAssembler::CONDITION_LT, lessThan32Label);
+	m_assembler.And(saReg, saReg, CAArch32Assembler::MakeImmediateAluOperand(0x3F, 0));
+	m_assembler.Cmp(saReg, CAArch32Assembler::MakeImmediateAluOperand(32, 0));
+	m_assembler.BCc(CAArch32Assembler::CONDITION_LT, lessThan32Label);
 
 	//greaterThanOrEqual32:
 	{
-		auto workReg = CArmAssembler::r1;
-		auto dstLo = CArmAssembler::r2;
-		auto dstHi = CArmAssembler::r3;
+		auto workReg = CAArch32Assembler::r1;
+		auto dstLo = CAArch32Assembler::r2;
+		auto dstHi = CAArch32Assembler::r3;
 
 		LoadMemory64HighInRegister(workReg, src);
 
-		auto fixedSaReg = CArmAssembler::r0;
-		m_assembler.Sub(fixedSaReg, saReg, CArmAssembler::MakeImmediateAluOperand(32, 0));
+		auto fixedSaReg = CAArch32Assembler::r0;
+		m_assembler.Sub(fixedSaReg, saReg, CAArch32Assembler::MakeImmediateAluOperand(32, 0));
 
-		auto shiftLo = CArmAssembler::MakeVariableShift(shiftType, fixedSaReg);
-		m_assembler.Mov(dstLo, CArmAssembler::MakeRegisterAluOperand(workReg, shiftLo));
+		auto shiftLo = CAArch32Assembler::MakeVariableShift(shiftType, fixedSaReg);
+		m_assembler.Mov(dstLo, CAArch32Assembler::MakeRegisterAluOperand(workReg, shiftLo));
 
-		if(shiftType == CArmAssembler::SHIFT_LSR)
+		if(shiftType == CAArch32Assembler::SHIFT_LSR)
 		{
-			m_assembler.Mov(dstHi, CArmAssembler::MakeImmediateAluOperand(0, 0));
+			m_assembler.Mov(dstHi, CAArch32Assembler::MakeImmediateAluOperand(0, 0));
 		}
 		else
 		{
-			auto shiftHi = CArmAssembler::MakeConstantShift(CArmAssembler::SHIFT_ASR, 31);
-			m_assembler.Mov(dstHi, CArmAssembler::MakeRegisterAluOperand(workReg, shiftHi));
+			auto shiftHi = CAArch32Assembler::MakeConstantShift(CAArch32Assembler::SHIFT_ASR, 31);
+			m_assembler.Mov(dstHi, CAArch32Assembler::MakeRegisterAluOperand(workReg, shiftHi));
 		}
 
 		StoreRegistersInMemory64(dst, dstLo, dstHi);
 
-		m_assembler.BCc(CArmAssembler::CONDITION_AL, doneLabel);
+		m_assembler.BCc(CAArch32Assembler::CONDITION_AL, doneLabel);
 	}
 
 	//lessThan32:
 	m_assembler.MarkLabel(lessThan32Label);
 	{
-		auto dstReg = CArmAssembler::r1;
-		auto loReg = CArmAssembler::r2;
-		auto hiReg = CArmAssembler::r3;
+		auto dstReg = CAArch32Assembler::r1;
+		auto loReg = CAArch32Assembler::r2;
+		auto hiReg = CAArch32Assembler::r3;
 
 		//Hi part -> (hi >> sa)
-		auto shiftHi = CArmAssembler::MakeVariableShift(shiftType, saReg);
+		auto shiftHi = CAArch32Assembler::MakeVariableShift(shiftType, saReg);
 		LoadMemory64HighInRegister(hiReg, src);
-		m_assembler.Mov(dstReg, CArmAssembler::MakeRegisterAluOperand(hiReg, shiftHi));
+		m_assembler.Mov(dstReg, CAArch32Assembler::MakeRegisterAluOperand(hiReg, shiftHi));
 		StoreRegisterInMemory64High(dst, dstReg);
 
 		//Lo part -> (hi << (32 - sa)) | (lo >> sa)
-		auto shiftLo1 = CArmAssembler::MakeVariableShift(CArmAssembler::SHIFT_LSR, saReg);
+		auto shiftLo1 = CAArch32Assembler::MakeVariableShift(CAArch32Assembler::SHIFT_LSR, saReg);
 		LoadMemory64LowInRegister(loReg, src);
-		m_assembler.Mov(dstReg, CArmAssembler::MakeRegisterAluOperand(loReg, shiftLo1));
+		m_assembler.Mov(dstReg, CAArch32Assembler::MakeRegisterAluOperand(loReg, shiftLo1));
 
-		auto shiftLo2 = CArmAssembler::MakeVariableShift(CArmAssembler::SHIFT_LSL, saReg);
-		m_assembler.Rsb(saReg, saReg, CArmAssembler::MakeImmediateAluOperand(32, 0));
-		m_assembler.Mov(hiReg, CArmAssembler::MakeRegisterAluOperand(hiReg, shiftLo2));
+		auto shiftLo2 = CAArch32Assembler::MakeVariableShift(CAArch32Assembler::SHIFT_LSL, saReg);
+		m_assembler.Rsb(saReg, saReg, CAArch32Assembler::MakeImmediateAluOperand(32, 0));
+		m_assembler.Mov(hiReg, CAArch32Assembler::MakeRegisterAluOperand(hiReg, shiftLo2));
 		m_assembler.Or(dstReg, dstReg, hiReg);
 
 		StoreRegisterInMemory64Low(dst, dstReg);
@@ -503,17 +503,17 @@ void CCodeGen_Arm::Emit_Sr64Var_MemMem(CSymbol* dst, CSymbol* src, CArmAssembler
 	m_assembler.MarkLabel(doneLabel);
 }
 
-void CCodeGen_Arm::Emit_Sr64Cst_MemMem(CSymbol* dst, CSymbol* src, uint32 shiftAmount, CArmAssembler::SHIFT shiftType)
+void CCodeGen_Arm::Emit_Sr64Cst_MemMem(CSymbol* dst, CSymbol* src, uint32 shiftAmount, CAArch32Assembler::SHIFT shiftType)
 {
 	assert(shiftAmount < 0x40);
 	assert(shiftAmount != 0);
 
-	assert((shiftType == CArmAssembler::SHIFT_ASR) || (shiftType == CArmAssembler::SHIFT_LSR));
+	assert((shiftType == CAArch32Assembler::SHIFT_ASR) || (shiftType == CAArch32Assembler::SHIFT_LSR));
 
-	auto srcLo = CArmAssembler::r0;
-	auto srcHi = CArmAssembler::r1;
-	auto dstLo = CArmAssembler::r2;
-	auto dstHi = CArmAssembler::r3;
+	auto srcLo = CAArch32Assembler::r0;
+	auto srcHi = CAArch32Assembler::r1;
+	auto dstLo = CAArch32Assembler::r2;
+	auto dstHi = CAArch32Assembler::r3;
 
 	if(shiftAmount >= 32)
 	{
@@ -523,22 +523,22 @@ void CCodeGen_Arm::Emit_Sr64Cst_MemMem(CSymbol* dst, CSymbol* src, uint32 shiftA
 
 		if(shiftAmount != 0)
 		{
-			auto shiftLo = CArmAssembler::MakeConstantShift(shiftType, shiftAmount);
-			m_assembler.Mov(dstLo, CArmAssembler::MakeRegisterAluOperand(srcHi, shiftLo));
+			auto shiftLo = CAArch32Assembler::MakeConstantShift(shiftType, shiftAmount);
+			m_assembler.Mov(dstLo, CAArch32Assembler::MakeRegisterAluOperand(srcHi, shiftLo));
 		}
 		else
 		{
 			m_assembler.Mov(dstLo, srcHi);
 		}
 
-		if(shiftType == CArmAssembler::SHIFT_LSR)
+		if(shiftType == CAArch32Assembler::SHIFT_LSR)
 		{
-			m_assembler.Mov(dstHi, CArmAssembler::MakeImmediateAluOperand(0, 0));
+			m_assembler.Mov(dstHi, CAArch32Assembler::MakeImmediateAluOperand(0, 0));
 		}
 		else
 		{
-			auto shiftHi = CArmAssembler::MakeConstantShift(CArmAssembler::SHIFT_ASR, 31);
-			m_assembler.Mov(dstHi, CArmAssembler::MakeRegisterAluOperand(srcHi, shiftHi));
+			auto shiftHi = CAArch32Assembler::MakeConstantShift(CAArch32Assembler::SHIFT_ASR, 31);
+			m_assembler.Mov(dstHi, CAArch32Assembler::MakeRegisterAluOperand(srcHi, shiftHi));
 		}
 
 		StoreRegistersInMemory64(dst, dstLo, dstHi);
@@ -548,16 +548,16 @@ void CCodeGen_Arm::Emit_Sr64Cst_MemMem(CSymbol* dst, CSymbol* src, uint32 shiftA
 		LoadMemory64InRegisters(srcLo, srcHi, src);
 
 		//Hi part -> (hi >> sa)
-		auto shiftHi = CArmAssembler::MakeConstantShift(shiftType, shiftAmount);
+		auto shiftHi = CAArch32Assembler::MakeConstantShift(shiftType, shiftAmount);
 
-		m_assembler.Mov(dstHi, CArmAssembler::MakeRegisterAluOperand(srcHi, shiftHi));
+		m_assembler.Mov(dstHi, CAArch32Assembler::MakeRegisterAluOperand(srcHi, shiftHi));
 
 		//Lo part -> (hi << (32 - sa)) | (lo >> sa)
-		auto shiftLo1 = CArmAssembler::MakeConstantShift(CArmAssembler::SHIFT_LSR, shiftAmount);
-		auto shiftLo2 = CArmAssembler::MakeConstantShift(CArmAssembler::SHIFT_LSL, 32 - shiftAmount);
+		auto shiftLo1 = CAArch32Assembler::MakeConstantShift(CAArch32Assembler::SHIFT_LSR, shiftAmount);
+		auto shiftLo2 = CAArch32Assembler::MakeConstantShift(CAArch32Assembler::SHIFT_LSL, 32 - shiftAmount);
 
-		m_assembler.Mov(srcLo, CArmAssembler::MakeRegisterAluOperand(srcLo, shiftLo1));
-		m_assembler.Mov(srcHi, CArmAssembler::MakeRegisterAluOperand(srcHi, shiftLo2));
+		m_assembler.Mov(srcLo, CAArch32Assembler::MakeRegisterAluOperand(srcLo, shiftLo1));
+		m_assembler.Mov(srcHi, CAArch32Assembler::MakeRegisterAluOperand(srcHi, shiftLo2));
 		m_assembler.Or(dstLo, srcLo, srcHi);
 
 		StoreRegistersInMemory64(dst, dstLo, dstHi);
@@ -570,7 +570,7 @@ void CCodeGen_Arm::Emit_Srl64_MemMemVar(const STATEMENT& statement)
 	auto src1 = statement.src1->GetSymbol().get();
 	auto src2 = statement.src2->GetSymbol().get();
 
-	auto saReg = CArmAssembler::r0;
+	auto saReg = CAArch32Assembler::r0;
 
 	switch(src2->m_type)
 	{
@@ -586,7 +586,7 @@ void CCodeGen_Arm::Emit_Srl64_MemMemVar(const STATEMENT& statement)
 		break;
 	}
 
-	Emit_Sr64Var_MemMem(dst, src1, saReg, CArmAssembler::SHIFT_LSR);
+	Emit_Sr64Var_MemMem(dst, src1, saReg, CAArch32Assembler::SHIFT_LSR);
 }
 
 void CCodeGen_Arm::Emit_Srl64_MemMemCst(const STATEMENT& statement)
@@ -597,7 +597,7 @@ void CCodeGen_Arm::Emit_Srl64_MemMemCst(const STATEMENT& statement)
 
 	auto shiftAmount = src2->m_valueLow & 0x3F;
 
-	Emit_Sr64Cst_MemMem(dst, src1, shiftAmount, CArmAssembler::SHIFT_LSR);
+	Emit_Sr64Cst_MemMem(dst, src1, shiftAmount, CAArch32Assembler::SHIFT_LSR);
 }
 
 void CCodeGen_Arm::Emit_Sra64_MemMemVar(const STATEMENT& statement)
@@ -606,7 +606,7 @@ void CCodeGen_Arm::Emit_Sra64_MemMemVar(const STATEMENT& statement)
 	auto src1 = statement.src1->GetSymbol().get();
 	auto src2 = statement.src2->GetSymbol().get();
 
-	auto saReg = CArmAssembler::r0;
+	auto saReg = CAArch32Assembler::r0;
 
 	switch(src2->m_type)
 	{
@@ -622,7 +622,7 @@ void CCodeGen_Arm::Emit_Sra64_MemMemVar(const STATEMENT& statement)
 		break;
 	}
 
-	Emit_Sr64Var_MemMem(dst, src1, saReg, CArmAssembler::SHIFT_ASR);
+	Emit_Sr64Var_MemMem(dst, src1, saReg, CAArch32Assembler::SHIFT_ASR);
 }
 
 void CCodeGen_Arm::Emit_Sra64_MemMemCst(const STATEMENT& statement)
@@ -633,10 +633,10 @@ void CCodeGen_Arm::Emit_Sra64_MemMemCst(const STATEMENT& statement)
 
 	auto shiftAmount = src2->m_valueLow & 0x3F;
 
-	Emit_Sr64Cst_MemMem(dst, src1, shiftAmount, CArmAssembler::SHIFT_ASR);
+	Emit_Sr64Cst_MemMem(dst, src1, shiftAmount, CAArch32Assembler::SHIFT_ASR);
 }
 
-void CCodeGen_Arm::Cmp64_RegSymLo(CArmAssembler::REGISTER src1Reg, CSymbol* src2, CArmAssembler::REGISTER src2Reg)
+void CCodeGen_Arm::Cmp64_RegSymLo(CAArch32Assembler::REGISTER src1Reg, CSymbol* src2, CAArch32Assembler::REGISTER src2Reg)
 {
 	switch(src2->m_type)
 	{
@@ -654,7 +654,7 @@ void CCodeGen_Arm::Cmp64_RegSymLo(CArmAssembler::REGISTER src1Reg, CSymbol* src2
 	}
 }
 
-void CCodeGen_Arm::Cmp64_RegSymHi(CArmAssembler::REGISTER src1Reg, CSymbol* src2, CArmAssembler::REGISTER src2Reg)
+void CCodeGen_Arm::Cmp64_RegSymHi(CAArch32Assembler::REGISTER src1Reg, CSymbol* src2, CAArch32Assembler::REGISTER src2Reg)
 {
 	switch(src2->m_type)
 	{
@@ -678,10 +678,10 @@ void CCodeGen_Arm::Cmp64_Equal(const STATEMENT& statement)
 	auto src1 = statement.src1->GetSymbol().get();
 	auto src2 = statement.src2->GetSymbol().get();
 
-	auto dstReg = PrepareSymbolRegisterDef(dst, CArmAssembler::r0);
-	auto src1Reg = CArmAssembler::r1;
-	auto src2Reg = CArmAssembler::r2;
-	auto tempValReg = CArmAssembler::r3;
+	auto dstReg = PrepareSymbolRegisterDef(dst, CAArch32Assembler::r0);
+	auto src1Reg = CAArch32Assembler::r1;
+	auto src2Reg = CAArch32Assembler::r2;
+	auto tempValReg = CAArch32Assembler::r3;
 
 	/////////////////////////////////////////
 	//Check high order word
@@ -721,9 +721,9 @@ void CCodeGen_Arm::Cmp64_Order(const STATEMENT& statement)
 	auto doneLabel = m_assembler.CreateLabel();
 	auto highOrderEqualLabel = m_assembler.CreateLabel();
 
-	auto dstReg = PrepareSymbolRegisterDef(dst, CArmAssembler::r0);
-	auto src1Reg = CArmAssembler::r1;
-	auto src2Reg = CArmAssembler::r2;
+	auto dstReg = PrepareSymbolRegisterDef(dst, CAArch32Assembler::r0);
+	auto src1Reg = CAArch32Assembler::r1;
+	auto src2Reg = CAArch32Assembler::r2;
 
 	/////////////////////////////////////////
 	//Check high order word if equal
@@ -732,13 +732,13 @@ void CCodeGen_Arm::Cmp64_Order(const STATEMENT& statement)
 	LoadMemory64HighInRegister(src1Reg, src1);
 	Cmp64_RegSymHi(src1Reg, src2, src2Reg);
 
-	m_assembler.BCc(CArmAssembler::CONDITION_EQ, highOrderEqualLabel);
+	m_assembler.BCc(CAArch32Assembler::CONDITION_EQ, highOrderEqualLabel);
 
 	///////////////////////////////////////////////////////////
 	//If they aren't equal, this comparaison decides of result
 
 	Cmp_GetFlag(dstReg, statement.jmpCondition);
-	m_assembler.BCc(CArmAssembler::CONDITION_AL, doneLabel);
+	m_assembler.BCc(CAArch32Assembler::CONDITION_AL, doneLabel);
 
 	///////////////////////////////////////////////////////////
 	//If they are equal, next comparaison decides of result

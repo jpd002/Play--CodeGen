@@ -36,44 +36,44 @@ void CCodeGen_Arm::Div_GenericTmp64AnyAnySoft(const STATEMENT& statement)
 
 	//Quotient
 	{
-		auto src1Reg = PrepareSymbolRegisterUse(src1, CArmAssembler::r0);
-		auto src2Reg = PrepareSymbolRegisterUse(src2, CArmAssembler::r1);
+		auto src1Reg = PrepareSymbolRegisterUse(src1, CAArch32Assembler::r0);
+		auto src2Reg = PrepareSymbolRegisterUse(src2, CAArch32Assembler::r1);
 
-		if(src1Reg != CArmAssembler::r0)
+		if(src1Reg != CAArch32Assembler::r0)
 		{
-			m_assembler.Mov(CArmAssembler::r0, src1Reg);
+			m_assembler.Mov(CAArch32Assembler::r0, src1Reg);
 		}
 
-		if(src2Reg != CArmAssembler::r1)
+		if(src2Reg != CAArch32Assembler::r1)
 		{
-			m_assembler.Mov(CArmAssembler::r1, src2Reg);
+			m_assembler.Mov(CAArch32Assembler::r1, src2Reg);
 		}
 
-		LoadConstantPtrInRegister(CArmAssembler::r2, divFct);
-		m_assembler.Blx(CArmAssembler::r2);
+		LoadConstantPtrInRegister(CAArch32Assembler::r2, divFct);
+		m_assembler.Blx(CAArch32Assembler::r2);
 
-		m_assembler.Str(CArmAssembler::r0, CArmAssembler::rSP, CArmAssembler::MakeImmediateLdrAddress(dst->m_stackLocation + m_stackLevel + 0));
+		m_assembler.Str(CAArch32Assembler::r0, CAArch32Assembler::rSP, CAArch32Assembler::MakeImmediateLdrAddress(dst->m_stackLocation + m_stackLevel + 0));
 	}
 
 	//Remainder
 	{
-		auto src1Reg = PrepareSymbolRegisterUse(src1, CArmAssembler::r0);
-		auto src2Reg = PrepareSymbolRegisterUse(src2, CArmAssembler::r1);
+		auto src1Reg = PrepareSymbolRegisterUse(src1, CAArch32Assembler::r0);
+		auto src2Reg = PrepareSymbolRegisterUse(src2, CAArch32Assembler::r1);
 
-		if(src1Reg != CArmAssembler::r0)
+		if(src1Reg != CAArch32Assembler::r0)
 		{
-			m_assembler.Mov(CArmAssembler::r0, src1Reg);
+			m_assembler.Mov(CAArch32Assembler::r0, src1Reg);
 		}
 
-		if(src2Reg != CArmAssembler::r1)
+		if(src2Reg != CAArch32Assembler::r1)
 		{
-			m_assembler.Mov(CArmAssembler::r1, src2Reg);
+			m_assembler.Mov(CAArch32Assembler::r1, src2Reg);
 		}
 	
-		LoadConstantPtrInRegister(CArmAssembler::r2, modFct);
-		m_assembler.Blx(CArmAssembler::r2);
+		LoadConstantPtrInRegister(CAArch32Assembler::r2, modFct);
+		m_assembler.Blx(CAArch32Assembler::r2);
 	
-		m_assembler.Str(CArmAssembler::r0, CArmAssembler::rSP, CArmAssembler::MakeImmediateLdrAddress(dst->m_stackLocation + m_stackLevel + 4));
+		m_assembler.Str(CAArch32Assembler::r0, CAArch32Assembler::rSP, CAArch32Assembler::MakeImmediateLdrAddress(dst->m_stackLocation + m_stackLevel + 4));
 	}
 }
 
@@ -86,11 +86,11 @@ void CCodeGen_Arm::Div_GenericTmp64AnyAny(const STATEMENT& statement)
 
 	assert(dst->m_type == SYM_TEMPORARY64);
 
-	auto src1Reg = PrepareSymbolRegisterUse(src1, CArmAssembler::r0);
-	auto src2Reg = PrepareSymbolRegisterUse(src2, CArmAssembler::r1);
-	auto modReg0 = CArmAssembler::r1;	//Potentially overlaps src2Reg because it won't be needed after mul
-	auto modReg1 = CArmAssembler::r2;
-	auto resReg = CArmAssembler::r3;
+	auto src1Reg = PrepareSymbolRegisterUse(src1, CAArch32Assembler::r0);
+	auto src2Reg = PrepareSymbolRegisterUse(src2, CAArch32Assembler::r1);
+	auto modReg0 = CAArch32Assembler::r1;	//Potentially overlaps src2Reg because it won't be needed after mul
+	auto modReg1 = CAArch32Assembler::r2;
+	auto resReg = CAArch32Assembler::r3;
 
 	if(isSigned)
 	{
@@ -105,8 +105,8 @@ void CCodeGen_Arm::Div_GenericTmp64AnyAny(const STATEMENT& statement)
 
 	m_assembler.Sub(modReg0, src1Reg, modReg0);
 
-	m_assembler.Str(resReg, CArmAssembler::rSP, CArmAssembler::MakeImmediateLdrAddress(dst->m_stackLocation + m_stackLevel + 0));
-	m_assembler.Str(modReg0, CArmAssembler::rSP, CArmAssembler::MakeImmediateLdrAddress(dst->m_stackLocation + m_stackLevel + 4));
+	m_assembler.Str(resReg, CAArch32Assembler::rSP, CAArch32Assembler::MakeImmediateLdrAddress(dst->m_stackLocation + m_stackLevel + 0));
+	m_assembler.Str(modReg0, CAArch32Assembler::rSP, CAArch32Assembler::MakeImmediateLdrAddress(dst->m_stackLocation + m_stackLevel + 4));
 }
 
 template <bool isSigned>

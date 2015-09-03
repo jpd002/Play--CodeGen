@@ -76,7 +76,7 @@ namespace Jitter
 		void									Emit_Prolog(unsigned int, uint16);
 		void									Emit_Epilog(unsigned int, uint16);
 
-		CAArch32Assembler::LABEL					GetLabel(uint32);
+		CAArch32Assembler::LABEL				GetLabel(uint32);
 		void									MarkLabel(const STATEMENT&);
 
 		void									LoadMemoryInRegister(CAArch32Assembler::REGISTER, CSymbol*);
@@ -120,18 +120,18 @@ namespace Jitter
 
 		void									LoadTemporary256ElementAddressInRegister(CAArch32Assembler::REGISTER, CSymbol*, uint32);
 
-		CAArch32Assembler::REGISTER					PrepareSymbolRegisterDef(CSymbol*, CAArch32Assembler::REGISTER);
-		CAArch32Assembler::REGISTER					PrepareSymbolRegisterUse(CSymbol*, CAArch32Assembler::REGISTER);
+		CAArch32Assembler::REGISTER				PrepareSymbolRegisterDef(CSymbol*, CAArch32Assembler::REGISTER);
+		CAArch32Assembler::REGISTER				PrepareSymbolRegisterUse(CSymbol*, CAArch32Assembler::REGISTER);
 		void									CommitSymbolRegister(CSymbol*, CAArch32Assembler::REGISTER);
 
 		typedef std::array<CAArch32Assembler::REGISTER, 2> ParamRegisterPair;
 
-		CAArch32Assembler::REGISTER					PrepareParam(PARAM_STATE&);
+		CAArch32Assembler::REGISTER				PrepareParam(PARAM_STATE&);
 		ParamRegisterPair						PrepareParam64(PARAM_STATE&);
 		void									CommitParam(PARAM_STATE&);
 		void									CommitParam64(PARAM_STATE&);
 
-		CAArch32Assembler::AluLdrShift				GetAluShiftFromSymbol(CAArch32Assembler::SHIFT shiftType, CSymbol* symbol, CAArch32Assembler::REGISTER preferedRegister);
+		CAArch32Assembler::AluLdrShift			GetAluShiftFromSymbol(CAArch32Assembler::SHIFT shiftType, CSymbol* symbol, CAArch32Assembler::REGISTER preferedRegister);
 
 		static uint32							RotateRight(uint32);
 		static uint32							RotateLeft(uint32);
@@ -619,15 +619,15 @@ namespace Jitter
 		static CONSTMATCHER						g_64ConstMatchers[];
 		static CONSTMATCHER						g_fpuConstMatchers[];
 		static CONSTMATCHER						g_mdConstMatchers[];
-		static CAArch32Assembler::REGISTER			g_registers[MAX_REGISTERS];
-		static CAArch32Assembler::REGISTER			g_paramRegs[MAX_PARAM_REGS];
-		static CAArch32Assembler::REGISTER			g_baseRegister;
-		static CAArch32Assembler::REGISTER			g_callAddressRegister;
-		static CAArch32Assembler::REGISTER			g_tempParamRegister0;
-		static CAArch32Assembler::REGISTER			g_tempParamRegister1;
+		static CAArch32Assembler::REGISTER		g_registers[MAX_REGISTERS];
+		static CAArch32Assembler::REGISTER		g_paramRegs[MAX_PARAM_REGS];
+		static CAArch32Assembler::REGISTER		g_baseRegister;
+		static CAArch32Assembler::REGISTER		g_callAddressRegister;
+		static CAArch32Assembler::REGISTER		g_tempParamRegister0;
+		static CAArch32Assembler::REGISTER		g_tempParamRegister1;
 
 		Framework::CStream*						m_stream = nullptr;
-		CAArch32Assembler							m_assembler;
+		CAArch32Assembler						m_assembler;
 		LabelMapType							m_labels;
 		ParamStack								m_params;
 		uint32									m_stackLevel = 0;

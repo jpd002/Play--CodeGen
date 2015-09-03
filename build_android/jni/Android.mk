@@ -12,13 +12,14 @@ include $(PREBUILT_STATIC_LIBRARY)
 include $(CLEAR_VARS)
 
 LOCAL_MODULE		:= libCodeGen
-LOCAL_SRC_FILES		:=	../../src/ArmAssembler.cpp \
+LOCAL_SRC_FILES		:=	../../src/AArch32Assembler.cpp \
 						../../src/Jitter.cpp \
 						../../src/Jitter_CodeGen.cpp \
-						../../src/Jitter_CodeGen_Arm.cpp \
-						../../src/Jitter_CodeGen_Arm_64.cpp \
-						../../src/Jitter_CodeGen_Arm_Fpu.cpp \
-						../../src/Jitter_CodeGen_Arm_Md.cpp \
+						../../src/Jitter_CodeGen_AArch32.cpp \
+						../../src/Jitter_CodeGen_AArch32_64.cpp \
+						../../src/Jitter_CodeGen_AArch32_Fpu.cpp \
+						../../src/Jitter_CodeGen_AArch32_Md.cpp \
+						../../src/Jitter_CodeGen_AArch64.cpp \
 						../../src/Jitter_CodeGen_x86.cpp \
 						../../src/Jitter_CodeGen_x86_32.cpp \
 						../../src/Jitter_CodeGen_x86_64.cpp \

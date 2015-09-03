@@ -12,7 +12,7 @@
 
 	#include <TargetConditionals.h>
 	#if TARGET_CPU_ARM
-		#include "Jitter_CodeGen_Arm.h"
+		#include "Jitter_CodeGen_AArch32.h"
 	#elif TARGET_CPU_X86
 		#include "Jitter_CodeGen_x86_32.h"
 	#elif TARGET_CPU_X86_64
@@ -24,7 +24,7 @@
 #elif defined(__ANDROID__)
 
 	#if defined(__arm__)
-		#include "Jitter_CodeGen_Arm.h"
+		#include "Jitter_CodeGen_AArch32.h"
 	#elif defined(__i386__)
 		#include "Jitter_CodeGen_x86_32.h"
 	#elif defined(__x86_64__)
@@ -48,7 +48,7 @@ Jitter::CCodeGen* Jitter::CreateCodeGen()
 #elif defined(__APPLE__)
 	
 	#if TARGET_CPU_ARM
-		return new Jitter::CCodeGen_Arm();
+		return new Jitter::CCodeGen_AArch32();
 	#elif TARGET_CPU_X86
 		return new Jitter::CCodeGen_x86_32();
 	#elif TARGET_CPU_X86_64
@@ -60,7 +60,7 @@ Jitter::CCodeGen* Jitter::CreateCodeGen()
 #elif defined(__ANDROID__)
 
 	#if defined(__arm__)
-		return new Jitter::CCodeGen_Arm();
+		return new Jitter::CCodeGen_AArch32();
 	#elif defined(__i386__)
 		return new Jitter::CCodeGen_x86_32();
 	#elif defined(__x86_64__)

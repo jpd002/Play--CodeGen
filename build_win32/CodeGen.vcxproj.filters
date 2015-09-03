@@ -17,6 +17,9 @@
     <Filter Include="Source Files\arm\aarch32">
       <UniqueIdentifier>{95ac34a4-202e-4670-8593-a340cbfd46f2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\arm\aarch64">
+      <UniqueIdentifier>{bd6f2308-d962-4c65-a98a-00dc88a3eb66}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\Jitter.cpp">
@@ -90,6 +93,9 @@
     </ClCompile>
     <ClCompile Include="..\src\Jitter_CodeGen_AArch32_Md.cpp">
       <Filter>Source Files\arm\aarch32</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Jitter_CodeGen_AArch64.cpp">
+      <Filter>Source Files\arm\aarch64</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -167,6 +173,9 @@
     </ClInclude>
     <ClInclude Include="..\src\Jitter_CodeGen_AArch32_Div.h">
       <Filter>Source Files\arm\aarch32</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Jitter_CodeGen_AArch64.h">
+      <Filter>Source Files\arm\aarch64</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

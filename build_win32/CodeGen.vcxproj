@@ -28,6 +28,7 @@
     <ClCompile Include="..\src\Jitter_CodeGen_AArch32_64.cpp" />
     <ClCompile Include="..\src\Jitter_CodeGen_AArch32_Fpu.cpp" />
     <ClCompile Include="..\src\Jitter_CodeGen_AArch32_Md.cpp" />
+    <ClCompile Include="..\src\Jitter_CodeGen_AArch64.cpp" />
     <ClCompile Include="..\src\Jitter_CodeGen_x86.cpp" />
     <ClCompile Include="..\src\Jitter_CodeGen_x86_32.cpp" />
     <ClCompile Include="..\src\Jitter_CodeGen_x86_64.cpp" />
@@ -53,6 +54,7 @@
     <ClInclude Include="..\include\Jitter_CodeGen.h" />
     <ClInclude Include="..\include\Jitter_CodeGenFactory.h" />
     <ClInclude Include="..\include\Jitter_CodeGen_AArch32.h" />
+    <ClInclude Include="..\include\Jitter_CodeGen_AArch64.h" />
     <ClInclude Include="..\include\Jitter_CodeGen_x86.h" />
     <ClInclude Include="..\include\Jitter_CodeGen_x86_32.h" />
     <ClInclude Include="..\include\Jitter_CodeGen_x86_64.h" />

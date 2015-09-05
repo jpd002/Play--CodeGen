@@ -19,6 +19,21 @@ namespace Jitter
 		bool            CanHold128BitsReturnValueInRegisters() const override;
 
 	private:
+		typedef void (CCodeGen_AArch64::*ConstCodeEmitterType)(const STATEMENT&);
+
+		struct CONSTMATCHER
+		{
+			OPERATION               op;
+			MATCHTYPE               dstType;
+			MATCHTYPE               src1Type;
+			MATCHTYPE               src2Type;
+			ConstCodeEmitterType    emitter;
+		};
+
+		void    MarkLabel(const STATEMENT&);
+
+		static CONSTMATCHER    g_constMatchers[];
+
 		Framework::CStream*    m_stream = nullptr;
 //		CAArch32Assembler      m_assembler;
 	};

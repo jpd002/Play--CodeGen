@@ -25,6 +25,8 @@
 
 	#if defined(__arm__)
 		#include "Jitter_CodeGen_AArch32.h"
+	#elif defined(__aarch64__)
+		#include "Jitter_CodeGen_AArch64.h"
 	#elif defined(__i386__)
 		#include "Jitter_CodeGen_x86_32.h"
 	#elif defined(__x86_64__)
@@ -61,6 +63,8 @@ Jitter::CCodeGen* Jitter::CreateCodeGen()
 
 	#if defined(__arm__)
 		return new Jitter::CCodeGen_AArch32();
+	#elif defined(__aarch64__)
+		return new Jitter::CCodeGen_AArch64();
 	#elif defined(__i386__)
 		return new Jitter::CCodeGen_x86_32();
 	#elif defined(__x86_64__)

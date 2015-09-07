@@ -13,6 +13,8 @@
 	#include <TargetConditionals.h>
 	#if TARGET_CPU_ARM
 		#include "Jitter_CodeGen_AArch32.h"
+	#elif TARGET_CPU_ARM64
+		#include "Jitter_CodeGen_AArch64.h"
 	#elif TARGET_CPU_X86
 		#include "Jitter_CodeGen_x86_32.h"
 	#elif TARGET_CPU_X86_64
@@ -51,6 +53,8 @@ Jitter::CCodeGen* Jitter::CreateCodeGen()
 	
 	#if TARGET_CPU_ARM
 		return new Jitter::CCodeGen_AArch32();
+	#elif TARGET_CPU_ARM64
+		return new Jitter::CCodeGen_AArch64();
 	#elif TARGET_CPU_X86
 		return new Jitter::CCodeGen_x86_32();
 	#elif TARGET_CPU_X86_64

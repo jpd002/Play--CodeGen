@@ -5,8 +5,6 @@
 #define OPCODE_BKPT (0xE1200070)
 
 CAArch32Assembler::CAArch32Assembler()
-: m_nextLabelId(1)
-, m_stream(NULL)
 {
 
 }

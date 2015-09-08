@@ -341,9 +341,9 @@ private:
 	static uint32							FPSIMD_EncodeQn(QUAD_REGISTER);
 	static uint32							FPSIMD_EncodeQm(QUAD_REGISTER);
 
-	unsigned int							m_nextLabelId;
+	unsigned int							m_nextLabelId = 1;
 	LabelMapType							m_labels;
 	LabelReferenceMapType					m_labelReferences;
 	
-	Framework::CStream*						m_stream;
+	Framework::CStream*						m_stream = nullptr;
 };

@@ -753,7 +753,7 @@ void CCodeGen_AArch32::CommitParam64(PARAM_STATE& paramState)
 CAArch32Assembler::LABEL CCodeGen_AArch32::GetLabel(uint32 blockId)
 {
 	CAArch32Assembler::LABEL result;
-	LabelMapType::const_iterator labelIterator(m_labels.find(blockId));
+	auto labelIterator(m_labels.find(blockId));
 	if(labelIterator == m_labels.end())
 	{
 		result = m_assembler.CreateLabel();
@@ -768,7 +768,7 @@ CAArch32Assembler::LABEL CCodeGen_AArch32::GetLabel(uint32 blockId)
 
 void CCodeGen_AArch32::MarkLabel(const STATEMENT& statement)
 {
-	CAArch32Assembler::LABEL label = GetLabel(statement.jmpBlock);
+	auto label = GetLabel(statement.jmpBlock);
 	m_assembler.MarkLabel(label);
 }
 

@@ -122,9 +122,9 @@ void CCodeGen_AArch32::Emit_MulTmp64AnyAny(const STATEMENT& statement)
 template <CAArch32Assembler::SHIFT shiftType>
 void CCodeGen_AArch32::Emit_Shift_Generic(const STATEMENT& statement)
 {
-	CSymbol* dst = statement.dst->GetSymbol().get();
-	CSymbol* src1 = statement.src1->GetSymbol().get();
-	CSymbol* src2 = statement.src2->GetSymbol().get();
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
 
 	auto dstReg = PrepareSymbolRegisterDef(dst, CAArch32Assembler::r0);
 	auto src1Reg = PrepareSymbolRegisterUse(src1, CAArch32Assembler::r1);

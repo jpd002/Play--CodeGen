@@ -11,4 +11,5 @@ build_android/proguard-project.txt
 *.sdf
 *.opensdf
 *.suo
+*.xccheckout
 xcuserdata

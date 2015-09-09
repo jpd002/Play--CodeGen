@@ -82,12 +82,6 @@ namespace Jitter
 		void									LoadMemoryInRegister(CAArch32Assembler::REGISTER, CSymbol*);
 		void									StoreRegisterInMemory(CSymbol*, CAArch32Assembler::REGISTER);
 
-		void									LoadRelativeInRegister(CAArch32Assembler::REGISTER, CSymbol*);
-		void									StoreRegisterInRelative(CSymbol*, CAArch32Assembler::REGISTER);
-		
-		void									LoadTemporaryInRegister(CAArch32Assembler::REGISTER, CSymbol*);
-		void									StoreRegisterInTemporary(CSymbol*, CAArch32Assembler::REGISTER);
-		
 		void									LoadMemoryReferenceInRegister(CAArch32Assembler::REGISTER, CSymbol*);
 
 		void									LoadRelativeReferenceInRegister(CAArch32Assembler::REGISTER, CSymbol*);

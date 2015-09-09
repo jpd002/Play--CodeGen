@@ -36,11 +36,6 @@ namespace Jitter
 			ConstCodeEmitterType    emitter;
 		};
 
-		void    LoadRelativeInRegister(CAArch64Assembler::REGISTER32, CSymbol*);
-		void    StoreRegisterInRelative(CSymbol*, CAArch64Assembler::REGISTER32);
-		void    LoadTemporaryInRegister(CAArch64Assembler::REGISTER32, CSymbol*);
-		void    StoreRegisterInTemporary(CSymbol*, CAArch64Assembler::REGISTER32);
-		
 		void    LoadMemoryInRegister(CAArch64Assembler::REGISTER32, CSymbol*);
 		void    StoreRegisterInMemory(CSymbol*, CAArch64Assembler::REGISTER32);
 		

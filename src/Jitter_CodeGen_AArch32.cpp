@@ -496,10 +496,11 @@ void CCodeGen_AArch32::LoadMemoryInRegister(CAArch32Assembler::REGISTER register
 	switch(src->m_type)
 	{
 	case SYM_RELATIVE:
-		LoadRelativeInRegister(registerId, src);
+		assert((src->m_valueLow & 0x03) == 0x00);
+		m_assembler.Ldr(registerId, g_baseRegister, CAArch32Assembler::MakeImmediateLdrAddress(src->m_valueLow));
 		break;
 	case SYM_TEMPORARY:
-		LoadTemporaryInRegister(registerId, src);
+		m_assembler.Ldr(registerId, CAArch32Assembler::rSP, CAArch32Assembler::MakeImmediateLdrAddress(src->m_stackLocation + m_stackLevel));
 		break;
 	default:
 		assert(0);
@@ -512,41 +513,16 @@ void CCodeGen_AArch32::StoreRegisterInMemory(CSymbol* dst, CAArch32Assembler::RE
 	switch(dst->m_type)
 	{
 	case SYM_RELATIVE:
-		StoreRegisterInRelative(dst, registerId);
+		assert((dst->m_valueLow & 0x03) == 0x00);
+		m_assembler.Str(registerId, g_baseRegister, CAArch32Assembler::MakeImmediateLdrAddress(dst->m_valueLow));
 		break;
 	case SYM_TEMPORARY:
-		StoreRegisterInTemporary(dst, registerId);
+		m_assembler.Str(registerId, CAArch32Assembler::rSP, CAArch32Assembler::MakeImmediateLdrAddress(dst->m_stackLocation + m_stackLevel));
 		break;
 	default:
 		assert(0);
 		break;
 	}
-}
-
-void CCodeGen_AArch32::LoadRelativeInRegister(CAArch32Assembler::REGISTER registerId, CSymbol* src)
-{
-	assert(src->m_type == SYM_RELATIVE);
-	assert((src->m_valueLow & 0x03) == 0x00);
-	m_assembler.Ldr(registerId, g_baseRegister, CAArch32Assembler::MakeImmediateLdrAddress(src->m_valueLow));
-}
-
-void CCodeGen_AArch32::StoreRegisterInRelative(CSymbol* dst, CAArch32Assembler::REGISTER registerId)
-{
-	assert(dst->m_type == SYM_RELATIVE);
-	assert((dst->m_valueLow & 0x03) == 0x00);
-	m_assembler.Str(registerId, g_baseRegister, CAArch32Assembler::MakeImmediateLdrAddress(dst->m_valueLow));
-}
-
-void CCodeGen_AArch32::LoadTemporaryInRegister(CAArch32Assembler::REGISTER registerId, CSymbol* src)
-{
-	assert(src->m_type == SYM_TEMPORARY);
-	m_assembler.Ldr(registerId, CAArch32Assembler::rSP, CAArch32Assembler::MakeImmediateLdrAddress(src->m_stackLocation + m_stackLevel));
-}
-
-void CCodeGen_AArch32::StoreRegisterInTemporary(CSymbol* dst, CAArch32Assembler::REGISTER registerId)
-{
-	assert(dst->m_type == SYM_TEMPORARY);
-	m_assembler.Str(registerId, CAArch32Assembler::rSP, CAArch32Assembler::MakeImmediateLdrAddress(dst->m_stackLocation + m_stackLevel));
 }
 
 void CCodeGen_AArch32::LoadMemoryReferenceInRegister(CAArch32Assembler::REGISTER registerId, CSymbol* src)
@@ -940,7 +916,7 @@ void CCodeGen_AArch32::Emit_RetVal_Tmp(const STATEMENT& statement)
 	
 	assert(dst->m_type == SYM_TEMPORARY);
 	
-	StoreRegisterInTemporary(dst, CAArch32Assembler::r0);
+	StoreRegisterInMemory(dst, CAArch32Assembler::r0);
 }
 
 void CCodeGen_AArch32::Emit_RetVal_Mem64(const STATEMENT& statement)

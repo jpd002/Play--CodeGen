@@ -121,41 +121,16 @@ void CCodeGen_AArch64::GenerateCode(const StatementList& statements, unsigned in
 	m_labels.clear();
 }
 
-void CCodeGen_AArch64::LoadRelativeInRegister(CAArch64Assembler::REGISTER32 registerId, CSymbol* src)
-{
-	assert(src->m_type == SYM_RELATIVE);
-	assert((src->m_valueLow & 0x03) == 0x00);
-	m_assembler.Ldr(registerId, g_baseRegister, src->m_valueLow);
-}
-
-void CCodeGen_AArch64::StoreRegisterInRelative(CSymbol* dst, CAArch64Assembler::REGISTER32 registerId)
-{
-	assert(dst->m_type == SYM_RELATIVE);
-	assert((dst->m_valueLow & 0x03) == 0x00);
-	m_assembler.Str(registerId, g_baseRegister, dst->m_valueLow);
-}
-
-void CCodeGen_AArch64::LoadTemporaryInRegister(CAArch64Assembler::REGISTER32 registerId, CSymbol* src)
-{
-	assert(src->m_type == SYM_TEMPORARY);
-	m_assembler.Ldr(registerId, CAArch64Assembler::xSP, src->m_stackLocation + m_stackLevel);
-}
-
-void CCodeGen_AArch64::StoreRegisterInTemporary(CSymbol* dst, CAArch64Assembler::REGISTER32 registerId)
-{
-	assert(dst->m_type == SYM_TEMPORARY);
-	m_assembler.Str(registerId, CAArch64Assembler::xSP, dst->m_stackLocation + m_stackLevel);
-}
-
 void CCodeGen_AArch64::LoadMemoryInRegister(CAArch64Assembler::REGISTER32 registerId, CSymbol* src)
 {
 	switch(src->m_type)
 	{
 	case SYM_RELATIVE:
-		LoadRelativeInRegister(registerId, src);
+		assert((src->m_valueLow & 0x03) == 0x00);
+		m_assembler.Ldr(registerId, g_baseRegister, src->m_valueLow);
 		break;
 	case SYM_TEMPORARY:
-		LoadTemporaryInRegister(registerId, src);
+		m_assembler.Ldr(registerId, CAArch64Assembler::xSP, src->m_stackLocation + m_stackLevel);
 		break;
 	default:
 		assert(0);
@@ -168,10 +143,11 @@ void CCodeGen_AArch64::StoreRegisterInMemory(CSymbol* dst, CAArch64Assembler::RE
 	switch(dst->m_type)
 	{
 	case SYM_RELATIVE:
-		StoreRegisterInRelative(dst, registerId);
+		assert((dst->m_valueLow & 0x03) == 0x00);
+		m_assembler.Str(registerId, g_baseRegister, dst->m_valueLow);
 		break;
 	case SYM_TEMPORARY:
-		StoreRegisterInTemporary(dst, registerId);
+		m_assembler.Str(registerId, CAArch64Assembler::xSP, dst->m_stackLocation + m_stackLevel);
 		break;
 	default:
 		assert(0);

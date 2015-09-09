@@ -22,6 +22,11 @@ namespace Jitter
 		typedef std::map<uint32, CAArch64Assembler::LABEL> LabelMapType;
 		typedef void (CCodeGen_AArch64::*ConstCodeEmitterType)(const STATEMENT&);
 
+		enum MAX_TEMP_REGS
+		{
+			MAX_TEMP_REGS = 7,
+		};
+
 		struct CONSTMATCHER
 		{
 			OPERATION               op;
@@ -43,6 +48,19 @@ namespace Jitter
 		CAArch64Assembler::REGISTER32    PrepareSymbolRegisterUse(CSymbol*, CAArch64Assembler::REGISTER32);
 		void                             CommitSymbolRegister(CSymbol*, CAArch64Assembler::REGISTER32);
 		
+		//SHIFTOP ----------------------------------------------------------
+		struct SHIFTOP_BASE
+		{
+			typedef void (CAArch64Assembler::*OpImmType)(CAArch64Assembler::REGISTER32, CAArch64Assembler::REGISTER32, uint8);
+//			typedef void (CAArch64Assembler::*OpRegType)(CAArch32Assembler::REGISTER, CAArch32Assembler::REGISTER, CAArch32Assembler::REGISTER);
+		};
+		
+		struct SHIFTOP_ASR : public SHIFTOP_BASE
+		{
+			static OpImmType	OpImm()		{ return &CAArch64Assembler::Asr; }
+//			static OpRegType	OpReg()		{ return &CAArch32Assembler::Asr; }
+		};
+		
 		void    Emit_Prolog(uint32);
 		void    Emit_Epilog(uint32);
 		
@@ -52,9 +70,10 @@ namespace Jitter
 		void    Emit_Mov_VarVar(const STATEMENT&);
 		
 		//SHIFT
-		void    Emit_Shift_Generic(const STATEMENT&);
+		template <typename> void    Emit_Shift_VarVarCst(const STATEMENT&);
 
 		static CONSTMATCHER    g_constMatchers[];
+		static CAArch64Assembler::REGISTER32    g_tempRegs[MAX_TEMP_REGS];
 		static CAArch64Assembler::REGISTER64    g_baseRegister;
 
 		Framework::CStream*    m_stream = nullptr;

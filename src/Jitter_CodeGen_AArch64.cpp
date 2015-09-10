@@ -56,6 +56,22 @@ void CCodeGen_AArch64::Emit_Shift_VarVarCst(const STATEMENT& statement)
 }
 
 template <typename Shift64Op>
+void CCodeGen_AArch64::Emit_Shift64_MemMemVar(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	auto dstReg = GetNextTempRegister64();
+	auto src1Reg = GetNextTempRegister64();
+	auto src2Reg = PrepareSymbolRegisterUse(src2, GetNextTempRegister());
+	
+	LoadMemory64InRegister(src1Reg, src1);
+	((m_assembler).*(Shift64Op::OpReg()))(dstReg, src1Reg, static_cast<CAArch64Assembler::REGISTER64>(src2Reg));
+	StoreRegisterInMemory64(dst, dstReg);
+}
+
+template <typename Shift64Op>
 void CCodeGen_AArch64::Emit_Shift64_MemMemCst(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
@@ -85,6 +101,10 @@ CCodeGen_AArch64::CONSTMATCHER CCodeGen_AArch64::g_constMatchers[] =
 	{ OP_SRL,      MATCH_VARIABLE,    MATCH_VARIABLE,    MATCH_CONSTANT,    &CCodeGen_AArch64::Emit_Shift_VarVarCst<SHIFTOP_LSR>        },
 	{ OP_SRA,      MATCH_VARIABLE,    MATCH_VARIABLE,    MATCH_CONSTANT,    &CCodeGen_AArch64::Emit_Shift_VarVarCst<SHIFTOP_ASR>        },
 	
+	{ OP_SLL64,    MATCH_MEMORY64,    MATCH_MEMORY64,    MATCH_VARIABLE,    &CCodeGen_AArch64::Emit_Shift64_MemMemVar<SHIFT64OP_LSL>    },
+	{ OP_SRL64,    MATCH_MEMORY64,    MATCH_MEMORY64,    MATCH_VARIABLE,    &CCodeGen_AArch64::Emit_Shift64_MemMemVar<SHIFT64OP_LSR>    },
+	{ OP_SRA64,    MATCH_MEMORY64,    MATCH_MEMORY64,    MATCH_VARIABLE,    &CCodeGen_AArch64::Emit_Shift64_MemMemVar<SHIFT64OP_ASR>    },
+
 	{ OP_SLL64,    MATCH_MEMORY64,    MATCH_MEMORY64,    MATCH_CONSTANT,    &CCodeGen_AArch64::Emit_Shift64_MemMemCst<SHIFT64OP_LSL>    },
 	{ OP_SRL64,    MATCH_MEMORY64,    MATCH_MEMORY64,    MATCH_CONSTANT,    &CCodeGen_AArch64::Emit_Shift64_MemMemCst<SHIFT64OP_LSR>    },
 	{ OP_SRA64,    MATCH_MEMORY64,    MATCH_MEMORY64,    MATCH_CONSTANT,    &CCodeGen_AArch64::Emit_Shift64_MemMemCst<SHIFT64OP_ASR>    },

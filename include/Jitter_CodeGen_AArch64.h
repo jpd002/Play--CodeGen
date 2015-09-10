@@ -78,25 +78,25 @@ namespace Jitter
 		struct SHIFT64OP_BASE
 		{
 			typedef void (CAArch64Assembler::*OpImmType)(CAArch64Assembler::REGISTER64, CAArch64Assembler::REGISTER64, uint8);
-//			typedef void (CAArch64Assembler::*OpRegType)(CAArch32Assembler::REGISTER, CAArch32Assembler::REGISTER, CAArch32Assembler::REGISTER);
+			typedef void (CAArch64Assembler::*OpRegType)(CAArch64Assembler::REGISTER64, CAArch64Assembler::REGISTER64, CAArch64Assembler::REGISTER64);
 		};
 		
 		struct SHIFT64OP_ASR : public SHIFT64OP_BASE
 		{
 			static OpImmType	OpImm()		{ return &CAArch64Assembler::Asr; }
-//			static OpRegType	OpReg()		{ return &CAArch32Assembler::Asr; }
+			static OpRegType	OpReg()		{ return &CAArch64Assembler::Asrv; }
 		};
 		
 		struct SHIFT64OP_LSL : public SHIFT64OP_BASE
 		{
 			static OpImmType	OpImm()		{ return &CAArch64Assembler::Lsl; }
-//			static OpRegType	OpReg()		{ return &CAArch32Assembler::Lsl; }
+			static OpRegType	OpReg()		{ return &CAArch64Assembler::Lslv; }
 		};
 
 		struct SHIFT64OP_LSR : public SHIFT64OP_BASE
 		{
 			static OpImmType	OpImm()		{ return &CAArch64Assembler::Lsr; }
-//			static OpRegType	OpReg()		{ return &CAArch32Assembler::Lsr; }
+			static OpRegType	OpReg()		{ return &CAArch64Assembler::Lsrv; }
 		};
 
 		void    Emit_Prolog(uint32);
@@ -114,6 +114,7 @@ namespace Jitter
 		template <typename> void    Emit_Shift_VarVarCst(const STATEMENT&);
 
 		//SHIFT64
+		template <typename> void    Emit_Shift64_MemMemVar(const STATEMENT&);
 		template <typename> void    Emit_Shift64_MemMemCst(const STATEMENT&);
 		
 		static CONSTMATCHER    g_constMatchers[];

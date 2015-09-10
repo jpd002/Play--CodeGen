@@ -13,6 +13,17 @@ CAArch64Assembler::REGISTER32    CCodeGen_AArch64::g_tempRegs[] =
 	CAArch64Assembler::w15
 };
 
+CAArch64Assembler::REGISTER64    CCodeGen_AArch64::g_tempRegs64[] =
+{
+	CAArch64Assembler::x9,
+	CAArch64Assembler::x10,
+	CAArch64Assembler::x11,
+	CAArch64Assembler::x12,
+	CAArch64Assembler::x13,
+	CAArch64Assembler::x14,
+	CAArch64Assembler::x15
+};
+
 CAArch64Assembler::REGISTER64    CCodeGen_AArch64::g_baseRegister = CAArch64Assembler::x19;
 
 template <typename ShiftOp>
@@ -30,15 +41,35 @@ void CCodeGen_AArch64::Emit_Shift_VarVarCst(const STATEMENT& statement)
 	CommitSymbolRegister(dst, dstReg);
 }
 
+template <typename Shift64Op>
+void CCodeGen_AArch64::Emit_Shift64_MemMemCst(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	assert(src2->m_type == SYM_CONSTANT);
+
+	auto src1Reg = g_tempRegs64[0];
+	auto dstReg = g_tempRegs64[1];
+	
+	LoadMemory64InRegister(src1Reg, src1);
+	((m_assembler).*(Shift64Op::OpImm()))(dstReg, src1Reg, src2->m_valueLow);
+	StoreRegisterInMemory64(dst, dstReg);
+}
+
 CCodeGen_AArch64::CONSTMATCHER CCodeGen_AArch64::g_constMatchers[] =
 {
-	{ OP_MOV,      MATCH_VARIABLE,    MATCH_VARIABLE,    MATCH_NIL,         &CCodeGen_AArch64::Emit_Mov_VarVar       },
+	{ OP_MOV,      MATCH_VARIABLE,    MATCH_VARIABLE,    MATCH_NIL,         &CCodeGen_AArch64::Emit_Mov_VarVar                          },
+	{ OP_MOV,      MATCH_MEMORY64,    MATCH_MEMORY64,    MATCH_NIL,         &CCodeGen_AArch64::Emit_Mov_Mem64Mem64                      },
+
+	{ OP_SLL,      MATCH_VARIABLE,    MATCH_VARIABLE,    MATCH_CONSTANT,    &CCodeGen_AArch64::Emit_Shift_VarVarCst<SHIFTOP_LSL>        },
+	{ OP_SRL,      MATCH_VARIABLE,    MATCH_VARIABLE,    MATCH_CONSTANT,    &CCodeGen_AArch64::Emit_Shift_VarVarCst<SHIFTOP_LSR>        },
+	{ OP_SRA,      MATCH_VARIABLE,    MATCH_VARIABLE,    MATCH_CONSTANT,    &CCodeGen_AArch64::Emit_Shift_VarVarCst<SHIFTOP_ASR>        },
 	
-	{ OP_SLL,      MATCH_VARIABLE,    MATCH_VARIABLE,    MATCH_CONSTANT,    &CCodeGen_AArch64::Emit_Shift_VarVarCst<SHIFTOP_LSL>    },
-	{ OP_SRL,      MATCH_VARIABLE,    MATCH_VARIABLE,    MATCH_CONSTANT,    &CCodeGen_AArch64::Emit_Shift_VarVarCst<SHIFTOP_LSR>    },
-	{ OP_SRA,      MATCH_VARIABLE,    MATCH_VARIABLE,    MATCH_CONSTANT,    &CCodeGen_AArch64::Emit_Shift_VarVarCst<SHIFTOP_ASR>    },
+	{ OP_SRA64,    MATCH_MEMORY64,    MATCH_MEMORY64,    MATCH_CONSTANT,    &CCodeGen_AArch64::Emit_Shift64_MemMemCst<SHIFT64OP_ASR>    },
 	
-	{ OP_LABEL,    MATCH_NIL,         MATCH_NIL,         MATCH_NIL,         &CCodeGen_AArch64::MarkLabel             },
+	{ OP_LABEL,    MATCH_NIL,         MATCH_NIL,         MATCH_NIL,         &CCodeGen_AArch64::MarkLabel                                },
 };
 
 CCodeGen_AArch64::CCodeGen_AArch64()
@@ -157,6 +188,34 @@ void CCodeGen_AArch64::StoreRegisterInMemory(CSymbol* dst, CAArch64Assembler::RE
 	}
 }
 
+void CCodeGen_AArch64::LoadMemory64InRegister(CAArch64Assembler::REGISTER64 registerId, CSymbol* src)
+{
+	switch(src->m_type)
+	{
+	case SYM_RELATIVE64:
+		assert((src->m_valueLow & 0x07) == 0x00);
+		m_assembler.Ldr(registerId, g_baseRegister, src->m_valueLow);
+		break;
+	default:
+		assert(0);
+		break;
+	}
+}
+
+void CCodeGen_AArch64::StoreRegisterInMemory64(CSymbol* dst, CAArch64Assembler::REGISTER64 registerId)
+{
+	switch(dst->m_type)
+	{
+	case SYM_RELATIVE64:
+		assert((dst->m_valueLow & 0x07) == 0x00);
+		m_assembler.Str(registerId, g_baseRegister, dst->m_valueLow);
+		break;
+	default:
+		assert(0);
+		break;
+	}
+}
+
 CAArch64Assembler::REGISTER32 CCodeGen_AArch64::PrepareSymbolRegisterDef(CSymbol* symbol, CAArch64Assembler::REGISTER32 preferedRegister)
 {
 	switch(symbol->m_type)
@@ -254,4 +313,14 @@ void CCodeGen_AArch64::Emit_Mov_VarVar(const STATEMENT& statement)
 	auto src1Reg = PrepareSymbolRegisterUse(src1, CAArch64Assembler::w0);
 	m_assembler.Mov(dstReg, src1Reg);
 	CommitSymbolRegister(dst, dstReg);
+}
+
+void CCodeGen_AArch64::Emit_Mov_Mem64Mem64(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	
+	auto tmpReg = g_tempRegs64[0];
+	LoadMemory64InRegister(tmpReg, src1);
+	StoreRegisterInMemory64(dst, tmpReg);
 }

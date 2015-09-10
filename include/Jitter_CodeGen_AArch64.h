@@ -39,6 +39,9 @@ namespace Jitter
 		void    LoadMemoryInRegister(CAArch64Assembler::REGISTER32, CSymbol*);
 		void    StoreRegisterInMemory(CSymbol*, CAArch64Assembler::REGISTER32);
 		
+		void    LoadMemory64InRegister(CAArch64Assembler::REGISTER64, CSymbol*);
+		void    StoreRegisterInMemory64(CSymbol*, CAArch64Assembler::REGISTER64);
+		
 		CAArch64Assembler::REGISTER32    PrepareSymbolRegisterDef(CSymbol*, CAArch64Assembler::REGISTER32);
 		CAArch64Assembler::REGISTER32    PrepareSymbolRegisterUse(CSymbol*, CAArch64Assembler::REGISTER32);
 		void                             CommitSymbolRegister(CSymbol*, CAArch64Assembler::REGISTER32);
@@ -68,6 +71,19 @@ namespace Jitter
 //			static OpRegType	OpReg()		{ return &CAArch32Assembler::Lsr; }
 		};
 		
+		//SHIFT64OP ----------------------------------------------------------
+		struct SHIFT64OP_BASE
+		{
+			typedef void (CAArch64Assembler::*OpImmType)(CAArch64Assembler::REGISTER64, CAArch64Assembler::REGISTER64, uint8);
+//			typedef void (CAArch64Assembler::*OpRegType)(CAArch32Assembler::REGISTER, CAArch32Assembler::REGISTER, CAArch32Assembler::REGISTER);
+		};
+		
+		struct SHIFT64OP_ASR : public SHIFT64OP_BASE
+		{
+			static OpImmType	OpImm()		{ return &CAArch64Assembler::Asr; }
+//			static OpRegType	OpReg()		{ return &CAArch32Assembler::Asr; }
+		};
+		
 		void    Emit_Prolog(uint32);
 		void    Emit_Epilog(uint32);
 		
@@ -76,11 +92,17 @@ namespace Jitter
 		
 		void    Emit_Mov_VarVar(const STATEMENT&);
 		
+		void    Emit_Mov_Mem64Mem64(const STATEMENT&);
+		
 		//SHIFT
 		template <typename> void    Emit_Shift_VarVarCst(const STATEMENT&);
 
+		//SHIFT64
+		template <typename> void    Emit_Shift64_MemMemCst(const STATEMENT&);
+		
 		static CONSTMATCHER    g_constMatchers[];
 		static CAArch64Assembler::REGISTER32    g_tempRegs[MAX_TEMP_REGS];
+		static CAArch64Assembler::REGISTER64    g_tempRegs64[MAX_TEMP_REGS];
 		static CAArch64Assembler::REGISTER64    g_baseRegister;
 
 		Framework::CStream*    m_stream = nullptr;

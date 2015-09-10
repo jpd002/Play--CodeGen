@@ -43,13 +43,16 @@ public:
 	void     ResolveLabelReferences();
 
 	void    Asr(REGISTER32, REGISTER32, uint8);
+	void    Asr(REGISTER64, REGISTER64, uint8);
 	void    Ldr(REGISTER32, REGISTER64, uint32);
+	void    Ldr(REGISTER64, REGISTER64, uint32);
 	void    Lsl(REGISTER32, REGISTER32, uint8);
 	void    Lsr(REGISTER32, REGISTER32, uint8);
 	void    Mov(REGISTER32, REGISTER32);
 	void    Mov(REGISTER64, REGISTER64);
 	void    Ret(REGISTER64 = x30);
 	void    Str(REGISTER32, REGISTER64, uint32);
+	void    Str(REGISTER64, REGISTER64, uint32);
 	
 private:
 	typedef size_t LABELREF;

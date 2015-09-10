@@ -58,6 +58,7 @@ private:
 	typedef std::multimap<LABEL, LABELREF> LabelReferenceMapType;
 	
 	void    WriteLogicalOpImm(uint32, uint32 immr, uint32 imms, uint32 rn, uint32 rd);
+	void    WriteLoadStoreOpImm(uint32, uint32 imm, uint32 rn, uint32 rt);
 	void    WriteWord(uint32);
 	
 	unsigned int             m_nextLabelId = 1;

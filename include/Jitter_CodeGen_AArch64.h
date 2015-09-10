@@ -36,6 +36,9 @@ namespace Jitter
 			ConstCodeEmitterType    emitter;
 		};
 
+		CAArch64Assembler::REGISTER32    GetNextTempRegister();
+		CAArch64Assembler::REGISTER64    GetNextTempRegister64();
+		
 		void    LoadMemoryInRegister(CAArch64Assembler::REGISTER32, CSymbol*);
 		void    StoreRegisterInMemory(CSymbol*, CAArch64Assembler::REGISTER32);
 		
@@ -101,13 +104,14 @@ namespace Jitter
 		template <typename> void    Emit_Shift64_MemMemCst(const STATEMENT&);
 		
 		static CONSTMATCHER    g_constMatchers[];
-		static CAArch64Assembler::REGISTER32    g_tempRegs[MAX_TEMP_REGS];
-		static CAArch64Assembler::REGISTER64    g_tempRegs64[MAX_TEMP_REGS];
+		static CAArch64Assembler::REGISTER32    g_tempRegisters[MAX_TEMP_REGS];
+		static CAArch64Assembler::REGISTER64    g_tempRegisters64[MAX_TEMP_REGS];
 		static CAArch64Assembler::REGISTER64    g_baseRegister;
 
 		Framework::CStream*    m_stream = nullptr;
 		CAArch64Assembler      m_assembler;
 		LabelMapType           m_labels;
 		uint32                 m_stackLevel = 0;
+		uint32                 m_nextTempRegister = 0;
 	};
 };

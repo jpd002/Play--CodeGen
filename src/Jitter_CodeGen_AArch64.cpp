@@ -2,7 +2,7 @@
 
 using namespace Jitter;
 
-CAArch64Assembler::REGISTER32    CCodeGen_AArch64::g_tempRegs[] =
+CAArch64Assembler::REGISTER32    CCodeGen_AArch64::g_tempRegisters[] =
 {
 	CAArch64Assembler::w9,
 	CAArch64Assembler::w10,
@@ -13,7 +13,7 @@ CAArch64Assembler::REGISTER32    CCodeGen_AArch64::g_tempRegs[] =
 	CAArch64Assembler::w15
 };
 
-CAArch64Assembler::REGISTER64    CCodeGen_AArch64::g_tempRegs64[] =
+CAArch64Assembler::REGISTER64    CCodeGen_AArch64::g_tempRegisters64[] =
 {
 	CAArch64Assembler::x9,
 	CAArch64Assembler::x10,
@@ -35,8 +35,8 @@ void CCodeGen_AArch64::Emit_Shift_VarVarCst(const STATEMENT& statement)
 
 	assert(src2->m_type == SYM_CONSTANT);
 	
-	auto dstReg = PrepareSymbolRegisterDef(dst, g_tempRegs[0]);
-	auto src1Reg = PrepareSymbolRegisterUse(src1, g_tempRegs[1]);
+	auto dstReg = PrepareSymbolRegisterDef(dst, GetNextTempRegister());
+	auto src1Reg = PrepareSymbolRegisterUse(src1, GetNextTempRegister());
 	((m_assembler).*(ShiftOp::OpImm()))(dstReg, src1Reg, src2->m_valueLow);
 	CommitSymbolRegister(dst, dstReg);
 }
@@ -50,8 +50,8 @@ void CCodeGen_AArch64::Emit_Shift64_MemMemCst(const STATEMENT& statement)
 
 	assert(src2->m_type == SYM_CONSTANT);
 
-	auto src1Reg = g_tempRegs64[0];
-	auto dstReg = g_tempRegs64[1];
+	auto src1Reg = GetNextTempRegister64();
+	auto dstReg = GetNextTempRegister64();
 	
 	LoadMemory64InRegister(src1Reg, src1);
 	((m_assembler).*(Shift64Op::OpImm()))(dstReg, src1Reg, src2->m_valueLow);
@@ -119,6 +119,8 @@ void CCodeGen_AArch64::RegisterExternalSymbols(CObjectFile* objectFile) const
 
 void CCodeGen_AArch64::GenerateCode(const StatementList& statements, unsigned int stackSize)
 {
+	m_nextTempRegister = 0;
+	
 	//Align stack size (must be aligned on 16 bytes boundary)
 	stackSize = (stackSize + 0xF) & ~0xF;
 
@@ -152,6 +154,22 @@ void CCodeGen_AArch64::GenerateCode(const StatementList& statements, unsigned in
 	m_assembler.ResolveLabelReferences();
 	m_assembler.ClearLabels();
 	m_labels.clear();
+}
+
+CAArch64Assembler::REGISTER32 CCodeGen_AArch64::GetNextTempRegister()
+{
+	auto result = g_tempRegisters[m_nextTempRegister];
+	m_nextTempRegister++;
+	m_nextTempRegister %= MAX_TEMP_REGS;
+	return result;
+}
+
+CAArch64Assembler::REGISTER64 CCodeGen_AArch64::GetNextTempRegister64()
+{
+	auto result = g_tempRegisters64[m_nextTempRegister];
+	m_nextTempRegister++;
+	m_nextTempRegister %= MAX_TEMP_REGS;
+	return result;
 }
 
 void CCodeGen_AArch64::LoadMemoryInRegister(CAArch64Assembler::REGISTER32 registerId, CSymbol* src)
@@ -309,8 +327,8 @@ void CCodeGen_AArch64::Emit_Mov_VarVar(const STATEMENT& statement)
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
 
-	auto dstReg = PrepareSymbolRegisterDef(dst, CAArch64Assembler::w0);
-	auto src1Reg = PrepareSymbolRegisterUse(src1, CAArch64Assembler::w0);
+	auto dstReg = PrepareSymbolRegisterDef(dst, GetNextTempRegister());
+	auto src1Reg = PrepareSymbolRegisterUse(src1, GetNextTempRegister());
 	m_assembler.Mov(dstReg, src1Reg);
 	CommitSymbolRegister(dst, dstReg);
 }
@@ -320,7 +338,7 @@ void CCodeGen_AArch64::Emit_Mov_Mem64Mem64(const STATEMENT& statement)
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
 	
-	auto tmpReg = g_tempRegs64[0];
+	auto tmpReg = GetNextTempRegister64();
 	LoadMemory64InRegister(tmpReg, src1);
 	StoreRegisterInMemory64(dst, tmpReg);
 }

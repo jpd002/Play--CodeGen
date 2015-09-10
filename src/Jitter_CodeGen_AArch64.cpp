@@ -27,6 +27,20 @@ CAArch64Assembler::REGISTER64    CCodeGen_AArch64::g_tempRegisters64[] =
 CAArch64Assembler::REGISTER64    CCodeGen_AArch64::g_baseRegister = CAArch64Assembler::x19;
 
 template <typename ShiftOp>
+void CCodeGen_AArch64::Emit_Shift_VarAnyVar(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+	
+	auto dstReg = PrepareSymbolRegisterDef(dst, GetNextTempRegister());
+	auto src1Reg = PrepareSymbolRegisterUse(src1, GetNextTempRegister());
+	auto src2Reg = PrepareSymbolRegisterUse(src2, GetNextTempRegister());
+	((m_assembler).*(ShiftOp::OpReg()))(dstReg, src1Reg, src2Reg);
+	CommitSymbolRegister(dst, dstReg);
+}
+
+template <typename ShiftOp>
 void CCodeGen_AArch64::Emit_Shift_VarVarCst(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
@@ -62,6 +76,10 @@ CCodeGen_AArch64::CONSTMATCHER CCodeGen_AArch64::g_constMatchers[] =
 {
 	{ OP_MOV,      MATCH_VARIABLE,    MATCH_VARIABLE,    MATCH_NIL,         &CCodeGen_AArch64::Emit_Mov_VarVar                          },
 	{ OP_MOV,      MATCH_MEMORY64,    MATCH_MEMORY64,    MATCH_NIL,         &CCodeGen_AArch64::Emit_Mov_Mem64Mem64                      },
+
+	{ OP_SLL,      MATCH_VARIABLE,    MATCH_ANY,         MATCH_VARIABLE,    &CCodeGen_AArch64::Emit_Shift_VarAnyVar<SHIFTOP_LSL>        },
+	{ OP_SRL,      MATCH_VARIABLE,    MATCH_ANY,         MATCH_VARIABLE,    &CCodeGen_AArch64::Emit_Shift_VarAnyVar<SHIFTOP_LSR>        },
+	{ OP_SRA,      MATCH_VARIABLE,    MATCH_ANY,         MATCH_VARIABLE,    &CCodeGen_AArch64::Emit_Shift_VarAnyVar<SHIFTOP_ASR>        },
 
 	{ OP_SLL,      MATCH_VARIABLE,    MATCH_VARIABLE,    MATCH_CONSTANT,    &CCodeGen_AArch64::Emit_Shift_VarVarCst<SHIFTOP_LSL>        },
 	{ OP_SRL,      MATCH_VARIABLE,    MATCH_VARIABLE,    MATCH_CONSTANT,    &CCodeGen_AArch64::Emit_Shift_VarVarCst<SHIFTOP_LSR>        },

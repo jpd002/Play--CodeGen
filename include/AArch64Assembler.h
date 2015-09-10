@@ -44,12 +44,15 @@ public:
 
 	void    Asr(REGISTER32, REGISTER32, uint8);
 	void    Asr(REGISTER64, REGISTER64, uint8);
+	void    Asrv(REGISTER32, REGISTER32, REGISTER32);
 	void    Ldr(REGISTER32, REGISTER64, uint32);
 	void    Ldr(REGISTER64, REGISTER64, uint32);
 	void    Lsl(REGISTER32, REGISTER32, uint8);
 	void    Lsl(REGISTER64, REGISTER64, uint8);
+	void    Lslv(REGISTER32, REGISTER32, REGISTER32);
 	void    Lsr(REGISTER32, REGISTER32, uint8);
 	void    Lsr(REGISTER64, REGISTER64, uint8);
+	void    Lsrv(REGISTER32, REGISTER32, REGISTER32);
 	void    Mov(REGISTER32, REGISTER32);
 	void    Mov(REGISTER64, REGISTER64);
 	void    Ret(REGISTER64 = x30);
@@ -62,6 +65,7 @@ private:
 	typedef std::map<LABEL, size_t> LabelMapType;
 	typedef std::multimap<LABEL, LABELREF> LabelReferenceMapType;
 	
+	void    WriteDataProcOpReg2(uint32, uint32 rm, uint32 rn, uint32 rd);
 	void    WriteLogicalOpImm(uint32, uint32 immr, uint32 imms, uint32 rn, uint32 rd);
 	void    WriteLoadStoreOpImm(uint32, uint32 imm, uint32 rn, uint32 rt);
 	void    WriteWord(uint32);

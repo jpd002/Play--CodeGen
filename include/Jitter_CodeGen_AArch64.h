@@ -53,25 +53,25 @@ namespace Jitter
 		struct SHIFTOP_BASE
 		{
 			typedef void (CAArch64Assembler::*OpImmType)(CAArch64Assembler::REGISTER32, CAArch64Assembler::REGISTER32, uint8);
-//			typedef void (CAArch64Assembler::*OpRegType)(CAArch32Assembler::REGISTER, CAArch32Assembler::REGISTER, CAArch32Assembler::REGISTER);
+			typedef void (CAArch64Assembler::*OpRegType)(CAArch64Assembler::REGISTER32, CAArch64Assembler::REGISTER32, CAArch64Assembler::REGISTER32);
 		};
 		
 		struct SHIFTOP_ASR : public SHIFTOP_BASE
 		{
 			static OpImmType	OpImm()		{ return &CAArch64Assembler::Asr; }
-//			static OpRegType	OpReg()		{ return &CAArch32Assembler::Asr; }
+			static OpRegType	OpReg()		{ return &CAArch64Assembler::Asrv; }
 		};
 		
 		struct SHIFTOP_LSL : public SHIFTOP_BASE
 		{
 			static OpImmType	OpImm()		{ return &CAArch64Assembler::Lsl; }
-//			static OpRegType	OpReg()		{ return &CAArch32Assembler::Lsl; }
+			static OpRegType	OpReg()		{ return &CAArch64Assembler::Lslv; }
 		};
 
 		struct SHIFTOP_LSR : public SHIFTOP_BASE
 		{
 			static OpImmType	OpImm()		{ return &CAArch64Assembler::Lsr; }
-//			static OpRegType	OpReg()		{ return &CAArch32Assembler::Lsr; }
+			static OpRegType	OpReg()		{ return &CAArch64Assembler::Lsrv; }
 		};
 		
 		//SHIFT64OP ----------------------------------------------------------
@@ -110,6 +110,7 @@ namespace Jitter
 		void    Emit_Mov_Mem64Mem64(const STATEMENT&);
 		
 		//SHIFT
+		template <typename> void    Emit_Shift_VarAnyVar(const STATEMENT&);
 		template <typename> void    Emit_Shift_VarVarCst(const STATEMENT&);
 
 		//SHIFT64

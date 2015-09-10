@@ -47,7 +47,9 @@ public:
 	void    Ldr(REGISTER32, REGISTER64, uint32);
 	void    Ldr(REGISTER64, REGISTER64, uint32);
 	void    Lsl(REGISTER32, REGISTER32, uint8);
+	void    Lsl(REGISTER64, REGISTER64, uint8);
 	void    Lsr(REGISTER32, REGISTER32, uint8);
+	void    Lsr(REGISTER64, REGISTER64, uint8);
 	void    Mov(REGISTER32, REGISTER32);
 	void    Mov(REGISTER64, REGISTER64);
 	void    Ret(REGISTER64 = x30);

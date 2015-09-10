@@ -94,11 +94,25 @@ void CAArch64Assembler::Lsl(REGISTER32 rd, REGISTER32 rn, uint8 sa)
 	WriteLogicalOpImm(0x53000000, immr, imms, rn, rd);
 }
 
+void CAArch64Assembler::Lsl(REGISTER64 rd, REGISTER64 rn, uint8 sa)
+{
+	uint32 imms = 0x3F - (sa & 0x3F);
+	uint32 immr = -sa & 0x3F;
+	WriteLogicalOpImm(0xD3400000, immr, imms, rn, rd);
+}
+
 void CAArch64Assembler::Lsr(REGISTER32 rd, REGISTER32 rn, uint8 sa)
 {
 	uint32 imms = 0x1F;
 	uint32 immr = sa & 0x1F;
 	WriteLogicalOpImm(0x53000000, immr, imms, rn, rd);
+}
+
+void CAArch64Assembler::Lsr(REGISTER64 rd, REGISTER64 rn, uint8 sa)
+{
+	uint32 imms = 0x3F;
+	uint32 immr = sa & 0x3F;
+	WriteLogicalOpImm(0xD3400000, immr, imms, rn, rd);
 }
 
 void CAArch64Assembler::Mov(REGISTER32 rd, REGISTER32 rm)

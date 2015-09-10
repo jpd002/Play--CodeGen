@@ -87,6 +87,18 @@ namespace Jitter
 //			static OpRegType	OpReg()		{ return &CAArch32Assembler::Asr; }
 		};
 		
+		struct SHIFT64OP_LSL : public SHIFT64OP_BASE
+		{
+			static OpImmType	OpImm()		{ return &CAArch64Assembler::Lsl; }
+//			static OpRegType	OpReg()		{ return &CAArch32Assembler::Lsl; }
+		};
+
+		struct SHIFT64OP_LSR : public SHIFT64OP_BASE
+		{
+			static OpImmType	OpImm()		{ return &CAArch64Assembler::Lsr; }
+//			static OpRegType	OpReg()		{ return &CAArch32Assembler::Lsr; }
+		};
+
 		void    Emit_Prolog(uint32);
 		void    Emit_Epilog(uint32);
 		

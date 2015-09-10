@@ -64,8 +64,8 @@ void CCodeGen_AArch64::Emit_Shift64_MemMemCst(const STATEMENT& statement)
 
 	assert(src2->m_type == SYM_CONSTANT);
 
-	auto src1Reg = GetNextTempRegister64();
 	auto dstReg = GetNextTempRegister64();
+	auto src1Reg = GetNextTempRegister64();
 	
 	LoadMemory64InRegister(src1Reg, src1);
 	((m_assembler).*(Shift64Op::OpImm()))(dstReg, src1Reg, src2->m_valueLow);

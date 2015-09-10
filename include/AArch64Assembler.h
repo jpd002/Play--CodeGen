@@ -44,6 +44,8 @@ public:
 
 	void    Asr(REGISTER32, REGISTER32, uint8);
 	void    Ldr(REGISTER32, REGISTER64, uint32);
+	void    Lsl(REGISTER32, REGISTER32, uint8);
+	void    Lsr(REGISTER32, REGISTER32, uint8);
 	void    Mov(REGISTER32, REGISTER32);
 	void    Mov(REGISTER64, REGISTER64);
 	void    Ret(REGISTER64 = x30);
@@ -55,6 +57,7 @@ private:
 	typedef std::map<LABEL, size_t> LabelMapType;
 	typedef std::multimap<LABEL, LABELREF> LabelReferenceMapType;
 	
+	void    WriteLogicalOpImm(uint32, uint32 immr, uint32 imms, uint32 rn, uint32 rd);
 	void    WriteWord(uint32);
 	
 	unsigned int             m_nextLabelId = 1;

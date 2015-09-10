@@ -59,14 +59,9 @@ void CAArch64Assembler::ResolveLabelReferences()
 
 void CAArch64Assembler::Asr(REGISTER32 rd, REGISTER32 rn, uint8 sa)
 {
-	uint32 opcode = 0x13000000;
 	uint32 imms = 0x1F;
 	uint32 immr = sa & 0x1F;
-	opcode |= (rd << 0);
-	opcode |= (rn << 5);
-	opcode |= (imms << 10);
-	opcode |= (immr << 16);
-	WriteWord(opcode);
+	WriteLogicalOpImm(0x13000000, immr, imms, rn, rd);
 }
 
 void CAArch64Assembler::Ldr(REGISTER32 rt, REGISTER64 rn, uint32 offset)
@@ -79,6 +74,20 @@ void CAArch64Assembler::Ldr(REGISTER32 rt, REGISTER64 rn, uint32 offset)
 	opcode |= (rn << 5);
 	opcode |= (scaledOffset << 10);
 	WriteWord(opcode);
+}
+
+void CAArch64Assembler::Lsl(REGISTER32 rd, REGISTER32 rn, uint8 sa)
+{
+	uint32 imms = 0x1F - (sa & 0x1F);
+	uint32 immr = -sa & 0x1F;
+	WriteLogicalOpImm(0x53000000, immr, imms, rn, rd);
+}
+
+void CAArch64Assembler::Lsr(REGISTER32 rd, REGISTER32 rn, uint8 sa)
+{
+	uint32 imms = 0x1F;
+	uint32 immr = sa & 0x1F;
+	WriteLogicalOpImm(0x53000000, immr, imms, rn, rd);
 }
 
 void CAArch64Assembler::Mov(REGISTER32 rd, REGISTER32 rm)
@@ -113,6 +122,15 @@ void CAArch64Assembler::Str(REGISTER32 rt, REGISTER64 rn, uint32 offset)
 	opcode |= (rt << 0);
 	opcode |= (rn << 5);
 	opcode |= (scaledOffset << 10);
+	WriteWord(opcode);
+}
+
+void CAArch64Assembler::WriteLogicalOpImm(uint32 opcode, uint32 immr, uint32 imms, uint32 rn, uint32 rd)
+{
+	opcode |= (rd << 0);
+	opcode |= (rn << 5);
+	opcode |= (imms << 10);
+	opcode |= (immr << 16);
 	WriteWord(opcode);
 }
 

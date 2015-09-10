@@ -34,6 +34,8 @@ CCodeGen_AArch64::CONSTMATCHER CCodeGen_AArch64::g_constMatchers[] =
 {
 	{ OP_MOV,      MATCH_VARIABLE,    MATCH_VARIABLE,    MATCH_NIL,         &CCodeGen_AArch64::Emit_Mov_VarVar       },
 	
+	{ OP_SLL,      MATCH_VARIABLE,    MATCH_VARIABLE,    MATCH_CONSTANT,    &CCodeGen_AArch64::Emit_Shift_VarVarCst<SHIFTOP_LSL>    },
+	{ OP_SRL,      MATCH_VARIABLE,    MATCH_VARIABLE,    MATCH_CONSTANT,    &CCodeGen_AArch64::Emit_Shift_VarVarCst<SHIFTOP_LSR>    },
 	{ OP_SRA,      MATCH_VARIABLE,    MATCH_VARIABLE,    MATCH_CONSTANT,    &CCodeGen_AArch64::Emit_Shift_VarVarCst<SHIFTOP_ASR>    },
 	
 	{ OP_LABEL,    MATCH_NIL,         MATCH_NIL,         MATCH_NIL,         &CCodeGen_AArch64::MarkLabel             },

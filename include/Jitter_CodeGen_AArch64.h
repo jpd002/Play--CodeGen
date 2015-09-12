@@ -112,6 +112,11 @@ namespace Jitter
 		
 		void    Emit_Mov_Mem64Mem64(const STATEMENT&);
 		
+		void    Emit_Jmp(const STATEMENT&);
+		
+		void    Emit_CondJmp(const STATEMENT&);
+		void    Emit_CondJmp_VarCst(const STATEMENT&);
+		
 		//SHIFT
 		template <typename> void    Emit_Shift_VarAnyVar(const STATEMENT&);
 		template <typename> void    Emit_Shift_VarVarCst(const STATEMENT&);

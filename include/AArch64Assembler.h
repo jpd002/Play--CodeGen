@@ -29,7 +29,33 @@ public:
 		x24, x25, x26, x27,
 		x28, x29, x30, xZR, xSP = 31
 	};
+	
+	enum CONDITION
+	{
+		CONDITION_EQ,
+		CONDITION_NE,
+		CONDITION_CS,
+		CONDITION_CC,
+		CONDITION_MI,
+		CONDITION_PL,
+		CONDITION_VS,
+		CONDITION_VC,
+		CONDITION_HI,
+		CONDITION_LS,
+		CONDITION_GE,
+		CONDITION_LT,
+		CONDITION_GT,
+		CONDITION_LE,
+		CONDITION_AL,
+		CONDITION_NV
+	};
 
+	enum ADDSUB_IMM_SHIFT_TYPE
+	{
+		ADDSUB_IMM_SHIFT_LSL0,
+		ADDSUB_IMM_SHIFT_LSL12,
+	};
+	
 	typedef unsigned int LABEL;
 	
 	           CAArch64Assembler();
@@ -46,7 +72,10 @@ public:
 	void    Asr(REGISTER64, REGISTER64, uint8);
 	void    Asrv(REGISTER32, REGISTER32, REGISTER32);
 	void    Asrv(REGISTER64, REGISTER64, REGISTER64);
+	void    B(LABEL);
+	void    BCc(CONDITION, LABEL);
 	void    Blr(REGISTER64);
+	void    Cmp(REGISTER32, uint16, ADDSUB_IMM_SHIFT_TYPE);
 	void    Ldr(REGISTER32, REGISTER64, uint32);
 	void    Ldr(REGISTER64, REGISTER64, uint32);
 	void    Lsl(REGISTER32, REGISTER32, uint8);
@@ -68,11 +97,17 @@ public:
 	void    Str(REGISTER64, REGISTER64, uint32);
 	
 private:
-	typedef size_t LABELREF;
+	struct LABELREF
+	{
+		size_t offset = 0;
+		CONDITION condition;
+	};
 	
 	typedef std::map<LABEL, size_t> LabelMapType;
 	typedef std::multimap<LABEL, LABELREF> LabelReferenceMapType;
 	
+	void    CreateLabelReference(LABEL, CONDITION);
+
 	void    WriteDataProcOpReg2(uint32, uint32 rm, uint32 rn, uint32 rd);
 	void    WriteLogicalOpImm(uint32, uint32 immr, uint32 imms, uint32 rn, uint32 rd);
 	void    WriteLoadStoreOpImm(uint32, uint32 imm, uint32 rn, uint32 rt);

@@ -94,6 +94,10 @@ CCodeGen_AArch64::CONSTMATCHER CCodeGen_AArch64::g_constMatchers[] =
 	{ OP_MOV,        MATCH_VARIABLE,     MATCH_ANY,            MATCH_NIL,         &CCodeGen_AArch64::Emit_Mov_VarAny                          },
 	{ OP_MOV,        MATCH_MEMORY64,     MATCH_MEMORY64,       MATCH_NIL,         &CCodeGen_AArch64::Emit_Mov_Mem64Mem64                      },
 
+	{ OP_JMP,        MATCH_NIL,          MATCH_NIL,            MATCH_NIL,         &CCodeGen_AArch64::Emit_Jmp                                 },
+	
+	{ OP_CONDJMP,    MATCH_NIL,          MATCH_VARIABLE,       MATCH_CONSTANT,    &CCodeGen_AArch64::Emit_CondJmp_VarCst                      },
+	
 	{ OP_SLL,        MATCH_VARIABLE,     MATCH_ANY,            MATCH_VARIABLE,    &CCodeGen_AArch64::Emit_Shift_VarAnyVar<SHIFTOP_LSL>        },
 	{ OP_SRL,        MATCH_VARIABLE,     MATCH_ANY,            MATCH_VARIABLE,    &CCodeGen_AArch64::Emit_Shift_VarAnyVar<SHIFTOP_LSR>        },
 	{ OP_SRA,        MATCH_VARIABLE,     MATCH_ANY,            MATCH_VARIABLE,    &CCodeGen_AArch64::Emit_Shift_VarAnyVar<SHIFTOP_ASR>        },
@@ -416,4 +420,51 @@ void CCodeGen_AArch64::Emit_Mov_Mem64Mem64(const STATEMENT& statement)
 	auto tmpReg = GetNextTempRegister64();
 	LoadMemory64InRegister(tmpReg, src1);
 	StoreRegisterInMemory64(dst, tmpReg);
+}
+void CCodeGen_AArch64::Emit_Jmp(const STATEMENT& statement)
+{
+	m_assembler.B(GetLabel(statement.jmpBlock));
+}
+
+void CCodeGen_AArch64::Emit_CondJmp(const STATEMENT& statement)
+{
+	auto label(GetLabel(statement.jmpBlock));
+	
+	switch(statement.jmpCondition)
+	{
+	case CONDITION_EQ:
+		m_assembler.BCc(CAArch64Assembler::CONDITION_EQ, label);
+		break;
+	case CONDITION_NE:
+		m_assembler.BCc(CAArch64Assembler::CONDITION_NE, label);
+		break;
+	case CONDITION_LT:
+		m_assembler.BCc(CAArch64Assembler::CONDITION_LT, label);
+		break;
+	case CONDITION_LE:
+		m_assembler.BCc(CAArch64Assembler::CONDITION_LE, label);
+		break;
+	case CONDITION_GT:
+		m_assembler.BCc(CAArch64Assembler::CONDITION_GT, label);
+		break;
+	case CONDITION_GE:
+		m_assembler.BCc(CAArch64Assembler::CONDITION_GE, label);
+		break;
+	default:
+		assert(0);
+		break;
+	}
+}
+
+void CCodeGen_AArch64::Emit_CondJmp_VarCst(const STATEMENT& statement)
+{
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+	
+	assert(src2->m_type == SYM_CONSTANT);
+	assert(src2->m_valueLow < 4096);
+	
+	auto src1Reg = PrepareSymbolRegisterUse(src1, GetNextTempRegister());
+	m_assembler.Cmp(src1Reg, src2->m_valueLow, CAArch64Assembler::ADDSUB_IMM_SHIFT_LSL0);
+	Emit_CondJmp(statement);
 }

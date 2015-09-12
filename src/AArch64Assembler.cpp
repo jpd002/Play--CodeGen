@@ -32,9 +32,16 @@ void CAArch64Assembler::MarkLabel(LABEL label)
 	m_labels[label] = static_cast<size_t>(m_stream->Tell());
 }
 
+void CAArch64Assembler::CreateLabelReference(LABEL label, CONDITION condition)
+{
+	LABELREF reference;
+	reference.offset = static_cast<size_t>(m_stream->Tell());
+	reference.condition = condition;
+	m_labelReferences.insert(std::make_pair(label, reference));
+}
+
 void CAArch64Assembler::ResolveLabelReferences()
 {
-#if 0
 	for(const auto& labelReferencePair : m_labelReferences)
 	{
 		auto label(m_labels.find(labelReferencePair.first));
@@ -42,18 +49,26 @@ void CAArch64Assembler::ResolveLabelReferences()
 		{
 			throw std::runtime_error("Invalid label.");
 		}
-		size_t referencePos = labelReferencePair.second;
+		const auto& labelReference = labelReferencePair.second;
 		size_t labelPos = label->second;
-		int offset = static_cast<int>(labelPos - referencePos) / 4;
-		offset -= 2;
+		int offset = static_cast<int>(labelPos - labelReference.offset) / 4;
 
-		m_stream->Seek(referencePos, Framework::STREAM_SEEK_SET);
-		m_stream->Write8(static_cast<uint8>(offset >> 0));
-		m_stream->Write8(static_cast<uint8>(offset >> 8));
-		m_stream->Write8(static_cast<uint8>(offset >> 16));
-		m_stream->Seek(0, Framework::STREAM_SEEK_END);
+		m_stream->Seek(labelReference.offset, Framework::STREAM_SEEK_SET);
+		if(labelReference.condition == CONDITION_AL)
+		{
+			uint32 opcode = 0x14000000;
+			opcode |= (offset & 0x3FFFFFF);
+			WriteWord(opcode);
+		}
+		else
+		{
+			uint32 opcode = 0x54000000;
+			opcode |= (offset & 0x7FFFF) << 5;
+			opcode |= labelReference.condition;
+			WriteWord(opcode);
+		}
 	}
-#endif
+	m_stream->Seek(0, Framework::STREAM_SEEK_END);
 	m_labelReferences.clear();
 }
 
@@ -81,10 +96,31 @@ void CAArch64Assembler::Asrv(REGISTER64 rd, REGISTER64 rn, REGISTER64 rm)
 	WriteDataProcOpReg2(0x9AC02800, rm, rn, rd);
 }
 
+void CAArch64Assembler::B(LABEL label)
+{
+	CreateLabelReference(label, CONDITION_AL);
+	WriteWord(0);
+}
+
+void CAArch64Assembler::BCc(CONDITION condition, LABEL label)
+{
+	CreateLabelReference(label, condition);
+	WriteWord(0);
+}
+
 void CAArch64Assembler::Blr(REGISTER64 rn)
 {
 	uint32 opcode = 0xD63F0000;
 	opcode |= (rn << 5);
+	WriteWord(opcode);
+}
+
+void CAArch64Assembler::Cmp(REGISTER32 rn, uint16 imm, ADDSUB_IMM_SHIFT_TYPE shift)
+{
+	uint32 opcode = 0x7100001F;
+	opcode |= (rn << 5);
+	opcode |= (imm << 10);
+	opcode |= (shift << 22);
 	WriteWord(opcode);
 }
 

@@ -59,7 +59,9 @@ public:
 	void    Mov(REGISTER32, REGISTER32);
 	void    Mov(REGISTER64, REGISTER64);
 	void    Movk(REGISTER32, uint16, uint8);
+	void    Movk(REGISTER64, uint16, uint8);
 	void    Movz(REGISTER32, uint16, uint8);
+	void    Movz(REGISTER64, uint16, uint8);
 	void    Ret(REGISTER64 = x30);
 	void    Str(REGISTER32, REGISTER64, uint32);
 	void    Str(REGISTER64, REGISTER64, uint32);
@@ -73,6 +75,7 @@ private:
 	void    WriteDataProcOpReg2(uint32, uint32 rm, uint32 rn, uint32 rd);
 	void    WriteLogicalOpImm(uint32, uint32 immr, uint32 imms, uint32 rn, uint32 rd);
 	void    WriteLoadStoreOpImm(uint32, uint32 imm, uint32 rn, uint32 rt);
+	void    WriteMoveWideOpImm(uint32, uint32 hw, uint32 imm, uint32 rd);
 	void    WriteWord(uint32);
 	
 	unsigned int             m_nextLabelId = 1;

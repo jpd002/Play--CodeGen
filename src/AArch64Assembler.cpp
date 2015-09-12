@@ -164,21 +164,25 @@ void CAArch64Assembler::Mov(REGISTER64 rd, REGISTER64 rm)
 void CAArch64Assembler::Movk(REGISTER32 rd, uint16 imm, uint8 pos)
 {
 	assert(pos < 2);
-	uint32 opcode = 0x72800000;
-	opcode |= (rd << 0);
-	opcode |= (imm << 5);
-	opcode |= (pos << 21);
-	WriteWord(opcode);
+	WriteMoveWideOpImm(0x72800000, pos, imm, rd);
+}
+
+void CAArch64Assembler::Movk(REGISTER64 rd, uint16 imm, uint8 pos)
+{
+	assert(pos < 4);
+	WriteMoveWideOpImm(0xF2800000, pos, imm, rd);
 }
 
 void CAArch64Assembler::Movz(REGISTER32 rd, uint16 imm, uint8 pos)
 {
 	assert(pos < 2);
-	uint32 opcode = 0x52800000;
-	opcode |= (rd << 0);
-	opcode |= (imm << 5);
-	opcode |= (pos << 21);
-	WriteWord(opcode);
+	WriteMoveWideOpImm(0x52800000, pos, imm, rd);
+}
+
+void CAArch64Assembler::Movz(REGISTER64 rd, uint16 imm, uint8 pos)
+{
+	assert(pos < 2);
+	WriteMoveWideOpImm(0xD2800000, pos, imm, rd);
 }
 
 void CAArch64Assembler::Ret(REGISTER64 rn)
@@ -226,6 +230,14 @@ void CAArch64Assembler::WriteLoadStoreOpImm(uint32 opcode, uint32 imm, uint32 rn
 	opcode |= (rt << 0);
 	opcode |= (rn << 5);
 	opcode |= (imm << 10);
+	WriteWord(opcode);
+}
+
+void CAArch64Assembler::WriteMoveWideOpImm(uint32 opcode, uint32 hw, uint32 imm, uint32 rd)
+{
+	opcode |= (rd << 0);
+	opcode |= (imm << 5);
+	opcode |= (hw << 21);
 	WriteWord(opcode);
 }
 

@@ -81,6 +81,13 @@ void CAArch64Assembler::Asrv(REGISTER64 rd, REGISTER64 rn, REGISTER64 rm)
 	WriteDataProcOpReg2(0x9AC02800, rm, rn, rd);
 }
 
+void CAArch64Assembler::Blr(REGISTER64 rn)
+{
+	uint32 opcode = 0xD63F0000;
+	opcode |= (rn << 5);
+	WriteWord(opcode);
+}
+
 void CAArch64Assembler::Ldr(REGISTER32 rt, REGISTER64 rn, uint32 offset)
 {
 	assert((offset & 0x03) == 0);

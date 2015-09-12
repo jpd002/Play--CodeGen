@@ -46,6 +46,7 @@ public:
 	void    Asr(REGISTER64, REGISTER64, uint8);
 	void    Asrv(REGISTER32, REGISTER32, REGISTER32);
 	void    Asrv(REGISTER64, REGISTER64, REGISTER64);
+	void    Blr(REGISTER64);
 	void    Ldr(REGISTER32, REGISTER64, uint32);
 	void    Ldr(REGISTER64, REGISTER64, uint32);
 	void    Lsl(REGISTER32, REGISTER32, uint8);

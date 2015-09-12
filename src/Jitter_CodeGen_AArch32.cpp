@@ -903,7 +903,7 @@ void CCodeGen_AArch32::Emit_Call(const STATEMENT& statement)
 
 void CCodeGen_AArch32::Emit_RetVal_Reg(const STATEMENT& statement)
 {	
-	CSymbol* dst = statement.dst->GetSymbol().get();
+	auto dst = statement.dst->GetSymbol().get();
 	
 	assert(dst->m_type == SYM_REGISTER);
 	
@@ -912,7 +912,7 @@ void CCodeGen_AArch32::Emit_RetVal_Reg(const STATEMENT& statement)
 
 void CCodeGen_AArch32::Emit_RetVal_Tmp(const STATEMENT& statement)
 {	
-	CSymbol* dst = statement.dst->GetSymbol().get();
+	auto dst = statement.dst->GetSymbol().get();
 	
 	assert(dst->m_type == SYM_TEMPORARY);
 	

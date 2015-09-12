@@ -90,26 +90,27 @@ void CCodeGen_AArch64::Emit_Shift64_MemMemCst(const STATEMENT& statement)
 
 CCodeGen_AArch64::CONSTMATCHER CCodeGen_AArch64::g_constMatchers[] =
 {
-	{ OP_MOV,      MATCH_VARIABLE,    MATCH_VARIABLE,    MATCH_NIL,         &CCodeGen_AArch64::Emit_Mov_VarVar                          },
-	{ OP_MOV,      MATCH_MEMORY64,    MATCH_MEMORY64,    MATCH_NIL,         &CCodeGen_AArch64::Emit_Mov_Mem64Mem64                      },
+	{ OP_MOV,        MATCH_MEMORY,       MATCH_ANY,            MATCH_NIL,         &CCodeGen_AArch64::Emit_Mov_MemAny                          },
+	{ OP_MOV,        MATCH_VARIABLE,     MATCH_ANY,            MATCH_NIL,         &CCodeGen_AArch64::Emit_Mov_VarAny                          },
+	{ OP_MOV,        MATCH_MEMORY64,     MATCH_MEMORY64,       MATCH_NIL,         &CCodeGen_AArch64::Emit_Mov_Mem64Mem64                      },
 
-	{ OP_SLL,      MATCH_VARIABLE,    MATCH_ANY,         MATCH_VARIABLE,    &CCodeGen_AArch64::Emit_Shift_VarAnyVar<SHIFTOP_LSL>        },
-	{ OP_SRL,      MATCH_VARIABLE,    MATCH_ANY,         MATCH_VARIABLE,    &CCodeGen_AArch64::Emit_Shift_VarAnyVar<SHIFTOP_LSR>        },
-	{ OP_SRA,      MATCH_VARIABLE,    MATCH_ANY,         MATCH_VARIABLE,    &CCodeGen_AArch64::Emit_Shift_VarAnyVar<SHIFTOP_ASR>        },
+	{ OP_SLL,        MATCH_VARIABLE,     MATCH_ANY,            MATCH_VARIABLE,    &CCodeGen_AArch64::Emit_Shift_VarAnyVar<SHIFTOP_LSL>        },
+	{ OP_SRL,        MATCH_VARIABLE,     MATCH_ANY,            MATCH_VARIABLE,    &CCodeGen_AArch64::Emit_Shift_VarAnyVar<SHIFTOP_LSR>        },
+	{ OP_SRA,        MATCH_VARIABLE,     MATCH_ANY,            MATCH_VARIABLE,    &CCodeGen_AArch64::Emit_Shift_VarAnyVar<SHIFTOP_ASR>        },
 
-	{ OP_SLL,      MATCH_VARIABLE,    MATCH_VARIABLE,    MATCH_CONSTANT,    &CCodeGen_AArch64::Emit_Shift_VarVarCst<SHIFTOP_LSL>        },
-	{ OP_SRL,      MATCH_VARIABLE,    MATCH_VARIABLE,    MATCH_CONSTANT,    &CCodeGen_AArch64::Emit_Shift_VarVarCst<SHIFTOP_LSR>        },
-	{ OP_SRA,      MATCH_VARIABLE,    MATCH_VARIABLE,    MATCH_CONSTANT,    &CCodeGen_AArch64::Emit_Shift_VarVarCst<SHIFTOP_ASR>        },
+	{ OP_SLL,        MATCH_VARIABLE,     MATCH_VARIABLE,       MATCH_CONSTANT,    &CCodeGen_AArch64::Emit_Shift_VarVarCst<SHIFTOP_LSL>        },
+	{ OP_SRL,        MATCH_VARIABLE,     MATCH_VARIABLE,       MATCH_CONSTANT,    &CCodeGen_AArch64::Emit_Shift_VarVarCst<SHIFTOP_LSR>        },
+	{ OP_SRA,        MATCH_VARIABLE,     MATCH_VARIABLE,       MATCH_CONSTANT,    &CCodeGen_AArch64::Emit_Shift_VarVarCst<SHIFTOP_ASR>        },
 	
-	{ OP_SLL64,    MATCH_MEMORY64,    MATCH_MEMORY64,    MATCH_VARIABLE,    &CCodeGen_AArch64::Emit_Shift64_MemMemVar<SHIFT64OP_LSL>    },
-	{ OP_SRL64,    MATCH_MEMORY64,    MATCH_MEMORY64,    MATCH_VARIABLE,    &CCodeGen_AArch64::Emit_Shift64_MemMemVar<SHIFT64OP_LSR>    },
-	{ OP_SRA64,    MATCH_MEMORY64,    MATCH_MEMORY64,    MATCH_VARIABLE,    &CCodeGen_AArch64::Emit_Shift64_MemMemVar<SHIFT64OP_ASR>    },
+	{ OP_SLL64,      MATCH_MEMORY64,     MATCH_MEMORY64,       MATCH_VARIABLE,    &CCodeGen_AArch64::Emit_Shift64_MemMemVar<SHIFT64OP_LSL>    },
+	{ OP_SRL64,      MATCH_MEMORY64,     MATCH_MEMORY64,       MATCH_VARIABLE,    &CCodeGen_AArch64::Emit_Shift64_MemMemVar<SHIFT64OP_LSR>    },
+	{ OP_SRA64,      MATCH_MEMORY64,     MATCH_MEMORY64,       MATCH_VARIABLE,    &CCodeGen_AArch64::Emit_Shift64_MemMemVar<SHIFT64OP_ASR>    },
 
-	{ OP_SLL64,    MATCH_MEMORY64,    MATCH_MEMORY64,    MATCH_CONSTANT,    &CCodeGen_AArch64::Emit_Shift64_MemMemCst<SHIFT64OP_LSL>    },
-	{ OP_SRL64,    MATCH_MEMORY64,    MATCH_MEMORY64,    MATCH_CONSTANT,    &CCodeGen_AArch64::Emit_Shift64_MemMemCst<SHIFT64OP_LSR>    },
-	{ OP_SRA64,    MATCH_MEMORY64,    MATCH_MEMORY64,    MATCH_CONSTANT,    &CCodeGen_AArch64::Emit_Shift64_MemMemCst<SHIFT64OP_ASR>    },
+	{ OP_SLL64,      MATCH_MEMORY64,     MATCH_MEMORY64,       MATCH_CONSTANT,    &CCodeGen_AArch64::Emit_Shift64_MemMemCst<SHIFT64OP_LSL>    },
+	{ OP_SRL64,      MATCH_MEMORY64,     MATCH_MEMORY64,       MATCH_CONSTANT,    &CCodeGen_AArch64::Emit_Shift64_MemMemCst<SHIFT64OP_LSR>    },
+	{ OP_SRA64,      MATCH_MEMORY64,     MATCH_MEMORY64,       MATCH_CONSTANT,    &CCodeGen_AArch64::Emit_Shift64_MemMemCst<SHIFT64OP_ASR>    },
 	
-	{ OP_LABEL,    MATCH_NIL,         MATCH_NIL,         MATCH_NIL,         &CCodeGen_AArch64::MarkLabel                                },
+	{ OP_LABEL,      MATCH_NIL,          MATCH_NIL,            MATCH_NIL,         &CCodeGen_AArch64::MarkLabel                                },
 };
 
 CCodeGen_AArch64::CCodeGen_AArch64()
@@ -387,7 +388,16 @@ void CCodeGen_AArch64::MarkLabel(const STATEMENT& statement)
 	m_assembler.MarkLabel(label);
 }
 
-void CCodeGen_AArch64::Emit_Mov_VarVar(const STATEMENT& statement)
+void CCodeGen_AArch64::Emit_Mov_MemAny(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+
+	auto src1Reg = PrepareSymbolRegisterUse(src1, GetNextTempRegister());
+	StoreRegisterInMemory(dst, src1Reg);
+}
+
+void CCodeGen_AArch64::Emit_Mov_VarAny(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();

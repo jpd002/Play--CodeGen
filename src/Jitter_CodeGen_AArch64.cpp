@@ -274,6 +274,31 @@ void CCodeGen_AArch64::StoreRegisterInMemory64(CSymbol* dst, CAArch64Assembler::
 	}
 }
 
+void CCodeGen_AArch64::LoadConstantInRegister(CAArch64Assembler::REGISTER32 registerId, uint32 constant)
+{
+	if((constant & 0x0000FFFF) == constant)
+	{
+		m_assembler.Movz(registerId, static_cast<uint16>(constant & 0xFFFF), 0);
+	}
+	else if((constant & 0xFFFF0000) == constant)
+	{
+		m_assembler.Movz(registerId, static_cast<uint16>(constant >> 16), 1);
+	}
+	else if(~(constant & 0x0000FFFF) == constant)
+	{
+		assert(false);
+	}
+	else if(~(constant & 0xFFFF0000) == constant)
+	{
+		assert(false);
+	}
+	else
+	{
+		m_assembler.Movz(registerId, static_cast<uint16>(constant & 0xFFFF), 0);
+		m_assembler.Movk(registerId, static_cast<uint16>(constant >> 16), 1);
+	}
+}
+
 CAArch64Assembler::REGISTER32 CCodeGen_AArch64::PrepareSymbolRegisterDef(CSymbol* symbol, CAArch64Assembler::REGISTER32 preferedRegister)
 {
 	switch(symbol->m_type)
@@ -303,10 +328,10 @@ CAArch64Assembler::REGISTER32 CCodeGen_AArch64::PrepareSymbolRegisterUse(CSymbol
 		LoadMemoryInRegister(preferedRegister, symbol);
 		return preferedRegister;
 		break;
-//	case SYM_CONSTANT:
-//		LoadConstantInRegister(preferedRegister, symbol->m_valueLow);
-//		return preferedRegister;
-//		break;
+	case SYM_CONSTANT:
+		LoadConstantInRegister(preferedRegister, symbol->m_valueLow);
+		return preferedRegister;
+		break;
 	default:
 		throw std::runtime_error("Invalid symbol type.");
 		break;

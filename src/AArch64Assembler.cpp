@@ -161,6 +161,26 @@ void CAArch64Assembler::Mov(REGISTER64 rd, REGISTER64 rm)
 	WriteWord(opcode);
 }
 
+void CAArch64Assembler::Movk(REGISTER32 rd, uint16 imm, uint8 pos)
+{
+	assert(pos < 2);
+	uint32 opcode = 0x72800000;
+	opcode |= (rd << 0);
+	opcode |= (imm << 5);
+	opcode |= (pos << 21);
+	WriteWord(opcode);
+}
+
+void CAArch64Assembler::Movz(REGISTER32 rd, uint16 imm, uint8 pos)
+{
+	assert(pos < 2);
+	uint32 opcode = 0x52800000;
+	opcode |= (rd << 0);
+	opcode |= (imm << 5);
+	opcode |= (pos << 21);
+	WriteWord(opcode);
+}
+
 void CAArch64Assembler::Ret(REGISTER64 rn)
 {
 	uint32 opcode = 0xD65F0000;

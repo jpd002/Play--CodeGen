@@ -45,6 +45,8 @@ namespace Jitter
 		void    LoadMemory64InRegister(CAArch64Assembler::REGISTER64, CSymbol*);
 		void    StoreRegisterInMemory64(CSymbol*, CAArch64Assembler::REGISTER64);
 		
+		void    LoadConstantInRegister(CAArch64Assembler::REGISTER32, uint32);
+		
 		CAArch64Assembler::REGISTER32    PrepareSymbolRegisterDef(CSymbol*, CAArch64Assembler::REGISTER32);
 		CAArch64Assembler::REGISTER32    PrepareSymbolRegisterUse(CSymbol*, CAArch64Assembler::REGISTER32);
 		void                             CommitSymbolRegister(CSymbol*, CAArch64Assembler::REGISTER32);

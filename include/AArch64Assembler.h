@@ -58,6 +58,8 @@ public:
 	void    Lsrv(REGISTER64, REGISTER64, REGISTER64);
 	void    Mov(REGISTER32, REGISTER32);
 	void    Mov(REGISTER64, REGISTER64);
+	void    Movk(REGISTER32, uint16, uint8);
+	void    Movz(REGISTER32, uint16, uint8);
 	void    Ret(REGISTER64 = x30);
 	void    Str(REGISTER32, REGISTER64, uint32);
 	void    Str(REGISTER64, REGISTER64, uint32);

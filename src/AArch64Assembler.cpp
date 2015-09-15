@@ -120,7 +120,7 @@ void CAArch64Assembler::Cmp(REGISTER32 rn, uint16 imm, ADDSUB_IMM_SHIFT_TYPE shi
 	assert(imm < 0x1000);
 	uint32 opcode = 0x7100001F;
 	opcode |= (rn << 5);
-	opcode |= (imm << 10);
+	opcode |= ((imm & 0xFFF) << 10);
 	opcode |= (shift << 22);
 	WriteWord(opcode);
 }
@@ -301,7 +301,7 @@ void CAArch64Assembler::Sub(REGISTER64 rd, REGISTER64 rn, uint16 imm, ADDSUB_IMM
 	uint32 opcode = 0xD1000000;
 	opcode |= (rd << 0);
 	opcode |= (rn << 5);
-	opcode |= (imm << 10);
+	opcode |= ((imm & 0xFFF) << 10);
 	opcode |= (shift << 22);
 	WriteWord(opcode);
 }

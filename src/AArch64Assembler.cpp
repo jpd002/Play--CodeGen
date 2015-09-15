@@ -117,6 +117,7 @@ void CAArch64Assembler::Blr(REGISTER64 rn)
 
 void CAArch64Assembler::Cmp(REGISTER32 rn, uint16 imm, ADDSUB_IMM_SHIFT_TYPE shift)
 {
+	assert(imm < 0x1000);
 	uint32 opcode = 0x7100001F;
 	opcode |= (rn << 5);
 	opcode |= (imm << 10);

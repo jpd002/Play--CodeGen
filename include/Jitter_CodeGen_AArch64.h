@@ -145,6 +145,8 @@ namespace Jitter
 		void    Emit_Mov_Mem64Mem64(const STATEMENT&);
 		
 		void    Emit_Param_Ctx(const STATEMENT&);
+		void    Emit_Param_Mem(const STATEMENT&);
+		
 		void    Emit_Call(const STATEMENT&);
 		void    Emit_RetVal_Tmp(const STATEMENT&);
 		

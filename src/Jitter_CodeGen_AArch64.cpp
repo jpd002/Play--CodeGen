@@ -133,6 +133,7 @@ CCodeGen_AArch64::CONSTMATCHER CCodeGen_AArch64::g_constMatchers[] =
 	{ OP_MOV,        MATCH_MEMORY64,     MATCH_MEMORY64,       MATCH_NIL,         &CCodeGen_AArch64::Emit_Mov_Mem64Mem64                      },
 
 	{ OP_PARAM,      MATCH_NIL,          MATCH_CONTEXT,        MATCH_NIL,         &CCodeGen_AArch64::Emit_Param_Ctx                           },
+	{ OP_PARAM,      MATCH_NIL,          MATCH_MEMORY,         MATCH_NIL,         &CCodeGen_AArch64::Emit_Param_Mem                           },
 	
 	{ OP_CALL,       MATCH_NIL,          MATCH_CONSTANTPTR,    MATCH_CONSTANT,    &CCodeGen_AArch64::Emit_Call                                },
 	
@@ -434,6 +435,20 @@ void CCodeGen_AArch64::CommitSymbolRegister(CSymbol* symbol, CAArch64Assembler::
 	}
 }
 
+CAArch64Assembler::REGISTER32 CCodeGen_AArch64::PrepareParam(PARAM_STATE& paramState)
+{
+	assert(!paramState.prepared);
+	paramState.prepared = true;
+	if(paramState.index < MAX_PARAM_REGS)
+	{
+		return g_paramRegisters[paramState.index];
+	}
+	else
+	{
+		assert(false);
+	}
+}
+
 CAArch64Assembler::REGISTER64 CCodeGen_AArch64::PrepareParam64(PARAM_STATE& paramState)
 {
 	assert(!paramState.prepared);
@@ -446,6 +461,21 @@ CAArch64Assembler::REGISTER64 CCodeGen_AArch64::PrepareParam64(PARAM_STATE& para
 	{
 		assert(false);
 	}
+}
+
+void CCodeGen_AArch64::CommitParam(PARAM_STATE& paramState)
+{
+	assert(paramState.prepared);
+	paramState.prepared = false;
+	if(paramState.index < MAX_PARAM_REGS)
+	{
+		//Nothing to do
+	}
+	else
+	{
+		assert(false);
+	}
+	paramState.index++;
 }
 
 void CCodeGen_AArch64::CommitParam64(PARAM_STATE& paramState)
@@ -545,6 +575,20 @@ void CCodeGen_AArch64::Emit_Param_Ctx(const STATEMENT& statement)
 			auto paramReg = PrepareParam64(paramState);
 			m_assembler.Mov(paramReg, g_baseRegister);
 			CommitParam64(paramState);
+		}
+	);
+}
+
+void CCodeGen_AArch64::Emit_Param_Mem(const STATEMENT& statement)
+{
+	auto src1 = statement.src1->GetSymbol().get();
+		
+	m_params.push_back(
+		[this, src1] (PARAM_STATE& paramState)
+		{
+			auto paramReg = PrepareParam(paramState);
+			LoadMemoryInRegister(paramReg, src1);
+			CommitParam(paramState);
 		}
 	);
 }

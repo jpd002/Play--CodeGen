@@ -226,7 +226,7 @@ void CCodeGen_AArch64::LoadMemoryInRegister(CAArch64Assembler::REGISTER32 regist
 		m_assembler.Ldr(registerId, g_baseRegister, src->m_valueLow);
 		break;
 	case SYM_TEMPORARY:
-		m_assembler.Ldr(registerId, CAArch64Assembler::xSP, src->m_stackLocation + m_stackLevel);
+		m_assembler.Ldr(registerId, CAArch64Assembler::xSP, src->m_stackLocation);
 		break;
 	default:
 		assert(0);
@@ -243,7 +243,7 @@ void CCodeGen_AArch64::StoreRegisterInMemory(CSymbol* dst, CAArch64Assembler::RE
 		m_assembler.Str(registerId, g_baseRegister, dst->m_valueLow);
 		break;
 	case SYM_TEMPORARY:
-		m_assembler.Str(registerId, CAArch64Assembler::xSP, dst->m_stackLocation + m_stackLevel);
+		m_assembler.Str(registerId, CAArch64Assembler::xSP, dst->m_stackLocation);
 		break;
 	default:
 		assert(0);

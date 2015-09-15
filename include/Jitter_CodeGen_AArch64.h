@@ -133,7 +133,6 @@ namespace Jitter
 		Framework::CStream*    m_stream = nullptr;
 		CAArch64Assembler      m_assembler;
 		LabelMapType           m_labels;
-		uint32                 m_stackLevel = 0;
 		uint32                 m_nextTempRegister = 0;
 	};
 };

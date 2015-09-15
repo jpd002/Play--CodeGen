@@ -1,5 +1,6 @@
 #pragma once
 
+#include <deque>
 #include "Jitter_CodeGen.h"
 #include "AArch64Assembler.h"
 
@@ -21,6 +22,20 @@ namespace Jitter
 	private:
 		typedef std::map<uint32, CAArch64Assembler::LABEL> LabelMapType;
 		typedef void (CCodeGen_AArch64::*ConstCodeEmitterType)(const STATEMENT&);
+
+		struct PARAM_STATE
+		{
+			bool prepared = false;
+			unsigned int index = 0;
+		};
+
+		typedef std::function<void (PARAM_STATE&)> ParamEmitterFunction;
+		typedef std::deque<ParamEmitterFunction> ParamStack;
+
+		enum MAX_PARAM_REGS
+		{
+			MAX_PARAM_REGS = 8,
+		};
 
 		enum MAX_TEMP_REGS
 		{
@@ -46,10 +61,16 @@ namespace Jitter
 		void    StoreRegisterInMemory64(CSymbol*, CAArch64Assembler::REGISTER64);
 		
 		void    LoadConstantInRegister(CAArch64Assembler::REGISTER32, uint32);
+		void    LoadConstant64InRegister(CAArch64Assembler::REGISTER64, uint64);
 		
 		CAArch64Assembler::REGISTER32    PrepareSymbolRegisterDef(CSymbol*, CAArch64Assembler::REGISTER32);
 		CAArch64Assembler::REGISTER32    PrepareSymbolRegisterUse(CSymbol*, CAArch64Assembler::REGISTER32);
 		void                             CommitSymbolRegister(CSymbol*, CAArch64Assembler::REGISTER32);
+		
+		CAArch64Assembler::REGISTER32    PrepareParam(PARAM_STATE&);
+		CAArch64Assembler::REGISTER64    PrepareParam64(PARAM_STATE&);
+		void                             CommitParam(PARAM_STATE&);
+		void                             CommitParam64(PARAM_STATE&);
 		
 		//SHIFTOP ----------------------------------------------------------
 		struct SHIFTOP_BASE
@@ -112,6 +133,10 @@ namespace Jitter
 		
 		void    Emit_Mov_Mem64Mem64(const STATEMENT&);
 		
+		void    Emit_Param_Ctx(const STATEMENT&);
+		void    Emit_Call(const STATEMENT&);
+		void    Emit_RetVal_Tmp(const STATEMENT&);
+		
 		void    Emit_Jmp(const STATEMENT&);
 		
 		void    Emit_CondJmp(const STATEMENT&);
@@ -128,11 +153,14 @@ namespace Jitter
 		static CONSTMATCHER    g_constMatchers[];
 		static CAArch64Assembler::REGISTER32    g_tempRegisters[MAX_TEMP_REGS];
 		static CAArch64Assembler::REGISTER64    g_tempRegisters64[MAX_TEMP_REGS];
+		static CAArch64Assembler::REGISTER32    g_paramRegisters[MAX_PARAM_REGS];
+		static CAArch64Assembler::REGISTER64    g_paramRegisters64[MAX_PARAM_REGS];
 		static CAArch64Assembler::REGISTER64    g_baseRegister;
 
 		Framework::CStream*    m_stream = nullptr;
 		CAArch64Assembler      m_assembler;
 		LabelMapType           m_labels;
+		ParamStack             m_params;
 		uint32                 m_nextTempRegister = 0;
 	};
 };

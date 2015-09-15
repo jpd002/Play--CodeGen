@@ -24,6 +24,30 @@ CAArch64Assembler::REGISTER64    CCodeGen_AArch64::g_tempRegisters64[] =
 	CAArch64Assembler::x15
 };
 
+CAArch64Assembler::REGISTER32    CCodeGen_AArch64::g_paramRegisters[MAX_PARAM_REGS] =
+{
+	CAArch64Assembler::w0,
+	CAArch64Assembler::w1,
+	CAArch64Assembler::w2,
+	CAArch64Assembler::w3,
+	CAArch64Assembler::w4,
+	CAArch64Assembler::w5,
+	CAArch64Assembler::w6,
+	CAArch64Assembler::w7,
+};
+
+CAArch64Assembler::REGISTER64    CCodeGen_AArch64::g_paramRegisters64[MAX_PARAM_REGS] =
+{
+	CAArch64Assembler::x0,
+	CAArch64Assembler::x1,
+	CAArch64Assembler::x2,
+	CAArch64Assembler::x3,
+	CAArch64Assembler::x4,
+	CAArch64Assembler::x5,
+	CAArch64Assembler::x6,
+	CAArch64Assembler::x7,
+};
+
 CAArch64Assembler::REGISTER64    CCodeGen_AArch64::g_baseRegister = CAArch64Assembler::x19;
 
 template <typename ShiftOp>
@@ -94,6 +118,12 @@ CCodeGen_AArch64::CONSTMATCHER CCodeGen_AArch64::g_constMatchers[] =
 	{ OP_MOV,        MATCH_VARIABLE,     MATCH_ANY,            MATCH_NIL,         &CCodeGen_AArch64::Emit_Mov_VarAny                          },
 	{ OP_MOV,        MATCH_MEMORY64,     MATCH_MEMORY64,       MATCH_NIL,         &CCodeGen_AArch64::Emit_Mov_Mem64Mem64                      },
 
+	{ OP_PARAM,      MATCH_NIL,          MATCH_CONTEXT,        MATCH_NIL,         &CCodeGen_AArch64::Emit_Param_Ctx                           },
+	
+	{ OP_CALL,       MATCH_NIL,          MATCH_CONSTANTPTR,    MATCH_CONSTANT,    &CCodeGen_AArch64::Emit_Call                                },
+	
+	{ OP_RETVAL,     MATCH_TEMPORARY,    MATCH_NIL,            MATCH_NIL,         &CCodeGen_AArch64::Emit_RetVal_Tmp                          },
+	
 	{ OP_JMP,        MATCH_NIL,          MATCH_NIL,            MATCH_NIL,         &CCodeGen_AArch64::Emit_Jmp                                 },
 	
 	{ OP_CONDJMP,    MATCH_NIL,          MATCH_VARIABLE,       MATCH_CONSTANT,    &CCodeGen_AArch64::Emit_CondJmp_VarCst                      },
@@ -304,6 +334,34 @@ void CCodeGen_AArch64::LoadConstantInRegister(CAArch64Assembler::REGISTER32 regi
 	}
 }
 
+void CCodeGen_AArch64::LoadConstant64InRegister(CAArch64Assembler::REGISTER64 registerId, uint64 constant)
+{
+	bool loaded = false;
+	static const uint64 masks[4] =
+	{
+		0x000000000000FFFFULL,
+		0x00000000FFFF0000ULL,
+		0x0000FFFF00000000ULL,
+		0xFFFF000000000000ULL
+	};
+	for(unsigned int i = 0; i < 4; i++)
+	{
+		if((constant & masks[i]) != 0)
+		{
+			if(loaded)
+			{
+				m_assembler.Movk(registerId, constant >> (i * 16), i);
+			}
+			else
+			{
+				m_assembler.Movz(registerId, constant >> (i * 16), i);
+			}
+			loaded = true;
+		}
+	}
+	assert(loaded);
+}
+
 CAArch64Assembler::REGISTER32 CCodeGen_AArch64::PrepareSymbolRegisterDef(CSymbol* symbol, CAArch64Assembler::REGISTER32 preferedRegister)
 {
 	switch(symbol->m_type)
@@ -358,6 +416,35 @@ void CCodeGen_AArch64::CommitSymbolRegister(CSymbol* symbol, CAArch64Assembler::
 		throw std::runtime_error("Invalid symbol type.");
 		break;
 	}
+}
+
+CAArch64Assembler::REGISTER64 CCodeGen_AArch64::PrepareParam64(PARAM_STATE& paramState)
+{
+	assert(!paramState.prepared);
+	paramState.prepared = true;
+	if(paramState.index < MAX_PARAM_REGS)
+	{
+		return g_paramRegisters64[paramState.index];
+	}
+	else
+	{
+		assert(false);
+	}
+}
+
+void CCodeGen_AArch64::CommitParam64(PARAM_STATE& paramState)
+{
+	assert(paramState.prepared);
+	paramState.prepared = false;
+	if(paramState.index < MAX_PARAM_REGS)
+	{
+		//Nothing to do
+	}
+	else
+	{
+		assert(false);
+	}
+	paramState.index++;
 }
 
 void CCodeGen_AArch64::Emit_Prolog(uint32 stackSize)
@@ -429,6 +516,53 @@ void CCodeGen_AArch64::Emit_Mov_Mem64Mem64(const STATEMENT& statement)
 	LoadMemory64InRegister(tmpReg, src1);
 	StoreRegisterInMemory64(dst, tmpReg);
 }
+
+void CCodeGen_AArch64::Emit_Param_Ctx(const STATEMENT& statement)
+{
+	auto src1 = statement.src1->GetSymbol().get();
+	
+	assert(src1->m_type == SYM_CONTEXT);
+	
+	m_params.push_back(
+		[this] (PARAM_STATE& paramState)
+		{
+			auto paramReg = PrepareParam64(paramState);
+			m_assembler.Mov(paramReg, g_baseRegister);
+			CommitParam64(paramState);
+		}
+	);
+}
+
+void CCodeGen_AArch64::Emit_Call(const STATEMENT& statement)
+{
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+	
+	assert(src1->m_type == SYM_CONSTANTPTR);
+	assert(src2->m_type == SYM_CONSTANT);
+
+	unsigned int paramCount = src2->m_valueLow;
+	PARAM_STATE paramState;
+
+	for(unsigned int i = 0; i < paramCount; i++)
+	{
+		auto emitter(m_params.back());
+		m_params.pop_back();
+		emitter(paramState);
+	}
+	
+	auto fctAddressReg = GetNextTempRegister64();
+	LoadConstant64InRegister(fctAddressReg, src1->GetConstantPtr());
+	m_assembler.Blr(fctAddressReg);
+}
+
+void CCodeGen_AArch64::Emit_RetVal_Tmp(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	assert(dst->m_type == SYM_TEMPORARY);
+	StoreRegisterInMemory(dst, CAArch64Assembler::w0);
+}
+
 void CCodeGen_AArch64::Emit_Jmp(const STATEMENT& statement)
 {
 	m_assembler.B(GetLabel(statement.jmpBlock));

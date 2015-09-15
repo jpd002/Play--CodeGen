@@ -76,6 +76,7 @@ public:
 	void    BCc(CONDITION, LABEL);
 	void    Blr(REGISTER64);
 	void    Cmp(REGISTER32, uint16, ADDSUB_IMM_SHIFT_TYPE);
+	void    Eor(REGISTER32, REGISTER32, REGISTER32);
 	void    Ldp_PostIdx(REGISTER64, REGISTER64, REGISTER64, int32);
 	void    Ldr(REGISTER32, REGISTER64, uint32);
 	void    Ldr(REGISTER64, REGISTER64, uint32);

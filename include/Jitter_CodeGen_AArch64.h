@@ -97,6 +97,17 @@ namespace Jitter
 			static OpRegType	OpReg()		{ return &CAArch64Assembler::Lsrv; }
 		};
 		
+		//LOGICOP ----------------------------------------------------------
+		struct LOGICOP_BASE
+		{
+			typedef void (CAArch64Assembler::*OpRegType)(CAArch64Assembler::REGISTER32, CAArch64Assembler::REGISTER32, CAArch64Assembler::REGISTER32);
+		};
+		
+		struct LOGICOP_XOR : public SHIFTOP_BASE
+		{
+			static OpRegType	OpReg()		{ return &CAArch64Assembler::Eor; }
+		};
+		
 		//SHIFT64OP ----------------------------------------------------------
 		struct SHIFT64OP_BASE
 		{
@@ -145,6 +156,9 @@ namespace Jitter
 		//SHIFT
 		template <typename> void    Emit_Shift_VarAnyVar(const STATEMENT&);
 		template <typename> void    Emit_Shift_VarVarCst(const STATEMENT&);
+
+		//LOGIC
+		template <typename> void    Emit_Logic_VarAnyVar(const STATEMENT&);
 
 		//SHIFT64
 		template <typename> void    Emit_Shift64_MemMemVar(const STATEMENT&);

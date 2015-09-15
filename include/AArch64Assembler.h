@@ -76,6 +76,7 @@ public:
 	void    BCc(CONDITION, LABEL);
 	void    Blr(REGISTER64);
 	void    Cmp(REGISTER32, uint16, ADDSUB_IMM_SHIFT_TYPE);
+	void    Ldp_PostIdx(REGISTER64, REGISTER64, REGISTER64, int32);
 	void    Ldr(REGISTER32, REGISTER64, uint32);
 	void    Ldr(REGISTER64, REGISTER64, uint32);
 	void    Lsl(REGISTER32, REGISTER32, uint8);
@@ -88,13 +89,16 @@ public:
 	void    Lsrv(REGISTER64, REGISTER64, REGISTER64);
 	void    Mov(REGISTER32, REGISTER32);
 	void    Mov(REGISTER64, REGISTER64);
+	void    Mov_Sp(REGISTER64, REGISTER64);
 	void    Movk(REGISTER32, uint16, uint8);
 	void    Movk(REGISTER64, uint16, uint8);
 	void    Movz(REGISTER32, uint16, uint8);
 	void    Movz(REGISTER64, uint16, uint8);
 	void    Ret(REGISTER64 = x30);
+	void    Stp_PreIdx(REGISTER64, REGISTER64, REGISTER64, int32);
 	void    Str(REGISTER32, REGISTER64, uint32);
 	void    Str(REGISTER64, REGISTER64, uint32);
+	void    Sub(REGISTER64, REGISTER64, uint16, ADDSUB_IMM_SHIFT_TYPE);
 	
 private:
 	struct LABELREF

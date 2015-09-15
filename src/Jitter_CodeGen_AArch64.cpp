@@ -362,11 +362,19 @@ void CCodeGen_AArch64::CommitSymbolRegister(CSymbol* symbol, CAArch64Assembler::
 
 void CCodeGen_AArch64::Emit_Prolog(uint32 stackSize)
 {
+	m_assembler.Stp_PreIdx(CAArch64Assembler::x29, CAArch64Assembler::x30, CAArch64Assembler::xSP, -16);
+	m_assembler.Mov_Sp(CAArch64Assembler::x29, CAArch64Assembler::xSP);
+	if(stackSize != 0)
+	{
+		m_assembler.Sub(CAArch64Assembler::xSP, CAArch64Assembler::xSP, stackSize, CAArch64Assembler::ADDSUB_IMM_SHIFT_LSL0);
+	}
 	m_assembler.Mov(g_baseRegister, CAArch64Assembler::x0);
 }
 
 void CCodeGen_AArch64::Emit_Epilog(uint32 stackSize)
 {
+	m_assembler.Mov_Sp(CAArch64Assembler::xSP, CAArch64Assembler::x29);
+	m_assembler.Ldp_PostIdx(CAArch64Assembler::x29, CAArch64Assembler::x30, CAArch64Assembler::xSP, 16);
 	m_assembler.Ret();
 }
 

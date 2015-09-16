@@ -63,6 +63,9 @@ namespace Jitter
 		void    LoadConstantInRegister(CAArch64Assembler::REGISTER32, uint32);
 		void    LoadConstant64InRegister(CAArch64Assembler::REGISTER64, uint64);
 		
+		void    LoadMemory64LowInRegister(CAArch64Assembler::REGISTER32, CSymbol*);
+		void    LoadMemory64HighInRegister(CAArch64Assembler::REGISTER32, CSymbol*);
+		
 		CAArch64Assembler::REGISTER32    PrepareSymbolRegisterDef(CSymbol*, CAArch64Assembler::REGISTER32);
 		CAArch64Assembler::REGISTER32    PrepareSymbolRegisterUse(CSymbol*, CAArch64Assembler::REGISTER32);
 		void                             CommitSymbolRegister(CSymbol*, CAArch64Assembler::REGISTER32);
@@ -144,6 +147,9 @@ namespace Jitter
 		
 		void    Emit_Mov_Mem64Mem64(const STATEMENT&);
 		
+		void    Emit_ExtLow64VarMem64(const STATEMENT&);
+		void    Emit_ExtHigh64VarMem64(const STATEMENT&);
+		
 		void    Emit_Param_Ctx(const STATEMENT&);
 		void    Emit_Param_Mem(const STATEMENT&);
 		
@@ -162,6 +168,9 @@ namespace Jitter
 		//LOGIC
 		template <typename> void    Emit_Logic_VarAnyVar(const STATEMENT&);
 
+		//DIV
+		template <bool> void Emit_Div_Tmp64AnyAny(const STATEMENT&);
+		
 		//SHIFT64
 		template <typename> void    Emit_Shift64_MemMemVar(const STATEMENT&);
 		template <typename> void    Emit_Shift64_MemMemCst(const STATEMENT&);

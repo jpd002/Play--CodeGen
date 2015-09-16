@@ -259,10 +259,29 @@ void CAArch64Assembler::Movz(REGISTER64 rd, uint16 imm, uint8 pos)
 	WriteMoveWideOpImm(0xD2800000, pos, imm, rd);
 }
 
+void CAArch64Assembler::Msub(REGISTER32 rd, REGISTER32 rn, REGISTER32 rm, REGISTER32 ra)
+{
+	uint32 opcode = 0x1B008000;
+	opcode |= (rd << 0);
+	opcode |= (rn << 5);
+	opcode |= (ra << 10);
+	opcode |= (rm << 16);
+	WriteWord(opcode);
+}
+
 void CAArch64Assembler::Ret(REGISTER64 rn)
 {
 	uint32 opcode = 0xD65F0000;
 	opcode |= (rn << 5);
+	WriteWord(opcode);
+}
+
+void CAArch64Assembler::Sdiv(REGISTER32 rd, REGISTER32 rn, REGISTER32 rm)
+{
+	uint32 opcode = 0x1AC00C00;
+	opcode |= (rd <<  0);
+	opcode |= (rn <<  5);
+	opcode |= (rm << 16);
 	WriteWord(opcode);
 }
 
@@ -303,6 +322,15 @@ void CAArch64Assembler::Sub(REGISTER64 rd, REGISTER64 rn, uint16 imm, ADDSUB_IMM
 	opcode |= (rn << 5);
 	opcode |= ((imm & 0xFFF) << 10);
 	opcode |= (shift << 22);
+	WriteWord(opcode);
+}
+
+void CAArch64Assembler::Udiv(REGISTER32 rd, REGISTER32 rn, REGISTER32 rm)
+{
+	uint32 opcode = 0x1AC00800;
+	opcode |= (rd <<  0);
+	opcode |= (rn <<  5);
+	opcode |= (rm << 16);
 	WriteWord(opcode);
 }
 

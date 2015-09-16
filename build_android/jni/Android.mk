@@ -13,6 +13,7 @@ include $(CLEAR_VARS)
 
 LOCAL_MODULE		:= libCodeGen
 LOCAL_SRC_FILES		:=	../../src/AArch32Assembler.cpp \
+						../../src/AArch64Assembler.cpp \
 						../../src/Jitter.cpp \
 						../../src/Jitter_CodeGen.cpp \
 						../../src/Jitter_CodeGen_AArch32.cpp \

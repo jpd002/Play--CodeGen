@@ -111,6 +111,17 @@ namespace Jitter
 			static OpRegType	OpReg()		{ return &CAArch64Assembler::Eor; }
 		};
 		
+		//ADDSUBOP ----------------------------------------------------------
+		struct ADDSUBOP_BASE
+		{
+			typedef void (CAArch64Assembler::*OpImmType)(CAArch64Assembler::REGISTER32, CAArch64Assembler::REGISTER32, uint16 imm, CAArch64Assembler::ADDSUB_IMM_SHIFT_TYPE);
+		};
+		
+		struct ADDSUBOP_SUB : public ADDSUBOP_BASE
+		{
+			static OpImmType    OpImm()    { return &CAArch64Assembler::Sub; }
+		};
+
 		//SHIFT64OP ----------------------------------------------------------
 		struct SHIFT64OP_BASE
 		{
@@ -160,6 +171,9 @@ namespace Jitter
 		
 		void    Emit_CondJmp(const STATEMENT&);
 		void    Emit_CondJmp_VarCst(const STATEMENT&);
+		
+		//ADDSUB
+		template <typename> void    Emit_AddSub_VarVarCst(const STATEMENT&);
 		
 		//SHIFT
 		template <typename> void    Emit_Shift_VarAnyVar(const STATEMENT&);

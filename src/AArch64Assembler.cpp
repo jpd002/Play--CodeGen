@@ -309,6 +309,11 @@ void CAArch64Assembler::Stp_PreIdx(REGISTER64 rt, REGISTER64 rt2, REGISTER64 rn,
 	WriteWord(opcode);
 }
 
+void CAArch64Assembler::Sub(REGISTER32 rd, REGISTER32 rn, uint16 imm, ADDSUB_IMM_SHIFT_TYPE shift)
+{
+	WriteAddSubOpImm(0x51000000, shift, imm, rn, rd);
+}
+
 void CAArch64Assembler::Sub(REGISTER64 rd, REGISTER64 rn, uint16 imm, ADDSUB_IMM_SHIFT_TYPE shift)
 {
 	WriteAddSubOpImm(0xD1000000, shift, imm, rn, rd);

@@ -50,6 +50,31 @@ CAArch64Assembler::REGISTER64    CCodeGen_AArch64::g_paramRegisters64[MAX_PARAM_
 
 CAArch64Assembler::REGISTER64    CCodeGen_AArch64::g_baseRegister = CAArch64Assembler::x19;
 
+template <typename AddSubOp>
+void CCodeGen_AArch64::Emit_AddSub_VarVarCst(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+	
+	assert(src2->m_type == SYM_CONSTANT);
+	
+	auto dstReg = PrepareSymbolRegisterDef(dst, GetNextTempRegister());
+	auto src1Reg = PrepareSymbolRegisterUse(src1, GetNextTempRegister());
+	uint32 constant = src2->m_valueLow;
+	
+	if((constant & 0xFFF) == constant)
+	{
+		((m_assembler).*(AddSubOp::OpImm()))(dstReg, src1Reg, src2->m_valueLow, CAArch64Assembler::ADDSUB_IMM_SHIFT_LSL0);
+	}
+	else
+	{
+		assert(false);
+	}
+	
+	CommitSymbolRegister(dst, dstReg);
+}
+
 template <typename ShiftOp>
 void CCodeGen_AArch64::Emit_Shift_VarAnyVar(const STATEMENT& statement)
 {
@@ -184,6 +209,8 @@ CCodeGen_AArch64::CONSTMATCHER CCodeGen_AArch64::g_constMatchers[] =
 	{ OP_SRA,          MATCH_VARIABLE,       MATCH_VARIABLE,       MATCH_CONSTANT,    &CCodeGen_AArch64::Emit_Shift_VarVarCst<SHIFTOP_ASR>        },
 	
 	{ OP_XOR,          MATCH_VARIABLE,       MATCH_ANY,            MATCH_VARIABLE,    &CCodeGen_AArch64::Emit_Logic_VarAnyVar<LOGICOP_XOR>        },
+	
+	{ OP_SUB,          MATCH_VARIABLE,       MATCH_VARIABLE,       MATCH_CONSTANT,    &CCodeGen_AArch64::Emit_AddSub_VarVarCst<ADDSUBOP_SUB>      },
 	
 	{ OP_SLL64,        MATCH_MEMORY64,       MATCH_MEMORY64,       MATCH_VARIABLE,    &CCodeGen_AArch64::Emit_Shift64_MemMemVar<SHIFT64OP_LSL>    },
 	{ OP_SRL64,        MATCH_MEMORY64,       MATCH_MEMORY64,       MATCH_VARIABLE,    &CCodeGen_AArch64::Emit_Shift64_MemMemVar<SHIFT64OP_LSR>    },

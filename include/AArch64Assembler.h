@@ -116,6 +116,7 @@ private:
 	
 	void    CreateLabelReference(LABEL, CONDITION);
 
+	void    WriteAddSubOpImm(uint32, uint32 shift, uint32 imm, uint32 rn, uint32 rd);
 	void    WriteDataProcOpReg2(uint32, uint32 rm, uint32 rn, uint32 rd);
 	void    WriteLogicalOpImm(uint32, uint32 immr, uint32 imms, uint32 rn, uint32 rd);
 	void    WriteLoadStoreOpImm(uint32, uint32 imm, uint32 rn, uint32 rt);

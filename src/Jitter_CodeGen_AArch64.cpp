@@ -398,13 +398,13 @@ void CCodeGen_AArch64::LoadConstantInRegister(CAArch64Assembler::REGISTER32 regi
 	{
 		m_assembler.Movz(registerId, static_cast<uint16>(constant >> 16), 1);
 	}
-	else if(~(constant & 0x0000FFFF) == constant)
+	else if((~constant & 0x0000FFFF) == ~constant)
 	{
-		assert(false);
+		m_assembler.Movn(registerId, static_cast<uint16>(~constant & 0xFFFF), 0);
 	}
-	else if(~(constant & 0xFFFF0000) == constant)
+	else if((~constant & 0xFFFF0000) == ~constant)
 	{
-		assert(false);
+		m_assembler.Movn(registerId, static_cast<uint16>(~constant >> 16), 1);
 	}
 	else
 	{

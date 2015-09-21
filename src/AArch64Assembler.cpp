@@ -230,6 +230,12 @@ void CAArch64Assembler::Mov_Sp(REGISTER64 rd, REGISTER64 rn)
 	WriteWord(opcode);
 }
 
+void CAArch64Assembler::Movn(REGISTER32 rd, uint16 imm, uint8 pos)
+{
+	assert(pos < 2);
+	WriteMoveWideOpImm(0x12800000, pos, imm, rd);
+}
+
 void CAArch64Assembler::Movk(REGISTER32 rd, uint16 imm, uint8 pos)
 {
 	assert(pos < 2);

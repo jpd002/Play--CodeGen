@@ -91,6 +91,7 @@ public:
 	void    Mov(REGISTER32, REGISTER32);
 	void    Mov(REGISTER64, REGISTER64);
 	void    Mov_Sp(REGISTER64, REGISTER64);
+	void    Movn(REGISTER32, uint16, uint8);
 	void    Movk(REGISTER32, uint16, uint8);
 	void    Movk(REGISTER64, uint16, uint8);
 	void    Movz(REGISTER32, uint16, uint8);

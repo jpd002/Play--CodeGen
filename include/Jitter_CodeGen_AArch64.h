@@ -84,20 +84,20 @@ namespace Jitter
 		
 		struct SHIFTOP_ASR : public SHIFTOP_BASE
 		{
-			static OpImmType	OpImm()		{ return &CAArch64Assembler::Asr; }
-			static OpRegType	OpReg()		{ return &CAArch64Assembler::Asrv; }
+			static OpImmType    OpImm()    { return &CAArch64Assembler::Asr; }
+			static OpRegType    OpReg()    { return &CAArch64Assembler::Asrv; }
 		};
 		
 		struct SHIFTOP_LSL : public SHIFTOP_BASE
 		{
-			static OpImmType	OpImm()		{ return &CAArch64Assembler::Lsl; }
-			static OpRegType	OpReg()		{ return &CAArch64Assembler::Lslv; }
+			static OpImmType    OpImm()    { return &CAArch64Assembler::Lsl; }
+			static OpRegType    OpReg()    { return &CAArch64Assembler::Lslv; }
 		};
 
 		struct SHIFTOP_LSR : public SHIFTOP_BASE
 		{
-			static OpImmType	OpImm()		{ return &CAArch64Assembler::Lsr; }
-			static OpRegType	OpReg()		{ return &CAArch64Assembler::Lsrv; }
+			static OpImmType    OpImm()    { return &CAArch64Assembler::Lsr; }
+			static OpRegType    OpReg()    { return &CAArch64Assembler::Lsrv; }
 		};
 		
 		//LOGICOP ----------------------------------------------------------
@@ -115,7 +115,7 @@ namespace Jitter
 		
 		struct LOGICOP_XOR : public LOGICOP_BASE
 		{
-			static OpRegType	OpReg()		{ return &CAArch64Assembler::Eor; }
+			static OpRegType    OpReg()    { return &CAArch64Assembler::Eor; }
 		};
 		
 		//ADDSUBOP ----------------------------------------------------------
@@ -138,20 +138,20 @@ namespace Jitter
 		
 		struct SHIFT64OP_ASR : public SHIFT64OP_BASE
 		{
-			static OpImmType	OpImm()		{ return &CAArch64Assembler::Asr; }
-			static OpRegType	OpReg()		{ return &CAArch64Assembler::Asrv; }
+			static OpImmType    OpImm()    { return &CAArch64Assembler::Asr; }
+			static OpRegType    OpReg()    { return &CAArch64Assembler::Asrv; }
 		};
 		
 		struct SHIFT64OP_LSL : public SHIFT64OP_BASE
 		{
-			static OpImmType	OpImm()		{ return &CAArch64Assembler::Lsl; }
-			static OpRegType	OpReg()		{ return &CAArch64Assembler::Lslv; }
+			static OpImmType    OpImm()    { return &CAArch64Assembler::Lsl; }
+			static OpRegType    OpReg()    { return &CAArch64Assembler::Lslv; }
 		};
 
 		struct SHIFT64OP_LSR : public SHIFT64OP_BASE
 		{
-			static OpImmType	OpImm()		{ return &CAArch64Assembler::Lsr; }
-			static OpRegType	OpReg()		{ return &CAArch64Assembler::Lsrv; }
+			static OpImmType    OpImm()    { return &CAArch64Assembler::Lsr; }
+			static OpRegType    OpReg()    { return &CAArch64Assembler::Lsrv; }
 		};
 
 		void    Emit_Prolog(uint32);

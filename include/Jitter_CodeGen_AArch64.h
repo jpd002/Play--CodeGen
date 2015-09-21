@@ -106,7 +106,7 @@ namespace Jitter
 			typedef void (CAArch64Assembler::*OpRegType)(CAArch64Assembler::REGISTER32, CAArch64Assembler::REGISTER32, CAArch64Assembler::REGISTER32);
 		};
 		
-		struct LOGICOP_XOR : public SHIFTOP_BASE
+		struct LOGICOP_XOR : public LOGICOP_BASE
 		{
 			static OpRegType	OpReg()		{ return &CAArch64Assembler::Eor; }
 		};

@@ -118,6 +118,28 @@ void CCodeGen_AArch64::Emit_Logic_VarAnyVar(const STATEMENT& statement)
 	CommitSymbolRegister(dst, dstReg);
 }
 
+template <typename LogicOp>
+void CCodeGen_AArch64::Emit_Logic_VarVarCst(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+	
+	assert(src2->m_type == SYM_CONSTANT);
+	
+	assert(src2->m_valueLow != 0);
+	assert(src2->m_valueLow != ~0);
+	
+	//TODO: Check if constant can be encoded in immediate fields
+	//or encoded using a single constant load and + shift (using shift reg ops)
+	
+	auto dstReg = PrepareSymbolRegisterDef(dst, GetNextTempRegister());
+	auto src1Reg = PrepareSymbolRegisterUse(src1, GetNextTempRegister());
+	auto src2Reg = PrepareSymbolRegisterUse(src2, GetNextTempRegister());
+	((m_assembler).*(LogicOp::OpReg()))(dstReg, src1Reg, src2Reg);
+	CommitSymbolRegister(dst, dstReg);
+}
+
 template <bool isSigned>
 void CCodeGen_AArch64::Emit_Div_Tmp64AnyAny(const STATEMENT& statement)
 {
@@ -208,6 +230,7 @@ CCodeGen_AArch64::CONSTMATCHER CCodeGen_AArch64::g_constMatchers[] =
 	{ OP_SRL,          MATCH_VARIABLE,       MATCH_VARIABLE,       MATCH_CONSTANT,    &CCodeGen_AArch64::Emit_Shift_VarVarCst<SHIFTOP_LSR>        },
 	{ OP_SRA,          MATCH_VARIABLE,       MATCH_VARIABLE,       MATCH_CONSTANT,    &CCodeGen_AArch64::Emit_Shift_VarVarCst<SHIFTOP_ASR>        },
 	
+	{ OP_AND,          MATCH_VARIABLE,       MATCH_VARIABLE,       MATCH_CONSTANT,    &CCodeGen_AArch64::Emit_Logic_VarVarCst<LOGICOP_AND>        },
 	{ OP_XOR,          MATCH_VARIABLE,       MATCH_ANY,            MATCH_VARIABLE,    &CCodeGen_AArch64::Emit_Logic_VarAnyVar<LOGICOP_XOR>        },
 	
 	{ OP_SUB,          MATCH_VARIABLE,       MATCH_VARIABLE,       MATCH_CONSTANT,    &CCodeGen_AArch64::Emit_AddSub_VarVarCst<ADDSUBOP_SUB>      },

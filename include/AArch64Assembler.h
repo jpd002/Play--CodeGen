@@ -68,6 +68,8 @@ public:
 	void     MarkLabel(LABEL);
 	void     ResolveLabelReferences();
 
+	void    And(REGISTER32, REGISTER32, REGISTER32);
+	void    And(REGISTER32, REGISTER32, uint8, uint8);
 	void    Asr(REGISTER32, REGISTER32, uint8);
 	void    Asr(REGISTER64, REGISTER64, uint8);
 	void    Asrv(REGISTER32, REGISTER32, REGISTER32);

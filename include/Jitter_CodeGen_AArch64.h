@@ -104,6 +104,13 @@ namespace Jitter
 		struct LOGICOP_BASE
 		{
 			typedef void (CAArch64Assembler::*OpRegType)(CAArch64Assembler::REGISTER32, CAArch64Assembler::REGISTER32, CAArch64Assembler::REGISTER32);
+			typedef void (CAArch64Assembler::*OpImmType)(CAArch64Assembler::REGISTER32, CAArch64Assembler::REGISTER32, uint8, uint8);
+		};
+		
+		struct LOGICOP_AND : public LOGICOP_BASE
+		{
+			static OpRegType    OpReg()    { return &CAArch64Assembler::And; }
+			static OpImmType    OpImm()    { return &CAArch64Assembler::And; }
 		};
 		
 		struct LOGICOP_XOR : public LOGICOP_BASE
@@ -181,6 +188,7 @@ namespace Jitter
 
 		//LOGIC
 		template <typename> void    Emit_Logic_VarAnyVar(const STATEMENT&);
+		template <typename> void    Emit_Logic_VarVarCst(const STATEMENT&);
 
 		//DIV
 		template <bool> void Emit_Div_Tmp64AnyAny(const STATEMENT&);

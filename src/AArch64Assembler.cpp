@@ -72,6 +72,20 @@ void CAArch64Assembler::ResolveLabelReferences()
 	m_labelReferences.clear();
 }
 
+void CAArch64Assembler::And(REGISTER32 rd, REGISTER32 rn, REGISTER32 rm)
+{
+	uint32 opcode = 0x0A000000;
+	opcode |= (rd <<  0);
+	opcode |= (rn <<  5);
+	opcode |= (rm << 16);
+	WriteWord(opcode);
+}
+
+void CAArch64Assembler::And(REGISTER32 rd, REGISTER32 rn, uint8 immr, uint8 imms)
+{
+	WriteLogicalOpImm(0x12000000, immr, imms, rn, rd);
+}
+
 void CAArch64Assembler::Asr(REGISTER32 rd, REGISTER32 rn, uint8 sa)
 {
 	uint32 imms = 0x1F;

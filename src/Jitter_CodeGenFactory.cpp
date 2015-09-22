@@ -69,5 +69,9 @@ Jitter::CCodeGen* Jitter::CreateCodeGen()
 		throw std::runtime_error("Unsupported architecture.");
 	#endif
 
+#else
+
+	throw std::runtime_error("Unsupported platform.");
+
 #endif
 }

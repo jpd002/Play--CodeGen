@@ -582,6 +582,7 @@ CAArch64Assembler::REGISTER32 CCodeGen_AArch64::PrepareParam(PARAM_STATE& paramS
 	else
 	{
 		assert(false);
+		return g_paramRegisters[0];
 	}
 }
 
@@ -596,6 +597,7 @@ CAArch64Assembler::REGISTER64 CCodeGen_AArch64::PrepareParam64(PARAM_STATE& para
 	else
 	{
 		assert(false);
+		return g_paramRegisters64[0];
 	}
 }
 

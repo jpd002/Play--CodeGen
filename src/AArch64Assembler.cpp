@@ -72,6 +72,20 @@ void CAArch64Assembler::ResolveLabelReferences()
 	m_labelReferences.clear();
 }
 
+void CAArch64Assembler::Add(REGISTER32 rd, REGISTER32 rn, REGISTER32 rm)
+{
+	uint32 opcode = 0x0B000000;
+	opcode |= (rd <<  0);
+	opcode |= (rn <<  5);
+	opcode |= (rm << 16);
+	WriteWord(opcode);
+}
+
+void CAArch64Assembler::Add(REGISTER32 rd, REGISTER32 rn, uint16 imm, ADDSUB_IMM_SHIFT_TYPE shift)
+{
+	WriteAddSubOpImm(0x11000000, shift, imm, rn, rd);
+}
+
 void CAArch64Assembler::And(REGISTER32 rd, REGISTER32 rn, REGISTER32 rm)
 {
 	uint32 opcode = 0x0A000000;
@@ -335,6 +349,15 @@ void CAArch64Assembler::Stp_PreIdx(REGISTER64 rt, REGISTER64 rt2, REGISTER64 rn,
 	opcode |= (rn  <<  5);
 	opcode |= (rt2 << 10);
 	opcode |= ((scaledOffset & 0x7F) << 15);
+	WriteWord(opcode);
+}
+
+void CAArch64Assembler::Sub(REGISTER32 rd, REGISTER32 rn, REGISTER32 rm)
+{
+	uint32 opcode = 0x4B000000;
+	opcode |= (rd << 0);
+	opcode |= (rn << 5);
+	opcode |= (rm << 16);
 	WriteWord(opcode);
 }
 

@@ -68,6 +68,8 @@ public:
 	void     MarkLabel(LABEL);
 	void     ResolveLabelReferences();
 
+	void    Add(REGISTER32, REGISTER32, REGISTER32);
+	void    Add(REGISTER32, REGISTER32, uint16, ADDSUB_IMM_SHIFT_TYPE);
 	void    And(REGISTER32, REGISTER32, REGISTER32);
 	void    And(REGISTER32, REGISTER32, uint8, uint8);
 	void    Asr(REGISTER32, REGISTER32, uint8);
@@ -105,6 +107,7 @@ public:
 	void    Stp_PreIdx(REGISTER64, REGISTER64, REGISTER64, int32);
 	void    Str(REGISTER32, REGISTER64, uint32);
 	void    Str(REGISTER64, REGISTER64, uint32);
+	void    Sub(REGISTER32, REGISTER32, REGISTER32);
 	void    Sub(REGISTER32, REGISTER32, uint16, ADDSUB_IMM_SHIFT_TYPE);
 	void    Sub(REGISTER64, REGISTER64, uint16, ADDSUB_IMM_SHIFT_TYPE);
 	void    Udiv(REGISTER32, REGISTER32, REGISTER32);

@@ -275,9 +275,6 @@ CJitter::AllocationRangeArray CJitter::ComputeAllocationRanges(const BASIC_BLOCK
 
 void CJitter::ComputeLivenessForRange(const BASIC_BLOCK& basicBlock, const AllocationRange& allocRange, SymbolRegAllocInfo& symbolRegAllocs) const
 {
-	auto& symbolTable(basicBlock.symbolTable);
-	const auto& statements(basicBlock.statements);
-
 	for(const auto& statementInfo : ConstIndexedStatementList(basicBlock.statements))
 	{
 		const auto& statement(statementInfo.statement);

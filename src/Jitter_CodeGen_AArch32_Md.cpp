@@ -350,7 +350,6 @@ void CCodeGen_AArch32::Emit_Md_Expand_MemReg(const STATEMENT& statement)
 	auto src1 = statement.src1->GetSymbol().get();
 
 	auto dstAddrReg = CAArch32Assembler::r0;
-	auto src1AddrReg = CAArch32Assembler::r1;
 	auto tmpReg = CAArch32Assembler::q0;
 
 	LoadMemory128AddressInRegister(dstAddrReg, dst);

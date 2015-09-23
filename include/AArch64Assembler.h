@@ -99,6 +99,7 @@ public:
 	void    Movz(REGISTER32, uint16, uint8);
 	void    Movz(REGISTER64, uint16, uint8);
 	void    Msub(REGISTER32, REGISTER32, REGISTER32, REGISTER32);
+	void    Mvn(REGISTER32, REGISTER32);
 	void    Ret(REGISTER64 = x30);
 	void    Sdiv(REGISTER32, REGISTER32, REGISTER32);
 	void    Stp_PreIdx(REGISTER64, REGISTER64, REGISTER64, int32);

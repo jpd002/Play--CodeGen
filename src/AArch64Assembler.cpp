@@ -284,6 +284,15 @@ void CAArch64Assembler::Msub(REGISTER32 rd, REGISTER32 rn, REGISTER32 rm, REGIST
 	WriteWord(opcode);
 }
 
+void CAArch64Assembler::Mvn(REGISTER32 rd, REGISTER32 rm)
+{
+	uint32 opcode = 0x2A200000;
+	opcode |= (rd  << 0);
+	opcode |= (wZR << 5);
+	opcode |= (rm  << 16);
+	WriteWord(opcode);
+}
+
 void CAArch64Assembler::Ret(REGISTER64 rn)
 {
 	uint32 opcode = 0xD65F0000;

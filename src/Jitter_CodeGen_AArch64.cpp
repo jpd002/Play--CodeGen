@@ -208,6 +208,8 @@ CCodeGen_AArch64::CONSTMATCHER CCodeGen_AArch64::g_constMatchers[] =
 	{ OP_MOV,          MATCH_VARIABLE,       MATCH_ANY,            MATCH_NIL,         &CCodeGen_AArch64::Emit_Mov_VarAny                          },
 	{ OP_MOV,          MATCH_MEMORY64,       MATCH_MEMORY64,       MATCH_NIL,         &CCodeGen_AArch64::Emit_Mov_Mem64Mem64                      },
 
+	{ OP_NOT,          MATCH_VARIABLE,       MATCH_VARIABLE,       MATCH_NIL,         &CCodeGen_AArch64::Emit_Not_VarVar                          },
+	
 	{ OP_EXTLOW64,     MATCH_VARIABLE,       MATCH_MEMORY64,       MATCH_NIL,         &CCodeGen_AArch64::Emit_ExtLow64VarMem64                    },
 	{ OP_EXTHIGH64,    MATCH_VARIABLE,       MATCH_MEMORY64,       MATCH_NIL,         &CCodeGen_AArch64::Emit_ExtHigh64VarMem64                   },
 	
@@ -667,6 +669,17 @@ void CCodeGen_AArch64::Emit_Mov_VarAny(const STATEMENT& statement)
 	auto dstReg = PrepareSymbolRegisterDef(dst, GetNextTempRegister());
 	auto src1Reg = PrepareSymbolRegisterUse(src1, GetNextTempRegister());
 	m_assembler.Mov(dstReg, src1Reg);
+	CommitSymbolRegister(dst, dstReg);
+}
+
+void CCodeGen_AArch64::Emit_Not_VarVar(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	
+	auto dstReg = PrepareSymbolRegisterDef(dst, GetNextTempRegister());
+	auto src1Reg = PrepareSymbolRegisterUse(src1, GetNextTempRegister());
+	m_assembler.Mvn(dstReg, src1Reg);
 	CommitSymbolRegister(dst, dstReg);
 }
 

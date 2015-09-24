@@ -143,9 +143,33 @@ void CAArch64Assembler::Blr(REGISTER64 rn)
 	WriteWord(opcode);
 }
 
+void CAArch64Assembler::Cmn(REGISTER32 rn, uint16 imm, ADDSUB_IMM_SHIFT_TYPE shift)
+{
+	WriteAddSubOpImm(0x31000000, shift, imm, rn, wZR);
+}
+
+void CAArch64Assembler::Cmp(REGISTER32 rn, REGISTER32 rm)
+{
+	uint32 opcode = 0x6B000000;
+	opcode |= (wZR << 0);
+	opcode |= (rn  << 5);
+	opcode |= (rm  << 16);
+	WriteWord(opcode);
+}
+
 void CAArch64Assembler::Cmp(REGISTER32 rn, uint16 imm, ADDSUB_IMM_SHIFT_TYPE shift)
 {
 	WriteAddSubOpImm(0x71000000, shift, imm, rn, wZR);
+}
+
+void CAArch64Assembler::Cset(REGISTER32 rd, CONDITION condition)
+{
+	uint32 opcode = 0x1A800400;
+	opcode |= (rd  << 0);
+	opcode |= (wZR << 5);
+	opcode |= ((condition ^ 1) << 12);	//Inverting lsb inverts condition
+	opcode |= (wZR << 16);
+	WriteWord(opcode);
 }
 
 void CAArch64Assembler::Eor(REGISTER32 rd, REGISTER32 rn, REGISTER32 rm)

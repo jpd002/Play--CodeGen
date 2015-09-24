@@ -79,7 +79,10 @@ public:
 	void    B(LABEL);
 	void    BCc(CONDITION, LABEL);
 	void    Blr(REGISTER64);
+	void    Cmn(REGISTER32, uint16, ADDSUB_IMM_SHIFT_TYPE);
+	void    Cmp(REGISTER32, REGISTER32);
 	void    Cmp(REGISTER32, uint16, ADDSUB_IMM_SHIFT_TYPE);
+	void    Cset(REGISTER32, CONDITION);
 	void    Eor(REGISTER32, REGISTER32, REGISTER32);
 	void    Ldp_PostIdx(REGISTER64, REGISTER64, REGISTER64, int32);
 	void    Ldr(REGISTER32, REGISTER64, uint32);

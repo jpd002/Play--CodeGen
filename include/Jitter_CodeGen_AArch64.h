@@ -23,6 +23,12 @@ namespace Jitter
 		typedef std::map<uint32, CAArch64Assembler::LABEL> LabelMapType;
 		typedef void (CCodeGen_AArch64::*ConstCodeEmitterType)(const STATEMENT&);
 
+		struct ADDSUB_IMM_PARAMS
+		{
+			uint16                                      imm = 0;
+			CAArch64Assembler::ADDSUB_IMM_SHIFT_TYPE    shiftType = CAArch64Assembler::ADDSUB_IMM_SHIFT_LSL0;
+		};
+
 		struct PARAM_STATE
 		{
 			bool prepared = false;
@@ -74,6 +80,8 @@ namespace Jitter
 		CAArch64Assembler::REGISTER64    PrepareParam64(PARAM_STATE&);
 		void                             CommitParam(PARAM_STATE&);
 		void                             CommitParam64(PARAM_STATE&);
+		
+		bool TryGetAddSubImmParams(uint32, ADDSUB_IMM_PARAMS&);
 		
 		//SHIFTOP ----------------------------------------------------------
 		struct SHIFTOP_BASE
@@ -188,6 +196,10 @@ namespace Jitter
 		
 		void    Emit_CondJmp(const STATEMENT&);
 		void    Emit_CondJmp_VarCst(const STATEMENT&);
+		
+		void    Cmp_GetFlag(CAArch64Assembler::REGISTER32, Jitter::CONDITION);
+		void    Emit_Cmp_VarAnyVar(const STATEMENT&);
+		void    Emit_Cmp_VarVarCst(const STATEMENT&);
 		
 		//ADDSUB
 		template <typename> void    Emit_AddSub_VarAnyVar(const STATEMENT&);

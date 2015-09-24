@@ -238,6 +238,9 @@ CCodeGen_AArch64::CONSTMATCHER CCodeGen_AArch64::g_constMatchers[] =
 	
 	{ OP_CONDJMP,      MATCH_NIL,            MATCH_VARIABLE,       MATCH_CONSTANT,    &CCodeGen_AArch64::Emit_CondJmp_VarCst                      },
 	
+	{ OP_CMP,          MATCH_VARIABLE,       MATCH_ANY,            MATCH_VARIABLE,    &CCodeGen_AArch64::Emit_Cmp_VarAnyVar                       },
+	{ OP_CMP,          MATCH_VARIABLE,       MATCH_VARIABLE,       MATCH_CONSTANT,    &CCodeGen_AArch64::Emit_Cmp_VarVarCst                       },
+	
 	{ OP_SLL,          MATCH_VARIABLE,       MATCH_ANY,            MATCH_VARIABLE,    &CCodeGen_AArch64::Emit_Shift_VarAnyVar<SHIFTOP_LSL>        },
 	{ OP_SRL,          MATCH_VARIABLE,       MATCH_ANY,            MATCH_VARIABLE,    &CCodeGen_AArch64::Emit_Shift_VarAnyVar<SHIFTOP_LSR>        },
 	{ OP_SRA,          MATCH_VARIABLE,       MATCH_ANY,            MATCH_VARIABLE,    &CCodeGen_AArch64::Emit_Shift_VarAnyVar<SHIFTOP_ASR>        },
@@ -631,6 +634,23 @@ void CCodeGen_AArch64::CommitParam64(PARAM_STATE& paramState)
 	paramState.index++;
 }
 
+bool CCodeGen_AArch64::TryGetAddSubImmParams(uint32 imm, ADDSUB_IMM_PARAMS& params)
+{
+	if((imm & 0xFFF) == imm)
+	{
+		params.imm = static_cast<uint16>(imm);
+		params.shiftType = CAArch64Assembler::ADDSUB_IMM_SHIFT_LSL0;
+		return true;
+	}
+	else if((imm & 0xFFF000) == imm)
+	{
+		params.imm = static_cast<uint16>(imm >> 12);
+		params.shiftType = CAArch64Assembler::ADDSUB_IMM_SHIFT_LSL12;
+		return true;
+	}
+	return false;
+}
+
 void CCodeGen_AArch64::Emit_Prolog(uint32 stackSize)
 {
 	m_assembler.Stp_PreIdx(CAArch64Assembler::x29, CAArch64Assembler::x30, CAArch64Assembler::xSP, -16);
@@ -827,6 +847,40 @@ void CCodeGen_AArch64::Emit_CondJmp(const STATEMENT& statement)
 	}
 }
 
+void CCodeGen_AArch64::Cmp_GetFlag(CAArch64Assembler::REGISTER32 registerId, Jitter::CONDITION condition)
+{
+	switch(condition)
+	{
+	case CONDITION_EQ:
+		m_assembler.Cset(registerId, CAArch64Assembler::CONDITION_EQ);
+		break;
+	case CONDITION_NE:
+		m_assembler.Cset(registerId, CAArch64Assembler::CONDITION_NE);
+		break;
+	case CONDITION_LT:
+		m_assembler.Cset(registerId, CAArch64Assembler::CONDITION_LT);
+		break;
+	case CONDITION_LE:
+		m_assembler.Cset(registerId, CAArch64Assembler::CONDITION_LE);
+		break;
+	case CONDITION_GT:
+		m_assembler.Cset(registerId, CAArch64Assembler::CONDITION_GT);
+		break;
+	case CONDITION_BL:
+		m_assembler.Cset(registerId, CAArch64Assembler::CONDITION_CC);
+		break;
+	case CONDITION_BE:
+		m_assembler.Cset(registerId, CAArch64Assembler::CONDITION_LS);
+		break;
+	case CONDITION_AB:
+		m_assembler.Cset(registerId, CAArch64Assembler::CONDITION_HI);
+		break;
+	default:
+		assert(0);
+		break;
+	}
+}
+
 void CCodeGen_AArch64::Emit_CondJmp_VarCst(const STATEMENT& statement)
 {
 	auto src1 = statement.src1->GetSymbol().get();
@@ -838,4 +892,43 @@ void CCodeGen_AArch64::Emit_CondJmp_VarCst(const STATEMENT& statement)
 	auto src1Reg = PrepareSymbolRegisterUse(src1, GetNextTempRegister());
 	m_assembler.Cmp(src1Reg, src2->m_valueLow, CAArch64Assembler::ADDSUB_IMM_SHIFT_LSL0);
 	Emit_CondJmp(statement);
+}
+
+void CCodeGen_AArch64::Emit_Cmp_VarAnyVar(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+	
+	auto dstReg = PrepareSymbolRegisterDef(dst, GetNextTempRegister());
+	auto src1Reg = PrepareSymbolRegisterUse(src1, GetNextTempRegister());
+	auto src2Reg = PrepareSymbolRegisterUse(src2, GetNextTempRegister());
+	m_assembler.Cmp(src1Reg, src2Reg);
+	Cmp_GetFlag(dstReg, statement.jmpCondition);
+	CommitSymbolRegister(dst, dstReg);
+}
+
+void CCodeGen_AArch64::Emit_Cmp_VarVarCst(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+	
+	assert(src2->m_type == SYM_CONSTANT);
+	
+	auto dstReg = PrepareSymbolRegisterDef(dst, GetNextTempRegister());
+	auto src1Reg = PrepareSymbolRegisterUse(src1, GetNextTempRegister());
+	
+	ADDSUB_IMM_PARAMS addSubImmParams;
+	if(TryGetAddSubImmParams(src2->m_valueLow, addSubImmParams))
+	{
+		assert(false);
+	}
+	else if(TryGetAddSubImmParams(-static_cast<int32>(src2->m_valueLow), addSubImmParams))
+	{
+		m_assembler.Cmn(src1Reg, addSubImmParams.imm, addSubImmParams.shiftType);
+	}
+
+	Cmp_GetFlag(dstReg, statement.jmpCondition);
+	CommitSymbolRegister(dst, dstReg);
 }

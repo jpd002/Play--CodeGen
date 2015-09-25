@@ -155,6 +155,31 @@ void CCodeGen_AArch64::Emit_Logic_VarVarCst(const STATEMENT& statement)
 }
 
 template <bool isSigned>
+void CCodeGen_AArch64::Emit_Mul_Tmp64AnyAny(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+	
+	assert(dst->m_type == SYM_TEMPORARY64);
+
+	auto src1Reg = PrepareSymbolRegisterUse(src1, GetNextTempRegister());
+	auto src2Reg = PrepareSymbolRegisterUse(src2, GetNextTempRegister());
+	auto dstReg = GetNextTempRegister64();
+	
+	if(isSigned)
+	{
+		m_assembler.Smull(dstReg, src1Reg, src2Reg);
+	}
+	else
+	{
+		m_assembler.Umull(dstReg, src1Reg, src2Reg);
+	}
+	
+	m_assembler.Str(dstReg, CAArch64Assembler::xSP, dst->m_stackLocation);
+}
+
+template <bool isSigned>
 void CCodeGen_AArch64::Emit_Div_Tmp64AnyAny(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
@@ -265,6 +290,9 @@ CCodeGen_AArch64::CONSTMATCHER CCodeGen_AArch64::g_constMatchers[] =
 	{ OP_SRL64,        MATCH_MEMORY64,       MATCH_MEMORY64,       MATCH_CONSTANT,    &CCodeGen_AArch64::Emit_Shift64_MemMemCst<SHIFT64OP_LSR>    },
 	{ OP_SRA64,        MATCH_MEMORY64,       MATCH_MEMORY64,       MATCH_CONSTANT,    &CCodeGen_AArch64::Emit_Shift64_MemMemCst<SHIFT64OP_ASR>    },
 	
+	{ OP_MUL,          MATCH_TEMPORARY64,    MATCH_ANY,            MATCH_ANY,         &CCodeGen_AArch64::Emit_Mul_Tmp64AnyAny<false>              },
+	{ OP_MULS,         MATCH_TEMPORARY64,    MATCH_ANY,            MATCH_ANY,         &CCodeGen_AArch64::Emit_Mul_Tmp64AnyAny<true>               },
+
 	{ OP_DIV,          MATCH_TEMPORARY64,    MATCH_ANY,            MATCH_ANY,         &CCodeGen_AArch64::Emit_Div_Tmp64AnyAny<false>              },
 	{ OP_DIVS,         MATCH_TEMPORARY64,    MATCH_ANY,            MATCH_ANY,         &CCodeGen_AArch64::Emit_Div_Tmp64AnyAny<true>               },
 	

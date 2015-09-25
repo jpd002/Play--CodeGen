@@ -213,6 +213,9 @@ namespace Jitter
 		template <typename> void    Emit_Logic_VarAnyVar(const STATEMENT&);
 		template <typename> void    Emit_Logic_VarVarCst(const STATEMENT&);
 
+		//MUL
+		template <bool> void Emit_Mul_Tmp64AnyAny(const STATEMENT&);
+		
 		//DIV
 		template <bool> void Emit_Div_Tmp64AnyAny(const STATEMENT&);
 		

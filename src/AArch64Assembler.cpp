@@ -347,6 +347,16 @@ void CAArch64Assembler::Sdiv(REGISTER32 rd, REGISTER32 rn, REGISTER32 rm)
 	WriteWord(opcode);
 }
 
+void CAArch64Assembler::Smull(REGISTER64 rd, REGISTER32 rn, REGISTER32 rm)
+{
+	uint32 opcode = 0x9B200000;
+	opcode |= (rd  <<  0);
+	opcode |= (rn  <<  5);
+	opcode |= (wZR << 10);
+	opcode |= (rm  << 16);
+	WriteWord(opcode);
+}
+
 void CAArch64Assembler::Str(REGISTER32 rt, REGISTER64 rn, uint32 offset)
 {
 	assert((offset & 0x03) == 0);
@@ -401,6 +411,16 @@ void CAArch64Assembler::Udiv(REGISTER32 rd, REGISTER32 rn, REGISTER32 rm)
 	opcode |= (rd <<  0);
 	opcode |= (rn <<  5);
 	opcode |= (rm << 16);
+	WriteWord(opcode);
+}
+
+void CAArch64Assembler::Umull(REGISTER64 rd, REGISTER32 rn, REGISTER32 rm)
+{
+	uint32 opcode = 0x9BA00000;
+	opcode |= (rd  <<  0);
+	opcode |= (rn  <<  5);
+	opcode |= (wZR << 10);
+	opcode |= (rm  << 16);
 	WriteWord(opcode);
 }
 

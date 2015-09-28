@@ -130,7 +130,6 @@
 		70BFC5171A560A3F0094CD9F /* GeneralSettingsRelease.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = GeneralSettingsRelease.xcconfig; sourceTree = "<group>"; };
 		70C01F361AC8D8F1004DA1B2 /* MdLogicTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MdLogicTest.cpp; path = ../tests/MdLogicTest.cpp; sourceTree = "<group>"; };
 		70C01F371AC8D8F1004DA1B2 /* MdLogicTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MdLogicTest.h; path = ../tests/MdLogicTest.h; sourceTree = "<group>"; };
-		70C0EF801A593A8700227442 /* ExternalDependencies.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = ExternalDependencies.xcconfig; sourceTree = "<group>"; };
 		7E207B071507D07500EE8C4F /* CodeGenTestSuite */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = CodeGenTestSuite; sourceTree = BUILT_PRODUCTS_DIR; };
 		7E207B181507D0AB00EE8C4F /* CodeGen.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = CodeGen.xcodeproj; sourceTree = "<group>"; };
 		7E207C111507D5F200EE8C4F /* AliasTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = AliasTest.cpp; path = ../tests/AliasTest.cpp; sourceTree = "<group>"; };
@@ -193,7 +192,6 @@
 		70BFC5131A560A250094CD9F /* Config */ = {
 			isa = PBXGroup;
 			children = (
-				70C0EF801A593A8700227442 /* ExternalDependencies.xcconfig */,
 				70BFC5151A560A3F0094CD9F /* GeneralSettings.xcconfig */,
 				70BFC5161A560A3F0094CD9F /* GeneralSettingsDebug.xcconfig */,
 				70BFC5171A560A3F0094CD9F /* GeneralSettingsRelease.xcconfig */,

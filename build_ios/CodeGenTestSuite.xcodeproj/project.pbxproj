@@ -33,7 +33,6 @@
 		70AD234D1B389DDA00137AA0 /* DivTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70AD23491B389DDA00137AA0 /* DivTest.cpp */; };
 		70AD234E1B389DDA00137AA0 /* MdShiftTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70AD234B1B389DDA00137AA0 /* MdShiftTest.cpp */; };
 		70C01F331AC8D8BE004DA1B2 /* MdLogicTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70C01F311AC8D8BE004DA1B2 /* MdLogicTest.cpp */; };
-		70C0EFB91A59FA7F00227442 /* ExternalDependencies.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 70C0EFB51A59FA7F00227442 /* ExternalDependencies.xcconfig */; };
 		70C0EFBA1A59FA7F00227442 /* GeneralSettings.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 70C0EFB61A59FA7F00227442 /* GeneralSettings.xcconfig */; };
 		70C0EFBB1A59FA7F00227442 /* GeneralSettingsDebug.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 70C0EFB71A59FA7F00227442 /* GeneralSettingsDebug.xcconfig */; };
 		70C0EFBC1A59FA7F00227442 /* GeneralSettingsRelease.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 70C0EFB81A59FA7F00227442 /* GeneralSettingsRelease.xcconfig */; };
@@ -139,7 +138,6 @@
 		70AD234C1B389DDA00137AA0 /* MdShiftTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MdShiftTest.h; path = ../tests/MdShiftTest.h; sourceTree = "<group>"; };
 		70C01F311AC8D8BE004DA1B2 /* MdLogicTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MdLogicTest.cpp; path = ../tests/MdLogicTest.cpp; sourceTree = "<group>"; };
 		70C01F321AC8D8BE004DA1B2 /* MdLogicTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MdLogicTest.h; path = ../tests/MdLogicTest.h; sourceTree = "<group>"; };
-		70C0EFB51A59FA7F00227442 /* ExternalDependencies.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = ExternalDependencies.xcconfig; sourceTree = "<group>"; };
 		70C0EFB61A59FA7F00227442 /* GeneralSettings.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = GeneralSettings.xcconfig; sourceTree = "<group>"; };
 		70C0EFB71A59FA7F00227442 /* GeneralSettingsDebug.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = GeneralSettingsDebug.xcconfig; sourceTree = "<group>"; };
 		70C0EFB81A59FA7F00227442 /* GeneralSettingsRelease.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = GeneralSettingsRelease.xcconfig; sourceTree = "<group>"; };
@@ -243,7 +241,6 @@
 		70C0EFB21A59FA7300227442 /* Config */ = {
 			isa = PBXGroup;
 			children = (
-				70C0EFB51A59FA7F00227442 /* ExternalDependencies.xcconfig */,
 				70C0EFB61A59FA7F00227442 /* GeneralSettings.xcconfig */,
 				70C0EFB71A59FA7F00227442 /* GeneralSettingsDebug.xcconfig */,
 				70C0EFB81A59FA7F00227442 /* GeneralSettingsRelease.xcconfig */,
@@ -435,7 +432,6 @@
 				70C0EFBA1A59FA7F00227442 /* GeneralSettings.xcconfig in Resources */,
 				70C0EFBB1A59FA7F00227442 /* GeneralSettingsDebug.xcconfig in Resources */,
 				70C0EFBC1A59FA7F00227442 /* GeneralSettingsRelease.xcconfig in Resources */,
-				70C0EFB91A59FA7F00227442 /* ExternalDependencies.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

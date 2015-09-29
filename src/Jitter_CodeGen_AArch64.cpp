@@ -254,6 +254,7 @@ CCodeGen_AArch64::CONSTMATCHER CCodeGen_AArch64::g_constMatchers[] =
 	
 	{ OP_PARAM,        MATCH_NIL,            MATCH_CONTEXT,        MATCH_NIL,         &CCodeGen_AArch64::Emit_Param_Ctx                           },
 	{ OP_PARAM,        MATCH_NIL,            MATCH_MEMORY,         MATCH_NIL,         &CCodeGen_AArch64::Emit_Param_Mem                           },
+	{ OP_PARAM,        MATCH_NIL,            MATCH_CONSTANT,       MATCH_NIL,         &CCodeGen_AArch64::Emit_Param_Cst                           },
 	
 	{ OP_CALL,         MATCH_NIL,            MATCH_CONSTANTPTR,    MATCH_CONSTANT,    &CCodeGen_AArch64::Emit_Call                                },
 	
@@ -805,6 +806,20 @@ void CCodeGen_AArch64::Emit_Param_Mem(const STATEMENT& statement)
 		{
 			auto paramReg = PrepareParam(paramState);
 			LoadMemoryInRegister(paramReg, src1);
+			CommitParam(paramState);
+		}
+	);
+}
+
+void CCodeGen_AArch64::Emit_Param_Cst(const STATEMENT& statement)
+{
+	auto src1 = statement.src1->GetSymbol().get();
+		
+	m_params.push_back(
+		[this, src1] (PARAM_STATE& paramState)
+		{
+			auto paramReg = PrepareParam(paramState);
+			LoadConstantInRegister(paramReg, src1->m_valueLow);
 			CommitParam(paramState);
 		}
 	);

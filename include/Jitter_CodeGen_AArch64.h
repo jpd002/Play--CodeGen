@@ -188,6 +188,7 @@ namespace Jitter
 		
 		void    Emit_Param_Ctx(const STATEMENT&);
 		void    Emit_Param_Mem(const STATEMENT&);
+		void    Emit_Param_Cst(const STATEMENT&);
 		
 		void    Emit_Call(const STATEMENT&);
 		void    Emit_RetVal_Tmp(const STATEMENT&);

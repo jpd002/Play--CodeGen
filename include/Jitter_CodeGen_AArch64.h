@@ -140,14 +140,16 @@ namespace Jitter
 		
 		struct ADDSUBOP_ADD : public ADDSUBOP_BASE
 		{
-			static OpImmType    OpImm()    { return &CAArch64Assembler::Add; }
-			static OpRegType    OpReg()    { return &CAArch64Assembler::Add; }
+			static OpImmType    OpImm()       { return &CAArch64Assembler::Add; }
+			static OpRegType    OpReg()       { return &CAArch64Assembler::Add; }
+			static OpImmType    OpImmRev()    { return &CAArch64Assembler::Sub; }
 		};
 
 		struct ADDSUBOP_SUB : public ADDSUBOP_BASE
 		{
-			static OpImmType    OpImm()    { return &CAArch64Assembler::Sub; }
-			static OpRegType    OpReg()    { return &CAArch64Assembler::Sub; }
+			static OpImmType    OpImm()       { return &CAArch64Assembler::Sub; }
+			static OpRegType    OpReg()       { return &CAArch64Assembler::Sub; }
+			static OpImmType    OpImmRev()    { return &CAArch64Assembler::Add; }
 		};
 
 		//SHIFT64OP ----------------------------------------------------------

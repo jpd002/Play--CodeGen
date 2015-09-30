@@ -75,17 +75,22 @@ void CCodeGen_AArch64::Emit_AddSub_VarVarCst(const STATEMENT& statement)
 	
 	auto dstReg = PrepareSymbolRegisterDef(dst, GetNextTempRegister());
 	auto src1Reg = PrepareSymbolRegisterUse(src1, GetNextTempRegister());
-	uint32 constant = src2->m_valueLow;
 	
-	if((constant & 0xFFF) == constant)
+	ADDSUB_IMM_PARAMS addSubImmParams;
+	if(TryGetAddSubImmParams(src2->m_valueLow, addSubImmParams))
 	{
-		((m_assembler).*(AddSubOp::OpImm()))(dstReg, src1Reg, src2->m_valueLow, CAArch64Assembler::ADDSUB_IMM_SHIFT_LSL0);
+		((m_assembler).*(AddSubOp::OpImm()))(dstReg, src1Reg, addSubImmParams.imm, addSubImmParams.shiftType);
+	}
+	else if(TryGetAddSubImmParams(-static_cast<int32>(src2->m_valueLow), addSubImmParams))
+	{
+		((m_assembler).*(AddSubOp::OpImmRev()))(dstReg, src1Reg, addSubImmParams.imm, addSubImmParams.shiftType);
 	}
 	else
 	{
-		assert(false);
+		auto src2Reg = PrepareSymbolRegisterUse(src2, GetNextTempRegister());
+		((m_assembler).*(AddSubOp::OpReg()))(dstReg, src1Reg, src2Reg);
 	}
-	
+
 	CommitSymbolRegister(dst, dstReg);
 }
 

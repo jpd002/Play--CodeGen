@@ -67,6 +67,9 @@ void CCodeGen_AArch32::LoadMemory64InRegisters(CAArch32Assembler::REGISTER regLo
 		case SYM_TEMPORARY64:
 			m_assembler.Ldrd(regLo, CAArch32Assembler::rSP, CAArch32Assembler::MakeImmediateLdrAddress(symbol->m_stackLocation + m_stackLevel));
 			break;
+		default:
+			assert(false);
+			break;
 		}
 	}
 	else
@@ -91,6 +94,9 @@ void CCodeGen_AArch32::StoreRegistersInMemory64(CSymbol* symbol, CAArch32Assembl
 			break;
 		case SYM_TEMPORARY64:
 			m_assembler.Strd(regLo, CAArch32Assembler::rSP, CAArch32Assembler::MakeImmediateLdrAddress(symbol->m_stackLocation + m_stackLevel));
+			break;
+		default:
+			assert(false);
 			break;
 		}
 	}

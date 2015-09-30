@@ -898,6 +898,19 @@ void CCodeGen_AArch64::Emit_CondJmp(const STATEMENT& statement)
 	}
 }
 
+void CCodeGen_AArch64::Emit_CondJmp_VarCst(const STATEMENT& statement)
+{
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+	
+	assert(src2->m_type == SYM_CONSTANT);
+	assert(src2->m_valueLow < 4096);
+	
+	auto src1Reg = PrepareSymbolRegisterUse(src1, GetNextTempRegister());
+	m_assembler.Cmp(src1Reg, src2->m_valueLow, CAArch64Assembler::ADDSUB_IMM_SHIFT_LSL0);
+	Emit_CondJmp(statement);
+}
+
 void CCodeGen_AArch64::Cmp_GetFlag(CAArch64Assembler::REGISTER32 registerId, Jitter::CONDITION condition)
 {
 	switch(condition)
@@ -930,19 +943,6 @@ void CCodeGen_AArch64::Cmp_GetFlag(CAArch64Assembler::REGISTER32 registerId, Jit
 		assert(0);
 		break;
 	}
-}
-
-void CCodeGen_AArch64::Emit_CondJmp_VarCst(const STATEMENT& statement)
-{
-	auto src1 = statement.src1->GetSymbol().get();
-	auto src2 = statement.src2->GetSymbol().get();
-	
-	assert(src2->m_type == SYM_CONSTANT);
-	assert(src2->m_valueLow < 4096);
-	
-	auto src1Reg = PrepareSymbolRegisterUse(src1, GetNextTempRegister());
-	m_assembler.Cmp(src1Reg, src2->m_valueLow, CAArch64Assembler::ADDSUB_IMM_SHIFT_LSL0);
-	Emit_CondJmp(statement);
 }
 
 void CCodeGen_AArch64::Emit_Cmp_VarAnyVar(const STATEMENT& statement)

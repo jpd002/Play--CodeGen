@@ -922,11 +922,24 @@ void CCodeGen_AArch64::Emit_CondJmp_VarCst(const STATEMENT& statement)
 	auto src1 = statement.src1->GetSymbol().get();
 	auto src2 = statement.src2->GetSymbol().get();
 	
-	assert(src2->m_type == SYM_CONSTANT);
-	assert(src2->m_valueLow < 4096);
-	
 	auto src1Reg = PrepareSymbolRegisterUse(src1, GetNextTempRegister());
-	m_assembler.Cmp(src1Reg, src2->m_valueLow, CAArch64Assembler::ADDSUB_IMM_SHIFT_LSL0);
+	assert(src2->m_type == SYM_CONSTANT);
+	
+	ADDSUB_IMM_PARAMS addSubImmParams;
+	if(TryGetAddSubImmParams(src2->m_valueLow, addSubImmParams))
+	{
+		m_assembler.Cmp(src1Reg, addSubImmParams.imm, addSubImmParams.shiftType);
+	}
+	else if(TryGetAddSubImmParams(-static_cast<int32>(src2->m_valueLow), addSubImmParams))
+	{
+		m_assembler.Cmn(src1Reg, addSubImmParams.imm, addSubImmParams.shiftType);
+	}
+	else
+	{
+		auto src2Reg = PrepareSymbolRegisterUse(src2, GetNextTempRegister());
+		m_assembler.Cmp(src1Reg, src2Reg);
+	}
+
 	Emit_CondJmp(statement);
 }
 
@@ -992,7 +1005,7 @@ void CCodeGen_AArch64::Emit_Cmp_VarVarCst(const STATEMENT& statement)
 	ADDSUB_IMM_PARAMS addSubImmParams;
 	if(TryGetAddSubImmParams(src2->m_valueLow, addSubImmParams))
 	{
-		assert(false);
+		m_assembler.Cmp(src1Reg, addSubImmParams.imm, addSubImmParams.shiftType);
 	}
 	else if(TryGetAddSubImmParams(-static_cast<int32>(src2->m_valueLow), addSubImmParams))
 	{
@@ -1000,7 +1013,8 @@ void CCodeGen_AArch64::Emit_Cmp_VarVarCst(const STATEMENT& statement)
 	}
 	else
 	{
-		assert(false);
+		auto src2Reg = PrepareSymbolRegisterUse(src2, GetNextTempRegister());
+		m_assembler.Cmp(src1Reg, src2Reg);
 	}
 
 	Cmp_GetFlag(dstReg, statement.jmpCondition);

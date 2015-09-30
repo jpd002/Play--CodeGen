@@ -331,6 +331,15 @@ void CAArch64Assembler::Mvn(REGISTER32 rd, REGISTER32 rm)
 	WriteWord(opcode);
 }
 
+void CAArch64Assembler::Orr(REGISTER32 rd, REGISTER32 rn, REGISTER32 rm)
+{
+	uint32 opcode = 0x2A000000;
+	opcode |= (rd <<  0);
+	opcode |= (rn <<  5);
+	opcode |= (rm << 16);
+	WriteWord(opcode);
+}
+
 void CAArch64Assembler::Ret(REGISTER64 rn)
 {
 	uint32 opcode = 0xD65F0000;

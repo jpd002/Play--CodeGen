@@ -121,6 +121,11 @@ namespace Jitter
 			static OpImmType    OpImm()    { return &CAArch64Assembler::And; }
 		};
 		
+		struct LOGICOP_OR : public LOGICOP_BASE
+		{
+			static OpRegType    OpReg()    { return &CAArch64Assembler::Orr; }
+		};
+
 		struct LOGICOP_XOR : public LOGICOP_BASE
 		{
 			static OpRegType    OpReg()    { return &CAArch64Assembler::Eor; }

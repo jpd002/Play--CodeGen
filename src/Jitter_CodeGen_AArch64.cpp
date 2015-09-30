@@ -140,9 +140,7 @@ void CCodeGen_AArch64::Emit_Logic_VarVarCst(const STATEMENT& statement)
 	auto src2 = statement.src2->GetSymbol().get();
 	
 	assert(src2->m_type == SYM_CONSTANT);
-	
 	assert(src2->m_valueLow != 0);
-	assert(src2->m_valueLow != ~0);
 	
 	//TODO: Check if constant can be encoded in immediate fields
 	//or encoded using a single constant load and + shift (using shift reg ops)
@@ -241,6 +239,10 @@ void CCodeGen_AArch64::Emit_Shift64_MemMemCst(const STATEMENT& statement)
 	StoreRegisterInMemory64(dst, dstReg);
 }
 
+#define LOGIC_CONST_MATCHERS(LOGICOP_CST, LOGICOP) \
+	{ LOGICOP_CST,          MATCH_VARIABLE,       MATCH_VARIABLE,       MATCH_CONSTANT,    &CCodeGen_AArch64::Emit_Logic_VarVarCst<LOGICOP>        }, \
+	{ LOGICOP_CST,          MATCH_VARIABLE,       MATCH_ANY,            MATCH_VARIABLE,    &CCodeGen_AArch64::Emit_Logic_VarAnyVar<LOGICOP>        },
+
 CCodeGen_AArch64::CONSTMATCHER CCodeGen_AArch64::g_constMatchers[] =
 {
 	{ OP_MOV,          MATCH_MEMORY,         MATCH_ANY,            MATCH_NIL,         &CCodeGen_AArch64::Emit_Mov_MemAny                          },
@@ -275,9 +277,10 @@ CCodeGen_AArch64::CONSTMATCHER CCodeGen_AArch64::g_constMatchers[] =
 	{ OP_SRL,          MATCH_VARIABLE,       MATCH_VARIABLE,       MATCH_CONSTANT,    &CCodeGen_AArch64::Emit_Shift_VarVarCst<SHIFTOP_LSR>        },
 	{ OP_SRA,          MATCH_VARIABLE,       MATCH_VARIABLE,       MATCH_CONSTANT,    &CCodeGen_AArch64::Emit_Shift_VarVarCst<SHIFTOP_ASR>        },
 	
-	{ OP_AND,          MATCH_VARIABLE,       MATCH_VARIABLE,       MATCH_CONSTANT,    &CCodeGen_AArch64::Emit_Logic_VarVarCst<LOGICOP_AND>        },
-	{ OP_XOR,          MATCH_VARIABLE,       MATCH_ANY,            MATCH_VARIABLE,    &CCodeGen_AArch64::Emit_Logic_VarAnyVar<LOGICOP_XOR>        },
-	
+	LOGIC_CONST_MATCHERS(OP_AND, LOGICOP_AND)
+	LOGIC_CONST_MATCHERS(OP_OR,  LOGICOP_OR )
+	LOGIC_CONST_MATCHERS(OP_XOR, LOGICOP_XOR)
+
 	{ OP_ADD,          MATCH_VARIABLE,       MATCH_ANY,            MATCH_VARIABLE,    &CCodeGen_AArch64::Emit_AddSub_VarAnyVar<ADDSUBOP_ADD>      },
 	{ OP_ADD,          MATCH_VARIABLE,       MATCH_VARIABLE,       MATCH_CONSTANT,    &CCodeGen_AArch64::Emit_AddSub_VarVarCst<ADDSUBOP_ADD>      },
 	{ OP_SUB,          MATCH_VARIABLE,       MATCH_ANY,            MATCH_VARIABLE,    &CCodeGen_AArch64::Emit_AddSub_VarAnyVar<ADDSUBOP_SUB>      },

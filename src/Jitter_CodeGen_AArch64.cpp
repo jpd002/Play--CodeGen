@@ -971,6 +971,10 @@ void CCodeGen_AArch64::Emit_Cmp_VarVarCst(const STATEMENT& statement)
 	{
 		m_assembler.Cmn(src1Reg, addSubImmParams.imm, addSubImmParams.shiftType);
 	}
+	else
+	{
+		assert(false);
+	}
 
 	Cmp_GetFlag(dstReg, statement.jmpCondition);
 	CommitSymbolRegister(dst, dstReg);

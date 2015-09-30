@@ -205,6 +205,7 @@ namespace Jitter
 		void    Emit_Jmp(const STATEMENT&);
 		
 		void    Emit_CondJmp(const STATEMENT&);
+		void    Emit_CondJmp_AnyVar(const STATEMENT&);
 		void    Emit_CondJmp_VarCst(const STATEMENT&);
 		
 		void    Cmp_GetFlag(CAArch64Assembler::REGISTER32, Jitter::CONDITION);

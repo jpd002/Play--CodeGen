@@ -271,6 +271,7 @@ CCodeGen_AArch64::CONSTMATCHER CCodeGen_AArch64::g_constMatchers[] =
 	
 	{ OP_JMP,          MATCH_NIL,            MATCH_NIL,            MATCH_NIL,         &CCodeGen_AArch64::Emit_Jmp                                 },
 	
+	{ OP_CONDJMP,      MATCH_NIL,            MATCH_ANY,            MATCH_VARIABLE,    &CCodeGen_AArch64::Emit_CondJmp_AnyVar                      },
 	{ OP_CONDJMP,      MATCH_NIL,            MATCH_VARIABLE,       MATCH_CONSTANT,    &CCodeGen_AArch64::Emit_CondJmp_VarCst                      },
 	
 	{ OP_CMP,          MATCH_VARIABLE,       MATCH_ANY,            MATCH_VARIABLE,    &CCodeGen_AArch64::Emit_Cmp_VarAnyVar                       },
@@ -903,6 +904,17 @@ void CCodeGen_AArch64::Emit_CondJmp(const STATEMENT& statement)
 		assert(0);
 		break;
 	}
+}
+
+void CCodeGen_AArch64::Emit_CondJmp_AnyVar(const STATEMENT& statement)
+{
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+	
+	auto src1Reg = PrepareSymbolRegisterUse(src1, GetNextTempRegister());
+	auto src2Reg = PrepareSymbolRegisterUse(src2, GetNextTempRegister());
+	m_assembler.Cmp(src1Reg, src2Reg);
+	Emit_CondJmp(statement);
 }
 
 void CCodeGen_AArch64::Emit_CondJmp_VarCst(const STATEMENT& statement)

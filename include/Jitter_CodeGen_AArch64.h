@@ -183,6 +183,8 @@ namespace Jitter
 		CAArch64Assembler::LABEL GetLabel(uint32);
 		void                     MarkLabel(const STATEMENT&);
 		
+		void    Emit_Nop(const STATEMENT&);
+		
 		void    Emit_Mov_MemAny(const STATEMENT&);
 		void    Emit_Mov_VarAny(const STATEMENT&);
 		

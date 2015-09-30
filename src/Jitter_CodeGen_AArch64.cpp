@@ -250,6 +250,8 @@ void CCodeGen_AArch64::Emit_Shift64_MemMemCst(const STATEMENT& statement)
 
 CCodeGen_AArch64::CONSTMATCHER CCodeGen_AArch64::g_constMatchers[] =
 {
+	{ OP_NOP,          MATCH_NIL,            MATCH_NIL,            MATCH_NIL,         &CCodeGen_AArch64::Emit_Nop                                 },
+
 	{ OP_MOV,          MATCH_MEMORY,         MATCH_ANY,            MATCH_NIL,         &CCodeGen_AArch64::Emit_Mov_MemAny                          },
 	{ OP_MOV,          MATCH_VARIABLE,       MATCH_ANY,            MATCH_NIL,         &CCodeGen_AArch64::Emit_Mov_VarAny                          },
 	{ OP_MOV,          MATCH_MEMORY64,       MATCH_MEMORY64,       MATCH_NIL,         &CCodeGen_AArch64::Emit_Mov_Mem64Mem64                      },
@@ -726,6 +728,11 @@ void CCodeGen_AArch64::MarkLabel(const STATEMENT& statement)
 {
 	auto label = GetLabel(statement.jmpBlock);
 	m_assembler.MarkLabel(label);
+}
+
+void CCodeGen_AArch64::Emit_Nop(const STATEMENT&)
+{
+
 }
 
 void CCodeGen_AArch64::Emit_Mov_MemAny(const STATEMENT& statement)

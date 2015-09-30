@@ -68,7 +68,6 @@
 		7099CCAA17C63E9C0035D19A /* MachoDefs.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = MachoDefs.h; path = ../include/MachoDefs.h; sourceTree = "<group>"; };
 		7099CCAB17C63E9C0035D19A /* MachoObjectFile.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = MachoObjectFile.h; path = ../include/MachoObjectFile.h; sourceTree = "<group>"; };
 		7099CCAC17C63E9C0035D19A /* ObjectFile.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ObjectFile.h; path = ../include/ObjectFile.h; sourceTree = "<group>"; };
-		70C0EF7A1A59395500227442 /* ExternalDependencies.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = ExternalDependencies.xcconfig; sourceTree = "<group>"; };
 		70C0EF7B1A59395500227442 /* GeneralSettings.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = GeneralSettings.xcconfig; sourceTree = "<group>"; };
 		70C0EF7C1A59395500227442 /* GeneralSettingsDebug.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = GeneralSettingsDebug.xcconfig; sourceTree = "<group>"; };
 		70C0EF7D1A59395500227442 /* GeneralSettingsRelease.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = GeneralSettingsRelease.xcconfig; sourceTree = "<group>"; };
@@ -231,7 +230,6 @@
 		70C0EF791A59394700227442 /* Config */ = {
 			isa = PBXGroup;
 			children = (
-				70C0EF7A1A59395500227442 /* ExternalDependencies.xcconfig */,
 				70C0EF7B1A59395500227442 /* GeneralSettings.xcconfig */,
 				70C0EF7C1A59395500227442 /* GeneralSettingsDebug.xcconfig */,
 				70C0EF7D1A59395500227442 /* GeneralSettingsRelease.xcconfig */,

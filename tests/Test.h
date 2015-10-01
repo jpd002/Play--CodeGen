@@ -1,7 +1,11 @@
 #pragma once
 
+#include <string.h>
+#include <math.h>
+
 #include "AlignedAlloc.h"
 #include "Jitter.h"
+#include "offsetof_def.h"
 
 #define TEST_VERIFY(a) if(!(a)) { int* p = 0; (*p) = 0; }
 

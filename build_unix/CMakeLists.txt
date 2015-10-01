@@ -60,6 +60,7 @@ add_executable(CodeGenTest
 	../tests/FpIntMixTest.cpp
 	../tests/FpuTest.cpp
 	../tests/HugeJumpTest.cpp
+	../tests/LogicTest.cpp
 	../tests/Logic64Test.cpp
 	../tests/LzcTest.cpp
 	../tests/Main.cpp

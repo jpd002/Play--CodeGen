@@ -23,7 +23,7 @@
 		#warning Architecture not supported
 	#endif
 
-#elif defined(__ANDROID__)
+#elif defined(__ANDROID__) || defined(__linux__) || defined(__FreeBSD__)
 
 	#if defined(__arm__)
 		#include "Jitter_CodeGen_AArch32.h"
@@ -63,7 +63,7 @@ Jitter::CCodeGen* Jitter::CreateCodeGen()
 		throw std::runtime_error("Unsupported architecture.");
 	#endif
 
-#elif defined(__ANDROID__)
+#elif defined(__ANDROID__) || defined(__linux__) || defined(__FreeBSD__)
 
 	#if defined(__arm__)
 		return new Jitter::CCodeGen_AArch32();
@@ -76,6 +76,10 @@ Jitter::CCodeGen* Jitter::CreateCodeGen()
 	#else
 		throw std::runtime_error("Unsupported architecture.");
 	#endif
+
+#else
+
+	throw std::runtime_error("Unsupported platform.");
 
 #endif
 }

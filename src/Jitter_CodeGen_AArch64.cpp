@@ -694,6 +694,7 @@ bool CCodeGen_AArch64::TryGetAddSubImmParams(uint32 imm, ADDSUB_IMM_PARAMS& para
 void CCodeGen_AArch64::Emit_Prolog(uint32 stackSize)
 {
 	m_assembler.Stp_PreIdx(CAArch64Assembler::x29, CAArch64Assembler::x30, CAArch64Assembler::xSP, -16);
+	m_assembler.Stp_PreIdx(g_baseRegister, static_cast<CAArch64Assembler::REGISTER64>(g_baseRegister + 1), CAArch64Assembler::xSP, -16);
 	m_assembler.Mov_Sp(CAArch64Assembler::x29, CAArch64Assembler::xSP);
 	if(stackSize != 0)
 	{
@@ -705,6 +706,7 @@ void CCodeGen_AArch64::Emit_Prolog(uint32 stackSize)
 void CCodeGen_AArch64::Emit_Epilog(uint32 stackSize)
 {
 	m_assembler.Mov_Sp(CAArch64Assembler::xSP, CAArch64Assembler::x29);
+	m_assembler.Ldp_PostIdx(g_baseRegister, static_cast<CAArch64Assembler::REGISTER64>(g_baseRegister + 1), CAArch64Assembler::xSP, 16);
 	m_assembler.Ldp_PostIdx(CAArch64Assembler::x29, CAArch64Assembler::x30, CAArch64Assembler::xSP, 16);
 	m_assembler.Ret();
 }

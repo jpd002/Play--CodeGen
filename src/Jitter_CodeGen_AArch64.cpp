@@ -2,7 +2,12 @@
 
 using namespace Jitter;
 
-CAArch64Assembler::REGISTER32    CCodeGen_AArch64::g_tempRegisters[] =
+CAArch64Assembler::REGISTER32    CCodeGen_AArch64::g_registers[MAX_REGISTERS] =
+{
+	CAArch64Assembler::w20,
+};
+
+CAArch64Assembler::REGISTER32    CCodeGen_AArch64::g_tempRegisters[MAX_TEMP_REGS] =
 {
 	CAArch64Assembler::w9,
 	CAArch64Assembler::w10,
@@ -13,7 +18,7 @@ CAArch64Assembler::REGISTER32    CCodeGen_AArch64::g_tempRegisters[] =
 	CAArch64Assembler::w15
 };
 
-CAArch64Assembler::REGISTER64    CCodeGen_AArch64::g_tempRegisters64[] =
+CAArch64Assembler::REGISTER64    CCodeGen_AArch64::g_tempRegisters64[MAX_TEMP_REGS] =
 {
 	CAArch64Assembler::x9,
 	CAArch64Assembler::x10,
@@ -262,11 +267,13 @@ CCodeGen_AArch64::CONSTMATCHER CCodeGen_AArch64::g_constMatchers[] =
 	{ OP_EXTHIGH64,    MATCH_VARIABLE,       MATCH_MEMORY64,       MATCH_NIL,         &CCodeGen_AArch64::Emit_ExtHigh64VarMem64                   },
 	
 	{ OP_PARAM,        MATCH_NIL,            MATCH_CONTEXT,        MATCH_NIL,         &CCodeGen_AArch64::Emit_Param_Ctx                           },
+	{ OP_PARAM,        MATCH_NIL,            MATCH_REGISTER,       MATCH_NIL,         &CCodeGen_AArch64::Emit_Param_Reg                           },
 	{ OP_PARAM,        MATCH_NIL,            MATCH_MEMORY,         MATCH_NIL,         &CCodeGen_AArch64::Emit_Param_Mem                           },
 	{ OP_PARAM,        MATCH_NIL,            MATCH_CONSTANT,       MATCH_NIL,         &CCodeGen_AArch64::Emit_Param_Cst                           },
 	
 	{ OP_CALL,         MATCH_NIL,            MATCH_CONSTANTPTR,    MATCH_CONSTANT,    &CCodeGen_AArch64::Emit_Call                                },
 	
+	{ OP_RETVAL,       MATCH_REGISTER,       MATCH_NIL,            MATCH_NIL,         &CCodeGen_AArch64::Emit_RetVal_Reg                          },
 	{ OP_RETVAL,       MATCH_TEMPORARY,      MATCH_NIL,            MATCH_NIL,         &CCodeGen_AArch64::Emit_RetVal_Tmp                          },
 	
 	{ OP_JMP,          MATCH_NIL,            MATCH_NIL,            MATCH_NIL,         &CCodeGen_AArch64::Emit_Jmp                                 },
@@ -332,7 +339,7 @@ CCodeGen_AArch64::~CCodeGen_AArch64()
 
 unsigned int CCodeGen_AArch64::GetAvailableRegisterCount() const
 {
-	return 0;
+	return MAX_REGISTERS;
 }
 
 unsigned int CCodeGen_AArch64::GetAvailableMdRegisterCount() const
@@ -562,9 +569,10 @@ CAArch64Assembler::REGISTER32 CCodeGen_AArch64::PrepareSymbolRegisterDef(CSymbol
 {
 	switch(symbol->m_type)
 	{
-//	case SYM_REGISTER:
-//		return g_registers[symbol->m_valueLow];
-//		break;
+	case SYM_REGISTER:
+		assert(symbol->m_valueLow < MAX_REGISTERS);
+		return g_registers[symbol->m_valueLow];
+		break;
 	case SYM_TEMPORARY:
 	case SYM_RELATIVE:
 		return preferedRegister;
@@ -579,9 +587,10 @@ CAArch64Assembler::REGISTER32 CCodeGen_AArch64::PrepareSymbolRegisterUse(CSymbol
 {
 	switch(symbol->m_type)
 	{
-//	case SYM_REGISTER:
-//		return g_registers[symbol->m_valueLow];
-//		break;
+	case SYM_REGISTER:
+		assert(symbol->m_valueLow < MAX_REGISTERS);
+		return g_registers[symbol->m_valueLow];
+		break;
 	case SYM_TEMPORARY:
 	case SYM_RELATIVE:
 		LoadMemoryInRegister(preferedRegister, symbol);
@@ -601,9 +610,9 @@ void CCodeGen_AArch64::CommitSymbolRegister(CSymbol* symbol, CAArch64Assembler::
 {
 	switch(symbol->m_type)
 	{
-//	case SYM_REGISTER:
-//		assert(usedRegister == g_registers[symbol->m_valueLow]);
-//		break;
+	case SYM_REGISTER:
+		assert(usedRegister == g_registers[symbol->m_valueLow]);
+		break;
 	case SYM_TEMPORARY:
 	case SYM_RELATIVE:
 		StoreRegisterInMemory(symbol, usedRegister);
@@ -815,6 +824,22 @@ void CCodeGen_AArch64::Emit_Param_Ctx(const STATEMENT& statement)
 	);
 }
 
+void CCodeGen_AArch64::Emit_Param_Reg(const STATEMENT& statement)
+{
+	auto src1 = statement.src1->GetSymbol().get();
+	
+	assert(src1->m_type == SYM_REGISTER);
+	
+	m_params.push_back(
+		[this, src1] (PARAM_STATE& paramState)
+		{
+			auto paramReg = PrepareParam(paramState);
+			m_assembler.Mov(paramReg, g_registers[src1->m_valueLow]);
+			CommitParam(paramState);
+		}
+	);
+}
+
 void CCodeGen_AArch64::Emit_Param_Mem(const STATEMENT& statement)
 {
 	auto src1 = statement.src1->GetSymbol().get();
@@ -864,6 +889,13 @@ void CCodeGen_AArch64::Emit_Call(const STATEMENT& statement)
 	auto fctAddressReg = GetNextTempRegister64();
 	LoadConstant64InRegister(fctAddressReg, src1->GetConstantPtr());
 	m_assembler.Blr(fctAddressReg);
+}
+
+void CCodeGen_AArch64::Emit_RetVal_Reg(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	assert(dst->m_type == SYM_REGISTER);
+	m_assembler.Mov(g_registers[dst->m_valueLow], CAArch64Assembler::w0);
 }
 
 void CCodeGen_AArch64::Emit_RetVal_Tmp(const STATEMENT& statement)

@@ -38,6 +38,11 @@ namespace Jitter
 		typedef std::function<void (PARAM_STATE&)> ParamEmitterFunction;
 		typedef std::deque<ParamEmitterFunction> ParamStack;
 
+		enum
+		{
+			MAX_REGISTERS = 1,
+		};
+
 		enum MAX_PARAM_REGS
 		{
 			MAX_PARAM_REGS = 8,
@@ -196,10 +201,12 @@ namespace Jitter
 		void    Emit_ExtHigh64VarMem64(const STATEMENT&);
 		
 		void    Emit_Param_Ctx(const STATEMENT&);
+		void    Emit_Param_Reg(const STATEMENT&);
 		void    Emit_Param_Mem(const STATEMENT&);
 		void    Emit_Param_Cst(const STATEMENT&);
 		
 		void    Emit_Call(const STATEMENT&);
+		void    Emit_RetVal_Reg(const STATEMENT&);
 		void    Emit_RetVal_Tmp(const STATEMENT&);
 		
 		void    Emit_Jmp(const STATEMENT&);
@@ -235,6 +242,8 @@ namespace Jitter
 		template <typename> void    Emit_Shift64_MemMemCst(const STATEMENT&);
 		
 		static CONSTMATCHER    g_constMatchers[];
+		
+		static CAArch64Assembler::REGISTER32    g_registers[MAX_REGISTERS];
 		static CAArch64Assembler::REGISTER32    g_tempRegisters[MAX_TEMP_REGS];
 		static CAArch64Assembler::REGISTER64    g_tempRegisters64[MAX_TEMP_REGS];
 		static CAArch64Assembler::REGISTER32    g_paramRegisters[MAX_PARAM_REGS];

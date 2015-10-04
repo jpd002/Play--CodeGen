@@ -12,4 +12,6 @@ build_unix/build
 *.sdf
 *.opensdf
 *.suo
+*.xccheckout
+*.xcscmblueprint
 xcuserdata

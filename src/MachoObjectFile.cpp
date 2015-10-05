@@ -1,3 +1,4 @@
+#include <string.h>
 #include "MachoObjectFile.h"
 
 using namespace Jitter;

@@ -15,7 +15,7 @@
 #include <mach/vm_map.h>
 #include <libkern/OSCacheControl.h>
 
-#elif defined(__ANDROID__)
+#elif defined(__ANDROID__) || defined(__linux__) || defined(__FreeBSD__)
 
 #include <sys/mman.h>
 
@@ -49,7 +49,7 @@ CMemoryFunction::CMemoryFunction(const void* code, size_t size)
 	kern_return_t result = vm_protect(mach_task_self(), reinterpret_cast<vm_address_t>(m_code), size, 0, VM_PROT_READ | VM_PROT_EXECUTE);
 	assert(result == 0);
 	m_size = allocSize;
-#elif defined(__ANDROID__)
+#elif defined(__ANDROID__) || defined(__linux__) || defined(__FreeBSD__)
 	m_size = size;
 	m_code = mmap(nullptr, size, PROT_WRITE | PROT_EXEC, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	assert(m_code != MAP_FAILED);
@@ -73,7 +73,7 @@ void CMemoryFunction::Reset()
 		free(m_code);
 #elif defined(__APPLE__)
 		vm_deallocate(mach_task_self(), reinterpret_cast<vm_address_t>(m_code), m_size);
-#elif defined(__ANDROID__)
+#elif defined(__ANDROID__) || defined(__linux__) || defined(__FreeBSD__)
 		munmap(m_code, m_size);
 #endif
 	}

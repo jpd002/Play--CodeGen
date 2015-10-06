@@ -40,7 +40,9 @@ Jitter::CCodeGen* Jitter::CreateCodeGen()
 #ifdef WIN32
 	
 	#ifdef _M_X64
-		return new Jitter::CCodeGen_x86_64();
+		auto codeGen = new Jitter::CCodeGen_x86_64();
+		codeGen->SetPlatformAbi(CCodeGen_x86_64::PLATFORM_ABI_WIN32);
+		return codeGen;
 	#else
 		return new Jitter::CCodeGen_x86_32();
 	#endif
@@ -52,7 +54,9 @@ Jitter::CCodeGen* Jitter::CreateCodeGen()
 	#elif TARGET_CPU_X86
 		return new Jitter::CCodeGen_x86_32();
 	#elif TARGET_CPU_X86_64
-		return new Jitter::CCodeGen_x86_64();
+		auto codeGen = new Jitter::CCodeGen_x86_64();
+		codeGen->SetPlatformAbi(CCodeGen_x86_64::PLATFORM_ABI_SYSTEMV);
+		return codeGen;
 	#else
 		throw std::runtime_error("Unsupported architecture.");
 	#endif
@@ -64,7 +68,9 @@ Jitter::CCodeGen* Jitter::CreateCodeGen()
 	#elif defined(__i386__)
 		return new Jitter::CCodeGen_x86_32();
 	#elif defined(__x86_64__)
-		return new Jitter::CCodeGen_x86_64();
+		auto codeGen = new Jitter::CCodeGen_x86_64();
+		codeGen->SetPlatformAbi(CCodeGen_x86_64::PLATFORM_ABI_SYSTEMV);
+		return codeGen;
 	#else
 		throw std::runtime_error("Unsupported architecture.");
 	#endif

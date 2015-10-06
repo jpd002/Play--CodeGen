@@ -3,9 +3,7 @@
 
 using namespace Jitter;
 
-#if defined(__APPLE__)
-
-CX86Assembler::REGISTER CCodeGen_x86_64::g_registers[MAX_REGISTERS] =
+CX86Assembler::REGISTER CCodeGen_x86_64::g_systemVRegisters[SYSTEMV_MAX_REGISTERS] =
 {
 	CX86Assembler::rBX,
 	CX86Assembler::r12,
@@ -14,7 +12,7 @@ CX86Assembler::REGISTER CCodeGen_x86_64::g_registers[MAX_REGISTERS] =
 	CX86Assembler::r15,
 };
 
-CX86Assembler::REGISTER CCodeGen_x86_64::g_paramRegs[MAX_PARAMS] =
+CX86Assembler::REGISTER CCodeGen_x86_64::g_systemVParamRegs[SYSTEMV_MAX_PARAMS] =
 {
 	CX86Assembler::rDI,
 	CX86Assembler::rSI,
@@ -24,9 +22,7 @@ CX86Assembler::REGISTER CCodeGen_x86_64::g_paramRegs[MAX_PARAMS] =
 	CX86Assembler::r9,
 };
 
-#else
-
-CX86Assembler::REGISTER CCodeGen_x86_64::g_registers[MAX_REGISTERS] =
+CX86Assembler::REGISTER CCodeGen_x86_64::g_win32Registers[WIN32_MAX_REGISTERS] =
 {
 	CX86Assembler::rBX,
 	CX86Assembler::rSI,
@@ -37,15 +33,13 @@ CX86Assembler::REGISTER CCodeGen_x86_64::g_registers[MAX_REGISTERS] =
 	CX86Assembler::r15,
 };
 
-CX86Assembler::REGISTER CCodeGen_x86_64::g_paramRegs[MAX_PARAMS] =
+CX86Assembler::REGISTER CCodeGen_x86_64::g_win32ParamRegs[WIN32_MAX_PARAMS] =
 {
 	CX86Assembler::rCX,
 	CX86Assembler::rDX,
 	CX86Assembler::r8,
 	CX86Assembler::r9,
 };
-
-#endif
 
 //xMM0->xMM3 are used internally for temporary uses
 CX86Assembler::XMMREGISTER CCodeGen_x86_64::g_mdRegisters[MAX_MDREGISTERS] =
@@ -249,8 +243,8 @@ CCodeGen_x86_64::CONSTMATCHER CCodeGen_x86_64::g_constMatchers[] =
 
 CCodeGen_x86_64::CCodeGen_x86_64()
 {
-	CCodeGen_x86::m_registers = g_registers;
-	CCodeGen_x86_64::m_mdRegisters = g_mdRegisters;
+	SetPlatformAbi(PLATFORM_ABI_SYSTEMV);
+	CCodeGen_x86::m_mdRegisters = g_mdRegisters;
 
 	for(CONSTMATCHER* constMatcher = g_constMatchers; constMatcher->emitter != NULL; constMatcher++)
 	{
@@ -269,9 +263,34 @@ CCodeGen_x86_64::~CCodeGen_x86_64()
 
 }
 
+void CCodeGen_x86_64::SetPlatformAbi(PLATFORM_ABI platformAbi)
+{
+	m_platformAbi = platformAbi;
+	switch(m_platformAbi)
+	{
+	case PLATFORM_ABI_SYSTEMV:
+		CCodeGen_x86::m_registers    = g_systemVRegisters;
+		m_paramRegs                  = g_systemVParamRegs;
+		m_maxRegisters               = SYSTEMV_MAX_REGISTERS;
+		m_maxParams                  = SYSTEMV_MAX_PARAMS;
+		m_hasMdRegRetValues          = true;
+		break;
+	case PLATFORM_ABI_WIN32:
+		CCodeGen_x86::m_registers    = g_win32Registers;
+		m_paramRegs                  = g_win32ParamRegs;
+		m_maxRegisters               = WIN32_MAX_REGISTERS;
+		m_maxParams                  = WIN32_MAX_PARAMS;
+		m_hasMdRegRetValues          = false;
+		break;
+	default:
+		throw std::runtime_error("Unsupported ABI.");
+		break;
+	}
+}
+
 unsigned int CCodeGen_x86_64::GetAvailableRegisterCount() const
 {
-	return MAX_REGISTERS;
+	return m_maxRegisters;
 }
 
 unsigned int CCodeGen_x86_64::GetAvailableMdRegisterCount() const
@@ -281,11 +300,7 @@ unsigned int CCodeGen_x86_64::GetAvailableMdRegisterCount() const
 
 bool CCodeGen_x86_64::CanHold128BitsReturnValueInRegisters() const
 {
-#if defined(__APPLE__)
-	return true;
-#else
-	return false;
-#endif
+	return m_hasMdRegRetValues;
 }
 
 void CCodeGen_x86_64::Emit_Prolog(const StatementList& statements, unsigned int stackSize, uint32 registerUsage)
@@ -326,10 +341,10 @@ void CCodeGen_x86_64::Emit_Prolog(const StatementList& statements, unsigned int 
 	assert((stackSize & 0x0F) == 0);
 
 	m_assembler.Push(CX86Assembler::rBP);
-	m_assembler.MovEq(CX86Assembler::rBP, CX86Assembler::MakeRegisterAddress(g_paramRegs[0]));
+	m_assembler.MovEq(CX86Assembler::rBP, CX86Assembler::MakeRegisterAddress(m_paramRegs[0]));
 
 	uint32 savedSize = 0;
-	for(unsigned int i = 0; i < MAX_REGISTERS; i++)
+	for(unsigned int i = 0; i < m_maxRegisters; i++)
 	{
 		if(registerUsage & (1 << i))
 		{
@@ -368,7 +383,7 @@ void CCodeGen_x86_64::Emit_Epilog(unsigned int stackSize, uint32 registerUsage)
 {
 	m_assembler.AddIq(CX86Assembler::MakeRegisterAddress(CX86Assembler::rSP), m_totalStackAlloc);
 
-	for(int i = MAX_REGISTERS - 1; i >= 0; i--)
+	for(int i = m_maxRegisters - 1; i >= 0; i--)
 	{
 		if(registerUsage & (1 << i))
 		{
@@ -382,7 +397,7 @@ void CCodeGen_x86_64::Emit_Epilog(unsigned int stackSize, uint32 registerUsage)
 
 void CCodeGen_x86_64::Emit_Param_Ctx(const STATEMENT& statement)
 {
-	assert(m_params.size() < MAX_PARAMS);
+	assert(m_params.size() < m_maxParams);
 
 	m_params.push_back(
 		[this] (CX86Assembler::REGISTER paramReg, uint32)
@@ -395,7 +410,7 @@ void CCodeGen_x86_64::Emit_Param_Ctx(const STATEMENT& statement)
 
 void CCodeGen_x86_64::Emit_Param_Reg(const STATEMENT& statement)
 {
-	assert(m_params.size() < MAX_PARAMS);
+	assert(m_params.size() < m_maxParams);
 
 	auto src1 = statement.src1->GetSymbol().get();
 
@@ -410,7 +425,7 @@ void CCodeGen_x86_64::Emit_Param_Reg(const STATEMENT& statement)
 
 void CCodeGen_x86_64::Emit_Param_Mem(const STATEMENT& statement)
 {
-	assert(m_params.size() < MAX_PARAMS);
+	assert(m_params.size() < m_maxParams);
 
 	auto src1 = statement.src1->GetSymbol().get();
 
@@ -425,7 +440,7 @@ void CCodeGen_x86_64::Emit_Param_Mem(const STATEMENT& statement)
 
 void CCodeGen_x86_64::Emit_Param_Cst(const STATEMENT& statement)
 {
-	assert(m_params.size() < MAX_PARAMS);
+	assert(m_params.size() < m_maxParams);
 
 	auto src1 = statement.src1->GetSymbol().get();
 
@@ -440,7 +455,7 @@ void CCodeGen_x86_64::Emit_Param_Cst(const STATEMENT& statement)
 
 void CCodeGen_x86_64::Emit_Param_Mem64(const STATEMENT& statement)
 {
-	assert(m_params.size() < MAX_PARAMS);
+	assert(m_params.size() < m_maxParams);
 
 	auto src1 = statement.src1->GetSymbol().get();
 
@@ -455,7 +470,7 @@ void CCodeGen_x86_64::Emit_Param_Mem64(const STATEMENT& statement)
 
 void CCodeGen_x86_64::Emit_Param_Cst64(const STATEMENT& statement)
 {
-	assert(m_params.size() < MAX_PARAMS);
+	assert(m_params.size() < m_maxParams);
 
 	auto src1 = statement.src1->GetSymbol().get();
 
@@ -470,7 +485,7 @@ void CCodeGen_x86_64::Emit_Param_Cst64(const STATEMENT& statement)
 
 void CCodeGen_x86_64::Emit_Param_Reg128(const STATEMENT& statement)
 {
-	assert(m_params.size() < MAX_PARAMS);
+	assert(m_params.size() < m_maxParams);
 
 	auto src1 = statement.src1->GetSymbol().get();
 
@@ -487,7 +502,7 @@ void CCodeGen_x86_64::Emit_Param_Reg128(const STATEMENT& statement)
 
 void CCodeGen_x86_64::Emit_Param_Mem128(const STATEMENT& statement)
 {
-	assert(m_params.size() < MAX_PARAMS);
+	assert(m_params.size() < m_maxParams);
 
 	auto src1 = statement.src1->GetSymbol().get();
 
@@ -512,7 +527,7 @@ void CCodeGen_x86_64::Emit_Call(const STATEMENT& statement)
 	{
 		auto emitter(m_params.back());
 		m_params.pop_back();
-		paramSpillOffset += emitter(g_paramRegs[i], paramSpillOffset);
+		paramSpillOffset += emitter(m_paramRegs[i], paramSpillOffset);
 	}
 
 	m_assembler.MovIq(CX86Assembler::rAX, CombineConstant64(src1->m_valueLow, src1->m_valueHigh));

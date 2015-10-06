@@ -15,6 +15,7 @@
 		703D96531AE4985100B3974D /* MdManipTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 703D96501AE4985100B3974D /* MdManipTest.cpp */; };
 		703F73861AD0C64800887F65 /* Merge64Test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 703F73841AD0C64800887F65 /* Merge64Test.cpp */; };
 		704F23AA1B001114009FD916 /* ShiftTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 704F23A81B001114009FD916 /* ShiftTest.cpp */; };
+		705DE1711BBB8C9D008D26C3 /* LogicTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 705DE16F1BBB8C9D008D26C3 /* LogicTest.cpp */; settings = {ASSET_TAGS = (); }; };
 		70AD23551B389E2500137AA0 /* DivTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70AD23511B389E2500137AA0 /* DivTest.cpp */; };
 		70AD23561B389E2500137AA0 /* MdShiftTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70AD23531B389E2500137AA0 /* MdShiftTest.cpp */; };
 		70BFC5041A5530EF0094CD9F /* Cmp64Test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70BFC4F61A5530EF0094CD9F /* Cmp64Test.cpp */; };
@@ -108,6 +109,8 @@
 		703F73851AD0C64800887F65 /* Merge64Test.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Merge64Test.h; path = ../tests/Merge64Test.h; sourceTree = "<group>"; };
 		704F23A81B001114009FD916 /* ShiftTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ShiftTest.cpp; path = ../tests/ShiftTest.cpp; sourceTree = "<group>"; };
 		704F23A91B001114009FD916 /* ShiftTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ShiftTest.h; path = ../tests/ShiftTest.h; sourceTree = "<group>"; };
+		705DE16F1BBB8C9D008D26C3 /* LogicTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = LogicTest.cpp; path = ../tests/LogicTest.cpp; sourceTree = "<group>"; };
+		705DE1701BBB8C9D008D26C3 /* LogicTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LogicTest.h; path = ../tests/LogicTest.h; sourceTree = "<group>"; };
 		70AD23511B389E2500137AA0 /* DivTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DivTest.cpp; path = ../tests/DivTest.cpp; sourceTree = "<group>"; };
 		70AD23521B389E2500137AA0 /* DivTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DivTest.h; path = ../tests/DivTest.h; sourceTree = "<group>"; };
 		70AD23531B389E2500137AA0 /* MdShiftTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MdShiftTest.cpp; path = ../tests/MdShiftTest.cpp; sourceTree = "<group>"; };
@@ -130,7 +133,6 @@
 		70BFC5171A560A3F0094CD9F /* GeneralSettingsRelease.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = GeneralSettingsRelease.xcconfig; sourceTree = "<group>"; };
 		70C01F361AC8D8F1004DA1B2 /* MdLogicTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MdLogicTest.cpp; path = ../tests/MdLogicTest.cpp; sourceTree = "<group>"; };
 		70C01F371AC8D8F1004DA1B2 /* MdLogicTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MdLogicTest.h; path = ../tests/MdLogicTest.h; sourceTree = "<group>"; };
-		70C0EF801A593A8700227442 /* ExternalDependencies.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = ExternalDependencies.xcconfig; sourceTree = "<group>"; };
 		7E207B071507D07500EE8C4F /* CodeGenTestSuite */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = CodeGenTestSuite; sourceTree = BUILT_PRODUCTS_DIR; };
 		7E207B181507D0AB00EE8C4F /* CodeGen.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = CodeGen.xcodeproj; sourceTree = "<group>"; };
 		7E207C111507D5F200EE8C4F /* AliasTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = AliasTest.cpp; path = ../tests/AliasTest.cpp; sourceTree = "<group>"; };
@@ -193,7 +195,6 @@
 		70BFC5131A560A250094CD9F /* Config */ = {
 			isa = PBXGroup;
 			children = (
-				70C0EF801A593A8700227442 /* ExternalDependencies.xcconfig */,
 				70BFC5151A560A3F0094CD9F /* GeneralSettings.xcconfig */,
 				70BFC5161A560A3F0094CD9F /* GeneralSettingsDebug.xcconfig */,
 				70BFC5171A560A3F0094CD9F /* GeneralSettingsRelease.xcconfig */,
@@ -263,6 +264,8 @@
 				7E207C231507D5F200EE8C4F /* HugeJumpTest.h */,
 				70320D041A998C2A001E9C4B /* Logic64Test.cpp */,
 				70320D051A998C2A001E9C4B /* Logic64Test.h */,
+				705DE16F1BBB8C9D008D26C3 /* LogicTest.cpp */,
+				705DE1701BBB8C9D008D26C3 /* LogicTest.h */,
 				70BFC4FA1A5530EF0094CD9F /* LzcTest.cpp */,
 				70BFC4FB1A5530EF0094CD9F /* LzcTest.h */,
 				7E207C241507D5F200EE8C4F /* Main.cpp */,
@@ -412,6 +415,7 @@
 				7E207C3F1507D5F200EE8C4F /* CompareTest.cpp in Sources */,
 				7E207C401507D5F200EE8C4F /* Crc32Test.cpp in Sources */,
 				7E207C411507D5F200EE8C4F /* FpIntMixTest.cpp in Sources */,
+				705DE1711BBB8C9D008D26C3 /* LogicTest.cpp in Sources */,
 				70AD23561B389E2500137AA0 /* MdShiftTest.cpp in Sources */,
 				703D96531AE4985100B3974D /* MdManipTest.cpp in Sources */,
 				70BFC5041A5530EF0094CD9F /* Cmp64Test.cpp in Sources */,

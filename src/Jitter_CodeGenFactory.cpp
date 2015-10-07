@@ -44,7 +44,9 @@ Jitter::CCodeGen* Jitter::CreateCodeGen()
 		codeGen->SetPlatformAbi(CCodeGen_x86_64::PLATFORM_ABI_WIN32);
 		return codeGen;
 	#else
-		return new Jitter::CCodeGen_x86_32();
+		auto codeGen = new Jitter::CCodeGen_x86_32();
+		codeGen->SetImplicitRetValueParamFixUpRequired(false);
+		return codeGen;
 	#endif
 	
 #elif defined(__APPLE__)
@@ -52,7 +54,9 @@ Jitter::CCodeGen* Jitter::CreateCodeGen()
 	#if TARGET_CPU_ARM
 		return new Jitter::CCodeGen_Arm();
 	#elif TARGET_CPU_X86
-		return new Jitter::CCodeGen_x86_32();
+		auto codeGen = new Jitter::CCodeGen_x86_32();
+		codeGen->SetImplicitRetValueParamFixUpRequired(true);
+		return codeGen;
 	#elif TARGET_CPU_X86_64
 		auto codeGen = new Jitter::CCodeGen_x86_64();
 		codeGen->SetPlatformAbi(CCodeGen_x86_64::PLATFORM_ABI_SYSTEMV);
@@ -66,7 +70,9 @@ Jitter::CCodeGen* Jitter::CreateCodeGen()
 	#if defined(__arm__)
 		return new Jitter::CCodeGen_Arm();
 	#elif defined(__i386__)
-		return new Jitter::CCodeGen_x86_32();
+		auto codeGen = new Jitter::CCodeGen_x86_32();
+		codeGen->SetImplicitRetValueParamFixUpRequired(true);
+		return codeGen;
 	#elif defined(__x86_64__)
 		auto codeGen = new Jitter::CCodeGen_x86_64();
 		codeGen->SetPlatformAbi(CCodeGen_x86_64::PLATFORM_ABI_SYSTEMV);

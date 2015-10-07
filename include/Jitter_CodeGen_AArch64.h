@@ -40,7 +40,7 @@ namespace Jitter
 
 		enum
 		{
-			MAX_REGISTERS = 1,
+			MAX_REGISTERS = 9,
 		};
 
 		enum MAX_PARAM_REGS
@@ -182,8 +182,9 @@ namespace Jitter
 			static OpRegType    OpReg()    { return &CAArch64Assembler::Lsrv; }
 		};
 
-		void    Emit_Prolog(uint32);
-		void    Emit_Epilog(uint32);
+		uint16    GetSavedRegisterList(uint32);
+		void      Emit_Prolog(uint32, uint16);
+		void      Emit_Epilog(uint32, uint16);
 		
 		CAArch64Assembler::LABEL GetLabel(uint32);
 		void                     MarkLabel(const STATEMENT&);

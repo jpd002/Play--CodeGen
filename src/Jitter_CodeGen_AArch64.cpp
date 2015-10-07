@@ -5,6 +5,14 @@ using namespace Jitter;
 CAArch64Assembler::REGISTER32    CCodeGen_AArch64::g_registers[MAX_REGISTERS] =
 {
 	CAArch64Assembler::w20,
+	CAArch64Assembler::w21,
+	CAArch64Assembler::w22,
+	CAArch64Assembler::w23,
+	CAArch64Assembler::w24,
+	CAArch64Assembler::w25,
+	CAArch64Assembler::w26,
+	CAArch64Assembler::w27,
+	CAArch64Assembler::w28,
 };
 
 CAArch64Assembler::REGISTER32    CCodeGen_AArch64::g_tempRegisters[MAX_TEMP_REGS] =
@@ -370,7 +378,9 @@ void CCodeGen_AArch64::GenerateCode(const StatementList& statements, unsigned in
 	//Align stack size (must be aligned on 16 bytes boundary)
 	stackSize = (stackSize + 0xF) & ~0xF;
 
-	Emit_Prolog(stackSize);
+	uint16 registerSave = GetSavedRegisterList(GetRegisterUsage(statements));
+
+	Emit_Prolog(stackSize, registerSave);
 
 	for(const auto& statement : statements)
 	{
@@ -395,7 +405,7 @@ void CCodeGen_AArch64::GenerateCode(const StatementList& statements, unsigned in
 		}
 	}
 	
-	Emit_Epilog(stackSize);
+	Emit_Epilog(stackSize, registerSave);
 
 	m_assembler.ResolveLabelReferences();
 	m_assembler.ClearLabels();
@@ -700,10 +710,33 @@ bool CCodeGen_AArch64::TryGetAddSubImmParams(uint32 imm, ADDSUB_IMM_PARAMS& para
 	return false;
 }
 
-void CCodeGen_AArch64::Emit_Prolog(uint32 stackSize)
+uint16 CCodeGen_AArch64::GetSavedRegisterList(uint32 registerUsage)
+{
+	uint16 registerSave = 0;
+	for(unsigned int i = 0; i < MAX_REGISTERS; i++)
+	{
+		if((1 << i) & registerUsage)
+		{
+			registerSave |= (1 << (g_registers[i] / 2));
+		}
+	}
+	registerSave |= (1 << (g_baseRegister / 2));
+	return registerSave;
+}
+
+void CCodeGen_AArch64::Emit_Prolog(uint32 stackSize, uint16 registerSave)
 {
 	m_assembler.Stp_PreIdx(CAArch64Assembler::x29, CAArch64Assembler::x30, CAArch64Assembler::xSP, -16);
-	m_assembler.Stp_PreIdx(g_baseRegister, static_cast<CAArch64Assembler::REGISTER64>(g_baseRegister + 1), CAArch64Assembler::xSP, -16);
+	//Preserve saved registers
+	for(uint32 i = 0; i < 16; i++)
+	{
+		if(registerSave & (1 << i))
+		{
+			auto reg0 = static_cast<CAArch64Assembler::REGISTER64>((i * 2) + 0);
+			auto reg1 = static_cast<CAArch64Assembler::REGISTER64>((i * 2) + 1);
+			m_assembler.Stp_PreIdx(reg0, reg1, CAArch64Assembler::xSP, -16);
+		}
+	}
 	m_assembler.Mov_Sp(CAArch64Assembler::x29, CAArch64Assembler::xSP);
 	if(stackSize != 0)
 	{
@@ -712,10 +745,19 @@ void CCodeGen_AArch64::Emit_Prolog(uint32 stackSize)
 	m_assembler.Mov(g_baseRegister, CAArch64Assembler::x0);
 }
 
-void CCodeGen_AArch64::Emit_Epilog(uint32 stackSize)
+void CCodeGen_AArch64::Emit_Epilog(uint32 stackSize, uint16 registerSave)
 {
 	m_assembler.Mov_Sp(CAArch64Assembler::xSP, CAArch64Assembler::x29);
-	m_assembler.Ldp_PostIdx(g_baseRegister, static_cast<CAArch64Assembler::REGISTER64>(g_baseRegister + 1), CAArch64Assembler::xSP, 16);
+	//Restore saved registers
+	for(int32 i = 15; i >= 0; i--)
+	{
+		if(registerSave & (1 << i))
+		{
+			auto reg0 = static_cast<CAArch64Assembler::REGISTER64>((i * 2) + 0);
+			auto reg1 = static_cast<CAArch64Assembler::REGISTER64>((i * 2) + 1);
+			m_assembler.Ldp_PostIdx(reg0, reg1, CAArch64Assembler::xSP, 16);
+		}
+	}
 	m_assembler.Ldp_PostIdx(CAArch64Assembler::x29, CAArch64Assembler::x30, CAArch64Assembler::xSP, 16);
 	m_assembler.Ret();
 }

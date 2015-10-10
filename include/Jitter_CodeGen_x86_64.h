@@ -8,9 +8,17 @@ namespace Jitter
 	class CCodeGen_x86_64 : public CCodeGen_x86
 	{
 	public:
+		enum PLATFORM_ABI
+		{
+			PLATFORM_ABI_SYSTEMV,
+			PLATFORM_ABI_WIN32
+		};
+		
 											CCodeGen_x86_64();
 		virtual								~CCodeGen_x86_64();
 
+		void								SetPlatformAbi(PLATFORM_ABI);
+		
 		unsigned int						GetAvailableRegisterCount() const override;
 		unsigned int						GetAvailableMdRegisterCount() const override;
 		bool								CanHold128BitsReturnValueInRegisters() const override;
@@ -149,39 +157,44 @@ namespace Jitter
 			ConstCodeEmitterType	emitter;
 		};
 
-#if defined(__APPLE__)
-		
-		enum MAX_REGISTERS
+		enum SYSTEMV_MAX_REGISTERS
 		{
-			MAX_REGISTERS = 5,
-			MAX_MDREGISTERS = 12,
+			SYSTEMV_MAX_REGISTERS = 5,
 		};
 		
-		enum MAX_PARAMS
+		enum SYSTEMV_MAX_PARAMS
 		{
-			MAX_PARAMS = 6,
+			SYSTEMV_MAX_PARAMS = 6,
 		};
 		
-#else
-				
-		enum MAX_REGISTERS
+		enum WIN32_MAX_REGISTERS
 		{
-			MAX_REGISTERS = 7,
-			MAX_MDREGISTERS = 12,
+			WIN32_MAX_REGISTERS = 7,
 		};
 		
-		enum MAX_PARAMS
+		enum WIN32_MAX_PARAMS
 		{
-			MAX_PARAMS = 4,
+			WIN32_MAX_PARAMS = 4,
 		};
 
-#endif
+		enum MAX_MDREGISTERS
+		{
+			MAX_MDREGISTERS = 12,
+		};
 		
 		static CONSTMATCHER					g_constMatchers[];
-		static CX86Assembler::REGISTER		g_registers[MAX_REGISTERS];
+		static CX86Assembler::REGISTER		g_systemVRegisters[SYSTEMV_MAX_REGISTERS];
+		static CX86Assembler::REGISTER		g_systemVParamRegs[SYSTEMV_MAX_PARAMS];
+		static CX86Assembler::REGISTER		g_win32Registers[WIN32_MAX_REGISTERS];
+		static CX86Assembler::REGISTER		g_win32ParamRegs[WIN32_MAX_PARAMS];
 		static CX86Assembler::XMMREGISTER	g_mdRegisters[MAX_MDREGISTERS];
-		static CX86Assembler::REGISTER		g_paramRegs[MAX_PARAMS];
-
+		
+		PLATFORM_ABI						m_platformAbi = PLATFORM_ABI_SYSTEMV;
+		uint32								m_maxRegisters = 0;
+		uint32								m_maxParams = 0;
+		bool								m_hasMdRegRetValues = false;
+		CX86Assembler::REGISTER*			m_paramRegs = nullptr;
+		
 		ParamStack							m_params;
 		uint32								m_paramSpillBase = 0;
 		uint32								m_totalStackAlloc = 0;

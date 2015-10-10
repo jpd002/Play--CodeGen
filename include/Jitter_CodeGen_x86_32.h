@@ -11,6 +11,8 @@ namespace Jitter
 											CCodeGen_x86_32();
 		virtual								~CCodeGen_x86_32();
 
+		void								SetImplicitRetValueParamFixUpRequired(bool);
+		
 		unsigned int						GetAvailableRegisterCount() const override;
 		unsigned int						GetAvailableMdRegisterCount() const override;
 		bool								CanHold128BitsReturnValueInRegisters() const override;
@@ -147,5 +149,7 @@ namespace Jitter
 		uint32								m_paramSpillBase = 0;
 		uint32								m_totalStackAlloc = 0;
 		bool								m_hasImplicitRetValueParam = false;
+		bool								m_implicitRetValueParamFixUpRequired = false;
+
 	};
 }

@@ -322,7 +322,7 @@ void CAArch64Assembler::Movz(REGISTER32 rd, uint16 imm, uint8 pos)
 
 void CAArch64Assembler::Movz(REGISTER64 rd, uint16 imm, uint8 pos)
 {
-	assert(pos < 2);
+	assert(pos < 4);
 	WriteMoveWideOpImm(0xD2800000, pos, imm, rd);
 }
 

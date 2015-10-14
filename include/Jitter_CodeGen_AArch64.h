@@ -90,6 +90,7 @@ namespace Jitter
 		void                             CommitParam64(PARAM_STATE&);
 		
 		bool TryGetAddSubImmParams(uint32, ADDSUB_IMM_PARAMS&);
+		bool TryGetAddSub64ImmParams(uint64, ADDSUB_IMM_PARAMS&);
 		
 		//SHIFTOP ----------------------------------------------------------
 		struct SHIFTOP_BASE
@@ -227,6 +228,9 @@ namespace Jitter
 		void    Cmp_GetFlag(CAArch64Assembler::REGISTER32, Jitter::CONDITION);
 		void    Emit_Cmp_VarAnyVar(const STATEMENT&);
 		void    Emit_Cmp_VarVarCst(const STATEMENT&);
+		
+		void    Emit_Cmp64_VarAnyMem(const STATEMENT&);
+		void    Emit_Cmp64_VarMemCst(const STATEMENT&);
 		
 		//ADDSUB
 		template <typename> void    Emit_AddSub_VarAnyVar(const STATEMENT&);

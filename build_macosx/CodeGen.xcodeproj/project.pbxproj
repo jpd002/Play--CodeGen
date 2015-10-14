@@ -47,7 +47,6 @@
 		70BFC50E1A5536D50094CD9F /* GeneralSettingsDebug.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = GeneralSettingsDebug.xcconfig; sourceTree = "<group>"; };
 		70BFC50F1A5536D50094CD9F /* GeneralSettingsRelease.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = GeneralSettingsRelease.xcconfig; sourceTree = "<group>"; };
 		70BFC5101A5607BF0094CD9F /* CodeGen_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CodeGen_Prefix.pch; sourceTree = "<group>"; };
-		70C0EF811A593A9200227442 /* ExternalDependencies.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = ExternalDependencies.xcconfig; sourceTree = "<group>"; };
 		7E207AE31507D03500EE8C4F /* libCodeGen.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libCodeGen.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		7E207B291507D0CD00EE8C4F /* Jitter_CodeGen_x86_32.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Jitter_CodeGen_x86_32.cpp; path = ../src/Jitter_CodeGen_x86_32.cpp; sourceTree = "<group>"; };
 		7E207B2A1507D0CD00EE8C4F /* Jitter_CodeGen_x86_64.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Jitter_CodeGen_x86_64.cpp; path = ../src/Jitter_CodeGen_x86_64.cpp; sourceTree = "<group>"; };
@@ -97,7 +96,6 @@
 		70BFC5121A560A100094CD9F /* Config */ = {
 			isa = PBXGroup;
 			children = (
-				70C0EF811A593A9200227442 /* ExternalDependencies.xcconfig */,
 				70BFC50D1A5536D50094CD9F /* GeneralSettings.xcconfig */,
 				70BFC50E1A5536D50094CD9F /* GeneralSettingsDebug.xcconfig */,
 				70BFC50F1A5536D50094CD9F /* GeneralSettingsRelease.xcconfig */,

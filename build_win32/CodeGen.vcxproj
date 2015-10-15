@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\AArch32Assembler.cpp" />
+    <ClCompile Include="..\src\AArch64Assembler.cpp" />
     <ClCompile Include="..\src\CoffObjectFile.cpp" />
     <ClCompile Include="..\src\Jitter.cpp" />
     <ClCompile Include="..\src\Jitter_CodeGen.cpp" />
@@ -47,6 +48,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\AArch32Assembler.h" />
+    <ClInclude Include="..\include\AArch64Assembler.h" />
     <ClInclude Include="..\include\ArrayStack.h" />
     <ClInclude Include="..\include\CoffDefs.h" />
     <ClInclude Include="..\include\CoffObjectFile.h" />

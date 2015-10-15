@@ -97,6 +97,9 @@
     <ClCompile Include="..\src\Jitter_CodeGen_AArch64.cpp">
       <Filter>Source Files\arm\aarch64</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\AArch64Assembler.cpp">
+      <Filter>Source Files\arm\aarch64</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\ArrayStack.h">
@@ -175,6 +178,9 @@
       <Filter>Source Files\arm\aarch32</Filter>
     </ClInclude>
     <ClInclude Include="..\include\Jitter_CodeGen_AArch64.h">
+      <Filter>Source Files\arm\aarch64</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\AArch64Assembler.h">
       <Filter>Source Files\arm\aarch64</Filter>
     </ClInclude>
   </ItemGroup>

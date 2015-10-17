@@ -15,7 +15,8 @@ namespace Jitter
 		{
 			CPU_ARCH_X86,
 			CPU_ARCH_X64,
-			CPU_ARCH_ARM
+			CPU_ARCH_ARM,
+			CPU_ARCH_ARM64
 		};
 
 		enum SYMBOL_TYPE

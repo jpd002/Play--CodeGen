@@ -1,20 +1,24 @@
-#include <string.h>
+#include <cassert>
+#include <cstring>
 #include "MachoObjectFile.h"
 
 using namespace Jitter;
 
-CMachoObjectFile::CMachoObjectFile(CPU_ARCH cpuArch)
+template <typename MachoTraits>
+CMachoObjectFile<MachoTraits>::CMachoObjectFile(CPU_ARCH cpuArch)
 : CObjectFile(cpuArch)
 {
 
 }
 
-CMachoObjectFile::~CMachoObjectFile()
+template <typename MachoTraits>
+CMachoObjectFile<MachoTraits>::~CMachoObjectFile()
 {
 
 }
 
-void CMachoObjectFile::Write(Framework::CStream& stream)
+template <typename MachoTraits>
+void CMachoObjectFile<MachoTraits>::Write(Framework::CStream& stream)
 {
 	auto internalSymbolInfos = InternalSymbolInfoArray(m_internalSymbols.size());
 	auto externalSymbolInfos = ExternalSymbolInfoArray(m_externalSymbols.size());
@@ -40,15 +44,15 @@ void CMachoObjectFile::Write(Framework::CStream& stream)
 	uint32 sectionCount = 2;
 	SectionArray sections;
 
-	uint32 sizeofCommands = sizeof(Macho::SEGMENT_COMMAND) + (sizeof(Macho::SECTION) * sectionCount) + 
+	uint32 sizeofCommands = sizeof(MachoTraits::SEGMENT_COMMAND) + (sizeof(MachoTraits::SECTION) * sectionCount) + 
 		sizeof(Macho::SYMTAB_COMMAND);
-	uint32 headerSize = sizeof(Macho::MACH_HEADER) + sizeofCommands;
+	uint32 headerSize = sizeof(MachoTraits::MACH_HEADER) + sizeofCommands;
 	uint32 segmentDataSize = textSection.data.size() + dataSection.data.size();
 	uint32 segmentAndRelocDataSize = segmentDataSize + (textSectionRelocations.size() + dataSectionRelocations.size()) * sizeof(Macho::RELOCATION_INFO);
 
 	{
-		Macho::SECTION section;
-		memset(&section, 0, sizeof(Macho::SECTION));
+		MachoTraits::SECTION section;
+		memset(&section, 0, sizeof(MachoTraits::SECTION));
 		strncpy(section.sectionName, "__text", 0x10);
 		strncpy(section.segmentName, "__TEXT", 0x10);
 		
@@ -69,8 +73,8 @@ void CMachoObjectFile::Write(Framework::CStream& stream)
 	}
 
 	{
-		Macho::SECTION section;
-		memset(&section, 0, sizeof(Macho::SECTION));
+		MachoTraits::SECTION section;
+		memset(&section, 0, sizeof(MachoTraits::SECTION));
 		strncpy(section.sectionName, "__data", 0x10);
 		strncpy(section.segmentName, "__DATA", 0x10);
 		
@@ -90,10 +94,10 @@ void CMachoObjectFile::Write(Framework::CStream& stream)
 		sections.push_back(section);
 	}
 
-	Macho::SEGMENT_COMMAND segmentCommand;
-	memset(&segmentCommand, 0, sizeof(Macho::SEGMENT_COMMAND));
-	segmentCommand.cmd				= Macho::LC_SEGMENT;
-	segmentCommand.cmdSize			= sizeof(Macho::SEGMENT_COMMAND) + (sizeof(Macho::SECTION) * sections.size());
+	MachoTraits::SEGMENT_COMMAND segmentCommand;
+	memset(&segmentCommand, 0, sizeof(MachoTraits::SEGMENT_COMMAND));
+	segmentCommand.cmd				= MachoTraits::LC_SEGMENT;
+	segmentCommand.cmdSize			= sizeof(MachoTraits::SEGMENT_COMMAND) + (sizeof(MachoTraits::SECTION) * sections.size());
 	segmentCommand.vmAddress		= 0;
 	segmentCommand.vmSize			= segmentDataSize;
 	segmentCommand.fileOffset		= headerSize;
@@ -108,12 +112,12 @@ void CMachoObjectFile::Write(Framework::CStream& stream)
 	symtabCommand.cmd				= Macho::LC_SYMTAB;
 	symtabCommand.cmdSize			= sizeof(Macho::SYMTAB_COMMAND);
 	symtabCommand.stringsSize		= stringTable.size();
-	symtabCommand.stringsOffset		= headerSize + segmentAndRelocDataSize + (sizeof(Macho::NLIST) * symbols.size());
+	symtabCommand.stringsOffset		= headerSize + segmentAndRelocDataSize + (sizeof(MachoTraits::NLIST) * symbols.size());
 	symtabCommand.symbolCount		= symbols.size();
 	symtabCommand.symbolsOffset		= headerSize + segmentAndRelocDataSize;
 
-	Macho::MACH_HEADER header = {};
-	header.magic			= Macho::MH_MAGIC;
+	MachoTraits::MACH_HEADER header = {};
+	header.magic = MachoTraits::HEADER_MAGIC;
 	switch(m_cpuArch)
 	{
 	case CPU_ARCH_X86:
@@ -124,6 +128,10 @@ void CMachoObjectFile::Write(Framework::CStream& stream)
 		header.cpuType			= Macho::CPU_TYPE_ARM;
 		header.cpuSubType		= Macho::CPU_SUBTYPE_ARM_V7;
 		break;
+	case CPU_ARCH_ARM64:
+		header.cpuType			= Macho::CPU_TYPE_ARM64;
+		header.cpuSubType		= Macho::CPU_SUBTYPE_ARM64_ALL;
+		break;
 	default:
 		throw std::runtime_error("MachoObjectFile: Unsupported CPU architecture.");
 		break;
@@ -133,22 +141,23 @@ void CMachoObjectFile::Write(Framework::CStream& stream)
 	header.sizeofCommands	= sizeofCommands;
 	header.flags			= Macho::MH_NOMULTIDEFS;
 
-	stream.Write(&header, sizeof(Macho::MACH_HEADER));
-	stream.Write(&segmentCommand, sizeof(Macho::SEGMENT_COMMAND));
+	stream.Write(&header, sizeof(MachoTraits::MACH_HEADER));
+	stream.Write(&segmentCommand, sizeof(MachoTraits::SEGMENT_COMMAND));
 	for(const auto& section : sections)
 	{
-		stream.Write(&section, sizeof(Macho::SECTION));
+		stream.Write(&section, sizeof(MachoTraits::SECTION));
 	}
 	stream.Write(&symtabCommand, sizeof(Macho::SYMTAB_COMMAND));
 	stream.Write(textSection.data.data(), textSection.data.size());
 	stream.Write(dataSection.data.data(), dataSection.data.size());
 	stream.Write(textSectionRelocations.data(), textSectionRelocations.size() * sizeof(Macho::RELOCATION_INFO));
 	stream.Write(dataSectionRelocations.data(), dataSectionRelocations.size() * sizeof(Macho::RELOCATION_INFO));
-	stream.Write(symbols.data(), sizeof(Macho::NLIST) * symbols.size());
+	stream.Write(symbols.data(), sizeof(MachoTraits::NLIST) * symbols.size());
 	stream.Write(stringTable.data(), stringTable.size());
 }
 
-void CMachoObjectFile::FillStringTable(StringTable& stringTable, const InternalSymbolArray& internalSymbols, InternalSymbolInfoArray& internalSymbolInfos)
+template <typename MachoTraits>
+void CMachoObjectFile<MachoTraits>::FillStringTable(StringTable& stringTable, const InternalSymbolArray& internalSymbols, InternalSymbolInfoArray& internalSymbolInfos)
 {
 	uint32 stringTableSizeIncrement = 0;
 	for(const auto& internalSymbol : internalSymbols)
@@ -166,7 +175,8 @@ void CMachoObjectFile::FillStringTable(StringTable& stringTable, const InternalS
 	}
 }
 
-void CMachoObjectFile::FillStringTable(StringTable& stringTable, const ExternalSymbolArray& externalSymbols, ExternalSymbolInfoArray& externalSymbolInfos)
+template <typename MachoTraits>
+void CMachoObjectFile<MachoTraits>::FillStringTable(StringTable& stringTable, const ExternalSymbolArray& externalSymbols, ExternalSymbolInfoArray& externalSymbolInfos)
 {
 	uint32 stringTableSizeIncrement = 0;
 	for(const auto& externalSymbol : externalSymbols)
@@ -184,7 +194,8 @@ void CMachoObjectFile::FillStringTable(StringTable& stringTable, const ExternalS
 	}
 }
 
-CMachoObjectFile::SECTION CMachoObjectFile::BuildSection(const InternalSymbolArray& internalSymbols, InternalSymbolInfoArray& internalSymbolInfos, INTERNAL_SYMBOL_LOCATION location)
+template <typename MachoTraits>
+typename CMachoObjectFile<MachoTraits>::SECTION CMachoObjectFile<MachoTraits>::BuildSection(const InternalSymbolArray& internalSymbols, InternalSymbolInfoArray& internalSymbolInfos, INTERNAL_SYMBOL_LOCATION location)
 {
 	SECTION section;
 	auto& sectionData(section.data);
@@ -214,9 +225,12 @@ CMachoObjectFile::SECTION CMachoObjectFile::BuildSection(const InternalSymbolArr
 	return section;
 }
 
-CMachoObjectFile::SymbolArray CMachoObjectFile::BuildSymbols(const InternalSymbolArray& internalSymbols, InternalSymbolInfoArray& internalSymbolInfos, 
-														   const ExternalSymbolArray& externalSymbols, ExternalSymbolInfoArray& externalSymbolInfos,
-														   uint32 textSectionVa, uint32 dataSectionVa)
+template <typename MachoTraits>
+typename CMachoObjectFile<MachoTraits>::SymbolArray CMachoObjectFile<MachoTraits>::BuildSymbols(
+	const InternalSymbolArray& internalSymbols, InternalSymbolInfoArray& internalSymbolInfos,
+	const ExternalSymbolArray& externalSymbols, ExternalSymbolInfoArray& externalSymbolInfos,
+	uint32 textSectionVa, uint32 dataSectionVa
+	)
 {
 	SymbolArray symbols;
 	symbols.reserve(internalSymbols.size() + externalSymbols.size());
@@ -228,7 +242,7 @@ CMachoObjectFile::SymbolArray CMachoObjectFile::BuildSymbols(const InternalSymbo
 		auto& internalSymbolInfo = internalSymbolInfos[i];
 		internalSymbolInfo.symbolIndex = static_cast<uint32>(symbols.size());
 
-		Macho::NLIST symbol = {};
+		MachoTraits::NLIST symbol = {};
 		symbol.stringTableIndex		 = internalSymbolInfo.nameOffset;
 		symbol.type					 = 0x1F;		// N_SECT | N_PEXT | N_EXT
 		symbol.value				 = internalSymbolInfo.dataOffset;
@@ -245,7 +259,7 @@ CMachoObjectFile::SymbolArray CMachoObjectFile::BuildSymbols(const InternalSymbo
 		auto& externalSymbolInfo = externalSymbolInfos[i];
 		externalSymbolInfo.symbolIndex = static_cast<uint32>(symbols.size());
 
-		Macho::NLIST symbol = {};
+		MachoTraits::NLIST symbol = {};
 		symbol.stringTableIndex		= externalSymbolInfo.nameOffset;
 		symbol.value				= 0;
 		symbol.type					= 0x01;		// N_UNDF | N_EXT
@@ -257,7 +271,10 @@ CMachoObjectFile::SymbolArray CMachoObjectFile::BuildSymbols(const InternalSymbo
 	return symbols;
 }
 
-CMachoObjectFile::RelocationArray CMachoObjectFile::BuildRelocations(SECTION& section, const InternalSymbolInfoArray& internalSymbolInfos, const ExternalSymbolInfoArray& externalSymbolInfos) const
+template <typename MachoTraits>
+typename CMachoObjectFile<MachoTraits>::RelocationArray CMachoObjectFile<MachoTraits>::BuildRelocations(
+	SECTION& section, const InternalSymbolInfoArray& internalSymbolInfos, 
+	const ExternalSymbolInfoArray& externalSymbolInfos) const
 {
 	RelocationArray relocations;
 	relocations.reserve(section.symbolReferences.size() * 4); //Times 4 because of possible HALF/PAIR relocs
@@ -332,6 +349,10 @@ CMachoObjectFile::RelocationArray CMachoObjectFile::BuildRelocations(SECTION& se
 			*reinterpret_cast<uint32*>(section.data.data() + symbolReference.offset + 0) &= ~0xF0FFF;
 			*reinterpret_cast<uint32*>(section.data.data() + symbolReference.offset + 4) &= ~0xF0FFF;
 		}
+		else if((m_cpuArch == CObjectFile::CPU_ARCH_ARM64) && (symbolReference.type == SYMBOL_TYPE_EXTERNAL))
+		{
+			//TODO: Add proper relocations
+		}
 		else
 		{
 			auto relocation = Macho::RELOCATION_INFO();
@@ -340,12 +361,26 @@ CMachoObjectFile::RelocationArray CMachoObjectFile::BuildRelocations(SECTION& se
 			relocation.address			= symbolReference.offset;
 			relocation.isExtern			= 1;
 			relocation.pcRel			= 0;
-			relocation.length			= 2;			//4 bytes
+			switch(MachoTraits::POINTER_SIZE)
+			{
+			case 4:
+				relocation.length		= 2;		//4 bytes
+				*reinterpret_cast<uint32*>(section.data.data() + symbolReference.offset) = 0;
+				break;
+			case 8:
+				relocation.length		= 3;		//8 bytes
+				*reinterpret_cast<uint64*>(section.data.data() + symbolReference.offset) = 0;
+				break;
+			default:
+				assert(false);
+				break;
+			}
 			relocations.push_back(relocation);
-
-			*reinterpret_cast<uint32*>(section.data.data() + symbolReference.offset) = 0;
 		}
 	}
 
 	return relocations;
 }
+
+template class CMachoObjectFile<MACHO_TRAITS_32>;
+template class CMachoObjectFile<MACHO_TRAITS_64>;

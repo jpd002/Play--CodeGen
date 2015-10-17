@@ -32,7 +32,7 @@ void CMachoObjectFile::Write(Framework::CStream& stream)
 	dataSection.data.resize((dataSection.data.size() + 0x01) & ~0x01);
 
 	auto symbols = BuildSymbols(m_internalSymbols, internalSymbolInfos, m_externalSymbols, externalSymbolInfos,
-		0, textSection.data.size());
+		0, static_cast<uint32>(textSection.data.size()));
 
 	auto textSectionRelocations = BuildRelocations(textSection, internalSymbolInfos, externalSymbolInfos);
 	auto dataSectionRelocations = BuildRelocations(dataSection, internalSymbolInfos, externalSymbolInfos);
@@ -56,11 +56,11 @@ void CMachoObjectFile::Write(Framework::CStream& stream)
 		section.segmentName[0x0F] = 0;
 
 		section.address				= 0;
-		section.size				= textSection.data.size();
+		section.size				= static_cast<uint32>(textSection.data.size());
 		section.offset				= headerSize;
 		section.align				= 0x02;
 		section.relocationOffset	= headerSize + segmentDataSize;
-		section.relocationCount		= textSectionRelocations.size();
+		section.relocationCount		= static_cast<uint32>(textSectionRelocations.size());
 		section.flags				= Macho::S_ATTR_SOME_INSTRUCTIONS | Macho::S_ATTR_PURE_INSTRUCTIONS;
 		section.reserved1			= 0;
 		section.reserved2			= 0;
@@ -77,12 +77,12 @@ void CMachoObjectFile::Write(Framework::CStream& stream)
 		section.sectionName[0x0F] = 0;
 		section.segmentName[0x0F] = 0;
 
-		section.address				= textSection.data.size();
-		section.size				= dataSection.data.size();
-		section.offset				= headerSize + textSection.data.size();
+		section.address				= static_cast<uint32>(textSection.data.size());
+		section.size				= static_cast<uint32>(dataSection.data.size());
+		section.offset				= headerSize + static_cast<uint32>(textSection.data.size());
 		section.align				= 0x01;
 		section.relocationOffset	= headerSize + segmentDataSize + textSectionRelocations.size() * sizeof(Macho::RELOCATION_INFO);
-		section.relocationCount		= dataSectionRelocations.size();
+		section.relocationCount		= static_cast<uint32>(dataSectionRelocations.size());
 		section.flags				= 0;
 		section.reserved1			= 0;
 		section.reserved2			= 0;
@@ -153,14 +153,14 @@ void CMachoObjectFile::FillStringTable(StringTable& stringTable, const InternalS
 	uint32 stringTableSizeIncrement = 0;
 	for(const auto& internalSymbol : internalSymbols)
 	{
-		stringTableSizeIncrement += internalSymbol.name.length() + 1;
+		stringTableSizeIncrement += static_cast<uint32>(internalSymbol.name.length()) + 1;
 	}
 	stringTable.reserve(stringTable.size() + stringTableSizeIncrement);
 	for(uint32 i = 0; i < internalSymbols.size(); i++)
 	{
 		const auto& internalSymbol = internalSymbols[i];
 		auto& internalSymbolInfo = internalSymbolInfos[i];
-		internalSymbolInfo.nameOffset = stringTable.size();
+		internalSymbolInfo.nameOffset = static_cast<uint32>(stringTable.size());
 		stringTable.insert(std::end(stringTable), std::begin(internalSymbol.name), std::end(internalSymbol.name));
 		stringTable.push_back(0);
 	}
@@ -171,14 +171,14 @@ void CMachoObjectFile::FillStringTable(StringTable& stringTable, const ExternalS
 	uint32 stringTableSizeIncrement = 0;
 	for(const auto& externalSymbol : externalSymbols)
 	{
-		stringTableSizeIncrement += externalSymbol.name.length() + 1;
+		stringTableSizeIncrement += static_cast<uint32>(externalSymbol.name.length()) + 1;
 	}
 	stringTable.reserve(stringTable.size() + stringTableSizeIncrement);
 	for(uint32 i = 0; i < externalSymbols.size(); i++)
 	{
 		const auto& externalSymbol = externalSymbols[i];
 		auto& externalSymbolInfo = externalSymbolInfos[i];
-		externalSymbolInfo.nameOffset = stringTable.size();
+		externalSymbolInfo.nameOffset = static_cast<uint32>(stringTable.size());
 		stringTable.insert(std::end(stringTable), std::begin(externalSymbol.name), std::end(externalSymbol.name));
 		stringTable.push_back(0);
 	}
@@ -191,7 +191,7 @@ CMachoObjectFile::SECTION CMachoObjectFile::BuildSection(const InternalSymbolArr
 	uint32 sectionSize = 0;
 	for(const auto& internalSymbol : internalSymbols)
 	{
-		sectionSize += internalSymbol.data.size();
+		sectionSize += static_cast<uint32>(internalSymbol.data.size());
 	}
 	sectionData.reserve(sectionSize);
 	for(uint32 i = 0; i < internalSymbols.size(); i++)
@@ -200,7 +200,7 @@ CMachoObjectFile::SECTION CMachoObjectFile::BuildSection(const InternalSymbolArr
 		if(internalSymbol.location != location) continue;
 
 		auto& internalSymbolInfo = internalSymbolInfos[i];
-		internalSymbolInfo.dataOffset = sectionData.size();
+		internalSymbolInfo.dataOffset = static_cast<uint32>(sectionData.size());
 		for(const auto& symbolReference : internalSymbol.symbolReferences)
 		{
 			SYMBOL_REFERENCE newReference;
@@ -226,7 +226,7 @@ CMachoObjectFile::SymbolArray CMachoObjectFile::BuildSymbols(const InternalSymbo
 	{
 		const auto& internalSymbol = internalSymbols[i];
 		auto& internalSymbolInfo = internalSymbolInfos[i];
-		internalSymbolInfo.symbolIndex = symbols.size();
+		internalSymbolInfo.symbolIndex = static_cast<uint32>(symbols.size());
 
 		Macho::NLIST symbol = {};
 		symbol.stringTableIndex		 = internalSymbolInfo.nameOffset;
@@ -243,7 +243,7 @@ CMachoObjectFile::SymbolArray CMachoObjectFile::BuildSymbols(const InternalSymbo
 	{
 		const auto& externalSymbol = externalSymbols[i];
 		auto& externalSymbolInfo = externalSymbolInfos[i];
-		externalSymbolInfo.symbolIndex = symbols.size();
+		externalSymbolInfo.symbolIndex = static_cast<uint32>(symbols.size());
 
 		Macho::NLIST symbol = {};
 		symbol.stringTableIndex		= externalSymbolInfo.nameOffset;

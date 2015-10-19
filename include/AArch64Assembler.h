@@ -79,6 +79,7 @@ public:
 	void    Asrv(REGISTER32, REGISTER32, REGISTER32);
 	void    Asrv(REGISTER64, REGISTER64, REGISTER64);
 	void    B(LABEL);
+	void    Bl(uint32);
 	void    BCc(CONDITION, LABEL);
 	void    Blr(REGISTER64);
 	void    Cmn(REGISTER32, uint16, ADDSUB_IMM_SHIFT_TYPE);

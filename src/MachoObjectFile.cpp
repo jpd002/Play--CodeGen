@@ -351,7 +351,18 @@ typename CMachoObjectFile<MachoTraits>::RelocationArray CMachoObjectFile<MachoTr
 		}
 		else if((m_cpuArch == CObjectFile::CPU_ARCH_ARM64) && (symbolReference.type == SYMBOL_TYPE_EXTERNAL))
 		{
-			//TODO: Add proper relocations
+			//We assume that the instruction that references this symbol is BL.
+
+			auto relocation = Macho::RELOCATION_INFO();
+			relocation.type        = Macho::ARM64_RELOC_BRANCH26;
+			relocation.symbolIndex = symbolIndex;
+			relocation.address     = symbolReference.offset;
+			relocation.isExtern    = 1;
+			relocation.pcRel       = 1;
+			relocation.length      = 2; //4 bytes
+			relocations.push_back(relocation);
+
+			*reinterpret_cast<uint32*>(section.data.data() + symbolReference.offset) &= ~0x03FFFFFF;
 		}
 		else
 		{

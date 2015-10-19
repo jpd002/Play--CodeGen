@@ -358,6 +358,11 @@ CCodeGen_AArch64::~CCodeGen_AArch64()
 
 }
 
+void CCodeGen_AArch64::SetGenerateRelocatableCalls(bool generateRelocatableCalls)
+{
+	m_generateRelocatableCalls = generateRelocatableCalls;
+}
+
 unsigned int CCodeGen_AArch64::GetAvailableRegisterCount() const
 {
 	return MAX_REGISTERS;
@@ -1045,9 +1050,21 @@ void CCodeGen_AArch64::Emit_Call(const STATEMENT& statement)
 		emitter(paramState);
 	}
 	
-	auto fctAddressReg = GetNextTempRegister64();
-	LoadConstant64InRegister(fctAddressReg, src1->GetConstantPtr());
-	m_assembler.Blr(fctAddressReg);
+	if(m_generateRelocatableCalls)
+	{
+		if(m_externalSymbolReferencedHandler)
+		{
+			auto position = m_stream->GetLength();
+			m_externalSymbolReferencedHandler(src1->GetConstantPtr(), position);
+		}
+		m_assembler.Bl(0);
+	}
+	else
+	{
+		auto fctAddressReg = GetNextTempRegister64();
+		LoadConstant64InRegister(fctAddressReg, src1->GetConstantPtr());
+		m_assembler.Blr(fctAddressReg);
+	}
 }
 
 void CCodeGen_AArch64::Emit_RetVal_Reg(const STATEMENT& statement)

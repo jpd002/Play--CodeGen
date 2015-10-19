@@ -12,6 +12,8 @@ namespace Jitter
 		           CCodeGen_AArch64();
 		virtual    ~CCodeGen_AArch64();
 
+		void            SetGenerateRelocatableCalls(bool);
+
 		void            GenerateCode(const StatementList&, unsigned int) override;
 		void            SetStream(Framework::CStream*) override;
 		void            RegisterExternalSymbols(CObjectFile*) const override;
@@ -268,5 +270,7 @@ namespace Jitter
 		LabelMapType           m_labels;
 		ParamStack             m_params;
 		uint32                 m_nextTempRegister = 0;
+
+		bool    m_generateRelocatableCalls = false;
 	};
 };

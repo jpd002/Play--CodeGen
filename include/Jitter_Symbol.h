@@ -193,6 +193,12 @@ namespace Jitter
 				(symbol->m_valueHigh == m_valueHigh);
 		}
 
+		uint64 GetConstant64() const
+		{
+			assert(m_type == SYM_CONSTANT64);
+			return static_cast<uint64>(m_valueLow) | (static_cast<uint64>(m_valueHigh) << 32);
+		}
+		
 		uintptr_t GetConstantPtr() const
 		{
 			assert(m_type == SYM_CONSTANTPTR);

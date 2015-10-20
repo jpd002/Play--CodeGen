@@ -1,27 +1,25 @@
 #include <assert.h>
 #include <stdexcept>
-#include "ArmAssembler.h"
+#include "AArch32Assembler.h"
 
 #define OPCODE_BKPT (0xE1200070)
 
-CArmAssembler::CArmAssembler()
-: m_nextLabelId(1)
-, m_stream(NULL)
+CAArch32Assembler::CAArch32Assembler()
 {
 
 }
 
-CArmAssembler::~CArmAssembler()
+CAArch32Assembler::~CAArch32Assembler()
 {
 	
 }
 
-void CArmAssembler::SetStream(Framework::CStream* stream)
+void CAArch32Assembler::SetStream(Framework::CStream* stream)
 {
 	m_stream = stream;
 }
 
-CArmAssembler::LdrAddress CArmAssembler::MakeImmediateLdrAddress(int32 immediate)
+CAArch32Assembler::LdrAddress CAArch32Assembler::MakeImmediateLdrAddress(int32 immediate)
 {
 	LdrAddress result;
 	memset(&result, 0, sizeof(result));
@@ -36,7 +34,7 @@ CArmAssembler::LdrAddress CArmAssembler::MakeImmediateLdrAddress(int32 immediate
 	return result;
 }
 
-CArmAssembler::ImmediateAluOperand CArmAssembler::MakeImmediateAluOperand(uint8 immediate, uint8 rotateAmount)
+CAArch32Assembler::ImmediateAluOperand CAArch32Assembler::MakeImmediateAluOperand(uint8 immediate, uint8 rotateAmount)
 {
 	ImmediateAluOperand operand;
 	operand.immediate = immediate;
@@ -44,7 +42,7 @@ CArmAssembler::ImmediateAluOperand CArmAssembler::MakeImmediateAluOperand(uint8 
 	return operand;
 }
 
-CArmAssembler::RegisterAluOperand CArmAssembler::MakeRegisterAluOperand(CArmAssembler::REGISTER registerId, const AluLdrShift& shift)
+CAArch32Assembler::RegisterAluOperand CAArch32Assembler::MakeRegisterAluOperand(CAArch32Assembler::REGISTER registerId, const AluLdrShift& shift)
 {
 	RegisterAluOperand result;
 	result.rm = registerId;
@@ -52,7 +50,7 @@ CArmAssembler::RegisterAluOperand CArmAssembler::MakeRegisterAluOperand(CArmAsse
 	return result;
 }
 
-CArmAssembler::AluLdrShift CArmAssembler::MakeConstantShift(SHIFT shiftType, uint8 amount)
+CAArch32Assembler::AluLdrShift CAArch32Assembler::MakeConstantShift(SHIFT shiftType, uint8 amount)
 {
 	assert(!(shiftType == SHIFT_ASR && amount == 0));
 	assert(!(shiftType == SHIFT_LSR && amount == 0));
@@ -64,7 +62,7 @@ CArmAssembler::AluLdrShift CArmAssembler::MakeConstantShift(SHIFT shiftType, uin
 	return result;
 }
 
-CArmAssembler::AluLdrShift CArmAssembler::MakeVariableShift(SHIFT shiftType, CArmAssembler::REGISTER registerId)
+CAArch32Assembler::AluLdrShift CAArch32Assembler::MakeVariableShift(SHIFT shiftType, CAArch32Assembler::REGISTER registerId)
 {
 	AluLdrShift result;
 	result.typeBit = 1;
@@ -73,22 +71,22 @@ CArmAssembler::AluLdrShift CArmAssembler::MakeVariableShift(SHIFT shiftType, CAr
 	return result;
 }
 
-CArmAssembler::LABEL CArmAssembler::CreateLabel()
+CAArch32Assembler::LABEL CAArch32Assembler::CreateLabel()
 {
 	return m_nextLabelId++;
 }
 
-void CArmAssembler::ClearLabels()
+void CAArch32Assembler::ClearLabels()
 {
 	m_labels.clear();
 }
 
-void CArmAssembler::MarkLabel(LABEL label)
+void CAArch32Assembler::MarkLabel(LABEL label)
 {
 	m_labels[label] = static_cast<size_t>(m_stream->Tell());
 }
 
-void CArmAssembler::ResolveLabelReferences()
+void CAArch32Assembler::ResolveLabelReferences()
 {
 	for(const auto& labelReferencePair : m_labelReferences)
 	{
@@ -111,7 +109,7 @@ void CArmAssembler::ResolveLabelReferences()
 	m_labelReferences.clear();
 }
 
-void CArmAssembler::GenericAlu(ALU_OPCODE op, bool setFlags, REGISTER rd, REGISTER rn, REGISTER rm)
+void CAArch32Assembler::GenericAlu(ALU_OPCODE op, bool setFlags, REGISTER rd, REGISTER rn, REGISTER rm)
 {
 	InstructionAlu instruction;
 	instruction.operand		= rm;
@@ -125,7 +123,7 @@ void CArmAssembler::GenericAlu(ALU_OPCODE op, bool setFlags, REGISTER rd, REGIST
 	WriteWord(opcode);
 }
 
-void CArmAssembler::GenericAlu(ALU_OPCODE op, bool setFlags, REGISTER rd, REGISTER rn, 
+void CAArch32Assembler::GenericAlu(ALU_OPCODE op, bool setFlags, REGISTER rd, REGISTER rn, 
 	const ImmediateAluOperand& operand, CONDITION conditionCode)
 {
 	InstructionAlu instruction;
@@ -140,69 +138,69 @@ void CArmAssembler::GenericAlu(ALU_OPCODE op, bool setFlags, REGISTER rd, REGIST
 	WriteWord(opcode);
 }
 
-void CArmAssembler::CreateLabelReference(LABEL label)
+void CAArch32Assembler::CreateLabelReference(LABEL label)
 {
 	LABELREF reference = static_cast<size_t>(m_stream->Tell());
 	m_labelReferences.insert(LabelReferenceMapType::value_type(label, reference));
 }
 
-void CArmAssembler::Adc(REGISTER rd, REGISTER rn, REGISTER rm)
+void CAArch32Assembler::Adc(REGISTER rd, REGISTER rn, REGISTER rm)
 {
 	GenericAlu(ALU_OPCODE_ADC, false, rd, rn, rm);
 }
 
-void CArmAssembler::Add(REGISTER rd, REGISTER rn, REGISTER rm)
+void CAArch32Assembler::Add(REGISTER rd, REGISTER rn, REGISTER rm)
 {
 	GenericAlu(ALU_OPCODE_ADD, false, rd, rn, rm);
 }
 
-void CArmAssembler::Add(REGISTER rd, REGISTER rn, const ImmediateAluOperand& operand)
+void CAArch32Assembler::Add(REGISTER rd, REGISTER rn, const ImmediateAluOperand& operand)
 {
 	GenericAlu(ALU_OPCODE_ADD, false, rd, rn, operand);
 }
 
-void CArmAssembler::Adds(REGISTER rd, REGISTER rn, REGISTER rm)
+void CAArch32Assembler::Adds(REGISTER rd, REGISTER rn, REGISTER rm)
 {
 	GenericAlu(ALU_OPCODE_ADD, true, rd, rn, rm);
 }
 
-void CArmAssembler::And(REGISTER rd, REGISTER rn, REGISTER rm)
+void CAArch32Assembler::And(REGISTER rd, REGISTER rn, REGISTER rm)
 {
 	GenericAlu(ALU_OPCODE_AND, false, rd, rn, rm);
 }
 
-void CArmAssembler::And(REGISTER rd, REGISTER rn, const ImmediateAluOperand& operand)
+void CAArch32Assembler::And(REGISTER rd, REGISTER rn, const ImmediateAluOperand& operand)
 {
 	GenericAlu(ALU_OPCODE_AND, false, rd, rn, operand);
 }
 
-void CArmAssembler::BCc(CONDITION condition, LABEL label)
+void CAArch32Assembler::BCc(CONDITION condition, LABEL label)
 {
 	CreateLabelReference(label);
 	uint32 opcode = (condition << 28) | (0x0A000000);
 	WriteWord(opcode);
 }
 
-void CArmAssembler::Bic(REGISTER rd, REGISTER rn, const ImmediateAluOperand& operand)
+void CAArch32Assembler::Bic(REGISTER rd, REGISTER rn, const ImmediateAluOperand& operand)
 {
 	GenericAlu(ALU_OPCODE_BIC, false, rd, rn, operand);
 }
 
-void CArmAssembler::Bx(REGISTER rn)
+void CAArch32Assembler::Bx(REGISTER rn)
 {
 	uint32 opcode = 0;
 	opcode = (CONDITION_AL << 28) | (0x12FFF10) | (rn);
 	WriteWord(opcode);
 }
 
-void CArmAssembler::Blx(REGISTER rn)
+void CAArch32Assembler::Blx(REGISTER rn)
 {
 	uint32 opcode = 0;
 	opcode = (CONDITION_AL << 28) | (0x12FFF30) | (rn);
 	WriteWord(opcode);
 }
 
-void CArmAssembler::Clz(REGISTER rd, REGISTER rm)
+void CAArch32Assembler::Clz(REGISTER rd, REGISTER rm)
 {
 	uint32 opcode = 0x016F0F10;
 	opcode |= CONDITION_AL << 28;
@@ -211,7 +209,7 @@ void CArmAssembler::Clz(REGISTER rd, REGISTER rm)
 	WriteWord(opcode);
 }
 
-void CArmAssembler::Cmn(REGISTER rn, const ImmediateAluOperand& operand)
+void CAArch32Assembler::Cmn(REGISTER rn, const ImmediateAluOperand& operand)
 {
 	InstructionAlu instruction;
 	instruction.operand = *reinterpret_cast<const unsigned int*>(&operand);
@@ -225,7 +223,7 @@ void CArmAssembler::Cmn(REGISTER rn, const ImmediateAluOperand& operand)
 	WriteWord(opcode);
 }
 
-void CArmAssembler::Cmp(REGISTER rn, REGISTER rm)
+void CAArch32Assembler::Cmp(REGISTER rn, REGISTER rm)
 {
 	InstructionAlu instruction;
 	instruction.operand = rm;
@@ -239,7 +237,7 @@ void CArmAssembler::Cmp(REGISTER rn, REGISTER rm)
 	WriteWord(opcode);
 }
 
-void CArmAssembler::Cmp(REGISTER rn, const ImmediateAluOperand& operand)
+void CAArch32Assembler::Cmp(REGISTER rn, const ImmediateAluOperand& operand)
 {
 	InstructionAlu instruction;
 	instruction.operand = *reinterpret_cast<const unsigned int*>(&operand);
@@ -253,17 +251,17 @@ void CArmAssembler::Cmp(REGISTER rn, const ImmediateAluOperand& operand)
 	WriteWord(opcode);
 }
 
-void CArmAssembler::Eor(REGISTER rd, REGISTER rn, REGISTER rm)
+void CAArch32Assembler::Eor(REGISTER rd, REGISTER rn, REGISTER rm)
 {
 	GenericAlu(ALU_OPCODE_EOR, false, rd, rn, rm);
 }
 
-void CArmAssembler::Eor(REGISTER rd, REGISTER rn, const ImmediateAluOperand& operand)
+void CAArch32Assembler::Eor(REGISTER rd, REGISTER rn, const ImmediateAluOperand& operand)
 {
 	GenericAlu(ALU_OPCODE_EOR, false, rd, rn, operand);
 }
 
-void CArmAssembler::Ldmia(REGISTER rbase, uint16 regList)
+void CAArch32Assembler::Ldmia(REGISTER rbase, uint16 regList)
 {
 	//20 - Load
 	//21 - Writeback
@@ -274,7 +272,7 @@ void CArmAssembler::Ldmia(REGISTER rbase, uint16 regList)
 	WriteWord(opcode);
 }
 
-void CArmAssembler::Ldr(REGISTER rd, REGISTER rbase, const LdrAddress& address)
+void CAArch32Assembler::Ldr(REGISTER rd, REGISTER rbase, const LdrAddress& address)
 {
 	uint32 opcode = 0;
 	assert(address.isImmediate);
@@ -283,7 +281,7 @@ void CArmAssembler::Ldr(REGISTER rd, REGISTER rbase, const LdrAddress& address)
 	WriteWord(opcode);
 }
 
-void CArmAssembler::Ldrd(REGISTER rt, REGISTER rn, const LdrAddress& address)
+void CAArch32Assembler::Ldrd(REGISTER rt, REGISTER rn, const LdrAddress& address)
 {
 	assert(address.isImmediate);
 	assert(!address.isNegative);
@@ -297,7 +295,7 @@ void CArmAssembler::Ldrd(REGISTER rt, REGISTER rn, const LdrAddress& address)
 	WriteWord(opcode);
 }
 
-void CArmAssembler::Mov(REGISTER rd, REGISTER rm)
+void CAArch32Assembler::Mov(REGISTER rd, REGISTER rm)
 {
 	InstructionAlu instruction;
 	instruction.operand = rm;
@@ -310,7 +308,7 @@ void CArmAssembler::Mov(REGISTER rd, REGISTER rm)
 	WriteWord(opcode);
 }
 
-void CArmAssembler::Mov(REGISTER rd, const RegisterAluOperand& operand)
+void CAArch32Assembler::Mov(REGISTER rd, const RegisterAluOperand& operand)
 {
 	InstructionAlu instruction;
 	instruction.operand = *reinterpret_cast<const unsigned int*>(&operand);
@@ -323,12 +321,12 @@ void CArmAssembler::Mov(REGISTER rd, const RegisterAluOperand& operand)
 	WriteWord(opcode);
 }
 
-void CArmAssembler::Mov(REGISTER rd, const ImmediateAluOperand& operand)
+void CAArch32Assembler::Mov(REGISTER rd, const ImmediateAluOperand& operand)
 {
 	MovCc(CONDITION_AL, rd, operand);
 }
 
-void CArmAssembler::MovCc(CONDITION condition, REGISTER rd, const ImmediateAluOperand& operand)
+void CAArch32Assembler::MovCc(CONDITION condition, REGISTER rd, const ImmediateAluOperand& operand)
 {
 	InstructionAlu instruction;
 	instruction.operand = *reinterpret_cast<const unsigned int*>(&operand);
@@ -342,7 +340,7 @@ void CArmAssembler::MovCc(CONDITION condition, REGISTER rd, const ImmediateAluOp
 	WriteWord(opcode);
 }
 
-void CArmAssembler::Movw(REGISTER rd, uint16 value)
+void CAArch32Assembler::Movw(REGISTER rd, uint16 value)
 {
 	uint32 opcode = 0x03000000;
 	opcode |= (CONDITION_AL << 28);
@@ -352,7 +350,7 @@ void CArmAssembler::Movw(REGISTER rd, uint16 value)
 	WriteWord(opcode);
 }
 
-void CArmAssembler::Movt(REGISTER rd, uint16 value)
+void CAArch32Assembler::Movt(REGISTER rd, uint16 value)
 {
 	uint32 opcode = 0x03400000;
 	opcode |= (CONDITION_AL << 28);
@@ -362,7 +360,7 @@ void CArmAssembler::Movt(REGISTER rd, uint16 value)
 	WriteWord(opcode);
 }
 
-void CArmAssembler::Mvn(REGISTER rd, REGISTER rm)
+void CAArch32Assembler::Mvn(REGISTER rd, REGISTER rm)
 {
 	InstructionAlu instruction;
 	instruction.operand = rm;
@@ -375,7 +373,7 @@ void CArmAssembler::Mvn(REGISTER rd, REGISTER rm)
 	WriteWord(opcode);
 }
 
-void CArmAssembler::Mvn(REGISTER rd, const ImmediateAluOperand& operand)
+void CAArch32Assembler::Mvn(REGISTER rd, const ImmediateAluOperand& operand)
 {
 	InstructionAlu instruction;
 	instruction.operand = *reinterpret_cast<const unsigned int*>(&operand);
@@ -389,32 +387,32 @@ void CArmAssembler::Mvn(REGISTER rd, const ImmediateAluOperand& operand)
 	WriteWord(opcode);	
 }
 
-void CArmAssembler::Or(REGISTER rd, REGISTER rn, REGISTER rm)
+void CAArch32Assembler::Or(REGISTER rd, REGISTER rn, REGISTER rm)
 {
 	GenericAlu(ALU_OPCODE_ORR, false, rd, rn, rm);
 }
 
-void CArmAssembler::Or(REGISTER rd, REGISTER rn, const ImmediateAluOperand& operand)
+void CAArch32Assembler::Or(REGISTER rd, REGISTER rn, const ImmediateAluOperand& operand)
 {
 	GenericAlu(ALU_OPCODE_ORR, false, rd, rn, operand);
 }
 
-void CArmAssembler::Or(CONDITION cc, REGISTER rd, REGISTER rn, const ImmediateAluOperand& operand)
+void CAArch32Assembler::Or(CONDITION cc, REGISTER rd, REGISTER rn, const ImmediateAluOperand& operand)
 {
 	GenericAlu(ALU_OPCODE_ORR, false, rd, rn, operand, cc);
 }
 
-void CArmAssembler::Rsb(REGISTER rd, REGISTER rn, const ImmediateAluOperand& operand)
+void CAArch32Assembler::Rsb(REGISTER rd, REGISTER rn, const ImmediateAluOperand& operand)
 {
 	GenericAlu(ALU_OPCODE_RSB, false, rd, rn, operand);
 }
 
-void CArmAssembler::Sbc(REGISTER rd, REGISTER rn, REGISTER rm)
+void CAArch32Assembler::Sbc(REGISTER rd, REGISTER rn, REGISTER rm)
 {
 	GenericAlu(ALU_OPCODE_SBC, false, rd, rn, rm);
 }
 
-void CArmAssembler::Sdiv(REGISTER rd, REGISTER rn, REGISTER rm)
+void CAArch32Assembler::Sdiv(REGISTER rd, REGISTER rn, REGISTER rm)
 {
 	uint32 opcode = 0x0710F010;
 	opcode |= (CONDITION_AL << 28);
@@ -424,14 +422,14 @@ void CArmAssembler::Sdiv(REGISTER rd, REGISTER rn, REGISTER rm)
 	WriteWord(opcode);
 }
 
-void CArmAssembler::Smull(REGISTER rdLow, REGISTER rdHigh, REGISTER rn, REGISTER rm)
+void CAArch32Assembler::Smull(REGISTER rdLow, REGISTER rdHigh, REGISTER rn, REGISTER rm)
 {
 	uint32 opcode = 0;
 	opcode = (CONDITION_AL << 28) | (0x06 << 21) | (rdHigh << 16) | (rdLow << 12) | (rm << 8) | (0x9 << 4) | (rn << 0);
 	WriteWord(opcode);
 }
 
-void CArmAssembler::Stmdb(REGISTER rbase, uint16 regList)
+void CAArch32Assembler::Stmdb(REGISTER rbase, uint16 regList)
 {
 	//20 - Load
 	//21 - Writeback
@@ -442,7 +440,7 @@ void CArmAssembler::Stmdb(REGISTER rbase, uint16 regList)
 	WriteWord(opcode);
 }
 
-void CArmAssembler::Str(REGISTER rd, REGISTER rbase, const LdrAddress& address)
+void CAArch32Assembler::Str(REGISTER rd, REGISTER rbase, const LdrAddress& address)
 {
 	assert(address.isImmediate);
 	uint32 opcode = (CONDITION_AL << 28) | (1 << 26) | (1 << 24) | (0 << 20);
@@ -453,7 +451,7 @@ void CArmAssembler::Str(REGISTER rd, REGISTER rbase, const LdrAddress& address)
 	WriteWord(opcode);
 }
 
-void CArmAssembler::Strd(REGISTER rt, REGISTER rn, const LdrAddress& address)
+void CAArch32Assembler::Strd(REGISTER rt, REGISTER rn, const LdrAddress& address)
 {
 	assert(address.isImmediate);
 	assert(!address.isNegative);
@@ -467,22 +465,22 @@ void CArmAssembler::Strd(REGISTER rt, REGISTER rn, const LdrAddress& address)
 	WriteWord(opcode);
 }
 
-void CArmAssembler::Sub(REGISTER rd, REGISTER rn, REGISTER rm)
+void CAArch32Assembler::Sub(REGISTER rd, REGISTER rn, REGISTER rm)
 {
 	GenericAlu(ALU_OPCODE_SUB, false, rd, rn, rm);
 }
 
-void CArmAssembler::Sub(REGISTER rd, REGISTER rn, const ImmediateAluOperand& operand)
+void CAArch32Assembler::Sub(REGISTER rd, REGISTER rn, const ImmediateAluOperand& operand)
 {
 	GenericAlu(ALU_OPCODE_SUB, false, rd, rn, operand);
 }
 
-void CArmAssembler::Subs(REGISTER rd, REGISTER rn, REGISTER rm)
+void CAArch32Assembler::Subs(REGISTER rd, REGISTER rn, REGISTER rm)
 {
 	GenericAlu(ALU_OPCODE_SUB, true, rd, rn, rm);
 }
 
-void CArmAssembler::Teq(REGISTER rn, const ImmediateAluOperand& operand)
+void CAArch32Assembler::Teq(REGISTER rn, const ImmediateAluOperand& operand)
 {
 	InstructionAlu instruction;
 	instruction.operand = *reinterpret_cast<const unsigned int*>(&operand);
@@ -496,12 +494,12 @@ void CArmAssembler::Teq(REGISTER rn, const ImmediateAluOperand& operand)
 	WriteWord(opcode);
 }
 
-void CArmAssembler::Tst(REGISTER rn, REGISTER rm)
+void CAArch32Assembler::Tst(REGISTER rn, REGISTER rm)
 {
-	GenericAlu(ALU_OPCODE_TST, true, CArmAssembler::r0, rn, rm);
+	GenericAlu(ALU_OPCODE_TST, true, CAArch32Assembler::r0, rn, rm);
 }
 
-void CArmAssembler::Udiv(REGISTER rd, REGISTER rn, REGISTER rm)
+void CAArch32Assembler::Udiv(REGISTER rd, REGISTER rn, REGISTER rm)
 {
 	uint32 opcode = 0x0730F010;
 	opcode |= (CONDITION_AL << 28);
@@ -511,7 +509,7 @@ void CArmAssembler::Udiv(REGISTER rd, REGISTER rn, REGISTER rm)
 	WriteWord(opcode);
 }
 
-void CArmAssembler::Umull(REGISTER rdLow, REGISTER rdHigh, REGISTER rn, REGISTER rm)
+void CAArch32Assembler::Umull(REGISTER rdLow, REGISTER rdHigh, REGISTER rn, REGISTER rm)
 {
 	uint32 opcode = 0;
 	opcode = (CONDITION_AL << 28) | (0x04 << 21) | (rdHigh << 16) | (rdLow << 12) | (rm << 8) | (0x9 << 4) | (rn << 0);
@@ -522,55 +520,55 @@ void CArmAssembler::Umull(REGISTER rdLow, REGISTER rdHigh, REGISTER rn, REGISTER
 // VFP/NEON Stuff
 //////////////////////////////////////////////////
 
-uint32 CArmAssembler::FPSIMD_EncodeSd(SINGLE_REGISTER sd)
+uint32 CAArch32Assembler::FPSIMD_EncodeSd(SINGLE_REGISTER sd)
 {
 	return ((sd >> 1) << 12) | ((sd & 1) << 22);
 }
 
-uint32 CArmAssembler::FPSIMD_EncodeSn(SINGLE_REGISTER sn)
+uint32 CAArch32Assembler::FPSIMD_EncodeSn(SINGLE_REGISTER sn)
 {
 	return ((sn >> 1) << 16) | ((sn & 1) <<  7);
 }
 
-uint32 CArmAssembler::FPSIMD_EncodeSm(SINGLE_REGISTER sm)
+uint32 CAArch32Assembler::FPSIMD_EncodeSm(SINGLE_REGISTER sm)
 {
 	return ((sm >> 1) <<  0) | ((sm & 1) <<  5);
 }
 
-uint32 CArmAssembler::FPSIMD_EncodeDd(DOUBLE_REGISTER dd)
+uint32 CAArch32Assembler::FPSIMD_EncodeDd(DOUBLE_REGISTER dd)
 {
 	return ((dd & 0xF) << 12) | ((dd >> 4) << 22);
 }
 
-uint32 CArmAssembler::FPSIMD_EncodeDn(DOUBLE_REGISTER dn)
+uint32 CAArch32Assembler::FPSIMD_EncodeDn(DOUBLE_REGISTER dn)
 {
 	return ((dn & 0xF) << 16) | ((dn >> 4) <<  7);
 }
 
-uint32 CArmAssembler::FPSIMD_EncodeDm(DOUBLE_REGISTER dm)
+uint32 CAArch32Assembler::FPSIMD_EncodeDm(DOUBLE_REGISTER dm)
 {
 	return ((dm & 0x0F) <<  0) | ((dm >> 4) <<  5);
 }
 
-uint32 CArmAssembler::FPSIMD_EncodeQd(QUAD_REGISTER qd)
+uint32 CAArch32Assembler::FPSIMD_EncodeQd(QUAD_REGISTER qd)
 {
 	assert((qd & 1) == 0);
 	return ((qd & 0xF) << 12) | ((qd >> 4) << 22);
 }
 
-uint32 CArmAssembler::FPSIMD_EncodeQn(QUAD_REGISTER qn)
+uint32 CAArch32Assembler::FPSIMD_EncodeQn(QUAD_REGISTER qn)
 {
 	assert((qn & 1) == 0);
 	return ((qn & 0xF) << 16) | ((qn >> 4) <<  7);
 }
 
-uint32 CArmAssembler::FPSIMD_EncodeQm(QUAD_REGISTER qm)
+uint32 CAArch32Assembler::FPSIMD_EncodeQm(QUAD_REGISTER qm)
 {
 	assert((qm & 1) == 0);
 	return ((qm & 0x0F) <<  0) | ((qm >> 4) <<  5);
 }
 
-void CArmAssembler::Vldr(SINGLE_REGISTER sd, REGISTER rbase, const LdrAddress& address)
+void CAArch32Assembler::Vldr(SINGLE_REGISTER sd, REGISTER rbase, const LdrAddress& address)
 {
 	assert(address.isImmediate);
 	assert(!address.isNegative);
@@ -583,7 +581,7 @@ void CArmAssembler::Vldr(SINGLE_REGISTER sd, REGISTER rbase, const LdrAddress& a
 	WriteWord(opcode);
 }
 
-void CArmAssembler::Vld1_32x2(DOUBLE_REGISTER dd, REGISTER rn)
+void CAArch32Assembler::Vld1_32x2(DOUBLE_REGISTER dd, REGISTER rn)
 {
 	//TODO: Make this aligned
 
@@ -593,7 +591,7 @@ void CArmAssembler::Vld1_32x2(DOUBLE_REGISTER dd, REGISTER rn)
 	WriteWord(opcode);
 }
 
-void CArmAssembler::Vld1_32x4(QUAD_REGISTER qd, REGISTER rn)
+void CAArch32Assembler::Vld1_32x4(QUAD_REGISTER qd, REGISTER rn)
 {
 	uint32 opcode = 0xF4200AAF;
 	opcode |= FPSIMD_EncodeQd(qd);
@@ -601,7 +599,7 @@ void CArmAssembler::Vld1_32x4(QUAD_REGISTER qd, REGISTER rn)
 	WriteWord(opcode);
 }
 
-void CArmAssembler::Vld1_32x4_u(QUAD_REGISTER qd, REGISTER rn)
+void CAArch32Assembler::Vld1_32x4_u(QUAD_REGISTER qd, REGISTER rn)
 {
 	//Unaligned variant
 	uint32 opcode = 0xF4200A8F;
@@ -610,7 +608,7 @@ void CArmAssembler::Vld1_32x4_u(QUAD_REGISTER qd, REGISTER rn)
 	WriteWord(opcode);
 }
 
-void CArmAssembler::Vstr(SINGLE_REGISTER sd, REGISTER rbase, const LdrAddress& address)
+void CAArch32Assembler::Vstr(SINGLE_REGISTER sd, REGISTER rbase, const LdrAddress& address)
 {
 	assert(address.isImmediate);
 	assert(!address.isNegative);
@@ -623,7 +621,7 @@ void CArmAssembler::Vstr(SINGLE_REGISTER sd, REGISTER rbase, const LdrAddress& a
 	WriteWord(opcode);
 }
 
-void CArmAssembler::Vst1_32x4(QUAD_REGISTER qd, REGISTER rn)
+void CAArch32Assembler::Vst1_32x4(QUAD_REGISTER qd, REGISTER rn)
 {
 	uint32 opcode = 0xF4000AAF;
 	opcode |= FPSIMD_EncodeQd(qd);
@@ -631,7 +629,7 @@ void CArmAssembler::Vst1_32x4(QUAD_REGISTER qd, REGISTER rn)
 	WriteWord(opcode);
 }
 
-void CArmAssembler::Vmov(DOUBLE_REGISTER dd, REGISTER rt, uint8 offset)
+void CAArch32Assembler::Vmov(DOUBLE_REGISTER dd, REGISTER rt, uint8 offset)
 {
 	uint32 opcode = 0x0E000B10;
 	opcode |= (CONDITION_AL << 28);
@@ -641,7 +639,7 @@ void CArmAssembler::Vmov(DOUBLE_REGISTER dd, REGISTER rt, uint8 offset)
 	WriteWord(opcode);
 }
 
-void CArmAssembler::Vmov(REGISTER rt, DOUBLE_REGISTER dn, uint8 offset)
+void CAArch32Assembler::Vmov(REGISTER rt, DOUBLE_REGISTER dn, uint8 offset)
 {
 	uint32 opcode = 0x0E100B10;
 	opcode |= (CONDITION_AL << 28);
@@ -651,7 +649,7 @@ void CArmAssembler::Vmov(REGISTER rt, DOUBLE_REGISTER dn, uint8 offset)
 	WriteWord(opcode);
 }
 
-void CArmAssembler::Vmovn_I16(DOUBLE_REGISTER dd, QUAD_REGISTER qm)
+void CAArch32Assembler::Vmovn_I16(DOUBLE_REGISTER dd, QUAD_REGISTER qm)
 {
 	uint32 opcode = 0xF3B20200;
 	opcode |= FPSIMD_EncodeDd(dd);
@@ -659,7 +657,7 @@ void CArmAssembler::Vmovn_I16(DOUBLE_REGISTER dd, QUAD_REGISTER qm)
 	WriteWord(opcode);
 }
 
-void CArmAssembler::Vmovn_I32(DOUBLE_REGISTER dd, QUAD_REGISTER qm)
+void CAArch32Assembler::Vmovn_I32(DOUBLE_REGISTER dd, QUAD_REGISTER qm)
 {
 	uint32 opcode = 0xF3B60200;
 	opcode |= FPSIMD_EncodeDd(dd);
@@ -667,7 +665,7 @@ void CArmAssembler::Vmovn_I32(DOUBLE_REGISTER dd, QUAD_REGISTER qm)
 	WriteWord(opcode);
 }
 
-void CArmAssembler::Vdup(QUAD_REGISTER qd, REGISTER rt)
+void CAArch32Assembler::Vdup(QUAD_REGISTER qd, REGISTER rt)
 {
 	uint32 opcode = 0x0EA00B10;
 	opcode |= (CONDITION_AL << 28);
@@ -676,7 +674,7 @@ void CArmAssembler::Vdup(QUAD_REGISTER qd, REGISTER rt)
 	WriteWord(opcode);
 }
 
-void CArmAssembler::Vzip_I8(DOUBLE_REGISTER dd, DOUBLE_REGISTER dm)
+void CAArch32Assembler::Vzip_I8(DOUBLE_REGISTER dd, DOUBLE_REGISTER dm)
 {
 	uint32 opcode = 0xF3B20180;
 	opcode |= FPSIMD_EncodeDd(dd);
@@ -684,7 +682,7 @@ void CArmAssembler::Vzip_I8(DOUBLE_REGISTER dd, DOUBLE_REGISTER dm)
 	WriteWord(opcode);
 }
 
-void CArmAssembler::Vzip_I16(DOUBLE_REGISTER dd, DOUBLE_REGISTER dm)
+void CAArch32Assembler::Vzip_I16(DOUBLE_REGISTER dd, DOUBLE_REGISTER dm)
 {
 	uint32 opcode = 0xF3B60180;
 	opcode |= FPSIMD_EncodeDd(dd);
@@ -692,7 +690,7 @@ void CArmAssembler::Vzip_I16(DOUBLE_REGISTER dd, DOUBLE_REGISTER dm)
 	WriteWord(opcode);
 }
 
-void CArmAssembler::Vzip_I32(QUAD_REGISTER qd, QUAD_REGISTER qm)
+void CAArch32Assembler::Vzip_I32(QUAD_REGISTER qd, QUAD_REGISTER qm)
 {
 	uint32 opcode = 0xF3BA01C0;
 	opcode |= FPSIMD_EncodeQd(qd);
@@ -700,7 +698,7 @@ void CArmAssembler::Vzip_I32(QUAD_REGISTER qd, QUAD_REGISTER qm)
 	WriteWord(opcode);
 }
 
-void CArmAssembler::Vadd_F32(SINGLE_REGISTER sd, SINGLE_REGISTER sn, SINGLE_REGISTER sm)
+void CAArch32Assembler::Vadd_F32(SINGLE_REGISTER sd, SINGLE_REGISTER sn, SINGLE_REGISTER sm)
 {
 	uint32 opcode = 0x0E300A00;
 	opcode |= (CONDITION_AL << 28);
@@ -710,7 +708,7 @@ void CArmAssembler::Vadd_F32(SINGLE_REGISTER sd, SINGLE_REGISTER sn, SINGLE_REGI
 	WriteWord(opcode);
 }
 
-void CArmAssembler::Vadd_F32(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER qm)
+void CAArch32Assembler::Vadd_F32(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER qm)
 {
 	uint32 opcode = 0xF2000D40;
 	opcode |= FPSIMD_EncodeQd(qd);
@@ -719,7 +717,7 @@ void CArmAssembler::Vadd_F32(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER q
 	WriteWord(opcode);
 }
 
-void CArmAssembler::Vadd_I8(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER qm)
+void CAArch32Assembler::Vadd_I8(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER qm)
 {
 	uint32 opcode = 0xF2000840;
 	opcode |= FPSIMD_EncodeQd(qd);
@@ -728,7 +726,7 @@ void CArmAssembler::Vadd_I8(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER qm
 	WriteWord(opcode);
 }
 
-void CArmAssembler::Vadd_I16(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER qm)
+void CAArch32Assembler::Vadd_I16(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER qm)
 {
 	uint32 opcode = 0xF2100840;
 	opcode |= FPSIMD_EncodeQd(qd);
@@ -737,7 +735,7 @@ void CArmAssembler::Vadd_I16(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER q
 	WriteWord(opcode);
 }
 
-void CArmAssembler::Vadd_I32(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER qm)
+void CAArch32Assembler::Vadd_I32(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER qm)
 {
 	uint32 opcode = 0xF2200840;
 	opcode |= FPSIMD_EncodeQd(qd);
@@ -746,7 +744,7 @@ void CArmAssembler::Vadd_I32(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER q
 	WriteWord(opcode);
 }
 
-void CArmAssembler::Vqadd_U8(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER qm)
+void CAArch32Assembler::Vqadd_U8(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER qm)
 {
 	uint32 opcode = 0xF3000050;
 	opcode |= FPSIMD_EncodeQd(qd);
@@ -755,7 +753,7 @@ void CArmAssembler::Vqadd_U8(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER q
 	WriteWord(opcode);
 }
 
-void CArmAssembler::Vqadd_U32(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER qm)
+void CAArch32Assembler::Vqadd_U32(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER qm)
 {
 	uint32 opcode = 0xF3200050;
 	opcode |= FPSIMD_EncodeQd(qd);
@@ -764,7 +762,7 @@ void CArmAssembler::Vqadd_U32(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER 
 	WriteWord(opcode);
 }
 
-void CArmAssembler::Vqadd_I16(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER qm)
+void CAArch32Assembler::Vqadd_I16(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER qm)
 {
 	uint32 opcode = 0xF2100050;
 	opcode |= FPSIMD_EncodeQd(qd);
@@ -773,7 +771,7 @@ void CArmAssembler::Vqadd_I16(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER 
 	WriteWord(opcode);
 }
 
-void CArmAssembler::Vqadd_I32(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER qm)
+void CAArch32Assembler::Vqadd_I32(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER qm)
 {
 	uint32 opcode = 0xF2200050;
 	opcode |= FPSIMD_EncodeQd(qd);
@@ -782,7 +780,7 @@ void CArmAssembler::Vqadd_I32(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER 
 	WriteWord(opcode);
 }
 
-void CArmAssembler::Vsub_F32(SINGLE_REGISTER sd, SINGLE_REGISTER sn, SINGLE_REGISTER sm)
+void CAArch32Assembler::Vsub_F32(SINGLE_REGISTER sd, SINGLE_REGISTER sn, SINGLE_REGISTER sm)
 {
 	uint32 opcode = 0x0E300A40;
 	opcode |= (CONDITION_AL << 28);
@@ -792,7 +790,7 @@ void CArmAssembler::Vsub_F32(SINGLE_REGISTER sd, SINGLE_REGISTER sn, SINGLE_REGI
 	WriteWord(opcode);
 }
 
-void CArmAssembler::Vsub_F32(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER qm)
+void CAArch32Assembler::Vsub_F32(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER qm)
 {
 	uint32 opcode = 0xF2200D40;
 	opcode |= FPSIMD_EncodeQd(qd);
@@ -801,7 +799,7 @@ void CArmAssembler::Vsub_F32(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER q
 	WriteWord(opcode);
 }
 
-void CArmAssembler::Vsub_I8(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER qm)
+void CAArch32Assembler::Vsub_I8(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER qm)
 {
 	uint32 opcode = 0xF3000840;
 	opcode |= FPSIMD_EncodeQd(qd);
@@ -810,7 +808,7 @@ void CArmAssembler::Vsub_I8(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER qm
 	WriteWord(opcode);
 }
 
-void CArmAssembler::Vsub_I16(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER qm)
+void CAArch32Assembler::Vsub_I16(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER qm)
 {
 	uint32 opcode = 0xF3100840;
 	opcode |= FPSIMD_EncodeQd(qd);
@@ -819,7 +817,7 @@ void CArmAssembler::Vsub_I16(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER q
 	WriteWord(opcode);
 }
 
-void CArmAssembler::Vsub_I32(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER qm)
+void CAArch32Assembler::Vsub_I32(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER qm)
 {
 	uint32 opcode = 0xF3200840;
 	opcode |= FPSIMD_EncodeQd(qd);
@@ -828,7 +826,7 @@ void CArmAssembler::Vsub_I32(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER q
 	WriteWord(opcode);
 }
 
-void CArmAssembler::Vqsub_U8(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER qm)
+void CAArch32Assembler::Vqsub_U8(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER qm)
 {
 	uint32 opcode = 0xF3000250;
 	opcode |= FPSIMD_EncodeQd(qd);
@@ -837,7 +835,7 @@ void CArmAssembler::Vqsub_U8(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER q
 	WriteWord(opcode);
 }
 
-void CArmAssembler::Vqsub_U16(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER qm)
+void CAArch32Assembler::Vqsub_U16(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER qm)
 {
 	uint32 opcode = 0xF3100250;
 	opcode |= FPSIMD_EncodeQd(qd);
@@ -846,7 +844,7 @@ void CArmAssembler::Vqsub_U16(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER 
 	WriteWord(opcode);
 }
 
-void CArmAssembler::Vqsub_I16(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER qm)
+void CAArch32Assembler::Vqsub_I16(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER qm)
 {
 	uint32 opcode = 0xF2100250;
 	opcode |= FPSIMD_EncodeQd(qd);
@@ -855,7 +853,7 @@ void CArmAssembler::Vqsub_I16(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER 
 	WriteWord(opcode);
 }
 
-void CArmAssembler::Vqsub_I32(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER qm)
+void CAArch32Assembler::Vqsub_I32(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER qm)
 {
 	uint32 opcode = 0xF2200250;
 	opcode |= FPSIMD_EncodeQd(qd);
@@ -864,7 +862,7 @@ void CArmAssembler::Vqsub_I32(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER 
 	WriteWord(opcode);
 }
 
-void CArmAssembler::Vmul_F32(SINGLE_REGISTER sd, SINGLE_REGISTER sn, SINGLE_REGISTER sm)
+void CAArch32Assembler::Vmul_F32(SINGLE_REGISTER sd, SINGLE_REGISTER sn, SINGLE_REGISTER sm)
 {
 	uint32 opcode = 0x0E200A00;
 	opcode |= (CONDITION_AL << 28);
@@ -874,7 +872,7 @@ void CArmAssembler::Vmul_F32(SINGLE_REGISTER sd, SINGLE_REGISTER sn, SINGLE_REGI
 	WriteWord(opcode);
 }
 
-void CArmAssembler::Vmul_F32(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER qm)
+void CAArch32Assembler::Vmul_F32(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER qm)
 {
 	uint32 opcode = 0xF3000D50;
 	opcode |= FPSIMD_EncodeQd(qd);
@@ -883,7 +881,7 @@ void CArmAssembler::Vmul_F32(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER q
 	WriteWord(opcode);
 }
 
-void CArmAssembler::Vdiv_F32(SINGLE_REGISTER sd, SINGLE_REGISTER sn, SINGLE_REGISTER sm)
+void CAArch32Assembler::Vdiv_F32(SINGLE_REGISTER sd, SINGLE_REGISTER sn, SINGLE_REGISTER sm)
 {
 	uint32 opcode = 0x0E800A00;
 	opcode |= (CONDITION_AL << 28);
@@ -893,7 +891,7 @@ void CArmAssembler::Vdiv_F32(SINGLE_REGISTER sd, SINGLE_REGISTER sn, SINGLE_REGI
 	WriteWord(opcode);
 }
 
-void CArmAssembler::Vand(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER qm)
+void CAArch32Assembler::Vand(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER qm)
 {
 	uint32 opcode = 0xF2000150;
 	opcode |= FPSIMD_EncodeQd(qd);
@@ -902,7 +900,7 @@ void CArmAssembler::Vand(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER qm)
 	WriteWord(opcode);
 }
 
-void CArmAssembler::Vorn(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER qm)
+void CAArch32Assembler::Vorn(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER qm)
 {
 	uint32 opcode = 0xF2300150;
 	opcode |= FPSIMD_EncodeQd(qd);
@@ -911,7 +909,7 @@ void CArmAssembler::Vorn(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER qm)
 	WriteWord(opcode);
 }
 
-void CArmAssembler::Vorr(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER qm)
+void CAArch32Assembler::Vorr(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER qm)
 {
 	uint32 opcode = 0xF2200150;
 	opcode |= FPSIMD_EncodeQd(qd);
@@ -920,7 +918,7 @@ void CArmAssembler::Vorr(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER qm)
 	WriteWord(opcode);
 }
 
-void CArmAssembler::Veor(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER qm)
+void CAArch32Assembler::Veor(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER qm)
 {
 	uint32 opcode = 0xF3000150;
 	opcode |= FPSIMD_EncodeQd(qd);
@@ -929,7 +927,7 @@ void CArmAssembler::Veor(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER qm)
 	WriteWord(opcode);
 }
 
-void CArmAssembler::Vshl_I16(QUAD_REGISTER qd, QUAD_REGISTER qm, uint8 shiftAmount)
+void CAArch32Assembler::Vshl_I16(QUAD_REGISTER qd, QUAD_REGISTER qm, uint8 shiftAmount)
 {
 	uint32 opcode = 0xF2800550;
 	opcode |= (0x10 + (shiftAmount & 0xF)) << 16;
@@ -938,7 +936,7 @@ void CArmAssembler::Vshl_I16(QUAD_REGISTER qd, QUAD_REGISTER qm, uint8 shiftAmou
 	WriteWord(opcode);
 }
 
-void CArmAssembler::Vshl_I32(QUAD_REGISTER qd, QUAD_REGISTER qm, uint8 shiftAmount)
+void CAArch32Assembler::Vshl_I32(QUAD_REGISTER qd, QUAD_REGISTER qm, uint8 shiftAmount)
 {
 	uint32 opcode = 0xF2800550;
 	opcode |= (0x20 + (shiftAmount & 0x1F)) << 16;
@@ -947,7 +945,7 @@ void CArmAssembler::Vshl_I32(QUAD_REGISTER qd, QUAD_REGISTER qm, uint8 shiftAmou
 	WriteWord(opcode);
 }
 
-void CArmAssembler::Vshr_U16(QUAD_REGISTER qd, QUAD_REGISTER qm, uint8 shiftAmount)
+void CAArch32Assembler::Vshr_U16(QUAD_REGISTER qd, QUAD_REGISTER qm, uint8 shiftAmount)
 {
 	uint32 opcode = 0xF3800050;
 	opcode |= (0x20 - (shiftAmount & 0xF)) << 16;
@@ -956,7 +954,7 @@ void CArmAssembler::Vshr_U16(QUAD_REGISTER qd, QUAD_REGISTER qm, uint8 shiftAmou
 	WriteWord(opcode);
 }
 
-void CArmAssembler::Vshr_U32(QUAD_REGISTER qd, QUAD_REGISTER qm, uint8 shiftAmount)
+void CAArch32Assembler::Vshr_U32(QUAD_REGISTER qd, QUAD_REGISTER qm, uint8 shiftAmount)
 {
 	uint32 opcode = 0xF3800050;
 	opcode |= (0x40 - (shiftAmount & 0x1F)) << 16;
@@ -965,7 +963,7 @@ void CArmAssembler::Vshr_U32(QUAD_REGISTER qd, QUAD_REGISTER qm, uint8 shiftAmou
 	WriteWord(opcode);
 }
 
-void CArmAssembler::Vshr_I16(QUAD_REGISTER qd, QUAD_REGISTER qm, uint8 shiftAmount)
+void CAArch32Assembler::Vshr_I16(QUAD_REGISTER qd, QUAD_REGISTER qm, uint8 shiftAmount)
 {
 	uint32 opcode = 0xF2800050;
 	opcode |= (0x20 - (shiftAmount & 0xF)) << 16;
@@ -974,7 +972,7 @@ void CArmAssembler::Vshr_I16(QUAD_REGISTER qd, QUAD_REGISTER qm, uint8 shiftAmou
 	WriteWord(opcode);
 }
 
-void CArmAssembler::Vshr_I32(QUAD_REGISTER qd, QUAD_REGISTER qm, uint8 shiftAmount)
+void CAArch32Assembler::Vshr_I32(QUAD_REGISTER qd, QUAD_REGISTER qm, uint8 shiftAmount)
 {
 	uint32 opcode = 0xF2800050;
 	opcode |= (0x40 - (shiftAmount & 0x1F)) << 16;
@@ -983,7 +981,7 @@ void CArmAssembler::Vshr_I32(QUAD_REGISTER qd, QUAD_REGISTER qm, uint8 shiftAmou
 	WriteWord(opcode);
 }
 
-void CArmAssembler::Vabs_F32(SINGLE_REGISTER sd, SINGLE_REGISTER sm)
+void CAArch32Assembler::Vabs_F32(SINGLE_REGISTER sd, SINGLE_REGISTER sm)
 {
 	uint32 opcode = 0x0EB00AC0;
 	opcode |= (CONDITION_AL << 28);
@@ -992,7 +990,7 @@ void CArmAssembler::Vabs_F32(SINGLE_REGISTER sd, SINGLE_REGISTER sm)
 	WriteWord(opcode);
 }
 
-void CArmAssembler::Vabs_F32(QUAD_REGISTER qd, QUAD_REGISTER qm)
+void CAArch32Assembler::Vabs_F32(QUAD_REGISTER qd, QUAD_REGISTER qm)
 {
 	uint32 opcode = 0xF3B90740;
 	opcode |= FPSIMD_EncodeQd(qd);
@@ -1000,7 +998,7 @@ void CArmAssembler::Vabs_F32(QUAD_REGISTER qd, QUAD_REGISTER qm)
 	WriteWord(opcode);
 }
 
-void CArmAssembler::Vneg_F32(SINGLE_REGISTER sd, SINGLE_REGISTER sm)
+void CAArch32Assembler::Vneg_F32(SINGLE_REGISTER sd, SINGLE_REGISTER sm)
 {
 	uint32 opcode = 0x0EB10A40;
 	opcode |= (CONDITION_AL << 28);
@@ -1009,7 +1007,7 @@ void CArmAssembler::Vneg_F32(SINGLE_REGISTER sd, SINGLE_REGISTER sm)
 	WriteWord(opcode);
 }
 
-void CArmAssembler::Vsqrt_F32(SINGLE_REGISTER sd, SINGLE_REGISTER sm)
+void CAArch32Assembler::Vsqrt_F32(SINGLE_REGISTER sd, SINGLE_REGISTER sm)
 {
 	uint32 opcode = 0x0EB10AC0;
 	opcode |= (CONDITION_AL << 28);
@@ -1018,7 +1016,7 @@ void CArmAssembler::Vsqrt_F32(SINGLE_REGISTER sd, SINGLE_REGISTER sm)
 	WriteWord(opcode);
 }
 
-void CArmAssembler::Vceq_I32(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER qm)
+void CAArch32Assembler::Vceq_I32(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER qm)
 {
 	uint32 opcode = 0xF3200850;
 	opcode |= FPSIMD_EncodeQd(qd);
@@ -1027,7 +1025,7 @@ void CArmAssembler::Vceq_I32(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER q
 	WriteWord(opcode);
 }
 
-void CArmAssembler::Vcgt_I16(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER qm)
+void CAArch32Assembler::Vcgt_I16(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER qm)
 {
 	uint32 opcode = 0xF2100340;
 	opcode |= FPSIMD_EncodeQd(qd);
@@ -1036,7 +1034,7 @@ void CArmAssembler::Vcgt_I16(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER q
 	WriteWord(opcode);
 }
 
-void CArmAssembler::Vcmp_F32(SINGLE_REGISTER sd, SINGLE_REGISTER sm)
+void CAArch32Assembler::Vcmp_F32(SINGLE_REGISTER sd, SINGLE_REGISTER sm)
 {
 	uint32 opcode = 0x0EB40A40;
 	opcode |= (CONDITION_AL << 28);
@@ -1045,7 +1043,7 @@ void CArmAssembler::Vcmp_F32(SINGLE_REGISTER sd, SINGLE_REGISTER sm)
 	WriteWord(opcode);
 }
 
-void CArmAssembler::Vcvt_F32_S32(SINGLE_REGISTER sd, SINGLE_REGISTER sm)
+void CAArch32Assembler::Vcvt_F32_S32(SINGLE_REGISTER sd, SINGLE_REGISTER sm)
 {
 	uint32 opcode = 0x0EB80AC0;
 	opcode |= (CONDITION_AL << 28);
@@ -1054,7 +1052,7 @@ void CArmAssembler::Vcvt_F32_S32(SINGLE_REGISTER sd, SINGLE_REGISTER sm)
 	WriteWord(opcode);
 }
 
-void CArmAssembler::Vcvt_F32_S32(QUAD_REGISTER qd, QUAD_REGISTER qm)
+void CAArch32Assembler::Vcvt_F32_S32(QUAD_REGISTER qd, QUAD_REGISTER qm)
 {
 	uint32 opcode = 0xF3BB0640;
 	opcode |= FPSIMD_EncodeQd(qd);
@@ -1062,7 +1060,7 @@ void CArmAssembler::Vcvt_F32_S32(QUAD_REGISTER qd, QUAD_REGISTER qm)
 	WriteWord(opcode);
 }
 
-void CArmAssembler::Vcvt_S32_F32(SINGLE_REGISTER sd, SINGLE_REGISTER sm)
+void CAArch32Assembler::Vcvt_S32_F32(SINGLE_REGISTER sd, SINGLE_REGISTER sm)
 {
 	uint32 opcode = 0x0EBD0AC0;
 	opcode |= (CONDITION_AL << 28);
@@ -1071,7 +1069,7 @@ void CArmAssembler::Vcvt_S32_F32(SINGLE_REGISTER sd, SINGLE_REGISTER sm)
 	WriteWord(opcode);
 }
 
-void CArmAssembler::Vcvt_S32_F32(QUAD_REGISTER qd, QUAD_REGISTER qm)
+void CAArch32Assembler::Vcvt_S32_F32(QUAD_REGISTER qd, QUAD_REGISTER qm)
 {
 	uint32 opcode = 0xF3BB0740;
 	opcode |= FPSIMD_EncodeQd(qd);
@@ -1079,7 +1077,7 @@ void CArmAssembler::Vcvt_S32_F32(QUAD_REGISTER qd, QUAD_REGISTER qm)
 	WriteWord(opcode);
 }
 
-void CArmAssembler::Vmrs(REGISTER rt)
+void CAArch32Assembler::Vmrs(REGISTER rt)
 {
 	uint32 opcode = 0x0EF10A10;
 	opcode |= (CONDITION_AL << 28);
@@ -1087,7 +1085,7 @@ void CArmAssembler::Vmrs(REGISTER rt)
 	WriteWord(opcode);
 }
 
-void CArmAssembler::Vrecpe_F32(QUAD_REGISTER qd, QUAD_REGISTER qm)
+void CAArch32Assembler::Vrecpe_F32(QUAD_REGISTER qd, QUAD_REGISTER qm)
 {
 	uint32 opcode = 0xF3BB0540;
 	opcode |= FPSIMD_EncodeQd(qd);
@@ -1095,7 +1093,7 @@ void CArmAssembler::Vrecpe_F32(QUAD_REGISTER qd, QUAD_REGISTER qm)
 	WriteWord(opcode);
 }
 
-void CArmAssembler::Vrecps_F32(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER qm)
+void CAArch32Assembler::Vrecps_F32(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER qm)
 {
 	uint32 opcode = 0xF2000F50;
 	opcode |= FPSIMD_EncodeQd(qd);
@@ -1104,7 +1102,7 @@ void CArmAssembler::Vrecps_F32(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER
 	WriteWord(opcode);
 }
 
-void CArmAssembler::Vrsqrte_F32(QUAD_REGISTER qd, QUAD_REGISTER qm)
+void CAArch32Assembler::Vrsqrte_F32(QUAD_REGISTER qd, QUAD_REGISTER qm)
 {
 	uint32 opcode = 0xF3BB05C0;
 	opcode |= FPSIMD_EncodeQd(qd);
@@ -1112,7 +1110,7 @@ void CArmAssembler::Vrsqrte_F32(QUAD_REGISTER qd, QUAD_REGISTER qm)
 	WriteWord(opcode);
 }
 
-void CArmAssembler::Vrsqrts_F32(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER qm)
+void CAArch32Assembler::Vrsqrts_F32(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER qm)
 {
 	uint32 opcode = 0xF2200F50;
 	opcode |= FPSIMD_EncodeQd(qd);
@@ -1121,7 +1119,7 @@ void CArmAssembler::Vrsqrts_F32(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTE
 	WriteWord(opcode);
 }
 
-void CArmAssembler::Vmin_F32(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER qm)
+void CAArch32Assembler::Vmin_F32(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER qm)
 {
 	uint32 opcode = 0xF2200F40;
 	opcode |= FPSIMD_EncodeQd(qd);
@@ -1130,7 +1128,7 @@ void CArmAssembler::Vmin_F32(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER q
 	WriteWord(opcode);
 }
 
-void CArmAssembler::Vmin_I16(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER qm)
+void CAArch32Assembler::Vmin_I16(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER qm)
 {
 	uint32 opcode = 0xF2100650;
 	opcode |= FPSIMD_EncodeQd(qd);
@@ -1139,7 +1137,7 @@ void CArmAssembler::Vmin_I16(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER q
 	WriteWord(opcode);
 }
 
-void CArmAssembler::Vmin_I32(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER qm)
+void CAArch32Assembler::Vmin_I32(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER qm)
 {
 	uint32 opcode = 0xF2200650;
 	opcode |= FPSIMD_EncodeQd(qd);
@@ -1148,7 +1146,7 @@ void CArmAssembler::Vmin_I32(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER q
 	WriteWord(opcode);
 }
 
-void CArmAssembler::Vmax_F32(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER qm)
+void CAArch32Assembler::Vmax_F32(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER qm)
 {
 	uint32 opcode = 0xF2000F40;
 	opcode |= FPSIMD_EncodeQd(qd);
@@ -1157,7 +1155,7 @@ void CArmAssembler::Vmax_F32(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER q
 	WriteWord(opcode);
 }
 
-void CArmAssembler::Vmax_I16(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER qm)
+void CAArch32Assembler::Vmax_I16(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER qm)
 {
 	uint32 opcode = 0xF2100640;
 	opcode |= FPSIMD_EncodeQd(qd);
@@ -1166,7 +1164,7 @@ void CArmAssembler::Vmax_I16(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER q
 	WriteWord(opcode);
 }
 
-void CArmAssembler::Vmax_I32(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER qm)
+void CAArch32Assembler::Vmax_I32(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER qm)
 {
 	uint32 opcode = 0xF2200640;
 	opcode |= FPSIMD_EncodeQd(qd);
@@ -1175,7 +1173,7 @@ void CArmAssembler::Vmax_I32(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER q
 	WriteWord(opcode);
 }
 
-void CArmAssembler::WriteWord(uint32 value)
+void CAArch32Assembler::WriteWord(uint32 value)
 {
 	m_stream->Write32(value);
 }

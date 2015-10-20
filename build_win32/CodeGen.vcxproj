@@ -19,15 +19,17 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\src\ArmAssembler.cpp" />
+    <ClCompile Include="..\src\AArch32Assembler.cpp" />
+    <ClCompile Include="..\src\AArch64Assembler.cpp" />
     <ClCompile Include="..\src\CoffObjectFile.cpp" />
     <ClCompile Include="..\src\Jitter.cpp" />
     <ClCompile Include="..\src\Jitter_CodeGen.cpp" />
     <ClCompile Include="..\src\Jitter_CodeGenFactory.cpp" />
-    <ClCompile Include="..\src\Jitter_CodeGen_Arm.cpp" />
-    <ClCompile Include="..\src\Jitter_CodeGen_Arm_64.cpp" />
-    <ClCompile Include="..\src\Jitter_CodeGen_Arm_Fpu.cpp" />
-    <ClCompile Include="..\src\Jitter_CodeGen_Arm_Md.cpp" />
+    <ClCompile Include="..\src\Jitter_CodeGen_AArch32.cpp" />
+    <ClCompile Include="..\src\Jitter_CodeGen_AArch32_64.cpp" />
+    <ClCompile Include="..\src\Jitter_CodeGen_AArch32_Fpu.cpp" />
+    <ClCompile Include="..\src\Jitter_CodeGen_AArch32_Md.cpp" />
+    <ClCompile Include="..\src\Jitter_CodeGen_AArch64.cpp" />
     <ClCompile Include="..\src\Jitter_CodeGen_x86.cpp" />
     <ClCompile Include="..\src\Jitter_CodeGen_x86_32.cpp" />
     <ClCompile Include="..\src\Jitter_CodeGen_x86_64.cpp" />
@@ -45,14 +47,16 @@
     <ClCompile Include="..\src\X86Assembler_Sse.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\include\ArmAssembler.h" />
+    <ClInclude Include="..\include\AArch32Assembler.h" />
+    <ClInclude Include="..\include\AArch64Assembler.h" />
     <ClInclude Include="..\include\ArrayStack.h" />
     <ClInclude Include="..\include\CoffDefs.h" />
     <ClInclude Include="..\include\CoffObjectFile.h" />
     <ClInclude Include="..\include\Jitter.h" />
     <ClInclude Include="..\include\Jitter_CodeGen.h" />
     <ClInclude Include="..\include\Jitter_CodeGenFactory.h" />
-    <ClInclude Include="..\include\Jitter_CodeGen_Arm.h" />
+    <ClInclude Include="..\include\Jitter_CodeGen_AArch32.h" />
+    <ClInclude Include="..\include\Jitter_CodeGen_AArch64.h" />
     <ClInclude Include="..\include\Jitter_CodeGen_x86.h" />
     <ClInclude Include="..\include\Jitter_CodeGen_x86_32.h" />
     <ClInclude Include="..\include\Jitter_CodeGen_x86_64.h" />
@@ -65,7 +69,7 @@
     <ClInclude Include="..\include\MemoryFunction.h" />
     <ClInclude Include="..\include\ObjectFile.h" />
     <ClInclude Include="..\include\X86Assembler.h" />
-    <ClInclude Include="..\src\Jitter_CodeGen_Arm_Div.h" />
+    <ClInclude Include="..\src\Jitter_CodeGen_AArch32_Div.h" />
     <ClInclude Include="..\src\Jitter_CodeGen_x86_Alu.h" />
     <ClInclude Include="..\src\Jitter_CodeGen_x86_Div.h" />
     <ClInclude Include="..\src\Jitter_CodeGen_x86_Mul.h" />

@@ -109,6 +109,11 @@ CCodeGen_x86_32::~CCodeGen_x86_32()
 
 }
 
+void CCodeGen_x86_32::SetImplicitRetValueParamFixUpRequired(bool implicitRetValueParamFixUpRequired)
+{
+	m_implicitRetValueParamFixUpRequired = implicitRetValueParamFixUpRequired;
+}
+
 void CCodeGen_x86_32::Emit_Prolog(const StatementList& statements, unsigned int stackSize, uint32 registerUsage)
 {	
 	//Compute the size needed to store all function call parameters
@@ -386,14 +391,12 @@ void CCodeGen_x86_32::Emit_Call(const STATEMENT& statement)
 	m_symbolReferenceLabels.push_back(std::make_pair(src1->GetConstantPtr(), symbolRefLabel));
 	m_assembler.CallEd(CX86Assembler::MakeRegisterAddress(CX86Assembler::rAX));
 	
-#if defined(__APPLE__) || defined(__ANDROID__)
-	if(m_hasImplicitRetValueParam)
+	if(m_hasImplicitRetValueParam && m_implicitRetValueParamFixUpRequired)
 	{
 		//Allocated stack space for the extra parameter is cleaned up by the callee. 
 		//So adjust the amount of stack space we free up after the call
 		m_assembler.SubId(CX86Assembler::MakeRegisterAddress(CX86Assembler::rSP), 4);
 	}
-#endif
 	
 	m_hasImplicitRetValueParam = false;
 }

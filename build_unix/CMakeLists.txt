@@ -16,24 +16,21 @@ endif()
 include_directories(../include ../../Framework/include)
 
 add_library(CodeGen 
-	../src/ArmAssembler.cpp
-	../src/Jitter_CodeGen_Arm_64.cpp
-	../src/Jitter_CodeGen_Arm.cpp
-	../src/Jitter_CodeGen_Arm_Div.h
-	../src/Jitter_CodeGen_Arm_Fpu.cpp
-	../src/Jitter_CodeGen_Arm_Md.cpp
+	../src/AArch32Assembler.cpp
+	../src/AArch64Assembler.cpp
+	../src/Jitter_CodeGen_AArch32_64.cpp
+	../src/Jitter_CodeGen_AArch32.cpp
+	../src/Jitter_CodeGen_AArch32_Fpu.cpp
+	../src/Jitter_CodeGen_AArch32_Md.cpp
+	../src/Jitter_CodeGen_AArch64.cpp
 	../src/X86Assembler.cpp
 	../src/X86Assembler_Fpu.cpp
 	../src/X86Assembler_Sse.cpp
 	../src/Jitter_CodeGen_x86_32.cpp
 	../src/Jitter_CodeGen_x86_64.cpp
-	../src/Jitter_CodeGen_x86_Alu.h
 	../src/Jitter_CodeGen_x86.cpp
-	../src/Jitter_CodeGen_x86_Div.h
 	../src/Jitter_CodeGen_x86_Fpu.cpp
 	../src/Jitter_CodeGen_x86_Md.cpp
-	../src/Jitter_CodeGen_x86_Mul.h
-	../src/Jitter_CodeGen_x86_Shift.h
 	../src/CoffObjectFile.cpp
 	../src/Jitter_CodeGen.cpp
 	../src/Jitter_CodeGenFactory.cpp

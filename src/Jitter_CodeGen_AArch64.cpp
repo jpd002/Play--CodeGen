@@ -536,6 +536,11 @@ void CCodeGen_AArch64::LoadConstantInRegister(CAArch64Assembler::REGISTER32 regi
 
 void CCodeGen_AArch64::LoadConstant64InRegister(CAArch64Assembler::REGISTER64 registerId, uint64 constant)
 {
+	if(constant == 0)
+	{
+		m_assembler.Movz(registerId, 0, 0);
+		return;
+	}
 	bool loaded = false;
 	static const uint64 masks[4] =
 	{

@@ -201,6 +201,7 @@ namespace Jitter
 		void    Emit_Mov_VarAny(const STATEMENT&);
 		
 		void    Emit_Not_VarVar(const STATEMENT&);
+		void    Emit_Lzc_VarVar(const STATEMENT&);
 		
 		void    Emit_Mov_Mem64Mem64(const STATEMENT&);
 		

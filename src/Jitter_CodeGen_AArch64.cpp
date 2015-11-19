@@ -270,6 +270,7 @@ CCodeGen_AArch64::CONSTMATCHER CCodeGen_AArch64::g_constMatchers[] =
 	{ OP_MOV,            MATCH_MEMORY64,       MATCH_MEMORY64,       MATCH_NIL,           &CCodeGen_AArch64::Emit_Mov_Mem64Mem64                      },
 
 	{ OP_NOT,            MATCH_VARIABLE,       MATCH_VARIABLE,       MATCH_NIL,           &CCodeGen_AArch64::Emit_Not_VarVar                          },
+	{ OP_LZC,            MATCH_VARIABLE,       MATCH_VARIABLE,       MATCH_NIL,           &CCodeGen_AArch64::Emit_Lzc_VarVar                          },
 	
 	{ OP_EXTLOW64,       MATCH_VARIABLE,       MATCH_MEMORY64,       MATCH_NIL,           &CCodeGen_AArch64::Emit_ExtLow64VarMem64                    },
 	{ OP_EXTHIGH64,      MATCH_VARIABLE,       MATCH_MEMORY64,       MATCH_NIL,           &CCodeGen_AArch64::Emit_ExtHigh64VarMem64                   },
@@ -876,6 +877,44 @@ void CCodeGen_AArch64::Emit_Not_VarVar(const STATEMENT& statement)
 	auto src1Reg = PrepareSymbolRegisterUse(src1, GetNextTempRegister());
 	m_assembler.Mvn(dstReg, src1Reg);
 	CommitSymbolRegister(dst, dstReg);
+}
+
+void CCodeGen_AArch64::Emit_Lzc_VarVar(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+
+	auto dstRegister = PrepareSymbolRegisterDef(dst, GetNextTempRegister());
+	auto src1Register = PrepareSymbolRegisterUse(src1, GetNextTempRegister());
+
+	auto set32Label = m_assembler.CreateLabel();
+	auto startCountLabel = m_assembler.CreateLabel();
+	auto doneLabel = m_assembler.CreateLabel();
+
+	m_assembler.Mov(dstRegister, src1Register);
+	m_assembler.Tst(dstRegister, dstRegister);
+	m_assembler.BCc(CAArch64Assembler::CONDITION_EQ, set32Label);
+	m_assembler.BCc(CAArch64Assembler::CONDITION_PL, startCountLabel);
+
+	//reverse:
+	m_assembler.Mvn(dstRegister, dstRegister);
+	m_assembler.Tst(dstRegister, dstRegister);
+	m_assembler.BCc(CAArch64Assembler::CONDITION_EQ, set32Label);
+
+	//startCount:
+	m_assembler.MarkLabel(startCountLabel);
+	m_assembler.Clz(dstRegister, dstRegister);
+	m_assembler.Sub(dstRegister, dstRegister, 1, CAArch64Assembler::ADDSUB_IMM_SHIFT_LSL0);
+	m_assembler.BCc(CAArch64Assembler::CONDITION_AL, doneLabel);
+
+	//set32:
+	m_assembler.MarkLabel(set32Label);
+	LoadConstantInRegister(dstRegister, 0x1F);
+
+	//done
+	m_assembler.MarkLabel(doneLabel);
+
+	CommitSymbolRegister(dst, dstRegister);
 }
 
 void CCodeGen_AArch64::Emit_Mov_Mem64Mem64(const STATEMENT& statement)

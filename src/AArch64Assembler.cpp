@@ -417,6 +417,19 @@ void CAArch64Assembler::Smull(REGISTER64 rd, REGISTER32 rn, REGISTER32 rm)
 	WriteWord(opcode);
 }
 
+void CAArch64Assembler::Stp_PreIdx(REGISTER64 rt, REGISTER64 rt2, REGISTER64 rn, int32 offset)
+{
+	assert((offset & 0x07) == 0);
+	int32 scaledOffset = offset / 8;
+	assert(scaledOffset >= -64 && scaledOffset <= 63);
+	uint32 opcode = 0xA9800000;
+	opcode |= (rt  <<  0);
+	opcode |= (rn  <<  5);
+	opcode |= (rt2 << 10);
+	opcode |= ((scaledOffset & 0x7F) << 15);
+	WriteWord(opcode);
+}
+
 void CAArch64Assembler::Str(REGISTER32 rt, REGISTER64 rn, uint32 offset)
 {
 	assert((offset & 0x03) == 0);
@@ -431,19 +444,6 @@ void CAArch64Assembler::Str(REGISTER64 rt, REGISTER64 rn, uint32 offset)
 	uint32 scaledOffset = offset / 8;
 	assert(scaledOffset < 0x1000);
 	WriteLoadStoreOpImm(0xF9000000, scaledOffset, rn, rt);
-}
-
-void CAArch64Assembler::Stp_PreIdx(REGISTER64 rt, REGISTER64 rt2, REGISTER64 rn, int32 offset)
-{
-	assert((offset & 0x07) == 0);
-	int32 scaledOffset = offset / 8;
-	assert(scaledOffset >= -64 && scaledOffset <= 63);
-	uint32 opcode = 0xA9800000;
-	opcode |= (rt  <<  0);
-	opcode |= (rn  <<  5);
-	opcode |= (rt2 << 10);
-	opcode |= ((scaledOffset & 0x7F) << 15);
-	WriteWord(opcode);
 }
 
 void CAArch64Assembler::Sub(REGISTER32 rd, REGISTER32 rn, REGISTER32 rm)

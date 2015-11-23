@@ -268,6 +268,7 @@ CCodeGen_AArch64::CONSTMATCHER CCodeGen_AArch64::g_constMatchers[] =
 	{ OP_MOV,            MATCH_MEMORY,         MATCH_ANY,            MATCH_NIL,           &CCodeGen_AArch64::Emit_Mov_MemAny                          },
 	{ OP_MOV,            MATCH_VARIABLE,       MATCH_ANY,            MATCH_NIL,           &CCodeGen_AArch64::Emit_Mov_VarAny                          },
 	{ OP_MOV,            MATCH_MEMORY64,       MATCH_MEMORY64,       MATCH_NIL,           &CCodeGen_AArch64::Emit_Mov_Mem64Mem64                      },
+	{ OP_MOV,            MATCH_MEMORY64,       MATCH_CONSTANT64,     MATCH_NIL,           &CCodeGen_AArch64::Emit_Mov_Mem64Cst64                      },
 
 	{ OP_NOT,            MATCH_VARIABLE,       MATCH_VARIABLE,       MATCH_NIL,           &CCodeGen_AArch64::Emit_Not_VarVar                          },
 	{ OP_LZC,            MATCH_VARIABLE,       MATCH_VARIABLE,       MATCH_NIL,           &CCodeGen_AArch64::Emit_Lzc_VarVar                          },
@@ -929,6 +930,16 @@ void CCodeGen_AArch64::Emit_Mov_Mem64Mem64(const STATEMENT& statement)
 	
 	auto tmpReg = GetNextTempRegister64();
 	LoadMemory64InRegister(tmpReg, src1);
+	StoreRegisterInMemory64(dst, tmpReg);
+}
+
+void CCodeGen_AArch64::Emit_Mov_Mem64Cst64(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	
+	auto tmpReg = GetNextTempRegister64();
+	LoadConstant64InRegister(tmpReg, src1->GetConstant64());
 	StoreRegisterInMemory64(dst, tmpReg);
 }
 

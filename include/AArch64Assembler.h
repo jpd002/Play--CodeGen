@@ -30,6 +30,18 @@ public:
 		x28, x29, x30, xZR, xSP = 31
 	};
 	
+	enum REGISTERMD
+	{
+		v0,  v1,  v2,  v3,
+		v4,  v5,  v6,  v7,
+		v8,  v9,  v10, v11,
+		v12, v13, v14, v15,
+		v16, v17, v18, v19,
+		v20, v21, v22, v23,
+		v24, v25, v26, v27,
+		v28, v29, v30, v31
+	};
+	
 	enum CONDITION
 	{
 		CONDITION_EQ,
@@ -91,6 +103,7 @@ public:
 	void    Cmp(REGISTER64, uint16, ADDSUB_IMM_SHIFT_TYPE);
 	void    Cset(REGISTER32, CONDITION);
 	void    Eor(REGISTER32, REGISTER32, REGISTER32);
+	void    Ld1_4s(REGISTERMD, REGISTER64);
 	void    Ldp_PostIdx(REGISTER64, REGISTER64, REGISTER64, int32);
 	void    Ldr(REGISTER32, REGISTER64, uint32);
 	void    Ldr(REGISTER64, REGISTER64, uint32);
@@ -116,6 +129,8 @@ public:
 	void    Ret(REGISTER64 = x30);
 	void    Sdiv(REGISTER32, REGISTER32, REGISTER32);
 	void    Smull(REGISTER64, REGISTER32, REGISTER32);
+	void    Sqadd_4s(REGISTERMD, REGISTERMD, REGISTERMD);
+	void    St1_4s(REGISTERMD, REGISTER64);
 	void    Stp_PreIdx(REGISTER64, REGISTER64, REGISTER64, int32);
 	void    Str(REGISTER32, REGISTER64, uint32);
 	void    Str(REGISTER64, REGISTER64, uint32);

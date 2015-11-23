@@ -232,6 +232,14 @@ void CAArch64Assembler::Eor(REGISTER32 rd, REGISTER32 rn, REGISTER32 rm)
 	WriteWord(opcode);
 }
 
+void CAArch64Assembler::Ld1_4s(REGISTERMD rt, REGISTER64 rn)
+{
+	uint32 opcode = 0x4C407800;
+	opcode |= (rt <<  0);
+	opcode |= (rn <<  5);
+	WriteWord(opcode);
+}
+
 void CAArch64Assembler::Ldp_PostIdx(REGISTER64 rt, REGISTER64 rt2, REGISTER64 rn, int32 offset)
 {
 	assert((offset & 0x07) == 0);
@@ -414,6 +422,23 @@ void CAArch64Assembler::Smull(REGISTER64 rd, REGISTER32 rn, REGISTER32 rm)
 	opcode |= (rn  <<  5);
 	opcode |= (wZR << 10);
 	opcode |= (rm  << 16);
+	WriteWord(opcode);
+}
+
+void CAArch64Assembler::Sqadd_4s(REGISTERMD rd, REGISTERMD rn, REGISTERMD rm)
+{
+	uint32 opcode = 0x4EA00C00;
+	opcode |= (rd  <<  0);
+	opcode |= (rn  <<  5);
+	opcode |= (rm  << 16);
+	WriteWord(opcode);
+}
+
+void CAArch64Assembler::St1_4s(REGISTERMD rt, REGISTER64 rn)
+{
+	uint32 opcode = 0x4C007800;
+	opcode |= (rt <<  0);
+	opcode |= (rn <<  5);
 	WriteWord(opcode);
 }
 

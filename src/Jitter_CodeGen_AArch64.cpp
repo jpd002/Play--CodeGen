@@ -343,16 +343,23 @@ CCodeGen_AArch64::CONSTMATCHER CCodeGen_AArch64::g_constMatchers[] =
 
 CCodeGen_AArch64::CCodeGen_AArch64()
 {
-	for(const auto& constMatcher : g_constMatchers)
-	{
-		MATCHER matcher;
-		matcher.op       = constMatcher.op;
-		matcher.dstType  = constMatcher.dstType;
-		matcher.src1Type = constMatcher.src1Type;
-		matcher.src2Type = constMatcher.src2Type;
-		matcher.emitter  = std::bind(constMatcher.emitter, this, std::placeholders::_1);
-		m_matchers.insert(MatcherMapType::value_type(matcher.op, matcher));
-	}
+	const auto copyMatchers =
+		[this](const CONSTMATCHER* constMatchers)
+		{
+			for(auto* constMatcher = constMatchers; constMatcher->emitter != nullptr; constMatcher++)
+			{
+				MATCHER matcher;
+				matcher.op       = constMatcher->op;
+				matcher.dstType  = constMatcher->dstType;
+				matcher.src1Type = constMatcher->src1Type;
+				matcher.src2Type = constMatcher->src2Type;
+				matcher.emitter  = std::bind(constMatcher->emitter, this, std::placeholders::_1);
+				m_matchers.insert(MatcherMapType::value_type(matcher.op, matcher));
+			}
+		};
+	
+	copyMatchers(g_constMatchers);
+	copyMatchers(g_mdConstMatchers);
 }
 
 CCodeGen_AArch64::~CCodeGen_AArch64()

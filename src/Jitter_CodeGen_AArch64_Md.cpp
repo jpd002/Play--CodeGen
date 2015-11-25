@@ -36,7 +36,8 @@ void CCodeGen_AArch64::LoadTemporary128AddressInRegister(CAArch64Assembler::REGI
 	m_assembler.Add(dstReg, CAArch64Assembler::xSP, totalOffset, CAArch64Assembler::ADDSUB_IMM_SHIFT_LSL0);
 }
 
-void CCodeGen_AArch64::Emit_Md_AddSSW_MemMemMem(const STATEMENT& statement)
+template <typename MDOP>
+void CCodeGen_AArch64::Emit_Md_MemMemMem(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
@@ -56,7 +57,7 @@ void CCodeGen_AArch64::Emit_Md_AddSSW_MemMemMem(const STATEMENT& statement)
 
 	m_assembler.Ld1_4s(src1Reg, src1AddrReg);
 	m_assembler.Ld1_4s(src2Reg, src2AddrReg);
-	m_assembler.Sqadd_4s(dstReg, src1Reg, src2Reg);
+	((m_assembler).*(MDOP::OpReg()))(dstReg, src1Reg, src2Reg);
 	m_assembler.St1_4s(dstReg, dstAddrReg);
 }
 
@@ -69,7 +70,7 @@ void CCodeGen_AArch64::Emit_Md_MovMasked_MemMemMem(const STATEMENT& statement)
 
 CCodeGen_AArch64::CONSTMATCHER CCodeGen_AArch64::g_mdConstMatchers[] =
 {
-	{ OP_MD_ADDSS_W,       MATCH_MEMORY128,      MATCH_MEMORY128,      MATCH_MEMORY128,     &CCodeGen_AArch64::Emit_Md_AddSSW_MemMemMem                 },
+	{ OP_MD_ADDSS_W,       MATCH_MEMORY128,      MATCH_MEMORY128,      MATCH_MEMORY128,     &CCodeGen_AArch64::Emit_Md_MemMemMem<MDOP_ADDWSS>           },
 	
 	{ OP_MD_MOV_MASKED,    MATCH_MEMORY128,      MATCH_MEMORY128,      MATCH_MEMORY128,     &CCodeGen_AArch64::Emit_Md_MovMasked_MemMemMem              },
 

@@ -71,9 +71,13 @@ void CCodeGen_AArch64::Emit_Md_MovMasked_MemMemMem(const STATEMENT& statement)
 CCodeGen_AArch64::CONSTMATCHER CCodeGen_AArch64::g_mdConstMatchers[] =
 {
 	{ OP_MD_ADD_B,         MATCH_MEMORY128,      MATCH_MEMORY128,      MATCH_MEMORY128,     &CCodeGen_AArch64::Emit_Md_MemMemMem<MDOP_ADDB>             },
+	{ OP_MD_ADD_H,         MATCH_MEMORY128,      MATCH_MEMORY128,      MATCH_MEMORY128,     &CCodeGen_AArch64::Emit_Md_MemMemMem<MDOP_ADDH>             },
+	{ OP_MD_ADD_W,         MATCH_MEMORY128,      MATCH_MEMORY128,      MATCH_MEMORY128,     &CCodeGen_AArch64::Emit_Md_MemMemMem<MDOP_ADDW>             },
 
 	{ OP_MD_ADDUS_B,       MATCH_MEMORY128,      MATCH_MEMORY128,      MATCH_MEMORY128,     &CCodeGen_AArch64::Emit_Md_MemMemMem<MDOP_ADDBUS>           },
+	{ OP_MD_ADDUS_W,       MATCH_MEMORY128,      MATCH_MEMORY128,      MATCH_MEMORY128,     &CCodeGen_AArch64::Emit_Md_MemMemMem<MDOP_ADDWUS>           },
 
+	{ OP_MD_ADDSS_H,       MATCH_MEMORY128,      MATCH_MEMORY128,      MATCH_MEMORY128,     &CCodeGen_AArch64::Emit_Md_MemMemMem<MDOP_ADDHSS>           },
 	{ OP_MD_ADDSS_W,       MATCH_MEMORY128,      MATCH_MEMORY128,      MATCH_MEMORY128,     &CCodeGen_AArch64::Emit_Md_MemMemMem<MDOP_ADDWSS>           },
 	
 	{ OP_MD_MOV_MASKED,    MATCH_MEMORY128,      MATCH_MEMORY128,      MATCH_MEMORY128,     &CCodeGen_AArch64::Emit_Md_MovMasked_MemMemMem              },

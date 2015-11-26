@@ -100,6 +100,15 @@ void CAArch64Assembler::Add(REGISTER64 rd, REGISTER64 rn, uint16 imm, ADDSUB_IMM
 	WriteAddSubOpImm(0x91000000, shift, imm, rn, rd);
 }
 
+void CAArch64Assembler::Add_16b(REGISTERMD rd, REGISTERMD rn, REGISTERMD rm)
+{
+	uint32 opcode = 0x4E208400;
+	opcode |= (rd <<  0);
+	opcode |= (rn <<  5);
+	opcode |= (rm << 16);
+	WriteWord(opcode);
+}
+
 void CAArch64Assembler::And(REGISTER32 rd, REGISTER32 rn, REGISTER32 rm)
 {
 	uint32 opcode = 0x0A000000;

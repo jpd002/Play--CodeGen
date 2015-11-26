@@ -198,6 +198,11 @@ namespace Jitter
 			typedef void (CAArch64Assembler::*OpRegType)(CAArch64Assembler::REGISTERMD, CAArch64Assembler::REGISTERMD, CAArch64Assembler::REGISTERMD);
 		};
 
+		struct MDOP_ADDB : public MDOP_BASE3
+		{
+			static OpRegType OpReg() { return &CAArch64Assembler::Add_16b; }
+		};
+		
 		struct MDOP_ADDWSS : public MDOP_BASE3
 		{
 			static OpRegType OpReg() { return &CAArch64Assembler::Sqadd_4s; }

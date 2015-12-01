@@ -317,6 +317,7 @@ namespace Jitter
 		void    Emit_Md_MovMasked_MemMemMem(const STATEMENT&);
 		
 		static CONSTMATCHER    g_constMatchers[];
+		static CONSTMATCHER    g_64ConstMatchers[];
 		static CONSTMATCHER    g_mdConstMatchers[];
 		
 		static CAArch64Assembler::REGISTER32    g_registers[MAX_REGISTERS];

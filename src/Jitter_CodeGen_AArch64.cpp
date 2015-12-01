@@ -324,6 +324,9 @@ CCodeGen_AArch64::CONSTMATCHER CCodeGen_AArch64::g_constMatchers[] =
 	{ OP_ADD64,          MATCH_MEMORY64,       MATCH_MEMORY64,       MATCH_MEMORY64,      &CCodeGen_AArch64::Emit_Add64_MemMemMem                     },
 	{ OP_ADD64,          MATCH_MEMORY64,       MATCH_MEMORY64,       MATCH_CONSTANT64,    &CCodeGen_AArch64::Emit_Add64_MemMemCst                     },
 	
+	{ OP_SUB64,          MATCH_MEMORY64,       MATCH_ANY,            MATCH_MEMORY64,      &CCodeGen_AArch64::Emit_Sub64_MemAnyMem                     },
+	{ OP_SUB64,          MATCH_MEMORY64,       MATCH_MEMORY64,       MATCH_CONSTANT64,    &CCodeGen_AArch64::Emit_Sub64_MemMemCst                     },
+
 	{ OP_CMP64,          MATCH_VARIABLE,       MATCH_ANY,            MATCH_MEMORY64,      &CCodeGen_AArch64::Emit_Cmp64_VarAnyMem                     },
 	{ OP_CMP64,          MATCH_VARIABLE,       MATCH_ANY,            MATCH_CONSTANT64,    &CCodeGen_AArch64::Emit_Cmp64_VarMemCst                     },
 	
@@ -603,6 +606,23 @@ void CCodeGen_AArch64::LoadMemory64HighInRegister(CAArch64Assembler::REGISTER32 
 		break;
 	case SYM_TEMPORARY64:
 		m_assembler.Ldr(registerId, CAArch64Assembler::xSP, symbol->m_stackLocation + 4);
+		break;
+	default:
+		assert(false);
+		break;
+	}
+}
+
+void CCodeGen_AArch64::LoadSymbol64InRegister(CAArch64Assembler::REGISTER64 registerId, CSymbol* symbol)
+{
+	switch(symbol->m_type)
+	{
+	case SYM_RELATIVE64:
+	case SYM_TEMPORARY64:
+		LoadMemory64InRegister(registerId, symbol);
+		break;
+	case SYM_CONSTANT64:
+		LoadConstant64InRegister(registerId, symbol->GetConstant64());
 		break;
 	default:
 		assert(false);
@@ -1338,6 +1358,53 @@ void CCodeGen_AArch64::Emit_Add64_MemMemCst(const STATEMENT& statement)
 		auto src2Reg = GetNextTempRegister64();
 		LoadConstant64InRegister(src2Reg, constant);
 		m_assembler.Add(dstReg, src1Reg, src2Reg);
+	}
+
+	StoreRegisterInMemory64(dst, dstReg);
+}
+
+void CCodeGen_AArch64::Emit_Sub64_MemAnyMem(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	auto dstReg = GetNextTempRegister64();
+	auto src1Reg = GetNextTempRegister64();
+	auto src2Reg = GetNextTempRegister64();
+	
+	LoadSymbol64InRegister(src1Reg, src1);
+	LoadMemory64InRegister(src2Reg, src2);
+	m_assembler.Sub(dstReg, src1Reg, src2Reg);
+	StoreRegisterInMemory64(dst, dstReg);
+}
+
+void CCodeGen_AArch64::Emit_Sub64_MemMemCst(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	auto dstReg = GetNextTempRegister64();
+	auto src1Reg = GetNextTempRegister64();
+
+	LoadMemory64InRegister(src1Reg, src1);
+	auto constant = src2->GetConstant64();
+
+	ADDSUB_IMM_PARAMS addSubImmParams;
+	if(TryGetAddSub64ImmParams(constant, addSubImmParams))
+	{
+		m_assembler.Sub(dstReg, src1Reg, addSubImmParams.imm, addSubImmParams.shiftType);
+	}
+	else if(TryGetAddSub64ImmParams(-static_cast<int64>(constant), addSubImmParams))
+	{
+		m_assembler.Add(dstReg, src1Reg, addSubImmParams.imm, addSubImmParams.shiftType);
+	}
+	else
+	{
+		auto src2Reg = GetNextTempRegister64();
+		LoadConstant64InRegister(src2Reg, constant);
+		m_assembler.Sub(dstReg, src1Reg, src2Reg);
 	}
 
 	StoreRegisterInMemory64(dst, dstReg);

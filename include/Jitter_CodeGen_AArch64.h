@@ -79,6 +79,8 @@ namespace Jitter
 		void    LoadMemory64LowInRegister(CAArch64Assembler::REGISTER32, CSymbol*);
 		void    LoadMemory64HighInRegister(CAArch64Assembler::REGISTER32, CSymbol*);
 		
+		void    LoadSymbol64InRegister(CAArch64Assembler::REGISTER64, CSymbol*);
+
 		void    LoadMemoryReferenceInRegister(CAArch64Assembler::REGISTER64, CSymbol*);
 		void    StoreRegisterInTemporaryReference(CSymbol*, CAArch64Assembler::REGISTER64);
 		
@@ -280,6 +282,9 @@ namespace Jitter
 		
 		void    Emit_Add64_MemMemMem(const STATEMENT&);
 		void    Emit_Add64_MemMemCst(const STATEMENT&);
+		
+		void    Emit_Sub64_MemAnyMem(const STATEMENT&);
+		void    Emit_Sub64_MemMemCst(const STATEMENT&);
 		
 		void    Emit_Cmp64_VarAnyMem(const STATEMENT&);
 		void    Emit_Cmp64_VarMemCst(const STATEMENT&);

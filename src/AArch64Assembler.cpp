@@ -516,6 +516,15 @@ void CAArch64Assembler::Sub(REGISTER32 rd, REGISTER32 rn, REGISTER32 rm)
 	WriteWord(opcode);
 }
 
+void CAArch64Assembler::Sub(REGISTER64 rd, REGISTER64 rn, REGISTER64 rm)
+{
+	uint32 opcode = 0xCB000000;
+	opcode |= (rd << 0);
+	opcode |= (rn << 5);
+	opcode |= (rm << 16);
+	WriteWord(opcode);
+}
+
 void CAArch64Assembler::Sub(REGISTER32 rd, REGISTER32 rn, uint16 imm, ADDSUB_IMM_SHIFT_TYPE shift)
 {
 	WriteAddSubOpImm(0x51000000, shift, imm, rn, rd);

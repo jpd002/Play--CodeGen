@@ -24,7 +24,8 @@ void CAlu64Test::Run()
 
 	TEST_VERIFY(m_context.resultSub0 == (CONSTANT_1 - CONSTANT_2));
 	TEST_VERIFY(m_context.resultSub1 == (CONSTANT_3 - CONSTANT_4));
-	TEST_VERIFY(m_context.resultSubCst == (CONSTANT_5 - CONSTANT_1));
+	TEST_VERIFY(m_context.resultSubCst0 == (CONSTANT_5 - CONSTANT_1));
+	TEST_VERIFY(m_context.resultSubCst1 == (CONSTANT_2 - CONSTANT_3));
 }
 
 void CAlu64Test::Compile(Jitter::CJitter& jitter)
@@ -62,7 +63,12 @@ void CAlu64Test::Compile(Jitter::CJitter& jitter)
 		jitter.PushCst64(CONSTANT_5);
 		jitter.PushRel64(offsetof(CONTEXT, value0));
 		jitter.Sub64();
-		jitter.PullRel64(offsetof(CONTEXT, resultSubCst));
+		jitter.PullRel64(offsetof(CONTEXT, resultSubCst0));
+		
+		jitter.PushRel64(offsetof(CONTEXT, value1));
+		jitter.PushCst64(CONSTANT_3);
+		jitter.Sub64();
+		jitter.PullRel64(offsetof(CONTEXT, resultSubCst1));
 	}
 	jitter.End();
 

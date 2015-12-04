@@ -234,6 +234,16 @@ namespace Jitter
 		{
 			static OpRegType OpReg() { return &CAArch64Assembler::Sqadd_4s; }
 		};
+		
+		struct MDOP_SUBB : public MDOP_BASE3
+		{
+			static OpRegType OpReg() { return &CAArch64Assembler::Sub_16b; }
+		};
+		
+		struct MDOP_SUBBUS : public MDOP_BASE3
+		{
+			static OpRegType OpReg() { return &CAArch64Assembler::Uqsub_16b; }
+		};
 
 		uint16    GetSavedRegisterList(uint32);
 		void      Emit_Prolog(uint32, uint16);

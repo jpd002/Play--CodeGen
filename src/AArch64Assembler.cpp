@@ -544,6 +544,15 @@ void CAArch64Assembler::Sub(REGISTER64 rd, REGISTER64 rn, uint16 imm, ADDSUB_IMM
 	WriteAddSubOpImm(0xD1000000, shift, imm, rn, rd);
 }
 
+void CAArch64Assembler::Sub_16b(REGISTERMD rd, REGISTERMD rn, REGISTERMD rm)
+{
+	uint32 opcode = 0x6E208400;
+	opcode |= (rd  <<  0);
+	opcode |= (rn  <<  5);
+	opcode |= (rm  << 16);
+	WriteWord(opcode);
+}
+
 void CAArch64Assembler::Tst(REGISTER32 rn, REGISTER32 rm)
 {
 	uint32 opcode = 0x6A000000;
@@ -584,6 +593,15 @@ void CAArch64Assembler::Uqadd_4s(REGISTERMD rd, REGISTERMD rn, REGISTERMD rm)
 void CAArch64Assembler::Uqadd_16b(REGISTERMD rd, REGISTERMD rn, REGISTERMD rm)
 {
 	uint32 opcode = 0x6E200C00;
+	opcode |= (rd  <<  0);
+	opcode |= (rn  <<  5);
+	opcode |= (rm  << 16);
+	WriteWord(opcode);
+}
+
+void CAArch64Assembler::Uqsub_16b(REGISTERMD rd, REGISTERMD rn, REGISTERMD rm)
+{
+	uint32 opcode = 0x6E202C00;
 	opcode |= (rd  <<  0);
 	opcode |= (rn  <<  5);
 	opcode |= (rm  << 16);

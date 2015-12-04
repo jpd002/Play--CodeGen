@@ -294,6 +294,8 @@ namespace Jitter
 		void    Emit_Cmp64_VarAnyMem(const STATEMENT&);
 		void    Emit_Cmp64_VarMemCst(const STATEMENT&);
 		
+		void    Emit_And64_MemMemMem(const STATEMENT&);
+		
 		//ADDSUB
 		template <typename> void    Emit_AddSub_VarAnyVar(const STATEMENT&);
 		template <typename> void    Emit_AddSub_VarVarCst(const STATEMENT&);

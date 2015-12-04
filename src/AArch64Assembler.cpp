@@ -136,6 +136,15 @@ void CAArch64Assembler::And(REGISTER32 rd, REGISTER32 rn, REGISTER32 rm)
 	WriteWord(opcode);
 }
 
+void CAArch64Assembler::And(REGISTER64 rd, REGISTER64 rn, REGISTER64 rm)
+{
+	uint32 opcode = 0x8A000000;
+	opcode |= (rd <<  0);
+	opcode |= (rn <<  5);
+	opcode |= (rm << 16);
+	WriteWord(opcode);
+}
+
 void CAArch64Assembler::And(REGISTER32 rd, REGISTER32 rn, uint8 immr, uint8 imms)
 {
 	WriteLogicalOpImm(0x12000000, immr, imms, rn, rd);

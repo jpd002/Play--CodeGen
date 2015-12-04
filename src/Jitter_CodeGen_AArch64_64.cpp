@@ -286,6 +286,22 @@ void CCodeGen_AArch64::Emit_Cmp64_VarMemCst(const STATEMENT& statement)
 	CommitSymbolRegister(dst, dstReg);
 }
 
+void CCodeGen_AArch64::Emit_And64_MemMemMem(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+	
+	auto dstReg = GetNextTempRegister64();
+	auto src1Reg = GetNextTempRegister64();
+	auto src2Reg = GetNextTempRegister64();
+	
+	LoadMemory64InRegister(src1Reg, src1);
+	LoadMemory64InRegister(src2Reg, src2);
+	m_assembler.And(dstReg, src1Reg, src2Reg);
+	StoreRegisterInMemory64(dst, dstReg);
+}
+
 template <typename Shift64Op>
 void CCodeGen_AArch64::Emit_Shift64_MemMemVar(const STATEMENT& statement)
 {
@@ -352,6 +368,8 @@ CCodeGen_AArch64::CONSTMATCHER CCodeGen_AArch64::g_64ConstMatchers[] =
 
 	{ OP_CMP64,          MATCH_VARIABLE,       MATCH_ANY,            MATCH_MEMORY64,      &CCodeGen_AArch64::Emit_Cmp64_VarAnyMem                     },
 	{ OP_CMP64,          MATCH_VARIABLE,       MATCH_ANY,            MATCH_CONSTANT64,    &CCodeGen_AArch64::Emit_Cmp64_VarMemCst                     },
+	
+	{ OP_AND64,          MATCH_MEMORY64,       MATCH_MEMORY64,       MATCH_MEMORY64,      &CCodeGen_AArch64::Emit_And64_MemMemMem                     },
 	
 	{ OP_SLL64,          MATCH_MEMORY64,       MATCH_MEMORY64,       MATCH_VARIABLE,      &CCodeGen_AArch64::Emit_Shift64_MemMemVar<SHIFT64OP_LSL>    },
 	{ OP_SRL64,          MATCH_MEMORY64,       MATCH_MEMORY64,       MATCH_VARIABLE,      &CCodeGen_AArch64::Emit_Shift64_MemMemVar<SHIFT64OP_LSR>    },

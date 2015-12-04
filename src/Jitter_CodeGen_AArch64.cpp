@@ -252,12 +252,15 @@ CCodeGen_AArch64::CONSTMATCHER CCodeGen_AArch64::g_constMatchers[] =
 	{ OP_PARAM,          MATCH_NIL,            MATCH_REGISTER,       MATCH_NIL,           &CCodeGen_AArch64::Emit_Param_Reg                           },
 	{ OP_PARAM,          MATCH_NIL,            MATCH_MEMORY,         MATCH_NIL,           &CCodeGen_AArch64::Emit_Param_Mem                           },
 	{ OP_PARAM,          MATCH_NIL,            MATCH_CONSTANT,       MATCH_NIL,           &CCodeGen_AArch64::Emit_Param_Cst                           },
+	{ OP_PARAM,          MATCH_NIL,            MATCH_MEMORY64,       MATCH_NIL,           &CCodeGen_AArch64::Emit_Param_Mem64                         },
+	{ OP_PARAM,          MATCH_NIL,            MATCH_CONSTANT64,     MATCH_NIL,           &CCodeGen_AArch64::Emit_Param_Cst64                         },
 	{ OP_PARAM,          MATCH_NIL,            MATCH_MEMORY128,      MATCH_NIL,           &CCodeGen_AArch64::Emit_Param_Mem128                        },
 	
 	{ OP_CALL,           MATCH_NIL,            MATCH_CONSTANTPTR,    MATCH_CONSTANT,      &CCodeGen_AArch64::Emit_Call                                },
 	
 	{ OP_RETVAL,         MATCH_REGISTER,       MATCH_NIL,            MATCH_NIL,           &CCodeGen_AArch64::Emit_RetVal_Reg                          },
 	{ OP_RETVAL,         MATCH_TEMPORARY,      MATCH_NIL,            MATCH_NIL,           &CCodeGen_AArch64::Emit_RetVal_Tmp                          },
+	{ OP_RETVAL,         MATCH_MEMORY64,       MATCH_NIL,            MATCH_NIL,           &CCodeGen_AArch64::Emit_RetVal_Mem64                        },
 	{ OP_RETVAL,         MATCH_MEMORY128,      MATCH_NIL,            MATCH_NIL,           &CCodeGen_AArch64::Emit_RetVal_Mem128                       },
 	
 	{ OP_JMP,            MATCH_NIL,            MATCH_NIL,            MATCH_NIL,           &CCodeGen_AArch64::Emit_Jmp                                 },
@@ -915,6 +918,34 @@ void CCodeGen_AArch64::Emit_Param_Cst(const STATEMENT& statement)
 	);
 }
 
+void CCodeGen_AArch64::Emit_Param_Mem64(const STATEMENT& statement)
+{
+	auto src1 = statement.src1->GetSymbol().get();
+
+	m_params.push_back(
+		[this, src1] (PARAM_STATE& paramState)
+		{
+			auto paramReg = PrepareParam64(paramState);
+			LoadMemory64InRegister(paramReg, src1);
+			CommitParam64(paramState);
+		}
+	);
+}
+
+void CCodeGen_AArch64::Emit_Param_Cst64(const STATEMENT& statement)
+{
+	auto src1 = statement.src1->GetSymbol().get();
+
+	m_params.push_back(
+		[this, src1] (PARAM_STATE& paramState)
+		{
+			auto paramReg = PrepareParam64(paramState);
+			LoadConstant64InRegister(paramReg, src1->GetConstant64());
+			CommitParam64(paramState);
+		}
+	);
+}
+
 void CCodeGen_AArch64::Emit_Param_Mem128(const STATEMENT& statement)
 {
 	auto src1 = statement.src1->GetSymbol().get();
@@ -976,6 +1007,12 @@ void CCodeGen_AArch64::Emit_RetVal_Tmp(const STATEMENT& statement)
 	auto dst = statement.dst->GetSymbol().get();
 	assert(dst->m_type == SYM_TEMPORARY);
 	StoreRegisterInMemory(dst, CAArch64Assembler::w0);
+}
+
+void CCodeGen_AArch64::Emit_RetVal_Mem64(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	StoreRegisterInMemory64(dst, CAArch64Assembler::x0);
 }
 
 void CCodeGen_AArch64::Emit_RetVal_Mem128(const STATEMENT& statement)

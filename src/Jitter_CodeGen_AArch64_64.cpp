@@ -10,6 +10,10 @@ void CCodeGen_AArch64::LoadMemory64InRegister(CAArch64Assembler::REGISTER64 regi
 		assert((src->m_valueLow & 0x07) == 0x00);
 		m_assembler.Ldr(registerId, g_baseRegister, src->m_valueLow);
 		break;
+	case SYM_TEMPORARY64:
+		assert((src->m_stackLocation & 0x07) == 0x00);
+		m_assembler.Ldr(registerId, CAArch64Assembler::xSP, src->m_stackLocation);
+		break;
 	default:
 		assert(0);
 		break;
@@ -23,6 +27,10 @@ void CCodeGen_AArch64::StoreRegisterInMemory64(CSymbol* dst, CAArch64Assembler::
 	case SYM_RELATIVE64:
 		assert((dst->m_valueLow & 0x07) == 0x00);
 		m_assembler.Str(registerId, g_baseRegister, dst->m_valueLow);
+		break;
+	case SYM_TEMPORARY64:
+		assert((dst->m_stackLocation & 0x07) == 0x00);
+		m_assembler.Str(registerId, CAArch64Assembler::xSP, dst->m_stackLocation);
 		break;
 	default:
 		assert(0);

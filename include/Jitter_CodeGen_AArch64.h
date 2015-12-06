@@ -240,9 +240,34 @@ namespace Jitter
 			static OpRegType OpReg() { return &CAArch64Assembler::Sub_16b; }
 		};
 		
+		struct MDOP_SUBH : public MDOP_BASE3
+		{
+			static OpRegType OpReg() { return &CAArch64Assembler::Sub_8h; }
+		};
+
+		struct MDOP_SUBW : public MDOP_BASE3
+		{
+			static OpRegType OpReg() { return &CAArch64Assembler::Sub_4s; }
+		};
+		
 		struct MDOP_SUBBUS : public MDOP_BASE3
 		{
 			static OpRegType OpReg() { return &CAArch64Assembler::Uqsub_16b; }
+		};
+		
+		struct MDOP_SUBHUS : public MDOP_BASE3
+		{
+			static OpRegType OpReg() { return &CAArch64Assembler::Uqsub_8h; }
+		};
+		
+		struct MDOP_SUBHSS : public MDOP_BASE3
+		{
+			static OpRegType OpReg() { return &CAArch64Assembler::Sqsub_8h; }
+		};
+
+		struct MDOP_SUBWSS : public MDOP_BASE3
+		{
+			static OpRegType OpReg() { return &CAArch64Assembler::Sqsub_4s; }
 		};
 
 		uint16    GetSavedRegisterList(uint32);

@@ -65,6 +65,37 @@ void CCodeGen_AArch64::Emit_Fpu_MemMemMem(const STATEMENT& statement)
 	StoreRegisterInMemoryFpSingle(dst, dstReg);
 }
 
+void CCodeGen_AArch64::Emit_Fp_Rcpl_MemMem(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	
+	auto dstReg = GetNextTempRegisterMd();
+	auto src1Reg = GetNextTempRegisterMd();
+	auto oneReg = GetNextTempRegisterMd();
+	
+	m_assembler.Fmov_1s(oneReg, 0x70);	//Loads 1.0f
+	LoadMemoryFpSingleInRegister(src1Reg, src1);
+	m_assembler.Fdiv_1s(dstReg, oneReg, src1Reg);
+	StoreRegisterInMemoryFpSingle(dst, dstReg);
+}
+
+void CCodeGen_AArch64::Emit_Fp_Rsqrt_MemMem(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	
+	auto dstReg = GetNextTempRegisterMd();
+	auto src1Reg = GetNextTempRegisterMd();
+	auto oneReg = GetNextTempRegisterMd();
+	
+	m_assembler.Fmov_1s(oneReg, 0x70);	//Loads 1.0f
+	LoadMemoryFpSingleInRegister(src1Reg, src1);
+	m_assembler.Fsqrt_1s(src1Reg, src1Reg);
+	m_assembler.Fdiv_1s(dstReg, oneReg, src1Reg);
+	StoreRegisterInMemoryFpSingle(dst, dstReg);
+}
+
 void CCodeGen_AArch64::Emit_Fp_LdCst_TmpCst(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
@@ -86,7 +117,9 @@ CCodeGen_AArch64::CONSTMATCHER CCodeGen_AArch64::g_fpuConstMatchers[] =
 	{ OP_FP_MUL,      MATCH_MEMORY_FP_SINGLE,       MATCH_MEMORY_FP_SINGLE,    MATCH_MEMORY_FP_SINGLE,    &CCodeGen_AArch64::Emit_Fpu_MemMemMem<FPUOP_MUL>    },
 	{ OP_FP_DIV,      MATCH_MEMORY_FP_SINGLE,       MATCH_MEMORY_FP_SINGLE,    MATCH_MEMORY_FP_SINGLE,    &CCodeGen_AArch64::Emit_Fpu_MemMemMem<FPUOP_DIV>    },
 
+	{ OP_FP_RCPL,     MATCH_MEMORY_FP_SINGLE,       MATCH_MEMORY_FP_SINGLE,    MATCH_NIL,                 &CCodeGen_AArch64::Emit_Fp_Rcpl_MemMem              },
 	{ OP_FP_SQRT,     MATCH_MEMORY_FP_SINGLE,       MATCH_MEMORY_FP_SINGLE,    MATCH_NIL,                 &CCodeGen_AArch64::Emit_Fpu_MemMem<FPUOP_SQRT>      },
+	{ OP_FP_RSQRT,    MATCH_MEMORY_FP_SINGLE,       MATCH_MEMORY_FP_SINGLE,    MATCH_NIL,                 &CCodeGen_AArch64::Emit_Fp_Rsqrt_MemMem             },
 
 	{ OP_FP_ABS,      MATCH_MEMORY_FP_SINGLE,       MATCH_MEMORY_FP_SINGLE,    MATCH_NIL,                 &CCodeGen_AArch64::Emit_Fpu_MemMem<FPUOP_ABS>       },
 	{ OP_FP_NEG,      MATCH_MEMORY_FP_SINGLE,       MATCH_MEMORY_FP_SINGLE,    MATCH_NIL,                 &CCodeGen_AArch64::Emit_Fpu_MemMem<FPUOP_NEG>       },

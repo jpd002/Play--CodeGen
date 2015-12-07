@@ -312,6 +312,14 @@ void CAArch64Assembler::Fdiv_1s(REGISTERMD rd, REGISTERMD rn, REGISTERMD rm)
 	WriteWord(opcode);
 }
 
+void CAArch64Assembler::Fmov_1s(REGISTERMD rd, uint8 imm)
+{
+	uint32 opcode = 0x1E201000;
+	opcode |= (rd <<   0);
+	opcode |= (imm << 13);
+	WriteWord(opcode);
+}
+
 void CAArch64Assembler::Fmul_1s(REGISTERMD rd, REGISTERMD rn, REGISTERMD rm)
 {
 	uint32 opcode = 0x1E200800;

@@ -461,18 +461,18 @@ void CAArch64Assembler::Smull(REGISTER64 rd, REGISTER32 rn, REGISTER32 rm)
 	WriteWord(opcode);
 }
 
-void CAArch64Assembler::Sqadd_8h(REGISTERMD rd, REGISTERMD rn, REGISTERMD rm)
+void CAArch64Assembler::Sqadd_4s(REGISTERMD rd, REGISTERMD rn, REGISTERMD rm)
 {
-	uint32 opcode = 0x4E600C00;
+	uint32 opcode = 0x4EA00C00;
 	opcode |= (rd  <<  0);
 	opcode |= (rn  <<  5);
 	opcode |= (rm  << 16);
 	WriteWord(opcode);
 }
 
-void CAArch64Assembler::Sqadd_4s(REGISTERMD rd, REGISTERMD rn, REGISTERMD rm)
+void CAArch64Assembler::Sqadd_8h(REGISTERMD rd, REGISTERMD rn, REGISTERMD rm)
 {
-	uint32 opcode = 0x4EA00C00;
+	uint32 opcode = 0x4E600C00;
 	opcode |= (rd  <<  0);
 	opcode |= (rn  <<  5);
 	opcode |= (rm  << 16);

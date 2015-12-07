@@ -412,6 +412,14 @@ CAArch64Assembler::REGISTER64 CCodeGen_AArch64::GetNextTempRegister64()
 	return result;
 }
 
+CAArch64Assembler::REGISTERMD CCodeGen_AArch64::GetNextTempRegisterMd()
+{
+	auto result = static_cast<CAArch64Assembler::REGISTERMD>(m_nextTempRegisterMd);
+	m_nextTempRegisterMd++;
+	m_nextTempRegisterMd %= MAX_TEMP_MD_REGS;
+	return result;
+}
+
 void CCodeGen_AArch64::LoadMemoryInRegister(CAArch64Assembler::REGISTER32 registerId, CSymbol* src)
 {
 	switch(src->m_type)

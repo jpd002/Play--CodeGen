@@ -47,9 +47,9 @@ void CCodeGen_AArch64::Emit_Md_MemMemMem(const STATEMENT& statement)
 	auto src1AddrReg = GetNextTempRegister64();
 	auto src2AddrReg = GetNextTempRegister64();
 	
-	auto dstReg = CAArch64Assembler::v0;
-	auto src1Reg = CAArch64Assembler::v1;
-	auto src2Reg = CAArch64Assembler::v2;
+	auto dstReg = GetNextTempRegisterMd();
+	auto src1Reg = GetNextTempRegisterMd();
+	auto src2Reg = GetNextTempRegisterMd();
 
 	LoadMemory128AddressInRegister(dstAddrReg, dst);
 	LoadMemory128AddressInRegister(src1AddrReg, src1);
@@ -72,9 +72,9 @@ void CCodeGen_AArch64::Emit_Md_MemMemMemRev(const STATEMENT& statement)
 	auto src1AddrReg = GetNextTempRegister64();
 	auto src2AddrReg = GetNextTempRegister64();
 	
-	auto dstReg = CAArch64Assembler::v0;
-	auto src1Reg = CAArch64Assembler::v1;
-	auto src2Reg = CAArch64Assembler::v2;
+	auto dstReg = GetNextTempRegisterMd();
+	auto src1Reg = GetNextTempRegisterMd();
+	auto src2Reg = GetNextTempRegisterMd();
 
 	LoadMemory128AddressInRegister(dstAddrReg, dst);
 	LoadMemory128AddressInRegister(src1AddrReg, src1);
@@ -94,7 +94,7 @@ void CCodeGen_AArch64::Emit_Md_Mov_MemMem(const STATEMENT& statement)
 	auto dstAddrReg = GetNextTempRegister64();
 	auto src1AddrReg = GetNextTempRegister64();
 
-	auto tmpReg = CAArch64Assembler::v0;
+	auto tmpReg = GetNextTempRegisterMd();
 	
 	LoadMemory128AddressInRegister(dstAddrReg, dst);
 	LoadMemory128AddressInRegister(src1AddrReg, src1);
@@ -111,8 +111,8 @@ void CCodeGen_AArch64::Emit_Md_Not_MemMem(const STATEMENT& statement)
 	auto dstAddrReg = GetNextTempRegister64();
 	auto src1AddrReg = GetNextTempRegister64();
 
-	auto tmpReg = CAArch64Assembler::v0;
-	auto zeroReg = CAArch64Assembler::v1;
+	auto tmpReg = GetNextTempRegisterMd();
+	auto zeroReg = GetNextTempRegisterMd();
 	
 	LoadMemory128AddressInRegister(dstAddrReg, dst);
 	LoadMemory128AddressInRegister(src1AddrReg, src1);

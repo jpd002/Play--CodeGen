@@ -55,6 +55,11 @@ namespace Jitter
 			MAX_TEMP_REGS = 7,
 		};
 
+		enum MAX_TEMP_MD_REGS
+		{
+			MAX_TEMP_MD_REGS = 32,
+		};
+		
 		struct CONSTMATCHER
 		{
 			OPERATION               op;
@@ -66,6 +71,7 @@ namespace Jitter
 
 		CAArch64Assembler::REGISTER32    GetNextTempRegister();
 		CAArch64Assembler::REGISTER64    GetNextTempRegister64();
+		CAArch64Assembler::REGISTERMD    GetNextTempRegisterMd();
 		
 		void    LoadMemoryInRegister(CAArch64Assembler::REGISTER32, CSymbol*);
 		void    StoreRegisterInMemory(CSymbol*, CAArch64Assembler::REGISTER32);
@@ -423,6 +429,7 @@ namespace Jitter
 		LabelMapType           m_labels;
 		ParamStack             m_params;
 		uint32                 m_nextTempRegister = 0;
+		uint32                 m_nextTempRegisterMd = 0;
 
 		bool    m_generateRelocatableCalls = false;
 	};

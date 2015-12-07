@@ -285,6 +285,36 @@ namespace Jitter
 			static OpRegType OpReg() { return &CAArch64Assembler::Eor_16b; }
 		};
 		
+		struct MDOP_UNPACK_LOWER_BH : public MDOP_BASE3
+		{
+			static OpRegType OpReg() { return &CAArch64Assembler::Zip1_16b; }
+		};
+
+		struct MDOP_UNPACK_LOWER_HW : public MDOP_BASE3
+		{
+			static OpRegType OpReg() { return &CAArch64Assembler::Zip1_8h; }
+		};
+
+		struct MDOP_UNPACK_LOWER_WD : public MDOP_BASE3
+		{
+			static OpRegType OpReg() { return &CAArch64Assembler::Zip1_4s; }
+		};
+		
+		struct MDOP_UNPACK_UPPER_BH : public MDOP_BASE3
+		{
+			static OpRegType OpReg() { return &CAArch64Assembler::Zip2_16b; }
+		};
+		
+		struct MDOP_UNPACK_UPPER_HW : public MDOP_BASE3
+		{
+			static OpRegType OpReg() { return &CAArch64Assembler::Zip2_8h; }
+		};
+
+		struct MDOP_UNPACK_UPPER_WD : public MDOP_BASE3
+		{
+			static OpRegType OpReg() { return &CAArch64Assembler::Zip2_4s; }
+		};
+
 		uint16    GetSavedRegisterList(uint32);
 		void      Emit_Prolog(uint32, uint16);
 		void      Emit_Epilog(uint32, uint16);
@@ -370,6 +400,7 @@ namespace Jitter
 		
 		//MD
 		template <typename> void    Emit_Md_MemMemMem(const STATEMENT&);
+		template <typename> void    Emit_Md_MemMemMemRev(const STATEMENT&);
 
 		void    Emit_Md_Mov_MemMem(const STATEMENT&);
 		void    Emit_Md_Not_MemMem(const STATEMENT&);

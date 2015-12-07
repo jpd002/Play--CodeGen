@@ -10,6 +10,8 @@ void CCodeGen_AArch64::LoadMemoryFpSingleInRegister(CAArch64Assembler::REGISTERM
 		m_assembler.Ldr_1s(reg, g_baseRegister, symbol->m_valueLow);
 		break;
 	case SYM_FP_TMP_SINGLE:
+		m_assembler.Ldr_1s(reg, CAArch64Assembler::xSP, symbol->m_stackLocation);
+		break;
 	default:
 		assert(false);
 		break;
@@ -24,6 +26,8 @@ void CCodeGen_AArch64::StoreRegisterInMemoryFpSingle(CSymbol* symbol, CAArch64As
 		m_assembler.Str_1s(reg, g_baseRegister, symbol->m_valueLow);
 		break;
 	case SYM_FP_TMP_SINGLE:
+		m_assembler.Str_1s(reg, CAArch64Assembler::xSP, symbol->m_stackLocation);
+		break;
 	default:
 		assert(false);
 		break;

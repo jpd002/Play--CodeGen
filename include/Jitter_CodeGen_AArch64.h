@@ -90,6 +90,9 @@ namespace Jitter
 		void    LoadMemoryReferenceInRegister(CAArch64Assembler::REGISTER64, CSymbol*);
 		void    StoreRegisterInTemporaryReference(CSymbol*, CAArch64Assembler::REGISTER64);
 		
+		void    LoadMemoryFpSingleInRegister(CAArch64Assembler::REGISTERMD, CSymbol*);
+		void    StoreRegisterInMemoryFpSingle(CSymbol*, CAArch64Assembler::REGISTERMD);
+		
 		void    LoadMemory128AddressInRegister(CAArch64Assembler::REGISTER64, CSymbol*, uint32 = 0);
 		void    LoadRelative128AddressInRegister(CAArch64Assembler::REGISTER64, CSymbol*, uint32);
 		void    LoadTemporary128AddressInRegister(CAArch64Assembler::REGISTER64, CSymbol*, uint32);
@@ -200,6 +203,17 @@ namespace Jitter
 			static OpRegType    OpReg()    { return &CAArch64Assembler::Lsrv; }
 		};
 
+		//FPUOP ----------------------------------------------------------
+		struct FPUOP_BASE3
+		{
+			typedef void (CAArch64Assembler::*OpRegType)(CAArch64Assembler::REGISTERMD, CAArch64Assembler::REGISTERMD, CAArch64Assembler::REGISTERMD);
+		};
+		
+		struct FPUOP_ADD : public FPUOP_BASE3
+		{
+			static OpRegType OpReg() { return &CAArch64Assembler::Fadd_1s; }
+		};
+		
 		//MDOP -----------------------------------------------------------
 		struct MDOP_BASE3
 		{
@@ -404,6 +418,9 @@ namespace Jitter
 		template <typename> void    Emit_Shift64_MemMemVar(const STATEMENT&);
 		template <typename> void    Emit_Shift64_MemMemCst(const STATEMENT&);
 		
+		//FPU
+		template <typename> void    Emit_Fpu_MemMemMem(const STATEMENT&);
+
 		//MD
 		template <typename> void    Emit_Md_MemMemMem(const STATEMENT&);
 		template <typename> void    Emit_Md_MemMemMemRev(const STATEMENT&);
@@ -415,6 +432,7 @@ namespace Jitter
 		
 		static CONSTMATCHER    g_constMatchers[];
 		static CONSTMATCHER    g_64ConstMatchers[];
+		static CONSTMATCHER    g_fpuConstMatchers[];
 		static CONSTMATCHER    g_mdConstMatchers[];
 		
 		static CAArch64Assembler::REGISTER32    g_registers[MAX_REGISTERS];

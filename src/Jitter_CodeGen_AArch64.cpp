@@ -316,6 +316,7 @@ CCodeGen_AArch64::CCodeGen_AArch64()
 	
 	copyMatchers(g_constMatchers);
 	copyMatchers(g_64ConstMatchers);
+	copyMatchers(g_fpuConstMatchers);
 	copyMatchers(g_mdConstMatchers);
 }
 

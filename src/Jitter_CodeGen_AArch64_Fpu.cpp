@@ -30,7 +30,6 @@ void CCodeGen_AArch64::StoreRegisterInMemoryFpSingle(CSymbol* symbol, CAArch64As
 	}
 }
 
-
 template <typename FPUOP>
 void CCodeGen_AArch64::Emit_Fpu_MemMemMem(const STATEMENT& statement)
 {
@@ -51,6 +50,9 @@ void CCodeGen_AArch64::Emit_Fpu_MemMemMem(const STATEMENT& statement)
 CCodeGen_AArch64::CONSTMATCHER CCodeGen_AArch64::g_fpuConstMatchers[] =
 {
 	{ OP_FP_ADD,    MATCH_MEMORY_FP_SINGLE,    MATCH_MEMORY_FP_SINGLE,    MATCH_MEMORY_FP_SINGLE,    &CCodeGen_AArch64::Emit_Fpu_MemMemMem<FPUOP_ADD>    },
+	{ OP_FP_SUB,    MATCH_MEMORY_FP_SINGLE,    MATCH_MEMORY_FP_SINGLE,    MATCH_MEMORY_FP_SINGLE,    &CCodeGen_AArch64::Emit_Fpu_MemMemMem<FPUOP_SUB>    },
+	{ OP_FP_MUL,    MATCH_MEMORY_FP_SINGLE,    MATCH_MEMORY_FP_SINGLE,    MATCH_MEMORY_FP_SINGLE,    &CCodeGen_AArch64::Emit_Fpu_MemMemMem<FPUOP_MUL>    },
+	{ OP_FP_DIV,    MATCH_MEMORY_FP_SINGLE,    MATCH_MEMORY_FP_SINGLE,    MATCH_MEMORY_FP_SINGLE,    &CCodeGen_AArch64::Emit_Fpu_MemMemMem<FPUOP_DIV>    },
 
 	{ OP_MOV,       MATCH_NIL,                 MATCH_NIL,                 MATCH_NIL,                 nullptr                                             },
 };

@@ -204,6 +204,11 @@ namespace Jitter
 		};
 
 		//FPUOP ----------------------------------------------------------
+		struct FPUOP_BASE2
+		{
+			typedef void (CAArch64Assembler::*OpRegType)(CAArch64Assembler::REGISTERMD, CAArch64Assembler::REGISTERMD);
+		};
+
 		struct FPUOP_BASE3
 		{
 			typedef void (CAArch64Assembler::*OpRegType)(CAArch64Assembler::REGISTERMD, CAArch64Assembler::REGISTERMD, CAArch64Assembler::REGISTERMD);
@@ -229,6 +234,21 @@ namespace Jitter
 			static OpRegType OpReg() { return &CAArch64Assembler::Fdiv_1s; }
 		};
 
+		struct FPUOP_ABS : public FPUOP_BASE2
+		{
+			static OpRegType OpReg() { return &CAArch64Assembler::Fabs_1s; }
+		};
+		
+		struct FPUOP_NEG : public FPUOP_BASE2
+		{
+			static OpRegType OpReg() { return &CAArch64Assembler::Fneg_1s; }
+		};
+		
+		struct FPUOP_SQRT : public FPUOP_BASE2
+		{
+			static OpRegType OpReg() { return &CAArch64Assembler::Fsqrt_1s; }
+		};
+		
 		//MDOP -----------------------------------------------------------
 		struct MDOP_BASE3
 		{
@@ -434,7 +454,10 @@ namespace Jitter
 		template <typename> void    Emit_Shift64_MemMemCst(const STATEMENT&);
 		
 		//FPU
+		template <typename> void    Emit_Fpu_MemMem(const STATEMENT&);
 		template <typename> void    Emit_Fpu_MemMemMem(const STATEMENT&);
+
+		void    Emit_Fp_LdCst_TmpCst(const STATEMENT&);
 
 		//MD
 		template <typename> void    Emit_Md_MemMemMem(const STATEMENT&);

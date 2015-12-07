@@ -78,6 +78,26 @@ void CCodeGen_AArch64::Emit_Md_Mov_MemMem(const STATEMENT& statement)
 	m_assembler.St1_4s(tmpReg, dstAddrReg);
 }
 
+void CCodeGen_AArch64::Emit_Md_Not_MemMem(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+
+	auto dstAddrReg = GetNextTempRegister64();
+	auto src1AddrReg = GetNextTempRegister64();
+
+	auto tmpReg = CAArch64Assembler::v0;
+	auto zeroReg = CAArch64Assembler::v1;
+	
+	LoadMemory128AddressInRegister(dstAddrReg, dst);
+	LoadMemory128AddressInRegister(src1AddrReg, src1);
+	
+	m_assembler.Ld1_4s(tmpReg, src1AddrReg);
+	m_assembler.Eor_16b(zeroReg, zeroReg, zeroReg);
+	m_assembler.Orn_16b(tmpReg, zeroReg, tmpReg);
+	m_assembler.St1_4s(tmpReg, dstAddrReg);
+}
+
 void CCodeGen_AArch64::Emit_Md_MovMasked_MemMemMem(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
@@ -107,6 +127,12 @@ CCodeGen_AArch64::CONSTMATCHER CCodeGen_AArch64::g_mdConstMatchers[] =
 	{ OP_MD_SUBSS_H,       MATCH_MEMORY128,      MATCH_MEMORY128,      MATCH_MEMORY128,     &CCodeGen_AArch64::Emit_Md_MemMemMem<MDOP_SUBHSS>           },
 	{ OP_MD_SUBSS_W,       MATCH_MEMORY128,      MATCH_MEMORY128,      MATCH_MEMORY128,     &CCodeGen_AArch64::Emit_Md_MemMemMem<MDOP_SUBWSS>           },
 
+	{ OP_MD_AND,           MATCH_MEMORY128,      MATCH_MEMORY128,      MATCH_MEMORY128,     &CCodeGen_AArch64::Emit_Md_MemMemMem<MDOP_AND>              },
+	{ OP_MD_OR,            MATCH_MEMORY128,      MATCH_MEMORY128,      MATCH_MEMORY128,     &CCodeGen_AArch64::Emit_Md_MemMemMem<MDOP_OR>               },
+	{ OP_MD_XOR,           MATCH_MEMORY128,      MATCH_MEMORY128,      MATCH_MEMORY128,     &CCodeGen_AArch64::Emit_Md_MemMemMem<MDOP_XOR>              },
+	
+	{ OP_MD_NOT,           MATCH_MEMORY128,      MATCH_MEMORY128,      MATCH_NIL,           &CCodeGen_AArch64::Emit_Md_Not_MemMem                       },
+	
 	{ OP_MOV,              MATCH_MEMORY128,      MATCH_MEMORY128,      MATCH_NIL,           &CCodeGen_AArch64::Emit_Md_Mov_MemMem                       },
 	
 	{ OP_MD_MOV_MASKED,    MATCH_MEMORY128,      MATCH_MEMORY128,      MATCH_MEMORY128,     &CCodeGen_AArch64::Emit_Md_MovMasked_MemMemMem              },

@@ -260,6 +260,11 @@ namespace Jitter
 		};
 		
 		//MDOP -----------------------------------------------------------
+		struct MDOP_BASE2
+		{
+			typedef void (CAArch64Assembler::*OpRegType)(CAArch64Assembler::REGISTERMD, CAArch64Assembler::REGISTERMD);
+		};
+
 		struct MDOP_BASE3
 		{
 			typedef void (CAArch64Assembler::*OpRegType)(CAArch64Assembler::REGISTERMD, CAArch64Assembler::REGISTERMD, CAArch64Assembler::REGISTERMD);
@@ -353,6 +358,11 @@ namespace Jitter
 		struct MDOP_DIVS : public MDOP_BASE3
 		{
 			static OpRegType OpReg() { return &CAArch64Assembler::Fdiv_4s; }
+		};
+
+		struct MDOP_ABSS : public MDOP_BASE2
+		{
+			static OpRegType OpReg() { return &CAArch64Assembler::Fabs_4s; }
 		};
 
 		struct MDOP_AND : public MDOP_BASE3
@@ -493,6 +503,7 @@ namespace Jitter
 		void    Emit_Fp_LdCst_TmpCst(const STATEMENT&);
 
 		//MD
+		template <typename> void    Emit_Md_MemMem(const STATEMENT&);
 		template <typename> void    Emit_Md_MemMemMem(const STATEMENT&);
 		template <typename> void    Emit_Md_MemMemMemRev(const STATEMENT&);
 

@@ -294,6 +294,14 @@ void CAArch64Assembler::Fabs_1s(REGISTERMD rd, REGISTERMD rn)
 	WriteWord(opcode);
 }
 
+void CAArch64Assembler::Fabs_4s(REGISTERMD rd, REGISTERMD rn)
+{
+	uint32 opcode = 0x4EA0F800;
+	opcode |= (rd <<  0);
+	opcode |= (rn <<  5);
+	WriteWord(opcode);
+}
+
 void CAArch64Assembler::Fadd_1s(REGISTERMD rd, REGISTERMD rn, REGISTERMD rm)
 {
 	uint32 opcode = 0x1E202800;

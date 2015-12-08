@@ -365,6 +365,16 @@ namespace Jitter
 			static OpRegType OpReg() { return &CAArch64Assembler::Fabs_4s; }
 		};
 
+		struct MDOP_MINS : public MDOP_BASE3
+		{
+			static OpRegType OpReg() { return &CAArch64Assembler::Fmin_4s; }
+		};
+
+		struct MDOP_MAXS : public MDOP_BASE3
+		{
+			static OpRegType OpReg() { return &CAArch64Assembler::Fmax_4s; }
+		};
+
 		struct MDOP_AND : public MDOP_BASE3
 		{
 			static OpRegType OpReg() { return &CAArch64Assembler::And_16b; }

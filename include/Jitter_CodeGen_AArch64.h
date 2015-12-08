@@ -467,6 +467,7 @@ namespace Jitter
 		template <typename> void    Emit_Fpu_MemMem(const STATEMENT&);
 		template <typename> void    Emit_Fpu_MemMemMem(const STATEMENT&);
 
+		void    Emit_Fp_Cmp_AnyMemMem(const STATEMENT&);
 		void    Emit_Fp_Rcpl_MemMem(const STATEMENT&);
 		void    Emit_Fp_Rsqrt_MemMem(const STATEMENT&);
 		void    Emit_Fp_LdCst_TmpCst(const STATEMENT&);

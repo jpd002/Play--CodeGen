@@ -65,6 +65,23 @@ void CCodeGen_AArch64::Emit_Fpu_MemMemMem(const STATEMENT& statement)
 	StoreRegisterInMemoryFpSingle(dst, dstReg);
 }
 
+void CCodeGen_AArch64::Emit_Fp_Cmp_AnyMemMem(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	auto dstReg = PrepareSymbolRegisterDef(dst, GetNextTempRegister());
+	auto src1Reg = GetNextTempRegisterMd();
+	auto src2Reg = GetNextTempRegisterMd();
+
+	LoadMemoryFpSingleInRegister(src1Reg, src1);
+	LoadMemoryFpSingleInRegister(src2Reg, src2);
+	m_assembler.Fcmp_1s(src1Reg, src2Reg);
+	Cmp_GetFlag(dstReg, statement.jmpCondition);
+	CommitSymbolRegister(dst, dstReg);
+}
+
 void CCodeGen_AArch64::Emit_Fp_Rcpl_MemMem(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
@@ -116,6 +133,8 @@ CCodeGen_AArch64::CONSTMATCHER CCodeGen_AArch64::g_fpuConstMatchers[] =
 	{ OP_FP_SUB,      MATCH_MEMORY_FP_SINGLE,       MATCH_MEMORY_FP_SINGLE,    MATCH_MEMORY_FP_SINGLE,    &CCodeGen_AArch64::Emit_Fpu_MemMemMem<FPUOP_SUB>    },
 	{ OP_FP_MUL,      MATCH_MEMORY_FP_SINGLE,       MATCH_MEMORY_FP_SINGLE,    MATCH_MEMORY_FP_SINGLE,    &CCodeGen_AArch64::Emit_Fpu_MemMemMem<FPUOP_MUL>    },
 	{ OP_FP_DIV,      MATCH_MEMORY_FP_SINGLE,       MATCH_MEMORY_FP_SINGLE,    MATCH_MEMORY_FP_SINGLE,    &CCodeGen_AArch64::Emit_Fpu_MemMemMem<FPUOP_DIV>    },
+
+	{ OP_FP_CMP,      MATCH_ANY,                    MATCH_MEMORY_FP_SINGLE,    MATCH_MEMORY_FP_SINGLE,    &CCodeGen_AArch64::Emit_Fp_Cmp_AnyMemMem            },
 
 	{ OP_FP_MIN,      MATCH_MEMORY_FP_SINGLE,       MATCH_MEMORY_FP_SINGLE,    MATCH_MEMORY_FP_SINGLE,    &CCodeGen_AArch64::Emit_Fpu_MemMemMem<FPUOP_MIN>    },
 	{ OP_FP_MAX,      MATCH_MEMORY_FP_SINGLE,       MATCH_MEMORY_FP_SINGLE,    MATCH_MEMORY_FP_SINGLE,    &CCodeGen_AArch64::Emit_Fpu_MemMemMem<FPUOP_MAX>    },

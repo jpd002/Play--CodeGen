@@ -329,11 +329,29 @@ void CAArch64Assembler::Fmul_1s(REGISTERMD rd, REGISTERMD rn, REGISTERMD rm)
 	WriteWord(opcode);
 }
 
+void CAArch64Assembler::Fmax_1s(REGISTERMD rd, REGISTERMD rn, REGISTERMD rm)
+{
+	uint32 opcode = 0x1E204800;
+	opcode |= (rd <<  0);
+	opcode |= (rn <<  5);
+	opcode |= (rm << 16);
+	WriteWord(opcode);
+}
+
 void CAArch64Assembler::Fneg_1s(REGISTERMD rd, REGISTERMD rn)
 {
 	uint32 opcode = 0x1E214000;
 	opcode |= (rd <<  0);
 	opcode |= (rn <<  5);
+	WriteWord(opcode);
+}
+
+void CAArch64Assembler::Fmin_1s(REGISTERMD rd, REGISTERMD rn, REGISTERMD rm)
+{
+	uint32 opcode = 0x1E205800;
+	opcode |= (rd <<  0);
+	opcode |= (rn <<  5);
+	opcode |= (rm << 16);
 	WriteWord(opcode);
 }
 

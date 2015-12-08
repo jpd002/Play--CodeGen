@@ -117,6 +117,9 @@ CCodeGen_AArch64::CONSTMATCHER CCodeGen_AArch64::g_fpuConstMatchers[] =
 	{ OP_FP_MUL,      MATCH_MEMORY_FP_SINGLE,       MATCH_MEMORY_FP_SINGLE,    MATCH_MEMORY_FP_SINGLE,    &CCodeGen_AArch64::Emit_Fpu_MemMemMem<FPUOP_MUL>    },
 	{ OP_FP_DIV,      MATCH_MEMORY_FP_SINGLE,       MATCH_MEMORY_FP_SINGLE,    MATCH_MEMORY_FP_SINGLE,    &CCodeGen_AArch64::Emit_Fpu_MemMemMem<FPUOP_DIV>    },
 
+	{ OP_FP_MIN,      MATCH_MEMORY_FP_SINGLE,       MATCH_MEMORY_FP_SINGLE,    MATCH_MEMORY_FP_SINGLE,    &CCodeGen_AArch64::Emit_Fpu_MemMemMem<FPUOP_MIN>    },
+	{ OP_FP_MAX,      MATCH_MEMORY_FP_SINGLE,       MATCH_MEMORY_FP_SINGLE,    MATCH_MEMORY_FP_SINGLE,    &CCodeGen_AArch64::Emit_Fpu_MemMemMem<FPUOP_MAX>    },
+
 	{ OP_FP_RCPL,     MATCH_MEMORY_FP_SINGLE,       MATCH_MEMORY_FP_SINGLE,    MATCH_NIL,                 &CCodeGen_AArch64::Emit_Fp_Rcpl_MemMem              },
 	{ OP_FP_SQRT,     MATCH_MEMORY_FP_SINGLE,       MATCH_MEMORY_FP_SINGLE,    MATCH_NIL,                 &CCodeGen_AArch64::Emit_Fpu_MemMem<FPUOP_SQRT>      },
 	{ OP_FP_RSQRT,    MATCH_MEMORY_FP_SINGLE,       MATCH_MEMORY_FP_SINGLE,    MATCH_NIL,                 &CCodeGen_AArch64::Emit_Fp_Rsqrt_MemMem             },

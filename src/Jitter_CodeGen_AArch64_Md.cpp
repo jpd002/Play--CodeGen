@@ -187,6 +187,9 @@ CCodeGen_AArch64::CONSTMATCHER CCodeGen_AArch64::g_mdConstMatchers[] =
 	
 	{ OP_MD_NOT,                MATCH_MEMORY128,      MATCH_MEMORY128,      MATCH_NIL,           &CCodeGen_AArch64::Emit_Md_Not_MemMem                            },
 	
+	{ OP_MD_TOSINGLE,           MATCH_MEMORY128,      MATCH_MEMORY128,      MATCH_NIL,           &CCodeGen_AArch64::Emit_Md_MemMem<MDOP_TOSINGLE>                 },
+	{ OP_MD_TOWORD_TRUNCATE,    MATCH_MEMORY128,      MATCH_MEMORY128,      MATCH_NIL,           &CCodeGen_AArch64::Emit_Md_MemMem<MDOP_TOWORD>                   },
+
 	{ OP_MD_UNPACK_LOWER_BH,    MATCH_MEMORY128,      MATCH_MEMORY128,      MATCH_MEMORY128,     &CCodeGen_AArch64::Emit_Md_MemMemMemRev<MDOP_UNPACK_LOWER_BH>    },
 	{ OP_MD_UNPACK_LOWER_HW,    MATCH_MEMORY128,      MATCH_MEMORY128,      MATCH_MEMORY128,     &CCodeGen_AArch64::Emit_Md_MemMemMemRev<MDOP_UNPACK_LOWER_HW>    },
 	{ OP_MD_UNPACK_LOWER_WD,    MATCH_MEMORY128,      MATCH_MEMORY128,      MATCH_MEMORY128,     &CCodeGen_AArch64::Emit_Md_MemMemMemRev<MDOP_UNPACK_LOWER_WD>    },

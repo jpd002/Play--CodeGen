@@ -89,7 +89,7 @@ public:
 	void    Add_16b(REGISTERMD, REGISTERMD, REGISTERMD);
 	void    And(REGISTER32, REGISTER32, REGISTER32);
 	void    And(REGISTER64, REGISTER64, REGISTER64);
-	void    And(REGISTER32, REGISTER32, uint8, uint8);
+	void    And(REGISTER32, REGISTER32, uint8, uint8, uint8);
 	void    And_16b(REGISTERMD, REGISTERMD, REGISTERMD);
 	void    Asr(REGISTER32, REGISTER32, uint8);
 	void    Asr(REGISTER64, REGISTER64, uint8);
@@ -202,7 +202,7 @@ private:
 
 	void    WriteAddSubOpImm(uint32, uint32 shift, uint32 imm, uint32 rn, uint32 rd);
 	void    WriteDataProcOpReg2(uint32, uint32 rm, uint32 rn, uint32 rd);
-	void    WriteLogicalOpImm(uint32, uint32 immr, uint32 imms, uint32 rn, uint32 rd);
+	void    WriteLogicalOpImm(uint32, uint32 n, uint32 immr, uint32 imms, uint32 rn, uint32 rd);
 	void    WriteLoadStoreOpImm(uint32, uint32 imm, uint32 rn, uint32 rt);
 	void    WriteMoveWideOpImm(uint32, uint32 hw, uint32 imm, uint32 rd);
 	void    WriteWord(uint32);

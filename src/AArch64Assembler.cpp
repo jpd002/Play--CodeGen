@@ -145,9 +145,9 @@ void CAArch64Assembler::And(REGISTER64 rd, REGISTER64 rn, REGISTER64 rm)
 	WriteWord(opcode);
 }
 
-void CAArch64Assembler::And(REGISTER32 rd, REGISTER32 rn, uint8 immr, uint8 imms)
+void CAArch64Assembler::And(REGISTER32 rd, REGISTER32 rn, uint8 n, uint8 immr, uint8 imms)
 {
-	WriteLogicalOpImm(0x12000000, immr, imms, rn, rd);
+	WriteLogicalOpImm(0x12000000, n, immr, imms, rn, rd);
 }
 
 void CAArch64Assembler::And_16b(REGISTERMD rd, REGISTERMD rn, REGISTERMD rm)
@@ -163,14 +163,14 @@ void CAArch64Assembler::Asr(REGISTER32 rd, REGISTER32 rn, uint8 sa)
 {
 	uint32 imms = 0x1F;
 	uint32 immr = sa & 0x1F;
-	WriteLogicalOpImm(0x13000000, immr, imms, rn, rd);
+	WriteLogicalOpImm(0x13000000, 0, immr, imms, rn, rd);
 }
 
 void CAArch64Assembler::Asr(REGISTER64 rd, REGISTER64 rn, uint8 sa)
 {
 	uint32 imms = 0x3F;
 	uint32 immr = sa & 0x3F;
-	WriteLogicalOpImm(0x93400000, immr, imms, rn, rd);
+	WriteLogicalOpImm(0x93400000, 0, immr, imms, rn, rd);
 }
 
 void CAArch64Assembler::Asrv(REGISTER32 rd, REGISTER32 rn, REGISTER32 rm)
@@ -499,14 +499,14 @@ void CAArch64Assembler::Lsl(REGISTER32 rd, REGISTER32 rn, uint8 sa)
 {
 	uint32 imms = 0x1F - (sa & 0x1F);
 	uint32 immr = -sa & 0x1F;
-	WriteLogicalOpImm(0x53000000, immr, imms, rn, rd);
+	WriteLogicalOpImm(0x53000000, 0, immr, imms, rn, rd);
 }
 
 void CAArch64Assembler::Lsl(REGISTER64 rd, REGISTER64 rn, uint8 sa)
 {
 	uint32 imms = 0x3F - (sa & 0x3F);
 	uint32 immr = -sa & 0x3F;
-	WriteLogicalOpImm(0xD3400000, immr, imms, rn, rd);
+	WriteLogicalOpImm(0xD3400000, 0, immr, imms, rn, rd);
 }
 
 void CAArch64Assembler::Lslv(REGISTER32 rd, REGISTER32 rn, REGISTER32 rm)
@@ -523,14 +523,14 @@ void CAArch64Assembler::Lsr(REGISTER32 rd, REGISTER32 rn, uint8 sa)
 {
 	uint32 imms = 0x1F;
 	uint32 immr = sa & 0x1F;
-	WriteLogicalOpImm(0x53000000, immr, imms, rn, rd);
+	WriteLogicalOpImm(0x53000000, 0, immr, imms, rn, rd);
 }
 
 void CAArch64Assembler::Lsr(REGISTER64 rd, REGISTER64 rn, uint8 sa)
 {
 	uint32 imms = 0x3F;
 	uint32 immr = sa & 0x3F;
-	WriteLogicalOpImm(0xD3400000, immr, imms, rn, rd);
+	WriteLogicalOpImm(0xD3400000, 0, immr, imms, rn, rd);
 }
 
 void CAArch64Assembler::Lsrv(REGISTER32 rd, REGISTER32 rn, REGISTER32 rm)
@@ -949,12 +949,13 @@ void CAArch64Assembler::WriteDataProcOpReg2(uint32 opcode, uint32 rm, uint32 rn,
 	WriteWord(opcode);
 }
 
-void CAArch64Assembler::WriteLogicalOpImm(uint32 opcode, uint32 immr, uint32 imms, uint32 rn, uint32 rd)
+void CAArch64Assembler::WriteLogicalOpImm(uint32 opcode, uint32 n, uint32 immr, uint32 imms, uint32 rn, uint32 rd)
 {
 	opcode |= (rd << 0);
 	opcode |= (rn << 5);
 	opcode |= (imms << 10);
 	opcode |= (immr << 16);
+	opcode |= (n << 22);
 	WriteWord(opcode);
 }
 

@@ -138,7 +138,7 @@ namespace Jitter
 		struct LOGICOP_BASE
 		{
 			typedef void (CAArch64Assembler::*OpRegType)(CAArch64Assembler::REGISTER32, CAArch64Assembler::REGISTER32, CAArch64Assembler::REGISTER32);
-			typedef void (CAArch64Assembler::*OpImmType)(CAArch64Assembler::REGISTER32, CAArch64Assembler::REGISTER32, uint8, uint8);
+			typedef void (CAArch64Assembler::*OpImmType)(CAArch64Assembler::REGISTER32, CAArch64Assembler::REGISTER32, uint8, uint8, uint8);
 		};
 		
 		struct LOGICOP_AND : public LOGICOP_BASE

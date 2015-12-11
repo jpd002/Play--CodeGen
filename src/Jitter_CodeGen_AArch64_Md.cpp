@@ -106,6 +106,40 @@ void CCodeGen_AArch64::Emit_Md_MemMemMemRev(const STATEMENT& statement)
 	m_assembler.St1_4s(dstReg, dstAddrReg);
 }
 
+template <typename MDOP>
+void CCodeGen_AArch64::Emit_Md_Test_VarMem(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+
+	auto src1AddrReg = GetNextTempRegister64();
+	auto src1Reg = GetNextTempRegisterMd();
+	auto tmpValueReg = GetNextTempRegister();
+	auto tmpCmpReg = GetNextTempRegisterMd();
+	
+	LoadMemory128AddressInRegister(src1AddrReg, src1);
+	m_assembler.Ld1_4s(src1Reg, src1AddrReg);
+
+	auto dstReg = PrepareSymbolRegisterDef(dst, GetNextTempRegister());
+
+	((m_assembler).*(MDOP::OpReg()))(tmpCmpReg, src1Reg);
+	
+	m_assembler.Eor(dstReg, dstReg, dstReg);
+	for(unsigned int i = 0; i < 4; i++)
+	{
+		LOGICAL_IMM_PARAMS logicalImmParams;
+		bool result = TryGetLogicalImmParams((1 << i), logicalImmParams);
+		assert(result);
+
+		m_assembler.Umov_1s(tmpValueReg, tmpCmpReg, 3 - i);
+		m_assembler.And(tmpValueReg, tmpValueReg,
+			logicalImmParams.n, logicalImmParams.immr, logicalImmParams.imms);
+		m_assembler.Orr(dstReg, dstReg, tmpValueReg);
+	}
+
+	CommitSymbolRegister(dst, dstReg);
+}
+
 void CCodeGen_AArch64::Emit_Md_Mov_MemMem(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
@@ -186,6 +220,9 @@ CCodeGen_AArch64::CONSTMATCHER CCodeGen_AArch64::g_mdConstMatchers[] =
 	{ OP_MD_XOR,                MATCH_MEMORY128,      MATCH_MEMORY128,      MATCH_MEMORY128,     &CCodeGen_AArch64::Emit_Md_MemMemMem<MDOP_XOR>                   },
 	
 	{ OP_MD_NOT,                MATCH_MEMORY128,      MATCH_MEMORY128,      MATCH_NIL,           &CCodeGen_AArch64::Emit_Md_Not_MemMem                            },
+	
+	{ OP_MD_ISNEGATIVE,         MATCH_VARIABLE,       MATCH_MEMORY128,      MATCH_NIL,           &CCodeGen_AArch64::Emit_Md_Test_VarMem<MDOP_CMPLTZS>             },
+	{ OP_MD_ISZERO,             MATCH_VARIABLE,       MATCH_MEMORY128,      MATCH_NIL,           &CCodeGen_AArch64::Emit_Md_Test_VarMem<MDOP_CMPEQZS>             },
 	
 	{ OP_MD_TOSINGLE,           MATCH_MEMORY128,      MATCH_MEMORY128,      MATCH_NIL,           &CCodeGen_AArch64::Emit_Md_MemMem<MDOP_TOSINGLE>                 },
 	{ OP_MD_TOWORD_TRUNCATE,    MATCH_MEMORY128,      MATCH_MEMORY128,      MATCH_NIL,           &CCodeGen_AArch64::Emit_Md_MemMem<MDOP_TOWORD>                   },

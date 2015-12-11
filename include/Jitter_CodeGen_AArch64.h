@@ -438,6 +438,16 @@ namespace Jitter
 			static OpRegType OpReg() { return &CAArch64Assembler::Zip2_4s; }
 		};
 
+		struct MDOP_CMPEQZS : public MDOP_BASE2
+		{
+			static OpRegType OpReg() { return &CAArch64Assembler::Fcmeq_4s; }
+		};
+		
+		struct MDOP_CMPLTZS : public MDOP_BASE2
+		{
+			static OpRegType OpReg() { return &CAArch64Assembler::Fcmlt_4s; }
+		};
+		
 		uint16    GetSavedRegisterList(uint32);
 		void      Emit_Prolog(uint32, uint16);
 		void      Emit_Epilog(uint32, uint16);
@@ -534,6 +544,7 @@ namespace Jitter
 		template <typename> void    Emit_Md_MemMem(const STATEMENT&);
 		template <typename> void    Emit_Md_MemMemMem(const STATEMENT&);
 		template <typename> void    Emit_Md_MemMemMemRev(const STATEMENT&);
+		template <typename> void    Emit_Md_Test_VarMem(const STATEMENT&);
 
 		void    Emit_Md_Mov_MemMem(const STATEMENT&);
 		void    Emit_Md_Not_MemMem(const STATEMENT&);

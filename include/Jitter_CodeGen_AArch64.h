@@ -30,6 +30,13 @@ namespace Jitter
 			uint16                                      imm = 0;
 			CAArch64Assembler::ADDSUB_IMM_SHIFT_TYPE    shiftType = CAArch64Assembler::ADDSUB_IMM_SHIFT_LSL0;
 		};
+		
+		struct LOGICAL_IMM_PARAMS
+		{
+			uint8 n;
+			uint8 immr;
+			uint8 imms;
+		};
 
 		struct PARAM_STATE
 		{
@@ -108,6 +115,7 @@ namespace Jitter
 		
 		bool TryGetAddSubImmParams(uint32, ADDSUB_IMM_PARAMS&);
 		bool TryGetAddSub64ImmParams(uint64, ADDSUB_IMM_PARAMS&);
+		bool TryGetLogicalImmParams(uint32, LOGICAL_IMM_PARAMS&);
 		
 		//SHIFTOP ----------------------------------------------------------
 		struct SHIFTOP_BASE

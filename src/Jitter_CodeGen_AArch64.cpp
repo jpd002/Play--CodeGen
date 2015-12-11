@@ -63,6 +63,16 @@ CAArch64Assembler::REGISTER64    CCodeGen_AArch64::g_paramRegisters64[MAX_PARAM_
 
 CAArch64Assembler::REGISTER64    CCodeGen_AArch64::g_baseRegister = CAArch64Assembler::x19;
 
+static bool isMask(uint32 value)
+{
+	return value && (((value + 1) & value) == 0);
+}
+
+static bool isShiftedMask(uint32 value)
+{
+	return value && isMask((value - 1) | value);
+}
+
 template <typename AddSubOp>
 void CCodeGen_AArch64::Emit_AddSub_VarAnyVar(const STATEMENT& statement)
 {
@@ -653,6 +663,62 @@ bool CCodeGen_AArch64::TryGetAddSub64ImmParams(uint64 imm, ADDSUB_IMM_PARAMS& pa
 		return true;
 	}
 	return false;
+}
+
+bool CCodeGen_AArch64::TryGetLogicalImmParams(uint32 imm, LOGICAL_IMM_PARAMS& params)
+{
+	//Algorithm from LLVM, 'processLogicalImmediate' function
+
+	if((imm == 0) || (imm == ~0))
+	{
+		return false;
+	}
+
+	int size = 32;
+	while(true)
+	{
+		size /= 2;
+		uint32 mask = (1 << size) - 1;
+		if((imm & mask) != ((imm >> size) & mask))
+		{
+			size *= 2;
+			break;
+		}
+		if(size > 2) break;
+	}
+
+	uint32 cto = 0, i = 0;
+	uint32 mask = (~0) >> (32 - size);
+	imm &= mask;
+
+	if(isShiftedMask(imm))
+	{
+		i = __builtin_ctz(imm);
+		cto = __builtin_ctz(~(imm >> i));
+	}
+	else
+	{
+		imm |= ~mask;
+		if(!isShiftedMask(~imm))
+		{
+			return false;
+		}
+		uint32 clo = __builtin_clz(~imm);
+		i = 32 - clo;
+		cto = clo + __builtin_ctz(~imm) - (32 - size);
+	}
+
+	assert(size > i);
+	params.immr = (size - i) & (size - 1);
+
+	uint32 nimms = ~(size - 1) << 1;
+	nimms |= (cto - 1);
+
+	params.n = ((nimms >> 6) & 1) ^ 1;
+
+	params.imms = nimms & 0x3F;
+
+	return true;
 }
 
 uint16 CCodeGen_AArch64::GetSavedRegisterList(uint32 registerUsage)

@@ -189,7 +189,6 @@ void CCodeGen_AArch64::Emit_Md_MovMasked_MemMemMem(const STATEMENT& statement)
 
 	auto dstAddrReg = GetNextTempRegister64();
 	auto src2AddrReg = GetNextTempRegister64();
-	auto tmpReg = GetNextTempRegister();
 	auto dstReg = GetNextTempRegisterMd();
 	auto src2Reg = GetNextTempRegisterMd();
 

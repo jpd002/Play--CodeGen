@@ -2,6 +2,38 @@
 
 using namespace Jitter;
 
+void CCodeGen_AArch64::LoadMemory128InRegister(CAArch64Assembler::REGISTERMD dstReg, CSymbol* symbol)
+{
+	switch(symbol->m_type)
+	{
+	case SYM_RELATIVE128:
+		m_assembler.Ldr_1q(dstReg, g_baseRegister, symbol->m_valueLow);
+		break;
+	case SYM_TEMPORARY128:
+		m_assembler.Ldr_1q(dstReg, CAArch64Assembler::xSP, symbol->m_stackLocation);
+		break;
+	default:
+		assert(0);
+		break;
+	}
+}
+
+void CCodeGen_AArch64::StoreRegisterInMemory128(CSymbol* symbol, CAArch64Assembler::REGISTERMD srcReg)
+{
+	switch(symbol->m_type)
+	{
+	case SYM_RELATIVE128:
+		m_assembler.Str_1q(srcReg, g_baseRegister, symbol->m_valueLow);
+		break;
+	case SYM_TEMPORARY128:
+		m_assembler.Str_1q(srcReg, CAArch64Assembler::xSP, symbol->m_stackLocation);
+		break;
+	default:
+		assert(0);
+		break;
+	}
+}
+
 void CCodeGen_AArch64::LoadMemory128AddressInRegister(CAArch64Assembler::REGISTER64 dstReg, CSymbol* symbol, uint32 offset)
 {
 	switch(symbol->m_type)
@@ -42,18 +74,12 @@ void CCodeGen_AArch64::Emit_Md_MemMem(const STATEMENT& statement)
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
 	
-	auto dstAddrReg = GetNextTempRegister64();
-	auto src1AddrReg = GetNextTempRegister64();
-	
 	auto dstReg = GetNextTempRegisterMd();
 	auto src1Reg = GetNextTempRegisterMd();
 
-	LoadMemory128AddressInRegister(dstAddrReg, dst);
-	LoadMemory128AddressInRegister(src1AddrReg, src1);
-
-	m_assembler.Ld1_4s(src1Reg, src1AddrReg);
+	LoadMemory128InRegister(src1Reg, src1);
 	((m_assembler).*(MDOP::OpReg()))(dstReg, src1Reg);
-	m_assembler.St1_4s(dstReg, dstAddrReg);
+	StoreRegisterInMemory128(dst, dstReg);
 }
 
 template <typename MDOP>
@@ -63,22 +89,14 @@ void CCodeGen_AArch64::Emit_Md_MemMemMem(const STATEMENT& statement)
 	auto src1 = statement.src1->GetSymbol().get();
 	auto src2 = statement.src2->GetSymbol().get();
 	
-	auto dstAddrReg = GetNextTempRegister64();
-	auto src1AddrReg = GetNextTempRegister64();
-	auto src2AddrReg = GetNextTempRegister64();
-	
 	auto dstReg = GetNextTempRegisterMd();
 	auto src1Reg = GetNextTempRegisterMd();
 	auto src2Reg = GetNextTempRegisterMd();
 
-	LoadMemory128AddressInRegister(dstAddrReg, dst);
-	LoadMemory128AddressInRegister(src1AddrReg, src1);
-	LoadMemory128AddressInRegister(src2AddrReg, src2);
-
-	m_assembler.Ld1_4s(src1Reg, src1AddrReg);
-	m_assembler.Ld1_4s(src2Reg, src2AddrReg);
+	LoadMemory128InRegister(src1Reg, src1);
+	LoadMemory128InRegister(src2Reg, src2);
 	((m_assembler).*(MDOP::OpReg()))(dstReg, src1Reg, src2Reg);
-	m_assembler.St1_4s(dstReg, dstAddrReg);
+	StoreRegisterInMemory128(dst, dstReg);
 }
 
 template <typename MDOP>
@@ -87,23 +105,15 @@ void CCodeGen_AArch64::Emit_Md_MemMemMemRev(const STATEMENT& statement)
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
 	auto src2 = statement.src2->GetSymbol().get();
-
-	auto dstAddrReg = GetNextTempRegister64();
-	auto src1AddrReg = GetNextTempRegister64();
-	auto src2AddrReg = GetNextTempRegister64();
 	
 	auto dstReg = GetNextTempRegisterMd();
 	auto src1Reg = GetNextTempRegisterMd();
 	auto src2Reg = GetNextTempRegisterMd();
 
-	LoadMemory128AddressInRegister(dstAddrReg, dst);
-	LoadMemory128AddressInRegister(src1AddrReg, src1);
-	LoadMemory128AddressInRegister(src2AddrReg, src2);
-
-	m_assembler.Ld1_4s(src1Reg, src1AddrReg);
-	m_assembler.Ld1_4s(src2Reg, src2AddrReg);
+	LoadMemory128InRegister(src1Reg, src1);
+	LoadMemory128InRegister(src2Reg, src2);
 	((m_assembler).*(MDOP::OpReg()))(dstReg, src2Reg, src1Reg);
-	m_assembler.St1_4s(dstReg, dstAddrReg);
+	StoreRegisterInMemory128(dst, dstReg);
 }
 
 template <typename MDOP>
@@ -112,13 +122,11 @@ void CCodeGen_AArch64::Emit_Md_Test_VarMem(const STATEMENT& statement)
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
 
-	auto src1AddrReg = GetNextTempRegister64();
 	auto src1Reg = GetNextTempRegisterMd();
 	auto tmpValueReg = GetNextTempRegister();
 	auto tmpCmpReg = GetNextTempRegisterMd();
 	
-	LoadMemory128AddressInRegister(src1AddrReg, src1);
-	m_assembler.Ld1_4s(src1Reg, src1AddrReg);
+	LoadMemory128InRegister(src1Reg, src1);
 
 	auto dstReg = PrepareSymbolRegisterDef(dst, GetNextTempRegister());
 
@@ -145,16 +153,10 @@ void CCodeGen_AArch64::Emit_Md_Mov_MemMem(const STATEMENT& statement)
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
 
-	auto dstAddrReg = GetNextTempRegister64();
-	auto src1AddrReg = GetNextTempRegister64();
-
 	auto tmpReg = GetNextTempRegisterMd();
 	
-	LoadMemory128AddressInRegister(dstAddrReg, dst);
-	LoadMemory128AddressInRegister(src1AddrReg, src1);
-	
-	m_assembler.Ld1_4s(tmpReg, src1AddrReg);
-	m_assembler.St1_4s(tmpReg, dstAddrReg);
+	LoadMemory128InRegister(tmpReg, src1);
+	StoreRegisterInMemory128(dst, tmpReg);
 }
 
 void CCodeGen_AArch64::Emit_Md_Not_MemMem(const STATEMENT& statement)
@@ -162,19 +164,13 @@ void CCodeGen_AArch64::Emit_Md_Not_MemMem(const STATEMENT& statement)
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
 
-	auto dstAddrReg = GetNextTempRegister64();
-	auto src1AddrReg = GetNextTempRegister64();
-
 	auto tmpReg = GetNextTempRegisterMd();
 	auto zeroReg = GetNextTempRegisterMd();
 	
-	LoadMemory128AddressInRegister(dstAddrReg, dst);
-	LoadMemory128AddressInRegister(src1AddrReg, src1);
-	
-	m_assembler.Ld1_4s(tmpReg, src1AddrReg);
+	LoadMemory128InRegister(tmpReg, src1);
 	m_assembler.Eor_16b(zeroReg, zeroReg, zeroReg);
 	m_assembler.Orn_16b(tmpReg, zeroReg, tmpReg);
-	m_assembler.St1_4s(tmpReg, dstAddrReg);
+	StoreRegisterInMemory128(dst, tmpReg);
 }
 
 void CCodeGen_AArch64::Emit_Md_MovMasked_MemMemMem(const STATEMENT& statement)
@@ -187,16 +183,11 @@ void CCodeGen_AArch64::Emit_Md_MovMasked_MemMemMem(const STATEMENT& statement)
 
 	auto mask = static_cast<uint8>(statement.jmpCondition);
 
-	auto dstAddrReg = GetNextTempRegister64();
-	auto src2AddrReg = GetNextTempRegister64();
 	auto dstReg = GetNextTempRegisterMd();
 	auto src2Reg = GetNextTempRegisterMd();
 
-	LoadMemory128AddressInRegister(dstAddrReg, dst);
-	LoadMemory128AddressInRegister(src2AddrReg, src2);
-
-	m_assembler.Ld1_4s(dstReg, dstAddrReg);
-	m_assembler.Ld1_4s(src2Reg, src2AddrReg);
+	LoadMemory128InRegister(dstReg, dst);
+	LoadMemory128InRegister(src2Reg, src2);
 	
 	for(unsigned int i = 0; i < 4; i++)
 	{
@@ -206,7 +197,7 @@ void CCodeGen_AArch64::Emit_Md_MovMasked_MemMemMem(const STATEMENT& statement)
 		}
 	}
 
-	m_assembler.St1_4s(dstReg, dstAddrReg);
+	StoreRegisterInMemory128(dst, dstReg);
 }
 
 CCodeGen_AArch64::CONSTMATCHER CCodeGen_AArch64::g_mdConstMatchers[] =

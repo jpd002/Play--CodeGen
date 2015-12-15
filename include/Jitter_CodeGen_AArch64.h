@@ -100,6 +100,9 @@ namespace Jitter
 		void    LoadMemoryFpSingleInRegister(CAArch64Assembler::REGISTERMD, CSymbol*);
 		void    StoreRegisterInMemoryFpSingle(CSymbol*, CAArch64Assembler::REGISTERMD);
 		
+		void    LoadMemory128InRegister(CAArch64Assembler::REGISTERMD, CSymbol*);
+		void    StoreRegisterInMemory128(CSymbol*, CAArch64Assembler::REGISTERMD);
+		
 		void    LoadMemory128AddressInRegister(CAArch64Assembler::REGISTER64, CSymbol*, uint32 = 0);
 		void    LoadRelative128AddressInRegister(CAArch64Assembler::REGISTER64, CSymbol*, uint32);
 		void    LoadTemporary128AddressInRegister(CAArch64Assembler::REGISTER64, CSymbol*, uint32);

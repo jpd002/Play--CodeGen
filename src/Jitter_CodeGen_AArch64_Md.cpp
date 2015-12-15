@@ -200,6 +200,45 @@ void CCodeGen_AArch64::Emit_Md_MovMasked_MemMemMem(const STATEMENT& statement)
 	StoreRegisterInMemory128(dst, dstReg);
 }
 
+void CCodeGen_AArch64::Emit_Md_Expand_MemReg(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+
+	auto tmpReg = GetNextTempRegisterMd();
+
+	m_assembler.Dup_4s(tmpReg, g_registers[src1->m_valueLow]);
+	StoreRegisterInMemory128(dst, tmpReg);
+}
+
+void CCodeGen_AArch64::Emit_Md_Expand_MemMem(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+
+	auto src1Reg = GetNextTempRegister();
+	auto tmpReg = GetNextTempRegisterMd();
+
+	LoadMemoryInRegister(src1Reg, src1);
+
+	m_assembler.Dup_4s(tmpReg, src1Reg);
+	StoreRegisterInMemory128(dst, tmpReg);
+}
+
+void CCodeGen_AArch64::Emit_Md_Expand_MemCst(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+
+	auto src1Reg = GetNextTempRegister();
+	auto tmpReg = GetNextTempRegisterMd();
+
+	LoadConstantInRegister(src1Reg, src1->m_valueLow);
+
+	m_assembler.Dup_4s(tmpReg, src1Reg);
+	StoreRegisterInMemory128(dst, tmpReg);
+}
+
 CCodeGen_AArch64::CONSTMATCHER CCodeGen_AArch64::g_mdConstMatchers[] =
 {
 	{ OP_MD_ADD_B,              MATCH_MEMORY128,      MATCH_MEMORY128,      MATCH_MEMORY128,     &CCodeGen_AArch64::Emit_Md_MemMemMem<MDOP_ADDB>                  },
@@ -244,6 +283,10 @@ CCodeGen_AArch64::CONSTMATCHER CCodeGen_AArch64::g_mdConstMatchers[] =
 	{ OP_MD_TOWORD_TRUNCATE,    MATCH_MEMORY128,      MATCH_MEMORY128,      MATCH_NIL,           &CCodeGen_AArch64::Emit_Md_MemMem<MDOP_TOWORD>                   },
 
 	{ OP_MD_MOV_MASKED,         MATCH_MEMORY128,      MATCH_MEMORY128,      MATCH_MEMORY128,     &CCodeGen_AArch64::Emit_Md_MovMasked_MemMemMem                   },
+
+	{ OP_MD_EXPAND,             MATCH_MEMORY128,      MATCH_REGISTER,       MATCH_NIL,           &CCodeGen_AArch64::Emit_Md_Expand_MemReg                         },
+	{ OP_MD_EXPAND,             MATCH_MEMORY128,      MATCH_MEMORY,         MATCH_NIL,           &CCodeGen_AArch64::Emit_Md_Expand_MemMem                         },
+	{ OP_MD_EXPAND,             MATCH_MEMORY128,      MATCH_CONSTANT,       MATCH_NIL,           &CCodeGen_AArch64::Emit_Md_Expand_MemCst                         },
 
 	{ OP_MD_UNPACK_LOWER_BH,    MATCH_MEMORY128,      MATCH_MEMORY128,      MATCH_MEMORY128,     &CCodeGen_AArch64::Emit_Md_MemMemMemRev<MDOP_UNPACK_LOWER_BH>    },
 	{ OP_MD_UNPACK_LOWER_HW,    MATCH_MEMORY128,      MATCH_MEMORY128,      MATCH_MEMORY128,     &CCodeGen_AArch64::Emit_Md_MemMemMemRev<MDOP_UNPACK_LOWER_HW>    },

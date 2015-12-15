@@ -268,6 +268,14 @@ void CAArch64Assembler::Cset(REGISTER32 rd, CONDITION condition)
 	WriteWord(opcode);
 }
 
+void CAArch64Assembler::Dup_4s(REGISTERMD rd, REGISTER32 rn)
+{
+	uint32 opcode = 0x4E040C00;
+	opcode |= (rd <<  0);
+	opcode |= (rn <<  5);
+	WriteWord(opcode);
+}
+
 void CAArch64Assembler::Eor(REGISTER32 rd, REGISTER32 rn, REGISTER32 rm)
 {
 	uint32 opcode = 0x4A000000;

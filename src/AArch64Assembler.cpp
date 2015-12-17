@@ -731,6 +731,26 @@ void CAArch64Assembler::Sdiv(REGISTER32 rd, REGISTER32 rn, REGISTER32 rm)
 	WriteWord(opcode);
 }
 
+void CAArch64Assembler::Shl_4s(REGISTERMD rd, REGISTERMD rn, uint8 sa)
+{
+	uint8 immhb = (sa & 0x1F) + 32;
+	uint32 opcode = 0x4F005400;
+	opcode |= (rd    <<  0);
+	opcode |= (rn    <<  5);
+	opcode |= (immhb << 16);
+	WriteWord(opcode);
+}
+
+void CAArch64Assembler::Shl_8h(REGISTERMD rd, REGISTERMD rn, uint8 sa)
+{
+	uint8 immhb = (sa & 0xF) + 16;
+	uint32 opcode = 0x4F005400;
+	opcode |= (rd    <<  0);
+	opcode |= (rn    <<  5);
+	opcode |= (immhb << 16);
+	WriteWord(opcode);
+}
+
 void CAArch64Assembler::Smull(REGISTER64 rd, REGISTER32 rn, REGISTER32 rm)
 {
 	uint32 opcode = 0x9B200000;
@@ -738,6 +758,26 @@ void CAArch64Assembler::Smull(REGISTER64 rd, REGISTER32 rn, REGISTER32 rm)
 	opcode |= (rn  <<  5);
 	opcode |= (wZR << 10);
 	opcode |= (rm  << 16);
+	WriteWord(opcode);
+}
+
+void CAArch64Assembler::Sshr_4s(REGISTERMD rd, REGISTERMD rn, uint8 sa)
+{
+	uint8 immhb = (32 * 2) - (sa & 0x1F);
+	uint32 opcode = 0x4F000400;
+	opcode |= (rd    <<  0);
+	opcode |= (rn    <<  5);
+	opcode |= (immhb << 16);
+	WriteWord(opcode);
+}
+
+void CAArch64Assembler::Sshr_8h(REGISTERMD rd, REGISTERMD rn, uint8 sa)
+{
+	uint8 immhb = (16 * 2) - (sa & 0xF);
+	uint32 opcode = 0x4F000400;
+	opcode |= (rd    <<  0);
+	opcode |= (rn    <<  5);
+	opcode |= (immhb << 16);
 	WriteWord(opcode);
 }
 
@@ -957,6 +997,26 @@ void CAArch64Assembler::Uqsub_16b(REGISTERMD rd, REGISTERMD rn, REGISTERMD rm)
 	opcode |= (rd  <<  0);
 	opcode |= (rn  <<  5);
 	opcode |= (rm  << 16);
+	WriteWord(opcode);
+}
+
+void CAArch64Assembler::Ushr_4s(REGISTERMD rd, REGISTERMD rn, uint8 sa)
+{
+	uint8 immhb = (32 * 2) - (sa & 0x1F);
+	uint32 opcode = 0x6F000400;
+	opcode |= (rd    <<  0);
+	opcode |= (rn    <<  5);
+	opcode |= (immhb << 16);
+	WriteWord(opcode);
+}
+
+void CAArch64Assembler::Ushr_8h(REGISTERMD rd, REGISTERMD rn, uint8 sa)
+{
+	uint8 immhb = (16 * 2) - (sa & 0xF);
+	uint32 opcode = 0x6F000400;
+	opcode |= (rd    <<  0);
+	opcode |= (rn    <<  5);
+	opcode |= (immhb << 16);
 	WriteWord(opcode);
 }
 

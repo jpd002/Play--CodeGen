@@ -281,6 +281,11 @@ namespace Jitter
 			typedef void (CAArch64Assembler::*OpRegType)(CAArch64Assembler::REGISTERMD, CAArch64Assembler::REGISTERMD, CAArch64Assembler::REGISTERMD);
 		};
 
+		struct MDOP_SHIFT
+		{
+			typedef void (CAArch64Assembler::*OpRegType)(CAArch64Assembler::REGISTERMD, CAArch64Assembler::REGISTERMD, uint8);
+		};
+
 		struct MDOP_ADDB : public MDOP_BASE3
 		{
 			static OpRegType OpReg() { return &CAArch64Assembler::Add_16b; }
@@ -461,6 +466,36 @@ namespace Jitter
 			static OpRegType OpReg() { return &CAArch64Assembler::Fcmlt_4s; }
 		};
 		
+		struct MDOP_SLLH : public MDOP_SHIFT
+		{
+			static OpRegType OpReg() { return &CAArch64Assembler::Shl_8h; }
+		};
+		
+		struct MDOP_SLLW : public MDOP_SHIFT
+		{
+			static OpRegType OpReg() { return &CAArch64Assembler::Shl_4s; }
+		};
+
+		struct MDOP_SRLH : public MDOP_SHIFT
+		{
+			static OpRegType OpReg() { return &CAArch64Assembler::Ushr_8h; }
+		};
+		
+		struct MDOP_SRLW : public MDOP_SHIFT
+		{
+			static OpRegType OpReg() { return &CAArch64Assembler::Ushr_4s; }
+		};
+		
+		struct MDOP_SRAH : public MDOP_SHIFT
+		{
+			static OpRegType OpReg() { return &CAArch64Assembler::Sshr_8h; }
+		};
+
+		struct MDOP_SRAW : public MDOP_SHIFT
+		{
+			static OpRegType OpReg() { return &CAArch64Assembler::Sshr_4s; }
+		};
+		
 		uint16    GetSavedRegisterList(uint32);
 		void      Emit_Prolog(uint32, uint16);
 		void      Emit_Epilog(uint32, uint16);
@@ -557,6 +592,7 @@ namespace Jitter
 		template <typename> void    Emit_Md_MemMem(const STATEMENT&);
 		template <typename> void    Emit_Md_MemMemMem(const STATEMENT&);
 		template <typename> void    Emit_Md_MemMemMemRev(const STATEMENT&);
+		template <typename> void    Emit_Md_Shift_MemMemCst(const STATEMENT&);
 		template <typename> void    Emit_Md_Test_VarMem(const STATEMENT&);
 
 		void    Emit_Md_Mov_MemMem(const STATEMENT&);

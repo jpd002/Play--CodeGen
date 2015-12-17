@@ -116,6 +116,21 @@ void CCodeGen_AArch64::Emit_Md_MemMemMemRev(const STATEMENT& statement)
 	StoreRegisterInMemory128(dst, dstReg);
 }
 
+template <typename MDSHIFTOP>
+void CCodeGen_AArch64::Emit_Md_Shift_MemMemCst(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	auto dstReg = GetNextTempRegisterMd();
+	auto src1Reg = GetNextTempRegisterMd();
+
+	LoadMemory128InRegister(src1Reg, src1);
+	((m_assembler).*(MDSHIFTOP::OpReg()))(dstReg, src1Reg, src2->m_valueLow);
+	StoreRegisterInMemory128(dst, dstReg);
+}
+
 template <typename MDOP>
 void CCodeGen_AArch64::Emit_Md_Test_VarMem(const STATEMENT& statement)
 {
@@ -279,6 +294,15 @@ CCodeGen_AArch64::CONSTMATCHER CCodeGen_AArch64::g_mdConstMatchers[] =
 	{ OP_MD_XOR,                MATCH_MEMORY128,      MATCH_MEMORY128,      MATCH_MEMORY128,     &CCodeGen_AArch64::Emit_Md_MemMemMem<MDOP_XOR>                   },
 	
 	{ OP_MD_NOT,                MATCH_MEMORY128,      MATCH_MEMORY128,      MATCH_NIL,           &CCodeGen_AArch64::Emit_Md_Not_MemMem                            },
+	
+	{ OP_MD_SLLH,               MATCH_MEMORY128,      MATCH_MEMORY128,      MATCH_CONSTANT,      &CCodeGen_AArch64::Emit_Md_Shift_MemMemCst<MDOP_SLLH>            },
+	{ OP_MD_SLLW,               MATCH_MEMORY128,      MATCH_MEMORY128,      MATCH_CONSTANT,      &CCodeGen_AArch64::Emit_Md_Shift_MemMemCst<MDOP_SLLW>            },
+
+	{ OP_MD_SRLH,               MATCH_MEMORY128,      MATCH_MEMORY128,      MATCH_CONSTANT,      &CCodeGen_AArch64::Emit_Md_Shift_MemMemCst<MDOP_SRLH>            },
+	{ OP_MD_SRLW,               MATCH_MEMORY128,      MATCH_MEMORY128,      MATCH_CONSTANT,      &CCodeGen_AArch64::Emit_Md_Shift_MemMemCst<MDOP_SRLW>            },
+
+	{ OP_MD_SRAH,               MATCH_MEMORY128,      MATCH_MEMORY128,      MATCH_CONSTANT,      &CCodeGen_AArch64::Emit_Md_Shift_MemMemCst<MDOP_SRAH>            },
+	{ OP_MD_SRAW,               MATCH_MEMORY128,      MATCH_MEMORY128,      MATCH_CONSTANT,      &CCodeGen_AArch64::Emit_Md_Shift_MemMemCst<MDOP_SRAW>            },
 	
 	{ OP_MD_ISNEGATIVE,         MATCH_VARIABLE,       MATCH_MEMORY128,      MATCH_NIL,           &CCodeGen_AArch64::Emit_Md_Test_VarMem<MDOP_CMPLTZS>             },
 	{ OP_MD_ISZERO,             MATCH_VARIABLE,       MATCH_MEMORY128,      MATCH_NIL,           &CCodeGen_AArch64::Emit_Md_Test_VarMem<MDOP_CMPEQZS>             },

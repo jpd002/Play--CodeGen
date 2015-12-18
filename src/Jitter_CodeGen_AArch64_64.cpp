@@ -2,6 +2,23 @@
 
 using namespace Jitter;
 
+uint32 CCodeGen_AArch64::GetMemory64Offset(CSymbol* symbol) const
+{
+	switch(symbol->m_type)
+	{
+	case SYM_RELATIVE64:
+		return symbol->m_valueLow;
+		break;
+	case SYM_TEMPORARY64:
+		return symbol->m_stackLocation;
+		break;
+	default:
+		assert(false);
+		return 0;
+		break;
+	}
+}
+
 void CCodeGen_AArch64::LoadMemory64InRegister(CAArch64Assembler::REGISTER64 registerId, CSymbol* src)
 {
 	switch(src->m_type)
@@ -121,6 +138,42 @@ void CCodeGen_AArch64::LoadSymbol64InRegister(CAArch64Assembler::REGISTER64 regi
 	}
 }
 
+void CCodeGen_AArch64::StoreRegistersInMemory64(CSymbol* symbol, CAArch64Assembler::REGISTER32 regLo, CAArch64Assembler::REGISTER32 regHi)
+{
+	if(GetMemory64Offset(symbol) < 0x100)
+	{
+		switch(symbol->m_type)
+		{
+		case SYM_RELATIVE64:
+			m_assembler.Stp(regLo, regHi, g_baseRegister, symbol->m_valueLow);
+			break;
+		case SYM_TEMPORARY64:
+			m_assembler.Stp(regLo, regHi, CAArch64Assembler::xSP, symbol->m_stackLocation);
+			break;
+		default:
+			assert(false);
+			break;
+		}
+	}
+	else
+	{
+		switch(symbol->m_type)
+		{
+		case SYM_RELATIVE64:
+			m_assembler.Str(regLo, g_baseRegister, symbol->m_valueLow + 0);
+			m_assembler.Str(regHi, g_baseRegister, symbol->m_valueLow + 4);
+			break;
+		case SYM_TEMPORARY64:
+			m_assembler.Str(regLo, CAArch64Assembler::xSP, symbol->m_stackLocation + 0);
+			m_assembler.Str(regHi, CAArch64Assembler::xSP, symbol->m_stackLocation + 4);
+			break;
+		default:
+			assert(false);
+			break;
+		}
+	}
+}
+
 void CCodeGen_AArch64::Emit_ExtLow64VarMem64(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
@@ -139,6 +192,18 @@ void CCodeGen_AArch64::Emit_ExtHigh64VarMem64(const STATEMENT& statement)
 	auto dstReg = PrepareSymbolRegisterDef(dst, GetNextTempRegister());
 	LoadMemory64HighInRegister(dstReg, src1);
 	CommitSymbolRegister(dst, dstReg);
+}
+
+void CCodeGen_AArch64::Emit_MergeTo64_Mem64AnyAny(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	auto regLo = PrepareSymbolRegisterUse(src1, GetNextTempRegister());
+	auto regHi = PrepareSymbolRegisterUse(src2, GetNextTempRegister());
+
+	StoreRegistersInMemory64(dst, regLo, regHi);
 }
 
 void CCodeGen_AArch64::Emit_Add64_MemMemMem(const STATEMENT& statement)
@@ -359,6 +424,8 @@ CCodeGen_AArch64::CONSTMATCHER CCodeGen_AArch64::g_64ConstMatchers[] =
 {
 	{ OP_EXTLOW64,       MATCH_VARIABLE,       MATCH_MEMORY64,       MATCH_NIL,           &CCodeGen_AArch64::Emit_ExtLow64VarMem64                    },
 	{ OP_EXTHIGH64,      MATCH_VARIABLE,       MATCH_MEMORY64,       MATCH_NIL,           &CCodeGen_AArch64::Emit_ExtHigh64VarMem64                   },
+
+	{ OP_MERGETO64,      MATCH_MEMORY64,       MATCH_ANY,            MATCH_ANY,           &CCodeGen_AArch64::Emit_MergeTo64_Mem64AnyAny               },
 
 	{ OP_ADD64,          MATCH_MEMORY64,       MATCH_MEMORY64,       MATCH_MEMORY64,      &CCodeGen_AArch64::Emit_Add64_MemMemMem                     },
 	{ OP_ADD64,          MATCH_MEMORY64,       MATCH_MEMORY64,       MATCH_CONSTANT64,    &CCodeGen_AArch64::Emit_Add64_MemMemCst                     },

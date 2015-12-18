@@ -80,6 +80,8 @@ namespace Jitter
 		CAArch64Assembler::REGISTER64    GetNextTempRegister64();
 		CAArch64Assembler::REGISTERMD    GetNextTempRegisterMd();
 		
+		uint32    GetMemory64Offset(CSymbol*) const;
+
 		void    LoadMemoryInRegister(CAArch64Assembler::REGISTER32, CSymbol*);
 		void    StoreRegisterInMemory(CSymbol*, CAArch64Assembler::REGISTER32);
 		
@@ -94,6 +96,8 @@ namespace Jitter
 		
 		void    LoadSymbol64InRegister(CAArch64Assembler::REGISTER64, CSymbol*);
 
+		void    StoreRegistersInMemory64(CSymbol*, CAArch64Assembler::REGISTER32, CAArch64Assembler::REGISTER32);
+		
 		void    LoadMemoryReferenceInRegister(CAArch64Assembler::REGISTER64, CSymbol*);
 		void    StoreRegisterInTemporaryReference(CSymbol*, CAArch64Assembler::REGISTER64);
 		
@@ -516,6 +520,7 @@ namespace Jitter
 		
 		void    Emit_ExtLow64VarMem64(const STATEMENT&);
 		void    Emit_ExtHigh64VarMem64(const STATEMENT&);
+		void    Emit_MergeTo64_Mem64AnyAny(const STATEMENT&);
 		
 		void    Emit_RelToRef_TmpCst(const STATEMENT&);
 		void    Emit_AddRef_TmpMemAny(const STATEMENT&);

@@ -841,6 +841,19 @@ void CAArch64Assembler::St1_4s(REGISTERMD rt, REGISTER64 rn)
 	WriteWord(opcode);
 }
 
+void CAArch64Assembler::Stp(REGISTER32 rt, REGISTER32 rt2, REGISTER64 rn, int32 offset)
+{
+	assert((offset & 0x03) == 0);
+	int32 scaledOffset = offset / 4;
+	assert(scaledOffset >= -64 && scaledOffset <= 63);
+	uint32 opcode = 0x29000000;
+	opcode |= (rt  <<  0);
+	opcode |= (rn  <<  5);
+	opcode |= (rt2 << 10);
+	opcode |= ((scaledOffset & 0x7F) << 15);
+	WriteWord(opcode);
+}
+
 void CAArch64Assembler::Stp_PreIdx(REGISTER64 rt, REGISTER64 rt2, REGISTER64 rn, int32 offset)
 {
 	assert((offset & 0x07) == 0);

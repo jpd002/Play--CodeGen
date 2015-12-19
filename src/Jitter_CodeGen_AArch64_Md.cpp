@@ -188,6 +188,34 @@ void CCodeGen_AArch64::Emit_Md_Not_MemMem(const STATEMENT& statement)
 	StoreRegisterInMemory128(dst, tmpReg);
 }
 
+void CCodeGen_AArch64::Emit_Md_LoadFromRef_MemMem(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+
+	auto src1AddrReg = GetNextTempRegister64();
+	auto dstReg = GetNextTempRegisterMd();
+
+	LoadMemoryReferenceInRegister(src1AddrReg, src1);
+
+	m_assembler.Ldr_1q(dstReg, src1AddrReg, 0);
+	StoreRegisterInMemory128(dst, dstReg);
+}
+
+void CCodeGen_AArch64::Emit_Md_StoreAtRef_MemMem(const STATEMENT& statement)
+{
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	auto src1AddrReg = GetNextTempRegister64();
+	auto src2Reg = GetNextTempRegisterMd();
+
+	LoadMemoryReferenceInRegister(src1AddrReg, src1);
+	LoadMemory128InRegister(src2Reg, src2);
+	
+	m_assembler.Str_1q(src2Reg, src1AddrReg, 0);
+}
+
 void CCodeGen_AArch64::Emit_Md_MovMasked_MemMemMem(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
@@ -309,6 +337,9 @@ CCodeGen_AArch64::CONSTMATCHER CCodeGen_AArch64::g_mdConstMatchers[] =
 	
 	{ OP_MD_TOSINGLE,           MATCH_MEMORY128,      MATCH_MEMORY128,      MATCH_NIL,           &CCodeGen_AArch64::Emit_Md_MemMem<MDOP_TOSINGLE>                 },
 	{ OP_MD_TOWORD_TRUNCATE,    MATCH_MEMORY128,      MATCH_MEMORY128,      MATCH_NIL,           &CCodeGen_AArch64::Emit_Md_MemMem<MDOP_TOWORD>                   },
+
+	{ OP_LOADFROMREF,           MATCH_MEMORY128,      MATCH_MEM_REF,        MATCH_NIL,           &CCodeGen_AArch64::Emit_Md_LoadFromRef_MemMem                    },
+	{ OP_STOREATREF,            MATCH_NIL,            MATCH_MEM_REF,        MATCH_MEMORY128,     &CCodeGen_AArch64::Emit_Md_StoreAtRef_MemMem                     },
 
 	{ OP_MD_MOV_MASKED,         MATCH_MEMORY128,      MATCH_MEMORY128,      MATCH_MEMORY128,     &CCodeGen_AArch64::Emit_Md_MovMasked_MemMemMem                   },
 

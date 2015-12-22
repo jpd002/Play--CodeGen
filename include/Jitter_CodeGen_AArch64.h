@@ -111,6 +111,8 @@ namespace Jitter
 		void    LoadRelative128AddressInRegister(CAArch64Assembler::REGISTER64, CSymbol*, uint32);
 		void    LoadTemporary128AddressInRegister(CAArch64Assembler::REGISTER64, CSymbol*, uint32);
 		
+		void    LoadTemporary256ElementAddressInRegister(CAArch64Assembler::REGISTER64, CSymbol*, uint32);
+
 		CAArch64Assembler::REGISTER32    PrepareSymbolRegisterDef(CSymbol*, CAArch64Assembler::REGISTER32);
 		CAArch64Assembler::REGISTER32    PrepareSymbolRegisterUse(CSymbol*, CAArch64Assembler::REGISTER32);
 		void                             CommitSymbolRegister(CSymbol*, CAArch64Assembler::REGISTER32);
@@ -612,6 +614,10 @@ namespace Jitter
 		void    Emit_Md_Expand_MemReg(const STATEMENT&);
 		void    Emit_Md_Expand_MemMem(const STATEMENT&);
 		void    Emit_Md_Expand_MemCst(const STATEMENT&);
+		
+		void    Emit_MergeTo256_MemMemMem(const STATEMENT&);
+		void    Emit_Md_Srl256_MemMemVar(const STATEMENT&);
+		void    Emit_Md_Srl256_MemMemCst(const STATEMENT&);
 		
 		static CONSTMATCHER    g_constMatchers[];
 		static CONSTMATCHER    g_64ConstMatchers[];

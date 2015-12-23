@@ -169,14 +169,21 @@ void CCodeGen_AArch64::Emit_Logic_VarVarCst(const STATEMENT& statement)
 	
 	assert(src2->m_type == SYM_CONSTANT);
 	assert(src2->m_valueLow != 0);
-	
-	//TODO: Check if constant can be encoded in immediate fields
-	//or encoded using a single constant load and + shift (using shift reg ops)
-	
+
 	auto dstReg = PrepareSymbolRegisterDef(dst, GetNextTempRegister());
 	auto src1Reg = PrepareSymbolRegisterUse(src1, GetNextTempRegister());
-	auto src2Reg = PrepareSymbolRegisterUse(src2, GetNextTempRegister());
-	((m_assembler).*(LogicOp::OpReg()))(dstReg, src1Reg, src2Reg);
+	
+	LOGICAL_IMM_PARAMS logicalImmParams;
+	if(TryGetLogicalImmParams(src2->m_valueLow, logicalImmParams))
+	{
+		((m_assembler).*(LogicOp::OpImm()))(dstReg, src1Reg,
+			logicalImmParams.n, logicalImmParams.immr, logicalImmParams.imms);
+	}
+	else
+	{
+		auto src2Reg = PrepareSymbolRegisterUse(src2, GetNextTempRegister());
+		((m_assembler).*(LogicOp::OpReg()))(dstReg, src1Reg, src2Reg);
+	}
 	CommitSymbolRegister(dst, dstReg);
 }
 

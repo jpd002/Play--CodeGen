@@ -303,6 +303,11 @@ void CAArch64Assembler::Eor(REGISTER32 rd, REGISTER32 rn, REGISTER32 rm)
 	WriteWord(opcode);
 }
 
+void CAArch64Assembler::Eor(REGISTER32 rd, REGISTER32 rn, uint8 n, uint8 immr, uint8 imms)
+{
+	WriteLogicalOpImm(0x52000000, n, immr, imms, rn, rd);
+}
+
 void CAArch64Assembler::Eor_16b(REGISTERMD rd, REGISTERMD rn, REGISTERMD rm)
 {
 	uint32 opcode = 0x6E201C00;
@@ -704,6 +709,11 @@ void CAArch64Assembler::Orr(REGISTER32 rd, REGISTER32 rn, REGISTER32 rm)
 	opcode |= (rn <<  5);
 	opcode |= (rm << 16);
 	WriteWord(opcode);
+}
+
+void CAArch64Assembler::Orr(REGISTER32 rd, REGISTER32 rn, uint8 n, uint8 immr, uint8 imms)
+{
+	WriteLogicalOpImm(0x32000000, n, immr, imms, rn, rd);
 }
 
 void CAArch64Assembler::Orr_16b(REGISTERMD rd, REGISTERMD rn, REGISTERMD rm)

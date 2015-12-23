@@ -420,6 +420,12 @@ CCodeGen_AArch64::CONSTMATCHER CCodeGen_AArch64::g_mdConstMatchers[] =
 
 	{ OP_MD_CMPGT_H,            MATCH_MEMORY128,      MATCH_MEMORY128,      MATCH_MEMORY128,      &CCodeGen_AArch64::Emit_Md_MemMemMem<MDOP_CMPGTH>                },
 
+	{ OP_MD_MIN_H,              MATCH_MEMORY128,      MATCH_MEMORY128,      MATCH_MEMORY128,      &CCodeGen_AArch64::Emit_Md_MemMemMem<MDOP_MINH>                  },
+	{ OP_MD_MIN_W,              MATCH_MEMORY128,      MATCH_MEMORY128,      MATCH_MEMORY128,      &CCodeGen_AArch64::Emit_Md_MemMemMem<MDOP_MINW>                  },
+
+	{ OP_MD_MAX_H,              MATCH_MEMORY128,      MATCH_MEMORY128,      MATCH_MEMORY128,      &CCodeGen_AArch64::Emit_Md_MemMemMem<MDOP_MAXH>                  },
+	{ OP_MD_MAX_W,              MATCH_MEMORY128,      MATCH_MEMORY128,      MATCH_MEMORY128,      &CCodeGen_AArch64::Emit_Md_MemMemMem<MDOP_MAXW>                  },
+
 	{ OP_MD_ADD_S,              MATCH_MEMORY128,      MATCH_MEMORY128,      MATCH_MEMORY128,      &CCodeGen_AArch64::Emit_Md_MemMemMem<MDOP_ADDS>                  },
 	{ OP_MD_SUB_S,              MATCH_MEMORY128,      MATCH_MEMORY128,      MATCH_MEMORY128,      &CCodeGen_AArch64::Emit_Md_MemMemMem<MDOP_SUBS>                  },
 	{ OP_MD_MUL_S,              MATCH_MEMORY128,      MATCH_MEMORY128,      MATCH_MEMORY128,      &CCodeGen_AArch64::Emit_Md_MemMemMem<MDOP_MULS>                  },

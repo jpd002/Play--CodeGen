@@ -291,6 +291,40 @@ void CCodeGen_AArch64::Emit_Md_Expand_MemCst(const STATEMENT& statement)
 	StoreRegisterInMemory128(dst, tmpReg);
 }
 
+void CCodeGen_AArch64::Emit_Md_PackHB_MemMemMem(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	auto dstReg = GetNextTempRegisterMd();
+	auto src1Reg = GetNextTempRegisterMd();
+	auto src2Reg = GetNextTempRegisterMd();
+	
+	LoadMemory128InRegister(src1Reg, src1);
+	LoadMemory128InRegister(src2Reg, src2);
+	m_assembler.Xtn1_8b(dstReg, src2Reg);
+	m_assembler.Xtn2_16b(dstReg, src1Reg);
+	StoreRegisterInMemory128(dst, dstReg);
+}
+
+void CCodeGen_AArch64::Emit_Md_PackWH_MemMemMem(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	auto dstReg = GetNextTempRegisterMd();
+	auto src1Reg = GetNextTempRegisterMd();
+	auto src2Reg = GetNextTempRegisterMd();
+
+	LoadMemory128InRegister(src1Reg, src1);
+	LoadMemory128InRegister(src2Reg, src2);
+	m_assembler.Xtn1_4h(dstReg, src2Reg);
+	m_assembler.Xtn2_8h(dstReg, src1Reg);
+	StoreRegisterInMemory128(dst, dstReg);
+}
+
 void CCodeGen_AArch64::Emit_MergeTo256_MemMemMem(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
@@ -427,6 +461,9 @@ CCodeGen_AArch64::CONSTMATCHER CCodeGen_AArch64::g_mdConstMatchers[] =
 	{ OP_MD_EXPAND,             MATCH_MEMORY128,      MATCH_REGISTER,       MATCH_NIL,            &CCodeGen_AArch64::Emit_Md_Expand_MemReg                         },
 	{ OP_MD_EXPAND,             MATCH_MEMORY128,      MATCH_MEMORY,         MATCH_NIL,            &CCodeGen_AArch64::Emit_Md_Expand_MemMem                         },
 	{ OP_MD_EXPAND,             MATCH_MEMORY128,      MATCH_CONSTANT,       MATCH_NIL,            &CCodeGen_AArch64::Emit_Md_Expand_MemCst                         },
+
+	{ OP_MD_PACK_HB,            MATCH_MEMORY128,      MATCH_MEMORY128,      MATCH_MEMORY128,      &CCodeGen_AArch64::Emit_Md_PackHB_MemMemMem                      },
+	{ OP_MD_PACK_WH,            MATCH_MEMORY128,      MATCH_MEMORY128,      MATCH_MEMORY128,      &CCodeGen_AArch64::Emit_Md_PackWH_MemMemMem                      },
 
 	{ OP_MD_UNPACK_LOWER_BH,    MATCH_MEMORY128,      MATCH_MEMORY128,      MATCH_MEMORY128,      &CCodeGen_AArch64::Emit_Md_MemMemMemRev<MDOP_UNPACK_LOWER_BH>    },
 	{ OP_MD_UNPACK_LOWER_HW,    MATCH_MEMORY128,      MATCH_MEMORY128,      MATCH_MEMORY128,      &CCodeGen_AArch64::Emit_Md_MemMemMemRev<MDOP_UNPACK_LOWER_HW>    },

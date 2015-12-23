@@ -1049,6 +1049,38 @@ void CAArch64Assembler::Ushr_8h(REGISTERMD rd, REGISTERMD rn, uint8 sa)
 	WriteWord(opcode);
 }
 
+void CAArch64Assembler::Xtn1_4h(REGISTERMD rd, REGISTERMD rn)
+{
+	uint32 opcode = 0x0E612800;
+	opcode |= (rd << 0);
+	opcode |= (rn << 5);
+	WriteWord(opcode);
+}
+
+void CAArch64Assembler::Xtn1_8b(REGISTERMD rd, REGISTERMD rn)
+{
+	uint32 opcode = 0x0E212800;
+	opcode |= (rd << 0);
+	opcode |= (rn << 5);
+	WriteWord(opcode);
+}
+
+void CAArch64Assembler::Xtn2_8h(REGISTERMD rd, REGISTERMD rn)
+{
+	uint32 opcode = 0x4E612800;
+	opcode |= (rd << 0);
+	opcode |= (rn << 5);
+	WriteWord(opcode);
+}
+
+void CAArch64Assembler::Xtn2_16b(REGISTERMD rd, REGISTERMD rn)
+{
+	uint32 opcode = 0x4E212800;
+	opcode |= (rd << 0);
+	opcode |= (rn << 5);
+	WriteWord(opcode);
+}
+
 void CAArch64Assembler::Zip1_4s(REGISTERMD rd, REGISTERMD rn, REGISTERMD rm)
 {
 	uint32 opcode = 0x4E803800;

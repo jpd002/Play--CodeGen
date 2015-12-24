@@ -21,6 +21,9 @@ LOCAL_SRC_FILES		:=	../../src/AArch32Assembler.cpp \
 						../../src/Jitter_CodeGen_AArch32_Fpu.cpp \
 						../../src/Jitter_CodeGen_AArch32_Md.cpp \
 						../../src/Jitter_CodeGen_AArch64.cpp \
+						../../src/Jitter_CodeGen_AArch64_64.cpp \
+						../../src/Jitter_CodeGen_AArch64_Fpu.cpp \
+						../../src/Jitter_CodeGen_AArch64_Md.cpp \
 						../../src/Jitter_CodeGen_x86.cpp \
 						../../src/Jitter_CodeGen_x86_32.cpp \
 						../../src/Jitter_CodeGen_x86_64.cpp \

@@ -54,7 +54,7 @@ CMemoryFunction::CMemoryFunction(const void* code, size_t size)
 	m_code = mmap(nullptr, size, PROT_WRITE | PROT_EXEC, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	assert(m_code != MAP_FAILED);
 	memcpy(m_code, code, size);
-#ifdef __arm__
+#if defined(__arm__) || defined(__aarch64__)
 	__clear_cache(m_code, reinterpret_cast<uint8*>(m_code) + size);
 #endif
 #endif

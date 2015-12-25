@@ -377,7 +377,7 @@ void CAArch64Assembler::Fcmp_1s(REGISTERMD rn, REGISTERMD rm)
 
 void CAArch64Assembler::Fcvtzs_1s(REGISTERMD rd, REGISTERMD rn)
 {
-	uint32 opcode = 0x7EA1B800;
+	uint32 opcode = 0x5EA1B800;
 	opcode |= (rd <<  0);
 	opcode |= (rn <<  5);
 	WriteWord(opcode);

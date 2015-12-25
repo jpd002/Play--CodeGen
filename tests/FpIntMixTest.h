@@ -18,7 +18,9 @@ private:
 		uint32 multiplier;
 		float number1;
 		float number2;
-		uint32 result;
+		float number3;
+		uint32 result1;
+		uint32 result2;
 	};
 
 	CONTEXT				m_context;

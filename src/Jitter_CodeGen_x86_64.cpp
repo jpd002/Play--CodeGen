@@ -93,7 +93,16 @@ void CCodeGen_x86_64::Emit_Alu64_MemMemCst(const STATEMENT& statement)
 	uint64 constant = CombineConstant64(src2->m_valueLow, src2->m_valueHigh);
 
 	m_assembler.MovEq(tmpReg, MakeMemory64SymbolAddress(src1));
-	((m_assembler).*(ALUOP::OpIq()))(CX86Assembler::MakeRegisterAddress(tmpReg), constant);
+	if(CX86Assembler::GetMinimumConstantSize64(constant) >= 4)
+	{
+		auto cstReg = CX86Assembler::rCX;
+		m_assembler.MovIq(cstReg, constant);
+		((m_assembler).*(ALUOP::OpEq()))(tmpReg, CX86Assembler::MakeRegisterAddress(cstReg));
+	}
+	else
+	{
+		((m_assembler).*(ALUOP::OpIq()))(CX86Assembler::MakeRegisterAddress(tmpReg), constant);
+	}
 	m_assembler.MovGq(MakeMemory64SymbolAddress(dst), tmpReg);
 }
 

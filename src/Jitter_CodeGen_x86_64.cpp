@@ -627,8 +627,8 @@ void CCodeGen_x86_64::Cmp64_RelRel(CX86Assembler::REGISTER dstReg, const STATEME
 	m_assembler.MovEq(tmpReg, MakeRelative64SymbolAddress(src1));
 	m_assembler.CmpEq(tmpReg, MakeRelative64SymbolAddress(src2));
 
-	Cmp_GetFlag(CX86Assembler::MakeRegisterAddress(tmpReg), statement.jmpCondition);
-	m_assembler.MovzxEb(dstReg, CX86Assembler::MakeRegisterAddress(tmpReg));
+	Cmp_GetFlag(CX86Assembler::MakeByteRegisterAddress(tmpReg), statement.jmpCondition);
+	m_assembler.MovzxEb(dstReg, CX86Assembler::MakeByteRegisterAddress(tmpReg));
 }
 
 void CCodeGen_x86_64::Cmp64_RelCst(CX86Assembler::REGISTER dstReg, const STATEMENT& statement)
@@ -660,8 +660,8 @@ void CCodeGen_x86_64::Cmp64_RelCst(CX86Assembler::REGISTER dstReg, const STATEME
 		m_assembler.CmpIq(CX86Assembler::MakeRegisterAddress(tmpReg), constant);
 	}
 
-	Cmp_GetFlag(CX86Assembler::MakeRegisterAddress(tmpReg), statement.jmpCondition);
-	m_assembler.MovzxEb(dstReg, CX86Assembler::MakeRegisterAddress(tmpReg));
+	Cmp_GetFlag(CX86Assembler::MakeByteRegisterAddress(tmpReg), statement.jmpCondition);
+	m_assembler.MovzxEb(dstReg, CX86Assembler::MakeByteRegisterAddress(tmpReg));
 }
 
 void CCodeGen_x86_64::Emit_Cmp64_RegRelRel(const STATEMENT& statement)

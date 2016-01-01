@@ -30,6 +30,7 @@
 #include "CompareTest.h"
 #include "RegAllocTest.h"
 #include "MemAccessTest.h"
+#include "MemAccessRefTest.h"
 #include "HugeJumpTest.h"
 #include "Alu64Test.h"
 #include "ConditionTest.h"
@@ -74,6 +75,7 @@ static const TestFactoryFunction s_factories[] =
 	[] () { return new CDivTest(true); },
 	[] () { return new CDivTest(false); },
 	[] () { return new CMemAccessTest(); },
+	[] () { return new CMemAccessRefTest(); },
 	[] () { return new CHugeJumpTest(); },
 	[] () { return new CNestedIfTest(); },
 	[] () { return new CLzcTest(); },

@@ -139,6 +139,9 @@
     <ClCompile Include="..\tests\MemAccess64Test.cpp">
       <Filter>Source Files\Tests\64bits</Filter>
     </ClCompile>
+    <ClCompile Include="..\tests\MemAccessRefTest.cpp">
+      <Filter>Source Files\Tests</Filter>
+    </ClCompile>
     <ClCompile Include="..\tests\ConditionTest.cpp">
       <Filter>Source Files\Tests</Filter>
     </ClCompile>
@@ -269,6 +272,9 @@
     </ClInclude>
     <ClInclude Include="..\tests\MemAccess64Test.h">
       <Filter>Source Files\Tests\64bits</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tests\MemAccessRefTest.h">
+      <Filter>Source Files\Tests</Filter>
     </ClInclude>
     <ClInclude Include="..\tests\ConditionTest.h">
       <Filter>Source Files\Tests</Filter>

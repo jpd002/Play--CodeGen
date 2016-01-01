@@ -104,7 +104,9 @@ namespace Jitter
 
 		void							AddRef();
 		void							LoadFromRef();
+		void							Load64FromRef();
 		void							StoreAtRef();
+		void							Store64AtRef();
 
 		//64-bits
 		virtual void					PushRel64(size_t);

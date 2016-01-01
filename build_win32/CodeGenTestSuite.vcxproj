@@ -182,6 +182,7 @@
     <ClCompile Include="..\tests\MdSubTest.cpp" />
     <ClCompile Include="..\tests\MdTest.cpp" />
     <ClCompile Include="..\tests\MdUnpackTest.cpp" />
+    <ClCompile Include="..\tests\MemAccess64Test.cpp" />
     <ClCompile Include="..\tests\MemAccessTest.cpp" />
     <ClCompile Include="..\tests\Merge64Test.cpp" />
     <ClCompile Include="..\tests\MultTest.cpp" />
@@ -225,6 +226,7 @@
     <ClInclude Include="..\tests\MdSubTest.h" />
     <ClInclude Include="..\tests\MdTest.h" />
     <ClInclude Include="..\tests\MdUnpackTest.h" />
+    <ClInclude Include="..\tests\MemAccess64Test.h" />
     <ClInclude Include="..\tests\MemAccessTest.h" />
     <ClInclude Include="..\tests\Merge64Test.h" />
     <ClInclude Include="..\tests\MultTest.h" />

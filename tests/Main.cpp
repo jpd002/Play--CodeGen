@@ -38,6 +38,7 @@
 #include "Logic64Test.h"
 #include "Call64Test.h"
 #include "Merge64Test.h"
+#include "MemAccess64Test.h"
 #include "LzcTest.h"
 #include "NestedIfTest.h"
 #include "ExternJumpTest.h"
@@ -148,6 +149,7 @@ static const TestFactoryFunction s_factories[] =
 	[] () { return new CShift64Test(64); },
 	[] () { return new CShift64Test(76); },
 	[] () { return new CMerge64Test(); },
+	[] () { return new CMemAccess64Test(); },
 	[] () { return new CCall64Test(); },
 	[] () { return new CExternJumpTest(); }
 };

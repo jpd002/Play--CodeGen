@@ -33,6 +33,7 @@ namespace Jitter
 
 		OP_RELTOREF,
 		OP_ADDREF,
+		OP_ISREFNULL,
 		OP_LOADFROMREF,
 		OP_STOREATREF,
 

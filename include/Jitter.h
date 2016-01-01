@@ -103,8 +103,10 @@ namespace Jitter
 		void							PushRelAddrRef(size_t);
 
 		void							AddRef();
+		void							IsRefNull();
 		void							LoadFromRef();
 		void							Load64FromRef();
+		void							LoadRefFromRef();
 		void							StoreAtRef();
 		void							Store64AtRef();
 

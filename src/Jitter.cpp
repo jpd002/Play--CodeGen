@@ -569,6 +569,19 @@ void CJitter::AddRef()
 	m_shadow.Push(tempSym);
 }
 
+void CJitter::IsRefNull()
+{
+	auto tempSym = MakeSymbol(SYM_TEMPORARY, m_nextTemporary++);
+
+	STATEMENT statement;
+	statement.op      = OP_ISREFNULL;
+	statement.src1    = MakeSymbolRef(m_shadow.Pull());
+	statement.dst     = MakeSymbolRef(tempSym);
+	InsertStatement(statement);
+
+	m_shadow.Push(tempSym);
+}
+
 void CJitter::LoadFromRef()
 {
 	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY, m_nextTemporary++);
@@ -585,6 +598,19 @@ void CJitter::LoadFromRef()
 void CJitter::Load64FromRef()
 {
 	auto tempSym = MakeSymbol(SYM_TEMPORARY64, m_nextTemporary++);
+
+	STATEMENT statement;
+	statement.op    = OP_LOADFROMREF;
+	statement.src1  = MakeSymbolRef(m_shadow.Pull());
+	statement.dst   = MakeSymbolRef(tempSym);
+	InsertStatement(statement);
+
+	m_shadow.Push(tempSym);
+}
+
+void CJitter::LoadRefFromRef()
+{
+	auto tempSym = MakeSymbol(SYM_TMP_REFERENCE, m_nextTemporary++);
 
 	STATEMENT statement;
 	statement.op    = OP_LOADFROMREF;

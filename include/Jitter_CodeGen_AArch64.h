@@ -533,8 +533,12 @@ namespace Jitter
 		
 		void    Emit_Nop(const STATEMENT&);
 		
-		void    Emit_Mov_MemAny(const STATEMENT&);
-		void    Emit_Mov_VarAny(const STATEMENT&);
+		void    Emit_Mov_RegReg(const STATEMENT&);
+		void    Emit_Mov_RegMem(const STATEMENT&);
+		void    Emit_Mov_RegCst(const STATEMENT&);
+		void    Emit_Mov_MemReg(const STATEMENT&);
+		void    Emit_Mov_MemMem(const STATEMENT&);
+		void    Emit_Mov_MemCst(const STATEMENT&);
 		
 		void    Emit_Not_VarVar(const STATEMENT&);
 		void    Emit_Lzc_VarVar(const STATEMENT&);

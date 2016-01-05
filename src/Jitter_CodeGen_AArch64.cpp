@@ -250,8 +250,12 @@ CCodeGen_AArch64::CONSTMATCHER CCodeGen_AArch64::g_constMatchers[] =
 {
 	{ OP_NOP,            MATCH_NIL,            MATCH_NIL,            MATCH_NIL,           &CCodeGen_AArch64::Emit_Nop                                 },
 
-	{ OP_MOV,            MATCH_MEMORY,         MATCH_ANY,            MATCH_NIL,           &CCodeGen_AArch64::Emit_Mov_MemAny                          },
-	{ OP_MOV,            MATCH_VARIABLE,       MATCH_ANY,            MATCH_NIL,           &CCodeGen_AArch64::Emit_Mov_VarAny                          },
+	{ OP_MOV,            MATCH_REGISTER,       MATCH_REGISTER,       MATCH_NIL,           &CCodeGen_AArch64::Emit_Mov_RegReg                          },
+	{ OP_MOV,            MATCH_REGISTER,       MATCH_MEMORY,         MATCH_NIL,           &CCodeGen_AArch64::Emit_Mov_RegMem                          },
+	{ OP_MOV,            MATCH_REGISTER,       MATCH_CONSTANT,       MATCH_NIL,           &CCodeGen_AArch64::Emit_Mov_RegCst                          },
+	{ OP_MOV,            MATCH_MEMORY,         MATCH_REGISTER,       MATCH_NIL,           &CCodeGen_AArch64::Emit_Mov_MemReg                          },
+	{ OP_MOV,            MATCH_MEMORY,         MATCH_MEMORY,         MATCH_NIL,           &CCodeGen_AArch64::Emit_Mov_MemMem                          },
+	{ OP_MOV,            MATCH_MEMORY,         MATCH_CONSTANT,       MATCH_NIL,           &CCodeGen_AArch64::Emit_Mov_MemCst                          },
 
 	{ OP_NOT,            MATCH_VARIABLE,       MATCH_VARIABLE,       MATCH_NIL,           &CCodeGen_AArch64::Emit_Not_VarVar                          },
 	{ OP_LZC,            MATCH_VARIABLE,       MATCH_VARIABLE,       MATCH_NIL,           &CCodeGen_AArch64::Emit_Lzc_VarVar                          },
@@ -808,24 +812,63 @@ void CCodeGen_AArch64::Emit_Nop(const STATEMENT&)
 
 }
 
-void CCodeGen_AArch64::Emit_Mov_MemAny(const STATEMENT& statement)
+void CCodeGen_AArch64::Emit_Mov_RegReg(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
 
-	auto src1Reg = PrepareSymbolRegisterUse(src1, GetNextTempRegister());
-	StoreRegisterInMemory(dst, src1Reg);
+	m_assembler.Mov(g_registers[dst->m_valueLow], g_registers[src1->m_valueLow]);
 }
 
-void CCodeGen_AArch64::Emit_Mov_VarAny(const STATEMENT& statement)
+void CCodeGen_AArch64::Emit_Mov_RegMem(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
 
-	auto dstReg = PrepareSymbolRegisterDef(dst, GetNextTempRegister());
-	auto src1Reg = PrepareSymbolRegisterUse(src1, GetNextTempRegister());
-	m_assembler.Mov(dstReg, src1Reg);
-	CommitSymbolRegister(dst, dstReg);
+	LoadMemoryInRegister(g_registers[dst->m_valueLow], src1);
+}
+
+void CCodeGen_AArch64::Emit_Mov_RegCst(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+
+	assert(dst->m_type  == SYM_REGISTER);
+	assert(src1->m_type == SYM_CONSTANT);
+
+	LoadConstantInRegister(g_registers[dst->m_valueLow], src1->m_valueLow);
+}
+
+void CCodeGen_AArch64::Emit_Mov_MemReg(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+
+	assert(src1->m_type == SYM_REGISTER);
+
+	StoreRegisterInMemory(dst, g_registers[src1->m_valueLow]);
+}
+
+void CCodeGen_AArch64::Emit_Mov_MemMem(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	
+	auto tmpReg = GetNextTempRegister();
+	LoadMemoryInRegister(tmpReg, src1);
+	StoreRegisterInMemory(dst, tmpReg);
+}
+
+void CCodeGen_AArch64::Emit_Mov_MemCst(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	
+	assert(src1->m_type == SYM_CONSTANT);
+	
+	auto tmpReg = GetNextTempRegister();
+	LoadConstantInRegister(tmpReg, src1->m_valueLow);
+	StoreRegisterInMemory(dst, tmpReg);
 }
 
 void CCodeGen_AArch64::Emit_Not_VarVar(const STATEMENT& statement)

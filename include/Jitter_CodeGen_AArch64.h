@@ -52,6 +52,11 @@ namespace Jitter
 			MAX_REGISTERS = 9,
 		};
 
+		enum
+		{
+			MAX_MDREGISTERS = 28,
+		};
+		
 		enum MAX_PARAM_REGS
 		{
 			MAX_PARAM_REGS = 8,
@@ -64,7 +69,7 @@ namespace Jitter
 
 		enum MAX_TEMP_MD_REGS
 		{
-			MAX_TEMP_MD_REGS = 32,
+			MAX_TEMP_MD_REGS = 4,
 		};
 		
 		struct CONSTMATCHER
@@ -654,8 +659,10 @@ namespace Jitter
 		static CONSTMATCHER    g_mdConstMatchers[];
 		
 		static CAArch64Assembler::REGISTER32    g_registers[MAX_REGISTERS];
+		static CAArch64Assembler::REGISTERMD    g_registersMd[MAX_MDREGISTERS];
 		static CAArch64Assembler::REGISTER32    g_tempRegisters[MAX_TEMP_REGS];
 		static CAArch64Assembler::REGISTER64    g_tempRegisters64[MAX_TEMP_REGS];
+		static CAArch64Assembler::REGISTERMD    g_tempRegistersMd[MAX_TEMP_MD_REGS];
 		static CAArch64Assembler::REGISTER32    g_paramRegisters[MAX_PARAM_REGS];
 		static CAArch64Assembler::REGISTER64    g_paramRegisters64[MAX_PARAM_REGS];
 		static CAArch64Assembler::REGISTER64    g_baseRegister;

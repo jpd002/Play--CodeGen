@@ -16,6 +16,16 @@ CAArch64Assembler::REGISTER32    CCodeGen_AArch64::g_registers[MAX_REGISTERS] =
 	CAArch64Assembler::w28,
 };
 
+CAArch64Assembler::REGISTERMD    CCodeGen_AArch64::g_registersMd[MAX_MDREGISTERS] =
+{
+	CAArch64Assembler::v4,  CAArch64Assembler::v5,  CAArch64Assembler::v6,  CAArch64Assembler::v7,
+	CAArch64Assembler::v8,  CAArch64Assembler::v9,  CAArch64Assembler::v10, CAArch64Assembler::v11,
+	CAArch64Assembler::v12, CAArch64Assembler::v13, CAArch64Assembler::v14, CAArch64Assembler::v15,
+	CAArch64Assembler::v16, CAArch64Assembler::v17, CAArch64Assembler::v18, CAArch64Assembler::v19,
+	CAArch64Assembler::v20, CAArch64Assembler::v21, CAArch64Assembler::v22, CAArch64Assembler::v23,
+	CAArch64Assembler::v24, CAArch64Assembler::v25, CAArch64Assembler::v26, CAArch64Assembler::v27,
+};
+
 CAArch64Assembler::REGISTER32    CCodeGen_AArch64::g_tempRegisters[MAX_TEMP_REGS] =
 {
 	CAArch64Assembler::w9,
@@ -36,6 +46,14 @@ CAArch64Assembler::REGISTER64    CCodeGen_AArch64::g_tempRegisters64[MAX_TEMP_RE
 	CAArch64Assembler::x13,
 	CAArch64Assembler::x14,
 	CAArch64Assembler::x15
+};
+
+CAArch64Assembler::REGISTERMD    CCodeGen_AArch64::g_tempRegistersMd[MAX_TEMP_MD_REGS] =
+{
+	CAArch64Assembler::v0,
+	CAArch64Assembler::v1,
+	CAArch64Assembler::v2,
+	CAArch64Assembler::v3,
 };
 
 CAArch64Assembler::REGISTER32    CCodeGen_AArch64::g_paramRegisters[MAX_PARAM_REGS] =
@@ -359,7 +377,7 @@ unsigned int CCodeGen_AArch64::GetAvailableRegisterCount() const
 
 unsigned int CCodeGen_AArch64::GetAvailableMdRegisterCount() const
 {
-	return 0;
+	return MAX_MDREGISTERS;
 }
 
 bool CCodeGen_AArch64::CanHold128BitsReturnValueInRegisters() const
@@ -437,7 +455,7 @@ CAArch64Assembler::REGISTER64 CCodeGen_AArch64::GetNextTempRegister64()
 
 CAArch64Assembler::REGISTERMD CCodeGen_AArch64::GetNextTempRegisterMd()
 {
-	auto result = static_cast<CAArch64Assembler::REGISTERMD>(m_nextTempRegisterMd);
+	auto result = g_tempRegistersMd[m_nextTempRegisterMd];
 	m_nextTempRegisterMd++;
 	m_nextTempRegisterMd %= MAX_TEMP_MD_REGS;
 	return result;

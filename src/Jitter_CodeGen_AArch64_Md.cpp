@@ -226,6 +226,22 @@ void CCodeGen_AArch64::Emit_Md_Test_VarMem(const STATEMENT& statement)
 	CommitSymbolRegister(dst, dstReg);
 }
 
+void CCodeGen_AArch64::Emit_Md_Mov_RegMem(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	
+	LoadMemory128InRegister(g_registersMd[dst->m_valueLow], src1);
+}
+
+void CCodeGen_AArch64::Emit_Md_Mov_MemReg(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	
+	StoreRegisterInMemory128(dst, g_registersMd[src1->m_valueLow]);
+}
+
 void CCodeGen_AArch64::Emit_Md_Mov_MemMem(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();

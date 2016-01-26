@@ -122,6 +122,10 @@ namespace Jitter
 		CAArch64Assembler::REGISTER32    PrepareSymbolRegisterUse(CSymbol*, CAArch64Assembler::REGISTER32);
 		void                             CommitSymbolRegister(CSymbol*, CAArch64Assembler::REGISTER32);
 		
+		CAArch64Assembler::REGISTERMD    PrepareSymbolRegisterDefMd(CSymbol*, CAArch64Assembler::REGISTERMD);
+		CAArch64Assembler::REGISTERMD    PrepareSymbolRegisterUseMd(CSymbol*, CAArch64Assembler::REGISTERMD);
+		void                             CommitSymbolRegisterMd(CSymbol*, CAArch64Assembler::REGISTERMD);
+		
 		CAArch64Assembler::REGISTER32    PrepareParam(PARAM_STATE&);
 		CAArch64Assembler::REGISTER64    PrepareParam64(PARAM_STATE&);
 		void                             CommitParam(PARAM_STATE&);

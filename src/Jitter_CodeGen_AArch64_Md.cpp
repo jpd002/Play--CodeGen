@@ -77,6 +77,60 @@ void CCodeGen_AArch64::LoadTemporary256ElementAddressInRegister(CAArch64Assemble
 	m_assembler.Add(dstReg, CAArch64Assembler::xSP, totalOffset, CAArch64Assembler::ADDSUB_IMM_SHIFT_LSL0);
 }
 
+CAArch64Assembler::REGISTERMD CCodeGen_AArch64::PrepareSymbolRegisterDefMd(CSymbol* symbol, CAArch64Assembler::REGISTERMD preferedRegister)
+{
+	switch(symbol->m_type)
+	{
+	case SYM_REGISTER128:
+		assert(symbol->m_valueLow < MAX_MDREGISTERS);
+		return g_registersMd[symbol->m_valueLow];
+		break;
+	case SYM_TEMPORARY128:
+	case SYM_RELATIVE128:
+		return preferedRegister;
+		break;
+	default:
+		throw std::runtime_error("Invalid symbol type.");
+		break;
+	}
+}
+
+CAArch64Assembler::REGISTERMD CCodeGen_AArch64::PrepareSymbolRegisterUseMd(CSymbol* symbol, CAArch64Assembler::REGISTERMD preferedRegister)
+{
+	switch(symbol->m_type)
+	{
+	case SYM_REGISTER128:
+		assert(symbol->m_valueLow < MAX_MDREGISTERS);
+		return g_registersMd[symbol->m_valueLow];
+		break;
+	case SYM_TEMPORARY128:
+	case SYM_RELATIVE128:
+		LoadMemory128InRegister(preferedRegister, symbol);
+		return preferedRegister;
+		break;
+	default:
+		throw std::runtime_error("Invalid symbol type.");
+		break;
+	}
+}
+
+void CCodeGen_AArch64::CommitSymbolRegisterMd(CSymbol* symbol, CAArch64Assembler::REGISTERMD usedRegister)
+{
+	switch(symbol->m_type)
+	{
+	case SYM_REGISTER128:
+		assert(usedRegister == g_registersMd[symbol->m_valueLow]);
+		break;
+	case SYM_TEMPORARY128:
+	case SYM_RELATIVE128:
+		StoreRegisterInMemory128(symbol, usedRegister);
+		break;
+	default:
+		throw std::runtime_error("Invalid symbol type.");
+		break;
+	}
+}
+
 template <typename MDOP>
 void CCodeGen_AArch64::Emit_Md_MemMem(const STATEMENT& statement)
 {

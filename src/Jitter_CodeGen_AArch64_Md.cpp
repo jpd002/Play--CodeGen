@@ -251,18 +251,19 @@ void CCodeGen_AArch64::Emit_Md_Mov_MemMem(const STATEMENT& statement)
 	StoreRegisterInMemory128(dst, tmpReg);
 }
 
-void CCodeGen_AArch64::Emit_Md_Not_MemMem(const STATEMENT& statement)
+void CCodeGen_AArch64::Emit_Md_Not_VarVar(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
 
-	auto tmpReg = GetNextTempRegisterMd();
+	auto dstReg = PrepareSymbolRegisterDefMd(dst, GetNextTempRegisterMd());
+	auto src1Reg = PrepareSymbolRegisterUseMd(src1, GetNextTempRegisterMd());
 	auto zeroReg = GetNextTempRegisterMd();
 	
-	LoadMemory128InRegister(tmpReg, src1);
 	m_assembler.Eor_16b(zeroReg, zeroReg, zeroReg);
-	m_assembler.Orn_16b(tmpReg, zeroReg, tmpReg);
-	StoreRegisterInMemory128(dst, tmpReg);
+	m_assembler.Orn_16b(dstReg, zeroReg, src1Reg);
+
+	CommitSymbolRegisterMd(dst, dstReg);
 }
 
 void CCodeGen_AArch64::Emit_Md_LoadFromRef_MemMem(const STATEMENT& statement)

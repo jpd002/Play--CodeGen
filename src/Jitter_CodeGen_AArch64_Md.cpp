@@ -193,17 +193,15 @@ void CCodeGen_AArch64::Emit_Md_Shift_MemMemCst(const STATEMENT& statement)
 }
 
 template <typename MDOP>
-void CCodeGen_AArch64::Emit_Md_Test_VarMem(const STATEMENT& statement)
+void CCodeGen_AArch64::Emit_Md_Test_VarVar(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
 
-	auto src1Reg = GetNextTempRegisterMd();
+	auto src1Reg = PrepareSymbolRegisterUseMd(src1, GetNextTempRegisterMd());
 	auto tmpValueReg = GetNextTempRegister();
 	auto tmpCmpReg = GetNextTempRegisterMd();
 	
-	LoadMemory128InRegister(src1Reg, src1);
-
 	auto dstReg = PrepareSymbolRegisterDef(dst, GetNextTempRegister());
 
 	((m_assembler).*(MDOP::OpReg()))(tmpCmpReg, src1Reg);

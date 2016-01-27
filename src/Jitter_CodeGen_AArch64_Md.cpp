@@ -132,51 +132,49 @@ void CCodeGen_AArch64::CommitSymbolRegisterMd(CSymbol* symbol, CAArch64Assembler
 }
 
 template <typename MDOP>
-void CCodeGen_AArch64::Emit_Md_MemMem(const STATEMENT& statement)
+void CCodeGen_AArch64::Emit_Md_VarVar(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
 	
-	auto dstReg = GetNextTempRegisterMd();
-	auto src1Reg = GetNextTempRegisterMd();
+	auto dstReg = PrepareSymbolRegisterDefMd(dst, GetNextTempRegisterMd());
+	auto src1Reg = PrepareSymbolRegisterUseMd(src1, GetNextTempRegisterMd());
 
-	LoadMemory128InRegister(src1Reg, src1);
 	((m_assembler).*(MDOP::OpReg()))(dstReg, src1Reg);
-	StoreRegisterInMemory128(dst, dstReg);
+
+	CommitSymbolRegisterMd(dst, dstReg);
 }
 
 template <typename MDOP>
-void CCodeGen_AArch64::Emit_Md_MemMemMem(const STATEMENT& statement)
+void CCodeGen_AArch64::Emit_Md_VarVarVar(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
 	auto src2 = statement.src2->GetSymbol().get();
 	
-	auto dstReg = GetNextTempRegisterMd();
-	auto src1Reg = GetNextTempRegisterMd();
-	auto src2Reg = GetNextTempRegisterMd();
+	auto dstReg = PrepareSymbolRegisterDefMd(dst, GetNextTempRegisterMd());
+	auto src1Reg = PrepareSymbolRegisterUseMd(src1, GetNextTempRegisterMd());
+	auto src2Reg = PrepareSymbolRegisterUseMd(src2, GetNextTempRegisterMd());
 
-	LoadMemory128InRegister(src1Reg, src1);
-	LoadMemory128InRegister(src2Reg, src2);
 	((m_assembler).*(MDOP::OpReg()))(dstReg, src1Reg, src2Reg);
-	StoreRegisterInMemory128(dst, dstReg);
+
+	CommitSymbolRegisterMd(dst, dstReg);
 }
 
 template <typename MDOP>
-void CCodeGen_AArch64::Emit_Md_MemMemMemRev(const STATEMENT& statement)
+void CCodeGen_AArch64::Emit_Md_VarVarVarRev(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
 	auto src2 = statement.src2->GetSymbol().get();
 	
-	auto dstReg = GetNextTempRegisterMd();
-	auto src1Reg = GetNextTempRegisterMd();
-	auto src2Reg = GetNextTempRegisterMd();
+	auto dstReg = PrepareSymbolRegisterDefMd(dst, GetNextTempRegisterMd());
+	auto src1Reg = PrepareSymbolRegisterUseMd(src1, GetNextTempRegisterMd());
+	auto src2Reg = PrepareSymbolRegisterUseMd(src2, GetNextTempRegisterMd());
 
-	LoadMemory128InRegister(src1Reg, src1);
-	LoadMemory128InRegister(src2Reg, src2);
 	((m_assembler).*(MDOP::OpReg()))(dstReg, src2Reg, src1Reg);
-	StoreRegisterInMemory128(dst, dstReg);
+
+	CommitSymbolRegisterMd(dst, dstReg);
 }
 
 template <typename MDSHIFTOP>

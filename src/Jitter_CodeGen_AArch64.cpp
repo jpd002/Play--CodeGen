@@ -399,6 +399,7 @@ void CCodeGen_AArch64::RegisterExternalSymbols(CObjectFile* objectFile) const
 void CCodeGen_AArch64::GenerateCode(const StatementList& statements, unsigned int stackSize)
 {
 	m_nextTempRegister = 0;
+	m_nextTempRegisterMd = 0;
 	
 	//Align stack size (must be aligned on 16 bytes boundary)
 	stackSize = (stackSize + 0xF) & ~0xF;

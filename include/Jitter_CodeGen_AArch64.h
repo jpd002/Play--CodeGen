@@ -657,9 +657,9 @@ namespace Jitter
 		void    Emit_Md_PackHB_MemMemMem(const STATEMENT&);
 		void    Emit_Md_PackWH_MemMemMem(const STATEMENT&);
 		
-		void    Emit_MergeTo256_MemMemMem(const STATEMENT&);
-		void    Emit_Md_Srl256_MemMemVar(const STATEMENT&);
-		void    Emit_Md_Srl256_MemMemCst(const STATEMENT&);
+		void    Emit_MergeTo256_MemVarVar(const STATEMENT&);
+		void    Emit_Md_Srl256_VarMemVar(const STATEMENT&);
+		void    Emit_Md_Srl256_VarMemCst(const STATEMENT&);
 		
 		static CONSTMATCHER    g_constMatchers[];
 		static CONSTMATCHER    g_64ConstMatchers[];

@@ -402,7 +402,7 @@ void CCodeGen_AArch64::Emit_Md_PackWH_MemMemMem(const STATEMENT& statement)
 	StoreRegisterInMemory128(dst, dstReg);
 }
 
-void CCodeGen_AArch64::Emit_MergeTo256_MemMemMem(const STATEMENT& statement)
+void CCodeGen_AArch64::Emit_MergeTo256_MemVarVar(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
@@ -412,19 +412,17 @@ void CCodeGen_AArch64::Emit_MergeTo256_MemMemMem(const STATEMENT& statement)
 
 	auto dstLoAddrReg = GetNextTempRegister64();
 	auto dstHiAddrReg = GetNextTempRegister64();
-	auto src1Reg = GetNextTempRegisterMd();
-	auto src2Reg = GetNextTempRegisterMd();
+	auto src1Reg = PrepareSymbolRegisterUseMd(src1, GetNextTempRegisterMd());
+	auto src2Reg = PrepareSymbolRegisterUseMd(src2, GetNextTempRegisterMd());
 
 	LoadTemporary256ElementAddressInRegister(dstLoAddrReg, dst, 0x00);
 	LoadTemporary256ElementAddressInRegister(dstHiAddrReg, dst, 0x10);
 
-	LoadMemory128InRegister(src1Reg, src1);
-	LoadMemory128InRegister(src2Reg, src2);
 	m_assembler.St1_4s(src1Reg, dstLoAddrReg);
 	m_assembler.St1_4s(src2Reg, dstHiAddrReg);
 }
 
-void CCodeGen_AArch64::Emit_Md_Srl256_MemMemCst(const STATEMENT& statement)
+void CCodeGen_AArch64::Emit_Md_Srl256_VarMemCst(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
@@ -434,16 +432,17 @@ void CCodeGen_AArch64::Emit_Md_Srl256_MemMemCst(const STATEMENT& statement)
 	assert(src2->m_type == SYM_CONSTANT);
 
 	auto src1AddrReg = GetNextTempRegister64();
-	auto dstReg = GetNextTempRegisterMd();
+	auto dstReg = PrepareSymbolRegisterDefMd(dst, GetNextTempRegisterMd());
 
 	uint32 offset = (src2->m_valueLow & 0x7F) / 8;
 	LoadTemporary256ElementAddressInRegister(src1AddrReg, src1, offset);
 
 	m_assembler.Ld1_4s(dstReg, src1AddrReg);
-	StoreRegisterInMemory128(dst, dstReg);
+	
+	CommitSymbolRegisterMd(dst, dstReg);
 }
 
-void CCodeGen_AArch64::Emit_Md_Srl256_MemMemVar(const STATEMENT& statement)
+void CCodeGen_AArch64::Emit_Md_Srl256_VarMemVar(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
@@ -455,7 +454,7 @@ void CCodeGen_AArch64::Emit_Md_Srl256_MemMemVar(const STATEMENT& statement)
 	auto src1AddrReg = GetNextTempRegister64();
 	auto src2Register = PrepareSymbolRegisterUse(src2, GetNextTempRegister());
 
-	auto dstReg = GetNextTempRegisterMd();
+	auto dstReg = PrepareSymbolRegisterDefMd(dst, GetNextTempRegisterMd());
 
 	LoadTemporary256ElementAddressInRegister(src1AddrReg, src1, 0);
 
@@ -468,7 +467,8 @@ void CCodeGen_AArch64::Emit_Md_Srl256_MemMemVar(const STATEMENT& statement)
 	m_assembler.Add(src1AddrReg, src1AddrReg, static_cast<CAArch64Assembler::REGISTER64>(offsetRegister));
 
 	m_assembler.Ld1_4s(dstReg, src1AddrReg);
-	StoreRegisterInMemory128(dst, dstReg);
+	
+	CommitSymbolRegisterMd(dst, dstReg);
 }
 
 CCodeGen_AArch64::CONSTMATCHER CCodeGen_AArch64::g_mdConstMatchers[] =

@@ -636,6 +636,11 @@ void CAArch64Assembler::Mov(REGISTER64 rd, REGISTER64 rm)
 	WriteWord(opcode);
 }
 
+void CAArch64Assembler::Mov(REGISTERMD rd, REGISTERMD rn)
+{
+	Orr_16b(rd, rn, rn);
+}
+
 void CAArch64Assembler::Mov_Sp(REGISTER64 rd, REGISTER64 rn)
 {
 	uint32 opcode = 0x91000000;

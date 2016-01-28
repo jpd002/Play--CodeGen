@@ -152,6 +152,7 @@ public:
 	void    Lsrv(REGISTER64, REGISTER64, REGISTER64);
 	void    Mov(REGISTER32, REGISTER32);
 	void    Mov(REGISTER64, REGISTER64);
+	void    Mov(REGISTERMD, REGISTERMD);
 	void    Mov_Sp(REGISTER64, REGISTER64);
 	void    Movn(REGISTER32, uint16, uint8);
 	void    Movk(REGISTER32, uint16, uint8);

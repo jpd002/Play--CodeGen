@@ -42,6 +42,7 @@ namespace Jitter
 		{
 			bool prepared = false;
 			unsigned int index = 0;
+			uint32 spillOffset = 0;
 		};
 
 		typedef std::function<void (PARAM_STATE&)> ParamEmitterFunction;
@@ -80,6 +81,8 @@ namespace Jitter
 			MATCHTYPE               src2Type;
 			ConstCodeEmitterType    emitter;
 		};
+
+		static uint32    GetMaxParamSpillSize(const StatementList&);
 
 		CAArch64Assembler::REGISTER32    GetNextTempRegister();
 		CAArch64Assembler::REGISTER64    GetNextTempRegister64();
@@ -534,7 +537,7 @@ namespace Jitter
 		};
 		
 		uint16    GetSavedRegisterList(uint32);
-		void      Emit_Prolog(uint32, uint16);
+		void      Emit_Prolog(const StatementList&, uint32, uint16);
 		void      Emit_Epilog(uint32, uint16);
 		
 		CAArch64Assembler::LABEL GetLabel(uint32);
@@ -570,6 +573,7 @@ namespace Jitter
 		void    Emit_Param_Cst(const STATEMENT&);
 		void    Emit_Param_Mem64(const STATEMENT&);
 		void    Emit_Param_Cst64(const STATEMENT&);
+		void    Emit_Param_Reg128(const STATEMENT&);
 		void    Emit_Param_Mem128(const STATEMENT&);
 		
 		void    Emit_Call(const STATEMENT&);
@@ -682,6 +686,7 @@ namespace Jitter
 		ParamStack             m_params;
 		uint32                 m_nextTempRegister = 0;
 		uint32                 m_nextTempRegisterMd = 0;
+		uint32                 m_paramSpillBase = 0;
 
 		bool    m_generateRelocatableCalls = false;
 	};

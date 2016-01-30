@@ -294,6 +294,7 @@ CCodeGen_AArch64::CONSTMATCHER CCodeGen_AArch64::g_constMatchers[] =
 	{ OP_PARAM,          MATCH_NIL,            MATCH_CONSTANT,       MATCH_NIL,           &CCodeGen_AArch64::Emit_Param_Cst                           },
 	{ OP_PARAM,          MATCH_NIL,            MATCH_MEMORY64,       MATCH_NIL,           &CCodeGen_AArch64::Emit_Param_Mem64                         },
 	{ OP_PARAM,          MATCH_NIL,            MATCH_CONSTANT64,     MATCH_NIL,           &CCodeGen_AArch64::Emit_Param_Cst64                         },
+	{ OP_PARAM,          MATCH_NIL,            MATCH_REGISTER128,    MATCH_NIL,           &CCodeGen_AArch64::Emit_Param_Reg128                        },
 	{ OP_PARAM,          MATCH_NIL,            MATCH_MEMORY128,      MATCH_NIL,           &CCodeGen_AArch64::Emit_Param_Mem128                        },
 	
 	{ OP_CALL,           MATCH_NIL,            MATCH_CONSTANTPTR,    MATCH_CONSTANT,      &CCodeGen_AArch64::Emit_Call                                },
@@ -407,7 +408,7 @@ void CCodeGen_AArch64::GenerateCode(const StatementList& statements, unsigned in
 
 	uint16 registerSave = GetSavedRegisterList(GetRegisterUsage(statements));
 
-	Emit_Prolog(stackSize, registerSave);
+	Emit_Prolog(statements, stackSize, registerSave);
 
 	for(const auto& statement : statements)
 	{
@@ -437,6 +438,39 @@ void CCodeGen_AArch64::GenerateCode(const StatementList& statements, unsigned in
 	m_assembler.ResolveLabelReferences();
 	m_assembler.ClearLabels();
 	m_labels.clear();
+}
+
+uint32 CCodeGen_AArch64::GetMaxParamSpillSize(const StatementList& statements)
+{
+	uint32 maxParamSpillSize = 0;
+	uint32 currParamSpillSize = 0;
+	for(const auto& statement : statements)
+	{
+		switch(statement.op)
+		{
+		case OP_PARAM:
+		case OP_PARAM_RET:
+			{
+				CSymbol* src1 = statement.src1->GetSymbol().get();
+				switch(src1->m_type)
+				{
+				case SYM_REGISTER128:
+					currParamSpillSize += 16;
+					break;
+				default:
+					break;
+				}
+			}
+			break;
+		case OP_CALL:
+			maxParamSpillSize = std::max<uint32>(currParamSpillSize, maxParamSpillSize);
+			currParamSpillSize = 0;
+			break;
+		default:
+			break;
+		}
+	}
+	return maxParamSpillSize;
 }
 
 CAArch64Assembler::REGISTER32 CCodeGen_AArch64::GetNextTempRegister()
@@ -767,8 +801,9 @@ uint16 CCodeGen_AArch64::GetSavedRegisterList(uint32 registerUsage)
 	return registerSave;
 }
 
-void CCodeGen_AArch64::Emit_Prolog(uint32 stackSize, uint16 registerSave)
+void CCodeGen_AArch64::Emit_Prolog(const StatementList& statements, uint32 stackSize, uint16 registerSave)
 {
+	uint32 maxParamSpillSize = GetMaxParamSpillSize(statements);
 	m_assembler.Stp_PreIdx(CAArch64Assembler::x29, CAArch64Assembler::x30, CAArch64Assembler::xSP, -16);
 	//Preserve saved registers
 	for(uint32 i = 0; i < 16; i++)
@@ -781,9 +816,11 @@ void CCodeGen_AArch64::Emit_Prolog(uint32 stackSize, uint16 registerSave)
 		}
 	}
 	m_assembler.Mov_Sp(CAArch64Assembler::x29, CAArch64Assembler::xSP);
-	if(stackSize != 0)
+	uint32 totalStackAlloc = stackSize + maxParamSpillSize;
+	m_paramSpillBase = stackSize;
+	if(totalStackAlloc != 0)
 	{
-		m_assembler.Sub(CAArch64Assembler::xSP, CAArch64Assembler::xSP, stackSize, CAArch64Assembler::ADDSUB_IMM_SHIFT_LSL0);
+		m_assembler.Sub(CAArch64Assembler::xSP, CAArch64Assembler::xSP, totalStackAlloc, CAArch64Assembler::ADDSUB_IMM_SHIFT_LSL0);
 	}
 	m_assembler.Mov(g_baseRegister, CAArch64Assembler::x0);
 }
@@ -1087,6 +1124,23 @@ void CCodeGen_AArch64::Emit_Param_Cst64(const STATEMENT& statement)
 		{
 			auto paramReg = PrepareParam64(paramState);
 			LoadConstant64InRegister(paramReg, src1->GetConstant64());
+			CommitParam64(paramState);
+		}
+	);
+}
+
+void CCodeGen_AArch64::Emit_Param_Reg128(const STATEMENT& statement)
+{
+	auto src1 = statement.src1->GetSymbol().get();
+	
+	m_params.push_back(
+		[this, src1] (PARAM_STATE& paramState)
+		{
+			auto paramReg = PrepareParam64(paramState);
+			uint32 paramBase = m_paramSpillBase + paramState.spillOffset;
+			m_assembler.Add(paramReg, CAArch64Assembler::xSP, paramBase, CAArch64Assembler::ADDSUB_IMM_SHIFT_LSL0);
+			m_assembler.Str_1q(g_registersMd[src1->m_valueLow], CAArch64Assembler::xSP, paramBase);
+			paramState.spillOffset += 0x10;
 			CommitParam64(paramState);
 		}
 	);

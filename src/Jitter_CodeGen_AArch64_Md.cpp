@@ -178,18 +178,18 @@ void CCodeGen_AArch64::Emit_Md_VarVarVarRev(const STATEMENT& statement)
 }
 
 template <typename MDSHIFTOP>
-void CCodeGen_AArch64::Emit_Md_Shift_MemMemCst(const STATEMENT& statement)
+void CCodeGen_AArch64::Emit_Md_Shift_VarVarCst(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
 	auto src2 = statement.src2->GetSymbol().get();
 
-	auto dstReg = GetNextTempRegisterMd();
-	auto src1Reg = GetNextTempRegisterMd();
+	auto dstReg = PrepareSymbolRegisterDefMd(dst, GetNextTempRegisterMd());
+	auto src1Reg = PrepareSymbolRegisterUseMd(src1, GetNextTempRegisterMd());
 
-	LoadMemory128InRegister(src1Reg, src1);
 	((m_assembler).*(MDSHIFTOP::OpReg()))(dstReg, src1Reg, src2->m_valueLow);
-	StoreRegisterInMemory128(dst, dstReg);
+
+	CommitSymbolRegisterMd(dst, dstReg);
 }
 
 template <typename MDOP>

@@ -274,30 +274,30 @@ void CCodeGen_AArch64::Emit_Md_Not_VarVar(const STATEMENT& statement)
 	CommitSymbolRegisterMd(dst, dstReg);
 }
 
-void CCodeGen_AArch64::Emit_Md_LoadFromRef_MemMem(const STATEMENT& statement)
+void CCodeGen_AArch64::Emit_Md_LoadFromRef_VarMem(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
 
 	auto src1AddrReg = GetNextTempRegister64();
-	auto dstReg = GetNextTempRegisterMd();
+	auto dstReg = PrepareSymbolRegisterDefMd(dst, GetNextTempRegisterMd());
 
 	LoadMemoryReferenceInRegister(src1AddrReg, src1);
 
 	m_assembler.Ldr_1q(dstReg, src1AddrReg, 0);
-	StoreRegisterInMemory128(dst, dstReg);
+
+	CommitSymbolRegisterMd(dst, dstReg);
 }
 
-void CCodeGen_AArch64::Emit_Md_StoreAtRef_MemMem(const STATEMENT& statement)
+void CCodeGen_AArch64::Emit_Md_StoreAtRef_MemVar(const STATEMENT& statement)
 {
 	auto src1 = statement.src1->GetSymbol().get();
 	auto src2 = statement.src2->GetSymbol().get();
 
 	auto src1AddrReg = GetNextTempRegister64();
-	auto src2Reg = GetNextTempRegisterMd();
+	auto src2Reg = PrepareSymbolRegisterUseMd(src2, GetNextTempRegisterMd());
 
 	LoadMemoryReferenceInRegister(src1AddrReg, src1);
-	LoadMemory128InRegister(src2Reg, src2);
 	
 	m_assembler.Str_1q(src2Reg, src1AddrReg, 0);
 }

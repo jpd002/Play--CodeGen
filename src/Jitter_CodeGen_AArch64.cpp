@@ -301,6 +301,7 @@ CCodeGen_AArch64::CONSTMATCHER CCodeGen_AArch64::g_constMatchers[] =
 	{ OP_RETVAL,         MATCH_REGISTER,       MATCH_NIL,            MATCH_NIL,           &CCodeGen_AArch64::Emit_RetVal_Reg                          },
 	{ OP_RETVAL,         MATCH_TEMPORARY,      MATCH_NIL,            MATCH_NIL,           &CCodeGen_AArch64::Emit_RetVal_Tmp                          },
 	{ OP_RETVAL,         MATCH_MEMORY64,       MATCH_NIL,            MATCH_NIL,           &CCodeGen_AArch64::Emit_RetVal_Mem64                        },
+	{ OP_RETVAL,         MATCH_REGISTER128,    MATCH_NIL,            MATCH_NIL,           &CCodeGen_AArch64::Emit_RetVal_Reg128                       },
 	{ OP_RETVAL,         MATCH_MEMORY128,      MATCH_NIL,            MATCH_NIL,           &CCodeGen_AArch64::Emit_RetVal_Mem128                       },
 	
 	{ OP_JMP,            MATCH_NIL,            MATCH_NIL,            MATCH_NIL,           &CCodeGen_AArch64::Emit_Jmp                                 },
@@ -1158,6 +1159,14 @@ void CCodeGen_AArch64::Emit_RetVal_Mem64(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
 	StoreRegisterInMemory64(dst, CAArch64Assembler::x0);
+}
+
+void CCodeGen_AArch64::Emit_RetVal_Reg128(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	
+	m_assembler.Ins_1d(g_registersMd[dst->m_valueLow], 0, CAArch64Assembler::x0);
+	m_assembler.Ins_1d(g_registersMd[dst->m_valueLow], 1, CAArch64Assembler::x1);
 }
 
 void CCodeGen_AArch64::Emit_RetVal_Mem128(const STATEMENT& statement)

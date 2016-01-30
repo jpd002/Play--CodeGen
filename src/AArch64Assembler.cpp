@@ -519,6 +519,18 @@ void CAArch64Assembler::Ins_1s(REGISTERMD rd, uint8 index1, REGISTERMD rn, uint8
 	WriteWord(opcode);
 }
 
+void CAArch64Assembler::Ins_1d(REGISTERMD rd, uint8 index, REGISTER64 rn)
+{
+	assert(index < 2);
+	index &= 0x1;
+	uint8 imm5 = (index << 4) | 0x8;
+	uint32 opcode = 0x4E001C00;
+	opcode |= (rd << 0);
+	opcode |= (rn << 5);
+	opcode |= (imm5 << 16);
+	WriteWord(opcode);
+}
+
 void CAArch64Assembler::Ld1_4s(REGISTERMD rt, REGISTER64 rn)
 {
 	uint32 opcode = 0x4C407800;

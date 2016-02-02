@@ -302,7 +302,7 @@ void CCodeGen_AArch64::Emit_Md_StoreAtRef_MemVar(const STATEMENT& statement)
 	m_assembler.Str_1q(src2Reg, src1AddrReg, 0);
 }
 
-void CCodeGen_AArch64::Emit_Md_MovMasked_MemMemMem(const STATEMENT& statement)
+void CCodeGen_AArch64::Emit_Md_MovMasked_VarVarVar(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
@@ -312,21 +312,19 @@ void CCodeGen_AArch64::Emit_Md_MovMasked_MemMemMem(const STATEMENT& statement)
 
 	auto mask = static_cast<uint8>(statement.jmpCondition);
 
-	auto dstReg = GetNextTempRegisterMd();
-	auto src2Reg = GetNextTempRegisterMd();
-
-	LoadMemory128InRegister(dstReg, dst);
-	LoadMemory128InRegister(src2Reg, src2);
+	auto src1Reg = PrepareSymbolRegisterUseMd(src1, GetNextTempRegisterMd());
+	auto src2Reg = PrepareSymbolRegisterUseMd(src2, GetNextTempRegisterMd());
 	
 	for(unsigned int i = 0; i < 4; i++)
 	{
 		if(mask & (1 << i))
 		{
-			m_assembler.Ins_1s(dstReg, i, src2Reg, i);
+			m_assembler.Ins_1s(src1Reg, i, src2Reg, i);
 		}
 	}
 
-	StoreRegisterInMemory128(dst, dstReg);
+	//This is only valid if dst == src1
+	CommitSymbolRegisterMd(dst, src1Reg);
 }
 
 void CCodeGen_AArch64::Emit_Md_Expand_VarReg(const STATEMENT& statement)
@@ -540,7 +538,7 @@ CCodeGen_AArch64::CONSTMATCHER CCodeGen_AArch64::g_mdConstMatchers[] =
 	{ OP_LOADFROMREF,           MATCH_VARIABLE128,    MATCH_MEM_REF,        MATCH_NIL,              &CCodeGen_AArch64::Emit_Md_LoadFromRef_VarMem                    },
 	{ OP_STOREATREF,            MATCH_NIL,            MATCH_MEM_REF,        MATCH_VARIABLE128,      &CCodeGen_AArch64::Emit_Md_StoreAtRef_MemVar                     },
 
-	{ OP_MD_MOV_MASKED,         MATCH_MEMORY128,      MATCH_MEMORY128,      MATCH_MEMORY128,        &CCodeGen_AArch64::Emit_Md_MovMasked_MemMemMem                   },
+	{ OP_MD_MOV_MASKED,         MATCH_VARIABLE128,    MATCH_VARIABLE128,    MATCH_VARIABLE128,      &CCodeGen_AArch64::Emit_Md_MovMasked_VarVarVar                   },
 
 	{ OP_MD_EXPAND,             MATCH_VARIABLE128,    MATCH_REGISTER,       MATCH_NIL,              &CCodeGen_AArch64::Emit_Md_Expand_VarReg                         },
 	{ OP_MD_EXPAND,             MATCH_VARIABLE128,    MATCH_MEMORY,         MATCH_NIL,              &CCodeGen_AArch64::Emit_Md_Expand_VarMem                         },

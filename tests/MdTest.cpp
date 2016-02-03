@@ -34,6 +34,17 @@ void CMdTest::Compile(Jitter::CJitter& jitter)
 		jitter.MD_PushRel(offsetof(CONTEXT, src1));
 		jitter.MD_PackWH();
 		jitter.MD_PullRel(offsetof(CONTEXT, dstPackWH));
+
+		//Aliased packs
+		jitter.MD_PushRel(offsetof(CONTEXT, dstPackHBAlias));
+		jitter.MD_PushRel(offsetof(CONTEXT, src1));
+		jitter.MD_PackHB();
+		jitter.MD_PullRel(offsetof(CONTEXT, dstPackHBAlias));
+
+		jitter.MD_PushRel(offsetof(CONTEXT, dstPackWHAlias));
+		jitter.MD_PushRel(offsetof(CONTEXT, src1));
+		jitter.MD_PackWH();
+		jitter.MD_PullRel(offsetof(CONTEXT, dstPackWHAlias));
 	}
 	jitter.End();
 
@@ -58,6 +69,11 @@ void CMdTest::Run()
 			context.src2[i] = context.src1[i];
 		}
 		context.src3[i] = 0xC0;
+	}
+	for(unsigned int i = 0; i < 16; i++)
+	{
+		context.dstPackHBAlias[i] = context.src0[i];
+		context.dstPackWHAlias[i] = context.src0[i];
 	}
 	context.shiftAmount = 16;
 
@@ -120,5 +136,7 @@ void CMdTest::Run()
 		TEST_VERIFY(dstSrl256_2[i]			== context.dstSrl256_2[i]);
 		TEST_VERIFY(dstPackHBRes[i]			== context.dstPackHB[i]);
 		TEST_VERIFY(dstPackWHRes[i]			== context.dstPackWH[i]);
+		TEST_VERIFY(dstPackHBRes[i]			== context.dstPackHBAlias[i]);
+		TEST_VERIFY(dstPackWHRes[i]			== context.dstPackWHAlias[i]);
 	}
 }

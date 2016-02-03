@@ -379,8 +379,18 @@ void CCodeGen_AArch64::Emit_Md_PackHB_VarVarVar(const STATEMENT& statement)
 	auto src1Reg = PrepareSymbolRegisterUseMd(src1, GetNextTempRegisterMd());
 	auto src2Reg = PrepareSymbolRegisterUseMd(src2, GetNextTempRegisterMd());
 	
-	m_assembler.Xtn1_8b(dstReg, src2Reg);
-	m_assembler.Xtn2_16b(dstReg, src1Reg);
+	if(dstReg == src1Reg)
+	{
+		auto tmpReg = GetNextTempRegisterMd();
+		m_assembler.Xtn1_8b(tmpReg, src2Reg);
+		m_assembler.Xtn2_16b(tmpReg, src1Reg);
+		m_assembler.Mov(dstReg, tmpReg);
+	}
+	else
+	{
+		m_assembler.Xtn1_8b(dstReg, src2Reg);
+		m_assembler.Xtn2_16b(dstReg, src1Reg);
+	}
 	
 	CommitSymbolRegisterMd(dst, dstReg);
 }
@@ -395,8 +405,18 @@ void CCodeGen_AArch64::Emit_Md_PackWH_VarVarVar(const STATEMENT& statement)
 	auto src1Reg = PrepareSymbolRegisterUseMd(src1, GetNextTempRegisterMd());
 	auto src2Reg = PrepareSymbolRegisterUseMd(src2, GetNextTempRegisterMd());
 
-	m_assembler.Xtn1_4h(dstReg, src2Reg);
-	m_assembler.Xtn2_8h(dstReg, src1Reg);
+	if(dstReg == src1Reg)
+	{
+		auto tmpReg = GetNextTempRegisterMd();
+		m_assembler.Xtn1_4h(tmpReg, src2Reg);
+		m_assembler.Xtn2_8h(tmpReg, src1Reg);
+		m_assembler.Mov(dstReg, tmpReg);
+	}
+	else
+	{
+		m_assembler.Xtn1_4h(dstReg, src2Reg);
+		m_assembler.Xtn2_8h(dstReg, src1Reg);
+	}
 
 	CommitSymbolRegisterMd(dst, dstReg);
 }

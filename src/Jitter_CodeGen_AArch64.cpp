@@ -1,3 +1,4 @@
+#include <algorithm>
 #include "Jitter_CodeGen_AArch64.h"
 #include "BitManip.h"
 

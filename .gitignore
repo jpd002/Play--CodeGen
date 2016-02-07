@@ -11,6 +11,7 @@ build_unix/build
 *.userprops
 *.sdf
 *.opensdf
+*.VC.opendb
 *.suo
 *.xccheckout
 *.xcscmblueprint

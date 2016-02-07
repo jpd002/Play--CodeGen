@@ -1518,6 +1518,9 @@ void CJitter::NormalizeStatements(BASIC_BLOCK& basicBlock)
 				isCommutative = true;
 				conditionSwapRequired = true;
 				break;
+			default:
+				isCommutative = false;
+				break;
 		}
 
 		if(!isCommutative) continue;

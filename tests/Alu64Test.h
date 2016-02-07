@@ -22,7 +22,8 @@ private:
 		uint64			resultAddCst;
 		uint64			resultSub0;
 		uint64			resultSub1;
-		uint64			resultSubCst;
+		uint64			resultSubCst0;
+		uint64			resultSubCst1;
 	};
 
 	CONTEXT				m_context;

@@ -27,6 +27,9 @@ private:
 
 		uint8			dstPackHB[16];
 		uint8			dstPackWH[16];
+		
+		uint8			dstPackHBAlias[16];
+		uint8			dstPackWHAlias[16];
 
 		uint32			shiftAmount;
 	};

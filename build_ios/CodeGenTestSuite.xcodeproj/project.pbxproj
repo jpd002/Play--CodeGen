@@ -30,7 +30,7 @@
 		705E55071A58C6B9009E67F1 /* MdSubTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 705E54FD1A58C6B9009E67F1 /* MdSubTest.cpp */; };
 		705E55081A58C6B9009E67F1 /* MdUnpackTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 705E54FF1A58C6B9009E67F1 /* MdUnpackTest.cpp */; };
 		705E55091A58C6B9009E67F1 /* SimpleMdTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 705E55011A58C6B9009E67F1 /* SimpleMdTest.cpp */; };
-		708ED2B91BBA073D00C49611 /* LogicTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 708ED2B71BBA073D00C49611 /* LogicTest.cpp */; settings = {ASSET_TAGS = (); }; };
+		708ED2B91BBA073D00C49611 /* LogicTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 708ED2B71BBA073D00C49611 /* LogicTest.cpp */; };
 		70AD234D1B389DDA00137AA0 /* DivTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70AD23491B389DDA00137AA0 /* DivTest.cpp */; };
 		70AD234E1B389DDA00137AA0 /* MdShiftTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70AD234B1B389DDA00137AA0 /* MdShiftTest.cpp */; };
 		70C01F331AC8D8BE004DA1B2 /* MdLogicTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70C01F311AC8D8BE004DA1B2 /* MdLogicTest.cpp */; };
@@ -233,6 +233,108 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		70596F741C075ABE00863A72 /* Op64 */ = {
+			isa = PBXGroup;
+			children = (
+				703093C017BE67CE009662A1 /* Alu64Test.cpp */,
+				703093C117BE67CE009662A1 /* Alu64Test.h */,
+				703093C217BE67CE009662A1 /* Call64Test.cpp */,
+				703093C317BE67CE009662A1 /* Call64Test.h */,
+				705E54F51A58C6B9009E67F1 /* Cmp64Test.cpp */,
+				705E54F61A58C6B9009E67F1 /* Cmp64Test.h */,
+				70320D091A998CD3001E9C4B /* Logic64Test.cpp */,
+				70320D0A1A998CD3001E9C4B /* Logic64Test.h */,
+				703F737F1AD0C60C00887F65 /* Merge64Test.cpp */,
+				703F73801AD0C60C00887F65 /* Merge64Test.h */,
+				703093CA17BE67CE009662A1 /* Shift64Test.cpp */,
+				703093CB17BE67CE009662A1 /* Shift64Test.h */,
+			);
+			name = Op64;
+			sourceTree = "<group>";
+		};
+		70596F751C075AF300863A72 /* OpMd */ = {
+			isa = PBXGroup;
+			children = (
+				7031AA491AED887C00FA7B53 /* MdAddTest.cpp */,
+				7031AA4A1AED887C00FA7B53 /* MdAddTest.h */,
+				703093C617BE67CE009662A1 /* MdCallTest.cpp */,
+				703093C717BE67CE009662A1 /* MdCallTest.h */,
+				703D96461AE497D000B3974D /* MdCmpTest.cpp */,
+				703D96471AE497D000B3974D /* MdCmpTest.h */,
+				703093C817BE67CE009662A1 /* MdFpFlagTest.cpp */,
+				703093C917BE67CE009662A1 /* MdFpFlagTest.h */,
+				7EF837FF12DAB5D300EA0F1C /* MdFpTest.cpp */,
+				7EF8380012DAB5D300EA0F1C /* MdFpTest.h */,
+				70C01F311AC8D8BE004DA1B2 /* MdLogicTest.cpp */,
+				70C01F321AC8D8BE004DA1B2 /* MdLogicTest.h */,
+				703D96481AE497D000B3974D /* MdManipTest.cpp */,
+				703D96491AE497D000B3974D /* MdManipTest.h */,
+				705E54FB1A58C6B9009E67F1 /* MdMemAccessTest.cpp */,
+				705E54FC1A58C6B9009E67F1 /* MdMemAccessTest.h */,
+				7012497C1B02E930005F341A /* MdMinMaxTest.cpp */,
+				7012497D1B02E930005F341A /* MdMinMaxTest.h */,
+				70AD234B1B389DDA00137AA0 /* MdShiftTest.cpp */,
+				70AD234C1B389DDA00137AA0 /* MdShiftTest.h */,
+				705E54FD1A58C6B9009E67F1 /* MdSubTest.cpp */,
+				705E54FE1A58C6B9009E67F1 /* MdSubTest.h */,
+				7EF8380112DAB5D300EA0F1C /* MdTest.cpp */,
+				7EF8380212DAB5D300EA0F1C /* MdTest.h */,
+				705E54FF1A58C6B9009E67F1 /* MdUnpackTest.cpp */,
+				705E55001A58C6B9009E67F1 /* MdUnpackTest.h */,
+				705E55011A58C6B9009E67F1 /* SimpleMdTest.cpp */,
+				705E55021A58C6B9009E67F1 /* SimpleMdTest.h */,
+			);
+			name = OpMd;
+			sourceTree = "<group>";
+		};
+		70596F761C075B8A00863A72 /* OpSimple */ = {
+			isa = PBXGroup;
+			children = (
+				7EF837FB12DAB5D300EA0F1C /* AliasTest.cpp */,
+				7EF837FC12DAB5D300EA0F1C /* AliasTest.h */,
+				7E2720351212598B00C0DEBF /* CompareTest.cpp */,
+				7E2720361212598B00C0DEBF /* CompareTest.h */,
+				7E2720371212598B00C0DEBF /* Crc32Test.cpp */,
+				7E2720381212598B00C0DEBF /* Crc32Test.h */,
+				70AD23491B389DDA00137AA0 /* DivTest.cpp */,
+				70AD234A1B389DDA00137AA0 /* DivTest.h */,
+				7E3018521341A22000FEAF04 /* HugeJumpTest.cpp */,
+				7E3018531341A22000FEAF04 /* HugeJumpTest.h */,
+				708ED2B71BBA073D00C49611 /* LogicTest.cpp */,
+				708ED2B81BBA073D00C49611 /* LogicTest.h */,
+				705E54F91A58C6B9009E67F1 /* LzcTest.cpp */,
+				705E54FA1A58C6B9009E67F1 /* LzcTest.h */,
+				7EF8380312DAB5D300EA0F1C /* MemAccessTest.cpp */,
+				7EF8380412DAB5D300EA0F1C /* MemAccessTest.h */,
+				7E27203C1212598B00C0DEBF /* MultTest.cpp */,
+				7E27203D1212598B00C0DEBF /* MultTest.h */,
+				7031AA4B1AED887C00FA7B53 /* NestedIfTest.cpp */,
+				7031AA4C1AED887C00FA7B53 /* NestedIfTest.h */,
+				7E27203E1212598B00C0DEBF /* RandomAluTest.cpp */,
+				7E27203F1212598B00C0DEBF /* RandomAluTest.h */,
+				7E2720401212598B00C0DEBF /* RandomAluTest2.cpp */,
+				7E2720411212598B00C0DEBF /* RandomAluTest2.h */,
+				7E2720421212598B00C0DEBF /* RandomAluTest3.cpp */,
+				7E2720431212598B00C0DEBF /* RandomAluTest3.h */,
+				7EE2D4381228842C00C2C057 /* RegAllocTest.cpp */,
+				7EE2D4391228842C00C2C057 /* RegAllocTest.h */,
+				704F23A31B0010DF009FD916 /* ShiftTest.cpp */,
+				704F23A41B0010DF009FD916 /* ShiftTest.h */,
+			);
+			name = OpSimple;
+			sourceTree = "<group>";
+		};
+		70596F771C075BDB00863A72 /* OpFpu */ = {
+			isa = PBXGroup;
+			children = (
+				7EF837FD12DAB5D300EA0F1C /* FpIntMixTest.cpp */,
+				7EF837FE12DAB5D300EA0F1C /* FpIntMixTest.h */,
+				7E2720391212598B00C0DEBF /* FpuTest.cpp */,
+				7E27203A1212598B00C0DEBF /* FpuTest.h */,
+			);
+			name = OpFpu;
+			sourceTree = "<group>";
+		};
 		705E54E91A58C4E1009E67F1 /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -263,84 +365,14 @@
 		7E2720341212597B00C0DEBF /* Source */ = {
 			isa = PBXGroup;
 			children = (
-				7EF837FB12DAB5D300EA0F1C /* AliasTest.cpp */,
-				7EF837FC12DAB5D300EA0F1C /* AliasTest.h */,
 				703093BF17BE67CE009662A1 /* Align16.h */,
-				703093C017BE67CE009662A1 /* Alu64Test.cpp */,
-				703093C117BE67CE009662A1 /* Alu64Test.h */,
-				703093C217BE67CE009662A1 /* Call64Test.cpp */,
-				703093C317BE67CE009662A1 /* Call64Test.h */,
-				705E54F51A58C6B9009E67F1 /* Cmp64Test.cpp */,
-				705E54F61A58C6B9009E67F1 /* Cmp64Test.h */,
 				70C0EFBD1A59FA8800227442 /* CodeGen_Prefix.pch */,
 				703093BE17BE6678009662A1 /* CodeGenTestSuite_Prefix.pch */,
-				7E2720351212598B00C0DEBF /* CompareTest.cpp */,
-				7E2720361212598B00C0DEBF /* CompareTest.h */,
-				7E2720371212598B00C0DEBF /* Crc32Test.cpp */,
-				7E2720381212598B00C0DEBF /* Crc32Test.h */,
-				70AD23491B389DDA00137AA0 /* DivTest.cpp */,
-				70AD234A1B389DDA00137AA0 /* DivTest.h */,
-				7EF837FD12DAB5D300EA0F1C /* FpIntMixTest.cpp */,
-				7EF837FE12DAB5D300EA0F1C /* FpIntMixTest.h */,
-				7E2720391212598B00C0DEBF /* FpuTest.cpp */,
-				7E27203A1212598B00C0DEBF /* FpuTest.h */,
-				7E3018521341A22000FEAF04 /* HugeJumpTest.cpp */,
-				7E3018531341A22000FEAF04 /* HugeJumpTest.h */,
-				70320D091A998CD3001E9C4B /* Logic64Test.cpp */,
-				70320D0A1A998CD3001E9C4B /* Logic64Test.h */,
-				708ED2B71BBA073D00C49611 /* LogicTest.cpp */,
-				708ED2B81BBA073D00C49611 /* LogicTest.h */,
-				705E54F91A58C6B9009E67F1 /* LzcTest.cpp */,
-				705E54FA1A58C6B9009E67F1 /* LzcTest.h */,
 				7E27203B1212598B00C0DEBF /* Main.cpp */,
-				7031AA491AED887C00FA7B53 /* MdAddTest.cpp */,
-				7031AA4A1AED887C00FA7B53 /* MdAddTest.h */,
-				703093C617BE67CE009662A1 /* MdCallTest.cpp */,
-				703093C717BE67CE009662A1 /* MdCallTest.h */,
-				703D96461AE497D000B3974D /* MdCmpTest.cpp */,
-				703D96471AE497D000B3974D /* MdCmpTest.h */,
-				703093C817BE67CE009662A1 /* MdFpFlagTest.cpp */,
-				703093C917BE67CE009662A1 /* MdFpFlagTest.h */,
-				7EF837FF12DAB5D300EA0F1C /* MdFpTest.cpp */,
-				7EF8380012DAB5D300EA0F1C /* MdFpTest.h */,
-				70C01F311AC8D8BE004DA1B2 /* MdLogicTest.cpp */,
-				70C01F321AC8D8BE004DA1B2 /* MdLogicTest.h */,
-				703D96481AE497D000B3974D /* MdManipTest.cpp */,
-				703D96491AE497D000B3974D /* MdManipTest.h */,
-				705E54FB1A58C6B9009E67F1 /* MdMemAccessTest.cpp */,
-				705E54FC1A58C6B9009E67F1 /* MdMemAccessTest.h */,
-				7012497C1B02E930005F341A /* MdMinMaxTest.cpp */,
-				7012497D1B02E930005F341A /* MdMinMaxTest.h */,
-				70AD234B1B389DDA00137AA0 /* MdShiftTest.cpp */,
-				70AD234C1B389DDA00137AA0 /* MdShiftTest.h */,
-				705E54FD1A58C6B9009E67F1 /* MdSubTest.cpp */,
-				705E54FE1A58C6B9009E67F1 /* MdSubTest.h */,
-				7EF8380112DAB5D300EA0F1C /* MdTest.cpp */,
-				7EF8380212DAB5D300EA0F1C /* MdTest.h */,
-				705E54FF1A58C6B9009E67F1 /* MdUnpackTest.cpp */,
-				705E55001A58C6B9009E67F1 /* MdUnpackTest.h */,
-				7EF8380312DAB5D300EA0F1C /* MemAccessTest.cpp */,
-				7EF8380412DAB5D300EA0F1C /* MemAccessTest.h */,
-				703F737F1AD0C60C00887F65 /* Merge64Test.cpp */,
-				703F73801AD0C60C00887F65 /* Merge64Test.h */,
-				7E27203C1212598B00C0DEBF /* MultTest.cpp */,
-				7E27203D1212598B00C0DEBF /* MultTest.h */,
-				7031AA4B1AED887C00FA7B53 /* NestedIfTest.cpp */,
-				7031AA4C1AED887C00FA7B53 /* NestedIfTest.h */,
-				7E27203E1212598B00C0DEBF /* RandomAluTest.cpp */,
-				7E27203F1212598B00C0DEBF /* RandomAluTest.h */,
-				7E2720401212598B00C0DEBF /* RandomAluTest2.cpp */,
-				7E2720411212598B00C0DEBF /* RandomAluTest2.h */,
-				7E2720421212598B00C0DEBF /* RandomAluTest3.cpp */,
-				7E2720431212598B00C0DEBF /* RandomAluTest3.h */,
-				7EE2D4381228842C00C2C057 /* RegAllocTest.cpp */,
-				7EE2D4391228842C00C2C057 /* RegAllocTest.h */,
-				703093CA17BE67CE009662A1 /* Shift64Test.cpp */,
-				703093CB17BE67CE009662A1 /* Shift64Test.h */,
-				704F23A31B0010DF009FD916 /* ShiftTest.cpp */,
-				704F23A41B0010DF009FD916 /* ShiftTest.h */,
-				705E55011A58C6B9009E67F1 /* SimpleMdTest.cpp */,
-				705E55021A58C6B9009E67F1 /* SimpleMdTest.h */,
+				70596F741C075ABE00863A72 /* Op64 */,
+				70596F771C075BDB00863A72 /* OpFpu */,
+				70596F751C075AF300863A72 /* OpMd */,
+				70596F761C075B8A00863A72 /* OpSimple */,
 				7E2720441212598B00C0DEBF /* Test.h */,
 			);
 			name = Source;

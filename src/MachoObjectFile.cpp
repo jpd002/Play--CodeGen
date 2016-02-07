@@ -47,7 +47,7 @@ void CMachoObjectFile<MachoTraits>::Write(Framework::CStream& stream)
 	uint32 sizeofCommands = sizeof(typename MachoTraits::SEGMENT_COMMAND) + (sizeof(typename MachoTraits::SECTION) * sectionCount) + 
 		sizeof(Macho::SYMTAB_COMMAND);
 	uint32 headerSize = sizeof(typename MachoTraits::MACH_HEADER) + sizeofCommands;
-	uint32 segmentDataSize = textSection.data.size() + dataSection.data.size();
+	uint32 segmentDataSize = static_cast<uint32>(textSection.data.size()) + static_cast<uint32>(dataSection.data.size());
 	uint32 segmentAndRelocDataSize = segmentDataSize + (textSectionRelocations.size() + dataSectionRelocations.size()) * sizeof(Macho::RELOCATION_INFO);
 
 	{

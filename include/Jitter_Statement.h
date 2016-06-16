@@ -217,6 +217,7 @@ namespace Jitter
 
 	std::string		ConditionToString(CONDITION);
 	void			DumpStatementList(const StatementList&);
+	void			DumpStatementList(std::ostream&, const StatementList&);
 
 	template<typename ListType, typename IteratorType, typename ValueType>
 	class IndexedStatementListBase

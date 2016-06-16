@@ -65,7 +65,7 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_constMatchers[] =
 	{ OP_CONDJMP,	MATCH_NIL,			MATCH_REGISTER,		MATCH_REGISTER,		&CCodeGen_x86::Emit_CondJmp_RegReg					},
 	{ OP_CONDJMP,	MATCH_NIL,			MATCH_REGISTER,		MATCH_MEMORY,		&CCodeGen_x86::Emit_CondJmp_RegMem					},
 	{ OP_CONDJMP,	MATCH_NIL,			MATCH_REGISTER,		MATCH_CONSTANT,		&CCodeGen_x86::Emit_CondJmp_RegCst					},
-	{ OP_CONDJMP,	MATCH_NIL,			MATCH_RELATIVE,		MATCH_RELATIVE,		&CCodeGen_x86::Emit_CondJmp_RelRel					},
+	{ OP_CONDJMP,	MATCH_NIL,			MATCH_MEMORY,		MATCH_MEMORY,		&CCodeGen_x86::Emit_CondJmp_MemMem					},
 	{ OP_CONDJMP,	MATCH_NIL,			MATCH_MEMORY,		MATCH_CONSTANT,		&CCodeGen_x86::Emit_CondJmp_MemCst					},
 
 	{ OP_DIV,		MATCH_TEMPORARY64,	MATCH_REGISTER,		MATCH_REGISTER,		&CCodeGen_x86::Emit_DivTmp64RegReg<false>			},
@@ -1035,16 +1035,13 @@ void CCodeGen_x86::Emit_CondJmp_RegCst(const STATEMENT& statement)
 	CondJmp_JumpTo(GetLabel(statement.jmpBlock), statement.jmpCondition);
 }
 
-void CCodeGen_x86::Emit_CondJmp_RelRel(const STATEMENT& statement)
+void CCodeGen_x86::Emit_CondJmp_MemMem(const STATEMENT& statement)
 {
-	CSymbol* src1 = statement.src1->GetSymbol().get();
-	CSymbol* src2 = statement.src2->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
 
-	assert(src1->m_type == SYM_RELATIVE);
-	assert(src2->m_type == SYM_RELATIVE);
-
-	m_assembler.MovEd(CX86Assembler::rAX, CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, src1->m_valueLow));
-	m_assembler.CmpEd(CX86Assembler::rAX, CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, src2->m_valueLow));
+	m_assembler.MovEd(CX86Assembler::rAX, MakeMemorySymbolAddress(src1));
+	m_assembler.CmpEd(CX86Assembler::rAX, MakeMemorySymbolAddress(src2));
 
 	CondJmp_JumpTo(GetLabel(statement.jmpBlock), statement.jmpCondition);
 }

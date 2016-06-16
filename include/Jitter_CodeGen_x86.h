@@ -539,7 +539,7 @@ namespace Jitter
 		void						Emit_CondJmp_RegReg(const STATEMENT&);
 		void						Emit_CondJmp_RegMem(const STATEMENT&);
 		void						Emit_CondJmp_RegCst(const STATEMENT&);
-		void						Emit_CondJmp_RelRel(const STATEMENT&);
+		void						Emit_CondJmp_MemMem(const STATEMENT&);
 		void						Emit_CondJmp_MemCst(const STATEMENT&);
 
 		//MERGETO64

@@ -499,7 +499,7 @@ namespace Jitter
 		void						Emit_Cmp_RelRegReg(const STATEMENT&);
 		void						Emit_Cmp_RelRegRel(const STATEMENT&);
 		void						Emit_Cmp_RelRegCst(const STATEMENT&);
-		void						Emit_Cmp_RelRelRel(const STATEMENT&);
+		void						Emit_Cmp_MemMemMem(const STATEMENT&);
 		void						Emit_Cmp_MemMemCst(const STATEMENT&);
 
 		//MUL/MULS

@@ -6,16 +6,6 @@
 #define CONSTANT_2	(0xFFFF)
 #define CONSTANT_3	(0x34002010)
 
-CAliasTest::CAliasTest()
-{
-
-}
-
-CAliasTest::~CAliasTest()
-{
-
-}
-
 void CAliasTest::Run()
 {
 	memset(&m_context, 0, sizeof(m_context));

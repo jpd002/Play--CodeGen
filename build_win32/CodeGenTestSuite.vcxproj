@@ -152,6 +152,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\tests\AliasTest.cpp" />
+    <ClCompile Include="..\tests\AliasTest2.cpp" />
     <ClCompile Include="..\tests\Alu64Test.cpp" />
     <ClCompile Include="..\tests\Call64Test.cpp" />
     <ClCompile Include="..\tests\Cmp64Test.cpp" />
@@ -192,6 +193,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\tests\AliasTest.h" />
+    <ClInclude Include="..\tests\AliasTest2.h" />
     <ClInclude Include="..\tests\Align16.h" />
     <ClInclude Include="..\tests\Alu64Test.h" />
     <ClInclude Include="..\tests\Call64Test.h" />

@@ -1077,6 +1077,11 @@ void CJitter::MD_AddHSS()
 	InsertBinaryMdStatement(OP_MD_ADDSS_H);
 }
 
+void CJitter::MD_AddHUS()
+{
+	InsertBinaryMdStatement(OP_MD_ADDUS_H);
+}
+
 void CJitter::MD_AddW()
 {
 	InsertBinaryMdStatement(OP_MD_ADD_W);

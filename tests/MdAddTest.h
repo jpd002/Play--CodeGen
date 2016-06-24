@@ -23,6 +23,7 @@ private:
 		uint8			dstAddB[16];
 		uint8			dstAddBUS[16];
 		uint8			dstAddH[16];
+		uint8			dstAddHUS[16];
 		uint8			dstAddHSS[16];
 		uint8			dstAddW[16];
 		uint8			dstAddWUS[16];

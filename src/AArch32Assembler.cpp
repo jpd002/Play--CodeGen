@@ -753,6 +753,15 @@ void CAArch32Assembler::Vqadd_U8(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGIST
 	WriteWord(opcode);
 }
 
+void CAArch32Assembler::Vqadd_U16(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER qm)
+{
+	uint32 opcode = 0xF3100050;
+	opcode |= FPSIMD_EncodeQd(qd);
+	opcode |= FPSIMD_EncodeQn(qn);
+	opcode |= FPSIMD_EncodeQm(qm);
+	WriteWord(opcode);
+}
+
 void CAArch32Assembler::Vqadd_U32(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER qm)
 {
 	uint32 opcode = 0xF3200050;

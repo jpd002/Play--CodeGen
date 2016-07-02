@@ -556,13 +556,11 @@ namespace Jitter
 
 		//EXTLOW64
 		void						Emit_ExtLow64RegTmp64(const STATEMENT&);
-		void						Emit_ExtLow64RelTmp64(const STATEMENT&);
-		void						Emit_ExtLow64TmpTmp64(const STATEMENT&);
+		void						Emit_ExtLow64MemTmp64(const STATEMENT&);
 
 		//EXTHIGH64
 		void						Emit_ExtHigh64RegTmp64(const STATEMENT&);
-		void						Emit_ExtHigh64RelTmp64(const STATEMENT&);
-		void						Emit_ExtHigh64TmpTmp64(const STATEMENT&);
+		void						Emit_ExtHigh64MemTmp64(const STATEMENT&);
 
 		//FPUOP
 		template <typename> void	Emit_Fpu_MemMem(const STATEMENT&);

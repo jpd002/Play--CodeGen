@@ -484,9 +484,8 @@ namespace Jitter
 
 		//NOT
 		void						Emit_Not_RegReg(const STATEMENT&);
-		void						Emit_Not_RegRel(const STATEMENT&);
-		void						Emit_Not_RegTmp(const STATEMENT&);
-		void						Emit_Not_RelReg(const STATEMENT&);
+		void						Emit_Not_RegMem(const STATEMENT&);
+		void						Emit_Not_MemReg(const STATEMENT&);
 		void						Emit_Not_MemMem(const STATEMENT&);
 
 		//LZC

@@ -54,7 +54,7 @@ namespace Jitter
 
 		//ADD64
 		void								Emit_Add64_MemMemMem(const STATEMENT&);
-		void								Emit_Add64_RelRelCst(const STATEMENT&);
+		void								Emit_Add64_MemMemCst(const STATEMENT&);
 
 		//SUB64
 		void								Emit_Sub64_RelRelRel(const STATEMENT&);

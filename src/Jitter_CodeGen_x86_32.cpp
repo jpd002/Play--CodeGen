@@ -885,60 +885,56 @@ void CCodeGen_x86_32::Emit_Sll64_MemMemCst(const STATEMENT& statement)
 
 void CCodeGen_x86_32::Cmp64_Equal(const STATEMENT& statement)
 {
-	CSymbol* src1 = statement.src1->GetSymbol().get();
-	CSymbol* src2 = statement.src2->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
 
-	struct CmpLo
-	{
-		void operator()(CX86Assembler& assembler, CX86Assembler::REGISTER registerId, CSymbol* symbol)
+	const auto cmpLo = 
+		[this](CX86Assembler::REGISTER registerId, CSymbol* symbol)
 		{
 			switch(symbol->m_type)
 			{
 			case SYM_RELATIVE64:
-				assembler.CmpEd(registerId, CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, symbol->m_valueLow + 0));
+				m_assembler.CmpEd(registerId, MakeMemory64SymbolLoAddress(symbol));
 				break;
 			case SYM_CONSTANT64:
 				if(symbol->m_valueLow == 0)
 				{
-					assembler.TestEd(registerId, CX86Assembler::MakeRegisterAddress(registerId));
+					m_assembler.TestEd(registerId, CX86Assembler::MakeRegisterAddress(registerId));
 				}
 				else
 				{
-					assembler.CmpId(CX86Assembler::MakeRegisterAddress(registerId), symbol->m_valueLow);
+					m_assembler.CmpId(CX86Assembler::MakeRegisterAddress(registerId), symbol->m_valueLow);
 				}
 				break;
 			default:
 				assert(0);
 				break;
 			}
-		}
-	};
+		};
 
-	struct CmpHi
-	{
-		void operator()(CX86Assembler& assembler, CX86Assembler::REGISTER registerId, CSymbol* symbol)
+	const auto cmpHi =
+		[this](CX86Assembler::REGISTER registerId, CSymbol* symbol)
 		{
 			switch(symbol->m_type)
 			{
 			case SYM_RELATIVE64:
-				assembler.CmpEd(registerId, CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, symbol->m_valueLow + 4));
+				m_assembler.CmpEd(registerId, MakeMemory64SymbolHiAddress(symbol));
 				break;
 			case SYM_CONSTANT64:
 				if(symbol->m_valueHigh == 0)
 				{
-					assembler.TestEd(registerId, CX86Assembler::MakeRegisterAddress(registerId));
+					m_assembler.TestEd(registerId, CX86Assembler::MakeRegisterAddress(registerId));
 				}
 				else
 				{
-					assembler.CmpId(CX86Assembler::MakeRegisterAddress(registerId), symbol->m_valueHigh);
+					m_assembler.CmpId(CX86Assembler::MakeRegisterAddress(registerId), symbol->m_valueHigh);
 				}
 				break;
 			default:
 				assert(0);
 				break;
 			}
-		}
-	};
+		};
 
 	assert(src1->m_type == SYM_RELATIVE64);
 
@@ -948,8 +944,8 @@ void CCodeGen_x86_32::Cmp64_Equal(const STATEMENT& statement)
 	CX86Assembler::REGISTER res1Reg = CX86Assembler::rAX;
 	CX86Assembler::REGISTER res2Reg = CX86Assembler::rCX;
 
-	m_assembler.MovEd(valReg, CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, src1->m_valueLow + 0));
-	CmpLo()(m_assembler, valReg, src2);
+	m_assembler.MovEd(valReg, MakeMemory64SymbolLoAddress(src1));
+	cmpLo(valReg, src2);
 
 	if(isEqual)
 	{
@@ -960,8 +956,8 @@ void CCodeGen_x86_32::Cmp64_Equal(const STATEMENT& statement)
 		m_assembler.SetneEb(CX86Assembler::MakeRegisterAddress(res1Reg));
 	}
 	
-	m_assembler.MovEd(valReg, CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, src1->m_valueLow + 4));
-	CmpHi()(m_assembler, valReg, src2);
+	m_assembler.MovEd(valReg, MakeMemory64SymbolHiAddress(src1));
+	cmpHi(valReg, src2);
 
 	if(isEqual)
 	{
@@ -1047,49 +1043,45 @@ struct CompareOrder64Greater
 template <typename CompareTraits>
 void CCodeGen_x86_32::Cmp64_Order(const STATEMENT& statement)
 {
-	CSymbol* src1 = statement.src1->GetSymbol().get();
-	CSymbol* src2 = statement.src2->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
 
 	CompareTraits compareTraits;
 	(void)compareTraits;
 
-	struct CmpLo
-	{
-		void operator()(CX86Assembler& assembler, CX86Assembler::REGISTER registerId, CSymbol* symbol)
+	const auto cmpLo =
+		[this](CX86Assembler::REGISTER registerId, CSymbol* symbol)
 		{
 			switch(symbol->m_type)
 			{
 			case SYM_RELATIVE64:
-				assembler.CmpEd(registerId, CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, symbol->m_valueLow + 0));
+				m_assembler.CmpEd(registerId, MakeMemory64SymbolLoAddress(symbol));
 				break;
 			case SYM_CONSTANT64:
-				assembler.CmpId(CX86Assembler::MakeRegisterAddress(registerId), symbol->m_valueLow);
+				m_assembler.CmpId(CX86Assembler::MakeRegisterAddress(registerId), symbol->m_valueLow);
 				break;
 			default:
 				assert(0);
 				break;
 			}
-		}
-	};
+		};
 
-	struct CmpHi
-	{
-		void operator()(CX86Assembler& assembler, CX86Assembler::REGISTER registerId, CSymbol* symbol)
+	const auto cmpHi =
+		[this](CX86Assembler::REGISTER registerId, CSymbol* symbol)
 		{
 			switch(symbol->m_type)
 			{
 			case SYM_RELATIVE64:
-				assembler.CmpEd(registerId, CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, symbol->m_valueLow + 4));
+				m_assembler.CmpEd(registerId, MakeMemory64SymbolHiAddress(symbol));
 				break;
 			case SYM_CONSTANT64:
-				assembler.CmpId(CX86Assembler::MakeRegisterAddress(registerId), symbol->m_valueHigh);
+				m_assembler.CmpId(CX86Assembler::MakeRegisterAddress(registerId), symbol->m_valueHigh);
 				break;
 			default:
 				assert(0);
 				break;
 			}
-		}
-	};
+		};
 
 	assert(src1->m_type == SYM_RELATIVE64);
 
@@ -1105,8 +1097,8 @@ void CCodeGen_x86_32::Cmp64_Order(const STATEMENT& statement)
 	/////////////////////////////////////////
 	//Check high order word if equal
 
-	m_assembler.MovEd(regHi, CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, src1->m_valueLow + 4));
-	CmpHi()(m_assembler, regHi, src2);
+	m_assembler.MovEd(regHi, MakeMemory64SymbolHiAddress(src1));
+	cmpHi(regHi, src2);
 
 	//je highOrderEqual
 	m_assembler.JzJx(highOrderEqualLabel);
@@ -1134,8 +1126,8 @@ void CCodeGen_x86_32::Cmp64_Order(const STATEMENT& statement)
 	m_assembler.MarkLabel(highOrderEqualLabel);
 	//If they are equal, next comparaison decides of result
 
-	m_assembler.MovEd(regLo, CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, src1->m_valueLow + 0));
-	CmpLo()(m_assembler, regLo, src2);
+	m_assembler.MovEd(regLo, MakeMemory64SymbolLoAddress(src1));
+	cmpLo(regLo, src2);
 
 	//setb/be reg[l]
 	if(orEqual)

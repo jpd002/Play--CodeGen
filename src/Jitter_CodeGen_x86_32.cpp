@@ -44,6 +44,7 @@ CCodeGen_x86_32::CONSTMATCHER CCodeGen_x86_32::g_constMatchers[] =
 	{ OP_ADD64,			MATCH_MEMORY64,		MATCH_MEMORY64,		MATCH_CONSTANT64,	&CCodeGen_x86_32::Emit_Add64_MemMemCst			},
 
 	{ OP_SUB64,			MATCH_MEMORY64,		MATCH_MEMORY64,		MATCH_MEMORY64,		&CCodeGen_x86_32::Emit_Sub64_MemMemMem			},
+	{ OP_SUB64,			MATCH_MEMORY64,		MATCH_MEMORY64,		MATCH_CONSTANT64,	&CCodeGen_x86_32::Emit_Sub64_MemMemCst			},
 	{ OP_SUB64,			MATCH_MEMORY64,		MATCH_CONSTANT64,	MATCH_MEMORY64,		&CCodeGen_x86_32::Emit_Sub64_MemCstMem			},
 
 	{ OP_AND64,			MATCH_MEMORY64,		MATCH_MEMORY64,		MATCH_MEMORY64,		&CCodeGen_x86_32::Emit_And64_MemMemMem			},
@@ -493,6 +494,24 @@ void CCodeGen_x86_32::Emit_Sub64_MemMemMem(const STATEMENT& statement)
 
 	m_assembler.SubEd(CX86Assembler::rAX, MakeMemory64SymbolLoAddress(src2));
 	m_assembler.SbbEd(CX86Assembler::rDX, MakeMemory64SymbolHiAddress(src2));
+
+	m_assembler.MovGd(MakeMemory64SymbolLoAddress(dst), CX86Assembler::rAX);
+	m_assembler.MovGd(MakeMemory64SymbolHiAddress(dst), CX86Assembler::rDX);
+}
+
+void CCodeGen_x86_32::Emit_Sub64_MemMemCst(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	assert(src2->m_type == SYM_CONSTANT64);
+
+	m_assembler.MovEd(CX86Assembler::rAX, MakeMemory64SymbolLoAddress(src1));
+	m_assembler.MovEd(CX86Assembler::rDX, MakeMemory64SymbolHiAddress(src1));
+
+	m_assembler.SubId(CX86Assembler::MakeRegisterAddress(CX86Assembler::rAX), src2->m_valueLow);
+	m_assembler.SbbId(CX86Assembler::MakeRegisterAddress(CX86Assembler::rDX), src2->m_valueHigh);
 
 	m_assembler.MovGd(MakeMemory64SymbolLoAddress(dst), CX86Assembler::rAX);
 	m_assembler.MovGd(MakeMemory64SymbolHiAddress(dst), CX86Assembler::rDX);

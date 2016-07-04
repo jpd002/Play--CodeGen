@@ -507,11 +507,11 @@ namespace Jitter
 		void						Emit_Cmp_MemMemCst(const STATEMENT&);
 
 		//MUL/MULS
-		template<bool> void			Emit_MulTmp64RegRel(const STATEMENT&);
-		template<bool> void			Emit_MulTmp64RegCst(const STATEMENT&);
 		template<bool> void			Emit_MulTmp64RegReg(const STATEMENT&);
-		template<bool> void			Emit_MulTmp64RelRel(const STATEMENT&);
-		template<bool> void			Emit_MulTmp64RelCst(const STATEMENT&);
+		template<bool> void			Emit_MulTmp64RegMem(const STATEMENT&);
+		template<bool> void			Emit_MulTmp64RegCst(const STATEMENT&);
+		template<bool> void			Emit_MulTmp64MemMem(const STATEMENT&);
+		template<bool> void			Emit_MulTmp64MemCst(const STATEMENT&);
 
 		//DIV/DIVS
 		template <bool> void		Emit_DivTmp64RegReg(const STATEMENT&);

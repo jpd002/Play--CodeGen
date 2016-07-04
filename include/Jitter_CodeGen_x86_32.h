@@ -82,7 +82,7 @@ namespace Jitter
 		void								Emit_Sll64_MemMemVar(const STATEMENT&, CX86Assembler::REGISTER);
 		void								Emit_Sll64_MemMemReg(const STATEMENT&);
 		void								Emit_Sll64_MemMemMem(const STATEMENT&);
-		void								Emit_Sll64_RelRelCst(const STATEMENT&);
+		void								Emit_Sll64_MemMemCst(const STATEMENT&);
 
 		//CMP64
 		void								Cmp64_Equal(const STATEMENT&);

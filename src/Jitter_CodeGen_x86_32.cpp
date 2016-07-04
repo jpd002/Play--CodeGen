@@ -59,7 +59,7 @@ CCodeGen_x86_32::CONSTMATCHER CCodeGen_x86_32::g_constMatchers[] =
 
 	{ OP_SLL64,			MATCH_MEMORY64,		MATCH_MEMORY64,		MATCH_REGISTER,		&CCodeGen_x86_32::Emit_Sll64_MemMemReg			},
 	{ OP_SLL64,			MATCH_MEMORY64,		MATCH_MEMORY64,		MATCH_MEMORY,		&CCodeGen_x86_32::Emit_Sll64_MemMemMem			},
-	{ OP_SLL64,			MATCH_RELATIVE64,	MATCH_RELATIVE64,	MATCH_CONSTANT,		&CCodeGen_x86_32::Emit_Sll64_RelRelCst			},
+	{ OP_SLL64,			MATCH_MEMORY64,		MATCH_MEMORY64,		MATCH_CONSTANT,		&CCodeGen_x86_32::Emit_Sll64_MemMemCst			},
 
 	{ OP_CMP64,			MATCH_REGISTER,		MATCH_RELATIVE64,	MATCH_RELATIVE64,	&CCodeGen_x86_32::Emit_Cmp64_RegRelRel			},
 	{ OP_CMP64,			MATCH_RELATIVE,		MATCH_RELATIVE64,	MATCH_RELATIVE64,	&CCodeGen_x86_32::Emit_Cmp64_RelRelRel			},
@@ -838,24 +838,22 @@ void CCodeGen_x86_32::Emit_Sll64_MemMemMem(const STATEMENT& statement)
 	Emit_Sll64_MemMemVar(statement, shiftAmount);
 }
 
-void CCodeGen_x86_32::Emit_Sll64_RelRelCst(const STATEMENT& statement)
+void CCodeGen_x86_32::Emit_Sll64_MemMemCst(const STATEMENT& statement)
 {
-	CSymbol* dst = statement.dst->GetSymbol().get();
-	CSymbol* src1 = statement.src1->GetSymbol().get();
-	CSymbol* src2 = statement.src2->GetSymbol().get();
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
 
-	assert(dst->m_type  == SYM_RELATIVE64);
-	assert(src1->m_type == SYM_RELATIVE64);
 	assert(src2->m_type == SYM_CONSTANT);
 
 	uint8 shiftAmount = static_cast<uint8>(src2->m_valueLow & 0x3F);
 
-	CX86Assembler::REGISTER regLo = CX86Assembler::rAX;
-	CX86Assembler::REGISTER regHi = CX86Assembler::rDX;
+	auto regLo = CX86Assembler::rAX;
+	auto regHi = CX86Assembler::rDX;
 
 	if(shiftAmount >= 32)
 	{
-		m_assembler.MovEd(regHi, CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, src1->m_valueLow + 0));
+		m_assembler.MovEd(regHi, MakeMemory64SymbolLoAddress(src1));
 
 		if(shiftAmount != 0)
 		{
@@ -867,8 +865,8 @@ void CCodeGen_x86_32::Emit_Sll64_RelRelCst(const STATEMENT& statement)
 	}
 	else //Amount < 32
 	{
-		m_assembler.MovEd(regLo, CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, src1->m_valueLow + 0));
-		m_assembler.MovEd(regHi, CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, src1->m_valueLow + 4));
+		m_assembler.MovEd(regLo, MakeMemory64SymbolLoAddress(src1));
+		m_assembler.MovEd(regHi, MakeMemory64SymbolHiAddress(src1));
 
 		//shld nReg2, nReg1, nAmount
 		m_assembler.ShldEd(CX86Assembler::MakeRegisterAddress(regHi), regLo, shiftAmount);
@@ -877,8 +875,8 @@ void CCodeGen_x86_32::Emit_Sll64_RelRelCst(const STATEMENT& statement)
 		m_assembler.ShlEd(CX86Assembler::MakeRegisterAddress(regLo), shiftAmount);
 	}
 
-	m_assembler.MovGd(CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, dst->m_valueLow + 0), regLo);
-	m_assembler.MovGd(CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, dst->m_valueLow + 4), regHi);
+	m_assembler.MovGd(MakeMemory64SymbolLoAddress(dst), regLo);
+	m_assembler.MovGd(MakeMemory64SymbolHiAddress(dst), regHi);
 }
 
 //---------------------------------------------------------------------------------

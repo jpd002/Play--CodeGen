@@ -517,7 +517,7 @@ namespace Jitter
 		template <bool> void		Emit_DivTmp64RegReg(const STATEMENT&);
 		template <bool> void		Emit_DivTmp64RegMem(const STATEMENT&);
 		template <bool> void		Emit_DivTmp64RegCst(const STATEMENT&);
-		template <bool> void		Emit_DivTmp64RelReg(const STATEMENT&);
+		template <bool> void		Emit_DivTmp64MemReg(const STATEMENT&);
 		template <bool> void		Emit_DivTmp64MemMem(const STATEMENT&);
 		template <bool> void		Emit_DivTmp64MemCst(const STATEMENT&);
 		template <bool> void		Emit_DivTmp64CstReg(const STATEMENT&);

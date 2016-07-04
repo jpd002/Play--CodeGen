@@ -61,7 +61,7 @@ namespace Jitter
 		void								Emit_Sub64_RelCstRel(const STATEMENT&);
 
 		//AND64
-		void								Emit_And64_RelRelRel(const STATEMENT&);
+		void								Emit_And64_MemMemMem(const STATEMENT&);
 
 		//SR64
 		void								Emit_Sr64Var_MemMem(CSymbol*, CSymbol*, CX86Assembler::REGISTER, SHIFTRIGHT_TYPE);

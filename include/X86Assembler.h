@@ -274,6 +274,7 @@ public:
 	void									PminsdVo(XMMREGISTER, const CAddress&);
 	void									PmovmskbVo(REGISTER, XMMREGISTER);
 	void									PorVo(XMMREGISTER, const CAddress&);
+	void									PshufbVo(XMMREGISTER, const CAddress&);
 	void									PshufdVo(XMMREGISTER, const CAddress&, uint8);
 	void									PsllwVo(XMMREGISTER, uint8);
 	void									PslldVo(XMMREGISTER, uint8);

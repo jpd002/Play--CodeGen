@@ -50,6 +50,7 @@ include $(CLEAR_VARS)
 
 LOCAL_MODULE			:= libCodeGenTestSuite
 LOCAL_SRC_FILES			:=	$(PROJECT_PATH)/tests/AliasTest.cpp \
+							$(PROJECT_PATH)/tests/AliasTest2.cpp \
 							$(PROJECT_PATH)/tests/Alu64Test.cpp \
 							$(PROJECT_PATH)/tests/Call64Test.cpp \
 							$(PROJECT_PATH)/tests/Cmp64Test.cpp \

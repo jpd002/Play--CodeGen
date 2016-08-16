@@ -459,6 +459,11 @@ void CX86Assembler::JbJx(LABEL label)
 	CreateLabelReference(label, JMP_B);
 }
 
+void CX86Assembler::JbeJx(LABEL label)
+{
+	CreateLabelReference(label, JMP_BE);
+}
+
 void CX86Assembler::JnbJx(LABEL label)
 {
 	CreateLabelReference(label, JMP_NB);
@@ -497,6 +502,11 @@ void CX86Assembler::JzJx(LABEL label)
 void CX86Assembler::JnzJx(LABEL label)
 {
 	CreateLabelReference(label, JMP_NZ);
+}
+
+void CX86Assembler::JnbeJx(LABEL label)
+{
+	CreateLabelReference(label, JMP_NBE);
 }
 
 void CX86Assembler::JnoJx(LABEL label)

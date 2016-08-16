@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		03E0AC3B1D629D5900346464 /* ConditionTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 03E0AC391D629D5900346464 /* ConditionTest.cpp */; };
 		1D60589F0D05DD5A006BFB54 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1D30AB110D05D00D00671497 /* Foundation.framework */; };
 		1DF5F4E00D08C38300B7A737 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1DF5F4DF0D08C38300B7A737 /* UIKit.framework */; };
 		288765FD0DF74451002DB57D /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 288765FC0DF74451002DB57D /* CoreGraphics.framework */; };
@@ -88,6 +89,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		03E0AC391D629D5900346464 /* ConditionTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ConditionTest.cpp; path = ../tests/ConditionTest.cpp; sourceTree = "<group>"; };
+		03E0AC3A1D629D5900346464 /* ConditionTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ConditionTest.h; path = ../tests/ConditionTest.h; sourceTree = "<group>"; };
 		1D30AB110D05D00D00671497 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		1D6058910D05DD3D006BFB54 /* CodeGenTestSuite.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CodeGenTestSuite.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1DF5F4DF0D08C38300B7A737 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
@@ -300,6 +303,8 @@
 				7E2720351212598B00C0DEBF /* CompareTest.cpp */,
 				7E2720361212598B00C0DEBF /* CompareTest.h */,
 				7E2720371212598B00C0DEBF /* Crc32Test.cpp */,
+				03E0AC391D629D5900346464 /* ConditionTest.cpp */,
+				03E0AC3A1D629D5900346464 /* ConditionTest.h */,
 				7E2720381212598B00C0DEBF /* Crc32Test.h */,
 				70AD23491B389DDA00137AA0 /* DivTest.cpp */,
 				70AD234A1B389DDA00137AA0 /* DivTest.h */,
@@ -509,6 +514,7 @@
 				7031AA4D1AED887C00FA7B53 /* MdAddTest.cpp in Sources */,
 				7EE2D43A1228842C00C2C057 /* RegAllocTest.cpp in Sources */,
 				703D964A1AE497D000B3974D /* MdCmpTest.cpp in Sources */,
+				03E0AC3B1D629D5900346464 /* ConditionTest.cpp in Sources */,
 				7EF8380512DAB5D300EA0F1C /* AliasTest.cpp in Sources */,
 				704F23A51B0010DF009FD916 /* ShiftTest.cpp in Sources */,
 				703093CC17BE67E5009662A1 /* Alu64Test.cpp in Sources */,

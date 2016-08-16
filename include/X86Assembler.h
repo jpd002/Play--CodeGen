@@ -138,6 +138,7 @@ public:
 	void									ImulEw(const CAddress&);
 	void									ImulEd(const CAddress&);
 	void									JbJx(LABEL);
+	void									JbeJx(LABEL);
 	void									JnbJx(LABEL);
 	void									JzJx(LABEL);
 	void									JnlJx(LABEL);
@@ -146,6 +147,7 @@ public:
 	void									JleJx(LABEL);
 	void									JmpJx(LABEL);
 	void									JnzJx(LABEL);
+	void									JnbeJx(LABEL);
 	void									JnoJx(LABEL);
 	void									JnsJx(LABEL);
 	void									LeaGd(REGISTER, const CAddress&);

@@ -100,6 +100,21 @@ CONDITION CJitter::GetReverseCondition(CONDITION condition)
 	case CONDITION_GT:
 		return CONDITION_LE;
 		break;
+	case CONDITION_GE:
+		return CONDITION_LT;
+		break;
+	case CONDITION_BL:
+		return CONDITION_AE;
+		break;
+	case CONDITION_BE:
+		return CONDITION_AB;
+		break;
+	case CONDITION_AB:
+		return CONDITION_BE;
+		break;
+	case CONDITION_AE:
+		return CONDITION_BL;
+		break;
 	default:
 		assert(0);
 		break;

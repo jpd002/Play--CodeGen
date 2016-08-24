@@ -55,7 +55,7 @@ void CConditionTest::MakeBeginIfCase(Jitter::CJitter& jitter, Jitter::CONDITION 
 {
 	jitter.PushRel(offsetof(CONTEXT, value0));
 
-	if (m_useConstant)
+	if(m_useConstant)
 	{
 		jitter.PushCst(m_value1);
 	}

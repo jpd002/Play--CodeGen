@@ -8,8 +8,8 @@ class CConditionTest : public CTest
 public:
 						CConditionTest(bool, uint32, uint32);
 
-	void				Run();
-	void				Compile(Jitter::CJitter&);
+	void				Run() override;
+	void				Compile(Jitter::CJitter&) override;
 
 private:
 

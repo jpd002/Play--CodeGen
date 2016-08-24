@@ -1252,6 +1252,18 @@ void CCodeGen_AArch64::Emit_CondJmp(const STATEMENT& statement)
 	case CONDITION_NE:
 		m_assembler.BCc(CAArch64Assembler::CONDITION_NE, label);
 		break;
+	case CONDITION_BL:
+		m_assembler.BCc(CAArch64Assembler::CONDITION_CC, label);
+		break;
+	case CONDITION_BE:
+		m_assembler.BCc(CAArch64Assembler::CONDITION_LS, label);
+		break;
+	case CONDITION_AB:
+		m_assembler.BCc(CAArch64Assembler::CONDITION_HI, label);
+		break;
+	case CONDITION_AE:
+		m_assembler.BCc(CAArch64Assembler::CONDITION_CS, label);
+		break;
 	case CONDITION_LT:
 		m_assembler.BCc(CAArch64Assembler::CONDITION_LT, label);
 		break;

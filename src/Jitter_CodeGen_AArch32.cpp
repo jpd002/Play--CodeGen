@@ -1030,31 +1030,43 @@ void CCodeGen_AArch32::Emit_Jmp(const STATEMENT& statement)
 
 void CCodeGen_AArch32::Emit_CondJmp(const STATEMENT& statement)
 {
-	CAArch32Assembler::LABEL label(GetLabel(statement.jmpBlock));
+	auto label(GetLabel(statement.jmpBlock));
 	
 	switch(statement.jmpCondition)
 	{
-		case CONDITION_EQ:
-			m_assembler.BCc(CAArch32Assembler::CONDITION_EQ, label);
-			break;
-		case CONDITION_NE:
-			m_assembler.BCc(CAArch32Assembler::CONDITION_NE, label);
-			break;
-		case CONDITION_LT:
-			m_assembler.BCc(CAArch32Assembler::CONDITION_LT, label);
-			break;
-		case CONDITION_LE:
-			m_assembler.BCc(CAArch32Assembler::CONDITION_LE, label);
-			break;
-		case CONDITION_GT:
-			m_assembler.BCc(CAArch32Assembler::CONDITION_GT, label);
-			break;
-		case CONDITION_GE:
-			m_assembler.BCc(CAArch32Assembler::CONDITION_GE, label);
-			break;
-		default:
-			assert(0);
-			break;
+	case CONDITION_EQ:
+		m_assembler.BCc(CAArch32Assembler::CONDITION_EQ, label);
+		break;
+	case CONDITION_NE:
+		m_assembler.BCc(CAArch32Assembler::CONDITION_NE, label);
+		break;
+	case CONDITION_BL:
+		m_assembler.BCc(CAArch32Assembler::CONDITION_CC, label);
+		break;
+	case CONDITION_BE:
+		m_assembler.BCc(CAArch32Assembler::CONDITION_LS, label);
+		break;
+	case CONDITION_AB:
+		m_assembler.BCc(CAArch32Assembler::CONDITION_HI, label);
+		break;
+	case CONDITION_AE:
+		m_assembler.BCc(CAArch32Assembler::CONDITION_CS, label);
+		break;
+	case CONDITION_LT:
+		m_assembler.BCc(CAArch32Assembler::CONDITION_LT, label);
+		break;
+	case CONDITION_LE:
+		m_assembler.BCc(CAArch32Assembler::CONDITION_LE, label);
+		break;
+	case CONDITION_GT:
+		m_assembler.BCc(CAArch32Assembler::CONDITION_GT, label);
+		break;
+	case CONDITION_GE:
+		m_assembler.BCc(CAArch32Assembler::CONDITION_GE, label);
+		break;
+	default:
+		assert(0);
+		break;
 	}
 }
 

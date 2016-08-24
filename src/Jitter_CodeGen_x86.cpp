@@ -873,6 +873,18 @@ void CCodeGen_x86::CondJmp_JumpTo(CX86Assembler::LABEL label, Jitter::CONDITION 
 	case CONDITION_NE:
 		m_assembler.JnzJx(label);
 		break;
+	case CONDITION_BL:
+		m_assembler.JbJx(label);
+		break;
+	case CONDITION_BE:
+		m_assembler.JbeJx(label);
+		break;
+	case CONDITION_AB:
+		m_assembler.JnbeJx(label);
+		break;
+	case CONDITION_AE:
+		m_assembler.JnbJx(label);
+		break;
 	case CONDITION_LT:
 		m_assembler.JlJx(label);
 		break;

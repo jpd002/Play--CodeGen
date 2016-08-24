@@ -4,7 +4,7 @@
 #include <algorithm>
 #include "MemoryFunction.h"
 
-#ifdef WIN32
+#ifdef _WIN32
 
 #include <windows.h>
 
@@ -31,7 +31,7 @@ CMemoryFunction::CMemoryFunction()
 CMemoryFunction::CMemoryFunction(const void* code, size_t size)
 : m_code(nullptr)
 {
-#ifdef WIN32
+#ifdef _WIN32
 	m_size = size;
 	m_code = malloc(size);
 	memcpy(m_code, code, size);

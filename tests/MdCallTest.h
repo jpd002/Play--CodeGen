@@ -10,8 +10,8 @@ public:
 						CMdCallTest();
 	virtual				~CMdCallTest();
 
-	void				Compile(Jitter::CJitter&);
-	void				Run();
+	void				Compile(Jitter::CJitter&) override;
+	void				Run() override;
 
 private:
 	struct uint128

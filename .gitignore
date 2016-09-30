@@ -11,6 +11,7 @@ build_android/proguard-project.txt
 build_unix/build
 build_uwp/Generated Files
 build_uwp/ipch
+*.user
 *.userprops
 *.sdf
 *.opensdf

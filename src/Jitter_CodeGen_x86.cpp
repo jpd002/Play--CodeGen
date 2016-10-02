@@ -205,7 +205,7 @@ void CCodeGen_x86::InsertMatchers(const CONSTMATCHER* constMatchers)
 
 void CCodeGen_x86::SetGenerationFlags()
 {
-#ifdef _WIN32
+#if defined(_WIN32) && (defined(_M_IX86) || defined(_M_X64))
 	static uint32 CPUID_FLAG_SSE41 = 0x080000;
 	std::array<int, 4> cpuInfo;
 	__cpuid(cpuInfo.data(), 1);

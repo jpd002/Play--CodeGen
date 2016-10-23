@@ -340,14 +340,34 @@ namespace Jitter
 			static OpRegType OpReg() { return &CAArch32Assembler::Vqsub_I32; }
 		};
 
+		struct MDOP_CMPEQB : public MDOP_BASE3
+		{
+			static OpRegType OpReg() { return &CAArch32Assembler::Vceq_I8; }
+		};
+
+		struct MDOP_CMPEQH : public MDOP_BASE3
+		{
+			static OpRegType OpReg() { return &CAArch32Assembler::Vceq_I16; }
+		};
+
 		struct MDOP_CMPEQW : public MDOP_BASE3
 		{
 			static OpRegType OpReg() { return &CAArch32Assembler::Vceq_I32; }
 		};
 
+		struct MDOP_CMPGTB : public MDOP_BASE3
+		{
+			static OpRegType OpReg() { return &CAArch32Assembler::Vcgt_I8; }
+		};
+
 		struct MDOP_CMPGTH : public MDOP_BASE3
 		{
 			static OpRegType OpReg() { return &CAArch32Assembler::Vcgt_I16; }
+		};
+
+		struct MDOP_CMPGTW : public MDOP_BASE3
+		{
+			static OpRegType OpReg() { return &CAArch32Assembler::Vcgt_I32; }
 		};
 
 		struct MDOP_MINH : public MDOP_BASE3

@@ -388,7 +388,7 @@ namespace Jitter
 		
 		struct MDOP_CMPGTH : public MDOP_BASE3
 		{
-			static OpRegType OpReg() { return &CAArch64Assembler::Cmgt_4s; }
+			static OpRegType OpReg() { return &CAArch64Assembler::Cmgt_8h; }
 		};
 		
 		struct MDOP_MINH : public MDOP_BASE3

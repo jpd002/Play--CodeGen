@@ -513,9 +513,13 @@ CCodeGen_AArch64::CONSTMATCHER CCodeGen_AArch64::g_mdConstMatchers[] =
 	{ OP_MD_SUBSS_H,            MATCH_VARIABLE128,    MATCH_VARIABLE128,    MATCH_VARIABLE128,      &CCodeGen_AArch64::Emit_Md_VarVarVar<MDOP_SUBHSS>                },
 	{ OP_MD_SUBSS_W,            MATCH_VARIABLE128,    MATCH_VARIABLE128,    MATCH_VARIABLE128,      &CCodeGen_AArch64::Emit_Md_VarVarVar<MDOP_SUBWSS>                },
 
+	{ OP_MD_CMPEQ_B,            MATCH_VARIABLE128,    MATCH_VARIABLE128,    MATCH_VARIABLE128,      &CCodeGen_AArch64::Emit_Md_VarVarVar<MDOP_CMPEQB>                },
+	{ OP_MD_CMPEQ_H,            MATCH_VARIABLE128,    MATCH_VARIABLE128,    MATCH_VARIABLE128,      &CCodeGen_AArch64::Emit_Md_VarVarVar<MDOP_CMPEQH>                },
 	{ OP_MD_CMPEQ_W,            MATCH_VARIABLE128,    MATCH_VARIABLE128,    MATCH_VARIABLE128,      &CCodeGen_AArch64::Emit_Md_VarVarVar<MDOP_CMPEQW>                },
 
+	{ OP_MD_CMPGT_B,            MATCH_VARIABLE128,    MATCH_VARIABLE128,    MATCH_VARIABLE128,      &CCodeGen_AArch64::Emit_Md_VarVarVar<MDOP_CMPGTB>                },
 	{ OP_MD_CMPGT_H,            MATCH_VARIABLE128,    MATCH_VARIABLE128,    MATCH_VARIABLE128,      &CCodeGen_AArch64::Emit_Md_VarVarVar<MDOP_CMPGTH>                },
+	{ OP_MD_CMPGT_W,            MATCH_VARIABLE128,    MATCH_VARIABLE128,    MATCH_VARIABLE128,      &CCodeGen_AArch64::Emit_Md_VarVarVar<MDOP_CMPGTW>                },
 
 	{ OP_MD_MIN_H,              MATCH_VARIABLE128,    MATCH_VARIABLE128,    MATCH_VARIABLE128,      &CCodeGen_AArch64::Emit_Md_VarVarVar<MDOP_MINH>                  },
 	{ OP_MD_MIN_W,              MATCH_VARIABLE128,    MATCH_VARIABLE128,    MATCH_VARIABLE128,      &CCodeGen_AArch64::Emit_Md_VarVarVar<MDOP_MINW>                  },

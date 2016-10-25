@@ -220,9 +220,36 @@ void CAArch64Assembler::Clz(REGISTER32 rd, REGISTER32 rn)
 	WriteWord(opcode);
 }
 
+void CAArch64Assembler::Cmeq_16b(REGISTERMD rd, REGISTERMD rn, REGISTERMD rm)
+{
+	uint32 opcode = 0x6E208C00;
+	opcode |= (rd <<  0);
+	opcode |= (rn <<  5);
+	opcode |= (rm << 16);
+	WriteWord(opcode);
+}
+
+void CAArch64Assembler::Cmeq_8h(REGISTERMD rd, REGISTERMD rn, REGISTERMD rm)
+{
+	uint32 opcode = 0x6E608C00;
+	opcode |= (rd <<  0);
+	opcode |= (rn <<  5);
+	opcode |= (rm << 16);
+	WriteWord(opcode);
+}
+
 void CAArch64Assembler::Cmeq_4s(REGISTERMD rd, REGISTERMD rn, REGISTERMD rm)
 {
 	uint32 opcode = 0x6EA08C00;
+	opcode |= (rd <<  0);
+	opcode |= (rn <<  5);
+	opcode |= (rm << 16);
+	WriteWord(opcode);
+}
+
+void CAArch64Assembler::Cmgt_16b(REGISTERMD rd, REGISTERMD rn, REGISTERMD rm)
+{
+	uint32 opcode = 0x4E203400;
 	opcode |= (rd <<  0);
 	opcode |= (rn <<  5);
 	opcode |= (rm << 16);

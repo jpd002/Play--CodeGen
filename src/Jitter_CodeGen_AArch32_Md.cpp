@@ -22,39 +22,57 @@ void CCodeGen_AArch32::LoadRelative128AddressInRegister(CAArch32Assembler::REGIS
 {
 	assert(symbol->m_type == SYM_RELATIVE128);
 
+	uint32 totalOffset = symbol->m_valueLow + offset;
+
 	uint8 immediate = 0;
 	uint8 shiftAmount = 0;
-	if(!TryGetAluImmediateParams(symbol->m_valueLow + offset, immediate, shiftAmount))
+	if(TryGetAluImmediateParams(totalOffset, immediate, shiftAmount))
 	{
-		throw std::runtime_error("Failed to build immediate for symbol.");
+		m_assembler.Add(dstReg, g_baseRegister, CAArch32Assembler::MakeImmediateAluOperand(immediate, shiftAmount));
 	}
-	m_assembler.Add(dstReg, g_baseRegister, CAArch32Assembler::MakeImmediateAluOperand(immediate, shiftAmount));
+	else
+	{
+		LoadConstantInRegister(dstReg, totalOffset);
+		m_assembler.Add(dstReg, g_baseRegister, dstReg);
+	}
 }
 
 void CCodeGen_AArch32::LoadTemporary128AddressInRegister(CAArch32Assembler::REGISTER dstReg, CSymbol* symbol, uint32 offset)
 {
 	assert(symbol->m_type == SYM_TEMPORARY128);
 
+	uint32 totalOffset = symbol->m_stackLocation + m_stackLevel + offset;
+
 	uint8 immediate = 0;
 	uint8 shiftAmount = 0;
-	if(!TryGetAluImmediateParams(symbol->m_stackLocation + m_stackLevel + offset, immediate, shiftAmount))
+	if(TryGetAluImmediateParams(totalOffset, immediate, shiftAmount))
 	{
-		throw std::runtime_error("Failed to build immediate for symbol.");
+		m_assembler.Add(dstReg, CAArch32Assembler::rSP, CAArch32Assembler::MakeImmediateAluOperand(immediate, shiftAmount));
 	}
-	m_assembler.Add(dstReg, CAArch32Assembler::rSP, CAArch32Assembler::MakeImmediateAluOperand(immediate, shiftAmount));
+	else
+	{
+		LoadConstantInRegister(dstReg, totalOffset);
+		m_assembler.Add(dstReg, CAArch32Assembler::rSP, dstReg);
+	}
 }
 
 void CCodeGen_AArch32::LoadTemporary256ElementAddressInRegister(CAArch32Assembler::REGISTER dstReg, CSymbol* symbol, uint32 offset)
 {
 	assert(symbol->m_type == SYM_TEMPORARY256);
 
+	uint32 totalOffset = symbol->m_stackLocation + m_stackLevel + offset;
+
 	uint8 immediate = 0;
 	uint8 shiftAmount = 0;
-	if(!TryGetAluImmediateParams(symbol->m_stackLocation + m_stackLevel + offset, immediate, shiftAmount))
+	if(TryGetAluImmediateParams(totalOffset, immediate, shiftAmount))
 	{
-		throw std::runtime_error("Failed to build immediate for symbol.");
+		m_assembler.Add(dstReg, CAArch32Assembler::rSP, CAArch32Assembler::MakeImmediateAluOperand(immediate, shiftAmount));
 	}
-	m_assembler.Add(dstReg, CAArch32Assembler::rSP, CAArch32Assembler::MakeImmediateAluOperand(immediate, shiftAmount));
+	else
+	{
+		LoadConstantInRegister(dstReg, totalOffset);
+		m_assembler.Add(dstReg, CAArch32Assembler::rSP, dstReg);
+	}
 }
 
 template <typename MDOP>

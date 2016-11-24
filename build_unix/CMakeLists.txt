@@ -51,6 +51,7 @@ enable_testing()
 
 add_executable(CodeGenTest
 	../tests/AliasTest.cpp
+	../tests/AliasTest2.cpp
 	../tests/Alu64Test.cpp
 	../tests/Call64Test.cpp
 	../tests/Cmp64Test.cpp

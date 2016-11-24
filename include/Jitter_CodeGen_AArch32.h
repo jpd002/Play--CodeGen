@@ -285,6 +285,11 @@ namespace Jitter
 			static OpRegType OpReg() { return &CAArch32Assembler::Vqadd_U8; }
 		};
 
+		struct MDOP_ADDHUS : public MDOP_BASE3
+		{
+			static OpRegType OpReg() { return &CAArch32Assembler::Vqadd_U16; }
+		};
+
 		struct MDOP_ADDWUS : public MDOP_BASE3
 		{
 			static OpRegType OpReg() { return &CAArch32Assembler::Vqadd_U32; }
@@ -539,6 +544,7 @@ namespace Jitter
 
 		//SUB64
 		void									Emit_Sub64_MemMemMem(const STATEMENT&);
+		void									Emit_Sub64_MemMemCst(const STATEMENT&);
 		void									Emit_Sub64_MemCstMem(const STATEMENT&);
 
 		//AND64

@@ -59,6 +59,7 @@ namespace Jitter
 		OP_MD_ADDSS_W,
 
 		OP_MD_ADDUS_B,
+		OP_MD_ADDUS_H,
 		OP_MD_ADDUS_W,
 
 		OP_MD_SUB_B,
@@ -217,6 +218,7 @@ namespace Jitter
 
 	std::string		ConditionToString(CONDITION);
 	void			DumpStatementList(const StatementList&);
+	void			DumpStatementList(std::ostream&, const StatementList&);
 
 	template<typename ListType, typename IteratorType, typename ValueType>
 	class IndexedStatementListBase

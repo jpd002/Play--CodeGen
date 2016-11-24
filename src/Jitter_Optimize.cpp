@@ -119,7 +119,7 @@ CJitter::VERSIONED_STATEMENT_LIST CJitter::GenerateVersionedStatementList(const 
 			uint8 mask = 0xF;
 			if(newStatement.op == OP_MD_MOV_MASKED)
 			{
-				mask = static_cast<uint8>(newStatement.src2->GetSymbol()->m_valueLow);
+				mask = static_cast<uint8>(newStatement.jmpCondition);
 			}
 
 			if(mask & 0x01) result.relativeVersions.IncrementRelativeVersion(dst->m_valueLow + 0);

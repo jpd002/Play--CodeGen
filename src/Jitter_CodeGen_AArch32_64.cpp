@@ -256,6 +256,28 @@ void CCodeGen_AArch32::Emit_Sub64_MemMemMem(const STATEMENT& statement)
 	StoreRegistersInMemory64(dst, regLo1, regHi1);
 }
 
+void CCodeGen_AArch32::Emit_Sub64_MemMemCst(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	auto regLo1 = CAArch32Assembler::r0;
+	auto regHi1 = CAArch32Assembler::r1;
+	auto regLo2 = CAArch32Assembler::r2;
+	auto regHi2 = CAArch32Assembler::r3;
+
+	LoadMemory64InRegisters(regLo1, regHi1, src1);
+	LoadConstantInRegister(regLo2, src2->m_valueLow);
+	LoadConstantInRegister(regHi2, src2->m_valueHigh);
+
+	//TODO: Improve this by using immediate operands instead of loading constants in registers
+	m_assembler.Subs(regLo1, regLo1, regLo2);
+	m_assembler.Sbc(regHi1, regHi1, regHi2);
+
+	StoreRegistersInMemory64(dst, regLo1, regHi1);
+}
+
 void CCodeGen_AArch32::Emit_Sub64_MemCstMem(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
@@ -817,6 +839,7 @@ CCodeGen_AArch32::CONSTMATCHER CCodeGen_AArch32::g_64ConstMatchers[] =
 	{ OP_ADD64,			MATCH_MEMORY64,		MATCH_MEMORY64,		MATCH_CONSTANT64,	&CCodeGen_AArch32::Emit_Add64_MemMemCst				},
 
 	{ OP_SUB64,			MATCH_MEMORY64,		MATCH_MEMORY64,		MATCH_MEMORY64,		&CCodeGen_AArch32::Emit_Sub64_MemMemMem				},
+	{ OP_SUB64,			MATCH_MEMORY64,		MATCH_MEMORY64,		MATCH_CONSTANT64,	&CCodeGen_AArch32::Emit_Sub64_MemMemCst,			},
 	{ OP_SUB64,			MATCH_MEMORY64,		MATCH_CONSTANT64,	MATCH_MEMORY64,		&CCodeGen_AArch32::Emit_Sub64_MemCstMem				},
 
 	{ OP_AND64,			MATCH_MEMORY64,		MATCH_MEMORY64,		MATCH_MEMORY64,		&CCodeGen_AArch32::Emit_And64_MemMemMem,			},

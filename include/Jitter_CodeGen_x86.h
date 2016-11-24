@@ -163,6 +163,11 @@ namespace Jitter
 			static OpVoType OpVo() { return &CX86Assembler::PaddusbVo; }
 		};
 
+		struct MDOP_ADDUSH : public MDOP_BASE
+		{
+			static OpVoType OpVo() { return &CX86Assembler::PadduswVo; }
+		};
+
 		struct MDOP_SUBB : public MDOP_BASE
 		{
 			static OpVoType OpVo() { return &CX86Assembler::PsubbVo; }
@@ -499,7 +504,7 @@ namespace Jitter
 		void						Emit_Cmp_RelRegReg(const STATEMENT&);
 		void						Emit_Cmp_RelRegRel(const STATEMENT&);
 		void						Emit_Cmp_RelRegCst(const STATEMENT&);
-		void						Emit_Cmp_RelRelRel(const STATEMENT&);
+		void						Emit_Cmp_MemMemMem(const STATEMENT&);
 		void						Emit_Cmp_MemMemCst(const STATEMENT&);
 
 		//MUL/MULS
@@ -539,7 +544,7 @@ namespace Jitter
 		void						Emit_CondJmp_RegReg(const STATEMENT&);
 		void						Emit_CondJmp_RegMem(const STATEMENT&);
 		void						Emit_CondJmp_RegCst(const STATEMENT&);
-		void						Emit_CondJmp_RelRel(const STATEMENT&);
+		void						Emit_CondJmp_MemMem(const STATEMENT&);
 		void						Emit_CondJmp_MemCst(const STATEMENT&);
 
 		//MERGETO64

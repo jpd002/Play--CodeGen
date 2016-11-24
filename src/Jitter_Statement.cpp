@@ -36,17 +36,22 @@ std::string Jitter::ConditionToString(CONDITION condition)
 
 void Jitter::DumpStatementList(const StatementList& statements)
 {
+	DumpStatementList(std::cout, statements);
+}
+
+void Jitter::DumpStatementList(std::ostream& outputStream, const StatementList& statements)
+{
 	for(const auto& statement : statements)
 	{
 		if(statement.dst)
 		{
-			std::cout << statement.dst->ToString();
-			std::cout << " := ";
+			outputStream << statement.dst->ToString();
+			outputStream << " := ";
 		}
 
 		if(statement.src1)
 		{
-			std::cout << statement.src1->ToString();
+			outputStream << statement.src1->ToString();
 		}
 
 		switch(statement.op)
@@ -55,283 +60,283 @@ void Jitter::DumpStatementList(const StatementList& statements)
 		case OP_ADD64:
 		case OP_ADDREF:
 		case OP_FP_ADD:
-			std::cout << " + ";
+			outputStream << " + ";
 			break;
 		case OP_SUB:
 		case OP_SUB64:
 		case OP_FP_SUB:
-			std::cout << " - ";
+			outputStream << " - ";
 			break;
 		case OP_CMP:
 		case OP_CMP64:
 		case OP_FP_CMP:
-			std::cout << " CMP(" << ConditionToString(statement.jmpCondition) << ") ";
+			outputStream << " CMP(" << ConditionToString(statement.jmpCondition) << ") ";
 			break;
 		case OP_MUL:
 		case OP_MULS:
 		case OP_FP_MUL:
-			std::cout << " * ";
+			outputStream << " * ";
 			break;
 		case OP_DIV:
 		case OP_DIVS:
 		case OP_FP_DIV:
-			std::cout << " / ";
+			outputStream << " / ";
 			break;
 		case OP_AND:
 		case OP_AND64:
 		case OP_MD_AND:
-			std::cout << " & ";
+			outputStream << " & ";
 			break;
 		case OP_LZC:
-			std::cout << " LZC";
+			outputStream << " LZC";
 			break;
 		case OP_OR:
 		case OP_MD_OR:
-			std::cout << " | ";
+			outputStream << " | ";
 			break;
 		case OP_XOR:
 		case OP_MD_XOR:
-			std::cout << " ^ ";
+			outputStream << " ^ ";
 			break;
 		case OP_NOT:
 		case OP_MD_NOT:
-			std::cout << " ! ";
+			outputStream << " ! ";
 			break;
 		case OP_SRL:
 		case OP_SRL64:
-			std::cout << " >> ";
+			outputStream << " >> ";
 			break;
 		case OP_SRA:
 		case OP_SRA64:
-			std::cout << " >>A ";
+			outputStream << " >>A ";
 			break;
 		case OP_SLL:
 		case OP_SLL64:
-			std::cout << " << ";
+			outputStream << " << ";
 			break;
 		case OP_NOP:
-			std::cout << " NOP ";
+			outputStream << " NOP ";
 			break;
 		case OP_MOV:
 			break;
 		case OP_STOREATREF:
-			std::cout << " <- ";
+			outputStream << " <- ";
 			break;
 		case OP_LOADFROMREF:
-			std::cout << " LOADFROM ";
+			outputStream << " LOADFROM ";
 			break;
 		case OP_RELTOREF:
-			std::cout << " TOREF ";
+			outputStream << " TOREF ";
 			break;
 		case OP_PARAM:
 		case OP_PARAM_RET:
-			std::cout << " PARAM ";
+			outputStream << " PARAM ";
 			break;
 		case OP_CALL:
-			std::cout << " CALL ";
+			outputStream << " CALL ";
 			break;
 		case OP_RETVAL:
-			std::cout << " RETURNVALUE ";
+			outputStream << " RETURNVALUE ";
 			break;
 		case OP_JMP:
-			std::cout << " JMP{" << statement.jmpBlock << "} ";
+			outputStream << " JMP{" << statement.jmpBlock << "} ";
 			break;
 		case OP_CONDJMP:
-			std::cout << " JMP{" << statement.jmpBlock << "}(" << ConditionToString(statement.jmpCondition) << ") ";
+			outputStream << " JMP{" << statement.jmpBlock << "}(" << ConditionToString(statement.jmpCondition) << ") ";
 			break;
 		case OP_LABEL:
-			std::cout << "LABEL_" << statement.jmpBlock << ":";
+			outputStream << "LABEL_" << statement.jmpBlock << ":";
 			break;
 		case OP_EXTLOW64:
-			std::cout << " EXTLOW64";
+			outputStream << " EXTLOW64";
 			break;
 		case OP_EXTHIGH64:
-			std::cout << " EXTHIGH64";
+			outputStream << " EXTHIGH64";
 			break;
 		case OP_MERGETO64:
-			std::cout << " MERGETO64 ";
+			outputStream << " MERGETO64 ";
 			break;
 		case OP_MERGETO256:
-			std::cout << " MERGETO256 ";
+			outputStream << " MERGETO256 ";
 			break;
 		case OP_FP_ABS:
-			std::cout << " ABS";
+			outputStream << " ABS";
 			break;
 		case OP_FP_NEG:
-			std::cout << " NEG";
+			outputStream << " NEG";
 			break;
 		case OP_FP_MIN:
-			std::cout << " MIN ";
+			outputStream << " MIN ";
 			break;
 		case OP_FP_MAX:
-			std::cout << " MAX ";
+			outputStream << " MAX ";
 			break;
 		case OP_FP_SQRT:
-			std::cout << " SQRT";
+			outputStream << " SQRT";
 			break;
 		case OP_FP_RSQRT:
-			std::cout << " RSQRT";
+			outputStream << " RSQRT";
 			break;
 		case OP_FP_RCPL:
-			std::cout << " RCPL";
+			outputStream << " RCPL";
 			break;
 		case OP_FP_TOINT_TRUNC:
-			std::cout << " INT(TRUNC)";
+			outputStream << " INT(TRUNC)";
 			break;
 		case OP_FP_LDCST:
-			std::cout << " LOAD ";
+			outputStream << " LOAD ";
 			break;
 		case OP_MD_MOV_MASKED:
-			std::cout << " MOVMSK ";
+			outputStream << " MOVMSK ";
 			break;
 		case OP_MD_PACK_HB:
-			std::cout << " PACK_HB ";
+			outputStream << " PACK_HB ";
 			break;
 		case OP_MD_PACK_WH:
-			std::cout << " PACK_WH ";
+			outputStream << " PACK_WH ";
 			break;
 		case OP_MD_UNPACK_LOWER_BH:
-			std::cout << " UNPACK_LOWER_BH ";
+			outputStream << " UNPACK_LOWER_BH ";
 			break;
 		case OP_MD_UNPACK_LOWER_HW:
-			std::cout << " UNPACK_LOWER_HW ";
+			outputStream << " UNPACK_LOWER_HW ";
 			break;
 		case OP_MD_UNPACK_LOWER_WD:
-			std::cout << " UNPACK_LOWER_WD ";
+			outputStream << " UNPACK_LOWER_WD ";
 			break;
 		case OP_MD_UNPACK_UPPER_BH:
-			std::cout << " UNPACK_UPPER_BH ";
+			outputStream << " UNPACK_UPPER_BH ";
 			break;
 		case OP_MD_UNPACK_UPPER_HW:
-			std::cout << " UNPACK_UPPER_HW ";
+			outputStream << " UNPACK_UPPER_HW ";
 			break;
 		case OP_MD_UNPACK_UPPER_WD:
-			std::cout << " UNPACK_UPPER_WD ";
+			outputStream << " UNPACK_UPPER_WD ";
 			break;
 		case OP_MD_ADD_B:
-			std::cout << " +(B) ";
+			outputStream << " +(B) ";
 			break;
 		case OP_MD_ADD_H:
-			std::cout << " +(H) ";
+			outputStream << " +(H) ";
 			break;
 		case OP_MD_ADD_W:
-			std::cout << " +(W) ";
+			outputStream << " +(W) ";
 			break;
 		case OP_MD_ADDSS_H:
-			std::cout << " +(SSH) ";
+			outputStream << " +(SSH) ";
 			break;
 		case OP_MD_ADDSS_W:
-			std::cout << " +(SSW) ";
+			outputStream << " +(SSW) ";
 			break;
 		case OP_MD_ADDUS_B:
-			std::cout << " +(USB) ";
+			outputStream << " +(USB) ";
 			break;
 		case OP_MD_ADDUS_W:
-			std::cout << " +(USW) ";
+			outputStream << " +(USW) ";
 			break;
 		case OP_MD_SUB_B:
-			std::cout << " -(B) ";
+			outputStream << " -(B) ";
 			break;
 		case OP_MD_SUB_H:
-			std::cout << " -(H) ";
+			outputStream << " -(H) ";
 			break;
 		case OP_MD_SUB_W:
-			std::cout << " -(W) ";
+			outputStream << " -(W) ";
 			break;
 		case OP_MD_SUBSS_H:
-			std::cout << " -(SSH) ";
+			outputStream << " -(SSH) ";
 			break;
 		case OP_MD_SUBUS_B:
-			std::cout << " -(USB) ";
+			outputStream << " -(USB) ";
 			break;
 		case OP_MD_SUBUS_H:
-			std::cout << " -(USH) ";
+			outputStream << " -(USH) ";
 			break;
 		case OP_MD_SLLW:
-			std::cout << " <<(W) ";
+			outputStream << " <<(W) ";
 			break;
 		case OP_MD_SLLH:
-			std::cout << " <<(H) ";
+			outputStream << " <<(H) ";
 			break;
 		case OP_MD_SRLH:
-			std::cout << " >>(H) ";
+			outputStream << " >>(H) ";
 			break;
 		case OP_MD_SRLW:
-			std::cout << " >>(W) ";
+			outputStream << " >>(W) ";
 			break;
 		case OP_MD_SRAH:
-			std::cout << " >>A(H) ";
+			outputStream << " >>A(H) ";
 			break;
 		case OP_MD_SRAW:
-			std::cout << " >>A(W) ";
+			outputStream << " >>A(W) ";
 			break;
 		case OP_MD_SRL256:
-			std::cout << " >>(256) ";
+			outputStream << " >>(256) ";
 			break;
 		case OP_MD_CMPEQ_W:
-			std::cout << " CMP(EQ,W) ";
+			outputStream << " CMP(EQ,W) ";
 			break;
 		case OP_MD_CMPGT_H:
-			std::cout << " CMP(GT,H) ";
+			outputStream << " CMP(GT,H) ";
 			break;
 		case OP_MD_ADD_S:
-			std::cout << " +(S) ";
+			outputStream << " +(S) ";
 			break;
 		case OP_MD_SUB_S:
-			std::cout << " -(S) ";
+			outputStream << " -(S) ";
 			break;
 		case OP_MD_MUL_S:
-			std::cout << " *(S) ";
+			outputStream << " *(S) ";
 			break;
 		case OP_MD_DIV_S:
-			std::cout << " /(S) ";
+			outputStream << " /(S) ";
 			break;
 		case OP_MD_MIN_H:
-			std::cout << " MIN(H) ";
+			outputStream << " MIN(H) ";
 			break;
 		case OP_MD_MIN_W:
-			std::cout << " MIN(W) ";
+			outputStream << " MIN(W) ";
 			break;
 		case OP_MD_MIN_S:
-			std::cout << " MIN(S) ";
+			outputStream << " MIN(S) ";
 			break;
 		case OP_MD_MAX_H:
-			std::cout << " MAX(H) ";
+			outputStream << " MAX(H) ";
 			break;
 		case OP_MD_MAX_W:
-			std::cout << " MAX(W) ";
+			outputStream << " MAX(W) ";
 			break;
 		case OP_MD_MAX_S:
-			std::cout << " MAX(S) ";
+			outputStream << " MAX(S) ";
 			break;
 		case OP_MD_ABS_S:
-			std::cout << " ABS(S)";
+			outputStream << " ABS(S)";
 			break;
 		case OP_MD_ISNEGATIVE:
-			std::cout << " ISNEGATIVE";
+			outputStream << " ISNEGATIVE";
 			break;
 		case OP_MD_ISZERO:
-			std::cout << " ISZERO";
+			outputStream << " ISZERO";
 			break;
 		case OP_MD_EXPAND:
-			std::cout << " EXPAND";
+			outputStream << " EXPAND";
 			break;
 		case OP_MD_TOSINGLE:
-			std::cout << " TOSINGLE";
+			outputStream << " TOSINGLE";
 			break;
 		case OP_MD_TOWORD_TRUNCATE:
-			std::cout << " TOWORD_TRUNCATE";
+			outputStream << " TOWORD_TRUNCATE";
 			break;
 		default:
-			std::cout << " ?? ";
+			outputStream << " ?? ";
 			break;
 		}
 
 		if(statement.src2)
 		{
-			std::cout << statement.src2->ToString();
+			outputStream << statement.src2->ToString();
 		}
 
-		std::cout << std::endl;
+		outputStream << std::endl;
 	}
 }

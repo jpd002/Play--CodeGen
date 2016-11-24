@@ -53,6 +53,11 @@ void CMdAddTest::Compile(Jitter::CJitter& jitter)
 
 		jitter.MD_PushRel(offsetof(CONTEXT, src1));
 		jitter.MD_PushRel(offsetof(CONTEXT, src1));
+		jitter.MD_AddHUS();
+		jitter.MD_PullRel(offsetof(CONTEXT, dstAddHUS));
+
+		jitter.MD_PushRel(offsetof(CONTEXT, src1));
+		jitter.MD_PushRel(offsetof(CONTEXT, src1));
 		jitter.MD_AddHSS();
 		jitter.MD_PullRel(offsetof(CONTEXT, dstAddHSS));
 
@@ -132,6 +137,21 @@ void CMdAddTest::Run()
 		0xC0, 0xE1
 	};
 
+	static const uint8 dstAddHUSRes[16] =
+	{
+		0x00, 0x20,
+		0x40, 0x60,
+
+		0x80, 0xA0,
+		0xC0, 0xE0,
+
+		0xFF, 0xFF,
+		0xFF, 0xFF,
+
+		0xFF, 0xFF,
+		0xFF, 0xFF,
+	};
+
 	static const uint8 dstAddHSSRes[16] =
 	{
 		0x00, 0x20,
@@ -160,6 +180,7 @@ void CMdAddTest::Run()
 		TEST_VERIFY(dstAddBRes[i]			== context.dstAddB[i]);
 		TEST_VERIFY(dstAddBUSRes[i]			== context.dstAddBUS[i]);
 		TEST_VERIFY(dstAddHRes[i]			== context.dstAddH[i]);
+		TEST_VERIFY(dstAddHUSRes[i]			== context.dstAddHUS[i]);
 		TEST_VERIFY(dstAddHSSRes[i]			== context.dstAddHSS[i]);
 		TEST_VERIFY(dstAddWRes[i]			== context.dstAddW[i]);
 	}

@@ -2,51 +2,14 @@
 #define _JITTER_CODEGEN_X86_MUL_H_
 
 template <bool isSigned>
-void CCodeGen_x86::Emit_MulTmp64RegCst(const STATEMENT& statement)
-{
-	CSymbol* dst = statement.dst->GetSymbol().get();
-	CSymbol* src1 = statement.src1->GetSymbol().get();
-	CSymbol* src2 = statement.src2->GetSymbol().get();
-
-	m_assembler.MovId(CX86Assembler::rAX, src2->m_valueLow);
-	if(isSigned)
-	{
-		m_assembler.ImulEd(CX86Assembler::MakeRegisterAddress(m_registers[src1->m_valueLow]));
-	}
-	else
-	{
-		m_assembler.MulEd(CX86Assembler::MakeRegisterAddress(m_registers[src1->m_valueLow]));
-	}
-	m_assembler.MovGd(CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rSP, dst->m_stackLocation + m_stackLevel + 0), CX86Assembler::rAX);
-	m_assembler.MovGd(CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rSP, dst->m_stackLocation + m_stackLevel + 4), CX86Assembler::rDX);
-}
-
-template <bool isSigned>
-void CCodeGen_x86::Emit_MulTmp64RegRel(const STATEMENT& statement)
-{
-	CSymbol* dst = statement.dst->GetSymbol().get();
-	CSymbol* src1 = statement.src1->GetSymbol().get();
-	CSymbol* src2 = statement.src2->GetSymbol().get();
-
-	m_assembler.MovEd(CX86Assembler::rAX, CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, src2->m_valueLow));
-	if(isSigned)
-	{
-		m_assembler.ImulEd(CX86Assembler::MakeRegisterAddress(m_registers[src1->m_valueLow]));
-	}
-	else
-	{
-		m_assembler.MulEd(CX86Assembler::MakeRegisterAddress(m_registers[src1->m_valueLow]));
-	}
-	m_assembler.MovGd(CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rSP, dst->m_stackLocation + m_stackLevel + 0), CX86Assembler::rAX);
-	m_assembler.MovGd(CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rSP, dst->m_stackLocation + m_stackLevel + 4), CX86Assembler::rDX);
-}
-
-template <bool isSigned>
 void CCodeGen_x86::Emit_MulTmp64RegReg(const STATEMENT& statement)
 {
-	CSymbol* dst = statement.dst->GetSymbol().get();
-	CSymbol* src1 = statement.src1->GetSymbol().get();
-	CSymbol* src2 = statement.src2->GetSymbol().get();
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	assert(src1->m_type == SYM_REGISTER);
+	assert(src2->m_type == SYM_REGISTER);
 
 	m_assembler.MovEd(CX86Assembler::rAX, CX86Assembler::MakeRegisterAddress(m_registers[src2->m_valueLow]));
 	if(isSigned)
@@ -57,52 +20,95 @@ void CCodeGen_x86::Emit_MulTmp64RegReg(const STATEMENT& statement)
 	{
 		m_assembler.MulEd(CX86Assembler::MakeRegisterAddress(m_registers[src1->m_valueLow]));
 	}
-	m_assembler.MovGd(CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rSP, dst->m_stackLocation + m_stackLevel + 0), CX86Assembler::rAX);
-	m_assembler.MovGd(CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rSP, dst->m_stackLocation + m_stackLevel + 4), CX86Assembler::rDX);
+	m_assembler.MovGd(MakeTemporary64SymbolLoAddress(dst), CX86Assembler::rAX);
+	m_assembler.MovGd(MakeTemporary64SymbolHiAddress(dst), CX86Assembler::rDX);
 }
 
 template <bool isSigned>
-void CCodeGen_x86::Emit_MulTmp64RelRel(const STATEMENT& statement)
+void CCodeGen_x86::Emit_MulTmp64RegMem(const STATEMENT& statement)
 {
-	CSymbol* dst = statement.dst->GetSymbol().get();
-	CSymbol* src1 = statement.src1->GetSymbol().get();
-	CSymbol* src2 = statement.src2->GetSymbol().get();
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
 
-	assert(dst->m_type  == SYM_TEMPORARY64);
-	assert(src1->m_type == SYM_RELATIVE);
-	assert(src2->m_type == SYM_RELATIVE);
+	assert(src1->m_type == SYM_REGISTER);
 
-	m_assembler.MovEd(CX86Assembler::rAX, CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, src2->m_valueLow));
+	m_assembler.MovEd(CX86Assembler::rAX, MakeMemorySymbolAddress(src2));
 	if(isSigned)
 	{
-		m_assembler.ImulEd(CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, src1->m_valueLow));
+		m_assembler.ImulEd(CX86Assembler::MakeRegisterAddress(m_registers[src1->m_valueLow]));
 	}
 	else
 	{
-		m_assembler.MulEd(CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, src1->m_valueLow));
+		m_assembler.MulEd(CX86Assembler::MakeRegisterAddress(m_registers[src1->m_valueLow]));
 	}
-	m_assembler.MovGd(CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rSP, dst->m_stackLocation + m_stackLevel + 0), CX86Assembler::rAX);
-	m_assembler.MovGd(CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rSP, dst->m_stackLocation + m_stackLevel + 4), CX86Assembler::rDX);
+	m_assembler.MovGd(MakeTemporary64SymbolLoAddress(dst), CX86Assembler::rAX);
+	m_assembler.MovGd(MakeTemporary64SymbolHiAddress(dst), CX86Assembler::rDX);
 }
 
 template <bool isSigned>
-void CCodeGen_x86::Emit_MulTmp64RelCst(const STATEMENT& statement)
+void CCodeGen_x86::Emit_MulTmp64RegCst(const STATEMENT& statement)
 {
-	CSymbol* dst = statement.dst->GetSymbol().get();
-	CSymbol* src1 = statement.src1->GetSymbol().get();
-	CSymbol* src2 = statement.src2->GetSymbol().get();
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	assert(src1->m_type == SYM_REGISTER);
+	assert(src2->m_type == SYM_CONSTANT);
 
 	m_assembler.MovId(CX86Assembler::rAX, src2->m_valueLow);
 	if(isSigned)
 	{
-		m_assembler.ImulEd(CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, src1->m_valueLow));
+		m_assembler.ImulEd(CX86Assembler::MakeRegisterAddress(m_registers[src1->m_valueLow]));
 	}
 	else
 	{
-		m_assembler.MulEd(CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, src1->m_valueLow));
+		m_assembler.MulEd(CX86Assembler::MakeRegisterAddress(m_registers[src1->m_valueLow]));
 	}
-	m_assembler.MovGd(CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rSP, dst->m_stackLocation + m_stackLevel + 0), CX86Assembler::rAX);
-	m_assembler.MovGd(CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rSP, dst->m_stackLocation + m_stackLevel + 4), CX86Assembler::rDX);
+	m_assembler.MovGd(MakeTemporary64SymbolLoAddress(dst), CX86Assembler::rAX);
+	m_assembler.MovGd(MakeTemporary64SymbolHiAddress(dst), CX86Assembler::rDX);
+}
+
+template <bool isSigned>
+void CCodeGen_x86::Emit_MulTmp64MemMem(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	m_assembler.MovEd(CX86Assembler::rAX, MakeMemorySymbolAddress(src2));
+	if(isSigned)
+	{
+		m_assembler.ImulEd(MakeMemorySymbolAddress(src1));
+	}
+	else
+	{
+		m_assembler.MulEd(MakeMemorySymbolAddress(src1));
+	}
+	m_assembler.MovGd(MakeTemporary64SymbolLoAddress(dst), CX86Assembler::rAX);
+	m_assembler.MovGd(MakeTemporary64SymbolHiAddress(dst), CX86Assembler::rDX);
+}
+
+template <bool isSigned>
+void CCodeGen_x86::Emit_MulTmp64MemCst(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	assert(src2->m_type == SYM_CONSTANT);
+
+	m_assembler.MovId(CX86Assembler::rAX, src2->m_valueLow);
+	if(isSigned)
+	{
+		m_assembler.ImulEd(MakeMemorySymbolAddress(src1));
+	}
+	else
+	{
+		m_assembler.MulEd(MakeMemorySymbolAddress(src1));
+	}
+	m_assembler.MovGd(MakeTemporary64SymbolLoAddress(dst), CX86Assembler::rAX);
+	m_assembler.MovGd(MakeTemporary64SymbolHiAddress(dst), CX86Assembler::rDX);
 }
 
 #endif

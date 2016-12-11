@@ -1105,8 +1105,8 @@ bool CJitter::CopyPropagation(StatementList& statements)
 {
 	bool changed = false;
 
-	for(StatementList::iterator outerStatementIterator(statements.begin());
-		statements.end() != outerStatementIterator; outerStatementIterator++)
+	for(auto outerStatementIterator(statements.begin());
+		statements.end() != outerStatementIterator; ++outerStatementIterator)
 	{
 		STATEMENT& outerStatement(*outerStatementIterator);
 
@@ -1124,8 +1124,8 @@ bool CJitter::CopyPropagation(StatementList& statements)
 
 		//Count number of uses of this symbol
 		unsigned int useCount = 0;
-		for(StatementList::iterator innerStatementIterator(statements.begin());
-			statements.end() != innerStatementIterator; innerStatementIterator++)
+		for(auto innerStatementIterator(outerStatementIterator);
+			statements.end() != innerStatementIterator; ++innerStatementIterator)
 		{
 			if(outerStatementIterator == innerStatementIterator) continue;
 
@@ -1142,9 +1142,11 @@ bool CJitter::CopyPropagation(StatementList& statements)
 
 		if(useCount == 1)
 		{
+			unsigned int changeCount = 0;
+
 			//Check for all OP_MOVs that uses the result of this operation and propagate
-			for(StatementList::iterator innerStatementIterator(statements.begin());
-				statements.end() != innerStatementIterator; innerStatementIterator++)
+			for(auto innerStatementIterator(outerStatementIterator);
+				statements.end() != innerStatementIterator; ++innerStatementIterator)
 			{
 				if(outerStatementIterator == innerStatementIterator) continue;
 
@@ -1152,6 +1154,8 @@ bool CJitter::CopyPropagation(StatementList& statements)
 
 				if(innerStatement.op == OP_MOV && innerStatement.src1->Equals(outerDstSymbol))
 				{
+					changeCount++;
+
 					innerStatement.op = outerStatement.op;
 					innerStatement.src1 = outerStatement.src1;
 					innerStatement.src2 = outerStatement.src2;
@@ -1159,6 +1163,8 @@ bool CJitter::CopyPropagation(StatementList& statements)
 					changed = true;
 				}
 			}
+
+			assert(changeCount <= 1);
 		}
 	}
 	return changed;

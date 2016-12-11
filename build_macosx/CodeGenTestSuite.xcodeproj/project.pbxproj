@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		03E0AC361D629D2100346464 /* ConditionTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 03E0AC341D629D2100346464 /* ConditionTest.cpp */; };
 		701249831B02E97A005F341A /* MdMinMaxTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 701249811B02E97A005F341A /* MdMinMaxTest.cpp */; };
 		7031AA571AED88B800FA7B53 /* MdAddTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7031AA531AED88B800FA7B53 /* MdAddTest.cpp */; };
 		7031AA581AED88B800FA7B53 /* NestedIfTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7031AA551AED88B800FA7B53 /* NestedIfTest.cpp */; };
@@ -94,6 +95,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		03E0AC341D629D2100346464 /* ConditionTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ConditionTest.cpp; path = ../tests/ConditionTest.cpp; sourceTree = "<group>"; };
+		03E0AC351D629D2100346464 /* ConditionTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ConditionTest.h; path = ../tests/ConditionTest.h; sourceTree = "<group>"; };
 		701249811B02E97A005F341A /* MdMinMaxTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MdMinMaxTest.cpp; path = ../tests/MdMinMaxTest.cpp; sourceTree = "<group>"; };
 		701249821B02E97A005F341A /* MdMinMaxTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MdMinMaxTest.h; path = ../tests/MdMinMaxTest.h; sourceTree = "<group>"; };
 		7031AA531AED88B800FA7B53 /* MdAddTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MdAddTest.cpp; path = ../tests/MdAddTest.cpp; sourceTree = "<group>"; };
@@ -255,6 +258,8 @@
 				70BFC4F61A5530EF0094CD9F /* Cmp64Test.cpp */,
 				70BFC4F71A5530EF0094CD9F /* Cmp64Test.h */,
 				70BFC5141A560A3F0094CD9F /* CodeGen_Prefix.pch */,
+				03E0AC341D629D2100346464 /* ConditionTest.cpp */,
+				03E0AC351D629D2100346464 /* ConditionTest.h */,
 				7E207C181507D5F200EE8C4F /* CompareTest.cpp */,
 				7E207C191507D5F200EE8C4F /* CompareTest.h */,
 				7E207C1A1507D5F200EE8C4F /* Crc32Test.cpp */,
@@ -439,6 +444,7 @@
 				7031AA571AED88B800FA7B53 /* MdAddTest.cpp in Sources */,
 				7E207C481507D5F200EE8C4F /* MdFpTest.cpp in Sources */,
 				703D96521AE4985100B3974D /* MdCmpTest.cpp in Sources */,
+				03E0AC361D629D2100346464 /* ConditionTest.cpp in Sources */,
 				7E207C491507D5F200EE8C4F /* MdTest.cpp in Sources */,
 				704F23AA1B001114009FD916 /* ShiftTest.cpp in Sources */,
 				7E207C4A1507D5F200EE8C4F /* MemAccessTest.cpp in Sources */,

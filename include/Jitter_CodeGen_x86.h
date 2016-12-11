@@ -484,9 +484,8 @@ namespace Jitter
 
 		//NOT
 		void						Emit_Not_RegReg(const STATEMENT&);
-		void						Emit_Not_RegRel(const STATEMENT&);
-		void						Emit_Not_RegTmp(const STATEMENT&);
-		void						Emit_Not_RelReg(const STATEMENT&);
+		void						Emit_Not_RegMem(const STATEMENT&);
+		void						Emit_Not_MemReg(const STATEMENT&);
 		void						Emit_Not_MemMem(const STATEMENT&);
 
 		//LZC
@@ -499,42 +498,38 @@ namespace Jitter
 		void						Emit_Cmp_RegRegReg(const STATEMENT&);
 		void						Emit_Cmp_RegRegMem(const STATEMENT&);
 		void						Emit_Cmp_RegRegCst(const STATEMENT&);
-		void						Emit_Cmp_RegRelRel(const STATEMENT&);
-		void						Emit_Cmp_RegRelCst(const STATEMENT&);
-		void						Emit_Cmp_RelRegReg(const STATEMENT&);
-		void						Emit_Cmp_RelRegRel(const STATEMENT&);
-		void						Emit_Cmp_RelRegCst(const STATEMENT&);
+		void						Emit_Cmp_RegMemMem(const STATEMENT&);
+		void						Emit_Cmp_RegMemCst(const STATEMENT&);
+		void						Emit_Cmp_MemRegReg(const STATEMENT&);
+		void						Emit_Cmp_MemRegMem(const STATEMENT&);
+		void						Emit_Cmp_MemRegCst(const STATEMENT&);
 		void						Emit_Cmp_MemMemMem(const STATEMENT&);
 		void						Emit_Cmp_MemMemCst(const STATEMENT&);
 
 		//MUL/MULS
-		template<bool> void			Emit_MulTmp64RegRel(const STATEMENT&);
-		template<bool> void			Emit_MulTmp64RegCst(const STATEMENT&);
 		template<bool> void			Emit_MulTmp64RegReg(const STATEMENT&);
-		template<bool> void			Emit_MulTmp64RelRel(const STATEMENT&);
-		template<bool> void			Emit_MulTmp64RelCst(const STATEMENT&);
+		template<bool> void			Emit_MulTmp64RegMem(const STATEMENT&);
+		template<bool> void			Emit_MulTmp64RegCst(const STATEMENT&);
+		template<bool> void			Emit_MulTmp64MemMem(const STATEMENT&);
+		template<bool> void			Emit_MulTmp64MemCst(const STATEMENT&);
 
 		//DIV/DIVS
 		template <bool> void		Emit_DivTmp64RegReg(const STATEMENT&);
 		template <bool> void		Emit_DivTmp64RegMem(const STATEMENT&);
 		template <bool> void		Emit_DivTmp64RegCst(const STATEMENT&);
-		template <bool> void		Emit_DivTmp64RelReg(const STATEMENT&);
+		template <bool> void		Emit_DivTmp64MemReg(const STATEMENT&);
 		template <bool> void		Emit_DivTmp64MemMem(const STATEMENT&);
 		template <bool> void		Emit_DivTmp64MemCst(const STATEMENT&);
 		template <bool> void		Emit_DivTmp64CstReg(const STATEMENT&);
 		template <bool> void		Emit_DivTmp64CstMem(const STATEMENT&);
 
 		//MOV
-		void						Emit_Mov_RegRel(const STATEMENT&);
 		void						Emit_Mov_RegReg(const STATEMENT&);
+		void						Emit_Mov_RegMem(const STATEMENT&);
 		void						Emit_Mov_RegCst(const STATEMENT&);
-		void						Emit_Mov_RegTmp(const STATEMENT&);
-		void						Emit_Mov_RelReg(const STATEMENT&);
-		void						Emit_Mov_RelRel(const STATEMENT&);
-		void						Emit_Mov_RelCst(const STATEMENT&);
-		void						Emit_Mov_RelTmp(const STATEMENT&);
-		void						Emit_Mov_TmpReg(const STATEMENT&);
-		void						Emit_Mov_TmpRel(const STATEMENT&);
+		void						Emit_Mov_MemReg(const STATEMENT&);
+		void						Emit_Mov_MemMem(const STATEMENT&);
+		void						Emit_Mov_MemCst(const STATEMENT&);
 
 		//JMP
 		void						Emit_Jmp(const STATEMENT&);
@@ -556,13 +551,11 @@ namespace Jitter
 
 		//EXTLOW64
 		void						Emit_ExtLow64RegTmp64(const STATEMENT&);
-		void						Emit_ExtLow64RelTmp64(const STATEMENT&);
-		void						Emit_ExtLow64TmpTmp64(const STATEMENT&);
+		void						Emit_ExtLow64MemTmp64(const STATEMENT&);
 
 		//EXTHIGH64
 		void						Emit_ExtHigh64RegTmp64(const STATEMENT&);
-		void						Emit_ExtHigh64RelTmp64(const STATEMENT&);
-		void						Emit_ExtHigh64TmpTmp64(const STATEMENT&);
+		void						Emit_ExtHigh64MemTmp64(const STATEMENT&);
 
 		//FPUOP
 		template <typename> void	Emit_Fpu_MemMem(const STATEMENT&);

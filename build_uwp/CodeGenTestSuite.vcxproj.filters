@@ -1,0 +1,303 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Common">
+      <UniqueIdentifier>5085e398-1f23-4fb4-9e32-3030b59c5a4e</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Assets">
+      <UniqueIdentifier>9a578901-6acd-4758-93d7-2f9dac5817eb</UniqueIdentifier>
+      <Extensions>bmp;fbx;gif;jpg;jpeg;tga;tiff;tif;png</Extensions>
+    </Filter>
+    <Filter Include="Test Source Files">
+      <UniqueIdentifier>{2844ca21-899b-4ccb-b20c-7e943486db57}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ApplicationDefinition Include="App.xaml" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="App.xaml.cpp" />
+    <ClCompile Include="MainPage.xaml.cpp" />
+    <ClCompile Include="pch.cpp" />
+    <ClCompile Include="..\tests\AliasTest.cpp">
+      <Filter>Test Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tests\AliasTest2.cpp">
+      <Filter>Test Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tests\Alu64Test.cpp">
+      <Filter>Test Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tests\Call64Test.cpp">
+      <Filter>Test Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tests\Cmp64Test.cpp">
+      <Filter>Test Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tests\CompareTest.cpp">
+      <Filter>Test Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tests\Crc32Test.cpp">
+      <Filter>Test Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tests\DivTest.cpp">
+      <Filter>Test Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tests\FpIntMixTest.cpp">
+      <Filter>Test Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tests\FpuTest.cpp">
+      <Filter>Test Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tests\HugeJumpTest.cpp">
+      <Filter>Test Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tests\Logic64Test.cpp">
+      <Filter>Test Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tests\LogicTest.cpp">
+      <Filter>Test Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tests\LzcTest.cpp">
+      <Filter>Test Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tests\Main.cpp">
+      <Filter>Test Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tests\MdAddTest.cpp">
+      <Filter>Test Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tests\MdCallTest.cpp">
+      <Filter>Test Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tests\MdCmpTest.cpp">
+      <Filter>Test Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tests\MdFpFlagTest.cpp">
+      <Filter>Test Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tests\MdFpTest.cpp">
+      <Filter>Test Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tests\MdLogicTest.cpp">
+      <Filter>Test Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tests\MdManipTest.cpp">
+      <Filter>Test Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tests\MdMemAccessTest.cpp">
+      <Filter>Test Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tests\MdMinMaxTest.cpp">
+      <Filter>Test Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tests\MdShiftTest.cpp">
+      <Filter>Test Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tests\MdSubTest.cpp">
+      <Filter>Test Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tests\MdTest.cpp">
+      <Filter>Test Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tests\MdUnpackTest.cpp">
+      <Filter>Test Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tests\MemAccessTest.cpp">
+      <Filter>Test Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tests\Merge64Test.cpp">
+      <Filter>Test Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tests\MultTest.cpp">
+      <Filter>Test Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tests\NestedIfTest.cpp">
+      <Filter>Test Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tests\RandomAluTest.cpp">
+      <Filter>Test Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tests\RandomAluTest2.cpp">
+      <Filter>Test Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tests\RandomAluTest3.cpp">
+      <Filter>Test Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tests\RegAllocTest.cpp">
+      <Filter>Test Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tests\Shift64Test.cpp">
+      <Filter>Test Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tests\ShiftTest.cpp">
+      <Filter>Test Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tests\SimpleMdTest.cpp">
+      <Filter>Test Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tests\ConditionTest.cpp">
+      <Filter>Test Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="pch.h" />
+    <ClInclude Include="App.xaml.h" />
+    <ClInclude Include="MainPage.xaml.h" />
+    <ClInclude Include="..\tests\AliasTest.h">
+      <Filter>Test Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tests\AliasTest2.h">
+      <Filter>Test Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tests\Align16.h">
+      <Filter>Test Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tests\Alu64Test.h">
+      <Filter>Test Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tests\Call64Test.h">
+      <Filter>Test Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tests\Cmp64Test.h">
+      <Filter>Test Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tests\CompareTest.h">
+      <Filter>Test Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tests\Crc32Test.h">
+      <Filter>Test Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tests\DivTest.h">
+      <Filter>Test Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tests\FpIntMixTest.h">
+      <Filter>Test Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tests\FpuTest.h">
+      <Filter>Test Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tests\HugeJumpTest.h">
+      <Filter>Test Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tests\Logic64Test.h">
+      <Filter>Test Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tests\LogicTest.h">
+      <Filter>Test Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tests\LzcTest.h">
+      <Filter>Test Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tests\MdAddTest.h">
+      <Filter>Test Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tests\MdCallTest.h">
+      <Filter>Test Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tests\MdCmpTest.h">
+      <Filter>Test Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tests\MdFpFlagTest.h">
+      <Filter>Test Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tests\MdFpTest.h">
+      <Filter>Test Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tests\MdLogicTest.h">
+      <Filter>Test Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tests\MdManipTest.h">
+      <Filter>Test Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tests\MdMemAccessTest.h">
+      <Filter>Test Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tests\MdMinMaxTest.h">
+      <Filter>Test Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tests\MdShiftTest.h">
+      <Filter>Test Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tests\MdSubTest.h">
+      <Filter>Test Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tests\MdTest.h">
+      <Filter>Test Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tests\MdUnpackTest.h">
+      <Filter>Test Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tests\MemAccessTest.h">
+      <Filter>Test Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tests\Merge64Test.h">
+      <Filter>Test Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tests\MultTest.h">
+      <Filter>Test Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tests\NestedIfTest.h">
+      <Filter>Test Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tests\RandomAluTest.h">
+      <Filter>Test Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tests\RandomAluTest2.h">
+      <Filter>Test Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tests\RandomAluTest3.h">
+      <Filter>Test Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tests\RegAllocTest.h">
+      <Filter>Test Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tests\Shift64Test.h">
+      <Filter>Test Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tests\ShiftTest.h">
+      <Filter>Test Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tests\SimpleMdTest.h">
+      <Filter>Test Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tests\Test.h">
+      <Filter>Test Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tests\ConditionTest.h">
+      <Filter>Test Source Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Assets\LockScreenLogo.scale-200.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\SplashScreen.scale-200.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\Square150x150Logo.scale-200.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\Square44x44Logo.scale-200.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\Square44x44Logo.targetsize-24_altform-unplated.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\StoreLogo.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\Wide310x150Logo.scale-200.png">
+      <Filter>Assets</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <AppxManifest Include="Package.appxmanifest" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="CodeGenTestSuite_TemporaryKey.pfx" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="MainPage.xaml" />
+  </ItemGroup>
+</Project>

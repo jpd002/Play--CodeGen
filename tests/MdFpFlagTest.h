@@ -1,5 +1,4 @@
-#ifndef _MDFPFLAGTEST_H_
-#define _MDFPFLAGTEST_H_
+#pragma once
 
 #include "Test.h"
 #include "Align16.h"
@@ -11,8 +10,8 @@ public:
 						CMdFpFlagTest();
 	virtual				~CMdFpFlagTest();
 
-	void				Compile(Jitter::CJitter&);
-	void				Run();
+	void				Compile(Jitter::CJitter&) override;
+	void				Run() override;
 
 private:
 	struct CONTEXT
@@ -34,5 +33,3 @@ private:
 
 	CMemoryFunction		m_function;
 };
-
-#endif

@@ -38,15 +38,16 @@ CCodeGen_x86_32::CONSTMATCHER CCodeGen_x86_32::g_constMatchers[] =
 	{ OP_RETVAL,		MATCH_MEMORY64,		MATCH_NIL,			MATCH_NIL,			&CCodeGen_x86_32::Emit_RetVal_Mem64				},
 
 	{ OP_MOV,			MATCH_MEMORY64,		MATCH_MEMORY64,		MATCH_NIL,			&CCodeGen_x86_32::Emit_Mov_Mem64Mem64			},
-	{ OP_MOV,			MATCH_RELATIVE64,	MATCH_CONSTANT64,	MATCH_NIL,			&CCodeGen_x86_32::Emit_Mov_Rel64Cst64			},
+	{ OP_MOV,			MATCH_MEMORY64,		MATCH_CONSTANT64,	MATCH_NIL,			&CCodeGen_x86_32::Emit_Mov_Mem64Cst64			},
 
 	{ OP_ADD64,			MATCH_MEMORY64,		MATCH_MEMORY64,		MATCH_MEMORY64,		&CCodeGen_x86_32::Emit_Add64_MemMemMem			},
-	{ OP_ADD64,			MATCH_RELATIVE64,	MATCH_RELATIVE64,	MATCH_CONSTANT64,	&CCodeGen_x86_32::Emit_Add64_RelRelCst			},
+	{ OP_ADD64,			MATCH_MEMORY64,		MATCH_MEMORY64,		MATCH_CONSTANT64,	&CCodeGen_x86_32::Emit_Add64_MemMemCst			},
 
-	{ OP_SUB64,			MATCH_RELATIVE64,	MATCH_RELATIVE64,	MATCH_RELATIVE64,	&CCodeGen_x86_32::Emit_Sub64_RelRelRel			},
-	{ OP_SUB64,			MATCH_RELATIVE64,	MATCH_CONSTANT64,	MATCH_RELATIVE64,	&CCodeGen_x86_32::Emit_Sub64_RelCstRel			},
+	{ OP_SUB64,			MATCH_MEMORY64,		MATCH_MEMORY64,		MATCH_MEMORY64,		&CCodeGen_x86_32::Emit_Sub64_MemMemMem			},
+	{ OP_SUB64,			MATCH_MEMORY64,		MATCH_MEMORY64,		MATCH_CONSTANT64,	&CCodeGen_x86_32::Emit_Sub64_MemMemCst			},
+	{ OP_SUB64,			MATCH_MEMORY64,		MATCH_CONSTANT64,	MATCH_MEMORY64,		&CCodeGen_x86_32::Emit_Sub64_MemCstMem			},
 
-	{ OP_AND64,			MATCH_RELATIVE64,	MATCH_RELATIVE64,	MATCH_RELATIVE64,	&CCodeGen_x86_32::Emit_And64_RelRelRel			},
+	{ OP_AND64,			MATCH_MEMORY64,		MATCH_MEMORY64,		MATCH_MEMORY64,		&CCodeGen_x86_32::Emit_And64_MemMemMem			},
 
 	{ OP_SRL64,			MATCH_MEMORY64,		MATCH_MEMORY64,		MATCH_REGISTER,		&CCodeGen_x86_32::Emit_Srl64_MemMemReg			},
 	{ OP_SRL64,			MATCH_MEMORY64,		MATCH_MEMORY64,		MATCH_MEMORY,		&CCodeGen_x86_32::Emit_Srl64_MemMemMem			},
@@ -58,7 +59,7 @@ CCodeGen_x86_32::CONSTMATCHER CCodeGen_x86_32::g_constMatchers[] =
 
 	{ OP_SLL64,			MATCH_MEMORY64,		MATCH_MEMORY64,		MATCH_REGISTER,		&CCodeGen_x86_32::Emit_Sll64_MemMemReg			},
 	{ OP_SLL64,			MATCH_MEMORY64,		MATCH_MEMORY64,		MATCH_MEMORY,		&CCodeGen_x86_32::Emit_Sll64_MemMemMem			},
-	{ OP_SLL64,			MATCH_RELATIVE64,	MATCH_RELATIVE64,	MATCH_CONSTANT,		&CCodeGen_x86_32::Emit_Sll64_RelRelCst			},
+	{ OP_SLL64,			MATCH_MEMORY64,		MATCH_MEMORY64,		MATCH_CONSTANT,		&CCodeGen_x86_32::Emit_Sll64_MemMemCst			},
 
 	{ OP_CMP64,			MATCH_REGISTER,		MATCH_RELATIVE64,	MATCH_RELATIVE64,	&CCodeGen_x86_32::Emit_Cmp64_RegRelRel			},
 	{ OP_CMP64,			MATCH_RELATIVE,		MATCH_RELATIVE64,	MATCH_RELATIVE64,	&CCodeGen_x86_32::Emit_Cmp64_RelRelRel			},
@@ -427,8 +428,8 @@ void CCodeGen_x86_32::Emit_RetVal_Mem64(const STATEMENT& statement)
 
 void CCodeGen_x86_32::Emit_Mov_Mem64Mem64(const STATEMENT& statement)
 {
-	CSymbol* dst = statement.dst->GetSymbol().get();
-	CSymbol* src1 = statement.src1->GetSymbol().get();
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
 
 	m_assembler.MovEd(CX86Assembler::rAX, MakeMemory64SymbolLoAddress(src1));
 	m_assembler.MovEd(CX86Assembler::rDX, MakeMemory64SymbolHiAddress(src1));
@@ -437,23 +438,22 @@ void CCodeGen_x86_32::Emit_Mov_Mem64Mem64(const STATEMENT& statement)
 	m_assembler.MovGd(MakeMemory64SymbolHiAddress(dst), CX86Assembler::rDX);
 }
 
-void CCodeGen_x86_32::Emit_Mov_Rel64Cst64(const STATEMENT& statement)
+void CCodeGen_x86_32::Emit_Mov_Mem64Cst64(const STATEMENT& statement)
 {
-	CSymbol* dst = statement.dst->GetSymbol().get();
-	CSymbol* src1 = statement.src1->GetSymbol().get();
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
 
-	assert(dst->m_type  == SYM_RELATIVE64);
 	assert(src1->m_type == SYM_CONSTANT64);
 
-	m_assembler.MovId(CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, dst->m_valueLow + 0), src1->m_valueLow);
-	m_assembler.MovId(CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, dst->m_valueLow + 4), src1->m_valueHigh);
+	m_assembler.MovId(MakeMemory64SymbolLoAddress(dst), src1->m_valueLow);
+	m_assembler.MovId(MakeMemory64SymbolHiAddress(dst), src1->m_valueHigh);
 }
 
 void CCodeGen_x86_32::Emit_Add64_MemMemMem(const STATEMENT& statement)
 {
-	CSymbol* dst = statement.dst->GetSymbol().get();
-	CSymbol* src1 = statement.src1->GetSymbol().get();
-	CSymbol* src2 = statement.src2->GetSymbol().get();
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
 
 	m_assembler.MovEd(CX86Assembler::rAX, MakeMemory64SymbolLoAddress(src1));
 	m_assembler.MovEd(CX86Assembler::rDX, MakeMemory64SymbolHiAddress(src1));
@@ -465,84 +465,90 @@ void CCodeGen_x86_32::Emit_Add64_MemMemMem(const STATEMENT& statement)
 	m_assembler.MovGd(MakeMemory64SymbolHiAddress(dst), CX86Assembler::rDX);
 }
 
-void CCodeGen_x86_32::Emit_Add64_RelRelCst(const STATEMENT& statement)
+void CCodeGen_x86_32::Emit_Add64_MemMemCst(const STATEMENT& statement)
 {
-	CSymbol* dst = statement.dst->GetSymbol().get();
-	CSymbol* src1 = statement.src1->GetSymbol().get();
-	CSymbol* src2 = statement.src2->GetSymbol().get();
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
 
-	assert(dst->m_type  == SYM_RELATIVE64);
-	assert(src1->m_type == SYM_RELATIVE64);
 	assert(src2->m_type == SYM_CONSTANT64);
 
-	m_assembler.MovEd(CX86Assembler::rAX, CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, src1->m_valueLow + 0));
-	m_assembler.MovEd(CX86Assembler::rDX, CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, src1->m_valueLow + 4));
+	m_assembler.MovEd(CX86Assembler::rAX, MakeMemory64SymbolLoAddress(src1));
+	m_assembler.MovEd(CX86Assembler::rDX, MakeMemory64SymbolHiAddress(src1));
 
 	m_assembler.AddId(CX86Assembler::MakeRegisterAddress(CX86Assembler::rAX), src2->m_valueLow);
 	m_assembler.AdcId(CX86Assembler::MakeRegisterAddress(CX86Assembler::rDX), src2->m_valueHigh);
 
-	m_assembler.MovGd(CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, dst->m_valueLow + 0), CX86Assembler::rAX);
-	m_assembler.MovGd(CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, dst->m_valueLow + 4), CX86Assembler::rDX);
+	m_assembler.MovGd(MakeMemory64SymbolLoAddress(dst), CX86Assembler::rAX);
+	m_assembler.MovGd(MakeMemory64SymbolHiAddress(dst), CX86Assembler::rDX);
 }
 
-void CCodeGen_x86_32::Emit_Sub64_RelRelRel(const STATEMENT& statement)
+void CCodeGen_x86_32::Emit_Sub64_MemMemMem(const STATEMENT& statement)
 {
-	CSymbol* dst = statement.dst->GetSymbol().get();
-	CSymbol* src1 = statement.src1->GetSymbol().get();
-	CSymbol* src2 = statement.src2->GetSymbol().get();
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
 
-	assert(dst->m_type  == SYM_RELATIVE64);
-	assert(src1->m_type == SYM_RELATIVE64);
-	assert(src2->m_type == SYM_RELATIVE64);
+	m_assembler.MovEd(CX86Assembler::rAX, MakeMemory64SymbolLoAddress(src1));
+	m_assembler.MovEd(CX86Assembler::rDX, MakeMemory64SymbolHiAddress(src1));
 
-	m_assembler.MovEd(CX86Assembler::rAX, CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, src1->m_valueLow + 0));
-	m_assembler.MovEd(CX86Assembler::rDX, CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, src1->m_valueLow + 4));
+	m_assembler.SubEd(CX86Assembler::rAX, MakeMemory64SymbolLoAddress(src2));
+	m_assembler.SbbEd(CX86Assembler::rDX, MakeMemory64SymbolHiAddress(src2));
 
-	m_assembler.SubEd(CX86Assembler::rAX, CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, src2->m_valueLow + 0));
-	m_assembler.SbbEd(CX86Assembler::rDX, CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, src2->m_valueLow + 4));
-
-	m_assembler.MovGd(CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, dst->m_valueLow + 0), CX86Assembler::rAX);
-	m_assembler.MovGd(CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, dst->m_valueLow + 4), CX86Assembler::rDX);
+	m_assembler.MovGd(MakeMemory64SymbolLoAddress(dst), CX86Assembler::rAX);
+	m_assembler.MovGd(MakeMemory64SymbolHiAddress(dst), CX86Assembler::rDX);
 }
 
-void CCodeGen_x86_32::Emit_Sub64_RelCstRel(const STATEMENT& statement)
+void CCodeGen_x86_32::Emit_Sub64_MemMemCst(const STATEMENT& statement)
 {
-	CSymbol* dst = statement.dst->GetSymbol().get();
-	CSymbol* src1 = statement.src1->GetSymbol().get();
-	CSymbol* src2 = statement.src2->GetSymbol().get();
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
 
-	assert(dst->m_type  == SYM_RELATIVE64);
+	assert(src2->m_type == SYM_CONSTANT64);
+
+	m_assembler.MovEd(CX86Assembler::rAX, MakeMemory64SymbolLoAddress(src1));
+	m_assembler.MovEd(CX86Assembler::rDX, MakeMemory64SymbolHiAddress(src1));
+
+	m_assembler.SubId(CX86Assembler::MakeRegisterAddress(CX86Assembler::rAX), src2->m_valueLow);
+	m_assembler.SbbId(CX86Assembler::MakeRegisterAddress(CX86Assembler::rDX), src2->m_valueHigh);
+
+	m_assembler.MovGd(MakeMemory64SymbolLoAddress(dst), CX86Assembler::rAX);
+	m_assembler.MovGd(MakeMemory64SymbolHiAddress(dst), CX86Assembler::rDX);
+}
+
+void CCodeGen_x86_32::Emit_Sub64_MemCstMem(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
 	assert(src1->m_type == SYM_CONSTANT64);
-	assert(src2->m_type == SYM_RELATIVE64);
 
 	m_assembler.MovId(CX86Assembler::rAX, src1->m_valueLow);
 	m_assembler.MovId(CX86Assembler::rDX, src1->m_valueHigh);
 
-	m_assembler.SubEd(CX86Assembler::rAX, CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, src2->m_valueLow + 0));
-	m_assembler.SbbEd(CX86Assembler::rDX, CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, src2->m_valueLow + 4));
+	m_assembler.SubEd(CX86Assembler::rAX, MakeMemory64SymbolLoAddress(src2));
+	m_assembler.SbbEd(CX86Assembler::rDX, MakeMemory64SymbolHiAddress(src2));
 
-	m_assembler.MovGd(CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, dst->m_valueLow + 0), CX86Assembler::rAX);
-	m_assembler.MovGd(CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, dst->m_valueLow + 4), CX86Assembler::rDX);
+	m_assembler.MovGd(MakeMemory64SymbolLoAddress(dst), CX86Assembler::rAX);
+	m_assembler.MovGd(MakeMemory64SymbolHiAddress(dst), CX86Assembler::rDX);
 }
 
-void CCodeGen_x86_32::Emit_And64_RelRelRel(const STATEMENT& statement)
+void CCodeGen_x86_32::Emit_And64_MemMemMem(const STATEMENT& statement)
 {
-	CSymbol* dst = statement.dst->GetSymbol().get();
-	CSymbol* src1 = statement.src1->GetSymbol().get();
-	CSymbol* src2 = statement.src2->GetSymbol().get();
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
 
-	assert(dst->m_type  == SYM_RELATIVE64);
-	assert(src1->m_type == SYM_RELATIVE64);
-	assert(src2->m_type == SYM_RELATIVE64);
+	m_assembler.MovEd(CX86Assembler::rAX, MakeMemory64SymbolLoAddress(src1));
+	m_assembler.MovEd(CX86Assembler::rDX, MakeMemory64SymbolHiAddress(src1));
 
-	m_assembler.MovEd(CX86Assembler::rAX, CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, src1->m_valueLow + 0));
-	m_assembler.MovEd(CX86Assembler::rDX, CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, src1->m_valueLow + 4));
+	m_assembler.AndEd(CX86Assembler::rAX, MakeMemory64SymbolLoAddress(src2));
+	m_assembler.AndEd(CX86Assembler::rDX, MakeMemory64SymbolHiAddress(src2));
 
-	m_assembler.AndEd(CX86Assembler::rAX, CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, src2->m_valueLow + 0));
-	m_assembler.AndEd(CX86Assembler::rDX, CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, src2->m_valueLow + 4));
-
-	m_assembler.MovGd(CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, dst->m_valueLow + 0), CX86Assembler::rAX);
-	m_assembler.MovGd(CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, dst->m_valueLow + 4), CX86Assembler::rDX);
+	m_assembler.MovGd(MakeMemory64SymbolLoAddress(dst), CX86Assembler::rAX);
+	m_assembler.MovGd(MakeMemory64SymbolHiAddress(dst), CX86Assembler::rDX);
 }
 
 //---------------------------------------------------------------------------------
@@ -832,24 +838,22 @@ void CCodeGen_x86_32::Emit_Sll64_MemMemMem(const STATEMENT& statement)
 	Emit_Sll64_MemMemVar(statement, shiftAmount);
 }
 
-void CCodeGen_x86_32::Emit_Sll64_RelRelCst(const STATEMENT& statement)
+void CCodeGen_x86_32::Emit_Sll64_MemMemCst(const STATEMENT& statement)
 {
-	CSymbol* dst = statement.dst->GetSymbol().get();
-	CSymbol* src1 = statement.src1->GetSymbol().get();
-	CSymbol* src2 = statement.src2->GetSymbol().get();
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
 
-	assert(dst->m_type  == SYM_RELATIVE64);
-	assert(src1->m_type == SYM_RELATIVE64);
 	assert(src2->m_type == SYM_CONSTANT);
 
 	uint8 shiftAmount = static_cast<uint8>(src2->m_valueLow & 0x3F);
 
-	CX86Assembler::REGISTER regLo = CX86Assembler::rAX;
-	CX86Assembler::REGISTER regHi = CX86Assembler::rDX;
+	auto regLo = CX86Assembler::rAX;
+	auto regHi = CX86Assembler::rDX;
 
 	if(shiftAmount >= 32)
 	{
-		m_assembler.MovEd(regHi, CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, src1->m_valueLow + 0));
+		m_assembler.MovEd(regHi, MakeMemory64SymbolLoAddress(src1));
 
 		if(shiftAmount != 0)
 		{
@@ -861,8 +865,8 @@ void CCodeGen_x86_32::Emit_Sll64_RelRelCst(const STATEMENT& statement)
 	}
 	else //Amount < 32
 	{
-		m_assembler.MovEd(regLo, CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, src1->m_valueLow + 0));
-		m_assembler.MovEd(regHi, CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, src1->m_valueLow + 4));
+		m_assembler.MovEd(regLo, MakeMemory64SymbolLoAddress(src1));
+		m_assembler.MovEd(regHi, MakeMemory64SymbolHiAddress(src1));
 
 		//shld nReg2, nReg1, nAmount
 		m_assembler.ShldEd(CX86Assembler::MakeRegisterAddress(regHi), regLo, shiftAmount);
@@ -871,8 +875,8 @@ void CCodeGen_x86_32::Emit_Sll64_RelRelCst(const STATEMENT& statement)
 		m_assembler.ShlEd(CX86Assembler::MakeRegisterAddress(regLo), shiftAmount);
 	}
 
-	m_assembler.MovGd(CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, dst->m_valueLow + 0), regLo);
-	m_assembler.MovGd(CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, dst->m_valueLow + 4), regHi);
+	m_assembler.MovGd(MakeMemory64SymbolLoAddress(dst), regLo);
+	m_assembler.MovGd(MakeMemory64SymbolHiAddress(dst), regHi);
 }
 
 //---------------------------------------------------------------------------------
@@ -881,60 +885,56 @@ void CCodeGen_x86_32::Emit_Sll64_RelRelCst(const STATEMENT& statement)
 
 void CCodeGen_x86_32::Cmp64_Equal(const STATEMENT& statement)
 {
-	CSymbol* src1 = statement.src1->GetSymbol().get();
-	CSymbol* src2 = statement.src2->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
 
-	struct CmpLo
-	{
-		void operator()(CX86Assembler& assembler, CX86Assembler::REGISTER registerId, CSymbol* symbol)
+	const auto cmpLo = 
+		[this](CX86Assembler::REGISTER registerId, CSymbol* symbol)
 		{
 			switch(symbol->m_type)
 			{
 			case SYM_RELATIVE64:
-				assembler.CmpEd(registerId, CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, symbol->m_valueLow + 0));
+				m_assembler.CmpEd(registerId, MakeMemory64SymbolLoAddress(symbol));
 				break;
 			case SYM_CONSTANT64:
 				if(symbol->m_valueLow == 0)
 				{
-					assembler.TestEd(registerId, CX86Assembler::MakeRegisterAddress(registerId));
+					m_assembler.TestEd(registerId, CX86Assembler::MakeRegisterAddress(registerId));
 				}
 				else
 				{
-					assembler.CmpId(CX86Assembler::MakeRegisterAddress(registerId), symbol->m_valueLow);
+					m_assembler.CmpId(CX86Assembler::MakeRegisterAddress(registerId), symbol->m_valueLow);
 				}
 				break;
 			default:
 				assert(0);
 				break;
 			}
-		}
-	};
+		};
 
-	struct CmpHi
-	{
-		void operator()(CX86Assembler& assembler, CX86Assembler::REGISTER registerId, CSymbol* symbol)
+	const auto cmpHi =
+		[this](CX86Assembler::REGISTER registerId, CSymbol* symbol)
 		{
 			switch(symbol->m_type)
 			{
 			case SYM_RELATIVE64:
-				assembler.CmpEd(registerId, CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, symbol->m_valueLow + 4));
+				m_assembler.CmpEd(registerId, MakeMemory64SymbolHiAddress(symbol));
 				break;
 			case SYM_CONSTANT64:
 				if(symbol->m_valueHigh == 0)
 				{
-					assembler.TestEd(registerId, CX86Assembler::MakeRegisterAddress(registerId));
+					m_assembler.TestEd(registerId, CX86Assembler::MakeRegisterAddress(registerId));
 				}
 				else
 				{
-					assembler.CmpId(CX86Assembler::MakeRegisterAddress(registerId), symbol->m_valueHigh);
+					m_assembler.CmpId(CX86Assembler::MakeRegisterAddress(registerId), symbol->m_valueHigh);
 				}
 				break;
 			default:
 				assert(0);
 				break;
 			}
-		}
-	};
+		};
 
 	assert(src1->m_type == SYM_RELATIVE64);
 
@@ -944,8 +944,8 @@ void CCodeGen_x86_32::Cmp64_Equal(const STATEMENT& statement)
 	CX86Assembler::REGISTER res1Reg = CX86Assembler::rAX;
 	CX86Assembler::REGISTER res2Reg = CX86Assembler::rCX;
 
-	m_assembler.MovEd(valReg, CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, src1->m_valueLow + 0));
-	CmpLo()(m_assembler, valReg, src2);
+	m_assembler.MovEd(valReg, MakeMemory64SymbolLoAddress(src1));
+	cmpLo(valReg, src2);
 
 	if(isEqual)
 	{
@@ -956,8 +956,8 @@ void CCodeGen_x86_32::Cmp64_Equal(const STATEMENT& statement)
 		m_assembler.SetneEb(CX86Assembler::MakeRegisterAddress(res1Reg));
 	}
 	
-	m_assembler.MovEd(valReg, CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, src1->m_valueLow + 4));
-	CmpHi()(m_assembler, valReg, src2);
+	m_assembler.MovEd(valReg, MakeMemory64SymbolHiAddress(src1));
+	cmpHi(valReg, src2);
 
 	if(isEqual)
 	{
@@ -1043,49 +1043,45 @@ struct CompareOrder64Greater
 template <typename CompareTraits>
 void CCodeGen_x86_32::Cmp64_Order(const STATEMENT& statement)
 {
-	CSymbol* src1 = statement.src1->GetSymbol().get();
-	CSymbol* src2 = statement.src2->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
 
 	CompareTraits compareTraits;
 	(void)compareTraits;
 
-	struct CmpLo
-	{
-		void operator()(CX86Assembler& assembler, CX86Assembler::REGISTER registerId, CSymbol* symbol)
+	const auto cmpLo =
+		[this](CX86Assembler::REGISTER registerId, CSymbol* symbol)
 		{
 			switch(symbol->m_type)
 			{
 			case SYM_RELATIVE64:
-				assembler.CmpEd(registerId, CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, symbol->m_valueLow + 0));
+				m_assembler.CmpEd(registerId, MakeMemory64SymbolLoAddress(symbol));
 				break;
 			case SYM_CONSTANT64:
-				assembler.CmpId(CX86Assembler::MakeRegisterAddress(registerId), symbol->m_valueLow);
+				m_assembler.CmpId(CX86Assembler::MakeRegisterAddress(registerId), symbol->m_valueLow);
 				break;
 			default:
 				assert(0);
 				break;
 			}
-		}
-	};
+		};
 
-	struct CmpHi
-	{
-		void operator()(CX86Assembler& assembler, CX86Assembler::REGISTER registerId, CSymbol* symbol)
+	const auto cmpHi =
+		[this](CX86Assembler::REGISTER registerId, CSymbol* symbol)
 		{
 			switch(symbol->m_type)
 			{
 			case SYM_RELATIVE64:
-				assembler.CmpEd(registerId, CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, symbol->m_valueLow + 4));
+				m_assembler.CmpEd(registerId, MakeMemory64SymbolHiAddress(symbol));
 				break;
 			case SYM_CONSTANT64:
-				assembler.CmpId(CX86Assembler::MakeRegisterAddress(registerId), symbol->m_valueHigh);
+				m_assembler.CmpId(CX86Assembler::MakeRegisterAddress(registerId), symbol->m_valueHigh);
 				break;
 			default:
 				assert(0);
 				break;
 			}
-		}
-	};
+		};
 
 	assert(src1->m_type == SYM_RELATIVE64);
 
@@ -1101,8 +1097,8 @@ void CCodeGen_x86_32::Cmp64_Order(const STATEMENT& statement)
 	/////////////////////////////////////////
 	//Check high order word if equal
 
-	m_assembler.MovEd(regHi, CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, src1->m_valueLow + 4));
-	CmpHi()(m_assembler, regHi, src2);
+	m_assembler.MovEd(regHi, MakeMemory64SymbolHiAddress(src1));
+	cmpHi(regHi, src2);
 
 	//je highOrderEqual
 	m_assembler.JzJx(highOrderEqualLabel);
@@ -1130,8 +1126,8 @@ void CCodeGen_x86_32::Cmp64_Order(const STATEMENT& statement)
 	m_assembler.MarkLabel(highOrderEqualLabel);
 	//If they are equal, next comparaison decides of result
 
-	m_assembler.MovEd(regLo, CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, src1->m_valueLow + 0));
-	CmpLo()(m_assembler, regLo, src2);
+	m_assembler.MovEd(regLo, MakeMemory64SymbolLoAddress(src1));
+	cmpLo(regLo, src2);
 
 	//setb/be reg[l]
 	if(orEqual)

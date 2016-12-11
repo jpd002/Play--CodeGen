@@ -236,6 +236,11 @@ void CX86Assembler::PorVo(XMMREGISTER registerId, const CAddress& address)
 	WriteEdVdOp_66_0F(0xEB, address, registerId);
 }
 
+void CX86Assembler::PshufbVo(XMMREGISTER registerId, const CAddress& address)
+{
+	WriteEdVdOp_66_0F_38(0x00, address, registerId);
+}
+
 void CX86Assembler::PshufdVo(XMMREGISTER registerId, const CAddress& address, uint8 shuffleByte)
 {
 	WriteEdVdOp_66_0F(0x70, address, registerId);

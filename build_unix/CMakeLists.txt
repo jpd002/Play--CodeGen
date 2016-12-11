@@ -54,6 +54,7 @@ add_executable(CodeGenTest
 	../tests/AliasTest2.cpp
 	../tests/Alu64Test.cpp
 	../tests/Call64Test.cpp
+	../tests/ConditionTest.cpp
 	../tests/Cmp64Test.cpp
 	../tests/CompareTest.cpp
 	../tests/Crc32Test.cpp

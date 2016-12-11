@@ -31,6 +31,7 @@
 #include "MemAccessTest.h"
 #include "HugeJumpTest.h"
 #include "Alu64Test.h"
+#include "ConditionTest.h"
 #include "Cmp64Test.h"
 #include "Shift64Test.h"
 #include "Logic64Test.h"
@@ -96,6 +97,33 @@ static const TestFactoryFunction s_factories[] =
 	[] () { return new CMdShiftTest(32); },
 	[] () { return new CMdShiftTest(38); },
 	[] () { return new CAlu64Test(); },
+	//negative / positive
+	[] () { return new CConditionTest(false,	0xFFFFFFFE, 0xFFFFFFFE); },
+	[] () { return new CConditionTest(false,	0x00000002, 0xFFFFFFFE); },
+	[] () { return new CConditionTest(false,	0xFFFFFFFE, 0x00000002); },
+	[] () { return new CConditionTest(false,	0x00000002, 0x00000002); },
+	[] () { return new CConditionTest(true,	0xFFFFFFFE, 0xFFFFFFFE); },
+	[] () { return new CConditionTest(true,	0x00000002, 0xFFFFFFFE); },
+	[] () { return new CConditionTest(true,	0xFFFFFFFE, 0x00000002); },
+	[] () { return new CConditionTest(true,	0x00000002, 0x00000002); },
+	//negative / negative
+	[]() { return new CConditionTest(false,	0xFFFFFFF0, 0xFFFFFFF0); },
+	[]() { return new CConditionTest(false,	0xFFFFFF00, 0xFFFFFFF0); },
+	[]() { return new CConditionTest(false,	0xFFFFFFF0, 0xFFFFFF00); },
+	[]() { return new CConditionTest(false,	0xFFFFFF00, 0xFFFFFF00); },
+	[]() { return new CConditionTest(true,	0xFFFFFFF0, 0xFFFFFFF0); },
+	[]() { return new CConditionTest(true,	0xFFFFFF00, 0xFFFFFFF0); },
+	[]() { return new CConditionTest(true,	0xFFFFFFF0, 0xFFFFFF00); },
+	[]() { return new CConditionTest(true,	0xFFFFFF00, 0xFFFFFF00); },
+	//positive / positive
+	[]() { return new CConditionTest(false,	0x0000000F, 0x0000000F); },
+	[]() { return new CConditionTest(false,	0x000000FF, 0x0000000F); },
+	[]() { return new CConditionTest(false,	0x0000000F, 0x000000FF); },
+	[]() { return new CConditionTest(false,	0x000000FF, 0x000000FF); },
+	[]() { return new CConditionTest(true,	0x0000000F, 0x0000000F); },
+	[]() { return new CConditionTest(true,	0x000000FF, 0x0000000F); },
+	[]() { return new CConditionTest(true,	0x0000000F, 0x000000FF); },
+	[]() { return new CConditionTest(true,	0x000000FF, 0x000000FF); },
 	[] () { return new CCmp64Test(false,	0xFEDCBA9876543210ULL, 0x012389AB4567CDEFULL); },
 	[] () { return new CCmp64Test(true,		0xFEDCBA9876543210ULL, 0x012389AB4567CDEFULL); },
 	[] () { return new CCmp64Test(false,	0xFFFFFFFFF6543210ULL, 0xFFFFFFFFF567CDEFULL); },

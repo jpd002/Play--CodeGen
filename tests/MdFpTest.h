@@ -10,8 +10,8 @@ public:
 						CMdFpTest();
 	virtual				~CMdFpTest();
 
-	void				Compile(Jitter::CJitter&);
-	void				Run();
+	void				Compile(Jitter::CJitter&) override;
+	void				Run() override;
 
 private:
 	struct CONTEXT

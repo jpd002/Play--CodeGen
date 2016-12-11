@@ -1025,6 +1025,24 @@ void CAArch32Assembler::Vsqrt_F32(SINGLE_REGISTER sd, SINGLE_REGISTER sm)
 	WriteWord(opcode);
 }
 
+void CAArch32Assembler::Vceq_I8(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER qm)
+{
+	uint32 opcode = 0xF3000850;
+	opcode |= FPSIMD_EncodeQd(qd);
+	opcode |= FPSIMD_EncodeQn(qn);
+	opcode |= FPSIMD_EncodeQm(qm);
+	WriteWord(opcode);
+}
+
+void CAArch32Assembler::Vceq_I16(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER qm)
+{
+	uint32 opcode = 0xF3100850;
+	opcode |= FPSIMD_EncodeQd(qd);
+	opcode |= FPSIMD_EncodeQn(qn);
+	opcode |= FPSIMD_EncodeQm(qm);
+	WriteWord(opcode);
+}
+
 void CAArch32Assembler::Vceq_I32(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER qm)
 {
 	uint32 opcode = 0xF3200850;
@@ -1034,9 +1052,27 @@ void CAArch32Assembler::Vceq_I32(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGIST
 	WriteWord(opcode);
 }
 
+void CAArch32Assembler::Vcgt_I8(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER qm)
+{
+	uint32 opcode = 0xF2000340;
+	opcode |= FPSIMD_EncodeQd(qd);
+	opcode |= FPSIMD_EncodeQn(qn);
+	opcode |= FPSIMD_EncodeQm(qm);
+	WriteWord(opcode);
+}
+
 void CAArch32Assembler::Vcgt_I16(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER qm)
 {
 	uint32 opcode = 0xF2100340;
+	opcode |= FPSIMD_EncodeQd(qd);
+	opcode |= FPSIMD_EncodeQn(qn);
+	opcode |= FPSIMD_EncodeQm(qm);
+	WriteWord(opcode);
+}
+
+void CAArch32Assembler::Vcgt_I32(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER qm)
+{
+	uint32 opcode = 0xF2200340;
 	opcode |= FPSIMD_EncodeQd(qd);
 	opcode |= FPSIMD_EncodeQn(qn);
 	opcode |= FPSIMD_EncodeQm(qm);

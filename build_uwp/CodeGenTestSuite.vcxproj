@@ -1,0 +1,268 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{5085e398-1f23-4fb4-9e32-3030b59c5a4e}</ProjectGuid>
+    <RootNamespace>CodeGenTestSuite</RootNamespace>
+    <DefaultLanguage>ja-JP</DefaultLanguage>
+    <MinimumVisualStudioVersion>14.0</MinimumVisualStudioVersion>
+    <AppContainerApplication>true</AppContainerApplication>
+    <ApplicationType>Windows Store</ApplicationType>
+    <WindowsTargetPlatformVersion>10.0.14393.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformMinVersion>10.0.10586.0</WindowsTargetPlatformMinVersion>
+    <ApplicationTypeRevision>10.0</ApplicationTypeRevision>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|ARM">
+      <Configuration>Debug</Configuration>
+      <Platform>ARM</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|ARM">
+      <Configuration>Release</Configuration>
+      <Platform>ARM</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <PlatformToolset>v140</PlatformToolset>
+    <UseDotNetNativeToolchain>true</UseDotNetNativeToolchain>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <PlatformToolset>v140</PlatformToolset>
+    <UseDotNetNativeToolchain>true</UseDotNetNativeToolchain>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <PlatformToolset>v140</PlatformToolset>
+    <UseDotNetNativeToolchain>true</UseDotNetNativeToolchain>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="GeneralSettings.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="GeneralSettings.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="GeneralSettings.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="GeneralSettings.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="GeneralSettings.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="GeneralSettings.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <PackageCertificateKeyFile>CodeGenTestSuite_TemporaryKey.pfx</PackageCertificateKeyFile>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
+    <ClCompile />
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
+    <ClCompile />
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile />
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile />
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile />
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile />
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="..\tests\AliasTest.h" />
+    <ClInclude Include="..\tests\AliasTest2.h" />
+    <ClInclude Include="..\tests\Align16.h" />
+    <ClInclude Include="..\tests\Alu64Test.h" />
+    <ClInclude Include="..\tests\Call64Test.h" />
+    <ClInclude Include="..\tests\Cmp64Test.h" />
+    <ClInclude Include="..\tests\CompareTest.h" />
+    <ClInclude Include="..\tests\ConditionTest.h" />
+    <ClInclude Include="..\tests\Crc32Test.h" />
+    <ClInclude Include="..\tests\DivTest.h" />
+    <ClInclude Include="..\tests\FpIntMixTest.h" />
+    <ClInclude Include="..\tests\FpuTest.h" />
+    <ClInclude Include="..\tests\HugeJumpTest.h" />
+    <ClInclude Include="..\tests\Logic64Test.h" />
+    <ClInclude Include="..\tests\LogicTest.h" />
+    <ClInclude Include="..\tests\LzcTest.h" />
+    <ClInclude Include="..\tests\MdAddTest.h" />
+    <ClInclude Include="..\tests\MdCallTest.h" />
+    <ClInclude Include="..\tests\MdCmpTest.h" />
+    <ClInclude Include="..\tests\MdFpFlagTest.h" />
+    <ClInclude Include="..\tests\MdFpTest.h" />
+    <ClInclude Include="..\tests\MdLogicTest.h" />
+    <ClInclude Include="..\tests\MdManipTest.h" />
+    <ClInclude Include="..\tests\MdMemAccessTest.h" />
+    <ClInclude Include="..\tests\MdMinMaxTest.h" />
+    <ClInclude Include="..\tests\MdShiftTest.h" />
+    <ClInclude Include="..\tests\MdSubTest.h" />
+    <ClInclude Include="..\tests\MdTest.h" />
+    <ClInclude Include="..\tests\MdUnpackTest.h" />
+    <ClInclude Include="..\tests\MemAccessTest.h" />
+    <ClInclude Include="..\tests\Merge64Test.h" />
+    <ClInclude Include="..\tests\MultTest.h" />
+    <ClInclude Include="..\tests\NestedIfTest.h" />
+    <ClInclude Include="..\tests\RandomAluTest.h" />
+    <ClInclude Include="..\tests\RandomAluTest2.h" />
+    <ClInclude Include="..\tests\RandomAluTest3.h" />
+    <ClInclude Include="..\tests\RegAllocTest.h" />
+    <ClInclude Include="..\tests\Shift64Test.h" />
+    <ClInclude Include="..\tests\ShiftTest.h" />
+    <ClInclude Include="..\tests\SimpleMdTest.h" />
+    <ClInclude Include="..\tests\Test.h" />
+    <ClInclude Include="pch.h" />
+    <ClInclude Include="App.xaml.h">
+      <DependentUpon>App.xaml</DependentUpon>
+    </ClInclude>
+    <ClInclude Include="MainPage.xaml.h">
+      <DependentUpon>MainPage.xaml</DependentUpon>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ApplicationDefinition Include="App.xaml">
+      <SubType>Designer</SubType>
+    </ApplicationDefinition>
+    <Page Include="MainPage.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <AppxManifest Include="Package.appxmanifest">
+      <SubType>Designer</SubType>
+    </AppxManifest>
+    <None Include="CodeGenTestSuite_TemporaryKey.pfx" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Assets\LockScreenLogo.scale-200.png" />
+    <Image Include="Assets\SplashScreen.scale-200.png" />
+    <Image Include="Assets\Square150x150Logo.scale-200.png" />
+    <Image Include="Assets\Square44x44Logo.scale-200.png" />
+    <Image Include="Assets\Square44x44Logo.targetsize-24_altform-unplated.png" />
+    <Image Include="Assets\StoreLogo.png" />
+    <Image Include="Assets\Wide310x150Logo.scale-200.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\tests\AliasTest.cpp" />
+    <ClCompile Include="..\tests\AliasTest2.cpp" />
+    <ClCompile Include="..\tests\Alu64Test.cpp" />
+    <ClCompile Include="..\tests\Call64Test.cpp" />
+    <ClCompile Include="..\tests\Cmp64Test.cpp" />
+    <ClCompile Include="..\tests\CompareTest.cpp" />
+    <ClCompile Include="..\tests\ConditionTest.cpp" />
+    <ClCompile Include="..\tests\Crc32Test.cpp" />
+    <ClCompile Include="..\tests\DivTest.cpp" />
+    <ClCompile Include="..\tests\FpIntMixTest.cpp" />
+    <ClCompile Include="..\tests\FpuTest.cpp" />
+    <ClCompile Include="..\tests\HugeJumpTest.cpp" />
+    <ClCompile Include="..\tests\Logic64Test.cpp" />
+    <ClCompile Include="..\tests\LogicTest.cpp" />
+    <ClCompile Include="..\tests\LzcTest.cpp" />
+    <ClCompile Include="..\tests\Main.cpp" />
+    <ClCompile Include="..\tests\MdAddTest.cpp" />
+    <ClCompile Include="..\tests\MdCallTest.cpp" />
+    <ClCompile Include="..\tests\MdCmpTest.cpp" />
+    <ClCompile Include="..\tests\MdFpFlagTest.cpp" />
+    <ClCompile Include="..\tests\MdFpTest.cpp" />
+    <ClCompile Include="..\tests\MdLogicTest.cpp" />
+    <ClCompile Include="..\tests\MdManipTest.cpp" />
+    <ClCompile Include="..\tests\MdMemAccessTest.cpp" />
+    <ClCompile Include="..\tests\MdMinMaxTest.cpp" />
+    <ClCompile Include="..\tests\MdShiftTest.cpp" />
+    <ClCompile Include="..\tests\MdSubTest.cpp" />
+    <ClCompile Include="..\tests\MdTest.cpp" />
+    <ClCompile Include="..\tests\MdUnpackTest.cpp" />
+    <ClCompile Include="..\tests\MemAccessTest.cpp" />
+    <ClCompile Include="..\tests\Merge64Test.cpp" />
+    <ClCompile Include="..\tests\MultTest.cpp" />
+    <ClCompile Include="..\tests\NestedIfTest.cpp" />
+    <ClCompile Include="..\tests\RandomAluTest.cpp" />
+    <ClCompile Include="..\tests\RandomAluTest2.cpp" />
+    <ClCompile Include="..\tests\RandomAluTest3.cpp" />
+    <ClCompile Include="..\tests\RegAllocTest.cpp" />
+    <ClCompile Include="..\tests\Shift64Test.cpp" />
+    <ClCompile Include="..\tests\ShiftTest.cpp" />
+    <ClCompile Include="..\tests\SimpleMdTest.cpp" />
+    <ClCompile Include="App.xaml.cpp">
+      <DependentUpon>App.xaml</DependentUpon>
+    </ClCompile>
+    <ClCompile Include="MainPage.xaml.cpp">
+      <DependentUpon>MainPage.xaml</DependentUpon>
+    </ClCompile>
+    <ClCompile Include="pch.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Framework\build_uwp\Framework.vcxproj">
+      <Project>{e609188f-7242-4d1b-ae5c-031bea057483}</Project>
+    </ProjectReference>
+    <ProjectReference Include="CodeGen.vcxproj">
+      <Project>{b6b5f293-fbfa-4da8-ad4d-6f3cf19c3322}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

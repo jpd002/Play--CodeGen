@@ -671,14 +671,16 @@ void CCodeGen_x86::Emit_Md_Not(CX86Assembler::XMMREGISTER dstRegister)
 
 void CCodeGen_x86::Emit_Md_IsNegative(CX86Assembler::REGISTER dstRegister, const CX86Assembler::CAddress& srcAddress)
 {
-	CX86Assembler::XMMREGISTER valueRegister = CX86Assembler::xMM0;
-	CX86Assembler::XMMREGISTER zeroRegister = CX86Assembler::xMM1;
-	CX86Assembler::XMMREGISTER tmpRegister = CX86Assembler::xMM2;
-	CX86Assembler::REGISTER tmpFlagRegister(CX86Assembler::rDX);
+	auto valueRegister = CX86Assembler::xMM0;
+	auto zeroRegister = CX86Assembler::xMM1;
+	auto tmpRegister = CX86Assembler::xMM2;
+	auto shuffleSelectRegister = CX86Assembler::xMM3;
+	auto tmpFlagRegister = CX86Assembler::rDX;
+
 	assert(dstRegister != tmpFlagRegister);
 
 	//valueRegister = [srcAddress]
-	m_assembler.MovapsVo(valueRegister, srcAddress);
+	m_assembler.MovdqaVo(valueRegister, srcAddress);
 
 	//----- Generate isZero
 
@@ -706,22 +708,20 @@ void CCodeGen_x86::Emit_Md_IsNegative(CX86Assembler::REGISTER dstRegister, const
 	m_assembler.PandnVo(zeroRegister, CX86Assembler::MakeXmmRegisterAddress(valueRegister));
 
 	//Extract bits
-	m_assembler.PmovmskbVo(tmpFlagRegister, zeroRegister);
-	
-	//Generate bit field
-	m_assembler.XorEd(dstRegister, CX86Assembler::MakeRegisterAddress(dstRegister));
-	for(unsigned int i = 0; i < 4; i++)
-	{
-		m_assembler.ShrEd(CX86Assembler::MakeRegisterAddress(tmpFlagRegister), 4);
-		m_assembler.RclEd(CX86Assembler::MakeRegisterAddress(dstRegister), 1);
-	}
+	m_assembler.MovId(tmpFlagRegister, 0x03070B0F);
+	m_assembler.MovdVo(shuffleSelectRegister, CX86Assembler::MakeRegisterAddress(tmpFlagRegister));
+	m_assembler.PshufbVo(zeroRegister, CX86Assembler::MakeXmmRegisterAddress(shuffleSelectRegister));
+	m_assembler.PmovmskbVo(dstRegister, zeroRegister);
+	m_assembler.AndId(CX86Assembler::MakeRegisterAddress(dstRegister), 0x0F);
 }
 
 void CCodeGen_x86::Emit_Md_IsZero(CX86Assembler::REGISTER dstRegister, const CX86Assembler::CAddress& srcAddress)
 {
-	CX86Assembler::XMMREGISTER valueRegister = CX86Assembler::xMM0;
-	CX86Assembler::XMMREGISTER zeroRegister = CX86Assembler::xMM1;
-	CX86Assembler::REGISTER tmpFlagRegister(CX86Assembler::rDX);
+	auto valueRegister = CX86Assembler::xMM0;
+	auto zeroRegister = CX86Assembler::xMM1;
+	auto shuffleSelectRegister = CX86Assembler::xMM2;
+	auto tmpFlagRegister = CX86Assembler::rDX;
+
 	assert(dstRegister != tmpFlagRegister);
 
 	//Get value - And with 0x7FFFFFFF to remove sign bit
@@ -734,15 +734,11 @@ void CCodeGen_x86::Emit_Md_IsZero(CX86Assembler::REGISTER dstRegister, const CX8
 	m_assembler.PcmpeqdVo(valueRegister, CX86Assembler::MakeXmmRegisterAddress(zeroRegister));
 
 	//Extract bits
-	m_assembler.PmovmskbVo(tmpFlagRegister, valueRegister);
-	
-	//Generate bit field
-	m_assembler.XorEd(dstRegister, CX86Assembler::MakeRegisterAddress(dstRegister));
-	for(unsigned int i = 0; i < 4; i++)
-	{
-		m_assembler.ShrEd(CX86Assembler::MakeRegisterAddress(tmpFlagRegister), 4);
-		m_assembler.RclEd(CX86Assembler::MakeRegisterAddress(dstRegister), 1);
-	}
+	m_assembler.MovId(tmpFlagRegister, 0x03070B0F);
+	m_assembler.MovdVo(shuffleSelectRegister, CX86Assembler::MakeRegisterAddress(tmpFlagRegister));
+	m_assembler.PshufbVo(valueRegister, CX86Assembler::MakeXmmRegisterAddress(shuffleSelectRegister));
+	m_assembler.PmovmskbVo(dstRegister, valueRegister);
+	m_assembler.AndId(CX86Assembler::MakeRegisterAddress(dstRegister), 0x0F);
 }
 
 void CCodeGen_x86::Emit_Md_Expand_RegReg(const STATEMENT& statement)

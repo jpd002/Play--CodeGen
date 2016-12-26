@@ -1077,6 +1077,11 @@ void CJitter::MD_AddB()
 	InsertBinaryMdStatement(OP_MD_ADD_B);
 }
 
+void CJitter::MD_AddBSS()
+{
+	InsertBinaryMdStatement(OP_MD_ADDSS_B);
+}
+
 void CJitter::MD_AddBUS()
 {
 	InsertBinaryMdStatement(OP_MD_ADDUS_B);

@@ -10,11 +10,6 @@ CX86Assembler::CX86Assembler()
 
 }
 
-CX86Assembler::~CX86Assembler()
-{
-
-}
-
 void CX86Assembler::Begin()
 {
 	m_nextLabelId = 1;

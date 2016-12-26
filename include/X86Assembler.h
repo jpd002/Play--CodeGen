@@ -91,7 +91,7 @@ public:
 	};
 
 											CX86Assembler();
-	virtual									~CX86Assembler();
+	virtual									~CX86Assembler() = default;
 
 	void									Begin();
 	void									End();

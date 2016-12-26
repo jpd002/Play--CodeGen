@@ -256,6 +256,7 @@ public:
 	void									PackuswbVo(XMMREGISTER, const CAddress&);
 
 	void									PaddbVo(XMMREGISTER, const CAddress&);
+	void									PaddsbVo(XMMREGISTER, const CAddress&);
 	void									PaddusbVo(XMMREGISTER, const CAddress&);
 	void									PaddwVo(XMMREGISTER, const CAddress&);
 	void									PaddswVo(XMMREGISTER, const CAddress&);

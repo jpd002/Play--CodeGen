@@ -4,16 +4,6 @@
 
 #define OPCODE_BKPT (0xE1200070)
 
-CAArch32Assembler::CAArch32Assembler()
-{
-
-}
-
-CAArch32Assembler::~CAArch32Assembler()
-{
-	
-}
-
 void CAArch32Assembler::SetStream(Framework::CStream* stream)
 {
 	m_stream = stream;

@@ -2,16 +2,6 @@
 #include <stdexcept>
 #include "AArch64Assembler.h"
 
-CAArch64Assembler::CAArch64Assembler()
-{
-
-}
-
-CAArch64Assembler::~CAArch64Assembler()
-{
-	
-}
-
 void CAArch64Assembler::SetStream(Framework::CStream* stream)
 {
 	m_stream = stream;

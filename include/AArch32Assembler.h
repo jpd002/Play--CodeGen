@@ -188,8 +188,7 @@ public:
 	typedef unsigned int LABEL;
 	
 	
-											CAArch32Assembler();
-	virtual									~CAArch32Assembler();
+	virtual									~CAArch32Assembler() = default;
 
 	void									SetStream(Framework::CStream*);
 

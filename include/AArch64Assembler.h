@@ -70,8 +70,7 @@ public:
 	
 	typedef unsigned int LABEL;
 	
-	           CAArch64Assembler();
-	virtual    ~CAArch64Assembler();
+	virtual    ~CAArch64Assembler() = default;
 
 	void    SetStream(Framework::CStream*);
 

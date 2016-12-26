@@ -2,14 +2,6 @@
 #include <stdexcept>
 #include "X86Assembler.h"
 
-CX86Assembler::CX86Assembler() 
-: m_outputStream(nullptr)
-, m_currentLabel(nullptr)
-, m_nextLabelId(1)
-{
-
-}
-
 void CX86Assembler::Begin()
 {
 	m_nextLabelId = 1;

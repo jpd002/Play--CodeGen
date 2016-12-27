@@ -904,6 +904,15 @@ void CAArch64Assembler::Sqadd_8h(REGISTERMD rd, REGISTERMD rn, REGISTERMD rm)
 	WriteWord(opcode);
 }
 
+void CAArch64Assembler::Sqadd_16b(REGISTERMD rd, REGISTERMD rn, REGISTERMD rm)
+{
+	uint32 opcode = 0x4E200C00;
+	opcode |= (rd <<  0);
+	opcode |= (rn <<  5);
+	opcode |= (rm << 16);
+	WriteWord(opcode);
+}
+
 void CAArch64Assembler::Sqsub_4s(REGISTERMD rd, REGISTERMD rn, REGISTERMD rm)
 {
 	uint32 opcode = 0x4EA02C00;

@@ -139,6 +139,9 @@
     <ClCompile Include="..\tests\ConditionTest.cpp">
       <Filter>Source Files\Tests</Filter>
     </ClCompile>
+    <ClCompile Include="..\tests\CursorTest.cpp">
+      <Filter>Source Files\Tests</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\tests\Test.h">
@@ -262,6 +265,9 @@
       <Filter>Source Files\Tests</Filter>
     </ClInclude>
     <ClInclude Include="..\tests\ConditionTest.h">
+      <Filter>Source Files\Tests</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tests\CursorTest.h">
       <Filter>Source Files\Tests</Filter>
     </ClInclude>
   </ItemGroup>

@@ -12,7 +12,7 @@
 class CTest
 {
 public:
-	virtual			~CTest() {}
+	virtual			~CTest() = default;
 
 	virtual void	Run()						= 0;
 	virtual void	Compile(Jitter::CJitter&)	= 0;

@@ -64,6 +64,9 @@ namespace Jitter
 		void							PushTop();
 		void							PushIdx(unsigned int);
 
+		uint32							GetTopCursor() const;
+		void							PushCursor(uint32);
+
 		virtual void					PullRel(size_t);
 		void							PullTop();
 		void							Swap();

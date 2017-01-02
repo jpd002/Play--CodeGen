@@ -56,6 +56,7 @@ LOCAL_SRC_FILES			:=	$(PROJECT_PATH)/tests/AliasTest.cpp \
 							$(PROJECT_PATH)/tests/ConditionTest.cpp \
 							$(PROJECT_PATH)/tests/Cmp64Test.cpp \
 							$(PROJECT_PATH)/tests/CompareTest.cpp \
+							$(PROJECT_PATH)/tests/CursorTest.cpp \
 							$(PROJECT_PATH)/tests/Crc32Test.cpp \
 							$(PROJECT_PATH)/tests/DivTest.cpp \
 							$(PROJECT_PATH)/tests/FpuTest.cpp \

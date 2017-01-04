@@ -58,6 +58,7 @@ add_executable(CodeGenTest
 	../tests/Cmp64Test.cpp
 	../tests/CompareTest.cpp
 	../tests/Crc32Test.cpp
+	../tests/CursorTest.cpp
 	../tests/DivTest.cpp
 	../tests/FpIntMixTest.cpp
 	../tests/FpuTest.cpp

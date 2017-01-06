@@ -209,6 +209,7 @@ public:
 	void									SubIq(const CAddress&, uint64);
 	void									TestEb(REGISTER, const CAddress&);
 	void									TestEd(REGISTER, const CAddress&);
+	void									TestEq(REGISTER, const CAddress&);
 	void									XorEd(REGISTER, const CAddress&);
 	void									XorId(const CAddress&, uint32);
 	void									XorGd(const CAddress&, REGISTER);

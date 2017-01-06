@@ -856,6 +856,11 @@ void CX86Assembler::TestEd(REGISTER registerId, const CAddress& address)
 	WriteEvGvOp(0x85, false, address, registerId);
 }
 
+void CX86Assembler::TestEq(REGISTER registerId, const CAddress& address)
+{
+	WriteEvGvOp(0x85, true, address, registerId);
+}
+
 void CX86Assembler::XorEd(REGISTER registerId, const CAddress& address)
 {
 	WriteEvGvOp(0x33, false, address, registerId);

@@ -132,9 +132,13 @@ namespace Jitter
 		void								Emit_AddRef_MemMemMem(const STATEMENT&);
 		void								Emit_AddRef_MemMemCst(const STATEMENT&);
 
+		//ISREFNULL
+		void								Emit_IsRefNull_VarMem(const STATEMENT&);
+
 		//LOADFROMREF
-		void								Emit_LoadFromRef_RegMem(const STATEMENT&);
-		void								Emit_LoadFromRef_MemMem(const STATEMENT&);
+		void								Emit_LoadFromRef_VarMem(const STATEMENT&);
+		void								Emit_LoadFromRef_64_MemMem(const STATEMENT&);
+		void								Emit_LoadFromRef_Ref_MemMem(const STATEMENT&);
 		void								Emit_LoadFromRef_Md_RegMem(const STATEMENT&);
 		void								Emit_LoadFromRef_Md_MemMem(const STATEMENT&);
 
@@ -142,6 +146,8 @@ namespace Jitter
 		void								Emit_StoreAtRef_MemReg(const STATEMENT&);
 		void								Emit_StoreAtRef_MemMem(const STATEMENT&);
 		void								Emit_StoreAtRef_MemCst(const STATEMENT&);
+		void								Emit_StoreAtRef_64_MemMem(const STATEMENT&);
+		void								Emit_StoreAtRef_64_MemCst(const STATEMENT&);
 		void								Emit_StoreAtRef_Md_MemReg(const STATEMENT&);
 		void								Emit_StoreAtRef_Md_MemMem(const STATEMENT&);
 
@@ -185,6 +191,9 @@ namespace Jitter
 			MAX_MDREGISTERS = 12,
 		};
 		
+		CX86Assembler::REGISTER				PrepareSymbolRegisterDef(CSymbol*, CX86Assembler::REGISTER);
+		void								CommitSymbolRegister(CSymbol*, CX86Assembler::REGISTER);
+
 		static CONSTMATCHER					g_constMatchers[];
 		static CX86Assembler::REGISTER		g_systemVRegisters[SYSTEMV_MAX_REGISTERS];
 		static CX86Assembler::REGISTER		g_systemVParamRegs[SYSTEMV_MAX_PARAMS];

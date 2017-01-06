@@ -122,11 +122,6 @@ namespace Jitter
 			static OpEdType OpEd() { return &CX86Assembler::SqrtssEd; }
 		};
 
-		struct FPUOP_RSQRT : public FPUOP_BASE
-		{
-			static OpEdType OpEd() { return &CX86Assembler::RsqrtssEd; }
-		};
-
 		struct FPUOP_RCPL : public FPUOP_BASE
 		{
 			static OpEdType OpEd() { return &CX86Assembler::RcpssEd; }
@@ -579,6 +574,9 @@ namespace Jitter
 
 		//FPNEG
 		void						Emit_Fp_Neg_MemMem(const STATEMENT&);
+
+		//FPRSQRT
+		void						Emit_Fp_Rsqrt_MemMem(const STATEMENT&);
 
 		//FP_MOV
 		void						Emit_Fp_Mov_RelSRelI32(const STATEMENT&);

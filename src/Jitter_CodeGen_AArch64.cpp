@@ -283,9 +283,12 @@ CCodeGen_AArch64::CONSTMATCHER CCodeGen_AArch64::g_constMatchers[] =
 
 	{ OP_ADDREF,         MATCH_TMP_REF,        MATCH_MEM_REF,        MATCH_ANY,           &CCodeGen_AArch64::Emit_AddRef_TmpMemAny                    },
 
-	{ OP_LOADFROMREF,    MATCH_VARIABLE,       MATCH_MEM_REF,        MATCH_NIL,           &CCodeGen_AArch64::Emit_LoadFromRef_VarMem                  },
+	{ OP_ISREFNULL,      MATCH_VARIABLE,       MATCH_MEM_REF,        MATCH_ANY,           &CCodeGen_AArch64::Emit_IsRefNull_VarMem                    },
 
-	//Cannot use MATCH_ANY here because it will match SYM_RELATIVE128
+	{ OP_LOADFROMREF,    MATCH_VARIABLE,       MATCH_MEM_REF,        MATCH_NIL,           &CCodeGen_AArch64::Emit_LoadFromRef_VarMem                  },
+	{ OP_LOADFROMREF,    MATCH_TMP_REF,        MATCH_MEM_REF,        MATCH_NIL,           &CCodeGen_AArch64::Emit_LoadFromRef_Ref_TmpMem              },
+
+	//Cannot use MATCH_ANY here because it will match non 32-bits symbols
 	{ OP_STOREATREF,     MATCH_NIL,            MATCH_MEM_REF,        MATCH_VARIABLE,      &CCodeGen_AArch64::Emit_StoreAtRef_MemAny                   },
 	{ OP_STOREATREF,     MATCH_NIL,            MATCH_MEM_REF,        MATCH_CONSTANT,      &CCodeGen_AArch64::Emit_StoreAtRef_MemAny                   },
 	
@@ -1018,6 +1021,21 @@ void CCodeGen_AArch64::Emit_AddRef_TmpMemAny(const STATEMENT& statement)
 	StoreRegisterInTemporaryReference(dst, tmpReg);
 }
 
+void CCodeGen_AArch64::Emit_IsRefNull_VarMem(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+
+	auto addressReg = GetNextTempRegister64();
+	auto dstReg = PrepareSymbolRegisterDef(dst, GetNextTempRegister());
+
+	LoadMemoryReferenceInRegister(addressReg, src1);
+	m_assembler.Tst(addressReg, addressReg);
+	m_assembler.Cset(dstReg, CAArch64Assembler::CONDITION_EQ);
+
+	CommitSymbolRegister(dst, dstReg);
+}
+
 void CCodeGen_AArch64::Emit_LoadFromRef_VarMem(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
@@ -1030,6 +1048,20 @@ void CCodeGen_AArch64::Emit_LoadFromRef_VarMem(const STATEMENT& statement)
 	m_assembler.Ldr(dstReg, addressReg, 0);
 
 	CommitSymbolRegister(dst, dstReg);
+}
+
+void CCodeGen_AArch64::Emit_LoadFromRef_Ref_TmpMem(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+
+	auto addressReg = GetNextTempRegister64();
+	auto dstReg = GetNextTempRegister64();
+
+	LoadMemoryReferenceInRegister(addressReg, src1);
+	m_assembler.Ldr(dstReg, addressReg, 0);
+
+	StoreRegisterInTemporaryReference(dst, dstReg);
 }
 
 void CCodeGen_AArch64::Emit_StoreAtRef_MemAny(const STATEMENT& statement)

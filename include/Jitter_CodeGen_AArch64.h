@@ -599,9 +599,14 @@ namespace Jitter
 		
 		void    Emit_RelToRef_TmpCst(const STATEMENT&);
 		void    Emit_AddRef_TmpMemAny(const STATEMENT&);
+		void    Emit_IsRefNull_VarMem(const STATEMENT&);
 		void    Emit_LoadFromRef_VarMem(const STATEMENT&);
+		void    Emit_LoadFromRef_Ref_TmpMem(const STATEMENT&);
 		void    Emit_StoreAtRef_MemAny(const STATEMENT&);
 		
+		void    Emit_LoadFromRef_64_MemMem(const STATEMENT&);
+		void    Emit_StoreAtRef_64_MemAny(const STATEMENT&);
+
 		void    Emit_Param_Ctx(const STATEMENT&);
 		void    Emit_Param_Reg(const STATEMENT&);
 		void    Emit_Param_Mem(const STATEMENT&);

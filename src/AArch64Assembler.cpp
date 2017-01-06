@@ -1134,6 +1134,15 @@ void CAArch64Assembler::Tst(REGISTER32 rn, REGISTER32 rm)
 	WriteWord(opcode);
 }
 
+void CAArch64Assembler::Tst(REGISTER64 rn, REGISTER64 rm)
+{
+	uint32 opcode = 0xEA000000;
+	opcode |= (wZR << 0);
+	opcode |= (rn <<  5);
+	opcode |= (rm << 16);
+	WriteWord(opcode);
+}
+
 void CAArch64Assembler::Udiv(REGISTER32 rd, REGISTER32 rn, REGISTER32 rm)
 {
 	uint32 opcode = 0x1AC00800;

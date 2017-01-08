@@ -27,6 +27,14 @@ if (NOT TARGET Framework)
 	add_subdirectory(../../Framework/build_unix ${CodeGen_SOURCE_DIR}/../../Framework/build_unix/build)
 endif()
 
+if(ANDROID)
+	if(NOT TARGET cpufeatures)
+		add_library(cpufeatures STATIC ${CMAKE_ANDROID_NDK}/sources/android/cpufeatures/cpu-features.c)
+	endif()
+	include_directories("${CMAKE_ANDROID_NDK}/sources/android/cpufeatures")
+	list(APPEND PROJECT_LIBS cpufeatures)
+endif()
+
 include_directories(../include ../../Framework/include)
 
 add_library(CodeGen 
@@ -106,6 +114,6 @@ add_executable(CodeGenTest
 	../tests/ShiftTest.cpp
 	../tests/SimpleMdTest.cpp
 )
-target_link_libraries(CodeGenTest CodeGen Framework)
+target_link_libraries(CodeGenTest CodeGen Framework ${PROJECT_LIBS})
 add_test(CodeGenTest CodeGenTest)
 

@@ -1242,7 +1242,7 @@ void CCodeGen_AArch64::Emit_Jmp(const STATEMENT& statement)
 
 void CCodeGen_AArch64::Emit_CondJmp(const STATEMENT& statement)
 {
-	auto label(GetLabel(statement.jmpBlock));
+	auto label = GetLabel(statement.jmpBlock);
 	
 	switch(statement.jmpCondition)
 	{
@@ -1301,22 +1301,42 @@ void CCodeGen_AArch64::Emit_CondJmp_VarCst(const STATEMENT& statement)
 	auto src1Reg = PrepareSymbolRegisterUse(src1, GetNextTempRegister());
 	assert(src2->m_type == SYM_CONSTANT);
 	
-	ADDSUB_IMM_PARAMS addSubImmParams;
-	if(TryGetAddSubImmParams(src2->m_valueLow, addSubImmParams))
+	if((src2->m_valueLow == 0) && ((statement.jmpCondition == CONDITION_NE) || (statement.jmpCondition == CONDITION_EQ)))
 	{
-		m_assembler.Cmp(src1Reg, addSubImmParams.imm, addSubImmParams.shiftType);
-	}
-	else if(TryGetAddSubImmParams(-static_cast<int32>(src2->m_valueLow), addSubImmParams))
-	{
-		m_assembler.Cmn(src1Reg, addSubImmParams.imm, addSubImmParams.shiftType);
+		auto label = GetLabel(statement.jmpBlock);
+
+		switch(statement.jmpCondition)
+		{
+		case CONDITION_EQ:
+			m_assembler.Cbz(src1Reg, label);
+			break;
+		case CONDITION_NE:
+			m_assembler.Cbnz(src1Reg, label);
+			break;
+		default:
+			assert(false);
+			break;
+		}
 	}
 	else
 	{
-		auto src2Reg = PrepareSymbolRegisterUse(src2, GetNextTempRegister());
-		m_assembler.Cmp(src1Reg, src2Reg);
-	}
+		ADDSUB_IMM_PARAMS addSubImmParams;
+		if(TryGetAddSubImmParams(src2->m_valueLow, addSubImmParams))
+		{
+			m_assembler.Cmp(src1Reg, addSubImmParams.imm, addSubImmParams.shiftType);
+		}
+		else if(TryGetAddSubImmParams(-static_cast<int32>(src2->m_valueLow), addSubImmParams))
+		{
+			m_assembler.Cmn(src1Reg, addSubImmParams.imm, addSubImmParams.shiftType);
+		}
+		else
+		{
+			auto src2Reg = PrepareSymbolRegisterUse(src2, GetNextTempRegister());
+			m_assembler.Cmp(src1Reg, src2Reg);
+		}
 
-	Emit_CondJmp(statement);
+		Emit_CondJmp(statement);
+	}
 }
 
 void CCodeGen_AArch64::Cmp_GetFlag(CAArch64Assembler::REGISTER32 registerId, Jitter::CONDITION condition)

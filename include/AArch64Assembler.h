@@ -98,6 +98,8 @@ public:
 	void    Bl(uint32);
 	void    BCc(CONDITION, LABEL);
 	void    Blr(REGISTER64);
+	void    Cbnz(REGISTER32, LABEL);
+	void    Cbz(REGISTER32, LABEL);
 	void    Clz(REGISTER32, REGISTER32);
 	void    Cmeq_16b(REGISTERMD, REGISTERMD, REGISTERMD);
 	void    Cmeq_8h(REGISTERMD, REGISTERMD, REGISTERMD);
@@ -227,13 +229,16 @@ private:
 	struct LABELREF
 	{
 		size_t offset = 0;
+		bool cbz = false;
+		REGISTER32 cbRegister = w0;
 		CONDITION condition;
 	};
 	
 	typedef std::map<LABEL, size_t> LabelMapType;
 	typedef std::multimap<LABEL, LABELREF> LabelReferenceMapType;
 	
-	void    CreateLabelReference(LABEL, CONDITION);
+	void    CreateBranchLabelReference(LABEL, CONDITION);
+	void    CreateCompareBranchLabelReference(LABEL, CONDITION, REGISTER32);
 
 	void    WriteAddSubOpImm(uint32, uint32 shift, uint32 imm, uint32 rn, uint32 rd);
 	void    WriteDataProcOpReg2(uint32, uint32 rm, uint32 rn, uint32 rd);

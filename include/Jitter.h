@@ -224,8 +224,6 @@ namespace Jitter
 			unsigned int			firstUse = -1;
 			unsigned int			firstDef = -1;
 			unsigned int			lastDef = -1;
-			unsigned int			rangeBegin = -1;
-			unsigned int			rangeEnd = -1;
 			bool					aliased = false;
 			SYM_TYPE				registerType = SYM_REGISTER;
 			unsigned int			registerId = -1;

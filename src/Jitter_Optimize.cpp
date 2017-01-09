@@ -826,29 +826,25 @@ void CJitter::FixFlowControl(StatementList& statements)
 
 void CJitter::MergeBasicBlocks(BASIC_BLOCK& dstBlock, const BASIC_BLOCK& srcBlock)
 {
-	const StatementList& srcStatements(srcBlock.statements);
-	CSymbolTable& dstSymbolTable(dstBlock.symbolTable);
+	auto& dstSymbolTable = dstBlock.symbolTable;
 
-	for(StatementList::const_iterator statementIterator(srcStatements.begin());
-		statementIterator != srcStatements.end(); statementIterator++)
+	for(auto statement : srcBlock.statements)
 	{
-		STATEMENT statement(*statementIterator);
-
 		if(statement.dst)
 		{
-			SymbolPtr symbol(statement.dst->GetSymbol());
+			auto symbol = statement.dst->GetSymbol();
 			statement.dst = std::make_shared<CSymbolRef>(dstSymbolTable.MakeSymbol(symbol));
 		}
 
 		if(statement.src1)
 		{
-			SymbolPtr symbol(statement.src1->GetSymbol());
+			auto symbol = statement.src1->GetSymbol();
 			statement.src1 = std::make_shared<CSymbolRef>(dstSymbolTable.MakeSymbol(symbol));
 		}
 
 		if(statement.src2)
 		{
-			SymbolPtr symbol(statement.src2->GetSymbol());
+			auto symbol = statement.src2->GetSymbol();
 			statement.src2 = std::make_shared<CSymbolRef>(dstSymbolTable.MakeSymbol(symbol));
 		}
 

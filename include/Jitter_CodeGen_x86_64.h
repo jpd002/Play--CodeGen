@@ -151,6 +151,9 @@ namespace Jitter
 		void								Emit_StoreAtRef_Md_MemReg(const STATEMENT&);
 		void								Emit_StoreAtRef_Md_MemMem(const STATEMENT&);
 
+		//CONDJMP
+		void								Emit_CondJmp_Ref_MemCst(const STATEMENT&);
+
 	private:
 		typedef void (CCodeGen_x86_64::*ConstCodeEmitterType)(const STATEMENT&);
 

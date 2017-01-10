@@ -254,6 +254,8 @@ CCodeGen_x86_64::CONSTMATCHER CCodeGen_x86_64::g_constMatchers[] =
 	{ OP_STOREATREF,	MATCH_NIL,			MATCH_MEM_REF,		MATCH_REGISTER128,	&CCodeGen_x86_64::Emit_StoreAtRef_Md_MemReg					},
 	{ OP_STOREATREF,	MATCH_NIL,			MATCH_MEM_REF,		MATCH_MEMORY128,	&CCodeGen_x86_64::Emit_StoreAtRef_Md_MemMem					},
 
+	{ OP_CONDJMP,		MATCH_NIL,			MATCH_MEM_REF,		MATCH_CONSTANT,		&CCodeGen_x86_64::Emit_CondJmp_Ref_MemCst					},
+
 	{ OP_MOV,			MATCH_NIL,			MATCH_NIL,			MATCH_NIL,			NULL														},
 };
 
@@ -928,6 +930,23 @@ void CCodeGen_x86_64::Emit_StoreAtRef_Md_MemMem(const STATEMENT& statement)
 	m_assembler.MovEq(addressReg, MakeMemoryReferenceSymbolAddress(src1));
 	m_assembler.MovapsVo(valueReg, MakeMemory128SymbolAddress(src2));
 	m_assembler.MovapsVo(CX86Assembler::MakeIndRegAddress(addressReg), valueReg);
+}
+
+void CCodeGen_x86_64::Emit_CondJmp_Ref_MemCst(const STATEMENT& statement)
+{
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	assert(src2->m_type == SYM_CONSTANT);
+	assert(src2->m_valueLow == 0);
+	assert((statement.jmpCondition == CONDITION_NE) || (statement.jmpCondition == CONDITION_EQ));
+
+	auto addressReg = CX86Assembler::rAX;
+
+	m_assembler.MovEq(CX86Assembler::rAX, MakeMemoryReferenceSymbolAddress(src1));
+	m_assembler.TestEq(addressReg, CX86Assembler::MakeRegisterAddress(addressReg));
+
+	CondJmp_JumpTo(GetLabel(statement.jmpBlock), statement.jmpCondition);
 }
 
 CX86Assembler::REGISTER CCodeGen_x86_64::PrepareSymbolRegisterDef(CSymbol* symbol, CX86Assembler::REGISTER preferedRegister)

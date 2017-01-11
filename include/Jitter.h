@@ -222,6 +222,7 @@ namespace Jitter
 		{
 			unsigned int			useCount = 0;
 			unsigned int			firstUse = -1;
+			unsigned int			lastUse = -1;
 			unsigned int			firstDef = -1;
 			unsigned int			lastDef = -1;
 			bool					aliased = false;

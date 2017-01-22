@@ -24,7 +24,7 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 if (NOT TARGET Framework)
-	add_subdirectory(../../Framework/build_unix ${CodeGen_SOURCE_DIR}/../../Framework/build_unix/build)
+	add_subdirectory(../../Framework/build_cmake ${CodeGen_SOURCE_DIR}/../../Framework/build_cmake/build)
 endif()
 
 if(ANDROID)

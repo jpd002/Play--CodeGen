@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8)
 project(CodeGen)
 
 set(CMAKE_MODULE_PATH
-	${CodeGen_SOURCE_DIR}/../../Dependencies/cmake-modules
+	${CMAKE_CURRENT_SOURCE_DIR}/../../Dependencies/cmake-modules
 	${CMAKE_MODULE_PATH}
 )
 
@@ -24,7 +24,10 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 if (NOT TARGET Framework)
-	add_subdirectory(../../Framework/build_cmake ${CodeGen_SOURCE_DIR}/../../Framework/build_cmake/build)
+	add_subdirectory(
+		${CMAKE_CURRENT_SOURCE_DIR}/../../Framework/build_cmake/Framework
+		${CMAKE_CURRENT_SOURCE_DIR}/../../Framework/build_cmake/Framework/build_${CMAKE_SYSTEM_NAME}
+	)
 endif()
 
 if(ANDROID)

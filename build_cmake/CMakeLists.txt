@@ -26,7 +26,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 if (NOT TARGET Framework)
 	add_subdirectory(
 		${CMAKE_CURRENT_SOURCE_DIR}/../../Framework/build_cmake/Framework
-		${CMAKE_CURRENT_SOURCE_DIR}/../../Framework/build_cmake/Framework/build_${CMAKE_SYSTEM_NAME}
+		${CMAKE_CURRENT_BINARY_DIR}/Framework
 	)
 endif()
 

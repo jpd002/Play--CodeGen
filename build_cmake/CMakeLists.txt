@@ -74,7 +74,7 @@ add_library(CodeGen
 
 enable_testing()
 
-add_executable(CodeGenTest
+set(CodeGenTest_SRC
 	../tests/AliasTest.cpp
 	../tests/AliasTest2.cpp
 	../tests/Alu64Test.cpp
@@ -117,6 +117,12 @@ add_executable(CodeGenTest
 	../tests/ShiftTest.cpp
 	../tests/SimpleMdTest.cpp
 )
-target_link_libraries(CodeGenTest CodeGen Framework ${PROJECT_LIBS})
-add_test(CodeGenTest CodeGenTest)
 
+if(ANDROID)
+	add_library(CodeGenTestSuite SHARED ${CodeGenTest_SRC})
+else()
+	add_executable(CodeGenTestSuite ${CodeGenTest_SRC})
+	add_test(CodeGenTestSuite CodeGenTestSuite)
+endif()
+
+target_link_libraries(CodeGenTestSuite CodeGen Framework ${PROJECT_LIBS})

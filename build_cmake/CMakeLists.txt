@@ -32,9 +32,9 @@ endif()
 
 if(ANDROID)
 	if(NOT TARGET cpufeatures)
-		add_library(cpufeatures STATIC ${CMAKE_ANDROID_NDK}/sources/android/cpufeatures/cpu-features.c)
+		add_library(cpufeatures STATIC ${ANDROID_NDK}/sources/android/cpufeatures/cpu-features.c)
 	endif()
-	include_directories("${CMAKE_ANDROID_NDK}/sources/android/cpufeatures")
+	include_directories("${ANDROID_NDK}/sources/android/cpufeatures")
 	list(APPEND PROJECT_LIBS cpufeatures)
 endif()
 

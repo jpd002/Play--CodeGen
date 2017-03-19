@@ -69,7 +69,7 @@ void CMemoryFunction::Reset()
 {
 	if(m_code != nullptr)
 	{
-#ifdef WIN32
+#ifdef _WIN32
 		free(m_code);
 #elif defined(__APPLE__)
 		vm_deallocate(mach_task_self(), reinterpret_cast<vm_address_t>(m_code), m_size);

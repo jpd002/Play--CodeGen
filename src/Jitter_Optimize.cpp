@@ -87,11 +87,8 @@ CJitter::VERSIONED_STATEMENT_LIST CJitter::GenerateVersionedStatementList(const 
 		}
 	};
 
-	for(StatementList::const_iterator statementIterator(statements.begin());
-		statements.end() != statementIterator; statementIterator++)
+	for(auto newStatement : statements)
 	{
-		STATEMENT newStatement(*statementIterator);
-
 		ReplaceUse()(newStatement.src1, result.relativeVersions);
 		ReplaceUse()(newStatement.src2, result.relativeVersions);
 
@@ -137,11 +134,8 @@ CJitter::VERSIONED_STATEMENT_LIST CJitter::GenerateVersionedStatementList(const 
 StatementList CJitter::CollapseVersionedStatementList(const VERSIONED_STATEMENT_LIST& statements)
 {
 	StatementList result;
-	for(StatementList::const_iterator statementIterator(statements.statements.begin());
-		statementIterator != statements.statements.end(); statementIterator++)
+	for(auto newStatement : statements.statements)
 	{
-		STATEMENT newStatement(*statementIterator);
-
 		if(VersionedSymbolRefPtr src1 = std::dynamic_pointer_cast<CVersionedSymbolRef>(newStatement.src1))
 		{
 			newStatement.src1 = std::make_shared<CSymbolRef>(src1->GetSymbol());
@@ -790,11 +784,8 @@ bool CJitter::ConstantFolding(StatementList& statements)
 void CJitter::FixFlowControl(StatementList& statements)
 {
 	//Resolve GOTO instructions
-	for(StatementList::iterator statementIterator(statements.begin());
-		statementIterator != statements.end(); statementIterator++)
+	for(auto& statement : statements)
 	{
-		STATEMENT& statement(*statementIterator);
-
 		if(statement.op == OP_GOTO)
 		{
 			LabelMapType::const_iterator labelIterator = m_labels.find(statement.jmpBlock);
@@ -808,13 +799,13 @@ void CJitter::FixFlowControl(StatementList& statements)
 
 	//Remove any excess flow control instructions
 	for(StatementList::iterator statementIterator(statements.begin());
-		statementIterator != statements.end(); statementIterator++)
+		statementIterator != statements.end(); ++statementIterator)
 	{
 		const STATEMENT& statement(*statementIterator);
 
 		if(statement.op == OP_JMP || statement.op == OP_CONDJMP)
 		{
-			statementIterator++;
+			++statementIterator;
 			statements.erase(statementIterator, statements.end());
 			break;
 		}
@@ -958,17 +949,17 @@ void CJitter::HarmonizeBlocks()
 {
 	//Remove any jumps that jump to the next block
 	for(BasicBlockList::iterator blockIterator(m_basicBlocks.begin());
-		blockIterator != m_basicBlocks.end(); blockIterator++)
+		blockIterator != m_basicBlocks.end(); ++blockIterator)
 	{
 		BasicBlockList::iterator nextBlockIterator(blockIterator);
-		nextBlockIterator++;
+		++nextBlockIterator;
 		if(nextBlockIterator == m_basicBlocks.end()) continue;
 
 		auto& basicBlock(*blockIterator);
 		if(basicBlock.statements.size() == 0) continue;
 
 		StatementList::iterator lastStatementIterator(basicBlock.statements.end());
-		lastStatementIterator--;
+		--lastStatementIterator;
 		const STATEMENT& statement(*lastStatementIterator);
 		if(statement.op != OP_JMP) continue;
 		if(statement.jmpBlock != nextBlockIterator->id) continue;
@@ -979,20 +970,18 @@ void CJitter::HarmonizeBlocks()
 
 	//Flag any block that have a reference from a jump
 	for(BasicBlockList::iterator outerBlockIterator(m_basicBlocks.begin());
-		outerBlockIterator != m_basicBlocks.end(); outerBlockIterator++)
+		outerBlockIterator != m_basicBlocks.end(); ++outerBlockIterator)
 	{
 		auto& outerBlock(*outerBlockIterator);
 		outerBlock.hasJumpRef = false;
 
-		for(BasicBlockList::const_iterator innerBlockIterator(m_basicBlocks.begin());
-			innerBlockIterator != m_basicBlocks.end(); innerBlockIterator++)
+		for(const auto& block : m_basicBlocks)
 		{
-			const auto& block(*innerBlockIterator);
 			if(block.statements.size() == 0) continue;
 
 			//Check if this block references the next one or if it jumps to another one
 			StatementList::const_iterator lastInstruction(block.statements.end());
-			lastInstruction--;
+			--lastInstruction;
 			const STATEMENT& statement(*lastInstruction);
 
 			//It jumps to a block, so check if it references the one we're looking for
@@ -1016,10 +1005,10 @@ bool CJitter::MergeBlocks()
 	{
 		changed = false;
 		for(BasicBlockList::iterator blockIterator(m_basicBlocks.begin());
-			m_basicBlocks.end() != blockIterator; blockIterator++)
+			m_basicBlocks.end() != blockIterator; ++blockIterator)
 		{
 			BasicBlockList::iterator nextBlockIterator(blockIterator);
-			nextBlockIterator++;
+			++nextBlockIterator;
 			if(nextBlockIterator == m_basicBlocks.end()) continue;
 
 			auto& basicBlock(*blockIterator);
@@ -1031,7 +1020,7 @@ bool CJitter::MergeBlocks()
 			if(!basicBlock.statements.empty())
 			{
 				auto lastStatementIterator(basicBlock.statements.end());
-				lastStatementIterator--;
+				--lastStatementIterator;
 				const auto& statement(*lastStatementIterator);
 				if(statement.op == OP_CONDJMP) continue;
 				if(statement.op == OP_JMP) continue;
@@ -1042,7 +1031,7 @@ bool CJitter::MergeBlocks()
 
 			m_basicBlocks.erase(nextBlockIterator);
 
-			deletedBlocks++;
+			++deletedBlocks;
 			changed = true;
 			break;
 		}
@@ -1055,7 +1044,7 @@ bool CJitter::ConstantPropagation(StatementList& statements)
 	bool changed = false;
 
 	for(StatementList::iterator outerStatementIterator(statements.begin());
-		statements.end() != outerStatementIterator; outerStatementIterator++)
+		statements.end() != outerStatementIterator; ++outerStatementIterator)
 	{
 		STATEMENT& outerStatement(*outerStatementIterator);
 
@@ -1070,7 +1059,7 @@ bool CJitter::ConstantPropagation(StatementList& statements)
 
 		//Find anything that uses this operand and replace it with the constant
 		for(StatementList::iterator innerStatementIterator(outerStatementIterator);
-			statements.end() != innerStatementIterator; innerStatementIterator++)
+			statements.end() != innerStatementIterator; ++innerStatementIterator)
 		{
 			if(outerStatementIterator == innerStatementIterator) continue;
 
@@ -1171,7 +1160,7 @@ bool CJitter::DeadcodeElimination(VERSIONED_STATEMENT_LIST& versionedStatementLi
 	ToDeleteList toDelete;
 
 	for(StatementList::iterator outerStatementIterator(versionedStatementList.statements.begin());
-		versionedStatementList.statements.end() != outerStatementIterator; outerStatementIterator++)
+		versionedStatementList.statements.end() != outerStatementIterator; ++outerStatementIterator)
 	{
 		STATEMENT& outerStatement(*outerStatementIterator);
 
@@ -1196,7 +1185,7 @@ bool CJitter::DeadcodeElimination(VERSIONED_STATEMENT_LIST& versionedStatementLi
 		//Look for any possible use of this symbol
 		bool used = false;
 		for(StatementList::iterator innerStatementIterator(outerStatementIterator);
-			versionedStatementList.statements.end() != innerStatementIterator; innerStatementIterator++)
+			versionedStatementList.statements.end() != innerStatementIterator; ++innerStatementIterator)
 		{
 			if(outerStatementIterator == innerStatementIterator) continue;
 
@@ -1241,7 +1230,7 @@ bool CJitter::DeadcodeElimination(VERSIONED_STATEMENT_LIST& versionedStatementLi
 	}
 
 	for(ToDeleteList::const_iterator deleteIterator(toDelete.begin());
-		toDelete.end() != deleteIterator; deleteIterator++)
+		toDelete.end() != deleteIterator; ++deleteIterator)
 	{
 		versionedStatementList.statements.erase(*deleteIterator);
 		changed = true;
@@ -1256,7 +1245,7 @@ void CJitter::CoalesceTemporaries(BASIC_BLOCK& basicBlock)
 	EncounteredTempList encounteredTemps;
 
 	for(auto outerStatementIterator(basicBlock.statements.begin());
-		basicBlock.statements.end() != outerStatementIterator; outerStatementIterator++)
+		basicBlock.statements.end() != outerStatementIterator; ++outerStatementIterator)
 	{
 		auto& outerStatement(*outerStatementIterator);
 
@@ -1275,7 +1264,7 @@ void CJitter::CoalesceTemporaries(BASIC_BLOCK& basicBlock)
 			bool used = false;
 
 			for(auto innerStatementIterator(outerStatementIterator);
-				basicBlock.statements.end() != innerStatementIterator; innerStatementIterator++)
+				basicBlock.statements.end() != innerStatementIterator; ++innerStatementIterator)
 			{
 				if(outerStatementIterator == innerStatementIterator) continue;
 
@@ -1329,7 +1318,7 @@ void CJitter::CoalesceTemporaries(BASIC_BLOCK& basicBlock)
 
 			//Replace all occurences of this temp with the candidate
 			for(auto innerStatementIterator(outerStatementIterator);
-				basicBlock.statements.end() != innerStatementIterator; innerStatementIterator++)
+				basicBlock.statements.end() != innerStatementIterator; ++innerStatementIterator)
 			{
 				if(outerStatementIterator == innerStatementIterator) continue;
 
@@ -1377,7 +1366,7 @@ void CJitter::RemoveSelfAssignments(BASIC_BLOCK& basicBlock)
 		}
 		else
 		{
-			outerStatementIterator++;
+			++outerStatementIterator;
 		}
 	}
 }

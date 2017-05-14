@@ -777,11 +777,8 @@ bool CJitter::FoldConstant12832Operation(STATEMENT& statement)
 bool CJitter::ConstantFolding(StatementList& statements)
 {
 	bool changed = false;
-
-	for(auto statementIterator(std::begin(statements));
-		std::end(statements) != statementIterator; statementIterator++)
+	for(auto& statement : statements)
 	{
-		STATEMENT& statement(*statementIterator);
 		changed |= FoldConstantOperation(statement);
 		changed |= FoldConstant64Operation(statement);
 		changed |= FoldConstant6432Operation(statement);

@@ -1,16 +1,6 @@
 #include "MdFpFlagTest.h"
 #include "MemStream.h"
 
-CMdFpFlagTest::CMdFpFlagTest()
-{
-
-}
-
-CMdFpFlagTest::~CMdFpFlagTest()
-{
-
-}
-
 void CMdFpFlagTest::Compile(Jitter::CJitter& jitter)
 {
 	Framework::CMemStream codeStream;

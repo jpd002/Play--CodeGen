@@ -311,6 +311,14 @@ void CAArch64Assembler::Cmgt_4s(REGISTERMD rd, REGISTERMD rn, REGISTERMD rm)
 	WriteWord(opcode);
 }
 
+void CAArch64Assembler::Cmltz_4s(REGISTERMD rd, REGISTERMD rn)
+{
+	uint32 opcode = 0x4EA0A800;
+	opcode |= (rd <<  0);
+	opcode |= (rn <<  5);
+	WriteWord(opcode);
+}
+
 void CAArch64Assembler::Cmn(REGISTER32 rn, uint16 imm, ADDSUB_IMM_SHIFT_TYPE shift)
 {
 	WriteAddSubOpImm(0x31000000, shift, imm, rn, wZR);

@@ -53,13 +53,8 @@ void CMdFpFlagTest::Compile(Jitter::CJitter& jitter)
 void CMdFpFlagTest::Run()
 {
 	//Some documentation about the flags:
-	//IsNegative -> Set when value is not (+/-)0 and less than 0
+	//IsNegative -> Set when value's sign bit is set (regardless of value)
 	//IsZero     -> Set when value is either +0 or -0
-
-	//Notes:
-	//- Currently not consistent throughout platforms (x86 returns good result, AArch32/AArch64 fails)
-	//- IsNegative is more expensive to implement, might be interesting to have it only check sign bit
-	//  and XOR with result from IsZero to achieve the same effect if needed
 
 	CONTEXT ALIGN16 context;
 	memset(&context, 0, sizeof(CONTEXT));
@@ -81,7 +76,7 @@ void CMdFpFlagTest::Run()
 
 	m_function(&context);
 
-	TEST_VERIFY(context.dstIsNegative0	== 0x4);
+	TEST_VERIFY(context.dstIsNegative0	== 0x5);
 	TEST_VERIFY(context.dstIsZero0		== 0x3);
 
 	TEST_VERIFY(context.dstIsNegative1	== 0x2);

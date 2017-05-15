@@ -424,7 +424,7 @@ void CAArch64Assembler::Fadd_4s(REGISTERMD rd, REGISTERMD rn, REGISTERMD rm)
 	WriteWord(opcode);
 }
 
-void CAArch64Assembler::Fcmeq_4s(REGISTERMD rd, REGISTERMD rn)
+void CAArch64Assembler::Fcmeqz_4s(REGISTERMD rd, REGISTERMD rn)
 {
 	uint32 opcode = 0x4EA0D800;
 	opcode |= (rd <<  0);
@@ -432,7 +432,7 @@ void CAArch64Assembler::Fcmeq_4s(REGISTERMD rd, REGISTERMD rn)
 	WriteWord(opcode);
 }
 
-void CAArch64Assembler::Fcmlt_4s(REGISTERMD rd, REGISTERMD rn)
+void CAArch64Assembler::Fcmltz_4s(REGISTERMD rd, REGISTERMD rn)
 {
 	uint32 opcode = 0x4EA0E800;
 	opcode |= (rd <<  0);

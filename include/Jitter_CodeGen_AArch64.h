@@ -528,12 +528,12 @@ namespace Jitter
 
 		struct MDOP_CMPEQZS : public MDOP_BASE2
 		{
-			static OpRegType OpReg() { return &CAArch64Assembler::Fcmeq_4s; }
+			static OpRegType OpReg() { return &CAArch64Assembler::Fcmeqz_4s; }
 		};
 		
 		struct MDOP_CMPLTZS : public MDOP_BASE2
 		{
-			static OpRegType OpReg() { return &CAArch64Assembler::Fcmlt_4s; }
+			static OpRegType OpReg() { return &CAArch64Assembler::Fcmltz_4s; }
 		};
 		
 		struct MDOP_SLLH : public MDOP_SHIFT

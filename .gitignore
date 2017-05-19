@@ -4,8 +4,6 @@ Release
 .idea
 *.iml
 build_android/build
-build_android/src/main/libs
-build_android/src/main/obj
 build_android/local.properties
 build_android/proguard-project.txt
 build_cmake/build*

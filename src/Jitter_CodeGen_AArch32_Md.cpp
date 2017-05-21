@@ -175,6 +175,37 @@ void CCodeGen_AArch32::Emit_Md_Test_VarMem(const STATEMENT& statement)
 	CommitSymbolRegister(dst, dstReg);
 }
 
+template <uint32 condition>
+void CCodeGen_AArch32::Emit_Md_TestF_VarMem(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	
+	auto src1AddrReg = CAArch32Assembler::r0;
+	auto src1Reg = CAArch32Assembler::q0;
+	
+	LoadMemory128AddressInRegister(src1AddrReg, src1);
+	m_assembler.Vld1_32x4(src1Reg, src1AddrReg);
+	
+	auto dstReg = PrepareSymbolRegisterDef(dst, CAArch32Assembler::r0);
+	
+	m_assembler.Eor(dstReg, dstReg, dstReg);
+	for(unsigned int i = 0; i < 4; i++)
+	{
+		m_assembler.Vcmpz_F32(static_cast<CAArch32Assembler::SINGLE_REGISTER>((src1Reg * 2) + i));
+		m_assembler.Vmrs(CAArch32Assembler::rPC);
+		uint8 immediate = 0, shiftAmount = 0;
+		if(!TryGetAluImmediateParams(1 << (3 - i), immediate, shiftAmount))
+		{
+			assert(false);
+		}
+		m_assembler.Or(static_cast<CAArch32Assembler::CONDITION>(condition), dstReg, dstReg,
+					   CAArch32Assembler::MakeImmediateAluOperand(immediate, shiftAmount));
+	}
+	
+	CommitSymbolRegister(dst, dstReg);
+}
+
 void CCodeGen_AArch32::Emit_Md_Mov_MemMem(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
@@ -620,7 +651,7 @@ CCodeGen_AArch32::CONSTMATCHER CCodeGen_AArch32::g_mdConstMatchers[] =
 	{ OP_MD_SRL256,				MATCH_VARIABLE128,			MATCH_MEMORY256,			MATCH_CONSTANT,			&CCodeGen_AArch32::Emit_Md_Srl256_MemMemCst						},
 
 	{ OP_MD_ISNEGATIVE,			MATCH_VARIABLE,				MATCH_MEMORY128,			MATCH_NIL,				&CCodeGen_AArch32::Emit_Md_Test_VarMem<CAArch32Assembler::CONDITION_MI> },
-	{ OP_MD_ISZERO,				MATCH_VARIABLE,				MATCH_MEMORY128,			MATCH_NIL,				&CCodeGen_AArch32::Emit_Md_Test_VarMem<CAArch32Assembler::CONDITION_EQ> },
+	{ OP_MD_ISZERO,				MATCH_VARIABLE,				MATCH_MEMORY128,			MATCH_NIL,				&CCodeGen_AArch32::Emit_Md_TestF_VarMem<CAArch32Assembler::CONDITION_EQ> },
 
 	{ OP_MD_TOSINGLE,			MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_NIL,				&CCodeGen_AArch32::Emit_Md_MemMem<MDOP_TOSINGLE>				},
 	{ OP_MD_TOWORD_TRUNCATE,	MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_NIL,				&CCodeGen_AArch32::Emit_Md_MemMem<MDOP_TOWORD>					},

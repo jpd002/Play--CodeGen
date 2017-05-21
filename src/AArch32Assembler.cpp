@@ -1087,6 +1087,14 @@ void CAArch32Assembler::Vcmp_F32(SINGLE_REGISTER sd, SINGLE_REGISTER sm)
 	WriteWord(opcode);
 }
 
+void CAArch32Assembler::Vcmpz_F32(SINGLE_REGISTER sd)
+{
+	uint32 opcode = 0x0EB50A40;
+	opcode |= (CONDITION_AL << 28);
+	opcode |= FPSIMD_EncodeSd(sd);
+	WriteWord(opcode);
+}
+
 void CAArch32Assembler::Vcvt_F32_S32(SINGLE_REGISTER sd, SINGLE_REGISTER sm)
 {
 	uint32 opcode = 0x0EB80AC0;

@@ -1,6 +1,7 @@
 #include "Jitter_CodeGenFactory.h"
 
 #include "Crc32Test.h"
+#include "CursorTest.h"
 #include "MultTest.h"
 #include "DivTest.h"
 #include "RandomAluTest.h"
@@ -58,6 +59,7 @@ static const TestFactoryFunction s_factories[] =
 	[] () { return new CShiftTest(32); },
 	[] () { return new CShiftTest(44); },
 	[] () { return new CCrc32Test("Hello World!", 0x67FCDACC); },
+	[] () { return new CCursorTest(); },
 	[] () { return new CLogicTest(0, false, ~0, false); },
 	[] () { return new CLogicTest(0, false, ~0, true); },
 	[] () { return new CLogicTest(0, true, ~0, false); },

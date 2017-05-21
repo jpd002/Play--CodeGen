@@ -336,6 +336,11 @@ namespace Jitter
 			static OpRegType OpReg() { return &CAArch64Assembler::Uqadd_4s; }
 		};
 		
+		struct MDOP_ADDBSS : public MDOP_BASE3
+		{
+			static OpRegType OpReg() { return &CAArch64Assembler::Sqadd_16b; }
+		};
+
 		struct MDOP_ADDHSS : public MDOP_BASE3
 		{
 			static OpRegType OpReg() { return &CAArch64Assembler::Sqadd_8h; }

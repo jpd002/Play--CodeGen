@@ -12,11 +12,6 @@ CCrc32Test::CCrc32Test(const char* input, uint32 result)
 
 }
 
-CCrc32Test::~CCrc32Test()
-{
-
-}
-
 void CCrc32Test::Run()
 {
 	m_inputPtr = 0;

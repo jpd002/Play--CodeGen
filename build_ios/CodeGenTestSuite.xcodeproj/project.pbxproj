@@ -31,6 +31,7 @@
 		705E55071A58C6B9009E67F1 /* MdSubTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 705E54FD1A58C6B9009E67F1 /* MdSubTest.cpp */; };
 		705E55081A58C6B9009E67F1 /* MdUnpackTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 705E54FF1A58C6B9009E67F1 /* MdUnpackTest.cpp */; };
 		705E55091A58C6B9009E67F1 /* SimpleMdTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 705E55011A58C6B9009E67F1 /* SimpleMdTest.cpp */; };
+		7061F1251E1C87BE00A30133 /* CursorTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7061F1231E1C87BE00A30133 /* CursorTest.cpp */; };
 		707A1F251D175A0C0062B6A6 /* AliasTest2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 707A1F231D175A0C0062B6A6 /* AliasTest2.cpp */; };
 		708ED2B91BBA073D00C49611 /* LogicTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 708ED2B71BBA073D00C49611 /* LogicTest.cpp */; };
 		70AD234D1B389DDA00137AA0 /* DivTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70AD23491B389DDA00137AA0 /* DivTest.cpp */; };
@@ -137,6 +138,8 @@
 		705E55001A58C6B9009E67F1 /* MdUnpackTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MdUnpackTest.h; path = ../tests/MdUnpackTest.h; sourceTree = "<group>"; };
 		705E55011A58C6B9009E67F1 /* SimpleMdTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SimpleMdTest.cpp; path = ../tests/SimpleMdTest.cpp; sourceTree = "<group>"; };
 		705E55021A58C6B9009E67F1 /* SimpleMdTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SimpleMdTest.h; path = ../tests/SimpleMdTest.h; sourceTree = "<group>"; };
+		7061F1231E1C87BE00A30133 /* CursorTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CursorTest.cpp; path = ../tests/CursorTest.cpp; sourceTree = "<group>"; };
+		7061F1241E1C87BE00A30133 /* CursorTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CursorTest.h; path = ../tests/CursorTest.h; sourceTree = "<group>"; };
 		707A1F231D175A0C0062B6A6 /* AliasTest2.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = AliasTest2.cpp; path = ../tests/AliasTest2.cpp; sourceTree = "<group>"; };
 		707A1F241D175A0C0062B6A6 /* AliasTest2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AliasTest2.h; path = ../tests/AliasTest2.h; sourceTree = "<group>"; };
 		708ED2B71BBA073D00C49611 /* LogicTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = LogicTest.cpp; path = ../tests/LogicTest.cpp; sourceTree = "<group>"; };
@@ -302,10 +305,12 @@
 				707A1F241D175A0C0062B6A6 /* AliasTest2.h */,
 				7E2720351212598B00C0DEBF /* CompareTest.cpp */,
 				7E2720361212598B00C0DEBF /* CompareTest.h */,
-				7E2720371212598B00C0DEBF /* Crc32Test.cpp */,
 				03E0AC391D629D5900346464 /* ConditionTest.cpp */,
 				03E0AC3A1D629D5900346464 /* ConditionTest.h */,
+				7E2720371212598B00C0DEBF /* Crc32Test.cpp */,
 				7E2720381212598B00C0DEBF /* Crc32Test.h */,
+				7061F1231E1C87BE00A30133 /* CursorTest.cpp */,
+				7061F1241E1C87BE00A30133 /* CursorTest.h */,
 				70AD23491B389DDA00137AA0 /* DivTest.cpp */,
 				70AD234A1B389DDA00137AA0 /* DivTest.h */,
 				7E3018521341A22000FEAF04 /* HugeJumpTest.cpp */,
@@ -508,6 +513,7 @@
 				705E55071A58C6B9009E67F1 /* MdSubTest.cpp in Sources */,
 				703F73811AD0C60C00887F65 /* Merge64Test.cpp in Sources */,
 				7E27204B1212598B00C0DEBF /* RandomAluTest2.cpp in Sources */,
+				7061F1251E1C87BE00A30133 /* CursorTest.cpp in Sources */,
 				7031AA4E1AED887C00FA7B53 /* NestedIfTest.cpp in Sources */,
 				7E27204C1212598B00C0DEBF /* RandomAluTest3.cpp in Sources */,
 				703093D017BE67F8009662A1 /* MdFpFlagTest.cpp in Sources */,

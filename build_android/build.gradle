@@ -1,29 +1,14 @@
 apply plugin: 'com.android.application'
-import org.apache.tools.ant.taskdefs.condition.Os
 
 buildscript {
 	repositories {
 		mavenCentral()
+		jcenter()
 	}
 	
 	dependencies {
-		classpath 'com.android.tools.build:gradle:1.5.0'
+		classpath 'com.android.tools.build:gradle:2.2.3'
 	}
-}
-
-def getNdkBuildPath() {
-	if(Os.isFamily(Os.FAMILY_WINDOWS)) {
-		return System.getenv('ANDROID_NDK') + '\\ndk-build.cmd'
-	} else {
-		return System.getenv('ANDROID_NDK') + '/ndk-build'
-	}
-}
-
-project.afterEvaluate {
-	compileDebugNdk.dependsOn 'ndkBuildDebug'
-	compileReleaseNdk.dependsOn 'ndkBuildRelease'
-	clean.dependsOn 'ndkCleanDebug'
-	clean.dependsOn 'ndkCleanRelease'
 }
 
 android {
@@ -33,6 +18,18 @@ android {
 	defaultConfig {
 		minSdkVersion 19
 		targetSdkVersion 24
+		externalNativeBuild {
+			cmake {
+				arguments "-DANDROID_ARM_NEON=TRUE", "-DANDROID_TOOLCHAIN=clang",
+						"-DANDROID_CPP_FEATURES=exceptions rtti", "-DANDROID_STL=c++_static"
+				cppFlags "-frtti"
+				targets "CodeGenTestSuite"
+			}
+			ndk {
+				abiFilters 'armeabi-v7a', 'x86', 'x86_64', 'arm64-v8a'
+			}
+
+		}
 	}
 
 	buildTypes {
@@ -49,20 +46,10 @@ android {
 		jni.srcDirs = []
 		jniLibs.srcDir 'src/main/libs'
 	}
-	
-	task ndkBuildDebug(type: Exec) {
-		commandLine getNdkBuildPath(), '-C', file('src/main').absolutePath, '-j', Runtime.runtime.availableProcessors(), 'NDK_DEBUG=1'
-	}
-	
-	task ndkBuildRelease(type: Exec) {
-		commandLine getNdkBuildPath(), '-C', file('src/main').absolutePath, '-j', Runtime.runtime.availableProcessors(), 'NDK_DEBUG=0'
-	}
-	
-	task ndkCleanDebug(type: Exec) {
-		commandLine getNdkBuildPath(), '-C', file('src/main').absolutePath, 'clean', 'NDK_DEBUG=1'
-	}
-	
-	task ndkCleanRelease(type: Exec) {
-		commandLine getNdkBuildPath(), '-C', file('src/main').absolutePath, 'clean', 'NDK_DEBUG=0'
+
+	externalNativeBuild {
+		cmake {
+			path '../build_cmake/CMakeLists.txt'
+		}
 	}
 }

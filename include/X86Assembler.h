@@ -1,5 +1,4 @@
-#ifndef _X86ASSEMBLER_H_
-#define _X86ASSEMBLER_H_
+#pragma once
 
 #include "Types.h"
 #include "Stream.h"
@@ -90,8 +89,7 @@ public:
 		void			Write(Framework::CStream*);
 	};
 
-											CX86Assembler();
-	virtual									~CX86Assembler();
+	virtual									~CX86Assembler() = default;
 
 	void									Begin();
 	void									End();
@@ -256,6 +254,7 @@ public:
 	void									PackuswbVo(XMMREGISTER, const CAddress&);
 
 	void									PaddbVo(XMMREGISTER, const CAddress&);
+	void									PaddsbVo(XMMREGISTER, const CAddress&);
 	void									PaddusbVo(XMMREGISTER, const CAddress&);
 	void									PaddwVo(XMMREGISTER, const CAddress&);
 	void									PaddswVo(XMMREGISTER, const CAddress&);
@@ -425,11 +424,9 @@ private:
 
 	LabelMap								m_labels;
 	LabelArray								m_labelOrder;
-	LABEL									m_nextLabelId;
-	LABELINFO*								m_currentLabel;
-	Framework::CStream*						m_outputStream;
+	LABEL									m_nextLabelId = 1;
+	LABELINFO*								m_currentLabel = nullptr;
+	Framework::CStream*						m_outputStream = nullptr;
 	Framework::CMemStream					m_tmpStream;
 	ByteArray								m_copyBuffer;
 };
-
-#endif

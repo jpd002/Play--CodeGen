@@ -2,19 +2,6 @@
 #include <stdexcept>
 #include "X86Assembler.h"
 
-CX86Assembler::CX86Assembler() 
-: m_outputStream(nullptr)
-, m_currentLabel(nullptr)
-, m_nextLabelId(1)
-{
-
-}
-
-CX86Assembler::~CX86Assembler()
-{
-
-}
-
 void CX86Assembler::Begin()
 {
 	m_nextLabelId = 1;
@@ -45,12 +32,12 @@ void CX86Assembler::End()
 		bool changed = false;
 
 		for(LabelArray::const_iterator labelIterator(m_labelOrder.begin());
-			labelIterator != m_labelOrder.end(); labelIterator++)
+			labelIterator != m_labelOrder.end(); ++labelIterator)
 		{
 			LABELINFO& label = m_labels[*labelIterator];
 
 			for(LabelRefArray::iterator labelRefIterator(label.labelRefs.begin());
-				labelRefIterator != label.labelRefs.end(); labelRefIterator++)
+				labelRefIterator != label.labelRefs.end(); ++labelRefIterator)
 			{
 				LABELREF& labelRef(*labelRefIterator);
 				switch(labelRef.length)
@@ -136,7 +123,7 @@ void CX86Assembler::End()
 void CX86Assembler::IncrementJumpOffsets(LabelArray::const_iterator startLabel, unsigned int amount)
 {
 	for(LabelArray::const_iterator labelIterator(startLabel);
-		labelIterator != m_labelOrder.end(); labelIterator++)
+		labelIterator != m_labelOrder.end(); ++labelIterator)
 	{
 		LABELINFO& label = m_labels[*labelIterator];
 		label.projectedStart += amount;
@@ -147,7 +134,7 @@ void CX86Assembler::IncrementJumpOffsets(LabelArray::const_iterator startLabel, 
 void CX86Assembler::IncrementJumpOffsetsLocal(LABELINFO& label, LabelRefArray::iterator startJump, unsigned int amount)
 {
 	for(LabelRefArray::iterator labelRefIterator(startJump);
-		labelRefIterator != label.labelRefs.end(); labelRefIterator++)
+		labelRefIterator != label.labelRefs.end(); ++labelRefIterator)
 	{
 		LABELREF& labelRef(*labelRefIterator);
 		labelRef.offset += amount;

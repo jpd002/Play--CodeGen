@@ -141,6 +141,11 @@ void CX86Assembler::PaddbVo(XMMREGISTER registerId, const CAddress& address)
 	WriteEdVdOp_66_0F(0xFC, address, registerId);
 }
 
+void CX86Assembler::PaddsbVo(XMMREGISTER registerId, const CAddress& address)
+{
+	WriteEdVdOp_66_0F(0xEC, address, registerId);
+}
+
 void CX86Assembler::PaddusbVo(XMMREGISTER registerId, const CAddress& address)
 {
 	WriteEdVdOp_66_0F(0xDC, address, registerId);

@@ -122,16 +122,6 @@ namespace Jitter
 			static OpEdType OpEd() { return &CX86Assembler::SqrtssEd; }
 		};
 
-		struct FPUOP_RSQRT : public FPUOP_BASE
-		{
-			static OpEdType OpEd() { return &CX86Assembler::RsqrtssEd; }
-		};
-
-		struct FPUOP_RCPL : public FPUOP_BASE
-		{
-			static OpEdType OpEd() { return &CX86Assembler::RcpssEd; }
-		};
-
 		//MDOP -----------------------------------------------------------
 		struct MDOP_BASE
 		{
@@ -151,6 +141,11 @@ namespace Jitter
 		struct MDOP_ADDW : public MDOP_BASE
 		{
 			static OpVoType OpVo() { return &CX86Assembler::PadddVo; }
+		};
+
+		struct MDOP_ADDSSB : public MDOP_BASE
+		{
+			static OpVoType OpVo() { return &CX86Assembler::PaddsbVo; }
 		};
 
 		struct MDOP_ADDSSH : public MDOP_BASE
@@ -574,6 +569,12 @@ namespace Jitter
 
 		//FPNEG
 		void						Emit_Fp_Neg_MemMem(const STATEMENT&);
+
+		//FPRSQRT
+		void						Emit_Fp_Rsqrt_MemMem(const STATEMENT&);
+
+		//FPRCPL
+		void						Emit_Fp_Rcpl_MemMem(const STATEMENT&);
 
 		//FP_MOV
 		void						Emit_Fp_Mov_RelSRelI32(const STATEMENT&);

@@ -84,7 +84,9 @@ void CJitter::AllocateRegisters(BASIC_BLOCK& basicBlock)
 			}
 
 			//If symbol is defined, we need to save it at the end
-			if(symbolRegAlloc.firstDef != -1)
+			//Exception: Temporaries that are not used after the allocation range
+			bool deadTemporary = symbol->IsTemporary() && (symbolRegAlloc.lastUse <= allocRange.second);
+			if(!deadTemporary && (symbolRegAlloc.firstDef != -1))
 			{
 				STATEMENT statement;
 				statement.op	= OP_MOV;
@@ -308,6 +310,10 @@ void CJitter::ComputeLivenessForRange(const BASIC_BLOCK& basicBlock, const Alloc
 				if(symbolRegAlloc.firstUse == -1)
 				{
 					symbolRegAlloc.firstUse = statementIdx;
+				}
+				if((symbolRegAlloc.lastUse == -1) || (statementIdx > symbolRegAlloc.lastUse))
+				{
+					symbolRegAlloc.lastUse = statementIdx;
 				}
 			}
 		);

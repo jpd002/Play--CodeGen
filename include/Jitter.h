@@ -64,6 +64,9 @@ namespace Jitter
 		void							PushTop();
 		void							PushIdx(unsigned int);
 
+		uint32							GetTopCursor() const;
+		void							PushCursor(uint32);
+
 		virtual void					PullRel(size_t);
 		void							PullTop();
 		void							Swap();
@@ -155,6 +158,7 @@ namespace Jitter
 
 		void							MD_AbsS();
 		void							MD_AddB();
+		void							MD_AddBSS();
 		void							MD_AddBUS();
 		void							MD_AddH();
 		void							MD_AddHSS();
@@ -218,10 +222,9 @@ namespace Jitter
 		{
 			unsigned int			useCount = 0;
 			unsigned int			firstUse = -1;
+			unsigned int			lastUse = -1;
 			unsigned int			firstDef = -1;
 			unsigned int			lastDef = -1;
-			unsigned int			rangeBegin = -1;
-			unsigned int			rangeEnd = -1;
 			bool					aliased = false;
 			SYM_TYPE				registerType = SYM_REGISTER;
 			unsigned int			registerId = -1;

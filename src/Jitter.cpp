@@ -193,6 +193,23 @@ void CJitter::PushTop()
 	PushIdx(0);
 }
 
+uint32 CJitter::GetTopCursor() const
+{
+	uint32 cursor = m_shadow.GetCount();
+	assert(cursor != 0);
+	return cursor;
+}
+
+void CJitter::PushCursor(uint32 cursor)
+{
+	int32 relativeIndex = static_cast<int32>(m_shadow.GetCount()) - static_cast<int32>(cursor);
+	if(relativeIndex < 0)
+	{
+		throw std::runtime_error("Invalid cursor.");
+	}
+	PushIdx(relativeIndex);
+}
+
 void CJitter::PullRel(size_t nOffset)
 {
 	STATEMENT statement;
@@ -1075,6 +1092,11 @@ void CJitter::MD_StoreAtRef()
 void CJitter::MD_AddB()
 {
 	InsertBinaryMdStatement(OP_MD_ADD_B);
+}
+
+void CJitter::MD_AddBSS()
+{
+	InsertBinaryMdStatement(OP_MD_ADDSS_B);
 }
 
 void CJitter::MD_AddBUS()

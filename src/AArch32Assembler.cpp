@@ -4,16 +4,6 @@
 
 #define OPCODE_BKPT (0xE1200070)
 
-CAArch32Assembler::CAArch32Assembler()
-{
-
-}
-
-CAArch32Assembler::~CAArch32Assembler()
-{
-	
-}
-
 void CAArch32Assembler::SetStream(Framework::CStream* stream)
 {
 	m_stream = stream;
@@ -765,6 +755,15 @@ void CAArch32Assembler::Vqadd_U16(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGIS
 void CAArch32Assembler::Vqadd_U32(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER qm)
 {
 	uint32 opcode = 0xF3200050;
+	opcode |= FPSIMD_EncodeQd(qd);
+	opcode |= FPSIMD_EncodeQn(qn);
+	opcode |= FPSIMD_EncodeQm(qm);
+	WriteWord(opcode);
+}
+
+void CAArch32Assembler::Vqadd_I8(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER qm)
+{
+	uint32 opcode = 0xF2000050;
 	opcode |= FPSIMD_EncodeQd(qd);
 	opcode |= FPSIMD_EncodeQn(qn);
 	opcode |= FPSIMD_EncodeQm(qm);

@@ -188,8 +188,7 @@ public:
 	typedef unsigned int LABEL;
 	
 	
-											CAArch32Assembler();
-	virtual									~CAArch32Assembler();
+	virtual									~CAArch32Assembler() = default;
 
 	void									SetStream(Framework::CStream*);
 
@@ -266,6 +265,7 @@ public:
 	void									Vqadd_U8(QUAD_REGISTER, QUAD_REGISTER, QUAD_REGISTER);
 	void									Vqadd_U16(QUAD_REGISTER, QUAD_REGISTER, QUAD_REGISTER);
 	void									Vqadd_U32(QUAD_REGISTER, QUAD_REGISTER, QUAD_REGISTER);
+	void									Vqadd_I8(QUAD_REGISTER, QUAD_REGISTER, QUAD_REGISTER);
 	void									Vqadd_I16(QUAD_REGISTER, QUAD_REGISTER, QUAD_REGISTER);
 	void									Vqadd_I32(QUAD_REGISTER, QUAD_REGISTER, QUAD_REGISTER);
 	void									Vsub_F32(SINGLE_REGISTER, SINGLE_REGISTER, SINGLE_REGISTER);

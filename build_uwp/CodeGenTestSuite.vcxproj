@@ -135,6 +135,7 @@
     <ClInclude Include="..\tests\CompareTest.h" />
     <ClInclude Include="..\tests\ConditionTest.h" />
     <ClInclude Include="..\tests\Crc32Test.h" />
+    <ClInclude Include="..\tests\CursorTest.h" />
     <ClInclude Include="..\tests\DivTest.h" />
     <ClInclude Include="..\tests\FpIntMixTest.h" />
     <ClInclude Include="..\tests\FpuTest.h" />
@@ -207,6 +208,7 @@
     <ClCompile Include="..\tests\CompareTest.cpp" />
     <ClCompile Include="..\tests\ConditionTest.cpp" />
     <ClCompile Include="..\tests\Crc32Test.cpp" />
+    <ClCompile Include="..\tests\CursorTest.cpp" />
     <ClCompile Include="..\tests\DivTest.cpp" />
     <ClCompile Include="..\tests\FpIntMixTest.cpp" />
     <ClCompile Include="..\tests\FpuTest.cpp" />

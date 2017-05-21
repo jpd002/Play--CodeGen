@@ -2,15 +2,35 @@ cmake_minimum_required(VERSION 2.8)
 project(CodeGen)
 
 set(CMAKE_MODULE_PATH
-	${CodeGen_SOURCE_DIR}/Modules
+	${CMAKE_CURRENT_SOURCE_DIR}/../../Dependencies/cmake-modules
 	${CMAKE_MODULE_PATH}
 )
 
-set(CMAKE_CXX_STANDARD 11)
+if(NOT CMAKE_BUILD_TYPE)
+	set(CMAKE_BUILD_TYPE Release CACHE STRING
+		"Choose the type of build, options are: None Debug Release"
+		FORCE)
+endif()
+
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_DEBUG")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -DNDEBUG")
+
+set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 if (NOT TARGET Framework)
-	add_subdirectory(../../Framework/build_unix ${CodeGen_SOURCE_DIR}/../../Framework/build_unix/build)
+	add_subdirectory(
+		${CMAKE_CURRENT_SOURCE_DIR}/../../Framework/build_cmake/Framework
+		${CMAKE_CURRENT_BINARY_DIR}/Framework
+	)
+endif()
+
+if(ANDROID)
+	if(NOT TARGET cpufeatures)
+		add_library(cpufeatures STATIC ${ANDROID_NDK}/sources/android/cpufeatures/cpu-features.c)
+	endif()
+	include_directories("${ANDROID_NDK}/sources/android/cpufeatures")
+	list(APPEND PROJECT_LIBS cpufeatures)
 endif()
 
 include_directories(../include ../../Framework/include)
@@ -49,7 +69,7 @@ add_library(CodeGen
 
 enable_testing()
 
-add_executable(CodeGenTest
+set(CodeGenTest_SRC
 	../tests/AliasTest.cpp
 	../tests/AliasTest2.cpp
 	../tests/Alu64Test.cpp
@@ -58,6 +78,7 @@ add_executable(CodeGenTest
 	../tests/Cmp64Test.cpp
 	../tests/CompareTest.cpp
 	../tests/Crc32Test.cpp
+	../tests/CursorTest.cpp
 	../tests/DivTest.cpp
 	../tests/FpIntMixTest.cpp
 	../tests/FpuTest.cpp
@@ -91,6 +112,12 @@ add_executable(CodeGenTest
 	../tests/ShiftTest.cpp
 	../tests/SimpleMdTest.cpp
 )
-target_link_libraries(CodeGenTest CodeGen Framework)
-add_test(CodeGenTest CodeGenTest)
 
+if(ANDROID)
+	add_library(CodeGenTestSuite SHARED ${CodeGenTest_SRC})
+else()
+	add_executable(CodeGenTestSuite ${CodeGenTest_SRC})
+	add_test(CodeGenTestSuite CodeGenTestSuite)
+endif()
+
+target_link_libraries(CodeGenTestSuite CodeGen Framework ${PROJECT_LIBS})

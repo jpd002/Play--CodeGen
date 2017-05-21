@@ -1,5 +1,4 @@
-#ifndef _CRC32TEST_H_
-#define _CRC32TEST_H_
+#pragma once
 
 #include "Test.h"
 #include "MemoryFunction.h"
@@ -9,10 +8,9 @@ class CCrc32Test : public CTest
 {
 public:
 						CCrc32Test(const char*, uint32);
-	virtual				~CCrc32Test();
 
-	void				Run();
-	void				Compile(Jitter::CJitter&);
+	void				Run() override;
+	void				Compile(Jitter::CJitter&) override;
 
 private:
 	enum STATE
@@ -51,5 +49,3 @@ private:
 	unsigned int		m_inputPtr;
 	uint32				m_result;
 };
-
-#endif

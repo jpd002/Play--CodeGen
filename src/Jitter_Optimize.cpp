@@ -678,10 +678,7 @@ bool CJitter::FoldConstant64Operation(STATEMENT& statement)
 			switch(statement.jmpCondition)
 			{
 			case CONDITION_NE:
-				result = !(
-							(src1cst->m_valueLow  == src2cst->m_valueLow) && 
-							(src1cst->m_valueHigh == src2cst->m_valueHigh)
-							);
+				result = src1cst->GetConstant64() != src2cst->GetConstant64();
 				break;
 			default:
 				assert(0);

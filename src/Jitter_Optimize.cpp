@@ -690,8 +690,17 @@ bool CJitter::FoldConstant64Operation(STATEMENT& statement)
 			bool result = false;
 			switch(statement.jmpCondition)
 			{
+			case CONDITION_EQ:
+				result = src1cst->GetConstant64() == src2cst->GetConstant64();
+				break;
 			case CONDITION_NE:
 				result = src1cst->GetConstant64() != src2cst->GetConstant64();
+				break;
+			case CONDITION_BL:
+				result = src1cst->GetConstant64() < src2cst->GetConstant64();
+				break;
+			case CONDITION_AB:
+				result = src1cst->GetConstant64() > src2cst->GetConstant64();
 				break;
 			case CONDITION_LT:
 				result = static_cast<int64>(src1cst->GetConstant64()) < static_cast<int64>(src2cst->GetConstant64());

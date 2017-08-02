@@ -6,7 +6,7 @@
 class CCmp64Test : public CTest
 {
 public:
-						CCmp64Test(bool, uint64, uint64);
+						CCmp64Test(bool, bool, uint64, uint64);
 
 	void				Run();
 	void				Compile(Jitter::CJitter&);
@@ -26,7 +26,8 @@ private:
 		uint32			resultGt;
 	};
 
-	bool				m_useConstant = false;
+	bool				m_useConstant0 = false;
+	bool				m_useConstant1 = false;
 	uint64				m_value0 = 0;
 	uint64				m_value1 = 0;
 	CONTEXT				m_context;

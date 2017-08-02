@@ -511,9 +511,17 @@ bool CJitter::FoldConstantOperation(STATEMENT& statement)
 	{
 		if(src1cst && src2cst)
 		{
-			uint32 quotient = src1cst->m_valueLow / src2cst->m_valueLow;
-			uint32 remainder = src1cst->m_valueLow % src2cst->m_valueLow;
-			uint64 result = static_cast<uint64>(quotient) | (static_cast<uint64>(remainder) << 32);
+			uint64 result = 0;
+			if(src2cst->m_valueLow != 0)
+			{
+				uint32 quotient = src1cst->m_valueLow / src2cst->m_valueLow;
+				uint32 remainder = src1cst->m_valueLow % src2cst->m_valueLow;
+				result = static_cast<uint64>(quotient) | (static_cast<uint64>(remainder) << 32);
+			}
+			else
+			{
+				result = ~0ULL;
+			}
 			statement.op = OP_MOV;
 			statement.src1 = MakeSymbolRef(MakeConstant64(result));
 			statement.src2.reset();
@@ -529,9 +537,17 @@ bool CJitter::FoldConstantOperation(STATEMENT& statement)
 	{
 		if (src1cst && src2cst)
 		{
-			uint32 quotient = static_cast<int32>(src1cst->m_valueLow) / static_cast<int32>(src2cst->m_valueLow);
-			uint32 remainder = static_cast<int32>(src1cst->m_valueLow) % static_cast<int32>(src2cst->m_valueLow);
-			uint64 result = static_cast<uint64>(quotient) | (static_cast<uint64>(remainder) << 32);
+			uint64 result = 0;
+			if(src2cst->m_valueLow != 0)
+			{
+				uint32 quotient = static_cast<int32>(src1cst->m_valueLow) / static_cast<int32>(src2cst->m_valueLow);
+				uint32 remainder = static_cast<int32>(src1cst->m_valueLow) % static_cast<int32>(src2cst->m_valueLow);
+				result = static_cast<uint64>(quotient) | (static_cast<uint64>(remainder) << 32);
+			}
+			else
+			{
+				result = ~0ULL;
+			}
 			statement.op = OP_MOV;
 			statement.src1 = MakeSymbolRef(MakeConstant64(result));
 			statement.src2.reset();

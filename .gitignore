@@ -10,6 +10,7 @@ build_cmake/build*
 build_ios/build
 build_uwp/Generated Files
 build_uwp/ipch
+build_win32/.vs
 *.user
 *.userprops
 *.sdf

@@ -338,6 +338,8 @@ CCodeGen_AArch64::CONSTMATCHER CCodeGen_AArch64::g_constMatchers[] =
 	{ OP_DIVS,           MATCH_TEMPORARY64,    MATCH_ANY,            MATCH_ANY,           &CCodeGen_AArch64::Emit_Div_Tmp64AnyAny<true>               },
 	
 	{ OP_LABEL,          MATCH_NIL,            MATCH_NIL,            MATCH_NIL,           &CCodeGen_AArch64::MarkLabel                                },
+
+	{ OP_MOV,            MATCH_NIL,            MATCH_NIL,            MATCH_NIL,           nullptr                                                     },
 };
 
 CCodeGen_AArch64::CCodeGen_AArch64()

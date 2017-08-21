@@ -1516,6 +1516,7 @@ void CJitter::NormalizeStatements(BASIC_BLOCK& basicBlock)
 		switch(statement.op)
 		{
 			case OP_ADD:
+			case OP_ADD64:
 			case OP_AND:
 			case OP_OR:
 			case OP_XOR:

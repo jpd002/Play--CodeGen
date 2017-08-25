@@ -1,10 +1,20 @@
 #include <functional>
 #include <array>
 #include <assert.h>
+#include "Jitter_CodeGen_x86.h"
+
 #ifdef _WIN32
+#define HAS_CPUID
+#define HAS_CPUID_MSVC
 #include <intrin.h>
 #endif
-#include "Jitter_CodeGen_x86.h"
+#if defined(__linux__)
+#if defined(__i386__) || defined(__x86_64__)
+#define HAS_CPUID
+#define HAS_CPUID_GCC
+#include <cpuid.h>
+#endif
+#endif
 
 using namespace Jitter;
 
@@ -205,12 +215,24 @@ void CCodeGen_x86::InsertMatchers(const CONSTMATCHER* constMatchers)
 
 void CCodeGen_x86::SetGenerationFlags()
 {
-#if defined(_WIN32) && (defined(_M_IX86) || defined(_M_X64))
-	static uint32 CPUID_FLAG_SSE41 = 0x080000;
+	static const uint32 CPUID_FLAG_SSE41 = 0x080000;
+
+#ifdef HAS_CPUID
+
+#ifdef HAS_CPUID_MSVC
 	std::array<int, 4> cpuInfo;
 	__cpuid(cpuInfo.data(), 1);
+#endif //HAS_CPUID_MSVC
+
+#ifdef HAS_CPUID_GCC
+	std::array<unsigned int, 4> cpuInfo;
+	__get_cpuid(1, &cpuInfo[0], &cpuInfo[1], &cpuInfo[2], &cpuInfo[3]);
+#endif //HAS_CPUID_GCC
+
 	m_hasSse41 = (cpuInfo[2] & CPUID_FLAG_SSE41) != 0;
-#endif
+
+#endif //HAS_CPUID
+
 }
 
 void CCodeGen_x86::SetStream(Framework::CStream* stream)

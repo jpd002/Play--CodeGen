@@ -3,13 +3,23 @@
 #include <assert.h>
 #include "Jitter_CodeGen_x86.h"
 
+//Check if CPUID is available
 #ifdef _WIN32
 #define HAS_CPUID
 #define HAS_CPUID_MSVC
 #include <intrin.h>
 #endif
+
 #if defined(__linux__)
 #if defined(__i386__) || defined(__x86_64__)
+#define HAS_CPUID
+#define HAS_CPUID_GCC
+#include <cpuid.h>
+#endif
+#endif
+
+#if defined(__APPLE__)
+#if defined(TARGET_CPU_X86) || defined(TARGET_CPU_X86_64)
 #define HAS_CPUID
 #define HAS_CPUID_GCC
 #include <cpuid.h>

@@ -19,7 +19,8 @@
 #endif
 
 #if defined(__APPLE__)
-#if defined(TARGET_CPU_X86) || defined(TARGET_CPU_X86_64)
+#include <TargetConditionals.h>
+#if TARGET_CPU_X86 || TARGET_CPU_X86_64
 #define HAS_CPUID
 #define HAS_CPUID_GCC
 #include <cpuid.h>

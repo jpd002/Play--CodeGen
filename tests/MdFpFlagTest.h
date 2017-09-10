@@ -7,8 +7,7 @@
 class CMdFpFlagTest : public CTest
 {
 public:
-						CMdFpFlagTest();
-	virtual				~CMdFpFlagTest();
+	virtual				~CMdFpFlagTest() = default;
 
 	void				Compile(Jitter::CJitter&) override;
 	void				Run() override;

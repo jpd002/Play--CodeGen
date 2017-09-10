@@ -672,8 +672,6 @@ void CCodeGen_x86::Emit_Md_Not(CX86Assembler::XMMREGISTER dstRegister)
 void CCodeGen_x86::Emit_Md_IsNegative(CX86Assembler::REGISTER dstRegister, const CX86Assembler::CAddress& srcAddress)
 {
 	auto valueRegister = CX86Assembler::xMM0;
-	auto zeroRegister = CX86Assembler::xMM1;
-	auto tmpRegister = CX86Assembler::xMM2;
 	auto shuffleSelectRegister = CX86Assembler::xMM3;
 	auto tmpFlagRegister = CX86Assembler::rDX;
 
@@ -682,36 +680,15 @@ void CCodeGen_x86::Emit_Md_IsNegative(CX86Assembler::REGISTER dstRegister, const
 	//valueRegister = [srcAddress]
 	m_assembler.MovdqaVo(valueRegister, srcAddress);
 
-	//----- Generate isZero
-
-	//tmpRegister = 0
-	m_assembler.PandnVo(tmpRegister, CX86Assembler::MakeXmmRegisterAddress(tmpRegister));
-
-	//zeroRegister = 0xFFFFFFFF
-	m_assembler.PcmpeqdVo(zeroRegister, CX86Assembler::MakeXmmRegisterAddress(zeroRegister));
-
-	//zeroRegister = 0x7FFFFFFF
-	m_assembler.PsrldVo(zeroRegister, 1);
-
-	//zeroRegister &= valueRegister
-	m_assembler.PandVo(zeroRegister, CX86Assembler::MakeXmmRegisterAddress(valueRegister));
-
-	//zeroRegister = (zeroRegister == tmpRegister)
-	m_assembler.PcmpeqdVo(zeroRegister, CX86Assembler::MakeXmmRegisterAddress(tmpRegister));
-
 	//----- Generate isNegative
 	//valueRegister >>= 31 (s-extended)
 	m_assembler.PsradVo(valueRegister, 31);
 
-	//----- Generate result
-	//zeroRegister = (not zeroRegister) & valueRegister
-	m_assembler.PandnVo(zeroRegister, CX86Assembler::MakeXmmRegisterAddress(valueRegister));
-
 	//Extract bits
 	m_assembler.MovId(tmpFlagRegister, 0x03070B0F);
 	m_assembler.MovdVo(shuffleSelectRegister, CX86Assembler::MakeRegisterAddress(tmpFlagRegister));
-	m_assembler.PshufbVo(zeroRegister, CX86Assembler::MakeXmmRegisterAddress(shuffleSelectRegister));
-	m_assembler.PmovmskbVo(dstRegister, zeroRegister);
+	m_assembler.PshufbVo(valueRegister, CX86Assembler::MakeXmmRegisterAddress(shuffleSelectRegister));
+	m_assembler.PmovmskbVo(dstRegister, valueRegister);
 	m_assembler.AndId(CX86Assembler::MakeRegisterAddress(dstRegister), 0x0F);
 }
 

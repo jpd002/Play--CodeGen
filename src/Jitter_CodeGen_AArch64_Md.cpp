@@ -555,7 +555,7 @@ CCodeGen_AArch64::CONSTMATCHER CCodeGen_AArch64::g_mdConstMatchers[] =
 	{ OP_MD_SRL256,             MATCH_VARIABLE128,    MATCH_MEMORY256,      MATCH_VARIABLE,         &CCodeGen_AArch64::Emit_Md_Srl256_VarMemVar                      },
 	{ OP_MD_SRL256,             MATCH_VARIABLE128,    MATCH_MEMORY256,      MATCH_CONSTANT,         &CCodeGen_AArch64::Emit_Md_Srl256_VarMemCst                      },
 
-	{ OP_MD_ISNEGATIVE,         MATCH_VARIABLE,       MATCH_VARIABLE128,    MATCH_NIL,              &CCodeGen_AArch64::Emit_Md_Test_VarVar<MDOP_CMPLTZS>             },
+	{ OP_MD_ISNEGATIVE,         MATCH_VARIABLE,       MATCH_VARIABLE128,    MATCH_NIL,              &CCodeGen_AArch64::Emit_Md_Test_VarVar<MDOP_CMPLTZW>             },
 	{ OP_MD_ISZERO,             MATCH_VARIABLE,       MATCH_VARIABLE128,    MATCH_NIL,              &CCodeGen_AArch64::Emit_Md_Test_VarVar<MDOP_CMPEQZS>             },
 	
 	{ OP_MD_TOSINGLE,           MATCH_VARIABLE128,    MATCH_VARIABLE128,    MATCH_NIL,              &CCodeGen_AArch64::Emit_Md_VarVar<MDOP_TOSINGLE>                 },

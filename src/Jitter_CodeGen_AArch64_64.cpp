@@ -448,4 +448,6 @@ CCodeGen_AArch64::CONSTMATCHER CCodeGen_AArch64::g_64ConstMatchers[] =
 	
 	{ OP_MOV,            MATCH_MEMORY64,       MATCH_MEMORY64,       MATCH_NIL,           &CCodeGen_AArch64::Emit_Mov_Mem64Mem64                      },
 	{ OP_MOV,            MATCH_MEMORY64,       MATCH_CONSTANT64,     MATCH_NIL,           &CCodeGen_AArch64::Emit_Mov_Mem64Cst64                      },
+
+	{ OP_MOV,            MATCH_NIL,            MATCH_NIL,            MATCH_NIL,           nullptr                                                     },
 };

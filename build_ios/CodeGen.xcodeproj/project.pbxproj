@@ -375,6 +375,7 @@
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				INSTALL_PATH = /usr/local/lib;
 				PRODUCT_NAME = CodeGen;
+				SKIP_INSTALL = YES;
 			};
 			name = Debug;
 		};
@@ -386,6 +387,7 @@
 				DSTROOT = /tmp/CodeGen.dst;
 				INSTALL_PATH = /usr/local/lib;
 				PRODUCT_NAME = CodeGen;
+				SKIP_INSTALL = YES;
 			};
 			name = Release;
 		};

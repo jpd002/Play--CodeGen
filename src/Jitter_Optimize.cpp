@@ -511,9 +511,17 @@ bool CJitter::FoldConstantOperation(STATEMENT& statement)
 	{
 		if(src1cst && src2cst)
 		{
-			uint32 quotient = src1cst->m_valueLow / src2cst->m_valueLow;
-			uint32 remainder = src1cst->m_valueLow % src2cst->m_valueLow;
-			uint64 result = static_cast<uint64>(quotient) | (static_cast<uint64>(remainder) << 32);
+			uint64 result = 0;
+			if(src2cst->m_valueLow != 0)
+			{
+				uint32 quotient = src1cst->m_valueLow / src2cst->m_valueLow;
+				uint32 remainder = src1cst->m_valueLow % src2cst->m_valueLow;
+				result = static_cast<uint64>(quotient) | (static_cast<uint64>(remainder) << 32);
+			}
+			else
+			{
+				result = ~0ULL;
+			}
 			statement.op = OP_MOV;
 			statement.src1 = MakeSymbolRef(MakeConstant64(result));
 			statement.src2.reset();
@@ -529,9 +537,17 @@ bool CJitter::FoldConstantOperation(STATEMENT& statement)
 	{
 		if (src1cst && src2cst)
 		{
-			uint32 quotient = static_cast<int32>(src1cst->m_valueLow) / static_cast<int32>(src2cst->m_valueLow);
-			uint32 remainder = static_cast<int32>(src1cst->m_valueLow) % static_cast<int32>(src2cst->m_valueLow);
-			uint64 result = static_cast<uint64>(quotient) | (static_cast<uint64>(remainder) << 32);
+			uint64 result = 0;
+			if(src2cst->m_valueLow != 0)
+			{
+				uint32 quotient = static_cast<int32>(src1cst->m_valueLow) / static_cast<int32>(src2cst->m_valueLow);
+				uint32 remainder = static_cast<int32>(src1cst->m_valueLow) % static_cast<int32>(src2cst->m_valueLow);
+				result = static_cast<uint64>(quotient) | (static_cast<uint64>(remainder) << 32);
+			}
+			else
+			{
+				result = ~0ULL;
+			}
 			statement.op = OP_MOV;
 			statement.src1 = MakeSymbolRef(MakeConstant64(result));
 			statement.src2.reset();
@@ -657,6 +673,19 @@ bool CJitter::FoldConstant64Operation(STATEMENT& statement)
 			changed = true;
 		}
 	}
+	else if(statement.op == OP_SUB64)
+	{
+		if(src1cst && src2cst)
+		{
+			uint64 cst1 = MergeConstant64(src1cst->m_valueLow, src1cst->m_valueHigh);
+			uint64 cst2 = MergeConstant64(src2cst->m_valueLow, src2cst->m_valueHigh);
+			uint64 result = cst1 - cst2;
+			statement.op = OP_MOV;
+			statement.src1 = MakeSymbolRef(MakeConstant64(result));
+			statement.src2.reset();
+			changed = true;
+		}
+	}
 	else if(statement.op == OP_AND64)
 	{
 		if(src1cst && src2cst)
@@ -677,11 +706,26 @@ bool CJitter::FoldConstant64Operation(STATEMENT& statement)
 			bool result = false;
 			switch(statement.jmpCondition)
 			{
+			case CONDITION_EQ:
+				result = src1cst->GetConstant64() == src2cst->GetConstant64();
+				break;
 			case CONDITION_NE:
-				result = !(
-							(src1cst->m_valueLow  == src2cst->m_valueLow) && 
-							(src1cst->m_valueHigh == src2cst->m_valueHigh)
-							);
+				result = src1cst->GetConstant64() != src2cst->GetConstant64();
+				break;
+			case CONDITION_BL:
+				result = src1cst->GetConstant64() < src2cst->GetConstant64();
+				break;
+			case CONDITION_AB:
+				result = src1cst->GetConstant64() > src2cst->GetConstant64();
+				break;
+			case CONDITION_LT:
+				result = static_cast<int64>(src1cst->GetConstant64()) < static_cast<int64>(src2cst->GetConstant64());
+				break;
+			case CONDITION_LE:
+				result = static_cast<int64>(src1cst->GetConstant64()) <= static_cast<int64>(src2cst->GetConstant64());
+				break;
+			case CONDITION_GT:
+				result = static_cast<int64>(src1cst->GetConstant64()) > static_cast<int64>(src2cst->GetConstant64());
 				break;
 			default:
 				assert(0);
@@ -1472,6 +1516,7 @@ void CJitter::NormalizeStatements(BASIC_BLOCK& basicBlock)
 		switch(statement.op)
 		{
 			case OP_ADD:
+			case OP_ADD64:
 			case OP_AND:
 			case OP_OR:
 			case OP_XOR:

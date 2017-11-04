@@ -38,23 +38,25 @@ include_directories(../include ../../Framework/include)
 add_library(CodeGen 
 	../src/AArch32Assembler.cpp
 	../src/AArch64Assembler.cpp
+	../src/CoffObjectFile.cpp
 	../src/Jitter_CodeGen_AArch32.cpp
 	../src/Jitter_CodeGen_AArch32_64.cpp
+	../src/Jitter_CodeGen_AArch32_Div.h
 	../src/Jitter_CodeGen_AArch32_Fpu.cpp
 	../src/Jitter_CodeGen_AArch32_Md.cpp
 	../src/Jitter_CodeGen_AArch64.cpp
 	../src/Jitter_CodeGen_AArch64_64.cpp
 	../src/Jitter_CodeGen_AArch64_Fpu.cpp
 	../src/Jitter_CodeGen_AArch64_Md.cpp
-	../src/X86Assembler.cpp
-	../src/X86Assembler_Fpu.cpp
-	../src/X86Assembler_Sse.cpp
 	../src/Jitter_CodeGen_x86_32.cpp
 	../src/Jitter_CodeGen_x86_64.cpp
 	../src/Jitter_CodeGen_x86.cpp
+	../src/Jitter_CodeGen_x86_Alu.h
+	../src/Jitter_CodeGen_x86_Div.h
 	../src/Jitter_CodeGen_x86_Fpu.cpp
 	../src/Jitter_CodeGen_x86_Md.cpp
-	../src/CoffObjectFile.cpp
+	../src/Jitter_CodeGen_x86_Mul.h
+	../src/Jitter_CodeGen_x86_Shift.h
 	../src/Jitter_CodeGen.cpp
 	../src/Jitter_CodeGenFactory.cpp
 	../src/Jitter.cpp
@@ -65,6 +67,32 @@ add_library(CodeGen
 	../src/MachoObjectFile.cpp
 	../src/MemoryFunction.cpp
 	../src/ObjectFile.cpp
+	../src/X86Assembler.cpp
+	../src/X86Assembler_Fpu.cpp
+	../src/X86Assembler_Sse.cpp
+
+	../include/AArch32Assembler.h
+	../include/AArch64Assembler.h
+	../include/ArrayStack.h
+	../include/CoffDefs.h
+	../include/CoffObjectFile.h
+	../include/Jitter_CodeGen_AArch32.h
+	../include/Jitter_CodeGen_AArch64.h
+	../include/Jitter_CodeGen_x86_32.h
+	../include/Jitter_CodeGen_x86_64.h
+	../include/Jitter_CodeGen_x86.h
+	../include/Jitter_CodeGen.h
+	../include/Jitter_CodeGenFactory.h
+	../include/Jitter_Statement.h
+	../include/Jitter_Symbol.h
+	../include/Jitter_SymbolRef.h
+	../include/Jitter_SymbolTable.h
+	../include/Jitter.h
+	../include/MachoDefs.h
+	../include/MachoObjectFile.h
+	../include/MemoryFunction.h
+	../include/ObjectFile.h
+	../include/X86Assembler.h
 )
 
 enable_testing()

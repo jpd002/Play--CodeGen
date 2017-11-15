@@ -19,12 +19,12 @@ CAArch64Assembler::REGISTER32    CCodeGen_AArch64::g_registers[MAX_REGISTERS] =
 
 CAArch64Assembler::REGISTERMD    CCodeGen_AArch64::g_registersMd[MAX_MDREGISTERS] =
 {
+	//v0-v3 are used for work values, v7-v15 need to be preserved
 	CAArch64Assembler::v4,  CAArch64Assembler::v5,  CAArch64Assembler::v6,  CAArch64Assembler::v7,
-	CAArch64Assembler::v8,  CAArch64Assembler::v9,  CAArch64Assembler::v10, CAArch64Assembler::v11,
-	CAArch64Assembler::v12, CAArch64Assembler::v13, CAArch64Assembler::v14, CAArch64Assembler::v15,
 	CAArch64Assembler::v16, CAArch64Assembler::v17, CAArch64Assembler::v18, CAArch64Assembler::v19,
 	CAArch64Assembler::v20, CAArch64Assembler::v21, CAArch64Assembler::v22, CAArch64Assembler::v23,
 	CAArch64Assembler::v24, CAArch64Assembler::v25, CAArch64Assembler::v26, CAArch64Assembler::v27,
+	CAArch64Assembler::v28, CAArch64Assembler::v29, CAArch64Assembler::v30, CAArch64Assembler::v31,
 };
 
 CAArch64Assembler::REGISTER32    CCodeGen_AArch64::g_tempRegisters[MAX_TEMP_REGS] =

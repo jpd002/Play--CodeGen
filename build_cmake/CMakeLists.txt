@@ -65,7 +65,7 @@ add_library(CodeGen
 	../src/ObjectFile.cpp
 )
 
-target_link_libraries(CodeGen PUBLIC Framework)
+target_link_libraries(CodeGen PUBLIC Framework ${PROJECT_LIBS})
 target_include_directories(CodeGen PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../include)
 enable_testing()
 

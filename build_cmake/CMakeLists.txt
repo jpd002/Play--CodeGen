@@ -33,8 +33,6 @@ if(ANDROID)
 	list(APPEND PROJECT_LIBS cpufeatures)
 endif()
 
-include_directories(../include ../../Framework/include)
-
 add_library(CodeGen 
 	../src/AArch32Assembler.cpp
 	../src/AArch64Assembler.cpp
@@ -95,6 +93,8 @@ add_library(CodeGen
 	../include/X86Assembler.h
 )
 
+target_link_libraries(CodeGen PUBLIC Framework ${PROJECT_LIBS})
+target_include_directories(CodeGen PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../include)
 enable_testing()
 
 set(CodeGenTest_SRC

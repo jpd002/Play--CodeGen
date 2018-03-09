@@ -135,6 +135,7 @@ public:
 	void									IdivEd(const CAddress&);
 	void									ImulEw(const CAddress&);
 	void									ImulEd(const CAddress&);
+	void									Int3();
 	void									JbJx(LABEL);
 	void									JbeJx(LABEL);
 	void									JnbJx(LABEL);

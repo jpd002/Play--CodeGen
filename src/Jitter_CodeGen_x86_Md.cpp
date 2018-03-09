@@ -586,8 +586,9 @@ void CCodeGen_x86::Emit_Md_MovMasked_VarVarVar(const STATEMENT& statement)
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
 	auto src2 = statement.src2->GetSymbol().get();
-
 	uint8 mask = static_cast<uint8>(statement.jmpCondition);
+
+#if 0
 	auto mask0Register = CX86Assembler::xMM0;
 	auto mask1Register = CX86Assembler::xMM1;
 
@@ -619,6 +620,20 @@ void CCodeGen_x86::Emit_Md_MovMasked_VarVarVar(const STATEMENT& statement)
 	m_assembler.PorVo(mask0Register, CX86Assembler::MakeXmmRegisterAddress(mask1Register));
 
 	m_assembler.MovdqaVo(MakeVariable128SymbolAddress(dst), mask0Register);
+#else
+	//On AVX, we can use 3 operand version?
+	if(dst->IsRegister() && dst->Equals(src1))
+	{
+		m_assembler.BlendpsVo(m_mdRegisters[dst->m_valueLow], MakeVariable128SymbolAddress(src2), mask);
+	}
+	else
+	{
+		auto tempRegister = CX86Assembler::xMM0;
+		m_assembler.MovapsVo(tempRegister, MakeVariable128SymbolAddress(src1));
+		m_assembler.BlendpsVo(tempRegister, MakeVariable128SymbolAddress(src2), mask);
+		m_assembler.MovapsVo(MakeVariable128SymbolAddress(dst), tempRegister);
+	}
+#endif
 }
 
 void CCodeGen_x86::Emit_Md_Mov_RegVar(const STATEMENT& statement)

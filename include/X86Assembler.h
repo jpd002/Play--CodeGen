@@ -318,6 +318,7 @@ public:
 	void									Cvttps2dqVo(XMMREGISTER, const CAddress&);
 
 	void									AddpsVo(XMMREGISTER, const CAddress&);
+	void									BlendpsVo(XMMREGISTER, const CAddress&, uint8);
 	void									DivpsVo(XMMREGISTER, const CAddress&);
 	void									MaxpsVo(XMMREGISTER, const CAddress&);
 	void									MinpsVo(XMMREGISTER, const CAddress&);
@@ -408,6 +409,7 @@ private:
 	void									WriteEdVdOp_66_0F(uint8, const CAddress&, XMMREGISTER);
 	void									WriteEdVdOp_66_0F_64b(uint8, const CAddress&, XMMREGISTER);
 	void									WriteEdVdOp_66_0F_38(uint8, const CAddress&, XMMREGISTER);
+	void									WriteEdVdOp_66_0F_3A(uint8, const CAddress&, XMMREGISTER);
 	void									WriteEdVdOp_F3_0F(uint8, const CAddress&, XMMREGISTER);
 	void									WriteVrOp_66_0F(uint8, uint8, XMMREGISTER);
 	void									WriteStOp(uint8, uint8, uint8);

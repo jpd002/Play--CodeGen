@@ -140,10 +140,12 @@ CCodeGen_x86::CCodeGen_x86()
 	if(m_hasSse41)
 	{
 		InsertMatchers(g_mdMinMaxWSse41ConstMatchers);
+		InsertMatchers(g_mdMovMaskedSse41ConstMatchers);
 	}
 	else
 	{
 		InsertMatchers(g_mdMinMaxWConstMatchers);
+		InsertMatchers(g_mdMovMaskedConstMatchers);
 	}
 }
 

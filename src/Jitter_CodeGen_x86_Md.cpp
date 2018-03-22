@@ -587,8 +587,7 @@ void CCodeGen_x86::Emit_Md_MovMasked_VarVarVar(const STATEMENT& statement)
 	auto src1 = statement.src1->GetSymbol().get();
 	auto src2 = statement.src2->GetSymbol().get();
 	uint8 mask = static_cast<uint8>(statement.jmpCondition);
-
-#if 0
+	
 	auto mask0Register = CX86Assembler::xMM0;
 	auto mask1Register = CX86Assembler::xMM1;
 
@@ -620,8 +619,18 @@ void CCodeGen_x86::Emit_Md_MovMasked_VarVarVar(const STATEMENT& statement)
 	m_assembler.PorVo(mask0Register, CX86Assembler::MakeXmmRegisterAddress(mask1Register));
 
 	m_assembler.MovdqaVo(MakeVariable128SymbolAddress(dst), mask0Register);
-#else
-	//On AVX, we can use 3 operand version?
+}
+
+void CCodeGen_x86::Emit_Md_MovMasked_Sse41_VarVarVar(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+	uint8 mask = static_cast<uint8>(statement.jmpCondition);
+	
+	//This could be improved if src1 and src2 are different
+	assert(dst->Equals(src1));
+
 	if(dst->IsRegister() && dst->Equals(src1))
 	{
 		m_assembler.BlendpsVo(m_mdRegisters[dst->m_valueLow], MakeVariable128SymbolAddress(src2), mask);
@@ -633,7 +642,6 @@ void CCodeGen_x86::Emit_Md_MovMasked_VarVarVar(const STATEMENT& statement)
 		m_assembler.BlendpsVo(tempRegister, MakeVariable128SymbolAddress(src2), mask);
 		m_assembler.MovapsVo(MakeVariable128SymbolAddress(dst), tempRegister);
 	}
-#endif
 }
 
 void CCodeGen_x86::Emit_Md_Mov_RegVar(const STATEMENT& statement)
@@ -981,7 +989,6 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdConstMatchers[] =
 	{ OP_MOV,					MATCH_REGISTER128,			MATCH_VARIABLE128,			MATCH_NIL,				&CCodeGen_x86::Emit_Md_Mov_RegVar,							},
 	{ OP_MOV,					MATCH_MEMORY128,			MATCH_REGISTER128,			MATCH_NIL,				&CCodeGen_x86::Emit_Md_Mov_MemReg							},
 	{ OP_MOV,					MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_NIL,				&CCodeGen_x86::Emit_Md_Mov_MemMem							},
-	{ OP_MD_MOV_MASKED,			MATCH_VARIABLE128,			MATCH_VARIABLE128,			MATCH_VARIABLE128,		&CCodeGen_x86::Emit_Md_MovMasked_VarVarVar					},
 
 	{ OP_MERGETO256,			MATCH_MEMORY256,			MATCH_VARIABLE128,			MATCH_VARIABLE128,		&CCodeGen_x86::Emit_MergeTo256_MemVarVar					},
 
@@ -1000,6 +1007,20 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdMinMaxWSse41ConstMatchers[] =
 {
 	MD_CONST_MATCHERS_3OPS(OP_MD_MIN_W,		MDOP_MINW)
 	MD_CONST_MATCHERS_3OPS(OP_MD_MAX_W,		MDOP_MAXW)
+
+	{ OP_MOV, MATCH_NIL, MATCH_NIL, MATCH_NIL, nullptr },
+};
+
+CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdMovMaskedConstMatchers[] =
+{
+	{ OP_MD_MOV_MASKED, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_VARIABLE128, &CCodeGen_x86::Emit_Md_MovMasked_VarVarVar },
+
+	{ OP_MOV, MATCH_NIL, MATCH_NIL, MATCH_NIL, nullptr },
+};
+
+CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdMovMaskedSse41ConstMatchers[] =
+{
+	{ OP_MD_MOV_MASKED, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_VARIABLE128, &CCodeGen_x86::Emit_Md_MovMasked_Sse41_VarVarVar },
 
 	{ OP_MOV, MATCH_NIL, MATCH_NIL, MATCH_NIL, nullptr },
 };

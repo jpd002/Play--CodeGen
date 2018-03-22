@@ -396,6 +396,16 @@ namespace Jitter
 			static OpEdType OpEd() { return &CCodeGen_x86::Emit_Md_IsZero; }
 		};
 
+		struct MDOP_ISNEGATIVE_SSSE3 : public MDOP_FLAG_BASE
+		{
+			static OpEdType OpEd() { return &CCodeGen_x86::Emit_Md_IsNegative_Ssse3; }
+		};
+
+		struct MDOP_ISZERO_SSSE3 : public MDOP_FLAG_BASE
+		{
+			static OpEdType OpEd() { return &CCodeGen_x86::Emit_Md_IsZero_Ssse3; }
+		};
+
 		virtual void				Emit_Prolog(const StatementList&, unsigned int, uint32) = 0;
 		virtual void				Emit_Epilog(unsigned int, uint32) = 0;
 
@@ -628,8 +638,10 @@ namespace Jitter
 
 		void						Emit_Md_Abs(CX86Assembler::XMMREGISTER);
 		void						Emit_Md_Not(CX86Assembler::XMMREGISTER);
-		void						Emit_Md_IsZero(CX86Assembler::REGISTER, const CX86Assembler::CAddress&);
 		void						Emit_Md_IsNegative(CX86Assembler::REGISTER, const CX86Assembler::CAddress&);
+		void						Emit_Md_IsZero(CX86Assembler::REGISTER, const CX86Assembler::CAddress&);
+		void						Emit_Md_IsNegative_Ssse3(CX86Assembler::REGISTER, const CX86Assembler::CAddress&);
+		void						Emit_Md_IsZero_Ssse3(CX86Assembler::REGISTER, const CX86Assembler::CAddress&);
 
 		CX86Assembler				m_assembler;
 		CX86Assembler::REGISTER*	m_registers = nullptr;
@@ -665,5 +677,8 @@ namespace Jitter
 
 		static CONSTMATCHER			g_mdMovMaskedConstMatchers[];
 		static CONSTMATCHER			g_mdMovMaskedSse41ConstMatchers[];
+
+		static CONSTMATCHER			g_mdFpFlagConstMatchers[];
+		static CONSTMATCHER			g_mdFpFlagSsse3ConstMatchers[];
 	};
 }

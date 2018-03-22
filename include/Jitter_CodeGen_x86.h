@@ -653,6 +653,7 @@ namespace Jitter
 		void						InsertMatchers(const CONSTMATCHER*);
 		void						SetGenerationFlags();
 		
+		bool						m_hasSsse3 = false;
 		bool						m_hasSse41 = false;
 
 		static CONSTMATCHER			g_constMatchers[];

@@ -228,6 +228,7 @@ void CCodeGen_x86::InsertMatchers(const CONSTMATCHER* constMatchers)
 
 void CCodeGen_x86::SetGenerationFlags()
 {
+	static const uint32 CPUID_FLAG_SSSE3 = 0x000200;
 	static const uint32 CPUID_FLAG_SSE41 = 0x080000;
 
 #ifdef HAS_CPUID
@@ -242,6 +243,7 @@ void CCodeGen_x86::SetGenerationFlags()
 	__get_cpuid(1, &cpuInfo[0], &cpuInfo[1], &cpuInfo[2], &cpuInfo[3]);
 #endif //HAS_CPUID_GCC
 
+	m_hasSsse3 = (cpuInfo[2] & CPUID_FLAG_SSSE3) != 0;
 	m_hasSse41 = (cpuInfo[2] & CPUID_FLAG_SSE41) != 0;
 
 #endif //HAS_CPUID

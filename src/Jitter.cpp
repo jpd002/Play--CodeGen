@@ -1,6 +1,5 @@
 #include <assert.h>
 #include "Jitter.h"
-#include "PtrMacro.h"
 #include "placeholder_def.h"
 
 using namespace std;

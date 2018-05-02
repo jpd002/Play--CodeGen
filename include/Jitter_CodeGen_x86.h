@@ -449,6 +449,9 @@ namespace Jitter
 		//NOP
 		void						Emit_Nop(const STATEMENT&);
 
+		//BREAK
+		void						Emit_Break(const STATEMENT&);
+
 		//ALU
 		template <typename> void	Emit_Alu_RegRegReg(const STATEMENT&);
 		template <typename> void	Emit_Alu_RegRegMem(const STATEMENT&);

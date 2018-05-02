@@ -39,6 +39,7 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_constMatchers[] =
 	{ OP_LABEL,		MATCH_NIL,			MATCH_NIL,			MATCH_NIL,			&CCodeGen_x86::MarkLabel							},
 
 	{ OP_NOP,		MATCH_NIL,			MATCH_NIL,			MATCH_NIL,			&CCodeGen_x86::Emit_Nop								},
+	{ OP_BREAK,		MATCH_NIL,			MATCH_NIL,			MATCH_NIL,			&CCodeGen_x86::Emit_Break							},
 
 	ALU_CONST_MATCHERS(OP_ADD, ALUOP_ADD)
 	ALU_CONST_MATCHERS(OP_SUB, ALUOP_SUB)
@@ -465,6 +466,11 @@ void CCodeGen_x86::MarkLabel(const STATEMENT& statement)
 void CCodeGen_x86::Emit_Nop(const STATEMENT& statement)
 {
 	
+}
+
+void CCodeGen_x86::Emit_Break(const STATEMENT& statement)
+{
+	m_assembler.Int3();
 }
 
 void CCodeGen_x86::Emit_Not_RegReg(const STATEMENT& statement)

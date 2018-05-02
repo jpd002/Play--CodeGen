@@ -149,6 +149,7 @@ namespace Jitter
 		OP_JMP,
 		OP_CONDJMP,
 		OP_GOTO,
+		OP_BREAK,
 
 		OP_LABEL,
 	};

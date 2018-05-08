@@ -666,7 +666,7 @@ bool CJitter::FoldConstant64Operation(STATEMENT& statement)
 			statement.src2.reset();
 			changed = true;
 		}
-		if(src2cst && (src2cst->m_valueLow == 0) && (src2cst->m_valueHigh == 0))
+		else if(src2cst && (src2cst->m_valueLow == 0) && (src2cst->m_valueHigh == 0))
 		{
 			statement.op = OP_MOV;
 			statement.src2.reset();

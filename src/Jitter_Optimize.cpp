@@ -698,6 +698,17 @@ bool CJitter::FoldConstant64Operation(STATEMENT& statement)
 			statement.src2.reset();
 			changed = true;
 		}
+		else if(
+			(src1cst && (src1cst->m_valueLow == 0) && (src1cst->m_valueHigh == 0)) ||
+			(src2cst && (src2cst->m_valueLow == 0) && (src2cst->m_valueHigh == 0))
+			)
+		{
+			//ANDing anything with 0 gives 0
+			statement.op = OP_MOV;
+			statement.src1 = MakeSymbolRef(MakeConstant64(0));
+			statement.src2.reset();
+			changed = true;
+		}
 	}
 	else if(statement.op == OP_CMP64)
 	{

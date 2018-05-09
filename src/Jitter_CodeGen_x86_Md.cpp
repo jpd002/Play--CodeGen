@@ -462,6 +462,8 @@ void CCodeGen_x86::Emit_Md_AddUSW_VarVarVar(const STATEMENT& statement)
 	m_assembler.PadddVo(resRegister, MakeVariable128SymbolAddress(src2));
 	
 	//-(res < x)
+	//PCMPGT will compare two signed integers, but we want unsigned comparison
+	//Thus, we add 0x80000000 to both values to "convert" them to signed
 	m_assembler.PcmpeqdVo(tmpRegister, CX86Assembler::MakeXmmRegisterAddress(tmpRegister));
 	m_assembler.PslldVo(tmpRegister, 31);
 	m_assembler.PadddVo(tmpRegister, CX86Assembler::MakeXmmRegisterAddress(resRegister));

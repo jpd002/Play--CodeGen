@@ -615,6 +615,7 @@ namespace Jitter
 		void						Emit_Md_AddSSW_VarVarVar(const STATEMENT&);
 		void						Emit_Md_AddUSW_VarVarVar(const STATEMENT&);
 		void						Emit_Md_SubSSW_VarVarVar(const STATEMENT&);
+		void						Emit_Md_SubUSW_VarVarVar(const STATEMENT&);
 		void						Emit_Md_MinW_VarVarVar(const STATEMENT&);
 		void						Emit_Md_MaxW_VarVarVar(const STATEMENT&);
 		void						Emit_Md_PackHB_VarVarVar(const STATEMENT&);

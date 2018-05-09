@@ -43,6 +43,11 @@ void CMdSubTest::Compile(Jitter::CJitter& jitter)
 		jitter.MD_SubWSS();
 		jitter.MD_PullRel(offsetof(CONTEXT, dstSubWSS));
 
+		jitter.MD_PushRel(offsetof(CONTEXT, src3));
+		jitter.MD_PushRel(offsetof(CONTEXT, src1));
+		jitter.MD_SubWUS();
+		jitter.MD_PullRel(offsetof(CONTEXT, dstSubWUS));
+
 		jitter.MD_PushRel(offsetof(CONTEXT, srcSat0));
 		jitter.MD_PushRel(offsetof(CONTEXT, srcSat1));
 		jitter.MD_SubWSS();
@@ -162,6 +167,14 @@ void CMdSubTest::Run()
 		0x00, 0xF0, 0xDF, 0xCF
 	};
 
+	static const uint8 dstSubWUSRes[16] =
+	{
+		0xC0, 0xB0, 0xA0, 0x90,
+		0x80, 0x70, 0x60, 0x50,
+		0x40, 0x30, 0x20, 0x10,
+		0x00, 0x00, 0x00, 0x00
+	};
+
 	for(unsigned int i = 0; i < 16; i++)
 	{
 		TEST_VERIFY(dstSubBRes[i]			== context.dstSubB[i]);
@@ -171,6 +184,7 @@ void CMdSubTest::Run()
 		TEST_VERIFY(dstSubHUSRes[i]			== context.dstSubHUS[i]);
 		TEST_VERIFY(dstSubWRes[i]			== context.dstSubW[i]);
 		TEST_VERIFY(dstSubWSSRes[i]			== context.dstSubWSS[i]);
+		TEST_VERIFY(dstSubWUSRes[i]			== context.dstSubWUS[i]);
 		TEST_VERIFY(srcSat0Value[i]			== context.dstSubWSSSat[i]);
 	}
 }

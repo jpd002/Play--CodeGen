@@ -203,6 +203,7 @@ namespace Jitter
 		void							MD_SubH();
 		void							MD_SubW();
 		void							MD_SubWSS();
+		void							MD_SubWUS();
 		void							MD_SubS();
 		void							MD_ToSingle();
 		void							MD_ToWordTruncate();

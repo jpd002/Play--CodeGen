@@ -108,6 +108,8 @@ set(CodeGenTest_SRC
 	../tests/Crc32Test.cpp
 	../tests/CursorTest.cpp
 	../tests/DivTest.cpp
+	../tests/ExternJumpTest.cpp
+	../tests/ExternJumpTest.h
 	../tests/FpIntMixTest.cpp
 	../tests/FpuTest.cpp
 	../tests/HugeJumpTest.cpp

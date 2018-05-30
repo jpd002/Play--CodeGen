@@ -1,5 +1,4 @@
-#ifndef _HUGEJUMPTEST_H_
-#define _HUGEJUMPTEST_H_
+#pragma once
 
 #include "Test.h"
 #include "MemoryFunction.h"
@@ -7,11 +6,10 @@
 class CHugeJumpTest : public CTest
 {
 public:
-						CHugeJumpTest();
-	virtual				~CHugeJumpTest();
+	virtual				~CHugeJumpTest() = default;
 
-	void				Compile(Jitter::CJitter&);
-	void				Run();
+	void				Compile(Jitter::CJitter&) override;
+	void				Run() override;
 
 private:
 	enum MAX_VARS
@@ -28,5 +26,3 @@ private:
 	CONTEXT				m_context;
 	CMemoryFunction		m_function;
 };
-
-#endif

@@ -149,6 +149,7 @@ namespace Jitter
 		OP_RETVAL,
 		OP_JMP,
 		OP_CONDJMP,
+		OP_EXTERNJMP,    //Jump to another function with same signature (ie.: void (*)(void*))
 		OP_GOTO,
 		OP_BREAK,
 

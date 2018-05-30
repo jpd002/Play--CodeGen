@@ -352,6 +352,14 @@ void CJitter::DivS()
 	m_shadow.Push(tempSym);
 }
 
+void CJitter::JumpTo(void* func)
+{
+	STATEMENT statement;
+	statement.src1 = MakeSymbolRef(MakeConstantPtr(reinterpret_cast<uintptr_t>(func)));
+	statement.op   = OP_EXTERNJMP;
+	InsertStatement(statement);
+}
+
 void CJitter::Lookup(uint32* table)
 {
 	throw std::exception();

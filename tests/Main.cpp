@@ -40,6 +40,7 @@
 #include "Merge64Test.h"
 #include "LzcTest.h"
 #include "NestedIfTest.h"
+#include "ExternJumpTest.h"
 
 typedef std::function<CTest* ()> TestFactoryFunction;
 
@@ -148,6 +149,7 @@ static const TestFactoryFunction s_factories[] =
 	[] () { return new CShift64Test(76); },
 	[] () { return new CMerge64Test(); },
 	[] () { return new CCall64Test(); },
+	[] () { return new CExternJumpTest(); }
 };
 
 int main(int argc, const char** argv)

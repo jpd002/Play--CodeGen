@@ -32,9 +32,8 @@ void CExternJumpTest::Compile(Jitter::CJitter& jitter)
 		}
 		jitter.End();
 
-		m_targetFunction = CMemoryFunction(codeStream.GetBuffer(), codeStream.GetSize());
+		m_sourceFunction = CMemoryFunction(codeStream.GetBuffer(), codeStream.GetSize());
 	}
-
 }
 
 void CExternJumpTest::Run()

@@ -110,7 +110,7 @@ void CCodeGen_x86_32::SetImplicitRetValueParamFixUpRequired(bool implicitRetValu
 	m_implicitRetValueParamFixUpRequired = implicitRetValueParamFixUpRequired;
 }
 
-void CCodeGen_x86_32::Emit_Prolog(const StatementList& statements, unsigned int stackSize, uint32 registerUsage)
+void CCodeGen_x86_32::Emit_Prolog(const StatementList& statements, unsigned int stackSize)
 {	
 	//Compute the size needed to store all function call parameters
 	uint32 maxParamSize = 0;
@@ -173,7 +173,7 @@ void CCodeGen_x86_32::Emit_Prolog(const StatementList& statements, unsigned int 
 	//Save registers
 	for(unsigned int i = 0; i < MAX_REGISTERS; i++)
 	{
-		if(registerUsage & (1 << i))
+		if(m_registerUsage & (1 << i))
 		{
 			m_assembler.Push(m_registers[i]);
 		}
@@ -214,7 +214,7 @@ void CCodeGen_x86_32::Emit_Prolog(const StatementList& statements, unsigned int 
 	//(Low address)
 }
 
-void CCodeGen_x86_32::Emit_Epilog(unsigned int stackSize, uint32 registerUsage)
+void CCodeGen_x86_32::Emit_Epilog()
 {
 	if(m_totalStackAlloc != 0)
 	{
@@ -225,14 +225,13 @@ void CCodeGen_x86_32::Emit_Epilog(unsigned int stackSize, uint32 registerUsage)
 
 	for(int i = MAX_REGISTERS - 1; i >= 0; i--)
 	{
-		if(registerUsage & (1 << i))
+		if(m_registerUsage & (1 << i))
 		{
 			m_assembler.Pop(m_registers[i]);
 		}
 	}
 
 	m_assembler.Pop(CX86Assembler::rBP);
-	m_assembler.Ret();
 }
 
 unsigned int CCodeGen_x86_32::GetAvailableRegisterCount() const

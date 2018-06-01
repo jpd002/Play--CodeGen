@@ -164,7 +164,7 @@ void CCodeGen_x86::GenerateCode(const StatementList& statements, unsigned int st
 	assert(m_registers != nullptr);
 	assert(m_mdRegisters != nullptr);
 
-	uint32 registerUsage = GetRegisterUsage(statements);
+	m_registerUsage = GetRegisterUsage(statements);
 	
 	//Align stacksize
 	stackSize = (stackSize + 0xF) & ~0xF;
@@ -175,7 +175,7 @@ void CCodeGen_x86::GenerateCode(const StatementList& statements, unsigned int st
 		CX86Assembler::LABEL rootLabel = m_assembler.CreateLabel();
 		m_assembler.MarkLabel(rootLabel);
 
-		Emit_Prolog(statements, stackSize, registerUsage);
+		Emit_Prolog(statements, stackSize);
 
 		for(const auto& statement : statements)
 		{
@@ -200,7 +200,8 @@ void CCodeGen_x86::GenerateCode(const StatementList& statements, unsigned int st
 			}
 		}
 
-		Emit_Epilog(stackSize, registerUsage);
+		Emit_Epilog();
+		m_assembler.Ret();
 	}
 	m_assembler.End();
 

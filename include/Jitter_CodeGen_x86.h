@@ -406,8 +406,8 @@ namespace Jitter
 			static OpEdType OpEd() { return &CCodeGen_x86::Emit_Md_IsZero_Ssse3; }
 		};
 
-		virtual void				Emit_Prolog(const StatementList&, unsigned int, uint32) = 0;
-		virtual void				Emit_Epilog(unsigned int, uint32) = 0;
+		virtual void				Emit_Prolog(const StatementList&, unsigned int) = 0;
+		virtual void				Emit_Epilog() = 0;
 
 		CX86Assembler::LABEL		GetLabel(uint32);
 
@@ -653,6 +653,7 @@ namespace Jitter
 		LabelMapType				m_labels;
 		SymbolReferenceLabelArray	m_symbolReferenceLabels;
 		uint32						m_stackLevel = 0;
+		uint32						m_registerUsage = 0;
 		
 	private:
 		typedef void (CCodeGen_x86::*ConstCodeEmitterType)(const STATEMENT&);

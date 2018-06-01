@@ -307,7 +307,7 @@ bool CCodeGen_x86_64::CanHold128BitsReturnValueInRegisters() const
 	return m_hasMdRegRetValues;
 }
 
-void CCodeGen_x86_64::Emit_Prolog(const StatementList& statements, unsigned int stackSize, uint32 registerUsage)
+void CCodeGen_x86_64::Emit_Prolog(const StatementList& statements, unsigned int stackSize)
 {
 	m_params.clear();
 
@@ -350,7 +350,7 @@ void CCodeGen_x86_64::Emit_Prolog(const StatementList& statements, unsigned int 
 	uint32 savedSize = 0;
 	for(unsigned int i = 0; i < m_maxRegisters; i++)
 	{
-		if(registerUsage & (1 << i))
+		if(m_registerUsage & (1 << i))
 		{
 			m_assembler.Push(m_registers[i]);
 			savedSize += 8;
@@ -383,20 +383,19 @@ void CCodeGen_x86_64::Emit_Prolog(const StatementList& statements, unsigned int 
 	//(Low address)
 }
 
-void CCodeGen_x86_64::Emit_Epilog(unsigned int stackSize, uint32 registerUsage)
+void CCodeGen_x86_64::Emit_Epilog()
 {
 	m_assembler.AddIq(CX86Assembler::MakeRegisterAddress(CX86Assembler::rSP), m_totalStackAlloc);
 
 	for(int i = m_maxRegisters - 1; i >= 0; i--)
 	{
-		if(registerUsage & (1 << i))
+		if(m_registerUsage & (1 << i))
 		{
 			m_assembler.Pop(m_registers[i]);
 		}
 	}
 
 	m_assembler.Pop(CX86Assembler::rBP);
-	m_assembler.Ret();
 }
 
 void CCodeGen_x86_64::Emit_Param_Ctx(const STATEMENT& statement)

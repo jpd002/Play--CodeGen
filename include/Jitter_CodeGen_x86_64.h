@@ -15,7 +15,7 @@ namespace Jitter
 		};
 		
 											CCodeGen_x86_64();
-		virtual								~CCodeGen_x86_64();
+		virtual								~CCodeGen_x86_64() = default;
 
 		void								SetPlatformAbi(PLATFORM_ABI);
 		

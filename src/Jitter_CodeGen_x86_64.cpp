@@ -267,11 +267,6 @@ CCodeGen_x86_64::CCodeGen_x86_64()
 	}
 }
 
-CCodeGen_x86_64::~CCodeGen_x86_64()
-{
-
-}
-
 void CCodeGen_x86_64::SetPlatformAbi(PLATFORM_ABI platformAbi)
 {
 	m_platformAbi = platformAbi;

@@ -9,7 +9,7 @@ namespace Jitter
 	{
 	public:
 						CCodeGen_x86();
-		virtual			~CCodeGen_x86();
+		virtual			~CCodeGen_x86() = default;
 
 		void			GenerateCode(const StatementList&, unsigned int) override;
 		void			SetStream(Framework::CStream*) override;

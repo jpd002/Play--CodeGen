@@ -159,11 +159,6 @@ CCodeGen_x86::CCodeGen_x86()
 	}
 }
 
-CCodeGen_x86::~CCodeGen_x86()
-{
-
-}
-
 void CCodeGen_x86::GenerateCode(const StatementList& statements, unsigned int stackSize)
 {
 	assert(m_registers != nullptr);

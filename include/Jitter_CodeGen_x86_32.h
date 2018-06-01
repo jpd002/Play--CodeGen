@@ -9,7 +9,7 @@ namespace Jitter
 	{
 	public:
 											CCodeGen_x86_32();
-		virtual								~CCodeGen_x86_32();
+		virtual								~CCodeGen_x86_32() = default;
 
 		void								SetImplicitRetValueParamFixUpRequired(bool);
 		

@@ -105,11 +105,6 @@ CCodeGen_x86_32::CCodeGen_x86_32()
 	}
 }
 
-CCodeGen_x86_32::~CCodeGen_x86_32()
-{
-
-}
-
 void CCodeGen_x86_32::SetImplicitRetValueParamFixUpRequired(bool implicitRetValueParamFixUpRequired)
 {
 	m_implicitRetValueParamFixUpRequired = implicitRetValueParamFixUpRequired;

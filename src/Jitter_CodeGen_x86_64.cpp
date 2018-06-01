@@ -214,6 +214,8 @@ CCodeGen_x86_64::CONSTMATCHER CCodeGen_x86_64::g_constMatchers[] =
 	{ OP_RETVAL,		MATCH_REGISTER128,	MATCH_NIL,			MATCH_NIL,			&CCodeGen_x86_64::Emit_RetVal_Reg128						},
 	{ OP_RETVAL,		MATCH_MEMORY128,	MATCH_NIL,			MATCH_NIL,			&CCodeGen_x86_64::Emit_RetVal_Mem128						},
 
+	{ OP_EXTERNJMP,		MATCH_NIL,			MATCH_CONSTANTPTR,	MATCH_NIL,			&CCodeGen_x86_64::Emit_ExternJmp							},
+
 	{ OP_MOV,			MATCH_MEMORY64,		MATCH_MEMORY64,		MATCH_NIL,			&CCodeGen_x86_64::Emit_Mov_Mem64Mem64						},
 	{ OP_MOV,			MATCH_RELATIVE64,	MATCH_CONSTANT64,	MATCH_NIL,			&CCodeGen_x86_64::Emit_Mov_Rel64Cst64						},
 
@@ -576,6 +578,18 @@ void CCodeGen_x86_64::Emit_RetVal_Mem128(const STATEMENT& statement)
 	CSymbol* dst = statement.dst->GetSymbol().get();
 	m_assembler.MovGq(MakeMemory128SymbolElementAddress(dst, 0), CX86Assembler::rAX);
 	m_assembler.MovGq(MakeMemory128SymbolElementAddress(dst, 2), CX86Assembler::rDX);
+}
+
+void CCodeGen_x86_64::Emit_ExternJmp(const STATEMENT& statement)
+{
+	auto src1 = statement.src1->GetSymbol().get();
+	
+	Emit_Epilog();
+	m_assembler.MovIq(CX86Assembler::rAX, CombineConstant64(src1->m_valueLow, src1->m_valueHigh));
+	auto symbolRefLabel = m_assembler.CreateLabel();
+	m_assembler.MarkLabel(symbolRefLabel, -8);
+	m_symbolReferenceLabels.push_back(std::make_pair(src1->GetConstantPtr(), symbolRefLabel));
+	m_assembler.JmpEd(CX86Assembler::MakeRegisterAddress(CX86Assembler::rAX));
 }
 
 void CCodeGen_x86_64::Emit_Mov_Mem64Mem64(const STATEMENT& statement)

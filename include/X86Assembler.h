@@ -144,6 +144,7 @@ public:
 	void									JnleJx(LABEL);
 	void									JlJx(LABEL);
 	void									JleJx(LABEL);
+	void									JmpEd(const CAddress&);
 	void									JmpJx(LABEL);
 	void									JnzJx(LABEL);
 	void									JnbeJx(LABEL);

@@ -481,6 +481,11 @@ void CX86Assembler::JnleJx(LABEL label)
 	CreateLabelReference(label, JMP_NLE);
 }
 
+void CX86Assembler::JmpEd(const CAddress& address)
+{
+	WriteEvOp(0xFF, 0x04, false, address);
+}
+
 void CX86Assembler::JmpJx(LABEL label)
 {
 	CreateLabelReference(label, JMP_ALWAYS);

@@ -572,8 +572,8 @@ namespace Jitter
 		};
 		
 		uint16    GetSavedRegisterList(uint32);
-		void      Emit_Prolog(const StatementList&, uint32, uint16);
-		void      Emit_Epilog(uint32, uint16);
+		void      Emit_Prolog(const StatementList&, uint32);
+		void      Emit_Epilog();
 		
 		CAArch64Assembler::LABEL GetLabel(uint32);
 		void                     MarkLabel(const STATEMENT&);
@@ -721,6 +721,7 @@ namespace Jitter
 		ParamStack             m_params;
 		uint32                 m_nextTempRegister = 0;
 		uint32                 m_nextTempRegisterMd = 0;
+		uint16                 m_registerSave = 0;
 		uint32                 m_paramSpillBase = 0;
 
 		bool    m_generateRelocatableCalls = false;

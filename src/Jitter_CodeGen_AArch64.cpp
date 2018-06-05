@@ -409,9 +409,9 @@ void CCodeGen_AArch64::GenerateCode(const StatementList& statements, unsigned in
 	//Align stack size (must be aligned on 16 bytes boundary)
 	stackSize = (stackSize + 0xF) & ~0xF;
 
-	uint16 registerSave = GetSavedRegisterList(GetRegisterUsage(statements));
+	m_registerSave = GetSavedRegisterList(GetRegisterUsage(statements));
 
-	Emit_Prolog(statements, stackSize, registerSave);
+	Emit_Prolog(statements, stackSize);
 
 	for(const auto& statement : statements)
 	{
@@ -436,7 +436,8 @@ void CCodeGen_AArch64::GenerateCode(const StatementList& statements, unsigned in
 		}
 	}
 	
-	Emit_Epilog(stackSize, registerSave);
+	Emit_Epilog();
+	m_assembler.Ret();
 
 	m_assembler.ResolveLabelReferences();
 	m_assembler.ClearLabels();
@@ -804,14 +805,14 @@ uint16 CCodeGen_AArch64::GetSavedRegisterList(uint32 registerUsage)
 	return registerSave;
 }
 
-void CCodeGen_AArch64::Emit_Prolog(const StatementList& statements, uint32 stackSize, uint16 registerSave)
+void CCodeGen_AArch64::Emit_Prolog(const StatementList& statements, uint32 stackSize)
 {
 	uint32 maxParamSpillSize = GetMaxParamSpillSize(statements);
 	m_assembler.Stp_PreIdx(CAArch64Assembler::x29, CAArch64Assembler::x30, CAArch64Assembler::xSP, -16);
 	//Preserve saved registers
 	for(uint32 i = 0; i < 16; i++)
 	{
-		if(registerSave & (1 << i))
+		if(m_registerSave & (1 << i))
 		{
 			auto reg0 = static_cast<CAArch64Assembler::REGISTER64>((i * 2) + 0);
 			auto reg1 = static_cast<CAArch64Assembler::REGISTER64>((i * 2) + 1);
@@ -828,13 +829,13 @@ void CCodeGen_AArch64::Emit_Prolog(const StatementList& statements, uint32 stack
 	m_assembler.Mov(g_baseRegister, CAArch64Assembler::x0);
 }
 
-void CCodeGen_AArch64::Emit_Epilog(uint32 stackSize, uint16 registerSave)
+void CCodeGen_AArch64::Emit_Epilog()
 {
 	m_assembler.Mov_Sp(CAArch64Assembler::xSP, CAArch64Assembler::x29);
 	//Restore saved registers
 	for(int32 i = 15; i >= 0; i--)
 	{
-		if(registerSave & (1 << i))
+		if(m_registerSave & (1 << i))
 		{
 			auto reg0 = static_cast<CAArch64Assembler::REGISTER64>((i * 2) + 0);
 			auto reg1 = static_cast<CAArch64Assembler::REGISTER64>((i * 2) + 1);
@@ -842,7 +843,6 @@ void CCodeGen_AArch64::Emit_Epilog(uint32 stackSize, uint16 registerSave)
 		}
 	}
 	m_assembler.Ldp_PostIdx(CAArch64Assembler::x29, CAArch64Assembler::x30, CAArch64Assembler::xSP, 16);
-	m_assembler.Ret();
 }
 
 CAArch64Assembler::LABEL CCodeGen_AArch64::GetLabel(uint32 blockId)

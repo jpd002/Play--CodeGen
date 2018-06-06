@@ -224,6 +224,13 @@ void CAArch64Assembler::Bl(uint32 offset)
 	WriteWord(opcode);
 }
 
+void CAArch64Assembler::Br(REGISTER64 rn)
+{
+	uint32 opcode = 0xD61F0000;
+	opcode |= (rn << 5);
+	WriteWord(opcode);
+}
+
 void CAArch64Assembler::BCc(CONDITION condition, LABEL label)
 {
 	CreateBranchLabelReference(label, condition);

@@ -618,6 +618,8 @@ namespace Jitter
 		void    Emit_RetVal_Reg128(const STATEMENT&);
 		void    Emit_RetVal_Mem128(const STATEMENT&);
 		
+		void    Emit_ExternJmp(const STATEMENT&);
+
 		void    Emit_Jmp(const STATEMENT&);
 		
 		void    Emit_CondJmp(const STATEMENT&);

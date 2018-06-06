@@ -96,6 +96,7 @@ public:
 	void    Asrv(REGISTER64, REGISTER64, REGISTER64);
 	void    B(LABEL);
 	void    Bl(uint32);
+	void	Br(REGISTER64);
 	void    BCc(CONDITION, LABEL);
 	void    Blr(REGISTER64);
 	void    Cbnz(REGISTER32, LABEL);

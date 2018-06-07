@@ -14,7 +14,10 @@ public:
 private:
 	struct CONTEXT
 	{
-		uint32 value = 0;
+		uint32 cst1 = 0;
+		uint32 cst2 = 0;
+		uint32 result1 = 0;
+		uint32 result2 = 0;
 	};
 
 	CMemoryFunction m_sourceFunction;

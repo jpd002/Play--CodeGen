@@ -73,8 +73,8 @@ namespace Jitter
 
 		static uint16							GetSavedRegisterList(uint32);
 
-		void									Emit_Prolog(unsigned int, uint16);
-		void									Emit_Epilog(unsigned int, uint16);
+		void									Emit_Prolog();
+		void									Emit_Epilog();
 
 		CAArch32Assembler::LABEL				GetLabel(uint32);
 		void									MarkLabel(const STATEMENT&);
@@ -661,6 +661,8 @@ namespace Jitter
 		CAArch32Assembler						m_assembler;
 		LabelMapType							m_labels;
 		ParamStack								m_params;
+		uint32									m_stackSize = 0;
+		uint16									m_registerSave = 0;
 		uint32									m_stackLevel = 0;
 		bool									m_hasIntegerDiv = false;
 	};

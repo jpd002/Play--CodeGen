@@ -297,11 +297,11 @@ void CCodeGen_AArch32::RegisterExternalSymbols(CObjectFile* objectFile) const
 void CCodeGen_AArch32::GenerateCode(const StatementList& statements, unsigned int stackSize)
 {
 	//Align stack size (must be aligned on 16 bytes boundary)
-	stackSize = (stackSize + 0xF) & ~0xF;
+	m_stackSize = (stackSize + 0xF) & ~0xF;
 
-	uint16 registerSave = GetSavedRegisterList(GetRegisterUsage(statements));
+	m_registerSave = GetSavedRegisterList(GetRegisterUsage(statements));
 
-	Emit_Prolog(stackSize, registerSave);
+	Emit_Prolog();
 
 	for(const auto& statement : statements)
 	{
@@ -326,7 +326,7 @@ void CCodeGen_AArch32::GenerateCode(const StatementList& statements, unsigned in
 		}
 	}
 
-	Emit_Epilog(stackSize, registerSave);
+	Emit_Epilog();
 
 	m_assembler.ResolveLabelReferences();
 	m_assembler.ClearLabels();
@@ -349,9 +349,9 @@ uint16 CCodeGen_AArch32::GetSavedRegisterList(uint32 registerUsage)
 	return registerSave;
 }
 
-void CCodeGen_AArch32::Emit_Prolog(unsigned int stackSize, uint16 registerSave)
+void CCodeGen_AArch32::Emit_Prolog()
 {
-	m_assembler.Stmdb(CAArch32Assembler::rSP, registerSave);
+	m_assembler.Stmdb(CAArch32Assembler::rSP, m_registerSave);
 	m_assembler.Mov(CAArch32Assembler::r11, CAArch32Assembler::r0);
 
 	//Align stack to 16 bytes boundary
@@ -360,10 +360,10 @@ void CCodeGen_AArch32::Emit_Prolog(unsigned int stackSize, uint16 registerSave)
 	m_assembler.Sub(CAArch32Assembler::rSP, CAArch32Assembler::rSP, CAArch32Assembler::MakeImmediateAluOperand(0xC, 0));
 	m_assembler.Stmdb(CAArch32Assembler::rSP, (1 << CAArch32Assembler::r0));
 
-	if(stackSize != 0)
+	if(m_stackSize != 0)
 	{
 		uint8 allocImm = 0, allocSa = 0;
-		bool succeeded = TryGetAluImmediateParams(stackSize, allocImm, allocSa);
+		bool succeeded = TryGetAluImmediateParams(m_stackSize, allocImm, allocSa);
 		if(succeeded)
 		{
 			m_assembler.Sub(CAArch32Assembler::rSP, CAArch32Assembler::rSP, CAArch32Assembler::MakeImmediateAluOperand(allocImm, allocSa));
@@ -371,19 +371,19 @@ void CCodeGen_AArch32::Emit_Prolog(unsigned int stackSize, uint16 registerSave)
 		else
 		{
 			auto stackResReg = CAArch32Assembler::r0;
-			LoadConstantInRegister(stackResReg, stackSize);
+			LoadConstantInRegister(stackResReg, m_stackSize);
 			m_assembler.Sub(CAArch32Assembler::rSP, CAArch32Assembler::rSP, stackResReg);
 		}
 	}
 	m_stackLevel = 0;
 }
 
-void CCodeGen_AArch32::Emit_Epilog(unsigned int stackSize, uint16 registerSave)
+void CCodeGen_AArch32::Emit_Epilog()
 {
-	if(stackSize != 0)
+	if(m_stackSize != 0)
 	{
 		uint8 allocImm = 0, allocSa = 0;
-		bool succeeded = TryGetAluImmediateParams(stackSize, allocImm, allocSa);
+		bool succeeded = TryGetAluImmediateParams(m_stackSize, allocImm, allocSa);
 		if(succeeded)
 		{
 			m_assembler.Add(CAArch32Assembler::rSP, CAArch32Assembler::rSP, CAArch32Assembler::MakeImmediateAluOperand(allocImm, allocSa));
@@ -391,7 +391,7 @@ void CCodeGen_AArch32::Emit_Epilog(unsigned int stackSize, uint16 registerSave)
 		else
 		{
 			auto stackResReg = CAArch32Assembler::r0;
-			LoadConstantInRegister(stackResReg, stackSize);
+			LoadConstantInRegister(stackResReg, m_stackSize);
 			m_assembler.Add(CAArch32Assembler::rSP, CAArch32Assembler::rSP, stackResReg);
 		}
 	}
@@ -400,7 +400,7 @@ void CCodeGen_AArch32::Emit_Epilog(unsigned int stackSize, uint16 registerSave)
 	m_assembler.Ldmia(CAArch32Assembler::rSP, (1 << CAArch32Assembler::r0));
 	m_assembler.Mov(CAArch32Assembler::rSP, CAArch32Assembler::r0);
 
-	m_assembler.Ldmia(CAArch32Assembler::rSP, registerSave);
+	m_assembler.Ldmia(CAArch32Assembler::rSP, m_registerSave);
 	m_assembler.Bx(CAArch32Assembler::rLR);
 }
 

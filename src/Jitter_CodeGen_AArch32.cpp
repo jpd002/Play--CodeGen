@@ -174,6 +174,8 @@ CCodeGen_AArch32::CONSTMATCHER CCodeGen_AArch32::g_constMatchers[] =
 	{ OP_RETVAL,		MATCH_TEMPORARY,	MATCH_NIL,			MATCH_NIL,			&CCodeGen_AArch32::Emit_RetVal_Tmp								},
 	{ OP_RETVAL,		MATCH_MEMORY64,		MATCH_NIL,			MATCH_NIL,			&CCodeGen_AArch32::Emit_RetVal_Mem64							},
 
+	{ OP_EXTERNJMP,		MATCH_NIL,			MATCH_CONSTANTPTR,	MATCH_NIL,			&CCodeGen_AArch32::Emit_ExternJmp								},
+
 	{ OP_JMP,			MATCH_NIL,			MATCH_NIL,			MATCH_NIL,			&CCodeGen_AArch32::Emit_Jmp										},
 
 	{ OP_CONDJMP,		MATCH_NIL,			MATCH_VARIABLE,		MATCH_CONSTANT,		&CCodeGen_AArch32::Emit_CondJmp_VarCst							},
@@ -924,6 +926,16 @@ void CCodeGen_AArch32::Emit_RetVal_Mem64(const STATEMENT& statement)
 	auto dst = statement.dst->GetSymbol().get();
 
 	StoreRegistersInMemory64(dst, CAArch32Assembler::r0, CAArch32Assembler::r1);
+}
+
+void CCodeGen_AArch32::Emit_ExternJmp(const STATEMENT& statement)
+{
+	auto src1 = statement.src1->GetSymbol().get();
+
+	assert(src1->m_type == SYM_CONSTANTPTR);
+
+	LoadConstantPtrInRegister(g_callAddressRegister, src1->GetConstantPtr());
+	m_assembler.Mov(CAArch32Assembler::rPC, g_callAddressRegister);
 }
 
 void CCodeGen_AArch32::Emit_Mov_RegReg(const STATEMENT& statement)

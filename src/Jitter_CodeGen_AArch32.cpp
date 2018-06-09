@@ -329,6 +329,7 @@ void CCodeGen_AArch32::GenerateCode(const StatementList& statements, unsigned in
 	}
 
 	Emit_Epilog();
+	m_assembler.Bx(CAArch32Assembler::rLR);
 
 	m_assembler.ResolveLabelReferences();
 	m_assembler.ClearLabels();
@@ -382,6 +383,11 @@ void CCodeGen_AArch32::Emit_Prolog()
 
 void CCodeGen_AArch32::Emit_Epilog()
 {
+	//Since Emit_Epilog can be called by Emit_ExternJmp, we need to be
+	//extra careful not to write to r0, since it's used to save and
+	//transmit the function's parameter (r11) to the target
+	static const auto stackTempRegister = CAArch32Assembler::r3;
+
 	if(m_stackSize != 0)
 	{
 		uint8 allocImm = 0, allocSa = 0;
@@ -392,18 +398,16 @@ void CCodeGen_AArch32::Emit_Epilog()
 		}
 		else
 		{
-			auto stackResReg = CAArch32Assembler::r0;
-			LoadConstantInRegister(stackResReg, m_stackSize);
-			m_assembler.Add(CAArch32Assembler::rSP, CAArch32Assembler::rSP, stackResReg);
+			LoadConstantInRegister(stackTempRegister, m_stackSize);
+			m_assembler.Add(CAArch32Assembler::rSP, CAArch32Assembler::rSP, stackTempRegister);
 		}
 	}
 
 	//Restore previous unaligned SP
-	m_assembler.Ldmia(CAArch32Assembler::rSP, (1 << CAArch32Assembler::r0));
-	m_assembler.Mov(CAArch32Assembler::rSP, CAArch32Assembler::r0);
+	m_assembler.Ldmia(CAArch32Assembler::rSP, (1 << stackTempRegister));
+	m_assembler.Mov(CAArch32Assembler::rSP, stackTempRegister);
 
 	m_assembler.Ldmia(CAArch32Assembler::rSP, m_registerSave);
-	m_assembler.Bx(CAArch32Assembler::rLR);
 }
 
 uint32 CCodeGen_AArch32::RotateRight(uint32 value)
@@ -934,6 +938,8 @@ void CCodeGen_AArch32::Emit_ExternJmp(const STATEMENT& statement)
 
 	assert(src1->m_type == SYM_CONSTANTPTR);
 
+	m_assembler.Mov(CAArch32Assembler::r0, g_baseRegister);
+	Emit_Epilog();
 	LoadConstantPtrInRegister(g_callAddressRegister, src1->GetConstantPtr());
 	m_assembler.Mov(CAArch32Assembler::rPC, g_callAddressRegister);
 }

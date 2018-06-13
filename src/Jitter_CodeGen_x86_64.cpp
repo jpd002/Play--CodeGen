@@ -584,6 +584,7 @@ void CCodeGen_x86_64::Emit_ExternJmp(const STATEMENT& statement)
 {
 	auto src1 = statement.src1->GetSymbol().get();
 	
+	m_assembler.MovEq(m_paramRegs[0], CX86Assembler::MakeRegisterAddress(g_baseRegister));
 	Emit_Epilog();
 	m_assembler.MovIq(CX86Assembler::rAX, CombineConstant64(src1->m_valueLow, src1->m_valueHigh));
 	auto symbolRefLabel = m_assembler.CreateLabel();

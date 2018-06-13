@@ -647,6 +647,8 @@ namespace Jitter
 		void						Emit_Md_IsNegative_Ssse3(CX86Assembler::REGISTER, const CX86Assembler::CAddress&);
 		void						Emit_Md_IsZero_Ssse3(CX86Assembler::REGISTER, const CX86Assembler::CAddress&);
 
+		static CX86Assembler::REGISTER g_baseRegister;
+
 		CX86Assembler				m_assembler;
 		CX86Assembler::REGISTER*	m_registers = nullptr;
 		CX86Assembler::XMMREGISTER*	m_mdRegisters = nullptr;

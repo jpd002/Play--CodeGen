@@ -34,6 +34,8 @@ using namespace Jitter;
 #include "Jitter_CodeGen_x86_Mul.h"
 #include "Jitter_CodeGen_x86_Div.h"
 
+CX86Assembler::REGISTER CCodeGen_x86::g_baseRegister = CX86Assembler::rBP;
+
 CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_constMatchers[] = 
 { 
 	{ OP_LABEL,		MATCH_NIL,			MATCH_NIL,			MATCH_NIL,			&CCodeGen_x86::MarkLabel							},

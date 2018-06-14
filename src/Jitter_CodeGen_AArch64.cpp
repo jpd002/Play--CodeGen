@@ -1245,6 +1245,7 @@ void CCodeGen_AArch64::Emit_ExternJmp(const STATEMENT& statement)
 
 	assert(src1->m_type == SYM_CONSTANTPTR);
 
+	m_assembler.Mov(g_paramRegisters64[0], g_baseRegister);
 	Emit_Epilog();
 	auto fctAddressReg = GetNextTempRegister64();
 	LoadConstant64InRegister(fctAddressReg, src1->GetConstantPtr());

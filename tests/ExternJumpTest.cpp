@@ -45,7 +45,7 @@ void CExternJumpTest::Compile(Jitter::CJitter& jitter)
 
 			//Add call function to make sure we're still in a good state when jumping
 			jitter.PushRel(offsetof(CONTEXT, result1));
-			jitter.Call(&DumbFunctionCall, 1, Jitter::CJitter::RETURN_VALUE_NONE);
+			jitter.Call(reinterpret_cast<void*>(&DumbFunctionCall), 1, Jitter::CJitter::RETURN_VALUE_NONE);
 
 			jitter.JumpTo(m_targetFunction.GetCode());
 		}

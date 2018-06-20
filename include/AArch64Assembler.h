@@ -148,6 +148,7 @@ public:
 	void    Ldp_PostIdx(REGISTER64, REGISTER64, REGISTER64, int32);
 	void    Ldr(REGISTER32, REGISTER64, uint32);
 	void    Ldr(REGISTER64, REGISTER64, uint32);
+	void    Ldr_Pc(REGISTER64, uint32);
 	void    Ldr_1s(REGISTERMD, REGISTER64, uint32);
 	void    Ldr_1q(REGISTERMD, REGISTER64, uint32);
 	void    Lsl(REGISTER32, REGISTER32, uint8);

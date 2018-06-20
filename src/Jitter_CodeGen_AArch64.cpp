@@ -1248,8 +1248,13 @@ void CCodeGen_AArch64::Emit_ExternJmp(const STATEMENT& statement)
 	m_assembler.Mov(g_paramRegisters64[0], g_baseRegister);
 	Emit_Epilog();
 	auto fctAddressReg = GetNextTempRegister64();
-	LoadConstant64InRegister(fctAddressReg, src1->GetConstantPtr());
+	m_assembler.Ldr_Pc(fctAddressReg, 8);
 	m_assembler.Br(fctAddressReg);
+
+	//Write target function address
+	auto position = m_stream->GetLength();
+	m_externalSymbolReferencedHandler(src1->GetConstantPtr(), position);
+	m_stream->Write64(src1->GetConstantPtr());
 }
 
 void CCodeGen_AArch64::Emit_Jmp(const STATEMENT& statement)

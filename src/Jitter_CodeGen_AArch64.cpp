@@ -1252,8 +1252,11 @@ void CCodeGen_AArch64::Emit_ExternJmp(const STATEMENT& statement)
 	m_assembler.Br(fctAddressReg);
 
 	//Write target function address
-	auto position = m_stream->GetLength();
-	m_externalSymbolReferencedHandler(src1->GetConstantPtr(), position);
+	if(m_externalSymbolReferencedHandler)
+	{
+		auto position = m_stream->GetLength();
+		m_externalSymbolReferencedHandler(src1->GetConstantPtr(), position);
+	}
 	m_stream->Write64(src1->GetConstantPtr());
 }
 

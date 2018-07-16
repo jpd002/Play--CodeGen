@@ -110,3 +110,19 @@ size_t CMemoryFunction::GetSize() const
 {
 	return m_size;
 }
+
+void CMemoryFunction::BeginModify()
+{
+	
+}
+
+void CMemoryFunction::EndModify()
+{
+#if defined(__APPLE__)
+	sys_icache_invalidate(m_code, m_size);
+#elif defined(__ANDROID__) || defined(__linux__) || defined(__FreeBSD__)
+#if defined(__arm__) || defined(__aarch64__)
+	__clear_cache(m_code, reinterpret_cast<uint8*>(m_code) + m_size);
+#endif
+#endif
+}

@@ -113,13 +113,22 @@ size_t CMemoryFunction::GetSize() const
 
 void CMemoryFunction::BeginModify()
 {
-	
+#if defined(__APPLE__)
+#if TARGET_OS_IPHONE
+	kern_return_t result = vm_protect(mach_task_self(), reinterpret_cast<vm_address_t>(m_code), m_size, 0, VM_PROT_READ | VM_PROT_WRITE);
+	assert(result == 0);
+#endif
+#endif
 }
 
 void CMemoryFunction::EndModify()
 {
 #if defined(__APPLE__)
 	sys_icache_invalidate(m_code, m_size);
+#if TARGET_OS_IPHONE
+	kern_return_t result = vm_protect(mach_task_self(), reinterpret_cast<vm_address_t>(m_code), m_size, 0, VM_PROT_READ | VM_PROT_EXECUTE);
+	assert(result == 0);
+#endif
 #elif defined(__ANDROID__) || defined(__linux__) || defined(__FreeBSD__)
 #if defined(__arm__) || defined(__aarch64__)
 	__clear_cache(m_code, reinterpret_cast<uint8*>(m_code) + m_size);

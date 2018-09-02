@@ -1,5 +1,6 @@
 #include <assert.h>
 #include <vector>
+#include <algorithm>
 #include "Jitter.h"
 #include "BitManip.h"
 
@@ -194,6 +195,8 @@ void CJitter::Compile()
 		if(!dirty) break;
 	}
 
+	unsigned int stackSize = 0;
+
 	//Allocate registers
 	for(auto& basicBlock : m_basicBlocks)
 	{
@@ -204,6 +207,8 @@ void CJitter::Compile()
 		PruneSymbols(basicBlock);
 
 		AllocateRegisters(basicBlock);
+		unsigned int blockStackSize = AllocateStack(basicBlock);
+		stackSize = std::max<unsigned int>(stackSize, blockStackSize);
 
 		NormalizeStatements(basicBlock);
 	}
@@ -215,7 +220,6 @@ void CJitter::Compile()
 	std::cout << std::endl;
 #endif
 
-	unsigned int stackSize = AllocateStack(result);
 	m_codeGen->GenerateCode(result.statements, stackSize);
 
 	m_labels.clear();

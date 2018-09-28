@@ -493,7 +493,7 @@ void CCodeGen_AArch32::LoadConstantPtrInRegister(CAArch32Assembler::REGISTER reg
 	if(m_externalSymbolReferencedHandler)
 	{
 		auto position = m_stream->GetLength();
-		m_externalSymbolReferencedHandler(constant, position - 8);
+		m_externalSymbolReferencedHandler(constant, position - 8, CCodeGen::SYMBOL_REF_TYPE::ARMV7_LOAD_HALF);
 	}
 }
 

@@ -212,7 +212,7 @@ void CCodeGen_x86::GenerateCode(const StatementList& statements, unsigned int st
 		for(const auto& symbolRefLabel : m_symbolReferenceLabels)
 		{
 			uint32 offset = m_assembler.GetLabelOffset(symbolRefLabel.second);
-			m_externalSymbolReferencedHandler(symbolRefLabel.first, offset);
+			m_externalSymbolReferencedHandler(symbolRefLabel.first, offset, CCodeGen::SYMBOL_REF_TYPE::NATIVE_POINTER);
 		}
 	}
 

@@ -12,7 +12,14 @@ namespace Jitter
 	class CCodeGen
 	{
 	public:
-		typedef std::function<void (uintptr_t, uint32)> ExternalSymbolReferencedHandler;
+		enum class SYMBOL_REF_TYPE
+		{
+			NATIVE_POINTER,
+			ARMV7_LOAD_HALF,
+			ARMV8_PCRELATIVE,
+		};
+
+		typedef std::function<void (uintptr_t, uint32, SYMBOL_REF_TYPE)> ExternalSymbolReferencedHandler;
 
 		virtual					~CCodeGen() {};
 

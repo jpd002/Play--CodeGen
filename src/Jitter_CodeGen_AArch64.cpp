@@ -1220,7 +1220,7 @@ void CCodeGen_AArch64::Emit_Call(const STATEMENT& statement)
 		if(m_externalSymbolReferencedHandler)
 		{
 			auto position = m_stream->GetLength();
-			m_externalSymbolReferencedHandler(src1->GetConstantPtr(), position);
+			m_externalSymbolReferencedHandler(src1->GetConstantPtr(), position, CCodeGen::SYMBOL_REF_TYPE::ARMV8_PCRELATIVE);
 		}
 		m_assembler.Bl(0);
 	}
@@ -1287,7 +1287,7 @@ void CCodeGen_AArch64::Emit_ExternJmp(const STATEMENT& statement)
 	if(m_externalSymbolReferencedHandler)
 	{
 		auto position = m_stream->GetLength();
-		m_externalSymbolReferencedHandler(src1->GetConstantPtr(), position);
+		m_externalSymbolReferencedHandler(src1->GetConstantPtr(), position, CCodeGen::SYMBOL_REF_TYPE::NATIVE_POINTER);
 	}
 	m_stream->Write64(src1->GetConstantPtr());
 }

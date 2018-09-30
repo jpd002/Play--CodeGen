@@ -215,6 +215,7 @@ public:
 	void									Eor(REGISTER, REGISTER, const ImmediateAluOperand&);
 	void									Ldmia(REGISTER, uint16);
 	void									Ldr(REGISTER, REGISTER, const LdrAddress&);
+	void									Ldr_Pc(REGISTER, int32);
 	void									Ldrd(REGISTER, REGISTER, const LdrAddress&);
 	void									Mov(REGISTER, REGISTER);
 	void									Mov(REGISTER, const RegisterAluOperand&);

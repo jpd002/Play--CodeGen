@@ -940,8 +940,16 @@ void CCodeGen_AArch32::Emit_ExternJmp(const STATEMENT& statement)
 
 	m_assembler.Mov(CAArch32Assembler::r0, g_baseRegister);
 	Emit_Epilog();
-	LoadConstantPtrInRegister(g_callAddressRegister, src1->GetConstantPtr());
-	m_assembler.Mov(CAArch32Assembler::rPC, g_callAddressRegister);
+
+	m_assembler.Ldr_Pc(CAArch32Assembler::rPC, -4);
+
+	//Write target function address
+	if(m_externalSymbolReferencedHandler)
+	{
+		auto position = m_stream->GetLength();
+		m_externalSymbolReferencedHandler(src1->GetConstantPtr(), position, CCodeGen::SYMBOL_REF_TYPE::NATIVE_POINTER);
+	}
+	m_stream->Write32(src1->GetConstantPtr());
 }
 
 void CCodeGen_AArch32::Emit_Mov_RegReg(const STATEMENT& statement)

@@ -271,6 +271,22 @@ void CAArch32Assembler::Ldr(REGISTER rd, REGISTER rbase, const LdrAddress& addre
 	WriteWord(opcode);
 }
 
+void CAArch32Assembler::Ldr_Pc(REGISTER rt, int32 offset)
+{
+	bool add = true;
+	uint32 absOffset = offset;
+	if(offset < 0)
+	{
+		add = false;
+		absOffset = -offset;
+	}
+	assert(absOffset < 0x1000);
+	uint32 opcode = (CONDITION_AL << 28) | 0x051F0000 | (add ? 0x00800000 : 0);
+	opcode |= (rt <<  12);
+	opcode |= absOffset;
+	WriteWord(opcode);
+}
+
 void CAArch32Assembler::Ldrd(REGISTER rt, REGISTER rn, const LdrAddress& address)
 {
 	assert(address.isImmediate);

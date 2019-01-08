@@ -33,8 +33,6 @@ if(ANDROID)
 	list(APPEND PROJECT_LIBS cpufeatures)
 endif()
 
-include_directories(../include ../../Framework/include)
-
 add_library(CodeGen 
 	../src/AArch32Assembler.cpp
 	../src/AArch64Assembler.cpp
@@ -95,6 +93,8 @@ add_library(CodeGen
 	../include/X86Assembler.h
 )
 
+target_link_libraries(CodeGen PUBLIC Framework ${PROJECT_LIBS})
+target_include_directories(CodeGen PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../include)
 enable_testing()
 
 set(CodeGenTest_SRC
@@ -108,6 +108,8 @@ set(CodeGenTest_SRC
 	../tests/Crc32Test.cpp
 	../tests/CursorTest.cpp
 	../tests/DivTest.cpp
+	../tests/ExternJumpTest.cpp
+	../tests/ExternJumpTest.h
 	../tests/FpIntMixTest.cpp
 	../tests/FpuTest.cpp
 	../tests/HugeJumpTest.cpp
@@ -129,6 +131,8 @@ set(CodeGenTest_SRC
 	../tests/MdTest.cpp
 	../tests/MdUnpackTest.cpp
 	../tests/MemAccessTest.cpp
+	../tests/MemAccess64Test.cpp
+	../tests/MemAccessRefTest.cpp
 	../tests/Merge64Test.cpp
 	../tests/MultTest.cpp
 	../tests/NestedIfTest.cpp

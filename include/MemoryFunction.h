@@ -22,6 +22,9 @@ public:
 	void*				GetCode() const;
 	size_t				GetSize() const;
 
+	void				BeginModify();
+	void				EndModify();
+	
 private:
 	void				Reset();
 

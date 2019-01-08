@@ -1,6 +1,5 @@
 #include <assert.h>
 #include "Jitter.h"
-#include "PtrMacro.h"
 #include "placeholder_def.h"
 
 using namespace std;
@@ -244,6 +243,13 @@ void CJitter::And()
 	InsertBinaryStatement(OP_AND);
 }
 
+void CJitter::Break()
+{
+	STATEMENT statement;
+	statement.op = OP_BREAK;
+	InsertStatement(statement);
+}
+
 void CJitter::Call(void* func, unsigned int paramCount, bool keepRet)
 {
 	Call(func, paramCount, keepRet ? RETURN_VALUE_32 : RETURN_VALUE_NONE);
@@ -344,6 +350,14 @@ void CJitter::DivS()
 	InsertStatement(statement);
 
 	m_shadow.Push(tempSym);
+}
+
+void CJitter::JumpTo(void* func)
+{
+	STATEMENT statement;
+	statement.src1 = MakeSymbolRef(MakeConstantPtr(reinterpret_cast<uintptr_t>(func)));
+	statement.op   = OP_EXTERNJMP;
+	InsertStatement(statement);
 }
 
 void CJitter::Lookup(uint32* table)
@@ -555,6 +569,19 @@ void CJitter::AddRef()
 	m_shadow.Push(tempSym);
 }
 
+void CJitter::IsRefNull()
+{
+	auto tempSym = MakeSymbol(SYM_TEMPORARY, m_nextTemporary++);
+
+	STATEMENT statement;
+	statement.op      = OP_ISREFNULL;
+	statement.src1    = MakeSymbolRef(m_shadow.Pull());
+	statement.dst     = MakeSymbolRef(tempSym);
+	InsertStatement(statement);
+
+	m_shadow.Push(tempSym);
+}
+
 void CJitter::LoadFromRef()
 {
 	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY, m_nextTemporary++);
@@ -568,6 +595,32 @@ void CJitter::LoadFromRef()
 	m_shadow.Push(tempSym);
 }
 
+void CJitter::Load64FromRef()
+{
+	auto tempSym = MakeSymbol(SYM_TEMPORARY64, m_nextTemporary++);
+
+	STATEMENT statement;
+	statement.op    = OP_LOADFROMREF;
+	statement.src1  = MakeSymbolRef(m_shadow.Pull());
+	statement.dst   = MakeSymbolRef(tempSym);
+	InsertStatement(statement);
+
+	m_shadow.Push(tempSym);
+}
+
+void CJitter::LoadRefFromRef()
+{
+	auto tempSym = MakeSymbol(SYM_TMP_REFERENCE, m_nextTemporary++);
+
+	STATEMENT statement;
+	statement.op    = OP_LOADFROMREF;
+	statement.src1  = MakeSymbolRef(m_shadow.Pull());
+	statement.dst   = MakeSymbolRef(tempSym);
+	InsertStatement(statement);
+
+	m_shadow.Push(tempSym);
+}
+
 void CJitter::StoreAtRef()
 {
 	STATEMENT statement;
@@ -575,6 +628,11 @@ void CJitter::StoreAtRef()
 	statement.src2	= MakeSymbolRef(m_shadow.Pull());
 	statement.src1	= MakeSymbolRef(m_shadow.Pull());
 	InsertStatement(statement);
+}
+
+void CJitter::Store64AtRef()
+{
+	StoreAtRef();
 }
 
 //64-bits
@@ -1167,6 +1225,11 @@ void CJitter::MD_SubW()
 void CJitter::MD_SubWSS()
 {
 	InsertBinaryMdStatement(OP_MD_SUBSS_W);
+}
+
+void CJitter::MD_SubWUS()
+{
+	InsertBinaryMdStatement(OP_MD_SUBUS_W);
 }
 
 void CJitter::MD_And()

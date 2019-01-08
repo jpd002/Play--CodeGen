@@ -215,6 +215,7 @@ public:
 	void									Eor(REGISTER, REGISTER, const ImmediateAluOperand&);
 	void									Ldmia(REGISTER, uint16);
 	void									Ldr(REGISTER, REGISTER, const LdrAddress&);
+	void									Ldr_Pc(REGISTER, int32);
 	void									Ldrd(REGISTER, REGISTER, const LdrAddress&);
 	void									Mov(REGISTER, REGISTER);
 	void									Mov(REGISTER, const RegisterAluOperand&);
@@ -275,6 +276,7 @@ public:
 	void									Vsub_I32(QUAD_REGISTER, QUAD_REGISTER, QUAD_REGISTER);
 	void									Vqsub_U8(QUAD_REGISTER, QUAD_REGISTER, QUAD_REGISTER);
 	void									Vqsub_U16(QUAD_REGISTER, QUAD_REGISTER, QUAD_REGISTER);
+	void									Vqsub_U32(QUAD_REGISTER, QUAD_REGISTER, QUAD_REGISTER);
 	void									Vqsub_I16(QUAD_REGISTER, QUAD_REGISTER, QUAD_REGISTER);
 	void									Vqsub_I32(QUAD_REGISTER, QUAD_REGISTER, QUAD_REGISTER);
 	void									Vmul_F32(SINGLE_REGISTER, SINGLE_REGISTER, SINGLE_REGISTER);

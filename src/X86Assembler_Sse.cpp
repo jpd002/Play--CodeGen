@@ -358,6 +358,12 @@ void CX86Assembler::AddpsVo(XMMREGISTER registerId, const CAddress& address)
 	WriteEdVdOp_0F(0x58, address, registerId);
 }
 
+void CX86Assembler::BlendpsVo(XMMREGISTER registerId, const CAddress& address, uint8 mask)
+{
+	WriteEdVdOp_66_0F_3A(0x0C, address, registerId);
+	WriteByte(mask);
+}
+
 void CX86Assembler::DivpsVo(XMMREGISTER registerId, const CAddress& address)
 {
 	WriteEdVdOp_0F(0x5E, address, registerId);
@@ -457,6 +463,19 @@ void CX86Assembler::WriteEdVdOp_66_0F_38(uint8 opcode, const CAddress& address, 
 	WriteRexByte(false, address, registerId);
 	WriteByte(0x0F);
 	WriteByte(0x38);
+	CAddress newAddress(address);
+	newAddress.ModRm.nFnReg = registerId;
+	WriteByte(opcode);
+	newAddress.Write(&m_tmpStream);
+}
+
+void CX86Assembler::WriteEdVdOp_66_0F_3A(uint8 opcode, const CAddress& address, XMMREGISTER xmmRegisterId)
+{
+	auto registerId = static_cast<REGISTER>(xmmRegisterId);
+	WriteByte(0x66);
+	WriteRexByte(false, address, registerId);
+	WriteByte(0x0F);
+	WriteByte(0x3A);
 	CAddress newAddress(address);
 	newAddress.ModRm.nFnReg = registerId;
 	WriteByte(opcode);

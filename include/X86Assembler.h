@@ -135,6 +135,7 @@ public:
 	void									IdivEd(const CAddress&);
 	void									ImulEw(const CAddress&);
 	void									ImulEd(const CAddress&);
+	void									Int3();
 	void									JbJx(LABEL);
 	void									JbeJx(LABEL);
 	void									JnbJx(LABEL);
@@ -143,6 +144,7 @@ public:
 	void									JnleJx(LABEL);
 	void									JlJx(LABEL);
 	void									JleJx(LABEL);
+	void									JmpEd(const CAddress&);
 	void									JmpJx(LABEL);
 	void									JnzJx(LABEL);
 	void									JnbeJx(LABEL);
@@ -207,6 +209,7 @@ public:
 	void									SubIq(const CAddress&, uint64);
 	void									TestEb(REGISTER, const CAddress&);
 	void									TestEd(REGISTER, const CAddress&);
+	void									TestEq(REGISTER, const CAddress&);
 	void									XorEd(REGISTER, const CAddress&);
 	void									XorId(const CAddress&, uint32);
 	void									XorGd(const CAddress&, REGISTER);
@@ -317,6 +320,7 @@ public:
 	void									Cvttps2dqVo(XMMREGISTER, const CAddress&);
 
 	void									AddpsVo(XMMREGISTER, const CAddress&);
+	void									BlendpsVo(XMMREGISTER, const CAddress&, uint8);
 	void									DivpsVo(XMMREGISTER, const CAddress&);
 	void									MaxpsVo(XMMREGISTER, const CAddress&);
 	void									MinpsVo(XMMREGISTER, const CAddress&);
@@ -407,6 +411,7 @@ private:
 	void									WriteEdVdOp_66_0F(uint8, const CAddress&, XMMREGISTER);
 	void									WriteEdVdOp_66_0F_64b(uint8, const CAddress&, XMMREGISTER);
 	void									WriteEdVdOp_66_0F_38(uint8, const CAddress&, XMMREGISTER);
+	void									WriteEdVdOp_66_0F_3A(uint8, const CAddress&, XMMREGISTER);
 	void									WriteEdVdOp_F3_0F(uint8, const CAddress&, XMMREGISTER);
 	void									WriteVrOp_66_0F(uint8, uint8, XMMREGISTER);
 	void									WriteStOp(uint8, uint8, uint8);

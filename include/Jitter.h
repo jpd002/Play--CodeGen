@@ -73,11 +73,13 @@ namespace Jitter
 
 		void							Add();
 		void							And();
+		void							Break();
 		void							Call(void*, unsigned int, bool);
 		void							Call(void*, unsigned int, RETURN_VALUE_TYPE);
 		void							Cmp(CONDITION);
 		void							Div();
 		void							DivS();
+		void							JumpTo(void*);
 		void							Lookup(uint32*);
 		void							Lzc();
 		void							Mult();
@@ -101,8 +103,12 @@ namespace Jitter
 		void							PushRelAddrRef(size_t);
 
 		void							AddRef();
+		void							IsRefNull();
 		void							LoadFromRef();
+		void							Load64FromRef();
+		void							LoadRefFromRef();
 		void							StoreAtRef();
+		void							Store64AtRef();
 
 		//64-bits
 		virtual void					PushRel64(size_t);
@@ -202,6 +208,7 @@ namespace Jitter
 		void							MD_SubH();
 		void							MD_SubW();
 		void							MD_SubWSS();
+		void							MD_SubWUS();
 		void							MD_SubS();
 		void							MD_ToSingle();
 		void							MD_ToWordTruncate();

@@ -441,6 +441,11 @@ void CX86Assembler::ImulEd(const CAddress& address)
 	WriteEvOp(0xF7, 0x05, false, address);
 }
 
+void CX86Assembler::Int3()
+{
+	WriteByte(0xCC);
+}
+
 void CX86Assembler::JbJx(LABEL label)
 {
 	CreateLabelReference(label, JMP_B);
@@ -474,6 +479,11 @@ void CX86Assembler::JnlJx(LABEL label)
 void CX86Assembler::JnleJx(LABEL label)
 {
 	CreateLabelReference(label, JMP_NLE);
+}
+
+void CX86Assembler::JmpEd(const CAddress& address)
+{
+	WriteEvOp(0xFF, 0x04, false, address);
 }
 
 void CX86Assembler::JmpJx(LABEL label)
@@ -844,6 +854,11 @@ void CX86Assembler::TestEb(REGISTER registerId, const CAddress& address)
 void CX86Assembler::TestEd(REGISTER registerId, const CAddress& address)
 {
 	WriteEvGvOp(0x85, false, address, registerId);
+}
+
+void CX86Assembler::TestEq(REGISTER registerId, const CAddress& address)
+{
+	WriteEvGvOp(0x85, true, address, registerId);
 }
 
 void CX86Assembler::XorEd(REGISTER registerId, const CAddress& address)

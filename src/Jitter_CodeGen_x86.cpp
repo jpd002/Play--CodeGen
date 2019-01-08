@@ -1,10 +1,31 @@
 #include <functional>
 #include <array>
 #include <assert.h>
+#include "Jitter_CodeGen_x86.h"
+
+//Check if CPUID is available
 #ifdef _WIN32
+#define HAS_CPUID
+#define HAS_CPUID_MSVC
 #include <intrin.h>
 #endif
-#include "Jitter_CodeGen_x86.h"
+
+#if defined(__linux__)
+#if defined(__i386__) || defined(__x86_64__)
+#define HAS_CPUID
+#define HAS_CPUID_GCC
+#include <cpuid.h>
+#endif
+#endif
+
+#if defined(__APPLE__)
+#include <TargetConditionals.h>
+#if TARGET_CPU_X86 || TARGET_CPU_X86_64
+#define HAS_CPUID
+#define HAS_CPUID_GCC
+#include <cpuid.h>
+#endif
+#endif
 
 using namespace Jitter;
 
@@ -13,11 +34,14 @@ using namespace Jitter;
 #include "Jitter_CodeGen_x86_Mul.h"
 #include "Jitter_CodeGen_x86_Div.h"
 
+CX86Assembler::REGISTER CCodeGen_x86::g_baseRegister = CX86Assembler::rBP;
+
 CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_constMatchers[] = 
 { 
 	{ OP_LABEL,		MATCH_NIL,			MATCH_NIL,			MATCH_NIL,			&CCodeGen_x86::MarkLabel							},
 
 	{ OP_NOP,		MATCH_NIL,			MATCH_NIL,			MATCH_NIL,			&CCodeGen_x86::Emit_Nop								},
+	{ OP_BREAK,		MATCH_NIL,			MATCH_NIL,			MATCH_NIL,			&CCodeGen_x86::Emit_Break							},
 
 	ALU_CONST_MATCHERS(OP_ADD, ALUOP_ADD)
 	ALU_CONST_MATCHERS(OP_SUB, ALUOP_SUB)
@@ -95,6 +119,7 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_constMatchers[] =
 
 	{ OP_MERGETO64,	MATCH_MEMORY64,		MATCH_REGISTER,		MATCH_REGISTER,		&CCodeGen_x86::Emit_MergeTo64_Mem64RegReg			},
 	{ OP_MERGETO64,	MATCH_MEMORY64,		MATCH_REGISTER,		MATCH_MEMORY,		&CCodeGen_x86::Emit_MergeTo64_Mem64RegMem			},
+	{ OP_MERGETO64,	MATCH_MEMORY64,		MATCH_MEMORY,		MATCH_REGISTER,		&CCodeGen_x86::Emit_MergeTo64_Mem64MemReg			},
 	{ OP_MERGETO64,	MATCH_MEMORY64,		MATCH_MEMORY,		MATCH_MEMORY,		&CCodeGen_x86::Emit_MergeTo64_Mem64MemMem			},
 	{ OP_MERGETO64,	MATCH_MEMORY64,		MATCH_CONSTANT,		MATCH_REGISTER,		&CCodeGen_x86::Emit_MergeTo64_Mem64CstReg			},
 	{ OP_MERGETO64,	MATCH_MEMORY64,		MATCH_CONSTANT,		MATCH_MEMORY,		&CCodeGen_x86::Emit_MergeTo64_Mem64CstMem			},
@@ -116,19 +141,25 @@ CCodeGen_x86::CCodeGen_x86()
 	InsertMatchers(g_fpuConstMatchers);
 	InsertMatchers(g_mdConstMatchers);
 
+	if(m_hasSsse3)
+	{
+		InsertMatchers(g_mdFpFlagSsse3ConstMatchers);
+	}
+	else
+	{
+		InsertMatchers(g_mdFpFlagConstMatchers);
+	}
+
 	if(m_hasSse41)
 	{
 		InsertMatchers(g_mdMinMaxWSse41ConstMatchers);
+		InsertMatchers(g_mdMovMaskedSse41ConstMatchers);
 	}
 	else
 	{
 		InsertMatchers(g_mdMinMaxWConstMatchers);
+		InsertMatchers(g_mdMovMaskedConstMatchers);
 	}
-}
-
-CCodeGen_x86::~CCodeGen_x86()
-{
-
 }
 
 void CCodeGen_x86::GenerateCode(const StatementList& statements, unsigned int stackSize)
@@ -136,7 +167,7 @@ void CCodeGen_x86::GenerateCode(const StatementList& statements, unsigned int st
 	assert(m_registers != nullptr);
 	assert(m_mdRegisters != nullptr);
 
-	uint32 registerUsage = GetRegisterUsage(statements);
+	m_registerUsage = GetRegisterUsage(statements);
 	
 	//Align stacksize
 	stackSize = (stackSize + 0xF) & ~0xF;
@@ -147,7 +178,7 @@ void CCodeGen_x86::GenerateCode(const StatementList& statements, unsigned int st
 		CX86Assembler::LABEL rootLabel = m_assembler.CreateLabel();
 		m_assembler.MarkLabel(rootLabel);
 
-		Emit_Prolog(statements, stackSize, registerUsage);
+		Emit_Prolog(statements, stackSize);
 
 		for(const auto& statement : statements)
 		{
@@ -172,7 +203,8 @@ void CCodeGen_x86::GenerateCode(const StatementList& statements, unsigned int st
 			}
 		}
 
-		Emit_Epilog(stackSize, registerUsage);
+		Emit_Epilog();
+		m_assembler.Ret();
 	}
 	m_assembler.End();
 
@@ -181,7 +213,7 @@ void CCodeGen_x86::GenerateCode(const StatementList& statements, unsigned int st
 		for(const auto& symbolRefLabel : m_symbolReferenceLabels)
 		{
 			uint32 offset = m_assembler.GetLabelOffset(symbolRefLabel.second);
-			m_externalSymbolReferencedHandler(symbolRefLabel.first, offset);
+			m_externalSymbolReferencedHandler(symbolRefLabel.first, offset, CCodeGen::SYMBOL_REF_TYPE::NATIVE_POINTER);
 		}
 	}
 
@@ -205,12 +237,26 @@ void CCodeGen_x86::InsertMatchers(const CONSTMATCHER* constMatchers)
 
 void CCodeGen_x86::SetGenerationFlags()
 {
-#if defined(_WIN32) && (defined(_M_IX86) || defined(_M_X64))
-	static uint32 CPUID_FLAG_SSE41 = 0x080000;
+	static const uint32 CPUID_FLAG_SSSE3 = 0x000200;
+	static const uint32 CPUID_FLAG_SSE41 = 0x080000;
+
+#ifdef HAS_CPUID
+
+#ifdef HAS_CPUID_MSVC
 	std::array<int, 4> cpuInfo;
 	__cpuid(cpuInfo.data(), 1);
+#endif //HAS_CPUID_MSVC
+
+#ifdef HAS_CPUID_GCC
+	std::array<unsigned int, 4> cpuInfo;
+	__get_cpuid(1, &cpuInfo[0], &cpuInfo[1], &cpuInfo[2], &cpuInfo[3]);
+#endif //HAS_CPUID_GCC
+
+	m_hasSsse3 = (cpuInfo[2] & CPUID_FLAG_SSSE3) != 0;
 	m_hasSse41 = (cpuInfo[2] & CPUID_FLAG_SSE41) != 0;
-#endif
+
+#endif //HAS_CPUID
+
 }
 
 void CCodeGen_x86::SetStream(Framework::CStream* stream)
@@ -421,6 +467,11 @@ void CCodeGen_x86::Emit_Nop(const STATEMENT& statement)
 	
 }
 
+void CCodeGen_x86::Emit_Break(const STATEMENT& statement)
+{
+	m_assembler.Int3();
+}
+
 void CCodeGen_x86::Emit_Not_RegReg(const STATEMENT& statement)
 {
 	CSymbol* dst = statement.dst->GetSymbol().get();
@@ -611,6 +662,20 @@ void CCodeGen_x86::Emit_MergeTo64_Mem64RegMem(const STATEMENT& statement)
 
 	m_assembler.MovGd(MakeMemory64SymbolLoAddress(dst), m_registers[src1->m_valueLow]);
 	m_assembler.MovGd(MakeMemory64SymbolHiAddress(dst), CX86Assembler::rDX);
+}
+
+void CCodeGen_x86::Emit_MergeTo64_Mem64MemReg(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+	
+	assert(src2->m_type == SYM_REGISTER);
+	
+	m_assembler.MovEd(CX86Assembler::rAX, MakeMemorySymbolAddress(src1));
+	
+	m_assembler.MovGd(MakeMemory64SymbolLoAddress(dst), CX86Assembler::rAX);
+	m_assembler.MovGd(MakeMemory64SymbolHiAddress(dst), m_registers[src2->m_valueLow]);
 }
 
 void CCodeGen_x86::Emit_MergeTo64_Mem64MemMem(const STATEMENT& statement)

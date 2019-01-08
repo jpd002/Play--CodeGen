@@ -9,7 +9,7 @@ namespace Jitter
 	{
 	public:
 						CCodeGen_x86();
-		virtual			~CCodeGen_x86();
+		virtual			~CCodeGen_x86() = default;
 
 		void			GenerateCode(const StatementList&, unsigned int) override;
 		void			SetStream(Framework::CStream*) override;
@@ -396,8 +396,18 @@ namespace Jitter
 			static OpEdType OpEd() { return &CCodeGen_x86::Emit_Md_IsZero; }
 		};
 
-		virtual void				Emit_Prolog(const StatementList&, unsigned int, uint32) = 0;
-		virtual void				Emit_Epilog(unsigned int, uint32) = 0;
+		struct MDOP_ISNEGATIVE_SSSE3 : public MDOP_FLAG_BASE
+		{
+			static OpEdType OpEd() { return &CCodeGen_x86::Emit_Md_IsNegative_Ssse3; }
+		};
+
+		struct MDOP_ISZERO_SSSE3 : public MDOP_FLAG_BASE
+		{
+			static OpEdType OpEd() { return &CCodeGen_x86::Emit_Md_IsZero_Ssse3; }
+		};
+
+		virtual void				Emit_Prolog(const StatementList&, unsigned int) = 0;
+		virtual void				Emit_Epilog() = 0;
 
 		CX86Assembler::LABEL		GetLabel(uint32);
 
@@ -438,6 +448,9 @@ namespace Jitter
 
 		//NOP
 		void						Emit_Nop(const STATEMENT&);
+
+		//BREAK
+		void						Emit_Break(const STATEMENT&);
 
 		//ALU
 		template <typename> void	Emit_Alu_RegRegReg(const STATEMENT&);
@@ -540,6 +553,7 @@ namespace Jitter
 		//MERGETO64
 		void						Emit_MergeTo64_Mem64RegReg(const STATEMENT&);
 		void						Emit_MergeTo64_Mem64RegMem(const STATEMENT&);
+		void						Emit_MergeTo64_Mem64MemReg(const STATEMENT&);
 		void						Emit_MergeTo64_Mem64MemMem(const STATEMENT&);
 		void						Emit_MergeTo64_Mem64CstReg(const STATEMENT&);
 		void						Emit_MergeTo64_Mem64CstMem(const STATEMENT&);
@@ -602,6 +616,7 @@ namespace Jitter
 		void						Emit_Md_AddSSW_VarVarVar(const STATEMENT&);
 		void						Emit_Md_AddUSW_VarVarVar(const STATEMENT&);
 		void						Emit_Md_SubSSW_VarVarVar(const STATEMENT&);
+		void						Emit_Md_SubUSW_VarVarVar(const STATEMENT&);
 		void						Emit_Md_MinW_VarVarVar(const STATEMENT&);
 		void						Emit_Md_MaxW_VarVarVar(const STATEMENT&);
 		void						Emit_Md_PackHB_VarVarVar(const STATEMENT&);
@@ -610,6 +625,7 @@ namespace Jitter
 		void						Emit_Md_Mov_MemReg(const STATEMENT&);
 		void						Emit_Md_Mov_MemMem(const STATEMENT&);
 		void						Emit_Md_MovMasked_VarVarVar(const STATEMENT&);
+		void						Emit_Md_MovMasked_Sse41_VarVarVar(const STATEMENT&);
 		template <typename> void	Emit_Md_GetFlag_RegVar(const STATEMENT&);
 		template <typename> void	Emit_Md_GetFlag_MemVar(const STATEMENT&);
 		void						Emit_Md_Expand_RegReg(const STATEMENT&);
@@ -627,8 +643,12 @@ namespace Jitter
 
 		void						Emit_Md_Abs(CX86Assembler::XMMREGISTER);
 		void						Emit_Md_Not(CX86Assembler::XMMREGISTER);
-		void						Emit_Md_IsZero(CX86Assembler::REGISTER, const CX86Assembler::CAddress&);
 		void						Emit_Md_IsNegative(CX86Assembler::REGISTER, const CX86Assembler::CAddress&);
+		void						Emit_Md_IsZero(CX86Assembler::REGISTER, const CX86Assembler::CAddress&);
+		void						Emit_Md_IsNegative_Ssse3(CX86Assembler::REGISTER, const CX86Assembler::CAddress&);
+		void						Emit_Md_IsZero_Ssse3(CX86Assembler::REGISTER, const CX86Assembler::CAddress&);
+
+		static CX86Assembler::REGISTER g_baseRegister;
 
 		CX86Assembler				m_assembler;
 		CX86Assembler::REGISTER*	m_registers = nullptr;
@@ -636,6 +656,7 @@ namespace Jitter
 		LabelMapType				m_labels;
 		SymbolReferenceLabelArray	m_symbolReferenceLabels;
 		uint32						m_stackLevel = 0;
+		uint32						m_registerUsage = 0;
 		
 	private:
 		typedef void (CCodeGen_x86::*ConstCodeEmitterType)(const STATEMENT&);
@@ -652,6 +673,7 @@ namespace Jitter
 		void						InsertMatchers(const CONSTMATCHER*);
 		void						SetGenerationFlags();
 		
+		bool						m_hasSsse3 = false;
 		bool						m_hasSse41 = false;
 
 		static CONSTMATCHER			g_constMatchers[];
@@ -660,5 +682,11 @@ namespace Jitter
 
 		static CONSTMATCHER			g_mdMinMaxWConstMatchers[];
 		static CONSTMATCHER			g_mdMinMaxWSse41ConstMatchers[];
+
+		static CONSTMATCHER			g_mdMovMaskedConstMatchers[];
+		static CONSTMATCHER			g_mdMovMaskedSse41ConstMatchers[];
+
+		static CONSTMATCHER			g_mdFpFlagConstMatchers[];
+		static CONSTMATCHER			g_mdFpFlagSsse3ConstMatchers[];
 	};
 }

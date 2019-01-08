@@ -73,8 +73,8 @@ namespace Jitter
 
 		static uint16							GetSavedRegisterList(uint32);
 
-		void									Emit_Prolog(unsigned int, uint16);
-		void									Emit_Epilog(unsigned int, uint16);
+		void									Emit_Prolog();
+		void									Emit_Epilog();
 
 		CAArch32Assembler::LABEL				GetLabel(uint32);
 		void									MarkLabel(const STATEMENT&);
@@ -335,6 +335,11 @@ namespace Jitter
 			static OpRegType OpReg() { return &CAArch32Assembler::Vqsub_U16; }
 		};
 
+		struct MDOP_SUBWUS : public MDOP_BASE3
+		{
+			static OpRegType OpReg() { return &CAArch32Assembler::Vqsub_U32; }
+		};
+
 		struct MDOP_SUBHSS : public MDOP_BASE3
 		{
 			static OpRegType OpReg() { return &CAArch32Assembler::Vqsub_I16; }
@@ -497,6 +502,9 @@ namespace Jitter
 		void									Emit_RetVal_Tmp(const STATEMENT&);
 		void									Emit_RetVal_Mem64(const STATEMENT&);
 
+		//EXTERNJMP
+		void									Emit_ExternJmp(const STATEMENT&);
+
 		//MUL/MULS
 		template<bool> void						Emit_MulTmp64AnyAny(const STATEMENT&);
 
@@ -656,6 +664,8 @@ namespace Jitter
 		CAArch32Assembler						m_assembler;
 		LabelMapType							m_labels;
 		ParamStack								m_params;
+		uint32									m_stackSize = 0;
+		uint16									m_registerSave = 0;
 		uint32									m_stackLevel = 0;
 		bool									m_hasIntegerDiv = false;
 	};

@@ -37,6 +37,8 @@ CCodeGen_x86_32::CONSTMATCHER CCodeGen_x86_32::g_constMatchers[] =
 	{ OP_RETVAL,		MATCH_REGISTER,		MATCH_NIL,			MATCH_NIL,			&CCodeGen_x86_32::Emit_RetVal_Reg				},
 	{ OP_RETVAL,		MATCH_MEMORY64,		MATCH_NIL,			MATCH_NIL,			&CCodeGen_x86_32::Emit_RetVal_Mem64				},
 
+	{ OP_EXTERNJMP,		MATCH_NIL,			MATCH_CONSTANTPTR,	MATCH_NIL,			&CCodeGen_x86_32::Emit_ExternJmp				},
+
 	{ OP_MOV,			MATCH_MEMORY64,		MATCH_MEMORY64,		MATCH_NIL,			&CCodeGen_x86_32::Emit_Mov_Mem64Mem64			},
 	{ OP_MOV,			MATCH_MEMORY64,		MATCH_CONSTANT64,	MATCH_NIL,			&CCodeGen_x86_32::Emit_Mov_Mem64Cst64			},
 
@@ -105,17 +107,12 @@ CCodeGen_x86_32::CCodeGen_x86_32()
 	}
 }
 
-CCodeGen_x86_32::~CCodeGen_x86_32()
-{
-
-}
-
 void CCodeGen_x86_32::SetImplicitRetValueParamFixUpRequired(bool implicitRetValueParamFixUpRequired)
 {
 	m_implicitRetValueParamFixUpRequired = implicitRetValueParamFixUpRequired;
 }
 
-void CCodeGen_x86_32::Emit_Prolog(const StatementList& statements, unsigned int stackSize, uint32 registerUsage)
+void CCodeGen_x86_32::Emit_Prolog(const StatementList& statements, unsigned int stackSize)
 {	
 	//Compute the size needed to store all function call parameters
 	uint32 maxParamSize = 0;
@@ -178,7 +175,7 @@ void CCodeGen_x86_32::Emit_Prolog(const StatementList& statements, unsigned int 
 	//Save registers
 	for(unsigned int i = 0; i < MAX_REGISTERS; i++)
 	{
-		if(registerUsage & (1 << i))
+		if(m_registerUsage & (1 << i))
 		{
 			m_assembler.Push(m_registers[i]);
 		}
@@ -219,7 +216,7 @@ void CCodeGen_x86_32::Emit_Prolog(const StatementList& statements, unsigned int 
 	//(Low address)
 }
 
-void CCodeGen_x86_32::Emit_Epilog(unsigned int stackSize, uint32 registerUsage)
+void CCodeGen_x86_32::Emit_Epilog()
 {
 	if(m_totalStackAlloc != 0)
 	{
@@ -230,14 +227,13 @@ void CCodeGen_x86_32::Emit_Epilog(unsigned int stackSize, uint32 registerUsage)
 
 	for(int i = MAX_REGISTERS - 1; i >= 0; i--)
 	{
-		if(registerUsage & (1 << i))
+		if(m_registerUsage & (1 << i))
 		{
 			m_assembler.Pop(m_registers[i]);
 		}
 	}
 
 	m_assembler.Pop(CX86Assembler::rBP);
-	m_assembler.Ret();
 }
 
 unsigned int CCodeGen_x86_32::GetAvailableRegisterCount() const
@@ -424,6 +420,18 @@ void CCodeGen_x86_32::Emit_RetVal_Mem64(const STATEMENT& statement)
 
 	m_assembler.MovGd(MakeMemory64SymbolLoAddress(dst), CX86Assembler::rAX);
 	m_assembler.MovGd(MakeMemory64SymbolHiAddress(dst), CX86Assembler::rDX);
+}
+
+void CCodeGen_x86_32::Emit_ExternJmp(const STATEMENT& statement)
+{
+	auto src1 = statement.src1->GetSymbol().get();
+	
+	Emit_Epilog();
+	m_assembler.MovId(CX86Assembler::rAX, src1->m_valueLow);
+	auto symbolRefLabel = m_assembler.CreateLabel();
+	m_assembler.MarkLabel(symbolRefLabel, -4);
+	m_symbolReferenceLabels.push_back(std::make_pair(src1->GetConstantPtr(), symbolRefLabel));
+	m_assembler.JmpEd(CX86Assembler::MakeRegisterAddress(CX86Assembler::rAX));
 }
 
 void CCodeGen_x86_32::Emit_Mov_Mem64Mem64(const STATEMENT& statement)

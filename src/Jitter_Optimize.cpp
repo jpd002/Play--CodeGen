@@ -1,5 +1,6 @@
 #include <assert.h>
 #include <vector>
+#include <algorithm>
 #include "Jitter.h"
 #include "BitManip.h"
 
@@ -194,6 +195,8 @@ void CJitter::Compile()
 		if(!dirty) break;
 	}
 
+	unsigned int stackSize = 0;
+
 	//Allocate registers
 	for(auto& basicBlock : m_basicBlocks)
 	{
@@ -204,6 +207,8 @@ void CJitter::Compile()
 		PruneSymbols(basicBlock);
 
 		AllocateRegisters(basicBlock);
+		unsigned int blockStackSize = AllocateStack(basicBlock);
+		stackSize = std::max<unsigned int>(stackSize, blockStackSize);
 
 		NormalizeStatements(basicBlock);
 	}
@@ -215,7 +220,6 @@ void CJitter::Compile()
 	std::cout << std::endl;
 #endif
 
-	unsigned int stackSize = AllocateStack(result);
 	m_codeGen->GenerateCode(result.statements, stackSize);
 
 	m_labels.clear();
@@ -570,6 +574,9 @@ bool CJitter::FoldConstantOperation(STATEMENT& statement)
 			case CONDITION_LE:
 				result = static_cast<int32>(src1cst->m_valueLow) <= static_cast<int32>(src2cst->m_valueLow);
 				break;
+			case CONDITION_GT:
+				result = static_cast<int32>(src1cst->m_valueLow) > static_cast<int32>(src2cst->m_valueLow);
+				break;
 			case CONDITION_EQ:
 				result = static_cast<int32>(src1cst->m_valueLow) == static_cast<int32>(src2cst->m_valueLow);
 				break;
@@ -666,7 +673,7 @@ bool CJitter::FoldConstant64Operation(STATEMENT& statement)
 			statement.src2.reset();
 			changed = true;
 		}
-		if(src2cst && (src2cst->m_valueLow == 0) && (src2cst->m_valueHigh == 0))
+		else if(src2cst && (src2cst->m_valueLow == 0) && (src2cst->m_valueHigh == 0))
 		{
 			statement.op = OP_MOV;
 			statement.src2.reset();
@@ -695,6 +702,17 @@ bool CJitter::FoldConstant64Operation(STATEMENT& statement)
 			uint64 result = cst1 & cst2;
 			statement.op = OP_MOV;
 			statement.src1 = MakeSymbolRef(MakeConstant64(result));
+			statement.src2.reset();
+			changed = true;
+		}
+		else if(
+			(src1cst && (src1cst->m_valueLow == 0) && (src1cst->m_valueHigh == 0)) ||
+			(src2cst && (src2cst->m_valueLow == 0) && (src2cst->m_valueHigh == 0))
+			)
+		{
+			//ANDing anything with 0 gives 0
+			statement.op = OP_MOV;
+			statement.src1 = MakeSymbolRef(MakeConstant64(0));
 			statement.src2.reset();
 			changed = true;
 		}
@@ -1518,6 +1536,7 @@ void CJitter::NormalizeStatements(BASIC_BLOCK& basicBlock)
 			case OP_ADD:
 			case OP_ADD64:
 			case OP_AND:
+			case OP_AND64:
 			case OP_OR:
 			case OP_XOR:
 			case OP_MUL:

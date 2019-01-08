@@ -174,6 +174,8 @@ CCodeGen_AArch32::CONSTMATCHER CCodeGen_AArch32::g_constMatchers[] =
 	{ OP_RETVAL,		MATCH_TEMPORARY,	MATCH_NIL,			MATCH_NIL,			&CCodeGen_AArch32::Emit_RetVal_Tmp								},
 	{ OP_RETVAL,		MATCH_MEMORY64,		MATCH_NIL,			MATCH_NIL,			&CCodeGen_AArch32::Emit_RetVal_Mem64							},
 
+	{ OP_EXTERNJMP,		MATCH_NIL,			MATCH_CONSTANTPTR,	MATCH_NIL,			&CCodeGen_AArch32::Emit_ExternJmp								},
+
 	{ OP_JMP,			MATCH_NIL,			MATCH_NIL,			MATCH_NIL,			&CCodeGen_AArch32::Emit_Jmp										},
 
 	{ OP_CONDJMP,		MATCH_NIL,			MATCH_VARIABLE,		MATCH_CONSTANT,		&CCodeGen_AArch32::Emit_CondJmp_VarCst							},
@@ -297,11 +299,11 @@ void CCodeGen_AArch32::RegisterExternalSymbols(CObjectFile* objectFile) const
 void CCodeGen_AArch32::GenerateCode(const StatementList& statements, unsigned int stackSize)
 {
 	//Align stack size (must be aligned on 16 bytes boundary)
-	stackSize = (stackSize + 0xF) & ~0xF;
+	m_stackSize = (stackSize + 0xF) & ~0xF;
 
-	uint16 registerSave = GetSavedRegisterList(GetRegisterUsage(statements));
+	m_registerSave = GetSavedRegisterList(GetRegisterUsage(statements));
 
-	Emit_Prolog(stackSize, registerSave);
+	Emit_Prolog();
 
 	for(const auto& statement : statements)
 	{
@@ -326,7 +328,8 @@ void CCodeGen_AArch32::GenerateCode(const StatementList& statements, unsigned in
 		}
 	}
 
-	Emit_Epilog(stackSize, registerSave);
+	Emit_Epilog();
+	m_assembler.Bx(CAArch32Assembler::rLR);
 
 	m_assembler.ResolveLabelReferences();
 	m_assembler.ClearLabels();
@@ -349,9 +352,9 @@ uint16 CCodeGen_AArch32::GetSavedRegisterList(uint32 registerUsage)
 	return registerSave;
 }
 
-void CCodeGen_AArch32::Emit_Prolog(unsigned int stackSize, uint16 registerSave)
+void CCodeGen_AArch32::Emit_Prolog()
 {
-	m_assembler.Stmdb(CAArch32Assembler::rSP, registerSave);
+	m_assembler.Stmdb(CAArch32Assembler::rSP, m_registerSave);
 	m_assembler.Mov(CAArch32Assembler::r11, CAArch32Assembler::r0);
 
 	//Align stack to 16 bytes boundary
@@ -360,10 +363,10 @@ void CCodeGen_AArch32::Emit_Prolog(unsigned int stackSize, uint16 registerSave)
 	m_assembler.Sub(CAArch32Assembler::rSP, CAArch32Assembler::rSP, CAArch32Assembler::MakeImmediateAluOperand(0xC, 0));
 	m_assembler.Stmdb(CAArch32Assembler::rSP, (1 << CAArch32Assembler::r0));
 
-	if(stackSize != 0)
+	if(m_stackSize != 0)
 	{
 		uint8 allocImm = 0, allocSa = 0;
-		bool succeeded = TryGetAluImmediateParams(stackSize, allocImm, allocSa);
+		bool succeeded = TryGetAluImmediateParams(m_stackSize, allocImm, allocSa);
 		if(succeeded)
 		{
 			m_assembler.Sub(CAArch32Assembler::rSP, CAArch32Assembler::rSP, CAArch32Assembler::MakeImmediateAluOperand(allocImm, allocSa));
@@ -371,37 +374,40 @@ void CCodeGen_AArch32::Emit_Prolog(unsigned int stackSize, uint16 registerSave)
 		else
 		{
 			auto stackResReg = CAArch32Assembler::r0;
-			LoadConstantInRegister(stackResReg, stackSize);
+			LoadConstantInRegister(stackResReg, m_stackSize);
 			m_assembler.Sub(CAArch32Assembler::rSP, CAArch32Assembler::rSP, stackResReg);
 		}
 	}
 	m_stackLevel = 0;
 }
 
-void CCodeGen_AArch32::Emit_Epilog(unsigned int stackSize, uint16 registerSave)
+void CCodeGen_AArch32::Emit_Epilog()
 {
-	if(stackSize != 0)
+	//Since Emit_Epilog can be called by Emit_ExternJmp, we need to be
+	//extra careful not to write to r0, since it's used to save and
+	//transmit the function's parameter (r11) to the target
+	static const auto stackTempRegister = CAArch32Assembler::r3;
+
+	if(m_stackSize != 0)
 	{
 		uint8 allocImm = 0, allocSa = 0;
-		bool succeeded = TryGetAluImmediateParams(stackSize, allocImm, allocSa);
+		bool succeeded = TryGetAluImmediateParams(m_stackSize, allocImm, allocSa);
 		if(succeeded)
 		{
 			m_assembler.Add(CAArch32Assembler::rSP, CAArch32Assembler::rSP, CAArch32Assembler::MakeImmediateAluOperand(allocImm, allocSa));
 		}
 		else
 		{
-			auto stackResReg = CAArch32Assembler::r0;
-			LoadConstantInRegister(stackResReg, stackSize);
-			m_assembler.Add(CAArch32Assembler::rSP, CAArch32Assembler::rSP, stackResReg);
+			LoadConstantInRegister(stackTempRegister, m_stackSize);
+			m_assembler.Add(CAArch32Assembler::rSP, CAArch32Assembler::rSP, stackTempRegister);
 		}
 	}
 
 	//Restore previous unaligned SP
-	m_assembler.Ldmia(CAArch32Assembler::rSP, (1 << CAArch32Assembler::r0));
-	m_assembler.Mov(CAArch32Assembler::rSP, CAArch32Assembler::r0);
+	m_assembler.Ldmia(CAArch32Assembler::rSP, (1 << stackTempRegister));
+	m_assembler.Mov(CAArch32Assembler::rSP, stackTempRegister);
 
-	m_assembler.Ldmia(CAArch32Assembler::rSP, registerSave);
-	m_assembler.Bx(CAArch32Assembler::rLR);
+	m_assembler.Ldmia(CAArch32Assembler::rSP, m_registerSave);
 }
 
 uint32 CCodeGen_AArch32::RotateRight(uint32 value)
@@ -487,7 +493,7 @@ void CCodeGen_AArch32::LoadConstantPtrInRegister(CAArch32Assembler::REGISTER reg
 	if(m_externalSymbolReferencedHandler)
 	{
 		auto position = m_stream->GetLength();
-		m_externalSymbolReferencedHandler(constant, position - 8);
+		m_externalSymbolReferencedHandler(constant, position - 8, CCodeGen::SYMBOL_REF_TYPE::ARMV7_LOAD_HALF);
 	}
 }
 
@@ -924,6 +930,26 @@ void CCodeGen_AArch32::Emit_RetVal_Mem64(const STATEMENT& statement)
 	auto dst = statement.dst->GetSymbol().get();
 
 	StoreRegistersInMemory64(dst, CAArch32Assembler::r0, CAArch32Assembler::r1);
+}
+
+void CCodeGen_AArch32::Emit_ExternJmp(const STATEMENT& statement)
+{
+	auto src1 = statement.src1->GetSymbol().get();
+
+	assert(src1->m_type == SYM_CONSTANTPTR);
+
+	m_assembler.Mov(CAArch32Assembler::r0, g_baseRegister);
+	Emit_Epilog();
+
+	m_assembler.Ldr_Pc(CAArch32Assembler::rPC, -4);
+
+	//Write target function address
+	if(m_externalSymbolReferencedHandler)
+	{
+		auto position = m_stream->GetLength();
+		m_externalSymbolReferencedHandler(src1->GetConstantPtr(), position, CCodeGen::SYMBOL_REF_TYPE::NATIVE_POINTER);
+	}
+	m_stream->Write32(src1->GetConstantPtr());
 }
 
 void CCodeGen_AArch32::Emit_Mov_RegReg(const STATEMENT& statement)

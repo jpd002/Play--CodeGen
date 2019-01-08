@@ -224,6 +224,13 @@ void CAArch64Assembler::Bl(uint32 offset)
 	WriteWord(opcode);
 }
 
+void CAArch64Assembler::Br(REGISTER64 rn)
+{
+	uint32 opcode = 0xD61F0000;
+	opcode |= (rn << 5);
+	WriteWord(opcode);
+}
+
 void CAArch64Assembler::BCc(CONDITION condition, LABEL label)
 {
 	CreateBranchLabelReference(label, condition);
@@ -647,6 +654,17 @@ void CAArch64Assembler::Ldr(REGISTER64 rt, REGISTER64 rn, uint32 offset)
 	uint32 scaledOffset = offset / 8;
 	assert(scaledOffset < 0x1000);
 	WriteLoadStoreOpImm(0xF9400000, scaledOffset, rn, rt);
+}
+
+void CAArch64Assembler::Ldr_Pc(REGISTER64 rt, uint32 offset)
+{
+	assert((offset & 0x03) == 0);
+	uint32 scaledOffset = offset / 4;
+	assert(scaledOffset < 0x40000);
+	uint32 opcode = 0x58000000;
+	opcode |= (rt <<  0);
+	opcode |= scaledOffset << 5;
+	WriteWord(opcode);
 }
 
 void CAArch64Assembler::Ldr_1s(REGISTERMD rt, REGISTER64 rn, uint32 offset)
@@ -1116,6 +1134,15 @@ void CAArch64Assembler::Tst(REGISTER32 rn, REGISTER32 rm)
 	WriteWord(opcode);
 }
 
+void CAArch64Assembler::Tst(REGISTER64 rn, REGISTER64 rm)
+{
+	uint32 opcode = 0xEA000000;
+	opcode |= (wZR << 0);
+	opcode |= (rn <<  5);
+	opcode |= (rm << 16);
+	WriteWord(opcode);
+}
+
 void CAArch64Assembler::Udiv(REGISTER32 rd, REGISTER32 rn, REGISTER32 rm)
 {
 	uint32 opcode = 0x1AC00800;
@@ -1167,6 +1194,15 @@ void CAArch64Assembler::Uqadd_8h(REGISTERMD rd, REGISTERMD rn, REGISTERMD rm)
 void CAArch64Assembler::Uqadd_16b(REGISTERMD rd, REGISTERMD rn, REGISTERMD rm)
 {
 	uint32 opcode = 0x6E200C00;
+	opcode |= (rd  <<  0);
+	opcode |= (rn  <<  5);
+	opcode |= (rm  << 16);
+	WriteWord(opcode);
+}
+
+void CAArch64Assembler::Uqsub_4s(REGISTERMD rd, REGISTERMD rn, REGISTERMD rm)
+{
+	uint32 opcode = 0x6EA02C00;
 	opcode |= (rd  <<  0);
 	opcode |= (rn  <<  5);
 	opcode |= (rm  << 16);

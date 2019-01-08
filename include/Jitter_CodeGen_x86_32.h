@@ -9,7 +9,7 @@ namespace Jitter
 	{
 	public:
 											CCodeGen_x86_32();
-		virtual								~CCodeGen_x86_32();
+		virtual								~CCodeGen_x86_32() = default;
 
 		void								SetImplicitRetValueParamFixUpRequired(bool);
 		
@@ -24,8 +24,8 @@ namespace Jitter
 			SHIFTRIGHT_ARITHMETIC
 		};
 
-		virtual void						Emit_Prolog(const StatementList&, unsigned int, uint32) override;
-		virtual void						Emit_Epilog(unsigned int, uint32) override;
+		virtual void						Emit_Prolog(const StatementList&, unsigned int) override;
+		virtual void						Emit_Epilog() override;
 
 		//PARAM
 		void								Emit_Param_Ctx(const STATEMENT&);
@@ -47,6 +47,9 @@ namespace Jitter
 		void								Emit_RetVal_Tmp(const STATEMENT&);
 		void								Emit_RetVal_Reg(const STATEMENT&);
 		void								Emit_RetVal_Mem64(const STATEMENT&);
+
+		//EXTERNJMP
+		void								Emit_ExternJmp(const STATEMENT&);
 
 		//MOV
 		void								Emit_Mov_Mem64Mem64(const STATEMENT&);

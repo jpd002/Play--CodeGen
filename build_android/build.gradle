@@ -4,17 +4,17 @@ buildscript {
 	repositories {
 		mavenCentral()
 		jcenter()
+		google()
 	}
 	
 	dependencies {
-		classpath 'com.android.tools.build:gradle:2.2.3'
+		classpath 'com.android.tools.build:gradle:3.1.3'
 	}
 }
 
 android {
 	compileSdkVersion 'android-24'
-	buildToolsVersion '24.0.3'
-	
+
 	defaultConfig {
 		minSdkVersion 19
 		targetSdkVersion 24
@@ -52,4 +52,5 @@ android {
 			path '../build_cmake/CMakeLists.txt'
 		}
 	}
+	buildToolsVersion '27.0.3'
 }

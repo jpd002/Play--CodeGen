@@ -30,6 +30,7 @@
 #include "CompareTest.h"
 #include "RegAllocTest.h"
 #include "MemAccessTest.h"
+#include "MemAccessRefTest.h"
 #include "HugeJumpTest.h"
 #include "Alu64Test.h"
 #include "ConditionTest.h"
@@ -38,8 +39,10 @@
 #include "Logic64Test.h"
 #include "Call64Test.h"
 #include "Merge64Test.h"
+#include "MemAccess64Test.h"
 #include "LzcTest.h"
 #include "NestedIfTest.h"
+#include "ExternJumpTest.h"
 
 typedef std::function<CTest* ()> TestFactoryFunction;
 
@@ -72,6 +75,7 @@ static const TestFactoryFunction s_factories[] =
 	[] () { return new CDivTest(true); },
 	[] () { return new CDivTest(false); },
 	[] () { return new CMemAccessTest(); },
+	[] () { return new CMemAccessRefTest(); },
 	[] () { return new CHugeJumpTest(); },
 	[] () { return new CNestedIfTest(); },
 	[] () { return new CLzcTest(); },
@@ -147,7 +151,9 @@ static const TestFactoryFunction s_factories[] =
 	[] () { return new CShift64Test(64); },
 	[] () { return new CShift64Test(76); },
 	[] () { return new CMerge64Test(); },
+	[] () { return new CMemAccess64Test(); },
 	[] () { return new CCall64Test(); },
+	[] () { return new CExternJumpTest(); }
 };
 
 int main(int argc, const char** argv)

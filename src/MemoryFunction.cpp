@@ -46,7 +46,11 @@ CMemoryFunction::CMemoryFunction(const void* code, size_t size)
 	vm_allocate(mach_task_self(), reinterpret_cast<vm_address_t*>(&m_code), allocSize, TRUE); 
 	memcpy(m_code, code, size);
 	sys_icache_invalidate(m_code, size);
+#if TARGET_OS_IPHONE
 	kern_return_t result = vm_protect(mach_task_self(), reinterpret_cast<vm_address_t>(m_code), size, 0, VM_PROT_READ | VM_PROT_EXECUTE);
+#else
+	kern_return_t result = vm_protect(mach_task_self(), reinterpret_cast<vm_address_t>(m_code), size, 0, VM_PROT_READ | VM_PROT_WRITE | VM_PROT_EXECUTE);
+#endif
 	assert(result == 0);
 	m_size = allocSize;
 #elif defined(__ANDROID__) || defined(__linux__) || defined(__FreeBSD__)
@@ -109,4 +113,29 @@ void* CMemoryFunction::GetCode() const
 size_t CMemoryFunction::GetSize() const
 {
 	return m_size;
+}
+
+void CMemoryFunction::BeginModify()
+{
+#if defined(__APPLE__)
+#if TARGET_OS_IPHONE
+	kern_return_t result = vm_protect(mach_task_self(), reinterpret_cast<vm_address_t>(m_code), m_size, 0, VM_PROT_READ | VM_PROT_WRITE);
+	assert(result == 0);
+#endif
+#endif
+}
+
+void CMemoryFunction::EndModify()
+{
+#if defined(__APPLE__)
+	sys_icache_invalidate(m_code, m_size);
+#if TARGET_OS_IPHONE
+	kern_return_t result = vm_protect(mach_task_self(), reinterpret_cast<vm_address_t>(m_code), m_size, 0, VM_PROT_READ | VM_PROT_EXECUTE);
+	assert(result == 0);
+#endif
+#elif defined(__ANDROID__) || defined(__linux__) || defined(__FreeBSD__)
+#if defined(__arm__) || defined(__aarch64__)
+	__clear_cache(m_code, reinterpret_cast<uint8*>(m_code) + m_size);
+#endif
+#endif
 }

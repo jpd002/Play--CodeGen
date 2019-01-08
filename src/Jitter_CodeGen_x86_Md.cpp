@@ -462,6 +462,8 @@ void CCodeGen_x86::Emit_Md_AddUSW_VarVarVar(const STATEMENT& statement)
 	m_assembler.PadddVo(resRegister, MakeVariable128SymbolAddress(src2));
 	
 	//-(res < x)
+	//PCMPGT will compare two signed integers, but we want unsigned comparison
+	//Thus, we add 0x80000000 to both values to "convert" them to signed
 	m_assembler.PcmpeqdVo(tmpRegister, CX86Assembler::MakeXmmRegisterAddress(tmpRegister));
 	m_assembler.PslldVo(tmpRegister, 31);
 	m_assembler.PadddVo(tmpRegister, CX86Assembler::MakeXmmRegisterAddress(resRegister));
@@ -474,6 +476,54 @@ void CCodeGen_x86::Emit_Md_AddUSW_VarVarVar(const STATEMENT& statement)
 
 	//res |= -(res < x)
 	m_assembler.PorVo(resRegister, CX86Assembler::MakeXmmRegisterAddress(tmp2Register));
+
+	//Store result
+	m_assembler.MovdqaVo(MakeVariable128SymbolAddress(dst), resRegister);
+}
+
+void CCodeGen_x86::Emit_Md_SubUSW_VarVarVar(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	auto xRegister = CX86Assembler::xMM0;
+	auto resRegister = CX86Assembler::xMM1;
+	auto tmpRegister = CX86Assembler::xMM2;
+	auto tmp2Register = CX86Assembler::xMM3;
+
+//	This is based on code from http://locklessinc.com/articles/sat_arithmetic/
+//	u32b sat_subu32b(u32b x, u32b y)
+//	{
+//		u32b res = x - y;
+//		res &= -(res <= x);
+//	
+//		return res;
+//	}
+
+	m_assembler.MovdqaVo(xRegister, MakeVariable128SymbolAddress(src1));
+	m_assembler.MovdqaVo(resRegister, CX86Assembler::MakeXmmRegisterAddress(xRegister));
+	m_assembler.PsubdVo(resRegister, MakeVariable128SymbolAddress(src2));
+
+	//-(res <= x)
+	//PCMPGT will compare two signed integers, but we want unsigned comparison
+	//Thus, we add 0x80000000 to both values to "convert" them to signed
+	m_assembler.PcmpeqdVo(tmpRegister, CX86Assembler::MakeXmmRegisterAddress(tmpRegister));
+	m_assembler.PslldVo(tmpRegister, 31);
+	m_assembler.PadddVo(tmpRegister, CX86Assembler::MakeXmmRegisterAddress(resRegister));
+
+	m_assembler.PcmpeqdVo(tmp2Register, CX86Assembler::MakeXmmRegisterAddress(tmp2Register));
+	m_assembler.PslldVo(tmp2Register, 31);
+	m_assembler.PadddVo(tmp2Register, CX86Assembler::MakeXmmRegisterAddress(xRegister));
+
+	m_assembler.MovdqaVo(xRegister, CX86Assembler::MakeXmmRegisterAddress(tmp2Register));
+
+	m_assembler.PcmpeqdVo(xRegister, CX86Assembler::MakeXmmRegisterAddress(tmpRegister));
+	m_assembler.PcmpgtdVo(tmp2Register, CX86Assembler::MakeXmmRegisterAddress(tmpRegister));
+	m_assembler.PorVo(tmp2Register, CX86Assembler::MakeXmmRegisterAddress(xRegister));
+
+	//res &= -(res <= x);
+	m_assembler.PandVo(resRegister, CX86Assembler::MakeXmmRegisterAddress(tmp2Register));
 
 	//Store result
 	m_assembler.MovdqaVo(MakeVariable128SymbolAddress(dst), resRegister);
@@ -586,8 +636,8 @@ void CCodeGen_x86::Emit_Md_MovMasked_VarVarVar(const STATEMENT& statement)
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
 	auto src2 = statement.src2->GetSymbol().get();
-
 	uint8 mask = static_cast<uint8>(statement.jmpCondition);
+	
 	auto mask0Register = CX86Assembler::xMM0;
 	auto mask1Register = CX86Assembler::xMM1;
 
@@ -619,6 +669,29 @@ void CCodeGen_x86::Emit_Md_MovMasked_VarVarVar(const STATEMENT& statement)
 	m_assembler.PorVo(mask0Register, CX86Assembler::MakeXmmRegisterAddress(mask1Register));
 
 	m_assembler.MovdqaVo(MakeVariable128SymbolAddress(dst), mask0Register);
+}
+
+void CCodeGen_x86::Emit_Md_MovMasked_Sse41_VarVarVar(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+	uint8 mask = static_cast<uint8>(statement.jmpCondition);
+	
+	//This could be improved if src1 and src2 are different
+	assert(dst->Equals(src1));
+
+	if(dst->IsRegister() && dst->Equals(src1))
+	{
+		m_assembler.BlendpsVo(m_mdRegisters[dst->m_valueLow], MakeVariable128SymbolAddress(src2), mask);
+	}
+	else
+	{
+		auto tempRegister = CX86Assembler::xMM0;
+		m_assembler.MovapsVo(tempRegister, MakeVariable128SymbolAddress(src1));
+		m_assembler.BlendpsVo(tempRegister, MakeVariable128SymbolAddress(src2), mask);
+		m_assembler.MovapsVo(MakeVariable128SymbolAddress(dst), tempRegister);
+	}
 }
 
 void CCodeGen_x86::Emit_Md_Mov_RegVar(const STATEMENT& statement)
@@ -672,6 +745,59 @@ void CCodeGen_x86::Emit_Md_Not(CX86Assembler::XMMREGISTER dstRegister)
 void CCodeGen_x86::Emit_Md_IsNegative(CX86Assembler::REGISTER dstRegister, const CX86Assembler::CAddress& srcAddress)
 {
 	auto valueRegister = CX86Assembler::xMM0;
+	auto tmpFlagRegister = CX86Assembler::rDX;
+	assert(dstRegister != tmpFlagRegister);
+
+	//valueRegister = [srcAddress]
+	m_assembler.MovapsVo(valueRegister, srcAddress);
+
+	//----- Generate isNegative
+	//valueRegister >>= 31 (s-extended)
+	m_assembler.PsradVo(valueRegister, 31);
+
+	//Extract bits
+	m_assembler.PmovmskbVo(tmpFlagRegister, valueRegister);
+	
+	//Generate bit field
+	m_assembler.XorEd(dstRegister, CX86Assembler::MakeRegisterAddress(dstRegister));
+	for(unsigned int i = 0; i < 4; i++)
+	{
+		m_assembler.ShrEd(CX86Assembler::MakeRegisterAddress(tmpFlagRegister), 4);
+		m_assembler.RclEd(CX86Assembler::MakeRegisterAddress(dstRegister), 1);
+	}
+}
+
+void CCodeGen_x86::Emit_Md_IsZero(CX86Assembler::REGISTER dstRegister, const CX86Assembler::CAddress& srcAddress)
+{
+	auto valueRegister = CX86Assembler::xMM0;
+	auto zeroRegister = CX86Assembler::xMM1;
+	auto tmpFlagRegister = CX86Assembler::rDX;
+	assert(dstRegister != tmpFlagRegister);
+
+	//Get value - And with 0x7FFFFFFF to remove sign bit
+	m_assembler.PcmpeqdVo(valueRegister, CX86Assembler::MakeXmmRegisterAddress(valueRegister));
+	m_assembler.PsrldVo(valueRegister, 1);
+	m_assembler.PandVo(valueRegister, srcAddress);
+
+	//Generate zero and compare
+	m_assembler.PandnVo(zeroRegister, CX86Assembler::MakeXmmRegisterAddress(zeroRegister));
+	m_assembler.PcmpeqdVo(valueRegister, CX86Assembler::MakeXmmRegisterAddress(zeroRegister));
+
+	//Extract bits
+	m_assembler.PmovmskbVo(tmpFlagRegister, valueRegister);
+	
+	//Generate bit field
+	m_assembler.XorEd(dstRegister, CX86Assembler::MakeRegisterAddress(dstRegister));
+	for(unsigned int i = 0; i < 4; i++)
+	{
+		m_assembler.ShrEd(CX86Assembler::MakeRegisterAddress(tmpFlagRegister), 4);
+		m_assembler.RclEd(CX86Assembler::MakeRegisterAddress(dstRegister), 1);
+	}
+}
+
+void CCodeGen_x86::Emit_Md_IsNegative_Ssse3(CX86Assembler::REGISTER dstRegister, const CX86Assembler::CAddress& srcAddress)
+{
+	auto valueRegister = CX86Assembler::xMM0;
 	auto shuffleSelectRegister = CX86Assembler::xMM3;
 	auto tmpFlagRegister = CX86Assembler::rDX;
 
@@ -692,7 +818,7 @@ void CCodeGen_x86::Emit_Md_IsNegative(CX86Assembler::REGISTER dstRegister, const
 	m_assembler.AndId(CX86Assembler::MakeRegisterAddress(dstRegister), 0x0F);
 }
 
-void CCodeGen_x86::Emit_Md_IsZero(CX86Assembler::REGISTER dstRegister, const CX86Assembler::CAddress& srcAddress)
+void CCodeGen_x86::Emit_Md_IsZero_Ssse3(CX86Assembler::REGISTER dstRegister, const CX86Assembler::CAddress& srcAddress)
 {
 	auto valueRegister = CX86Assembler::xMM0;
 	auto zeroRegister = CX86Assembler::xMM1;
@@ -898,6 +1024,7 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdConstMatchers[] =
 
 	MD_CONST_MATCHERS_3OPS(OP_MD_SUBUS_B,	MDOP_SUBUSB)
 	MD_CONST_MATCHERS_3OPS(OP_MD_SUBUS_H,	MDOP_SUBUSH)
+	{ OP_MD_SUBUS_W,			MATCH_VARIABLE128,			MATCH_VARIABLE128,			MATCH_VARIABLE128,		&CCodeGen_x86::Emit_Md_SubUSW_VarVarVar						},
 
 	MD_CONST_MATCHERS_3OPS(OP_MD_CMPEQ_B,	MDOP_CMPEQB)
 	MD_CONST_MATCHERS_3OPS(OP_MD_CMPEQ_H,	MDOP_CMPEQH)
@@ -954,19 +1081,12 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdConstMatchers[] =
 	MD_CONST_MATCHERS_SINGLEOP(OP_MD_ABS_S,	MDOP_ABS)
 	MD_CONST_MATCHERS_SINGLEOP(OP_MD_NOT,	MDOP_NOT)
 
-	{ OP_MD_ISNEGATIVE,			MATCH_REGISTER,				MATCH_VARIABLE128,			MATCH_NIL,				&CCodeGen_x86::Emit_Md_GetFlag_RegVar<MDOP_ISNEGATIVE>		},
-	{ OP_MD_ISNEGATIVE,			MATCH_MEMORY,				MATCH_VARIABLE128,			MATCH_NIL,				&CCodeGen_x86::Emit_Md_GetFlag_MemVar<MDOP_ISNEGATIVE>		},
-
-	{ OP_MD_ISZERO,				MATCH_REGISTER,				MATCH_VARIABLE128,			MATCH_NIL,				&CCodeGen_x86::Emit_Md_GetFlag_RegVar<MDOP_ISZERO>			},
-	{ OP_MD_ISZERO,				MATCH_MEMORY,				MATCH_VARIABLE128,			MATCH_NIL,				&CCodeGen_x86::Emit_Md_GetFlag_MemVar<MDOP_ISZERO>			},
-
 	MD_CONST_MATCHERS_2OPS(OP_MD_TOWORD_TRUNCATE,	MDOP_TOWORD_TRUNCATE)
 	MD_CONST_MATCHERS_2OPS(OP_MD_TOSINGLE,			MDOP_TOSINGLE)
 
 	{ OP_MOV,					MATCH_REGISTER128,			MATCH_VARIABLE128,			MATCH_NIL,				&CCodeGen_x86::Emit_Md_Mov_RegVar,							},
 	{ OP_MOV,					MATCH_MEMORY128,			MATCH_REGISTER128,			MATCH_NIL,				&CCodeGen_x86::Emit_Md_Mov_MemReg							},
 	{ OP_MOV,					MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_NIL,				&CCodeGen_x86::Emit_Md_Mov_MemMem							},
-	{ OP_MD_MOV_MASKED,			MATCH_VARIABLE128,			MATCH_VARIABLE128,			MATCH_VARIABLE128,		&CCodeGen_x86::Emit_Md_MovMasked_VarVarVar					},
 
 	{ OP_MERGETO256,			MATCH_MEMORY256,			MATCH_VARIABLE128,			MATCH_VARIABLE128,		&CCodeGen_x86::Emit_MergeTo256_MemVarVar					},
 
@@ -985,6 +1105,42 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdMinMaxWSse41ConstMatchers[] =
 {
 	MD_CONST_MATCHERS_3OPS(OP_MD_MIN_W,		MDOP_MINW)
 	MD_CONST_MATCHERS_3OPS(OP_MD_MAX_W,		MDOP_MAXW)
+
+	{ OP_MOV, MATCH_NIL, MATCH_NIL, MATCH_NIL, nullptr },
+};
+
+CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdMovMaskedConstMatchers[] =
+{
+	{ OP_MD_MOV_MASKED, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_VARIABLE128, &CCodeGen_x86::Emit_Md_MovMasked_VarVarVar },
+
+	{ OP_MOV, MATCH_NIL, MATCH_NIL, MATCH_NIL, nullptr },
+};
+
+CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdMovMaskedSse41ConstMatchers[] =
+{
+	{ OP_MD_MOV_MASKED, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_VARIABLE128, &CCodeGen_x86::Emit_Md_MovMasked_Sse41_VarVarVar },
+
+	{ OP_MOV, MATCH_NIL, MATCH_NIL, MATCH_NIL, nullptr },
+};
+
+CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdFpFlagConstMatchers[] =
+{
+	{ OP_MD_ISNEGATIVE, MATCH_REGISTER, MATCH_VARIABLE128, MATCH_NIL, &CCodeGen_x86::Emit_Md_GetFlag_RegVar<MDOP_ISNEGATIVE> },
+	{ OP_MD_ISNEGATIVE, MATCH_MEMORY,   MATCH_VARIABLE128, MATCH_NIL, &CCodeGen_x86::Emit_Md_GetFlag_MemVar<MDOP_ISNEGATIVE> },
+
+	{ OP_MD_ISZERO,     MATCH_REGISTER, MATCH_VARIABLE128, MATCH_NIL, &CCodeGen_x86::Emit_Md_GetFlag_RegVar<MDOP_ISZERO>     },
+	{ OP_MD_ISZERO,     MATCH_MEMORY,   MATCH_VARIABLE128, MATCH_NIL, &CCodeGen_x86::Emit_Md_GetFlag_MemVar<MDOP_ISZERO>     },
+
+	{ OP_MOV, MATCH_NIL, MATCH_NIL, MATCH_NIL, nullptr },
+};
+
+CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdFpFlagSsse3ConstMatchers[] =
+{
+	{ OP_MD_ISNEGATIVE, MATCH_REGISTER, MATCH_VARIABLE128, MATCH_NIL, &CCodeGen_x86::Emit_Md_GetFlag_RegVar<MDOP_ISNEGATIVE_SSSE3> },
+	{ OP_MD_ISNEGATIVE, MATCH_MEMORY,   MATCH_VARIABLE128, MATCH_NIL, &CCodeGen_x86::Emit_Md_GetFlag_MemVar<MDOP_ISNEGATIVE_SSSE3> },
+
+	{ OP_MD_ISZERO,     MATCH_REGISTER, MATCH_VARIABLE128, MATCH_NIL, &CCodeGen_x86::Emit_Md_GetFlag_RegVar<MDOP_ISZERO_SSSE3>     },
+	{ OP_MD_ISZERO,     MATCH_MEMORY,   MATCH_VARIABLE128, MATCH_NIL, &CCodeGen_x86::Emit_Md_GetFlag_MemVar<MDOP_ISZERO_SSSE3>     },
 
 	{ OP_MOV, MATCH_NIL, MATCH_NIL, MATCH_NIL, nullptr },
 };

@@ -283,9 +283,12 @@ CCodeGen_AArch64::CONSTMATCHER CCodeGen_AArch64::g_constMatchers[] =
 
 	{ OP_ADDREF,         MATCH_TMP_REF,        MATCH_MEM_REF,        MATCH_ANY,           &CCodeGen_AArch64::Emit_AddRef_TmpMemAny                    },
 
-	{ OP_LOADFROMREF,    MATCH_VARIABLE,       MATCH_MEM_REF,        MATCH_NIL,           &CCodeGen_AArch64::Emit_LoadFromRef_VarMem                  },
+	{ OP_ISREFNULL,      MATCH_VARIABLE,       MATCH_MEM_REF,        MATCH_ANY,           &CCodeGen_AArch64::Emit_IsRefNull_VarMem                    },
 
-	//Cannot use MATCH_ANY here because it will match SYM_RELATIVE128
+	{ OP_LOADFROMREF,    MATCH_VARIABLE,       MATCH_MEM_REF,        MATCH_NIL,           &CCodeGen_AArch64::Emit_LoadFromRef_VarMem                  },
+	{ OP_LOADFROMREF,    MATCH_TMP_REF,        MATCH_MEM_REF,        MATCH_NIL,           &CCodeGen_AArch64::Emit_LoadFromRef_Ref_TmpMem              },
+
+	//Cannot use MATCH_ANY here because it will match non 32-bits symbols
 	{ OP_STOREATREF,     MATCH_NIL,            MATCH_MEM_REF,        MATCH_VARIABLE,      &CCodeGen_AArch64::Emit_StoreAtRef_MemAny                   },
 	{ OP_STOREATREF,     MATCH_NIL,            MATCH_MEM_REF,        MATCH_CONSTANT,      &CCodeGen_AArch64::Emit_StoreAtRef_MemAny                   },
 	
@@ -306,6 +309,8 @@ CCodeGen_AArch64::CONSTMATCHER CCodeGen_AArch64::g_constMatchers[] =
 	{ OP_RETVAL,         MATCH_REGISTER128,    MATCH_NIL,            MATCH_NIL,           &CCodeGen_AArch64::Emit_RetVal_Reg128                       },
 	{ OP_RETVAL,         MATCH_MEMORY128,      MATCH_NIL,            MATCH_NIL,           &CCodeGen_AArch64::Emit_RetVal_Mem128                       },
 	
+	{ OP_EXTERNJMP,      MATCH_NIL,            MATCH_CONSTANTPTR,    MATCH_NIL,           &CCodeGen_AArch64::Emit_ExternJmp                           },
+
 	{ OP_JMP,            MATCH_NIL,            MATCH_NIL,            MATCH_NIL,           &CCodeGen_AArch64::Emit_Jmp                                 },
 	
 	{ OP_CONDJMP,        MATCH_NIL,            MATCH_ANY,            MATCH_VARIABLE,      &CCodeGen_AArch64::Emit_CondJmp_AnyVar                      },
@@ -409,9 +414,9 @@ void CCodeGen_AArch64::GenerateCode(const StatementList& statements, unsigned in
 	//Align stack size (must be aligned on 16 bytes boundary)
 	stackSize = (stackSize + 0xF) & ~0xF;
 
-	uint16 registerSave = GetSavedRegisterList(GetRegisterUsage(statements));
+	m_registerSave = GetSavedRegisterList(GetRegisterUsage(statements));
 
-	Emit_Prolog(statements, stackSize, registerSave);
+	Emit_Prolog(statements, stackSize);
 
 	for(const auto& statement : statements)
 	{
@@ -436,7 +441,8 @@ void CCodeGen_AArch64::GenerateCode(const StatementList& statements, unsigned in
 		}
 	}
 	
-	Emit_Epilog(stackSize, registerSave);
+	Emit_Epilog();
+	m_assembler.Ret();
 
 	m_assembler.ResolveLabelReferences();
 	m_assembler.ClearLabels();
@@ -804,14 +810,14 @@ uint16 CCodeGen_AArch64::GetSavedRegisterList(uint32 registerUsage)
 	return registerSave;
 }
 
-void CCodeGen_AArch64::Emit_Prolog(const StatementList& statements, uint32 stackSize, uint16 registerSave)
+void CCodeGen_AArch64::Emit_Prolog(const StatementList& statements, uint32 stackSize)
 {
 	uint32 maxParamSpillSize = GetMaxParamSpillSize(statements);
 	m_assembler.Stp_PreIdx(CAArch64Assembler::x29, CAArch64Assembler::x30, CAArch64Assembler::xSP, -16);
 	//Preserve saved registers
 	for(uint32 i = 0; i < 16; i++)
 	{
-		if(registerSave & (1 << i))
+		if(m_registerSave & (1 << i))
 		{
 			auto reg0 = static_cast<CAArch64Assembler::REGISTER64>((i * 2) + 0);
 			auto reg1 = static_cast<CAArch64Assembler::REGISTER64>((i * 2) + 1);
@@ -828,13 +834,13 @@ void CCodeGen_AArch64::Emit_Prolog(const StatementList& statements, uint32 stack
 	m_assembler.Mov(g_baseRegister, CAArch64Assembler::x0);
 }
 
-void CCodeGen_AArch64::Emit_Epilog(uint32 stackSize, uint16 registerSave)
+void CCodeGen_AArch64::Emit_Epilog()
 {
 	m_assembler.Mov_Sp(CAArch64Assembler::xSP, CAArch64Assembler::x29);
 	//Restore saved registers
 	for(int32 i = 15; i >= 0; i--)
 	{
-		if(registerSave & (1 << i))
+		if(m_registerSave & (1 << i))
 		{
 			auto reg0 = static_cast<CAArch64Assembler::REGISTER64>((i * 2) + 0);
 			auto reg1 = static_cast<CAArch64Assembler::REGISTER64>((i * 2) + 1);
@@ -842,7 +848,6 @@ void CCodeGen_AArch64::Emit_Epilog(uint32 stackSize, uint16 registerSave)
 		}
 	}
 	m_assembler.Ldp_PostIdx(CAArch64Assembler::x29, CAArch64Assembler::x30, CAArch64Assembler::xSP, 16);
-	m_assembler.Ret();
 }
 
 CAArch64Assembler::LABEL CCodeGen_AArch64::GetLabel(uint32 blockId)
@@ -1016,6 +1021,21 @@ void CCodeGen_AArch64::Emit_AddRef_TmpMemAny(const STATEMENT& statement)
 	StoreRegisterInTemporaryReference(dst, tmpReg);
 }
 
+void CCodeGen_AArch64::Emit_IsRefNull_VarMem(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+
+	auto addressReg = GetNextTempRegister64();
+	auto dstReg = PrepareSymbolRegisterDef(dst, GetNextTempRegister());
+
+	LoadMemoryReferenceInRegister(addressReg, src1);
+	m_assembler.Tst(addressReg, addressReg);
+	m_assembler.Cset(dstReg, CAArch64Assembler::CONDITION_EQ);
+
+	CommitSymbolRegister(dst, dstReg);
+}
+
 void CCodeGen_AArch64::Emit_LoadFromRef_VarMem(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
@@ -1028,6 +1048,20 @@ void CCodeGen_AArch64::Emit_LoadFromRef_VarMem(const STATEMENT& statement)
 	m_assembler.Ldr(dstReg, addressReg, 0);
 
 	CommitSymbolRegister(dst, dstReg);
+}
+
+void CCodeGen_AArch64::Emit_LoadFromRef_Ref_TmpMem(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+
+	auto addressReg = GetNextTempRegister64();
+	auto dstReg = GetNextTempRegister64();
+
+	LoadMemoryReferenceInRegister(addressReg, src1);
+	m_assembler.Ldr(dstReg, addressReg, 0);
+
+	StoreRegisterInTemporaryReference(dst, dstReg);
 }
 
 void CCodeGen_AArch64::Emit_StoreAtRef_MemAny(const STATEMENT& statement)
@@ -1186,7 +1220,7 @@ void CCodeGen_AArch64::Emit_Call(const STATEMENT& statement)
 		if(m_externalSymbolReferencedHandler)
 		{
 			auto position = m_stream->GetLength();
-			m_externalSymbolReferencedHandler(src1->GetConstantPtr(), position);
+			m_externalSymbolReferencedHandler(src1->GetConstantPtr(), position, CCodeGen::SYMBOL_REF_TYPE::ARMV8_PCRELATIVE);
 		}
 		m_assembler.Bl(0);
 	}
@@ -1235,6 +1269,27 @@ void CCodeGen_AArch64::Emit_RetVal_Mem128(const STATEMENT& statement)
 	LoadMemory128AddressInRegister(dstAddrReg, dst);
 	m_assembler.Str(CAArch64Assembler::x0, dstAddrReg, 0);
 	m_assembler.Str(CAArch64Assembler::x1, dstAddrReg, 8);
+}
+
+void CCodeGen_AArch64::Emit_ExternJmp(const STATEMENT& statement)
+{
+	auto src1 = statement.src1->GetSymbol().get();
+
+	assert(src1->m_type == SYM_CONSTANTPTR);
+
+	m_assembler.Mov(g_paramRegisters64[0], g_baseRegister);
+	Emit_Epilog();
+	auto fctAddressReg = GetNextTempRegister64();
+	m_assembler.Ldr_Pc(fctAddressReg, 8);
+	m_assembler.Br(fctAddressReg);
+
+	//Write target function address
+	if(m_externalSymbolReferencedHandler)
+	{
+		auto position = m_stream->GetLength();
+		m_externalSymbolReferencedHandler(src1->GetConstantPtr(), position, CCodeGen::SYMBOL_REF_TYPE::NATIVE_POINTER);
+	}
+	m_stream->Write64(src1->GetConstantPtr());
 }
 
 void CCodeGen_AArch64::Emit_Jmp(const STATEMENT& statement)

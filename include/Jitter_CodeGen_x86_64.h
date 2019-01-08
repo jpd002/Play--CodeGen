@@ -15,7 +15,7 @@ namespace Jitter
 		};
 		
 											CCodeGen_x86_64();
-		virtual								~CCodeGen_x86_64();
+		virtual								~CCodeGen_x86_64() = default;
 
 		void								SetPlatformAbi(PLATFORM_ABI);
 		
@@ -74,8 +74,8 @@ namespace Jitter
 			static OpVarType OpVar() { return &CX86Assembler::SarEq; }
 		};
 
-		virtual void						Emit_Prolog(const StatementList&, unsigned int, uint32) override;
-		virtual void						Emit_Epilog(unsigned int, uint32) override;
+		virtual void						Emit_Prolog(const StatementList&, unsigned int) override;
+		virtual void						Emit_Epilog() override;
 
 		//PARAM
 		void								Emit_Param_Ctx(const STATEMENT&);
@@ -96,6 +96,9 @@ namespace Jitter
 		void								Emit_RetVal_Mem64(const STATEMENT&);
 		void								Emit_RetVal_Reg128(const STATEMENT&);
 		void								Emit_RetVal_Mem128(const STATEMENT&);
+
+		//EXTERNJMP
+		void								Emit_ExternJmp(const STATEMENT&);
 
 		//MOV
 		void								Emit_Mov_Mem64Mem64(const STATEMENT&);
@@ -129,9 +132,13 @@ namespace Jitter
 		void								Emit_AddRef_MemMemMem(const STATEMENT&);
 		void								Emit_AddRef_MemMemCst(const STATEMENT&);
 
+		//ISREFNULL
+		void								Emit_IsRefNull_VarMem(const STATEMENT&);
+
 		//LOADFROMREF
-		void								Emit_LoadFromRef_RegMem(const STATEMENT&);
-		void								Emit_LoadFromRef_MemMem(const STATEMENT&);
+		void								Emit_LoadFromRef_VarMem(const STATEMENT&);
+		void								Emit_LoadFromRef_64_MemMem(const STATEMENT&);
+		void								Emit_LoadFromRef_Ref_MemMem(const STATEMENT&);
 		void								Emit_LoadFromRef_Md_RegMem(const STATEMENT&);
 		void								Emit_LoadFromRef_Md_MemMem(const STATEMENT&);
 
@@ -139,8 +146,13 @@ namespace Jitter
 		void								Emit_StoreAtRef_MemReg(const STATEMENT&);
 		void								Emit_StoreAtRef_MemMem(const STATEMENT&);
 		void								Emit_StoreAtRef_MemCst(const STATEMENT&);
+		void								Emit_StoreAtRef_64_MemMem(const STATEMENT&);
+		void								Emit_StoreAtRef_64_MemCst(const STATEMENT&);
 		void								Emit_StoreAtRef_Md_MemReg(const STATEMENT&);
 		void								Emit_StoreAtRef_Md_MemMem(const STATEMENT&);
+
+		//CONDJMP
+		void								Emit_CondJmp_Ref_MemCst(const STATEMENT&);
 
 	private:
 		typedef void (CCodeGen_x86_64::*ConstCodeEmitterType)(const STATEMENT&);
@@ -182,6 +194,9 @@ namespace Jitter
 			MAX_MDREGISTERS = 12,
 		};
 		
+		CX86Assembler::REGISTER				PrepareSymbolRegisterDef(CSymbol*, CX86Assembler::REGISTER);
+		void								CommitSymbolRegister(CSymbol*, CX86Assembler::REGISTER);
+
 		static CONSTMATCHER					g_constMatchers[];
 		static CX86Assembler::REGISTER		g_systemVRegisters[SYSTEMV_MAX_REGISTERS];
 		static CX86Assembler::REGISTER		g_systemVParamRegs[SYSTEMV_MAX_PARAMS];

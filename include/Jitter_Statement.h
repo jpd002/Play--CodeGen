@@ -33,6 +33,7 @@ namespace Jitter
 
 		OP_RELTOREF,
 		OP_ADDREF,
+		OP_ISREFNULL,
 		OP_LOADFROMREF,
 		OP_STOREATREF,
 
@@ -72,6 +73,7 @@ namespace Jitter
 
 		OP_MD_SUBUS_B,
 		OP_MD_SUBUS_H,
+		OP_MD_SUBUS_W,
 
 		OP_MD_CMPEQ_B,
 		OP_MD_CMPEQ_H,
@@ -148,7 +150,9 @@ namespace Jitter
 		OP_RETVAL,
 		OP_JMP,
 		OP_CONDJMP,
+		OP_EXTERNJMP,    //Pass control to another function with same signature (void (*)(void*)) and same input parameter
 		OP_GOTO,
+		OP_BREAK,
 
 		OP_LABEL,
 	};

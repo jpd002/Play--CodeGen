@@ -1,1 +1,3 @@
-*.sh		eol=lf
+*.cpp     text
+*.h       text
+*.sh      text eol=lf

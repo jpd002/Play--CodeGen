@@ -376,6 +376,11 @@ namespace Jitter
 			static OpRegType OpReg() { return &CAArch64Assembler::Uqsub_8h; }
 		};
 		
+		struct MDOP_SUBWUS : public MDOP_BASE3
+		{
+			static OpRegType OpReg() { return &CAArch64Assembler::Uqsub_4s; }
+		};
+		
 		struct MDOP_SUBHSS : public MDOP_BASE3
 		{
 			static OpRegType OpReg() { return &CAArch64Assembler::Sqsub_8h; }
@@ -567,8 +572,8 @@ namespace Jitter
 		};
 		
 		uint16    GetSavedRegisterList(uint32);
-		void      Emit_Prolog(const StatementList&, uint32, uint16);
-		void      Emit_Epilog(uint32, uint16);
+		void      Emit_Prolog(const StatementList&, uint32);
+		void      Emit_Epilog();
 		
 		CAArch64Assembler::LABEL GetLabel(uint32);
 		void                     MarkLabel(const STATEMENT&);
@@ -594,9 +599,14 @@ namespace Jitter
 		
 		void    Emit_RelToRef_TmpCst(const STATEMENT&);
 		void    Emit_AddRef_TmpMemAny(const STATEMENT&);
+		void    Emit_IsRefNull_VarMem(const STATEMENT&);
 		void    Emit_LoadFromRef_VarMem(const STATEMENT&);
+		void    Emit_LoadFromRef_Ref_TmpMem(const STATEMENT&);
 		void    Emit_StoreAtRef_MemAny(const STATEMENT&);
 		
+		void    Emit_LoadFromRef_64_MemMem(const STATEMENT&);
+		void    Emit_StoreAtRef_64_MemAny(const STATEMENT&);
+
 		void    Emit_Param_Ctx(const STATEMENT&);
 		void    Emit_Param_Reg(const STATEMENT&);
 		void    Emit_Param_Mem(const STATEMENT&);
@@ -613,6 +623,8 @@ namespace Jitter
 		void    Emit_RetVal_Reg128(const STATEMENT&);
 		void    Emit_RetVal_Mem128(const STATEMENT&);
 		
+		void    Emit_ExternJmp(const STATEMENT&);
+
 		void    Emit_Jmp(const STATEMENT&);
 		
 		void    Emit_CondJmp(const STATEMENT&);
@@ -716,6 +728,7 @@ namespace Jitter
 		ParamStack             m_params;
 		uint32                 m_nextTempRegister = 0;
 		uint32                 m_nextTempRegisterMd = 0;
+		uint16                 m_registerSave = 0;
 		uint32                 m_paramSpillBase = 0;
 
 		bool    m_generateRelocatableCalls = false;

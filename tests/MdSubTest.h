@@ -29,6 +29,7 @@ private:
 		uint8			dstSubHUS[16];
 		uint8			dstSubW[16];
 		uint8			dstSubWSS[16];
+		uint8			dstSubWUS[16];
 		uint8			dstSubWSSSat[16];
 	};
 

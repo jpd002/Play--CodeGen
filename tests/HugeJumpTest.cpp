@@ -2,16 +2,6 @@
 #include "MemStream.h"
 #include "offsetof_def.h"
 
-CHugeJumpTest::CHugeJumpTest()
-{
-
-}
-
-CHugeJumpTest::~CHugeJumpTest()
-{
-
-}
-
 void CHugeJumpTest::Compile(Jitter::CJitter& jitter)
 {
 	Framework::CMemStream codeStream;

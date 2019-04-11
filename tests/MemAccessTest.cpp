@@ -6,6 +6,7 @@
 #define CONSTANT_3	(0x55555555)
 
 #define MEMORY_IDX_0 (1)
+#define MEMORY_IDX_1 (8)
 
 #define ARRAY_IDX_0	(5)
 #define ARRAY_IDX_1	(6)
@@ -50,7 +51,7 @@ void CMemAccessTest::Compile(Jitter::CJitter& jitter)
 		//Read test
 		{
 			jitter.PushRelRef(offsetof(CONTEXT, memory));
-			jitter.PushCst(0x08);
+			jitter.PushCst(MEMORY_IDX_1);
 			jitter.AddRef();
 
 			jitter.LoadFromRef();
@@ -60,7 +61,7 @@ void CMemAccessTest::Compile(Jitter::CJitter& jitter)
 		//Write array test (cst)
 		{
 			jitter.PushRelAddrRef(offsetof(CONTEXT, array0));
-			jitter.PushCst(ARRAY_IDX_0 * 4);
+			jitter.PushCst(ARRAY_IDX_0 * sizeof(uint32));
 			jitter.AddRef();
 
 			jitter.PushCst(CONSTANT_2);
@@ -70,7 +71,7 @@ void CMemAccessTest::Compile(Jitter::CJitter& jitter)
 		//Write array test (variable)
 		{
 			jitter.PushRelAddrRef(offsetof(CONTEXT, array0));
-			jitter.PushCst(ARRAY_IDX_2 * 4);
+			jitter.PushCst(ARRAY_IDX_2 * sizeof(uint32));
 			jitter.AddRef();
 
 			jitter.PushRel(offsetof(CONTEXT, value));
@@ -80,7 +81,7 @@ void CMemAccessTest::Compile(Jitter::CJitter& jitter)
 		//Read array test
 		{
 			jitter.PushRelAddrRef(offsetof(CONTEXT, array0));
-			jitter.PushCst(ARRAY_IDX_1 * 4);
+			jitter.PushCst(ARRAY_IDX_1 * sizeof(uint32));
 			jitter.AddRef();
 
 			jitter.LoadFromRef();

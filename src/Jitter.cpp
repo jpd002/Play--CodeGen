@@ -571,28 +571,12 @@ void CJitter::AddRef()
 
 void CJitter::IsRefNull()
 {
-	auto tempSym = MakeSymbol(SYM_TEMPORARY, m_nextTemporary++);
-
-	STATEMENT statement;
-	statement.op      = OP_ISREFNULL;
-	statement.src1    = MakeSymbolRef(m_shadow.Pull());
-	statement.dst     = MakeSymbolRef(tempSym);
-	InsertStatement(statement);
-
-	m_shadow.Push(tempSym);
+	InsertUnaryStatement(OP_ISREFNULL);
 }
 
 void CJitter::LoadFromRef()
 {
-	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY, m_nextTemporary++);
-
-	STATEMENT statement;
-	statement.op	= OP_LOADFROMREF;
-	statement.src1	= MakeSymbolRef(m_shadow.Pull());
-	statement.dst	= MakeSymbolRef(tempSym);
-	InsertStatement(statement);
-
-	m_shadow.Push(tempSym);
+	InsertUnaryStatement(OP_LOADFROMREF);
 }
 
 void CJitter::Load64FromRef()
@@ -1533,6 +1517,19 @@ void CJitter::MD_ToSingle()
 
 //Generic Statement Inserters
 //------------------------------------------------
+
+void CJitter::InsertUnaryStatement(Jitter::OPERATION operation)
+{
+	auto tempSym = MakeSymbol(SYM_TEMPORARY, m_nextTemporary++);
+
+	STATEMENT statement;
+	statement.op   = operation;
+	statement.src1 = MakeSymbolRef(m_shadow.Pull());
+	statement.dst  = MakeSymbolRef(tempSym);
+	InsertStatement(statement);
+
+	m_shadow.Push(tempSym);
+}
 
 void CJitter::InsertBinaryStatement(Jitter::OPERATION operation)
 {

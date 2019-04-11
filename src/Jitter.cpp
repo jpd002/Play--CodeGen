@@ -579,6 +579,16 @@ void CJitter::LoadFromRef()
 	InsertUnaryStatement(OP_LOADFROMREF);
 }
 
+void CJitter::Load8FromRef()
+{
+	InsertUnaryStatement(OP_LOAD8FROMREF);
+}
+
+void CJitter::Load16FromRef()
+{
+	InsertUnaryStatement(OP_LOAD16FROMREF);
+}
+
 void CJitter::Load64FromRef()
 {
 	auto tempSym = MakeSymbol(SYM_TEMPORARY64, m_nextTemporary++);
@@ -611,6 +621,24 @@ void CJitter::StoreAtRef()
 	statement.op	= OP_STOREATREF;
 	statement.src2	= MakeSymbolRef(m_shadow.Pull());
 	statement.src1	= MakeSymbolRef(m_shadow.Pull());
+	InsertStatement(statement);
+}
+
+void CJitter::Store8AtRef()
+{
+	STATEMENT statement;
+	statement.op   = OP_STORE8ATREF;
+	statement.src2 = MakeSymbolRef(m_shadow.Pull());
+	statement.src1 = MakeSymbolRef(m_shadow.Pull());
+	InsertStatement(statement);
+}
+
+void CJitter::Store16AtRef()
+{
+	STATEMENT statement;
+	statement.op   = OP_STORE16ATREF;
+	statement.src2 = MakeSymbolRef(m_shadow.Pull());
+	statement.src1 = MakeSymbolRef(m_shadow.Pull());
 	InsertStatement(statement);
 }
 

@@ -131,8 +131,11 @@ set(CodeGenTest_SRC
 	../tests/MdTest.cpp
 	../tests/MdUnpackTest.cpp
 	../tests/MemAccessTest.cpp
+	../tests/MemAccessTest.h
 	../tests/MemAccess64Test.cpp
+	../tests/MemAccess64Test.h
 	../tests/MemAccessRefTest.cpp
+	../tests/MemAccessRefTest.h
 	../tests/Merge64Test.cpp
 	../tests/MultTest.cpp
 	../tests/NestedIfTest.cpp

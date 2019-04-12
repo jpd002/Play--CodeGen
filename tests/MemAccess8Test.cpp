@@ -17,7 +17,7 @@ void CMemAccess8Test::Run()
 	memset(&m_context, 0, sizeof(m_context));
 	memset(&m_memory, 0x80, sizeof(m_memory));
 
-	m_context.offset = MEMORY_IDX_0;
+	m_context.offset = MEMORY_IDX_0 * sizeof(UnitType);
 	m_context.memory = m_memory;
 	m_context.value = CONSTANT_3;
 	m_context.array0[ARRAY_IDX_1] = CONSTANT_1;
@@ -61,7 +61,7 @@ void CMemAccess8Test::Compile(Jitter::CJitter& jitter)
 		//Write array test (cst)
 		{
 			jitter.PushRelAddrRef(offsetof(CONTEXT, array0));
-			jitter.PushCst(ARRAY_IDX_0);
+			jitter.PushCst(ARRAY_IDX_0 * sizeof(UnitType));
 			jitter.AddRef();
 
 			jitter.PushCst(CONSTANT_2);
@@ -71,7 +71,7 @@ void CMemAccess8Test::Compile(Jitter::CJitter& jitter)
 		//Write array test (variable)
 		{
 			jitter.PushRelAddrRef(offsetof(CONTEXT, array0));
-			jitter.PushCst(ARRAY_IDX_2);
+			jitter.PushCst(ARRAY_IDX_2 * sizeof(UnitType));
 			jitter.AddRef();
 
 			jitter.PushRel(offsetof(CONTEXT, value));
@@ -81,7 +81,7 @@ void CMemAccess8Test::Compile(Jitter::CJitter& jitter)
 		//Read array test
 		{
 			jitter.PushRelAddrRef(offsetof(CONTEXT, array0));
-			jitter.PushCst(ARRAY_IDX_1);
+			jitter.PushCst(ARRAY_IDX_1 * sizeof(UnitType));
 			jitter.AddRef();
 
 			jitter.Load8FromRef();

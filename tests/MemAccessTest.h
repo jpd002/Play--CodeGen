@@ -6,21 +6,23 @@
 class CMemAccessTest : public CTest
 {
 public:
-	void				Run() override;
-	void				Compile(Jitter::CJitter&) override;
+	void Run() override;
+	void Compile(Jitter::CJitter&) override;
 
 private:
+	typedef uint32 UnitType;
+
 	struct CONTEXT
 	{
-		void*			memory;
-		uint32			offset;
-		uint32			value;
-		uint32			result0;
-		uint32			result1;
-		uint32			array0[0x10];
+		void*    memory;
+		uint32   offset;
+		uint32   value;
+		uint32   result0;
+		uint32   result1;
+		UnitType array0[0x10];
 	};
 
-	CONTEXT				m_context;
-	uint32				m_memory[0x20];
-	CMemoryFunction		m_function;
+	CONTEXT         m_context;
+	UnitType        m_memory[0x20];
+	CMemoryFunction m_function;
 };

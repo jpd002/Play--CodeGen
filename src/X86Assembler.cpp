@@ -183,7 +183,10 @@ CX86Assembler::CAddress CX86Assembler::MakeIndRegAddress(REGISTER registerId)
 
 	//Cannot be done with rBP
 	assert(registerId != rBP);
-	assert(registerId < 8);
+	if(registerId == r13)
+	{
+		return MakeIndRegOffAddress(registerId, 0);
+	}
 
 	if(registerId == rSP)
 	{
@@ -191,6 +194,20 @@ CX86Assembler::CAddress CX86Assembler::MakeIndRegAddress(REGISTER registerId)
 		address.sib.scale = 0;
 		address.sib.index = 4;
 		address.sib.base = 4;
+	}
+	else if(registerId == r12)
+	{
+		registerId = static_cast<REGISTER>(4);
+		address.sib.scale = 0;
+		address.sib.index = 4;
+		address.sib.base = 4;
+		address.nIsExtendedModRM = true;
+	}
+
+	if(registerId > 7)
+	{
+		address.nIsExtendedModRM = true;
+		registerId = static_cast<REGISTER>(registerId & 7);
 	}
 
 	address.ModRm.nMod = 0;
@@ -200,7 +217,11 @@ CX86Assembler::CAddress CX86Assembler::MakeIndRegAddress(REGISTER registerId)
 
 CX86Assembler::CAddress CX86Assembler::MakeIndRegOffAddress(REGISTER nRegister, uint32 nOffset)
 {
-	if((nOffset == 0) && (nRegister != CX86Assembler::rBP))
+	if(
+		(nOffset == 0) &&
+		(nRegister != CX86Assembler::rBP) &&
+		(nRegister != CX86Assembler::r13)
+		)
 	{
 		return MakeIndRegAddress(nRegister);
 	}
@@ -214,6 +235,8 @@ CX86Assembler::CAddress CX86Assembler::MakeIndRegOffAddress(REGISTER nRegister, 
 		Address.sib.index = 4;
 		Address.sib.base = 4;
 	}
+
+	assert(nRegister != r12);
 
 	if(nRegister > 7)
 	{

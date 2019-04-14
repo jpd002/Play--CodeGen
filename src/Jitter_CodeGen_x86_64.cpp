@@ -1094,7 +1094,7 @@ void CCodeGen_x86_64::CommitRefSymbolRegister(CSymbol* symbol, CX86Assembler::RE
 		break;
 	case SYM_TMP_REFERENCE:
 	case SYM_REL_REFERENCE:
-		m_assembler.MovGq(MakeMemorySymbolAddress(symbol), usedRegister);
+		m_assembler.MovGq(MakeMemoryReferenceSymbolAddress(symbol), usedRegister);
 		break;
 	default:
 		throw std::runtime_error("Invalid symbol type.");

@@ -419,6 +419,7 @@ namespace Jitter
 		CX86Assembler::CAddress		MakeRelativeReferenceSymbolAddress(CSymbol*);
 		CX86Assembler::CAddress		MakeTemporaryReferenceSymbolAddress(CSymbol*);
 		CX86Assembler::CAddress		MakeMemoryReferenceSymbolAddress(CSymbol*);
+		CX86Assembler::CAddress		MakeVariableReferenceSymbolAddress(CSymbol*);
 
 		CX86Assembler::CAddress		MakeRelative64SymbolAddress(CSymbol*);
 		CX86Assembler::CAddress		MakeRelative64SymbolLoAddress(CSymbol*);

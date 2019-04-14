@@ -125,47 +125,46 @@ namespace Jitter
 		void								Emit_Cmp64_MemRelCst(const STATEMENT&);
 
 		//RELTOREF
-		void								Emit_RelToRef_TmpCst(const STATEMENT&);
+		void								Emit_RelToRef_VarCst(const STATEMENT&);
 
 		//ADDREF
-		void								Emit_AddRef_MemMemReg(const STATEMENT&);
-		void								Emit_AddRef_MemMemMem(const STATEMENT&);
-		void								Emit_AddRef_MemMemCst(const STATEMENT&);
+		void								Emit_AddRef_VarVarVar(const STATEMENT&);
+		void								Emit_AddRef_VarVarCst(const STATEMENT&);
 
 		//ISREFNULL
-		void								Emit_IsRefNull_VarMem(const STATEMENT&);
+		void								Emit_IsRefNull_VarVar(const STATEMENT&);
 
 		//LOADFROMREF
-		void								Emit_LoadFromRef_VarMem(const STATEMENT&);
-		void								Emit_LoadFromRef_64_MemMem(const STATEMENT&);
-		void								Emit_LoadFromRef_Ref_MemMem(const STATEMENT&);
-		void								Emit_LoadFromRef_Md_RegMem(const STATEMENT&);
-		void								Emit_LoadFromRef_Md_MemMem(const STATEMENT&);
+		void								Emit_LoadFromRef_VarVar(const STATEMENT&);
+		void								Emit_LoadFromRef_64_MemVar(const STATEMENT&);
+		void								Emit_LoadFromRef_Ref_VarVar(const STATEMENT&);
+		void								Emit_LoadFromRef_Md_RegVar(const STATEMENT&);
+		void								Emit_LoadFromRef_Md_MemVar(const STATEMENT&);
 
 		//LOAD8FROMREF
-		void								Emit_Load8FromRef_VarMem(const STATEMENT&);
+		void								Emit_Load8FromRef_VarVar(const STATEMENT&);
 
 		//LOAD16FROMREF
-		void								Emit_Load16FromRef_VarMem(const STATEMENT&);
+		void								Emit_Load16FromRef_VarVar(const STATEMENT&);
 
 		//STOREATREF
-		void								Emit_StoreAtRef_MemVar(const STATEMENT&);
-		void								Emit_StoreAtRef_MemCst(const STATEMENT&);
-		void								Emit_StoreAtRef_64_MemMem(const STATEMENT&);
-		void								Emit_StoreAtRef_64_MemCst(const STATEMENT&);
-		void								Emit_StoreAtRef_Md_MemReg(const STATEMENT&);
-		void								Emit_StoreAtRef_Md_MemMem(const STATEMENT&);
+		void								Emit_StoreAtRef_VarVar(const STATEMENT&);
+		void								Emit_StoreAtRef_VarCst(const STATEMENT&);
+		void								Emit_StoreAtRef_64_VarMem(const STATEMENT&);
+		void								Emit_StoreAtRef_64_VarCst(const STATEMENT&);
+		void								Emit_StoreAtRef_Md_VarReg(const STATEMENT&);
+		void								Emit_StoreAtRef_Md_VarMem(const STATEMENT&);
 
 		//STORE8ATREF
-		void								Emit_Store8AtRef_MemVar(const STATEMENT&);
-		void								Emit_Store8AtRef_MemCst(const STATEMENT&);
+		void								Emit_Store8AtRef_VarVar(const STATEMENT&);
+		void								Emit_Store8AtRef_VarCst(const STATEMENT&);
 
 		//STORE8ATREF
-		void								Emit_Store16AtRef_MemVar(const STATEMENT&);
-		void								Emit_Store16AtRef_MemCst(const STATEMENT&);
+		void								Emit_Store16AtRef_VarVar(const STATEMENT&);
+		void								Emit_Store16AtRef_VarCst(const STATEMENT&);
 
 		//CONDJMP
-		void								Emit_CondJmp_Ref_MemCst(const STATEMENT&);
+		void								Emit_CondJmp_Ref_VarCst(const STATEMENT&);
 
 	private:
 		typedef void (CCodeGen_x86_64::*ConstCodeEmitterType)(const STATEMENT&);
@@ -210,6 +209,10 @@ namespace Jitter
 		CX86Assembler::REGISTER				PrepareSymbolRegisterDef(CSymbol*, CX86Assembler::REGISTER);
 		CX86Assembler::REGISTER				PrepareSymbolRegisterUse(CSymbol*, CX86Assembler::REGISTER);
 		void								CommitSymbolRegister(CSymbol*, CX86Assembler::REGISTER);
+
+		CX86Assembler::REGISTER				PrepareRefSymbolRegisterDef(CSymbol*, CX86Assembler::REGISTER);
+		CX86Assembler::REGISTER				PrepareRefSymbolRegisterUse(CSymbol*, CX86Assembler::REGISTER);
+		void								CommitRefSymbolRegister(CSymbol*, CX86Assembler::REGISTER);
 
 		static CONSTMATCHER					g_constMatchers[];
 		static CX86Assembler::REGISTER		g_systemVRegisters[SYSTEMV_MAX_REGISTERS];

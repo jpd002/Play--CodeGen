@@ -125,6 +125,7 @@ set(CodeGenTest_SRC
 	../tests/MdLogicTest.cpp
 	../tests/MdManipTest.cpp
 	../tests/MdMemAccessTest.cpp
+	../tests/MdMemAccessTest.h
 	../tests/MdMinMaxTest.cpp
 	../tests/MdShiftTest.cpp
 	../tests/MdSubTest.cpp

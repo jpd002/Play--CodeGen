@@ -32,11 +32,17 @@ bool CCodeGen::SymbolMatches(MATCHTYPE match, const SymbolRefPtr& symbolRef)
 	case MATCH_REL_REF:
 		return (symbol->m_type == SYM_REL_REFERENCE);
 		break;
+	case MATCH_REG_REF:
+		return (symbol->m_type == SYM_REG_REFERENCE);
+		break;
 	case MATCH_TMP_REF:
 		return (symbol->m_type == SYM_TMP_REFERENCE);
 		break;
 	case MATCH_MEM_REF:
 		return (symbol->m_type == SYM_REL_REFERENCE) || (symbol->m_type == SYM_TMP_REFERENCE);
+		break;
+	case MATCH_VAR_REF:
+		return (symbol->m_type == SYM_REG_REFERENCE) || (symbol->m_type == SYM_REL_REFERENCE) || (symbol->m_type == SYM_TMP_REFERENCE);
 		break;
 
 	case MATCH_RELATIVE64:
@@ -83,7 +89,11 @@ uint32 CCodeGen::GetRegisterUsage(const StatementList& statements)
 	uint32 registerUsage = 0;
 	for(const auto& statement : statements)
 	{
-		if(CSymbol* dst = dynamic_symbolref_cast(SYM_REGISTER, statement.dst))
+		if(auto dst = dynamic_symbolref_cast(SYM_REGISTER, statement.dst))
+		{
+			registerUsage |= (1 << dst->m_valueLow);
+		}
+		else if(auto dst = dynamic_symbolref_cast(SYM_REG_REFERENCE, statement.dst))
 		{
 			registerUsage |= (1 << dst->m_valueLow);
 		}

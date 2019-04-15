@@ -10,7 +10,7 @@ namespace Jitter
 	{
 	public:
 		           CCodeGen_AArch64();
-		virtual    ~CCodeGen_AArch64();
+		virtual    ~CCodeGen_AArch64() = default;
 
 		void            SetGenerateRelocatableCalls(bool);
 

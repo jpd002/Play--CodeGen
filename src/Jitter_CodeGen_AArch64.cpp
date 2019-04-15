@@ -370,11 +370,6 @@ CCodeGen_AArch64::CCodeGen_AArch64()
 	copyMatchers(g_mdConstMatchers);
 }
 
-CCodeGen_AArch64::~CCodeGen_AArch64()
-{
-
-}
-
 void CCodeGen_AArch64::SetGenerateRelocatableCalls(bool generateRelocatableCalls)
 {
 	m_generateRelocatableCalls = generateRelocatableCalls;

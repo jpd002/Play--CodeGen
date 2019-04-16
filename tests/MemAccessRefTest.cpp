@@ -25,6 +25,8 @@ void CMemAccessRefTest::Run()
 	TEST_VERIFY(m_context.nullCheck1 == 0);
 	TEST_VERIFY(m_context.nullCheck2 != 0);
 	TEST_VERIFY(m_context.nullCheck3 == 0);
+	TEST_VERIFY(m_context.nullCheck4 == 0);
+	TEST_VERIFY(m_context.nullCheck5 != 0);
 }
 
 void CMemAccessRefTest::Compile(Jitter::CJitter& jitter)
@@ -49,6 +51,8 @@ void CMemAccessRefTest::Compile(Jitter::CJitter& jitter)
 		EmitNullTest(jitter, LOAD_IDX, offsetof(CONTEXT, nullCheck1));
 		EmitNullComparison(jitter, NULLCHECK_IDX, offsetof(CONTEXT, nullCheck2));
 		EmitNullComparison(jitter, LOAD_IDX, offsetof(CONTEXT, nullCheck3));
+		EmitNotNullComparison(jitter, NULLCHECK_IDX, offsetof(CONTEXT, nullCheck4));
+		EmitNotNullComparison(jitter, LOAD_IDX, offsetof(CONTEXT, nullCheck5));
 	}
 	jitter.End();
 
@@ -75,6 +79,22 @@ void CMemAccessRefTest::EmitNullComparison(Jitter::CJitter& jitter, uint32 index
 
 	jitter.PushCst(0);
 	jitter.BeginIf(Jitter::CONDITION_EQ);
+	{
+		jitter.PushCst(1);
+		jitter.PullRel(resultOffset);
+	}
+	jitter.EndIf();
+}
+
+void CMemAccessRefTest::EmitNotNullComparison(Jitter::CJitter& jitter, uint32 index, size_t resultOffset)
+{
+	jitter.PushRelRef(offsetof(CONTEXT, memory));
+	jitter.PushCst(index * sizeof(void*));
+	jitter.AddRef();
+	jitter.LoadRefFromRef();
+	
+	jitter.PushCst(0);
+	jitter.BeginIf(Jitter::CONDITION_NE);
 	{
 		jitter.PushCst(1);
 		jitter.PullRel(resultOffset);

@@ -40,6 +40,16 @@ void CAArch64Assembler::CreateCompareBranchLabelReference(LABEL label, CONDITION
 	m_labelReferences.insert(std::make_pair(label, reference));
 }
 
+void CAArch64Assembler::CreateCompareBranchLabelReference(LABEL label, CONDITION condition, REGISTER64 cbRegister)
+{
+	LABELREF reference;
+	reference.offset     = static_cast<size_t>(m_stream->Tell());
+	reference.condition  = condition;
+	reference.cbz64      = true;
+	reference.cbRegister = static_cast<REGISTER32>(cbRegister);
+	m_labelReferences.insert(std::make_pair(label, reference));
+}
+
 void CAArch64Assembler::ResolveLabelReferences()
 {
 	for(const auto& labelReferencePair : m_labelReferences)
@@ -62,22 +72,23 @@ void CAArch64Assembler::ResolveLabelReferences()
 		}
 		else
 		{
-			if(labelReference.cbz)
+			if(labelReference.cbz || labelReference.cbz64)
 			{
 				assert((labelReference.condition == CONDITION_EQ) || (labelReference.condition == CONDITION_NE));
 				uint32 opcode = [&labelReference]()
 					{
+						uint32 sf = labelReference.cbz64 ? 0x80000000 : 0;
 						switch(labelReference.condition)
 						{
 						case CONDITION_EQ:
-							return 0x34000000;
+							return 0x34000000 | sf;
 							break;
 						case CONDITION_NE:
-							return 0x35000000;
+							return 0x35000000 | sf;
 							break;
 						default:
 							assert(false);
-							return 0;
+							return 0U;
 						}
 					}();
 				opcode |= (offset & 0x7FFFF) << 5;
@@ -250,7 +261,19 @@ void CAArch64Assembler::Cbnz(REGISTER32 rt, LABEL label)
 	WriteWord(0);
 }
 
+void CAArch64Assembler::Cbnz(REGISTER64 rt, LABEL label)
+{
+	CreateCompareBranchLabelReference(label, CONDITION_NE, rt);
+	WriteWord(0);
+}
+
 void CAArch64Assembler::Cbz(REGISTER32 rt, LABEL label)
+{
+	CreateCompareBranchLabelReference(label, CONDITION_EQ, rt);
+	WriteWord(0);
+}
+
+void CAArch64Assembler::Cbz(REGISTER64 rt, LABEL label)
 {
 	CreateCompareBranchLabelReference(label, CONDITION_EQ, rt);
 	WriteWord(0);

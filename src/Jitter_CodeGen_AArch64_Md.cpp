@@ -274,31 +274,27 @@ void CCodeGen_AArch64::Emit_Md_Not_VarVar(const STATEMENT& statement)
 	CommitSymbolRegisterMd(dst, dstReg);
 }
 
-void CCodeGen_AArch64::Emit_Md_LoadFromRef_VarMem(const STATEMENT& statement)
+void CCodeGen_AArch64::Emit_Md_LoadFromRef_VarVar(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
 
-	auto src1AddrReg = GetNextTempRegister64();
+	auto src1AddrReg = PrepareSymbolRegisterUseRef(src1, GetNextTempRegister64());
 	auto dstReg = PrepareSymbolRegisterDefMd(dst, GetNextTempRegisterMd());
-
-	LoadMemoryReferenceInRegister(src1AddrReg, src1);
 
 	m_assembler.Ldr_1q(dstReg, src1AddrReg, 0);
 
 	CommitSymbolRegisterMd(dst, dstReg);
 }
 
-void CCodeGen_AArch64::Emit_Md_StoreAtRef_MemVar(const STATEMENT& statement)
+void CCodeGen_AArch64::Emit_Md_StoreAtRef_VarVar(const STATEMENT& statement)
 {
 	auto src1 = statement.src1->GetSymbol().get();
 	auto src2 = statement.src2->GetSymbol().get();
 
-	auto src1AddrReg = GetNextTempRegister64();
+	auto src1AddrReg = PrepareSymbolRegisterUseRef(src1, GetNextTempRegister64());
 	auto src2Reg = PrepareSymbolRegisterUseMd(src2, GetNextTempRegisterMd());
 
-	LoadMemoryReferenceInRegister(src1AddrReg, src1);
-	
 	m_assembler.Str_1q(src2Reg, src1AddrReg, 0);
 }
 
@@ -562,8 +558,8 @@ CCodeGen_AArch64::CONSTMATCHER CCodeGen_AArch64::g_mdConstMatchers[] =
 	{ OP_MD_TOSINGLE,           MATCH_VARIABLE128,    MATCH_VARIABLE128,    MATCH_NIL,              &CCodeGen_AArch64::Emit_Md_VarVar<MDOP_TOSINGLE>                 },
 	{ OP_MD_TOWORD_TRUNCATE,    MATCH_VARIABLE128,    MATCH_VARIABLE128,    MATCH_NIL,              &CCodeGen_AArch64::Emit_Md_VarVar<MDOP_TOWORD>                   },
 
-	{ OP_LOADFROMREF,           MATCH_VARIABLE128,    MATCH_MEM_REF,        MATCH_NIL,              &CCodeGen_AArch64::Emit_Md_LoadFromRef_VarMem                    },
-	{ OP_STOREATREF,            MATCH_NIL,            MATCH_MEM_REF,        MATCH_VARIABLE128,      &CCodeGen_AArch64::Emit_Md_StoreAtRef_MemVar                     },
+	{ OP_LOADFROMREF,           MATCH_VARIABLE128,    MATCH_VAR_REF,        MATCH_NIL,              &CCodeGen_AArch64::Emit_Md_LoadFromRef_VarVar                    },
+	{ OP_STOREATREF,            MATCH_NIL,            MATCH_VAR_REF,        MATCH_VARIABLE128,      &CCodeGen_AArch64::Emit_Md_StoreAtRef_VarVar                     },
 
 	{ OP_MD_MOV_MASKED,         MATCH_VARIABLE128,    MATCH_VARIABLE128,    MATCH_VARIABLE128,      &CCodeGen_AArch64::Emit_Md_MovMasked_VarVarVar                   },
 

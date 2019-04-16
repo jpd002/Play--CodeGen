@@ -100,7 +100,9 @@ public:
 	void    BCc(CONDITION, LABEL);
 	void    Blr(REGISTER64);
 	void    Cbnz(REGISTER32, LABEL);
+	void    Cbnz(REGISTER64, LABEL);
 	void    Cbz(REGISTER32, LABEL);
+	void    Cbz(REGISTER64, LABEL);
 	void    Clz(REGISTER32, REGISTER32);
 	void    Cmeq_16b(REGISTERMD, REGISTERMD, REGISTERMD);
 	void    Cmeq_8h(REGISTERMD, REGISTERMD, REGISTERMD);
@@ -235,6 +237,7 @@ private:
 	{
 		size_t offset = 0;
 		bool cbz = false;
+		bool cbz64 = false;
 		REGISTER32 cbRegister = w0;
 		CONDITION condition;
 	};
@@ -244,6 +247,7 @@ private:
 	
 	void    CreateBranchLabelReference(LABEL, CONDITION);
 	void    CreateCompareBranchLabelReference(LABEL, CONDITION, REGISTER32);
+	void    CreateCompareBranchLabelReference(LABEL, CONDITION, REGISTER64);
 
 	void    WriteAddSubOpImm(uint32, uint32 shift, uint32 imm, uint32 rn, uint32 rd);
 	void    WriteDataProcOpReg2(uint32, uint32 rm, uint32 rn, uint32 rd);

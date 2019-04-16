@@ -290,10 +290,18 @@ CCodeGen_AArch64::CONSTMATCHER CCodeGen_AArch64::g_constMatchers[] =
 	{ OP_LOADFROMREF,    MATCH_VARIABLE,       MATCH_VAR_REF,        MATCH_NIL,           &CCodeGen_AArch64::Emit_LoadFromRef_VarVar                  },
 	{ OP_LOADFROMREF,    MATCH_VAR_REF,        MATCH_VAR_REF,        MATCH_NIL,           &CCodeGen_AArch64::Emit_LoadFromRef_Ref_VarVar              },
 
+	{ OP_LOAD8FROMREF,   MATCH_VARIABLE,       MATCH_VAR_REF,        MATCH_NIL,           &CCodeGen_AArch64::Emit_Load8FromRef_MemVar                 },
+	
+	{ OP_LOAD16FROMREF,  MATCH_VARIABLE,       MATCH_VAR_REF,        MATCH_NIL,           &CCodeGen_AArch64::Emit_Load16FromRef_MemVar                },
+
 	//Cannot use MATCH_ANY here because it will match non 32-bits symbols
 	{ OP_STOREATREF,     MATCH_NIL,            MATCH_VAR_REF,        MATCH_VARIABLE,      &CCodeGen_AArch64::Emit_StoreAtRef_VarAny                   },
 	{ OP_STOREATREF,     MATCH_NIL,            MATCH_VAR_REF,        MATCH_CONSTANT,      &CCodeGen_AArch64::Emit_StoreAtRef_VarAny                   },
 	
+	{ OP_STORE8ATREF,    MATCH_NIL,            MATCH_VAR_REF,        MATCH_ANY,           &CCodeGen_AArch64::Emit_Store8AtRef_VarAny                  },
+	
+	{ OP_STORE16ATREF,   MATCH_NIL,            MATCH_VAR_REF,        MATCH_ANY,           &CCodeGen_AArch64::Emit_Store16AtRef_VarAny                 },
+
 	{ OP_PARAM,          MATCH_NIL,            MATCH_CONTEXT,        MATCH_NIL,           &CCodeGen_AArch64::Emit_Param_Ctx                           },
 	{ OP_PARAM,          MATCH_NIL,            MATCH_REGISTER,       MATCH_NIL,           &CCodeGen_AArch64::Emit_Param_Reg                           },
 	{ OP_PARAM,          MATCH_NIL,            MATCH_MEMORY,         MATCH_NIL,           &CCodeGen_AArch64::Emit_Param_Mem                           },
@@ -1125,6 +1133,32 @@ void CCodeGen_AArch64::Emit_LoadFromRef_Ref_VarVar(const STATEMENT& statement)
 	CommitSymbolRegisterRef(dst, dstReg);
 }
 
+void CCodeGen_AArch64::Emit_Load8FromRef_MemVar(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	
+	auto addressReg = PrepareSymbolRegisterUseRef(src1, GetNextTempRegister64());
+	auto dstReg = PrepareSymbolRegisterDef(dst, GetNextTempRegister());
+	
+	m_assembler.Ldrb(dstReg, addressReg, 0);
+	
+	CommitSymbolRegister(dst, dstReg);
+}
+
+void CCodeGen_AArch64::Emit_Load16FromRef_MemVar(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	
+	auto addressReg = PrepareSymbolRegisterUseRef(src1, GetNextTempRegister64());
+	auto dstReg = PrepareSymbolRegisterDef(dst, GetNextTempRegister());
+	
+	m_assembler.Ldrh(dstReg, addressReg, 0);
+	
+	CommitSymbolRegister(dst, dstReg);
+}
+
 void CCodeGen_AArch64::Emit_StoreAtRef_VarAny(const STATEMENT& statement)
 {
 	auto src1 = statement.src1->GetSymbol().get();
@@ -1134,6 +1168,28 @@ void CCodeGen_AArch64::Emit_StoreAtRef_VarAny(const STATEMENT& statement)
 	auto valueReg = PrepareSymbolRegisterUse(src2, GetNextTempRegister());
 	
 	m_assembler.Str(valueReg, addressReg, 0);
+}
+
+void CCodeGen_AArch64::Emit_Store8AtRef_VarAny(const STATEMENT& statement)
+{
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+	
+	auto addressReg = PrepareSymbolRegisterUseRef(src1, GetNextTempRegister64());
+	auto valueReg = PrepareSymbolRegisterUse(src2, GetNextTempRegister());
+	
+	m_assembler.Strb(valueReg, addressReg, 0);
+}
+
+void CCodeGen_AArch64::Emit_Store16AtRef_VarAny(const STATEMENT& statement)
+{
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+	
+	auto addressReg = PrepareSymbolRegisterUseRef(src1, GetNextTempRegister64());
+	auto valueReg = PrepareSymbolRegisterUse(src2, GetNextTempRegister());
+	
+	m_assembler.Strh(valueReg, addressReg, 0);
 }
 
 void CCodeGen_AArch64::Emit_Param_Ctx(const STATEMENT& statement)

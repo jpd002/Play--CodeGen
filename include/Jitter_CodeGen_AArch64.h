@@ -610,6 +610,12 @@ namespace Jitter
 		void    Emit_LoadFromRef_Ref_VarVar(const STATEMENT&);
 		void    Emit_StoreAtRef_VarAny(const STATEMENT&);
 		
+		void    Emit_Load8FromRef_MemVar(const STATEMENT&);
+		void    Emit_Store8AtRef_VarAny(const STATEMENT&);
+
+		void    Emit_Load16FromRef_MemVar(const STATEMENT&);
+		void    Emit_Store16AtRef_VarAny(const STATEMENT&);
+
 		void    Emit_LoadFromRef_64_MemVar(const STATEMENT&);
 		void    Emit_StoreAtRef_64_VarAny(const STATEMENT&);
 

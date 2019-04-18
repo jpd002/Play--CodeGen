@@ -1063,3 +1063,59 @@ void CCodeGen_x86::Emit_CondJmp_MemCst(const STATEMENT& statement)
 
 	CondJmp_JumpTo(GetLabel(statement.jmpBlock), statement.jmpCondition);
 }
+
+CX86Assembler::REGISTER CCodeGen_x86::PrepareSymbolRegisterDef(CSymbol* symbol, CX86Assembler::REGISTER preferedRegister)
+{
+	switch(symbol->m_type)
+	{
+	case SYM_REGISTER:
+		return m_registers[symbol->m_valueLow];
+		break;
+	case SYM_TEMPORARY:
+	case SYM_RELATIVE:
+		return preferedRegister;
+		break;
+	default:
+		throw std::runtime_error("Invalid symbol type.");
+		break;
+	}
+}
+
+CX86Assembler::REGISTER CCodeGen_x86::PrepareSymbolRegisterUse(CSymbol* symbol, CX86Assembler::REGISTER preferedRegister)
+{
+	switch(symbol->m_type)
+	{
+	case SYM_REGISTER:
+		return m_registers[symbol->m_valueLow];
+		break;
+	case SYM_TEMPORARY:
+	case SYM_RELATIVE:
+		m_assembler.MovEd(preferedRegister, MakeMemorySymbolAddress(symbol));
+		return preferedRegister;
+		break;
+	case SYM_CONSTANT:
+		m_assembler.MovId(preferedRegister, symbol->m_valueLow);
+		return preferedRegister;
+		break;
+	default:
+		throw std::runtime_error("Invalid symbol type.");
+		break;
+	}
+}
+
+void CCodeGen_x86::CommitSymbolRegister(CSymbol* symbol, CX86Assembler::REGISTER usedRegister)
+{
+	switch(symbol->m_type)
+	{
+	case SYM_REGISTER:
+		assert(usedRegister == m_registers[symbol->m_valueLow]);
+		break;
+	case SYM_TEMPORARY:
+	case SYM_RELATIVE:
+		m_assembler.MovGd(MakeMemorySymbolAddress(symbol), usedRegister);
+		break;
+	default:
+		throw std::runtime_error("Invalid symbol type.");
+		break;
+	}
+}

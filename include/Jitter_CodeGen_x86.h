@@ -651,6 +651,10 @@ namespace Jitter
 
 		static CX86Assembler::REGISTER g_baseRegister;
 
+		CX86Assembler::REGISTER		PrepareSymbolRegisterDef(CSymbol*, CX86Assembler::REGISTER);
+		CX86Assembler::REGISTER		PrepareSymbolRegisterUse(CSymbol*, CX86Assembler::REGISTER);
+		void						CommitSymbolRegister(CSymbol*, CX86Assembler::REGISTER);
+
 		CX86Assembler				m_assembler;
 		CX86Assembler::REGISTER*	m_registers = nullptr;
 		CX86Assembler::XMMREGISTER*	m_mdRegisters = nullptr;

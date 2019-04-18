@@ -54,6 +54,7 @@ namespace Jitter
 		//MOV
 		void								Emit_Mov_Mem64Mem64(const STATEMENT&);
 		void								Emit_Mov_Mem64Cst64(const STATEMENT&);
+		void								Emit_Mov_RegRefMemRef(const STATEMENT&);
 
 		//ADD64
 		void								Emit_Add64_MemMemMem(const STATEMENT&);
@@ -98,25 +99,22 @@ namespace Jitter
 		void								Emit_Cmp64_TmpRelRoc(const STATEMENT&);
 
 		//RELTOREF
-		void								Emit_RelToRef_TmpCst(const STATEMENT&);
+		void								Emit_RelToRef_VarCst(const STATEMENT&);
 
 		//ADDREF
-		void								Emit_AddRef_MemMemReg(const STATEMENT&);
-		void								Emit_AddRef_MemMemMem(const STATEMENT&);
-		void								Emit_AddRef_MemMemCst(const STATEMENT&);
+		void								Emit_AddRef_VarVarVar(const STATEMENT&);
+		void								Emit_AddRef_VarVarCst(const STATEMENT&);
 
 		//LOADFROMREF
-		void								Emit_LoadFromRef_RegTmp(const STATEMENT&);
-		void								Emit_LoadFromRef_MemTmp(const STATEMENT&);
-		void								Emit_LoadFromRef_Md_RegMem(const STATEMENT&);
-		void								Emit_LoadFromRef_Md_MemMem(const STATEMENT&);
+		void								Emit_LoadFromRef_VarVar(const STATEMENT&);
+		void								Emit_LoadFromRef_Md_RegVar(const STATEMENT&);
+		void								Emit_LoadFromRef_Md_MemVar(const STATEMENT&);
 
 		//STOREATREF
-		void								Emit_StoreAtRef_TmpReg(const STATEMENT&);
-		void								Emit_StoreAtRef_TmpMem(const STATEMENT&);
-		void								Emit_StoreAtRef_TmpCst(const STATEMENT&);
-		void								Emit_StoreAtRef_Md_MemReg(const STATEMENT&);
-		void								Emit_StoreAtRef_Md_MemMem(const STATEMENT&);
+		void								Emit_StoreAtRef_VarVar(const STATEMENT&);
+		void								Emit_StoreAtRef_VarCst(const STATEMENT&);
+		void								Emit_StoreAtRef_Md_VarReg(const STATEMENT&);
+		void								Emit_StoreAtRef_Md_VarMem(const STATEMENT&);
 
 	private:
 		struct CALL_STATE

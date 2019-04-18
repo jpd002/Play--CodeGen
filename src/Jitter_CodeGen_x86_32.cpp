@@ -1398,3 +1398,55 @@ void CCodeGen_x86_32::Emit_StoreAtRef_Md_MemMem(const STATEMENT& statement)
 	m_assembler.MovapsVo(valueReg, MakeMemory128SymbolAddress(src2));
 	m_assembler.MovapsVo(CX86Assembler::MakeIndRegAddress(addressReg), valueReg);
 }
+
+CX86Assembler::REGISTER CCodeGen_x86_32::PrepareRefSymbolRegisterDef(CSymbol* symbol, CX86Assembler::REGISTER preferedRegister)
+{
+	switch(symbol->m_type)
+	{
+	case SYM_REG_REFERENCE:
+		return m_registers[symbol->m_valueLow];
+		break;
+	case SYM_TMP_REFERENCE:
+	case SYM_REL_REFERENCE:
+		return preferedRegister;
+		break;
+	default:
+		throw std::runtime_error("Invalid symbol type.");
+		break;
+	}
+}
+
+CX86Assembler::REGISTER CCodeGen_x86_32::PrepareRefSymbolRegisterUse(CSymbol* symbol, CX86Assembler::REGISTER preferedRegister)
+{
+	switch(symbol->m_type)
+	{
+	case SYM_REG_REFERENCE:
+		return m_registers[symbol->m_valueLow];
+		break;
+	case SYM_TMP_REFERENCE:
+	case SYM_REL_REFERENCE:
+		m_assembler.MovEd(preferedRegister, MakeMemoryReferenceSymbolAddress(symbol));
+		return preferedRegister;
+		break;
+	default:
+		throw std::runtime_error("Invalid symbol type.");
+		break;
+	}
+}
+
+void CCodeGen_x86_32::CommitRefSymbolRegister(CSymbol* symbol, CX86Assembler::REGISTER usedRegister)
+{
+	switch(symbol->m_type)
+	{
+	case SYM_REG_REFERENCE:
+		assert(usedRegister == m_registers[symbol->m_valueLow]);
+		break;
+	case SYM_TMP_REFERENCE:
+	case SYM_REL_REFERENCE:
+		m_assembler.MovGd(MakeMemoryReferenceSymbolAddress(symbol), usedRegister);
+		break;
+	default:
+		throw std::runtime_error("Invalid symbol type.");
+		break;
+	}
+}

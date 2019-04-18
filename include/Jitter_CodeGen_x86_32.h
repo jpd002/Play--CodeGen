@@ -145,6 +145,10 @@ namespace Jitter
 			MAX_MDREGISTERS = 4,
 		};
 
+		CX86Assembler::REGISTER				PrepareRefSymbolRegisterDef(CSymbol*, CX86Assembler::REGISTER);
+		CX86Assembler::REGISTER				PrepareRefSymbolRegisterUse(CSymbol*, CX86Assembler::REGISTER);
+		void								CommitRefSymbolRegister(CSymbol*, CX86Assembler::REGISTER);
+
 		static CONSTMATCHER					g_constMatchers[];
 		static CX86Assembler::REGISTER		g_registers[MAX_REGISTERS];
 		static CX86Assembler::XMMREGISTER	g_mdRegisters[MAX_MDREGISTERS];

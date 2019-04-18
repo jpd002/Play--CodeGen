@@ -841,7 +841,7 @@ void CCodeGen_x86_64::Emit_LoadFromRef_Md_RegVar(const STATEMENT& statement)
 
 	auto addressReg = PrepareRefSymbolRegisterUse(src1, CX86Assembler::rAX);
 
-	m_assembler.MovapsVo(g_mdRegisters[dst->m_valueLow], CX86Assembler::MakeIndRegAddress(addressReg));
+	m_assembler.MovapsVo(m_mdRegisters[dst->m_valueLow], CX86Assembler::MakeIndRegAddress(addressReg));
 }
 
 void CCodeGen_x86_64::Emit_LoadFromRef_Md_MemVar(const STATEMENT& statement)
@@ -933,7 +933,7 @@ void CCodeGen_x86_64::Emit_StoreAtRef_Md_VarReg(const STATEMENT& statement)
 	auto src2 = statement.src2->GetSymbol().get();
 
 	auto addressReg = PrepareRefSymbolRegisterUse(src1, CX86Assembler::rAX);
-	m_assembler.MovapsVo(CX86Assembler::MakeIndRegAddress(addressReg), g_mdRegisters[src2->m_valueLow]);
+	m_assembler.MovapsVo(CX86Assembler::MakeIndRegAddress(addressReg), m_mdRegisters[src2->m_valueLow]);
 }
 
 void CCodeGen_x86_64::Emit_StoreAtRef_Md_VarMem(const STATEMENT& statement)

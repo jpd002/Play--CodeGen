@@ -118,6 +118,10 @@ namespace Jitter
 		CAArch32Assembler::REGISTER				PrepareSymbolRegisterUse(CSymbol*, CAArch32Assembler::REGISTER);
 		void									CommitSymbolRegister(CSymbol*, CAArch32Assembler::REGISTER);
 
+		CAArch32Assembler::REGISTER				PrepareSymbolRegisterDefRef(CSymbol*, CAArch32Assembler::REGISTER);
+		CAArch32Assembler::REGISTER				PrepareSymbolRegisterUseRef(CSymbol*, CAArch32Assembler::REGISTER);
+		void									CommitSymbolRegisterRef(CSymbol*, CAArch32Assembler::REGISTER);
+
 		typedef std::array<CAArch32Assembler::REGISTER, 2> ParamRegisterPair;
 
 		CAArch32Assembler::REGISTER				PrepareParam(PARAM_STATE&);
@@ -521,6 +525,8 @@ namespace Jitter
 		void									Emit_Mov_MemMem(const STATEMENT&);
 		void									Emit_Mov_MemCst(const STATEMENT&);
 
+		void									Emit_Mov_RegRefMemRef(const STATEMENT&);
+
 		//LZC
 		void									Emit_Lzc_VarVar(const STATEMENT&);
 
@@ -556,16 +562,16 @@ namespace Jitter
 		void									Emit_Not_MemMem(const STATEMENT&);
 
 		//RELTOREF
-		void									Emit_RelToRef_TmpCst(const STATEMENT&);
+		void									Emit_RelToRef_VarCst(const STATEMENT&);
 
 		//ADDREF
-		void									Emit_AddRef_TmpMemAny(const STATEMENT&);
+		void									Emit_AddRef_VarVarAny(const STATEMENT&);
 		
 		//LOADFROMREF
-		void									Emit_LoadFromRef_VarTmp(const STATEMENT&);
+		void									Emit_LoadFromRef_VarVar(const STATEMENT&);
 		
 		//STOREATREF
-		void									Emit_StoreAtRef_TmpAny(const STATEMENT&);
+		void									Emit_StoreAtRef_VarAny(const STATEMENT&);
 		
 		//MOV64
 		void									Emit_Mov_Mem64Mem64(const STATEMENT&);
@@ -632,8 +638,8 @@ namespace Jitter
 		void									Emit_Md_Srl256_MemMemVar(const STATEMENT&);
 		void									Emit_Md_Srl256_MemMemCst(const STATEMENT&);
 
-		void									Emit_Md_LoadFromRef_MemMem(const STATEMENT&);
-		void									Emit_Md_StoreAtRef_MemMem(const STATEMENT&);
+		void									Emit_Md_LoadFromRef_MemVar(const STATEMENT&);
+		void									Emit_Md_StoreAtRef_VarMem(const STATEMENT&);
 
 		void									Emit_Md_MovMasked_MemMemMem(const STATEMENT&);
 		void									Emit_Md_Expand_MemReg(const STATEMENT&);

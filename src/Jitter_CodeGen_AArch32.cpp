@@ -347,6 +347,8 @@ uint16 CCodeGen_AArch32::GetSavedRegisterList(uint32 registerUsage)
 		}
 	}
 	registerSave |= (1 << g_callAddressRegister);
+	registerSave |= (1 << g_tempParamRegister0);
+	registerSave |= (1 << g_tempParamRegister1);
 	registerSave |= (1 << g_baseRegister);
 	registerSave |= (1 << CAArch32Assembler::rLR);
 	return registerSave;

@@ -262,11 +262,6 @@ CCodeGen_AArch32::CCodeGen_AArch32()
 	}
 }
 
-CCodeGen_AArch32::~CCodeGen_AArch32()
-{
-
-}
-
 unsigned int CCodeGen_AArch32::GetAvailableRegisterCount() const
 {
 	return MAX_REGISTERS;

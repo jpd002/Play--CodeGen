@@ -12,7 +12,7 @@ namespace Jitter
 	{
 	public:
 												CCodeGen_AArch32();
-		virtual									~CCodeGen_AArch32();
+		virtual									~CCodeGen_AArch32() = default;
 
 		void									GenerateCode(const StatementList&, unsigned int) override;
 		void									SetStream(Framework::CStream*) override;

@@ -136,7 +136,6 @@ namespace Jitter
 		void								Emit_IsRefNull_VarVar(const STATEMENT&);
 
 		//LOADFROMREF
-		void								Emit_LoadFromRef_VarVar(const STATEMENT&);
 		void								Emit_LoadFromRef_64_MemVar(const STATEMENT&);
 		void								Emit_LoadFromRef_Ref_VarVar(const STATEMENT&);
 		void								Emit_LoadFromRef_Md_RegVar(const STATEMENT&);
@@ -149,8 +148,6 @@ namespace Jitter
 		void								Emit_Load16FromRef_VarVar(const STATEMENT&);
 
 		//STOREATREF
-		void								Emit_StoreAtRef_VarVar(const STATEMENT&);
-		void								Emit_StoreAtRef_VarCst(const STATEMENT&);
 		void								Emit_StoreAtRef_64_VarMem(const STATEMENT&);
 		void								Emit_StoreAtRef_64_VarCst(const STATEMENT&);
 		void								Emit_StoreAtRef_Md_VarReg(const STATEMENT&);
@@ -208,7 +205,7 @@ namespace Jitter
 		};
 		
 		CX86Assembler::REGISTER				PrepareRefSymbolRegisterDef(CSymbol*, CX86Assembler::REGISTER);
-		CX86Assembler::REGISTER				PrepareRefSymbolRegisterUse(CSymbol*, CX86Assembler::REGISTER);
+		CX86Assembler::REGISTER				PrepareRefSymbolRegisterUse(CSymbol*, CX86Assembler::REGISTER) override;
 		void								CommitRefSymbolRegister(CSymbol*, CX86Assembler::REGISTER);
 
 		static CONSTMATCHER					g_constMatchers[];

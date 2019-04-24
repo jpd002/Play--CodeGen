@@ -567,6 +567,13 @@ namespace Jitter
 		void						Emit_ExtHigh64RegTmp64(const STATEMENT&);
 		void						Emit_ExtHigh64MemTmp64(const STATEMENT&);
 
+		//LOADFROMREF
+		void						Emit_LoadFromRef_VarVar(const STATEMENT&);
+
+		//STOREATREF
+		void						Emit_StoreAtRef_VarVar(const STATEMENT&);
+		void						Emit_StoreAtRef_VarCst(const STATEMENT&);
+
 		//FPUOP
 		template <typename> void	Emit_Fpu_MemMem(const STATEMENT&);
 		template <typename> void	Emit_Fpu_MemMemMem(const STATEMENT&);
@@ -654,6 +661,8 @@ namespace Jitter
 		CX86Assembler::REGISTER		PrepareSymbolRegisterDef(CSymbol*, CX86Assembler::REGISTER);
 		CX86Assembler::REGISTER		PrepareSymbolRegisterUse(CSymbol*, CX86Assembler::REGISTER);
 		void						CommitSymbolRegister(CSymbol*, CX86Assembler::REGISTER);
+
+		virtual CX86Assembler::REGISTER PrepareRefSymbolRegisterUse(CSymbol*, CX86Assembler::REGISTER) = 0;
 
 		CX86Assembler				m_assembler;
 		CX86Assembler::REGISTER*	m_registers = nullptr;

@@ -160,7 +160,7 @@ namespace Jitter
 		void								Emit_Store8AtRef_VarVar(const STATEMENT&);
 		void								Emit_Store8AtRef_VarCst(const STATEMENT&);
 
-		//STORE8ATREF
+		//STORE16ATREF
 		void								Emit_Store16AtRef_VarVar(const STATEMENT&);
 		void								Emit_Store16AtRef_VarCst(const STATEMENT&);
 

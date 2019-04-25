@@ -402,6 +402,11 @@ bool CCodeGen_AArch64::CanHold128BitsReturnValueInRegisters() const
 	return true;
 }
 
+uint32 CCodeGen_AArch64::GetPointerSize() const
+{
+	return 8;
+}
+
 void CCodeGen_AArch64::SetStream(Framework::CStream* stream)
 {
 	m_stream = stream;

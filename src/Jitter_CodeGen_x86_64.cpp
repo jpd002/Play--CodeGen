@@ -311,6 +311,11 @@ bool CCodeGen_x86_64::CanHold128BitsReturnValueInRegisters() const
 	return m_hasMdRegRetValues;
 }
 
+uint32 CCodeGen_x86_64::GetPointerSize() const
+{
+	return 8;
+}
+
 void CCodeGen_x86_64::Emit_Prolog(const StatementList& statements, unsigned int stackSize)
 {
 	m_params.clear();

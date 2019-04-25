@@ -253,6 +253,11 @@ bool CCodeGen_x86_32::CanHold128BitsReturnValueInRegisters() const
 	return false;
 }
 
+uint32 CCodeGen_x86_32::GetPointerSize() const
+{
+	return 4;
+}
+
 void CCodeGen_x86_32::Emit_Param_Ctx(const STATEMENT& statement)
 {
 	m_params.push_back(

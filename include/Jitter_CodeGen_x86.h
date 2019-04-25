@@ -572,11 +572,18 @@ namespace Jitter
 		void						Emit_LoadFromRef_Md_RegVar(const STATEMENT&);
 		void						Emit_LoadFromRef_Md_MemVar(const STATEMENT&);
 
+		//LOAD16FROMREF
+		void						Emit_Load16FromRef_VarVar(const STATEMENT&);
+
 		//STOREATREF
 		void						Emit_StoreAtRef_VarVar(const STATEMENT&);
 		void						Emit_StoreAtRef_VarCst(const STATEMENT&);
 		void						Emit_StoreAtRef_Md_VarReg(const STATEMENT&);
 		void						Emit_StoreAtRef_Md_VarMem(const STATEMENT&);
+
+		//STORE16ATREF
+		void						Emit_Store16AtRef_VarVar(const STATEMENT&);
+		void						Emit_Store16AtRef_VarCst(const STATEMENT&);
 
 		//FPUOP
 		template <typename> void	Emit_Fpu_MemMem(const STATEMENT&);

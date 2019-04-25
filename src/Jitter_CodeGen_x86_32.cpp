@@ -77,7 +77,17 @@ CCodeGen_x86_32::CONSTMATCHER CCodeGen_x86_32::g_constMatchers[] =
 	{ OP_ADDREF,		MATCH_VAR_REF,		MATCH_VAR_REF,		MATCH_VARIABLE,		&CCodeGen_x86_32::Emit_AddRef_VarVarVar			},
 	{ OP_ADDREF,		MATCH_VAR_REF,		MATCH_VAR_REF,		MATCH_CONSTANT,		&CCodeGen_x86_32::Emit_AddRef_VarVarCst			},
 
+	{ OP_ISREFNULL,		MATCH_VARIABLE,		MATCH_VAR_REF,		MATCH_NIL,			&CCodeGen_x86_32::Emit_IsRefNull_VarVar			},
+
+	{ OP_LOADFROMREF,	MATCH_MEMORY64,		MATCH_VAR_REF,		MATCH_NIL,			&CCodeGen_x86_32::Emit_LoadFromRef_64_MemVar	},
+	{ OP_LOADFROMREF,	MATCH_VAR_REF,		MATCH_VAR_REF,		MATCH_NIL,			&CCodeGen_x86_32::Emit_LoadFromRef_Ref_VarVar	},
+
+	{ OP_STOREATREF,	MATCH_NIL,			MATCH_VAR_REF,		MATCH_MEMORY64,		&CCodeGen_x86_32::Emit_StoreAtRef_64_VarMem		},
+	{ OP_STOREATREF,	MATCH_NIL,			MATCH_VAR_REF,		MATCH_CONSTANT64,	&CCodeGen_x86_32::Emit_StoreAtRef_64_VarCst		},
+
 	{ OP_STORE8ATREF,	MATCH_NIL,			MATCH_VAR_REF,		MATCH_VARIABLE,		&CCodeGen_x86_32::Emit_Store8AtRef_VarVar		},
+
+	{ OP_CONDJMP,		MATCH_NIL,			MATCH_VAR_REF,		MATCH_CONSTANT,		&CCodeGen_x86_32::Emit_CondJmp_Ref_VarCst		},
 
 	{ OP_MOV,			MATCH_NIL,			MATCH_NIL,			MATCH_NIL,			NULL											},
 };
@@ -1279,6 +1289,82 @@ void CCodeGen_x86_32::Emit_AddRef_VarVarCst(const STATEMENT& statement)
 	CommitRefSymbolRegister(dst, dstReg);
 }
 
+void CCodeGen_x86_32::Emit_IsRefNull_VarVar(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+
+	auto addressReg = PrepareRefSymbolRegisterUse(src1, CX86Assembler::rAX);
+	auto tstReg = CX86Assembler::rCX;
+	auto dstReg = PrepareSymbolRegisterDef(dst, CX86Assembler::rDX);
+
+	m_assembler.TestEd(addressReg, CX86Assembler::MakeRegisterAddress(addressReg));
+	m_assembler.SeteEb(CX86Assembler::MakeByteRegisterAddress(tstReg));
+	m_assembler.MovzxEb(dstReg, CX86Assembler::MakeByteRegisterAddress(tstReg));
+
+	CommitSymbolRegister(dst, dstReg);
+}
+
+void CCodeGen_x86_32::Emit_LoadFromRef_64_MemVar(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+
+	auto addressReg = PrepareRefSymbolRegisterUse(src1, CX86Assembler::rDX);
+	auto dstLoReg = CX86Assembler::rAX;
+	auto dstHiReg = CX86Assembler::rCX;
+
+	m_assembler.MovEd(dstLoReg, CX86Assembler::MakeIndRegAddress(addressReg));
+	m_assembler.MovEd(dstHiReg, CX86Assembler::MakeIndRegOffAddress(addressReg, 4));
+	m_assembler.MovGd(MakeMemory64SymbolLoAddress(dst), dstLoReg);
+	m_assembler.MovGd(MakeMemory64SymbolHiAddress(dst), dstHiReg);
+}
+
+void CCodeGen_x86_32::Emit_LoadFromRef_Ref_VarVar(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+
+	auto addressReg = PrepareRefSymbolRegisterUse(src1, CX86Assembler::rAX);
+	auto dstReg = PrepareRefSymbolRegisterDef(dst, CX86Assembler::rDX);
+
+	m_assembler.MovEd(dstReg, CX86Assembler::MakeIndRegAddress(addressReg));
+
+	CommitRefSymbolRegister(dst, dstReg);
+}
+
+void CCodeGen_x86_32::Emit_StoreAtRef_64_VarMem(const STATEMENT& statement)
+{
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	auto addressReg = PrepareRefSymbolRegisterUse(src1, CX86Assembler::rDX);
+	auto valueLoReg = CX86Assembler::rAX;
+	auto valueHiReg = CX86Assembler::rCX;
+
+	m_assembler.MovEd(valueLoReg, MakeMemory64SymbolLoAddress(src2));
+	m_assembler.MovEd(valueHiReg, MakeMemory64SymbolHiAddress(src2));
+	m_assembler.MovGd(CX86Assembler::MakeIndRegAddress(addressReg), valueLoReg);
+	m_assembler.MovGd(CX86Assembler::MakeIndRegOffAddress(addressReg, 4), valueHiReg);
+}
+
+void CCodeGen_x86_32::Emit_StoreAtRef_64_VarCst(const STATEMENT& statement)
+{
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	auto addressReg = PrepareRefSymbolRegisterUse(src1, CX86Assembler::rDX);
+	auto valueLoReg = CX86Assembler::rAX;
+	auto valueHiReg = CX86Assembler::rCX;
+
+	assert(src2->m_type == SYM_CONSTANT64);
+
+	m_assembler.MovId(valueLoReg, src2->m_valueLow);
+	m_assembler.MovId(valueHiReg, src2->m_valueHigh);
+	m_assembler.MovGd(CX86Assembler::MakeIndRegAddress(addressReg), valueLoReg);
+	m_assembler.MovGd(CX86Assembler::MakeIndRegOffAddress(addressReg, 4), valueHiReg);
+}
+
 void CCodeGen_x86_32::Emit_Store8AtRef_VarVar(const STATEMENT& statement)
 {
 	auto src1 = statement.src1->GetSymbol().get();
@@ -1287,6 +1373,22 @@ void CCodeGen_x86_32::Emit_Store8AtRef_VarVar(const STATEMENT& statement)
 	auto addressReg = PrepareRefSymbolRegisterUse(src1, CX86Assembler::rAX);
 	auto valueReg = PrepareSymbolByteRegisterUse(src2, CX86Assembler::rDX);
 	m_assembler.MovGb(CX86Assembler::MakeIndRegAddress(addressReg), valueReg);
+}
+
+void CCodeGen_x86_32::Emit_CondJmp_Ref_VarCst(const STATEMENT& statement)
+{
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	assert(src2->m_type == SYM_CONSTANT);
+	assert(src2->m_valueLow == 0);
+	assert((statement.jmpCondition == CONDITION_NE) || (statement.jmpCondition == CONDITION_EQ));
+
+	auto addressReg = PrepareRefSymbolRegisterUse(src1, CX86Assembler::rAX);
+
+	m_assembler.TestEd(addressReg, CX86Assembler::MakeRegisterAddress(addressReg));
+
+	CondJmp_JumpTo(GetLabel(statement.jmpBlock), statement.jmpCondition);
 }
 
 CX86Assembler::REGISTER CCodeGen_x86_32::PrepareRefSymbolRegisterDef(CSymbol* symbol, CX86Assembler::REGISTER preferedRegister)

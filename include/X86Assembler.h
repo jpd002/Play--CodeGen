@@ -29,6 +29,18 @@ public:
 		r15,
 	};
 
+	enum BYTEREGISTER
+	{
+		bAL = 0,
+		bCL,
+		bDL,
+		bBL,
+		bAH,
+		bCH,
+		bDH,
+		bBH
+	};
+
 	enum XMMREGISTER
 	{
 		xMM0 = 0,
@@ -102,6 +114,9 @@ public:
 	static CAddress							MakeIndRegAddress(REGISTER);
 	static CAddress							MakeIndRegOffAddress(REGISTER, uint32);
 	static CAddress							MakeBaseIndexScaleAddress(REGISTER, REGISTER, uint8);
+
+	static bool								HasByteRegister(REGISTER);
+	static BYTEREGISTER						GetByteRegister(REGISTER);
 
 	static unsigned int						GetMinimumConstantSize(uint32);
 	static unsigned int						GetMinimumConstantSize64(uint64);

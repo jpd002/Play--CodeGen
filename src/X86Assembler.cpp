@@ -169,7 +169,7 @@ CX86Assembler::CAddress CX86Assembler::MakeXmmRegisterAddress(XMMREGISTER regist
 
 CX86Assembler::CAddress CX86Assembler::MakeByteRegisterAddress(REGISTER registerId)
 {
-	if(registerId > 3)
+	if(!HasByteRegister(registerId))
 	{
 		throw std::runtime_error("Unsupported byte register index.");
 	}
@@ -1067,6 +1067,17 @@ void CX86Assembler::CreateLabelReference(LABEL label, JMP_TYPE type)
 	reference.type			= type;
 	
 	m_currentLabel->labelRefs.push_back(reference);
+}
+
+bool CX86Assembler::HasByteRegister(REGISTER registerId)
+{
+	return (registerId < rSP);
+}
+
+CX86Assembler::BYTEREGISTER CX86Assembler::GetByteRegister(REGISTER registerId)
+{
+	assert(HasByteRegister(registerId));
+	return static_cast<BYTEREGISTER>(registerId);
 }
 
 unsigned int CX86Assembler::GetMinimumConstantSize(uint32 nConstant)

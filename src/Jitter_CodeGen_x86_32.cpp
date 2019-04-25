@@ -77,6 +77,8 @@ CCodeGen_x86_32::CONSTMATCHER CCodeGen_x86_32::g_constMatchers[] =
 	{ OP_ADDREF,		MATCH_VAR_REF,		MATCH_VAR_REF,		MATCH_VARIABLE,		&CCodeGen_x86_32::Emit_AddRef_VarVarVar			},
 	{ OP_ADDREF,		MATCH_VAR_REF,		MATCH_VAR_REF,		MATCH_CONSTANT,		&CCodeGen_x86_32::Emit_AddRef_VarVarCst			},
 
+	{ OP_STORE8ATREF,	MATCH_NIL,			MATCH_VAR_REF,		MATCH_VARIABLE,		&CCodeGen_x86_32::Emit_Store8AtRef_VarVar		},
+
 	{ OP_MOV,			MATCH_NIL,			MATCH_NIL,			MATCH_NIL,			NULL											},
 };
 
@@ -1275,6 +1277,16 @@ void CCodeGen_x86_32::Emit_AddRef_VarVarCst(const STATEMENT& statement)
 
 	m_assembler.AddId(CX86Assembler::MakeRegisterAddress(dstReg), src2->m_valueLow);
 	CommitRefSymbolRegister(dst, dstReg);
+}
+
+void CCodeGen_x86_32::Emit_Store8AtRef_VarVar(const STATEMENT& statement)
+{
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	auto addressReg = PrepareRefSymbolRegisterUse(src1, CX86Assembler::rAX);
+	auto valueReg = PrepareSymbolByteRegisterUse(src2, CX86Assembler::rDX);
+	m_assembler.MovGb(CX86Assembler::MakeIndRegAddress(addressReg), valueReg);
 }
 
 CX86Assembler::REGISTER CCodeGen_x86_32::PrepareRefSymbolRegisterDef(CSymbol* symbol, CX86Assembler::REGISTER preferedRegister)

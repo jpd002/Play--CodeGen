@@ -565,6 +565,11 @@ void CX86Assembler::MovEq(REGISTER nRegister, const CAddress& Address)
 	WriteEvGvOp(0x8B, true, Address, nRegister);
 }
 
+void CX86Assembler::MovGb(const CAddress& Address, BYTEREGISTER nRegister)
+{
+	WriteEbGbOp(0x88, false, Address, nRegister);
+}
+
 void CX86Assembler::MovGb(const CAddress& Address, REGISTER nRegister)
 {
 	WriteEbGbOp(0x88, false, Address, nRegister);
@@ -976,6 +981,14 @@ void CX86Assembler::WriteEvOp(uint8 opcode, uint8 subOpcode, bool is64, const CA
 void CX86Assembler::WriteEbGbOp(uint8 nOp, bool nIs64, const CAddress& Address, REGISTER nRegister)
 {
 	WriteRexByte(nIs64, Address, nRegister, true);
+	CAddress NewAddress(Address);
+	NewAddress.ModRm.nFnReg = nRegister;
+	WriteByte(nOp);
+	NewAddress.Write(&m_tmpStream);
+}
+
+void CX86Assembler::WriteEbGbOp(uint8 nOp, bool nIs64, const CAddress& Address, BYTEREGISTER nRegister)
+{
 	CAddress NewAddress(Address);
 	NewAddress.ModRm.nFnReg = nRegister;
 	WriteByte(nOp);

@@ -134,12 +134,16 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_constMatchers[] =
 	{ OP_LOADFROMREF,	MATCH_REGISTER128,	MATCH_VAR_REF,		MATCH_NIL,		&CCodeGen_x86::Emit_LoadFromRef_Md_RegVar			},
 	{ OP_LOADFROMREF,	MATCH_MEMORY128,	MATCH_VAR_REF,		MATCH_NIL,		&CCodeGen_x86::Emit_LoadFromRef_Md_MemVar			},
 
+	{ OP_LOAD8FROMREF,	MATCH_VARIABLE,		MATCH_VAR_REF,		MATCH_NIL,		&CCodeGen_x86::Emit_Load8FromRef_VarVar				},
+
 	{ OP_LOAD16FROMREF,	MATCH_VARIABLE,		MATCH_VAR_REF,		MATCH_NIL,		&CCodeGen_x86::Emit_Load16FromRef_VarVar			},
 
 	{ OP_STOREATREF,	MATCH_NIL,			MATCH_VAR_REF,		MATCH_VARIABLE,		&CCodeGen_x86::Emit_StoreAtRef_VarVar			},
 	{ OP_STOREATREF,	MATCH_NIL,			MATCH_VAR_REF,		MATCH_CONSTANT,		&CCodeGen_x86::Emit_StoreAtRef_VarCst			},
 	{ OP_STOREATREF,	MATCH_NIL,			MATCH_VAR_REF,		MATCH_REGISTER128,	&CCodeGen_x86::Emit_StoreAtRef_Md_VarReg		},
 	{ OP_STOREATREF,	MATCH_NIL,			MATCH_VAR_REF,		MATCH_MEMORY128,	&CCodeGen_x86::Emit_StoreAtRef_Md_VarMem		},
+
+	{ OP_STORE8ATREF,	MATCH_NIL,			MATCH_VAR_REF,		MATCH_CONSTANT,		&CCodeGen_x86::Emit_Store8AtRef_VarCst			},
 
 	{ OP_STORE16ATREF,	MATCH_NIL,			MATCH_VAR_REF,		MATCH_VARIABLE,		&CCodeGen_x86::Emit_Store16AtRef_VarVar			},
 	{ OP_STORE16ATREF,	MATCH_NIL,			MATCH_VAR_REF,		MATCH_CONSTANT,		&CCodeGen_x86::Emit_Store16AtRef_VarCst			},
@@ -835,6 +839,19 @@ void CCodeGen_x86::Emit_LoadFromRef_Md_MemVar(const STATEMENT& statement)
 	m_assembler.MovapsVo(MakeMemory128SymbolAddress(dst), valueReg);
 }
 
+void CCodeGen_x86::Emit_Load8FromRef_VarVar(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+
+	auto addressReg = PrepareRefSymbolRegisterUse(src1, CX86Assembler::rAX);
+	auto dstReg = PrepareSymbolRegisterDef(dst, CX86Assembler::rDX);
+
+	m_assembler.MovzxEb(dstReg, CX86Assembler::MakeIndRegAddress(addressReg));
+
+	CommitSymbolRegister(dst, dstReg);
+}
+
 void CCodeGen_x86::Emit_Load16FromRef_VarVar(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
@@ -890,6 +907,17 @@ void CCodeGen_x86::Emit_StoreAtRef_Md_VarMem(const STATEMENT& statement)
 
 	m_assembler.MovapsVo(valueReg, MakeMemory128SymbolAddress(src2));
 	m_assembler.MovapsVo(CX86Assembler::MakeIndRegAddress(addressReg), valueReg);
+}
+
+void CCodeGen_x86::Emit_Store8AtRef_VarCst(const STATEMENT& statement)
+{
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	assert(src2->m_type == SYM_CONSTANT);
+
+	auto addressReg = PrepareRefSymbolRegisterUse(src1, CX86Assembler::rAX);
+	m_assembler.MovIb(CX86Assembler::MakeIndRegAddress(addressReg), static_cast<uint8>(src2->m_valueLow));
 }
 
 void CCodeGen_x86::Emit_Store16AtRef_VarVar(const STATEMENT& statement)
@@ -1225,6 +1253,41 @@ CX86Assembler::REGISTER CCodeGen_x86::PrepareSymbolRegisterUse(CSymbol* symbol, 
 	case SYM_CONSTANT:
 		m_assembler.MovId(preferedRegister, symbol->m_valueLow);
 		return preferedRegister;
+		break;
+	default:
+		throw std::runtime_error("Invalid symbol type.");
+		break;
+	}
+}
+
+CX86Assembler::BYTEREGISTER CCodeGen_x86::PrepareSymbolByteRegisterUse(CSymbol* symbol, CX86Assembler::REGISTER preferedRegister)
+{
+	assert(CX86Assembler::HasByteRegister(preferedRegister));
+	auto preferedByteRegister = CX86Assembler::GetByteRegister(preferedRegister);
+	switch(symbol->m_type)
+	{
+	case SYM_REGISTER:
+		{
+			auto srcRegister = m_registers[symbol->m_valueLow];
+			if(CX86Assembler::HasByteRegister(srcRegister))
+			{
+				return CX86Assembler::GetByteRegister(srcRegister);
+			}
+			else
+			{
+				m_assembler.MovEd(preferedRegister, CX86Assembler::MakeRegisterAddress(srcRegister));
+				return preferedByteRegister;
+			}
+		}
+		break;
+	case SYM_TEMPORARY:
+	case SYM_RELATIVE:
+		m_assembler.MovEd(preferedRegister, MakeMemorySymbolAddress(symbol));
+		return preferedByteRegister;
+		break;
+	case SYM_CONSTANT:
+		m_assembler.MovId(preferedRegister, symbol->m_valueLow);
+		return preferedByteRegister;
 		break;
 	default:
 		throw std::runtime_error("Invalid symbol type.");

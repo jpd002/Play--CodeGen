@@ -105,6 +105,9 @@ namespace Jitter
 		void								Emit_AddRef_VarVarVar(const STATEMENT&);
 		void								Emit_AddRef_VarVarCst(const STATEMENT&);
 
+		//STORE8ATREF
+		void								Emit_Store8AtRef_VarVar(const STATEMENT&);
+
 	private:
 		struct CALL_STATE
 		{

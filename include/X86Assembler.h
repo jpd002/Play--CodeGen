@@ -170,6 +170,7 @@ public:
 	void									MovEw(REGISTER, const CAddress&);
 	void									MovEd(REGISTER, const CAddress&);
 	void									MovEq(REGISTER, const CAddress&);
+	void									MovGb(const CAddress&, BYTEREGISTER);
 	void									MovGb(const CAddress&, REGISTER);
 	void									MovGw(const CAddress&, REGISTER);
 	void									MovGd(const CAddress&, REGISTER);
@@ -422,6 +423,7 @@ private:
 	void									WriteRexByte(bool, const CAddress&, REGISTER&, bool = false);
 	void									WriteEvOp(uint8, uint8, bool, const CAddress&);
 	void									WriteEbGbOp(uint8, bool, const CAddress&, REGISTER);
+	void									WriteEbGbOp(uint8, bool, const CAddress&, BYTEREGISTER);
 	void									WriteEvGvOp(uint8, bool, const CAddress&, REGISTER);
 	void									WriteEvGvOp0F(uint8, bool, const CAddress&, REGISTER);
 	void									WriteEvIb(uint8, const CAddress&, uint8);

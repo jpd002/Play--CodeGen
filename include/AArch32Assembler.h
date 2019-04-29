@@ -215,6 +215,8 @@ public:
 	void									Eor(REGISTER, REGISTER, const ImmediateAluOperand&);
 	void									Ldmia(REGISTER, uint16);
 	void									Ldr(REGISTER, REGISTER, const LdrAddress&);
+	void									Ldrb(REGISTER, REGISTER, const LdrAddress&);
+	void									Ldrh(REGISTER, REGISTER, const LdrAddress&);
 	void									Ldr_Pc(REGISTER, int32);
 	void									Ldrd(REGISTER, REGISTER, const LdrAddress&);
 	void									Mov(REGISTER, REGISTER);
@@ -234,6 +236,8 @@ public:
 	void									Smull(REGISTER, REGISTER, REGISTER, REGISTER);
 	void									Stmdb(REGISTER, uint16);
 	void									Str(REGISTER, REGISTER, const LdrAddress&);
+	void									Strb(REGISTER, REGISTER, const LdrAddress&);
+	void									Strh(REGISTER, REGISTER, const LdrAddress&);
 	void									Strd(REGISTER, REGISTER, const LdrAddress&);
 	void									Sub(REGISTER, REGISTER, REGISTER);
 	void									Sub(REGISTER, REGISTER, const ImmediateAluOperand&);

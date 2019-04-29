@@ -202,10 +202,18 @@ CCodeGen_AArch32::CONSTMATCHER CCodeGen_AArch32::g_constMatchers[] =
 	
 	{ OP_LOADFROMREF,	MATCH_VARIABLE,		MATCH_VAR_REF,		MATCH_NIL,			&CCodeGen_AArch32::Emit_LoadFromRef_VarVar						},
 
+	{ OP_LOAD8FROMREF,	MATCH_VARIABLE,		MATCH_VAR_REF,		MATCH_NIL,			&CCodeGen_AArch32::Emit_Load8FromRef_MemVar						},
+
+	{ OP_LOAD16FROMREF,	MATCH_VARIABLE,		MATCH_VAR_REF,		MATCH_NIL,			&CCodeGen_AArch32::Emit_Load16FromRef_MemVar					},
+
 	//Cannot use MATCH_ANY here because it will match SYM_RELATIVE128
 	{ OP_STOREATREF,	MATCH_NIL,			MATCH_VAR_REF,		MATCH_VARIABLE,		&CCodeGen_AArch32::Emit_StoreAtRef_VarAny						},
 	{ OP_STOREATREF,	MATCH_NIL,			MATCH_VAR_REF,		MATCH_CONSTANT,		&CCodeGen_AArch32::Emit_StoreAtRef_VarAny						},
 	
+	{ OP_STORE8ATREF,	MATCH_NIL,			MATCH_VAR_REF,		MATCH_ANY,			&CCodeGen_AArch32::Emit_Store8AtRef_VarAny						},
+
+	{ OP_STORE16ATREF,	MATCH_NIL,			MATCH_VAR_REF,		MATCH_ANY,			&CCodeGen_AArch32::Emit_Store16AtRef_VarAny						},
+
 	{ OP_MOV,			MATCH_NIL,			MATCH_NIL,			MATCH_NIL,			NULL														},
 };
 
@@ -323,7 +331,7 @@ void CCodeGen_AArch32::GenerateCode(const StatementList& statements, unsigned in
 			found = true;
 			break;
 		}
-		assert(found);
+		//assert(found);
 		if(!found)
 		{
 			throw std::runtime_error("No suitable emitter found for statement.");
@@ -1373,6 +1381,32 @@ void CCodeGen_AArch32::Emit_LoadFromRef_VarVar(const STATEMENT& statement)
 	CommitSymbolRegister(dst, dstReg);
 }
 
+void CCodeGen_AArch32::Emit_Load8FromRef_MemVar(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	
+	auto addressReg = PrepareSymbolRegisterUseRef(src1, CAArch32Assembler::r0);
+	auto dstReg = PrepareSymbolRegisterDef(dst, CAArch32Assembler::r1);
+	
+	m_assembler.Ldrb(dstReg, addressReg, CAArch32Assembler::MakeImmediateLdrAddress(0));
+	
+	CommitSymbolRegister(dst, dstReg);
+}
+
+void CCodeGen_AArch32::Emit_Load16FromRef_MemVar(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	
+	auto addressReg = PrepareSymbolRegisterUseRef(src1, CAArch32Assembler::r0);
+	auto dstReg = PrepareSymbolRegisterDef(dst, CAArch32Assembler::r1);
+	
+	m_assembler.Ldrh(dstReg, addressReg, CAArch32Assembler::MakeImmediateLdrAddress(0));
+	
+	CommitSymbolRegister(dst, dstReg);
+}
+
 void CCodeGen_AArch32::Emit_StoreAtRef_VarAny(const STATEMENT& statement)
 {
 	auto src1 = statement.src1->GetSymbol().get();
@@ -1382,4 +1416,26 @@ void CCodeGen_AArch32::Emit_StoreAtRef_VarAny(const STATEMENT& statement)
 	auto valueReg = PrepareSymbolRegisterUse(src2, CAArch32Assembler::r1);
 	
 	m_assembler.Str(valueReg, addressReg, CAArch32Assembler::MakeImmediateLdrAddress(0));
+}
+
+void CCodeGen_AArch32::Emit_Store8AtRef_VarAny(const STATEMENT& statement)
+{
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+	
+	auto addressReg = PrepareSymbolRegisterUseRef(src1, CAArch32Assembler::r0);
+	auto valueReg = PrepareSymbolRegisterUse(src2, CAArch32Assembler::r1);
+	
+	m_assembler.Strb(valueReg, addressReg, CAArch32Assembler::MakeImmediateLdrAddress(0));
+}
+
+void CCodeGen_AArch32::Emit_Store16AtRef_VarAny(const STATEMENT& statement)
+{
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+	
+	auto addressReg = PrepareSymbolRegisterUseRef(src1, CAArch32Assembler::r0);
+	auto valueReg = PrepareSymbolRegisterUse(src2, CAArch32Assembler::r1);
+	
+	m_assembler.Strh(valueReg, addressReg, CAArch32Assembler::MakeImmediateLdrAddress(0));
 }

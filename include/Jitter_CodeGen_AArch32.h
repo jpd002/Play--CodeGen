@@ -575,6 +575,7 @@ namespace Jitter
 		//LOADFROMREF
 		void									Emit_LoadFromRef_VarVar(const STATEMENT&);
 		void									Emit_LoadFromRef_Ref_VarVar(const STATEMENT&);
+		void									Emit_LoadFromRef_64_MemVar(const STATEMENT&);
 		
 		//LOAD8FROMREF
 		void									Emit_Load8FromRef_MemVar(const STATEMENT&);
@@ -590,6 +591,8 @@ namespace Jitter
 
 		//STOREATREF
 		void									Emit_StoreAtRef_VarAny(const STATEMENT&);
+		void									Emit_StoreAtRef_64_VarMem(const STATEMENT&);
+		void									Emit_StoreAtRef_64_VarCst(const STATEMENT&);
 		
 		//MOV64
 		void									Emit_Mov_Mem64Mem64(const STATEMENT&);

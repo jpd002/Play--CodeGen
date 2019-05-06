@@ -154,7 +154,8 @@ namespace Jitter
 		OP_RETVAL,
 		OP_JMP,
 		OP_CONDJMP,
-		OP_EXTERNJMP,    //Pass control to another function with same signature (void (*)(void*)) and same input parameter
+		OP_EXTERNJMP,     //Pass control to another function with same signature (void (*)(void*)) and same input parameter
+		OP_EXTERNJMP_DYN, //Same as above, but destination can be changed at run time, cannot be used in AOT mode
 		OP_GOTO,
 		OP_BREAK,
 

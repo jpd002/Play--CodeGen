@@ -18,8 +18,10 @@ private:
 		uint32 cst2 = 0;
 		uint32 result1 = 0;
 		uint32 result2 = 0;
+		uint32 result3 = 0;
 	};
 
 	CMemoryFunction m_sourceFunction;
 	CMemoryFunction m_targetFunction;
+	CMemoryFunction m_dynamicTargetFunction;
 };

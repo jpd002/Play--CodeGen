@@ -360,6 +360,14 @@ void CJitter::JumpTo(void* func)
 	InsertStatement(statement);
 }
 
+void CJitter::JumpToDynamic(void* func)
+{
+	STATEMENT statement;
+	statement.src1 = MakeSymbolRef(MakeConstantPtr(reinterpret_cast<uintptr_t>(func)));
+	statement.op   = OP_EXTERNJMP_DYN;
+	InsertStatement(statement);
+}
+
 void CJitter::Lookup(uint32* table)
 {
 	throw std::exception();

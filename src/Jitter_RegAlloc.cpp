@@ -125,7 +125,13 @@ void CJitter::AllocateRegisters(BASIC_BLOCK& basicBlock)
 		{
 			const auto& statement = statementInfo.statement;
 			auto statementIterator = statementInfo.iterator;
-			if((statement.op != OP_CONDJMP) && (statement.op != OP_JMP) && (statement.op != OP_CALL) && (statement.op != OP_EXTERNJMP))
+			if(
+				(statement.op != OP_CONDJMP) &&
+				(statement.op != OP_JMP) &&
+				(statement.op != OP_CALL) &&
+				(statement.op != OP_EXTERNJMP) &&
+				(statement.op != OP_EXTERNJMP_DYN)
+				)
 			{
 				statementIterator++;
 			}

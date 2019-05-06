@@ -80,6 +80,7 @@ namespace Jitter
 		void							Div();
 		void							DivS();
 		void							JumpTo(void*);
+		void							JumpToDynamic(void*);
 		void							Lookup(uint32*);
 		void							Lzc();
 		void							Mult();

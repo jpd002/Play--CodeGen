@@ -6,6 +6,7 @@
 #define TEST_CST_2 0xFF
 #define TEST_RESULT_1 (TEST_CST_1 + TEST_CST_2)
 #define TEST_RESULT_2 2
+#define TEST_RESULT_3 0x33
 
 static void DumbFunctionCall(uint32 param)
 {
@@ -29,6 +30,23 @@ void CExternJumpTest::Compile(Jitter::CJitter& jitter)
 		m_targetFunction = CMemoryFunction(codeStream.GetBuffer(), codeStream.GetSize());
 	}
 
+	//Build dynamic target function
+	{
+		Framework::CMemStream codeStream;
+		jitter.SetStream(&codeStream);
+
+		jitter.Begin();
+		{
+			jitter.PushCst(TEST_RESULT_3);
+			jitter.PullRel(offsetof(CONTEXT, result3));
+
+			jitter.JumpToDynamic(m_targetFunction.GetCode());
+		}
+		jitter.End();
+
+		m_dynamicTargetFunction = CMemoryFunction(codeStream.GetBuffer(), codeStream.GetSize());
+	}
+
 	//Build source function
 	{
 		Framework::CMemStream codeStream;
@@ -47,7 +65,7 @@ void CExternJumpTest::Compile(Jitter::CJitter& jitter)
 			jitter.PushRel(offsetof(CONTEXT, result1));
 			jitter.Call(reinterpret_cast<void*>(&DumbFunctionCall), 1, Jitter::CJitter::RETURN_VALUE_NONE);
 
-			jitter.JumpTo(m_targetFunction.GetCode());
+			jitter.JumpTo(m_dynamicTargetFunction.GetCode());
 		}
 		jitter.End();
 
@@ -63,4 +81,5 @@ void CExternJumpTest::Run()
 	m_sourceFunction(&context);
 	TEST_VERIFY(context.result1 == TEST_RESULT_1);
 	TEST_VERIFY(context.result2 == TEST_RESULT_2);
+	TEST_VERIFY(context.result3 == TEST_RESULT_3);
 }

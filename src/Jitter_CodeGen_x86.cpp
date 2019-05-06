@@ -184,6 +184,7 @@ void CCodeGen_x86::GenerateCode(const StatementList& statements, unsigned int st
 {
 	assert(m_registers != nullptr);
 	assert(m_mdRegisters != nullptr);
+	assert(m_labels.empty());
 
 	m_registerUsage = GetRegisterUsage(statements);
 	

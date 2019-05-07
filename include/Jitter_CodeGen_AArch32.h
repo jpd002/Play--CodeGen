@@ -509,6 +509,7 @@ namespace Jitter
 
 		//EXTERNJMP
 		void									Emit_ExternJmp(const STATEMENT&);
+		void									Emit_ExternJmpDynamic(const STATEMENT&);
 
 		//MUL/MULS
 		template<bool> void						Emit_MulTmp64AnyAny(const STATEMENT&);

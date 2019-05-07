@@ -177,6 +177,7 @@ CCodeGen_AArch32::CONSTMATCHER CCodeGen_AArch32::g_constMatchers[] =
 	{ OP_RETVAL,		MATCH_MEMORY64,		MATCH_NIL,			MATCH_NIL,			&CCodeGen_AArch32::Emit_RetVal_Mem64							},
 
 	{ OP_EXTERNJMP,		MATCH_NIL,			MATCH_CONSTANTPTR,	MATCH_NIL,			&CCodeGen_AArch32::Emit_ExternJmp								},
+	{ OP_EXTERNJMP_DYN,	MATCH_NIL,			MATCH_CONSTANTPTR,	MATCH_NIL,			&CCodeGen_AArch32::Emit_ExternJmpDynamic						},
 
 	{ OP_JMP,			MATCH_NIL,			MATCH_NIL,			MATCH_NIL,			&CCodeGen_AArch32::Emit_Jmp										},
 
@@ -1002,6 +1003,20 @@ void CCodeGen_AArch32::Emit_RetVal_Mem64(const STATEMENT& statement)
 }
 
 void CCodeGen_AArch32::Emit_ExternJmp(const STATEMENT& statement)
+{
+	auto src1 = statement.src1->GetSymbol().get();
+
+	assert(src1->m_type == SYM_CONSTANTPTR);
+
+	m_assembler.Mov(CAArch32Assembler::r0, g_baseRegister);
+	Emit_Epilog();
+
+	//No value should be saved in r4 at this point (register is spilled before)
+	LoadConstantPtrInRegister(g_callAddressRegister, src1->GetConstantPtr());
+	m_assembler.Mov(CAArch32Assembler::rPC, g_callAddressRegister);
+}
+
+void CCodeGen_AArch32::Emit_ExternJmpDynamic(const STATEMENT& statement)
 {
 	auto src1 = statement.src1->GetSymbol().get();
 

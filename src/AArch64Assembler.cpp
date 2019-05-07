@@ -225,6 +225,16 @@ void CAArch64Assembler::B(LABEL label)
 	WriteWord(0);
 }
 
+void CAArch64Assembler::B_offset(uint32 offset)
+{
+	assert((offset & 0x3) == 0);
+	offset /= 4;
+	assert(offset < 0x40000000);
+	uint32 opcode = 0x14000000;
+	opcode |= offset;
+	WriteWord(opcode);
+}
+
 void CAArch64Assembler::Bl(uint32 offset)
 {
 	assert((offset & 0x3) == 0);

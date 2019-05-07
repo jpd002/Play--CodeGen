@@ -95,6 +95,7 @@ public:
 	void    Asrv(REGISTER32, REGISTER32, REGISTER32);
 	void    Asrv(REGISTER64, REGISTER64, REGISTER64);
 	void    B(LABEL);
+	void    B_offset(uint32);
 	void    Bl(uint32);
 	void	Br(REGISTER64);
 	void    BCc(CONDITION, LABEL);

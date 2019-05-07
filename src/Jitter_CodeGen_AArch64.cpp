@@ -320,6 +320,7 @@ CCodeGen_AArch64::CONSTMATCHER CCodeGen_AArch64::g_constMatchers[] =
 	{ OP_RETVAL,         MATCH_MEMORY128,      MATCH_NIL,            MATCH_NIL,           &CCodeGen_AArch64::Emit_RetVal_Mem128                       },
 	
 	{ OP_EXTERNJMP,      MATCH_NIL,            MATCH_CONSTANTPTR,    MATCH_NIL,           &CCodeGen_AArch64::Emit_ExternJmp                           },
+	{ OP_EXTERNJMP_DYN,  MATCH_NIL,            MATCH_CONSTANTPTR,    MATCH_NIL,           &CCodeGen_AArch64::Emit_ExternJmpDynamic                    },
 
 	{ OP_JMP,            MATCH_NIL,            MATCH_NIL,            MATCH_NIL,           &CCodeGen_AArch64::Emit_Jmp                                 },
 	
@@ -1391,6 +1392,32 @@ void CCodeGen_AArch64::Emit_RetVal_Mem128(const STATEMENT& statement)
 }
 
 void CCodeGen_AArch64::Emit_ExternJmp(const STATEMENT& statement)
+{
+	auto src1 = statement.src1->GetSymbol().get();
+
+	assert(src1->m_type == SYM_CONSTANTPTR);
+
+	m_assembler.Mov(g_paramRegisters64[0], g_baseRegister);
+	Emit_Epilog();
+
+	if(m_generateRelocatableCalls)
+	{
+		if(m_externalSymbolReferencedHandler)
+		{
+			auto position = m_stream->GetLength();
+			m_externalSymbolReferencedHandler(src1->GetConstantPtr(), position, CCodeGen::SYMBOL_REF_TYPE::ARMV8_PCRELATIVE);
+		}
+		m_assembler.B_offset(0);
+	}
+	else
+	{
+		auto fctAddressReg = GetNextTempRegister64();
+		LoadConstant64InRegister(fctAddressReg, src1->GetConstantPtr());
+		m_assembler.Br(fctAddressReg);
+	}
+}
+
+void CCodeGen_AArch64::Emit_ExternJmpDynamic(const STATEMENT& statement)
 {
 	auto src1 = statement.src1->GetSymbol().get();
 

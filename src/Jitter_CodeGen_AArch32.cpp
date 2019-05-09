@@ -1011,9 +1011,9 @@ void CCodeGen_AArch32::Emit_ExternJmp(const STATEMENT& statement)
 	m_assembler.Mov(CAArch32Assembler::r0, g_baseRegister);
 	Emit_Epilog();
 
-	//No value should be saved in r4 at this point (register is spilled before)
-	LoadConstantPtrInRegister(g_callAddressRegister, src1->GetConstantPtr());
-	m_assembler.Mov(CAArch32Assembler::rPC, g_callAddressRegister);
+	auto targetAddressRegister = CAArch32Assembler::r1;
+	LoadConstantPtrInRegister(targetAddressRegister, src1->GetConstantPtr());
+	m_assembler.Mov(CAArch32Assembler::rPC, targetAddressRegister);
 }
 
 void CCodeGen_AArch32::Emit_ExternJmpDynamic(const STATEMENT& statement)

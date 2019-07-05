@@ -1,9 +1,9 @@
-#include "MemAccessTest.h"
+#include "MemAccess16Test.h"
 #include "MemStream.h"
 
-#define CONSTANT_1	(0xFFCC8844)
-#define CONSTANT_2	(0xDEADBEEF)
-#define CONSTANT_3	(0x55555555)
+#define CONSTANT_1	(0xCCCC)
+#define CONSTANT_2	(0xBEEF)
+#define CONSTANT_3	(0x5555)
 
 #define MEMORY_IDX_0 (1)
 #define MEMORY_IDX_1 (8)
@@ -12,7 +12,7 @@
 #define ARRAY_IDX_1	(6)
 #define ARRAY_IDX_2	(7)
 
-void CMemAccessTest::Run()
+void CMemAccess16Test::Run()
 {
 	memset(&m_context, 0, sizeof(m_context));
 	memset(&m_memory, 0x80, sizeof(m_memory));
@@ -25,13 +25,13 @@ void CMemAccessTest::Run()
 	m_function(&m_context);
 
 	TEST_VERIFY(m_memory[MEMORY_IDX_0] == CONSTANT_1);
-	TEST_VERIFY(m_context.result0 == 0x80808080);
+	TEST_VERIFY(m_context.result0 == 0x8080);
 	TEST_VERIFY(m_context.result1 == CONSTANT_1);
 	TEST_VERIFY(m_context.array0[ARRAY_IDX_0] == CONSTANT_2);
 	TEST_VERIFY(m_context.array0[ARRAY_IDX_2] == CONSTANT_3);
 }
 
-void CMemAccessTest::Compile(Jitter::CJitter& jitter)
+void CMemAccess16Test::Compile(Jitter::CJitter& jitter)
 {
 	Framework::CMemStream codeStream;
 	jitter.SetStream(&codeStream);
@@ -45,7 +45,7 @@ void CMemAccessTest::Compile(Jitter::CJitter& jitter)
 			jitter.AddRef();
 
 			jitter.PushCst(CONSTANT_1);
-			jitter.StoreAtRef();
+			jitter.Store16AtRef();
 		}
 
 		//Read test
@@ -54,7 +54,7 @@ void CMemAccessTest::Compile(Jitter::CJitter& jitter)
 			jitter.PushCst(MEMORY_IDX_1);
 			jitter.AddRef();
 
-			jitter.LoadFromRef();
+			jitter.Load16FromRef();
 			jitter.PullRel(offsetof(CONTEXT, result0));
 		}
 
@@ -65,7 +65,7 @@ void CMemAccessTest::Compile(Jitter::CJitter& jitter)
 			jitter.AddRef();
 
 			jitter.PushCst(CONSTANT_2);
-			jitter.StoreAtRef();
+			jitter.Store16AtRef();
 		}
 
 		//Write array test (variable)
@@ -75,7 +75,7 @@ void CMemAccessTest::Compile(Jitter::CJitter& jitter)
 			jitter.AddRef();
 
 			jitter.PushRel(offsetof(CONTEXT, value));
-			jitter.StoreAtRef();
+			jitter.Store16AtRef();
 		}
 
 		//Read array test
@@ -84,7 +84,7 @@ void CMemAccessTest::Compile(Jitter::CJitter& jitter)
 			jitter.PushCst(ARRAY_IDX_1 * sizeof(UnitType));
 			jitter.AddRef();
 
-			jitter.LoadFromRef();
+			jitter.Load16FromRef();
 			jitter.PullRel(offsetof(CONTEXT, result1));
 		}
 	}

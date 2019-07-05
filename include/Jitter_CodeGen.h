@@ -31,6 +31,7 @@ namespace Jitter
 		virtual unsigned int	GetAvailableMdRegisterCount() const = 0;
 		virtual bool			CanHold128BitsReturnValueInRegisters() const = 0;
 		virtual void			RegisterExternalSymbols(CObjectFile*) const = 0;
+		virtual uint32			GetPointerSize() const = 0;
 
 	protected:
 		enum MATCHTYPE
@@ -47,9 +48,11 @@ namespace Jitter
 			MATCH_MEMORY,			//Either relative or temporary
 			MATCH_VARIABLE,			//Either relative or temporary or register
 
+			MATCH_REG_REF,
 			MATCH_REL_REF,
 			MATCH_TMP_REF,
 			MATCH_MEM_REF,
+			MATCH_VAR_REF,
 
 			MATCH_RELATIVE64,
 			MATCH_TEMPORARY64,

@@ -12,7 +12,8 @@ public:
 private:
 	void    EmitNullTest(Jitter::CJitter&, uint32, size_t);
 	void    EmitNullComparison(Jitter::CJitter&, uint32, size_t);
-
+	void    EmitNotNullComparison(Jitter::CJitter&, uint32, size_t);
+	
 	enum
 	{
 		MEMORY_SIZE = 0x20,
@@ -27,6 +28,8 @@ private:
 		uint32    nullCheck1;
 		uint32    nullCheck2;
 		uint32    nullCheck3;
+		uint32    nullCheck4;
+		uint32    nullCheck5;
 	};
 
 	CONTEXT            m_context;

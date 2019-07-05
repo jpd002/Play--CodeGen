@@ -169,7 +169,7 @@ CX86Assembler::CAddress CX86Assembler::MakeXmmRegisterAddress(XMMREGISTER regist
 
 CX86Assembler::CAddress CX86Assembler::MakeByteRegisterAddress(REGISTER registerId)
 {
-	if(registerId > 3)
+	if(!HasByteRegister(registerId))
 	{
 		throw std::runtime_error("Unsupported byte register index.");
 	}
@@ -183,7 +183,10 @@ CX86Assembler::CAddress CX86Assembler::MakeIndRegAddress(REGISTER registerId)
 
 	//Cannot be done with rBP
 	assert(registerId != rBP);
-	assert(registerId < 8);
+	if(registerId == r13)
+	{
+		return MakeIndRegOffAddress(registerId, 0);
+	}
 
 	if(registerId == rSP)
 	{
@@ -191,6 +194,20 @@ CX86Assembler::CAddress CX86Assembler::MakeIndRegAddress(REGISTER registerId)
 		address.sib.scale = 0;
 		address.sib.index = 4;
 		address.sib.base = 4;
+	}
+	else if(registerId == r12)
+	{
+		registerId = static_cast<REGISTER>(4);
+		address.sib.scale = 0;
+		address.sib.index = 4;
+		address.sib.base = 4;
+		address.nIsExtendedModRM = true;
+	}
+
+	if(registerId > 7)
+	{
+		address.nIsExtendedModRM = true;
+		registerId = static_cast<REGISTER>(registerId & 7);
 	}
 
 	address.ModRm.nMod = 0;
@@ -200,7 +217,11 @@ CX86Assembler::CAddress CX86Assembler::MakeIndRegAddress(REGISTER registerId)
 
 CX86Assembler::CAddress CX86Assembler::MakeIndRegOffAddress(REGISTER nRegister, uint32 nOffset)
 {
-	if((nOffset == 0) && (nRegister != CX86Assembler::rBP))
+	if(
+		(nOffset == 0) &&
+		(nRegister != CX86Assembler::rBP) &&
+		(nRegister != CX86Assembler::r13)
+		)
 	{
 		return MakeIndRegAddress(nRegister);
 	}
@@ -214,6 +235,8 @@ CX86Assembler::CAddress CX86Assembler::MakeIndRegOffAddress(REGISTER nRegister, 
 		Address.sib.index = 4;
 		Address.sib.base = 4;
 	}
+
+	assert(nRegister != r12);
 
 	if(nRegister > 7)
 	{
@@ -542,6 +565,22 @@ void CX86Assembler::MovEq(REGISTER nRegister, const CAddress& Address)
 	WriteEvGvOp(0x8B, true, Address, nRegister);
 }
 
+void CX86Assembler::MovGb(const CAddress& Address, BYTEREGISTER nRegister)
+{
+	WriteEbGbOp(0x88, false, Address, nRegister);
+}
+
+void CX86Assembler::MovGb(const CAddress& Address, REGISTER nRegister)
+{
+	WriteEbGbOp(0x88, false, Address, nRegister);
+}
+
+void CX86Assembler::MovGw(const CAddress& Address, REGISTER nRegister)
+{
+	WriteByte(0x66);
+	WriteEvGvOp(0x89, false, Address, nRegister);
+}
+
 void CX86Assembler::MovGd(const CAddress& Address, REGISTER nRegister)
 {
 	WriteEvGvOp(0x89, false, Address, nRegister);
@@ -569,6 +608,29 @@ void CX86Assembler::MovIq(REGISTER registerId, uint64 constant)
 	WriteDWord(static_cast<uint32>(constant >> 32));
 }
 
+void CX86Assembler::MovIb(const CX86Assembler::CAddress& address, uint8 constant)
+{
+	WriteRexByte(false, address);
+	CAddress newAddress(address);
+	newAddress.ModRm.nFnReg = 0x00;
+
+	WriteByte(0xC6);
+	newAddress.Write(&m_tmpStream);
+	WriteByte(constant);
+}
+
+void CX86Assembler::MovIw(const CX86Assembler::CAddress& address, uint16 constant)
+{
+	WriteByte(0x66);
+	WriteRexByte(false, address);
+	CAddress newAddress(address);
+	newAddress.ModRm.nFnReg = 0x00;
+
+	WriteByte(0xC7);
+	newAddress.Write(&m_tmpStream);
+	WriteWord(constant);
+}
+
 void CX86Assembler::MovId(const CX86Assembler::CAddress& address, uint32 constant)
 {
 	WriteRexByte(false, address);
@@ -593,6 +655,11 @@ void CX86Assembler::MovsxEw(REGISTER registerId, const CAddress& address)
 void CX86Assembler::MovzxEb(REGISTER registerId, const CAddress& address)
 {
 	WriteEvGvOp0F(0xB6, false, address, registerId);
+}
+
+void CX86Assembler::MovzxEw(REGISTER registerId, const CAddress& address)
+{
+	WriteEvGvOp0F(0xB7, false, address, registerId);
 }
 
 void CX86Assembler::MulEd(const CAddress& address)
@@ -887,9 +954,9 @@ void CX86Assembler::WriteRexByte(bool nIs64, const CAddress& Address)
 	WriteRexByte(nIs64, Address, nTemp);
 }
 
-void CX86Assembler::WriteRexByte(bool nIs64, const CAddress& Address, REGISTER& nRegister)
+void CX86Assembler::WriteRexByte(bool nIs64, const CAddress& Address, REGISTER& nRegister, bool forceWrite)
 {
-	if((nIs64) || (Address.nIsExtendedModRM) || (nRegister > 7))
+	if((nIs64) || (Address.nIsExtendedModRM) || (nRegister > 7) || forceWrite)
 	{
 		uint8 nByte = 0x40;
 		nByte |= nIs64 ? 0x8 : 0x0;
@@ -909,6 +976,23 @@ void CX86Assembler::WriteEvOp(uint8 opcode, uint8 subOpcode, bool is64, const CA
 	newAddress.ModRm.nFnReg = subOpcode;
 	WriteByte(opcode);
 	newAddress.Write(&m_tmpStream);
+}
+
+void CX86Assembler::WriteEbGbOp(uint8 nOp, bool nIs64, const CAddress& Address, REGISTER nRegister)
+{
+	WriteRexByte(nIs64, Address, nRegister, true);
+	CAddress NewAddress(Address);
+	NewAddress.ModRm.nFnReg = nRegister;
+	WriteByte(nOp);
+	NewAddress.Write(&m_tmpStream);
+}
+
+void CX86Assembler::WriteEbGbOp(uint8 nOp, bool nIs64, const CAddress& Address, BYTEREGISTER nRegister)
+{
+	CAddress NewAddress(Address);
+	NewAddress.ModRm.nFnReg = nRegister;
+	WriteByte(nOp);
+	NewAddress.Write(&m_tmpStream);
 }
 
 void CX86Assembler::WriteEvGvOp(uint8 nOp, bool nIs64, const CAddress& Address, REGISTER nRegister)
@@ -998,6 +1082,17 @@ void CX86Assembler::CreateLabelReference(LABEL label, JMP_TYPE type)
 	m_currentLabel->labelRefs.push_back(reference);
 }
 
+bool CX86Assembler::HasByteRegister(REGISTER registerId)
+{
+	return (registerId < rSP);
+}
+
+CX86Assembler::BYTEREGISTER CX86Assembler::GetByteRegister(REGISTER registerId)
+{
+	assert(HasByteRegister(registerId));
+	return static_cast<BYTEREGISTER>(registerId);
+}
+
 unsigned int CX86Assembler::GetMinimumConstantSize(uint32 nConstant)
 {
 	if((static_cast<int32>(nConstant) >= -128) && (static_cast<int32>(nConstant) <= 127))
@@ -1073,6 +1168,11 @@ void CX86Assembler::WriteJump(Framework::CStream* stream, JMP_TYPE type, JMP_LEN
 void CX86Assembler::WriteByte(uint8 nByte)
 {
 	m_tmpStream.Write8(nByte);
+}
+
+void CX86Assembler::WriteWord(uint16 word)
+{
+	m_tmpStream.Write16(word);
 }
 
 void CX86Assembler::WriteDWord(uint32 nDWord)

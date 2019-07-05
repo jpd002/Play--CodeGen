@@ -29,6 +29,18 @@ public:
 		r15,
 	};
 
+	enum BYTEREGISTER
+	{
+		bAL = 0,
+		bCL,
+		bDL,
+		bBL,
+		bAH,
+		bCH,
+		bDH,
+		bBH
+	};
+
 	enum XMMREGISTER
 	{
 		xMM0 = 0,
@@ -103,6 +115,9 @@ public:
 	static CAddress							MakeIndRegOffAddress(REGISTER, uint32);
 	static CAddress							MakeBaseIndexScaleAddress(REGISTER, REGISTER, uint8);
 
+	static bool								HasByteRegister(REGISTER);
+	static BYTEREGISTER						GetByteRegister(REGISTER);
+
 	static unsigned int						GetMinimumConstantSize(uint32);
 	static unsigned int						GetMinimumConstantSize64(uint64);
 
@@ -155,14 +170,20 @@ public:
 	void									MovEw(REGISTER, const CAddress&);
 	void									MovEd(REGISTER, const CAddress&);
 	void									MovEq(REGISTER, const CAddress&);
+	void									MovGb(const CAddress&, BYTEREGISTER);
+	void									MovGb(const CAddress&, REGISTER);
+	void									MovGw(const CAddress&, REGISTER);
 	void									MovGd(const CAddress&, REGISTER);
 	void									MovGq(const CAddress&, REGISTER);
 	void									MovId(REGISTER, uint32);
 	void									MovIq(REGISTER, uint64);
+	void									MovIb(const CAddress&, uint8);
+	void									MovIw(const CAddress&, uint16);
 	void									MovId(const CAddress&, uint32);
 	void									MovsxEb(REGISTER, const CAddress&);
 	void									MovsxEw(REGISTER, const CAddress&);
 	void									MovzxEb(REGISTER, const CAddress&);
+	void									MovzxEw(REGISTER, const CAddress&);
 	void									MulEd(const CAddress&);
 	void									NegEd(const CAddress&);
 	void									Nop();
@@ -399,8 +420,10 @@ private:
 	typedef std::vector<uint8> ByteArray;
 
 	void									WriteRexByte(bool, const CAddress&);
-	void									WriteRexByte(bool, const CAddress&, REGISTER&);
+	void									WriteRexByte(bool, const CAddress&, REGISTER&, bool = false);
 	void									WriteEvOp(uint8, uint8, bool, const CAddress&);
+	void									WriteEbGbOp(uint8, bool, const CAddress&, REGISTER);
+	void									WriteEbGbOp(uint8, bool, const CAddress&, BYTEREGISTER);
 	void									WriteEvGvOp(uint8, bool, const CAddress&, REGISTER);
 	void									WriteEvGvOp0F(uint8, bool, const CAddress&, REGISTER);
 	void									WriteEvIb(uint8, const CAddress&, uint8);
@@ -425,6 +448,7 @@ private:
 	static void								WriteJump(Framework::CStream*, JMP_TYPE, JMP_LENGTH, uint32);
 
 	void									WriteByte(uint8);
+	void									WriteWord(uint16);
 	void									WriteDWord(uint32);
 
 	LabelMap								m_labels;

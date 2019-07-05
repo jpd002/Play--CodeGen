@@ -360,6 +360,14 @@ void CJitter::JumpTo(void* func)
 	InsertStatement(statement);
 }
 
+void CJitter::JumpToDynamic(void* func)
+{
+	STATEMENT statement;
+	statement.src1 = MakeSymbolRef(MakeConstantPtr(reinterpret_cast<uintptr_t>(func)));
+	statement.op   = OP_EXTERNJMP_DYN;
+	InsertStatement(statement);
+}
+
 void CJitter::Lookup(uint32* table)
 {
 	throw std::exception();
@@ -571,28 +579,22 @@ void CJitter::AddRef()
 
 void CJitter::IsRefNull()
 {
-	auto tempSym = MakeSymbol(SYM_TEMPORARY, m_nextTemporary++);
-
-	STATEMENT statement;
-	statement.op      = OP_ISREFNULL;
-	statement.src1    = MakeSymbolRef(m_shadow.Pull());
-	statement.dst     = MakeSymbolRef(tempSym);
-	InsertStatement(statement);
-
-	m_shadow.Push(tempSym);
+	InsertUnaryStatement(OP_ISREFNULL);
 }
 
 void CJitter::LoadFromRef()
 {
-	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY, m_nextTemporary++);
+	InsertUnaryStatement(OP_LOADFROMREF);
+}
 
-	STATEMENT statement;
-	statement.op	= OP_LOADFROMREF;
-	statement.src1	= MakeSymbolRef(m_shadow.Pull());
-	statement.dst	= MakeSymbolRef(tempSym);
-	InsertStatement(statement);
+void CJitter::Load8FromRef()
+{
+	InsertUnaryStatement(OP_LOAD8FROMREF);
+}
 
-	m_shadow.Push(tempSym);
+void CJitter::Load16FromRef()
+{
+	InsertUnaryStatement(OP_LOAD16FROMREF);
 }
 
 void CJitter::Load64FromRef()
@@ -627,6 +629,24 @@ void CJitter::StoreAtRef()
 	statement.op	= OP_STOREATREF;
 	statement.src2	= MakeSymbolRef(m_shadow.Pull());
 	statement.src1	= MakeSymbolRef(m_shadow.Pull());
+	InsertStatement(statement);
+}
+
+void CJitter::Store8AtRef()
+{
+	STATEMENT statement;
+	statement.op   = OP_STORE8ATREF;
+	statement.src2 = MakeSymbolRef(m_shadow.Pull());
+	statement.src1 = MakeSymbolRef(m_shadow.Pull());
+	InsertStatement(statement);
+}
+
+void CJitter::Store16AtRef()
+{
+	STATEMENT statement;
+	statement.op   = OP_STORE16ATREF;
+	statement.src2 = MakeSymbolRef(m_shadow.Pull());
+	statement.src1 = MakeSymbolRef(m_shadow.Pull());
 	InsertStatement(statement);
 }
 
@@ -1533,6 +1553,19 @@ void CJitter::MD_ToSingle()
 
 //Generic Statement Inserters
 //------------------------------------------------
+
+void CJitter::InsertUnaryStatement(Jitter::OPERATION operation)
+{
+	auto tempSym = MakeSymbol(SYM_TEMPORARY, m_nextTemporary++);
+
+	STATEMENT statement;
+	statement.op   = operation;
+	statement.src1 = MakeSymbolRef(m_shadow.Pull());
+	statement.dst  = MakeSymbolRef(tempSym);
+	InsertStatement(statement);
+
+	m_shadow.Push(tempSym);
+}
 
 void CJitter::InsertBinaryStatement(Jitter::OPERATION operation)
 {

@@ -130,6 +130,24 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_constMatchers[] =
 	{ OP_EXTHIGH64,	MATCH_REGISTER,		MATCH_TEMPORARY64,	MATCH_NIL,			&CCodeGen_x86::Emit_ExtHigh64RegTmp64				},
 	{ OP_EXTHIGH64,	MATCH_MEMORY,		MATCH_TEMPORARY64,	MATCH_NIL,			&CCodeGen_x86::Emit_ExtHigh64MemTmp64				},
 
+	{ OP_LOADFROMREF,	MATCH_VARIABLE,		MATCH_VAR_REF,		MATCH_NIL,		&CCodeGen_x86::Emit_LoadFromRef_VarVar				},
+	{ OP_LOADFROMREF,	MATCH_REGISTER128,	MATCH_VAR_REF,		MATCH_NIL,		&CCodeGen_x86::Emit_LoadFromRef_Md_RegVar			},
+	{ OP_LOADFROMREF,	MATCH_MEMORY128,	MATCH_VAR_REF,		MATCH_NIL,		&CCodeGen_x86::Emit_LoadFromRef_Md_MemVar			},
+
+	{ OP_LOAD8FROMREF,	MATCH_VARIABLE,		MATCH_VAR_REF,		MATCH_NIL,		&CCodeGen_x86::Emit_Load8FromRef_VarVar				},
+
+	{ OP_LOAD16FROMREF,	MATCH_VARIABLE,		MATCH_VAR_REF,		MATCH_NIL,		&CCodeGen_x86::Emit_Load16FromRef_VarVar			},
+
+	{ OP_STOREATREF,	MATCH_NIL,			MATCH_VAR_REF,		MATCH_VARIABLE,		&CCodeGen_x86::Emit_StoreAtRef_VarVar			},
+	{ OP_STOREATREF,	MATCH_NIL,			MATCH_VAR_REF,		MATCH_CONSTANT,		&CCodeGen_x86::Emit_StoreAtRef_VarCst			},
+	{ OP_STOREATREF,	MATCH_NIL,			MATCH_VAR_REF,		MATCH_REGISTER128,	&CCodeGen_x86::Emit_StoreAtRef_Md_VarReg		},
+	{ OP_STOREATREF,	MATCH_NIL,			MATCH_VAR_REF,		MATCH_MEMORY128,	&CCodeGen_x86::Emit_StoreAtRef_Md_VarMem		},
+
+	{ OP_STORE8ATREF,	MATCH_NIL,			MATCH_VAR_REF,		MATCH_CONSTANT,		&CCodeGen_x86::Emit_Store8AtRef_VarCst			},
+
+	{ OP_STORE16ATREF,	MATCH_NIL,			MATCH_VAR_REF,		MATCH_VARIABLE,		&CCodeGen_x86::Emit_Store16AtRef_VarVar			},
+	{ OP_STORE16ATREF,	MATCH_NIL,			MATCH_VAR_REF,		MATCH_CONSTANT,		&CCodeGen_x86::Emit_Store16AtRef_VarCst			},
+
 	{ OP_MOV,		MATCH_NIL,			MATCH_NIL,			MATCH_NIL,			NULL												},
 };
 
@@ -166,6 +184,7 @@ void CCodeGen_x86::GenerateCode(const StatementList& statements, unsigned int st
 {
 	assert(m_registers != nullptr);
 	assert(m_mdRegisters != nullptr);
+	assert(m_labels.empty());
 
 	m_registerUsage = GetRegisterUsage(statements);
 	
@@ -354,6 +373,25 @@ CX86Assembler::CAddress CCodeGen_x86::MakeMemoryReferenceSymbolAddress(CSymbol* 
 {
 	switch(symbol->m_type)
 	{
+	case SYM_REL_REFERENCE:
+		return MakeRelativeReferenceSymbolAddress(symbol);
+		break;
+	case SYM_TMP_REFERENCE:
+		return MakeTemporaryReferenceSymbolAddress(symbol);
+		break;
+	default:
+		throw std::exception();
+		break;
+	}
+}
+
+CX86Assembler::CAddress CCodeGen_x86::MakeVariableReferenceSymbolAddress(CSymbol* symbol)
+{
+	switch(symbol->m_type)
+	{
+	case SYM_REG_REFERENCE:
+		return CX86Assembler::MakeRegisterAddress(m_registers[symbol->m_valueLow]);
+		break;
 	case SYM_REL_REFERENCE:
 		return MakeRelativeReferenceSymbolAddress(symbol);
 		break;
@@ -765,6 +803,145 @@ void CCodeGen_x86::Emit_ExtHigh64MemTmp64(const STATEMENT& statement)
 	m_assembler.MovGd(MakeMemorySymbolAddress(dst), CX86Assembler::rAX);
 }
 
+void CCodeGen_x86::Emit_LoadFromRef_VarVar(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+
+	auto addressReg = PrepareRefSymbolRegisterUse(src1, CX86Assembler::rAX);
+	auto dstReg = PrepareSymbolRegisterDef(dst, CX86Assembler::rDX);
+
+	m_assembler.MovEd(dstReg, CX86Assembler::MakeIndRegAddress(addressReg));
+
+	CommitSymbolRegister(dst, dstReg);
+}
+
+void CCodeGen_x86::Emit_LoadFromRef_Md_RegVar(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+
+	assert(dst->m_type == SYM_REGISTER128);
+
+	auto addressReg = PrepareRefSymbolRegisterUse(src1, CX86Assembler::rAX);
+
+	m_assembler.MovapsVo(m_mdRegisters[dst->m_valueLow], CX86Assembler::MakeIndRegAddress(addressReg));
+}
+
+void CCodeGen_x86::Emit_LoadFromRef_Md_MemVar(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+
+	auto addressReg = PrepareRefSymbolRegisterUse(src1, CX86Assembler::rAX);
+	auto valueReg = CX86Assembler::xMM0;
+
+	m_assembler.MovapsVo(valueReg, CX86Assembler::MakeIndRegAddress(addressReg));
+	m_assembler.MovapsVo(MakeMemory128SymbolAddress(dst), valueReg);
+}
+
+void CCodeGen_x86::Emit_Load8FromRef_VarVar(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+
+	auto addressReg = PrepareRefSymbolRegisterUse(src1, CX86Assembler::rAX);
+	auto dstReg = PrepareSymbolRegisterDef(dst, CX86Assembler::rDX);
+
+	m_assembler.MovzxEb(dstReg, CX86Assembler::MakeIndRegAddress(addressReg));
+
+	CommitSymbolRegister(dst, dstReg);
+}
+
+void CCodeGen_x86::Emit_Load16FromRef_VarVar(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+
+	auto addressReg = PrepareRefSymbolRegisterUse(src1, CX86Assembler::rAX);
+	auto dstReg = PrepareSymbolRegisterDef(dst, CX86Assembler::rDX);
+
+	m_assembler.MovzxEw(dstReg, CX86Assembler::MakeIndRegAddress(addressReg));
+
+	CommitSymbolRegister(dst, dstReg);
+}
+
+void CCodeGen_x86::Emit_StoreAtRef_VarVar(const STATEMENT& statement)
+{
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	auto addressReg = PrepareRefSymbolRegisterUse(src1, CX86Assembler::rAX);
+	auto valueReg = PrepareSymbolRegisterUse(src2, CX86Assembler::rDX);
+	m_assembler.MovGd(CX86Assembler::MakeIndRegAddress(addressReg), valueReg);
+}
+
+void CCodeGen_x86::Emit_StoreAtRef_VarCst(const STATEMENT& statement)
+{
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	assert(src2->m_type == SYM_CONSTANT);
+
+	auto addressReg = PrepareRefSymbolRegisterUse(src1, CX86Assembler::rAX);
+	m_assembler.MovId(CX86Assembler::MakeIndRegAddress(addressReg), src2->m_valueLow);
+}
+
+void CCodeGen_x86::Emit_StoreAtRef_Md_VarReg(const STATEMENT& statement)
+{
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	assert(src2->m_type == SYM_REGISTER128);
+
+	auto addressReg = PrepareRefSymbolRegisterUse(src1, CX86Assembler::rAX);
+	m_assembler.MovapsVo(CX86Assembler::MakeIndRegAddress(addressReg), m_mdRegisters[src2->m_valueLow]);
+}
+
+void CCodeGen_x86::Emit_StoreAtRef_Md_VarMem(const STATEMENT& statement)
+{
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	auto addressReg = PrepareRefSymbolRegisterUse(src1, CX86Assembler::rAX);
+	auto valueReg = CX86Assembler::xMM0;
+
+	m_assembler.MovapsVo(valueReg, MakeMemory128SymbolAddress(src2));
+	m_assembler.MovapsVo(CX86Assembler::MakeIndRegAddress(addressReg), valueReg);
+}
+
+void CCodeGen_x86::Emit_Store8AtRef_VarCst(const STATEMENT& statement)
+{
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	assert(src2->m_type == SYM_CONSTANT);
+
+	auto addressReg = PrepareRefSymbolRegisterUse(src1, CX86Assembler::rAX);
+	m_assembler.MovIb(CX86Assembler::MakeIndRegAddress(addressReg), static_cast<uint8>(src2->m_valueLow));
+}
+
+void CCodeGen_x86::Emit_Store16AtRef_VarVar(const STATEMENT& statement)
+{
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	auto addressReg = PrepareRefSymbolRegisterUse(src1, CX86Assembler::rAX);
+	auto valueReg = PrepareSymbolRegisterUse(src2, CX86Assembler::rDX);
+	m_assembler.MovGw(CX86Assembler::MakeIndRegAddress(addressReg), valueReg);
+}
+
+void CCodeGen_x86::Emit_Store16AtRef_VarCst(const STATEMENT& statement)
+{
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	assert(src2->m_type == SYM_CONSTANT);
+
+	auto addressReg = PrepareRefSymbolRegisterUse(src1, CX86Assembler::rAX);
+	m_assembler.MovIw(CX86Assembler::MakeIndRegAddress(addressReg), static_cast<uint16>(src2->m_valueLow));
+}
+
 void CCodeGen_x86::Cmp_GetFlag(const CX86Assembler::CAddress& dst, CONDITION flag)
 {
 	switch(flag)
@@ -1043,4 +1220,95 @@ void CCodeGen_x86::Emit_CondJmp_MemCst(const STATEMENT& statement)
 	}
 
 	CondJmp_JumpTo(GetLabel(statement.jmpBlock), statement.jmpCondition);
+}
+
+CX86Assembler::REGISTER CCodeGen_x86::PrepareSymbolRegisterDef(CSymbol* symbol, CX86Assembler::REGISTER preferedRegister)
+{
+	switch(symbol->m_type)
+	{
+	case SYM_REGISTER:
+		return m_registers[symbol->m_valueLow];
+		break;
+	case SYM_TEMPORARY:
+	case SYM_RELATIVE:
+		return preferedRegister;
+		break;
+	default:
+		throw std::runtime_error("Invalid symbol type.");
+		break;
+	}
+}
+
+CX86Assembler::REGISTER CCodeGen_x86::PrepareSymbolRegisterUse(CSymbol* symbol, CX86Assembler::REGISTER preferedRegister)
+{
+	switch(symbol->m_type)
+	{
+	case SYM_REGISTER:
+		return m_registers[symbol->m_valueLow];
+		break;
+	case SYM_TEMPORARY:
+	case SYM_RELATIVE:
+		m_assembler.MovEd(preferedRegister, MakeMemorySymbolAddress(symbol));
+		return preferedRegister;
+		break;
+	case SYM_CONSTANT:
+		m_assembler.MovId(preferedRegister, symbol->m_valueLow);
+		return preferedRegister;
+		break;
+	default:
+		throw std::runtime_error("Invalid symbol type.");
+		break;
+	}
+}
+
+CX86Assembler::BYTEREGISTER CCodeGen_x86::PrepareSymbolByteRegisterUse(CSymbol* symbol, CX86Assembler::REGISTER preferedRegister)
+{
+	assert(CX86Assembler::HasByteRegister(preferedRegister));
+	auto preferedByteRegister = CX86Assembler::GetByteRegister(preferedRegister);
+	switch(symbol->m_type)
+	{
+	case SYM_REGISTER:
+		{
+			auto srcRegister = m_registers[symbol->m_valueLow];
+			if(CX86Assembler::HasByteRegister(srcRegister))
+			{
+				return CX86Assembler::GetByteRegister(srcRegister);
+			}
+			else
+			{
+				m_assembler.MovEd(preferedRegister, CX86Assembler::MakeRegisterAddress(srcRegister));
+				return preferedByteRegister;
+			}
+		}
+		break;
+	case SYM_TEMPORARY:
+	case SYM_RELATIVE:
+		m_assembler.MovEd(preferedRegister, MakeMemorySymbolAddress(symbol));
+		return preferedByteRegister;
+		break;
+	case SYM_CONSTANT:
+		m_assembler.MovId(preferedRegister, symbol->m_valueLow);
+		return preferedByteRegister;
+		break;
+	default:
+		throw std::runtime_error("Invalid symbol type.");
+		break;
+	}
+}
+
+void CCodeGen_x86::CommitSymbolRegister(CSymbol* symbol, CX86Assembler::REGISTER usedRegister)
+{
+	switch(symbol->m_type)
+	{
+	case SYM_REGISTER:
+		assert(usedRegister == m_registers[symbol->m_valueLow]);
+		break;
+	case SYM_TEMPORARY:
+	case SYM_RELATIVE:
+		m_assembler.MovGd(MakeMemorySymbolAddress(symbol), usedRegister);
+		break;
+	default:
+		throw std::runtime_error("Invalid symbol type.");
+		break;
+	}
 }

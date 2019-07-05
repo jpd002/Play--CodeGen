@@ -194,6 +194,49 @@ void CCodeGen_AArch32::Emit_MergeTo64_Mem64AnyAny(const STATEMENT& statement)
 	StoreRegistersInMemory64(dst, regLo, regHi);
 }
 
+void CCodeGen_AArch32::Emit_LoadFromRef_64_MemVar(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+
+	auto addressReg = PrepareSymbolRegisterUseRef(src1, CAArch32Assembler::r2);
+	auto dstLoReg = CAArch32Assembler::r0;
+	auto dstHiReg = CAArch32Assembler::r1;
+
+	m_assembler.Ldrd(dstLoReg, addressReg, CAArch32Assembler::MakeImmediateLdrAddress(0));
+
+	StoreRegistersInMemory64(dst, dstLoReg, dstHiReg);
+}
+
+void CCodeGen_AArch32::Emit_StoreAtRef_64_VarMem(const STATEMENT& statement)
+{
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	auto addressReg = PrepareSymbolRegisterUseRef(src1, CAArch32Assembler::r2);
+	auto src2LoReg = CAArch32Assembler::r0;
+	auto src2HiReg = CAArch32Assembler::r1;
+
+	LoadMemory64InRegisters(src2LoReg, src2HiReg, src2);
+
+	m_assembler.Strd(src2LoReg, addressReg, CAArch32Assembler::MakeImmediateLdrAddress(0));
+}
+
+void CCodeGen_AArch32::Emit_StoreAtRef_64_VarCst(const STATEMENT& statement)
+{
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	auto addressReg = PrepareSymbolRegisterUseRef(src1, CAArch32Assembler::r2);
+	auto src2LoReg = CAArch32Assembler::r0;
+	auto src2HiReg = CAArch32Assembler::r1;
+
+	LoadConstantInRegister(src2LoReg, src2->m_valueLow);
+	LoadConstantInRegister(src2HiReg, src2->m_valueHigh);
+
+	m_assembler.Strd(src2LoReg, addressReg, CAArch32Assembler::MakeImmediateLdrAddress(0));
+}
+
 void CCodeGen_AArch32::Emit_Add64_MemMemMem(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
@@ -834,6 +877,11 @@ CCodeGen_AArch32::CONSTMATCHER CCodeGen_AArch32::g_64ConstMatchers[] =
 	{ OP_EXTHIGH64,		MATCH_VARIABLE,		MATCH_MEMORY64,		MATCH_NIL,			&CCodeGen_AArch32::Emit_ExtHigh64VarMem64			},
 
 	{ OP_MERGETO64,		MATCH_MEMORY64,		MATCH_ANY,			MATCH_ANY,			&CCodeGen_AArch32::Emit_MergeTo64_Mem64AnyAny		},
+
+	{ OP_LOADFROMREF,	MATCH_MEMORY64,		MATCH_VAR_REF,		MATCH_NIL,			&CCodeGen_AArch32::Emit_LoadFromRef_64_MemVar		},
+
+	{ OP_STOREATREF,	MATCH_NIL,			MATCH_VAR_REF,		MATCH_MEMORY64,		&CCodeGen_AArch32::Emit_StoreAtRef_64_VarMem		},
+	{ OP_STOREATREF,	MATCH_NIL,			MATCH_VAR_REF,		MATCH_CONSTANT64,	&CCodeGen_AArch32::Emit_StoreAtRef_64_VarCst		},
 
 	{ OP_ADD64,			MATCH_MEMORY64,		MATCH_MEMORY64,		MATCH_MEMORY64,		&CCodeGen_AArch32::Emit_Add64_MemMemMem				},
 	{ OP_ADD64,			MATCH_MEMORY64,		MATCH_MEMORY64,		MATCH_CONSTANT64,	&CCodeGen_AArch32::Emit_Add64_MemMemCst				},

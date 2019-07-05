@@ -20,6 +20,7 @@ namespace Jitter
 
 		SYM_REL_REFERENCE,
 		SYM_TMP_REFERENCE,
+		SYM_REG_REFERENCE,
 
 		SYM_RELATIVE64,
 		SYM_TEMPORARY64,
@@ -72,6 +73,9 @@ namespace Jitter
 				break;
 			case SYM_TMP_REFERENCE:
 				return "TMP&[" + std::to_string(m_valueLow) + "]";
+				break;
+			case SYM_REG_REFERENCE:
+				return "REG&[" + std::to_string(m_valueLow) + "]";
 				break;
 			case SYM_CONSTANT64:
 				return "CST64[" + std::to_string(m_valueLow) + ", " + std::to_string(m_valueHigh) + "]";
@@ -154,6 +158,7 @@ namespace Jitter
 		{
 			return
 				(m_type == SYM_REGISTER) ||
+				(m_type == SYM_REG_REFERENCE) ||
 				(m_type == SYM_REGISTER128);
 		}
 

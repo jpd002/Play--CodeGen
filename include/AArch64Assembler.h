@@ -95,12 +95,15 @@ public:
 	void    Asrv(REGISTER32, REGISTER32, REGISTER32);
 	void    Asrv(REGISTER64, REGISTER64, REGISTER64);
 	void    B(LABEL);
+	void    B_offset(uint32);
 	void    Bl(uint32);
 	void	Br(REGISTER64);
 	void    BCc(CONDITION, LABEL);
 	void    Blr(REGISTER64);
 	void    Cbnz(REGISTER32, LABEL);
+	void    Cbnz(REGISTER64, LABEL);
 	void    Cbz(REGISTER32, LABEL);
+	void    Cbz(REGISTER64, LABEL);
 	void    Clz(REGISTER32, REGISTER32);
 	void    Cmeq_16b(REGISTERMD, REGISTERMD, REGISTERMD);
 	void    Cmeq_8h(REGISTERMD, REGISTERMD, REGISTERMD);
@@ -148,6 +151,8 @@ public:
 	void    Ldp_PostIdx(REGISTER64, REGISTER64, REGISTER64, int32);
 	void    Ldr(REGISTER32, REGISTER64, uint32);
 	void    Ldr(REGISTER64, REGISTER64, uint32);
+	void    Ldrb(REGISTER32, REGISTER64, uint32);
+	void    Ldrh(REGISTER32, REGISTER64, uint32);
 	void    Ldr_Pc(REGISTER64, uint32);
 	void    Ldr_1s(REGISTERMD, REGISTER64, uint32);
 	void    Ldr_1q(REGISTERMD, REGISTER64, uint32);
@@ -197,6 +202,8 @@ public:
 	void    Stp_PreIdx(REGISTER64, REGISTER64, REGISTER64, int32);
 	void    Str(REGISTER32, REGISTER64, uint32);
 	void    Str(REGISTER64, REGISTER64, uint32);
+	void    Strb(REGISTER32, REGISTER64, uint32);
+	void    Strh(REGISTER32, REGISTER64, uint32);
 	void    Str_1s(REGISTERMD, REGISTER64, uint32);
 	void    Str_1q(REGISTERMD, REGISTER64, uint32);
 	void    Sub(REGISTER32, REGISTER32, REGISTER32);
@@ -235,6 +242,7 @@ private:
 	{
 		size_t offset = 0;
 		bool cbz = false;
+		bool cbz64 = false;
 		REGISTER32 cbRegister = w0;
 		CONDITION condition;
 	};
@@ -244,6 +252,7 @@ private:
 	
 	void    CreateBranchLabelReference(LABEL, CONDITION);
 	void    CreateCompareBranchLabelReference(LABEL, CONDITION, REGISTER32);
+	void    CreateCompareBranchLabelReference(LABEL, CONDITION, REGISTER64);
 
 	void    WriteAddSubOpImm(uint32, uint32 shift, uint32 imm, uint32 rn, uint32 rd);
 	void    WriteDataProcOpReg2(uint32, uint32 rm, uint32 rn, uint32 rd);

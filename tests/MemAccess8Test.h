@@ -3,14 +3,14 @@
 #include "Test.h"
 #include "MemoryFunction.h"
 
-class CMemAccessTest : public CTest
+class CMemAccess8Test : public CTest
 {
 public:
 	void Run() override;
 	void Compile(Jitter::CJitter&) override;
 
 private:
-	typedef uint32 UnitType;
+	typedef uint8 UnitType;
 
 	struct CONTEXT
 	{

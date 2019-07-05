@@ -2,6 +2,7 @@
 #define _JITTER_SYMBOLREF_H_
 
 #include "Jitter_Symbol.h"
+#include "maybe_unused.h"
 
 namespace Jitter
 {
@@ -64,6 +65,7 @@ namespace Jitter
 
 	typedef std::shared_ptr<CVersionedSymbolRef> VersionedSymbolRefPtr;
 
+	FRAMEWORK_MAYBE_UNUSED
 	static CSymbol* dynamic_symbolref_cast(SYM_TYPE type, const SymbolRefPtr& symbolRef)
 	{
 		if(!symbolRef) return nullptr;

@@ -419,6 +419,7 @@ namespace Jitter
 		CX86Assembler::CAddress		MakeRelativeReferenceSymbolAddress(CSymbol*);
 		CX86Assembler::CAddress		MakeTemporaryReferenceSymbolAddress(CSymbol*);
 		CX86Assembler::CAddress		MakeMemoryReferenceSymbolAddress(CSymbol*);
+		CX86Assembler::CAddress		MakeVariableReferenceSymbolAddress(CSymbol*);
 
 		CX86Assembler::CAddress		MakeRelative64SymbolAddress(CSymbol*);
 		CX86Assembler::CAddress		MakeRelative64SymbolLoAddress(CSymbol*);
@@ -566,6 +567,30 @@ namespace Jitter
 		void						Emit_ExtHigh64RegTmp64(const STATEMENT&);
 		void						Emit_ExtHigh64MemTmp64(const STATEMENT&);
 
+		//LOADFROMREF
+		void						Emit_LoadFromRef_VarVar(const STATEMENT&);
+		void						Emit_LoadFromRef_Md_RegVar(const STATEMENT&);
+		void						Emit_LoadFromRef_Md_MemVar(const STATEMENT&);
+
+		//LOAD8FROMREF
+		void						Emit_Load8FromRef_VarVar(const STATEMENT&);
+
+		//LOAD16FROMREF
+		void						Emit_Load16FromRef_VarVar(const STATEMENT&);
+
+		//STOREATREF
+		void						Emit_StoreAtRef_VarVar(const STATEMENT&);
+		void						Emit_StoreAtRef_VarCst(const STATEMENT&);
+		void						Emit_StoreAtRef_Md_VarReg(const STATEMENT&);
+		void						Emit_StoreAtRef_Md_VarMem(const STATEMENT&);
+
+		//STORE8ATREF
+		void						Emit_Store8AtRef_VarCst(const STATEMENT&);
+
+		//STORE16ATREF
+		void						Emit_Store16AtRef_VarVar(const STATEMENT&);
+		void						Emit_Store16AtRef_VarCst(const STATEMENT&);
+
 		//FPUOP
 		template <typename> void	Emit_Fpu_MemMem(const STATEMENT&);
 		template <typename> void	Emit_Fpu_MemMemMem(const STATEMENT&);
@@ -649,6 +674,13 @@ namespace Jitter
 		void						Emit_Md_IsZero_Ssse3(CX86Assembler::REGISTER, const CX86Assembler::CAddress&);
 
 		static CX86Assembler::REGISTER g_baseRegister;
+
+		CX86Assembler::REGISTER		PrepareSymbolRegisterDef(CSymbol*, CX86Assembler::REGISTER);
+		CX86Assembler::REGISTER		PrepareSymbolRegisterUse(CSymbol*, CX86Assembler::REGISTER);
+		CX86Assembler::BYTEREGISTER	PrepareSymbolByteRegisterUse(CSymbol*, CX86Assembler::REGISTER);
+		void						CommitSymbolRegister(CSymbol*, CX86Assembler::REGISTER);
+
+		virtual CX86Assembler::REGISTER PrepareRefSymbolRegisterUse(CSymbol*, CX86Assembler::REGISTER) = 0;
 
 		CX86Assembler				m_assembler;
 		CX86Assembler::REGISTER*	m_registers = nullptr;

@@ -10,7 +10,7 @@ namespace Jitter
 	{
 	public:
 		           CCodeGen_AArch64();
-		virtual    ~CCodeGen_AArch64();
+		virtual    ~CCodeGen_AArch64() = default;
 
 		void            SetGenerateRelocatableCalls(bool);
 
@@ -20,6 +20,7 @@ namespace Jitter
 		unsigned int    GetAvailableRegisterCount() const override;
 		unsigned int    GetAvailableMdRegisterCount() const override;
 		bool            CanHold128BitsReturnValueInRegisters() const override;
+		uint32          GetPointerSize() const override;
 
 	private:
 		typedef std::map<uint32, CAArch64Assembler::LABEL> LabelMapType;
@@ -124,6 +125,10 @@ namespace Jitter
 		CAArch64Assembler::REGISTER32    PrepareSymbolRegisterDef(CSymbol*, CAArch64Assembler::REGISTER32);
 		CAArch64Assembler::REGISTER32    PrepareSymbolRegisterUse(CSymbol*, CAArch64Assembler::REGISTER32);
 		void                             CommitSymbolRegister(CSymbol*, CAArch64Assembler::REGISTER32);
+		
+		CAArch64Assembler::REGISTER64    PrepareSymbolRegisterDefRef(CSymbol*, CAArch64Assembler::REGISTER64);
+		CAArch64Assembler::REGISTER64    PrepareSymbolRegisterUseRef(CSymbol*, CAArch64Assembler::REGISTER64);
+		void                             CommitSymbolRegisterRef(CSymbol*, CAArch64Assembler::REGISTER64);
 		
 		CAArch64Assembler::REGISTERMD    PrepareSymbolRegisterDefMd(CSymbol*, CAArch64Assembler::REGISTERMD);
 		CAArch64Assembler::REGISTERMD    PrepareSymbolRegisterUseMd(CSymbol*, CAArch64Assembler::REGISTERMD);
@@ -587,6 +592,8 @@ namespace Jitter
 		void    Emit_Mov_MemMem(const STATEMENT&);
 		void    Emit_Mov_MemCst(const STATEMENT&);
 		
+		void    Emit_Mov_RegRefMemRef(const STATEMENT&);
+		
 		void    Emit_Not_VarVar(const STATEMENT&);
 		void    Emit_Lzc_VarVar(const STATEMENT&);
 		
@@ -597,15 +604,21 @@ namespace Jitter
 		void    Emit_ExtHigh64VarMem64(const STATEMENT&);
 		void    Emit_MergeTo64_Mem64AnyAny(const STATEMENT&);
 		
-		void    Emit_RelToRef_TmpCst(const STATEMENT&);
-		void    Emit_AddRef_TmpMemAny(const STATEMENT&);
-		void    Emit_IsRefNull_VarMem(const STATEMENT&);
-		void    Emit_LoadFromRef_VarMem(const STATEMENT&);
-		void    Emit_LoadFromRef_Ref_TmpMem(const STATEMENT&);
-		void    Emit_StoreAtRef_MemAny(const STATEMENT&);
+		void    Emit_RelToRef_VarCst(const STATEMENT&);
+		void    Emit_AddRef_VarVarAny(const STATEMENT&);
+		void    Emit_IsRefNull_VarVar(const STATEMENT&);
+		void    Emit_LoadFromRef_VarVar(const STATEMENT&);
+		void    Emit_LoadFromRef_Ref_VarVar(const STATEMENT&);
+		void    Emit_StoreAtRef_VarAny(const STATEMENT&);
 		
-		void    Emit_LoadFromRef_64_MemMem(const STATEMENT&);
-		void    Emit_StoreAtRef_64_MemAny(const STATEMENT&);
+		void    Emit_Load8FromRef_MemVar(const STATEMENT&);
+		void    Emit_Store8AtRef_VarAny(const STATEMENT&);
+
+		void    Emit_Load16FromRef_MemVar(const STATEMENT&);
+		void    Emit_Store16AtRef_VarAny(const STATEMENT&);
+
+		void    Emit_LoadFromRef_64_MemVar(const STATEMENT&);
+		void    Emit_StoreAtRef_64_VarAny(const STATEMENT&);
 
 		void    Emit_Param_Ctx(const STATEMENT&);
 		void    Emit_Param_Reg(const STATEMENT&);
@@ -624,12 +637,15 @@ namespace Jitter
 		void    Emit_RetVal_Mem128(const STATEMENT&);
 		
 		void    Emit_ExternJmp(const STATEMENT&);
+		void    Emit_ExternJmpDynamic(const STATEMENT&);
 
 		void    Emit_Jmp(const STATEMENT&);
 		
 		void    Emit_CondJmp(const STATEMENT&);
 		void    Emit_CondJmp_AnyVar(const STATEMENT&);
 		void    Emit_CondJmp_VarCst(const STATEMENT&);
+		
+		void    Emit_CondJmp_Ref_VarCst(const STATEMENT&);
 		
 		void    Cmp_GetFlag(CAArch64Assembler::REGISTER32, Jitter::CONDITION);
 		void    Emit_Cmp_VarAnyVar(const STATEMENT&);
@@ -693,8 +709,8 @@ namespace Jitter
 		
 		void    Emit_Md_Not_VarVar(const STATEMENT&);
 		
-		void    Emit_Md_LoadFromRef_VarMem(const STATEMENT&);
-		void    Emit_Md_StoreAtRef_MemVar(const STATEMENT&);
+		void    Emit_Md_LoadFromRef_VarVar(const STATEMENT&);
+		void    Emit_Md_StoreAtRef_VarVar(const STATEMENT&);
 	
 		void    Emit_Md_MovMasked_VarVarVar(const STATEMENT&);
 		void    Emit_Md_Expand_VarReg(const STATEMENT&);

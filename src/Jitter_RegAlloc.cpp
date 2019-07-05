@@ -125,7 +125,13 @@ void CJitter::AllocateRegisters(BASIC_BLOCK& basicBlock)
 		{
 			const auto& statement = statementInfo.statement;
 			auto statementIterator = statementInfo.iterator;
-			if((statement.op != OP_CONDJMP) && (statement.op != OP_JMP) && (statement.op != OP_CALL) && (statement.op != OP_EXTERNJMP))
+			if(
+				(statement.op != OP_CONDJMP) &&
+				(statement.op != OP_JMP) &&
+				(statement.op != OP_CALL) &&
+				(statement.op != OP_EXTERNJMP) &&
+				(statement.op != OP_EXTERNJMP_DYN)
+				)
 			{
 				statementIterator++;
 			}
@@ -189,6 +195,7 @@ void CJitter::AssociateSymbolsToRegisters(SymbolRegAllocInfo& symbolRegAllocs) c
 		{
 			return 
 				(symbolType == SYM_RELATIVE) || (symbolType == SYM_TEMPORARY) ||
+				(symbolType == SYM_REL_REFERENCE) || (symbolType == SYM_TMP_REFERENCE) ||
 				(symbolType == SYM_RELATIVE128) || (symbolType == SYM_TEMPORARY128);
 		};
 
@@ -237,19 +244,28 @@ void CJitter::AssociateSymbolsToRegisters(SymbolRegAllocInfo& symbolRegAllocs) c
 		//Find suitable register for this symbol
 		auto registerIterator = std::end(availableRegisters);
 		auto registerIteratorEnd = std::end(availableRegisters);
+		auto registerSymbolType = SYM_REGISTER;
 		if((symbol->m_type == SYM_RELATIVE) || (symbol->m_type == SYM_TEMPORARY))
 		{
 			registerIterator = availableRegisters.lower_bound(SYM_REGISTER);
 			registerIteratorEnd = availableRegisters.upper_bound(SYM_REGISTER);
+			registerSymbolType = SYM_REGISTER;
+		}
+		else if((symbol->m_type == SYM_REL_REFERENCE) || (symbol->m_type == SYM_TMP_REFERENCE))
+		{
+			registerIterator = availableRegisters.lower_bound(SYM_REGISTER);
+			registerIteratorEnd = availableRegisters.upper_bound(SYM_REGISTER);
+			registerSymbolType = SYM_REG_REFERENCE;
 		}
 		else if((symbol->m_type == SYM_RELATIVE128) || (symbol->m_type == SYM_TEMPORARY128))
 		{
 			registerIterator = availableRegisters.lower_bound(SYM_REGISTER128);
 			registerIteratorEnd = availableRegisters.upper_bound(SYM_REGISTER128);
+			registerSymbolType = SYM_REGISTER128;
 		}
 		if(registerIterator != registerIteratorEnd)
 		{
-			symbolRegAlloc.registerType = registerIterator->first;
+			symbolRegAlloc.registerType = registerSymbolType;
 			symbolRegAlloc.registerId = registerIterator->second;
 			availableRegisters.erase(registerIterator);
 		}

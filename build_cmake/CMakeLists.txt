@@ -125,14 +125,22 @@ set(CodeGenTest_SRC
 	../tests/MdLogicTest.cpp
 	../tests/MdManipTest.cpp
 	../tests/MdMemAccessTest.cpp
+	../tests/MdMemAccessTest.h
 	../tests/MdMinMaxTest.cpp
 	../tests/MdShiftTest.cpp
 	../tests/MdSubTest.cpp
 	../tests/MdTest.cpp
 	../tests/MdUnpackTest.cpp
 	../tests/MemAccessTest.cpp
+	../tests/MemAccessTest.h
+	../tests/MemAccess8Test.cpp
+	../tests/MemAccess8Test.h
+	../tests/MemAccess16Test.cpp
+	../tests/MemAccess16Test.h
 	../tests/MemAccess64Test.cpp
+	../tests/MemAccess64Test.h
 	../tests/MemAccessRefTest.cpp
+	../tests/MemAccessRefTest.h
 	../tests/Merge64Test.cpp
 	../tests/MultTest.cpp
 	../tests/NestedIfTest.cpp

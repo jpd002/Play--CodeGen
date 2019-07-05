@@ -146,6 +146,8 @@ CCodeGen_AArch32::CONSTMATCHER CCodeGen_AArch32::g_constMatchers[] =
 	{ OP_MOV,			MATCH_MEMORY,		MATCH_MEMORY,		MATCH_NIL,			&CCodeGen_AArch32::Emit_Mov_MemMem								},
 	{ OP_MOV,			MATCH_MEMORY,		MATCH_CONSTANT,		MATCH_NIL,			&CCodeGen_AArch32::Emit_Mov_MemCst								},
 
+	{ OP_MOV,			MATCH_REG_REF,		MATCH_MEM_REF,		MATCH_NIL,			&CCodeGen_AArch32::Emit_Mov_RegRefMemRef						},
+
 	ALU_CONST_MATCHERS(OP_ADD, ALUOP_ADD)
 	ALU_CONST_MATCHERS(OP_SUB, ALUOP_SUB)
 	ALU_CONST_MATCHERS(OP_AND, ALUOP_AND)
@@ -175,11 +177,13 @@ CCodeGen_AArch32::CONSTMATCHER CCodeGen_AArch32::g_constMatchers[] =
 	{ OP_RETVAL,		MATCH_MEMORY64,		MATCH_NIL,			MATCH_NIL,			&CCodeGen_AArch32::Emit_RetVal_Mem64							},
 
 	{ OP_EXTERNJMP,		MATCH_NIL,			MATCH_CONSTANTPTR,	MATCH_NIL,			&CCodeGen_AArch32::Emit_ExternJmp								},
+	{ OP_EXTERNJMP_DYN,	MATCH_NIL,			MATCH_CONSTANTPTR,	MATCH_NIL,			&CCodeGen_AArch32::Emit_ExternJmpDynamic						},
 
 	{ OP_JMP,			MATCH_NIL,			MATCH_NIL,			MATCH_NIL,			&CCodeGen_AArch32::Emit_Jmp										},
 
 	{ OP_CONDJMP,		MATCH_NIL,			MATCH_VARIABLE,		MATCH_CONSTANT,		&CCodeGen_AArch32::Emit_CondJmp_VarCst							},
 	{ OP_CONDJMP,		MATCH_NIL,			MATCH_VARIABLE,		MATCH_VARIABLE,		&CCodeGen_AArch32::Emit_CondJmp_VarVar							},
+	{ OP_CONDJMP,		MATCH_NIL,			MATCH_VAR_REF,		MATCH_CONSTANT,		&CCodeGen_AArch32::Emit_CondJmp_Ref_VarCst						},
 	
 	{ OP_CMP,			MATCH_ANY,			MATCH_ANY,			MATCH_CONSTANT,		&CCodeGen_AArch32::Emit_Cmp_AnyAnyCst							},
 	{ OP_CMP,			MATCH_ANY,			MATCH_ANY,			MATCH_ANY,			&CCodeGen_AArch32::Emit_Cmp_AnyAnyAny							},
@@ -194,16 +198,27 @@ CCodeGen_AArch32::CONSTMATCHER CCodeGen_AArch32::g_constMatchers[] =
 	{ OP_MUL,			MATCH_TEMPORARY64,	MATCH_ANY,			MATCH_ANY,			&CCodeGen_AArch32::Emit_MulTmp64AnyAny<false>					},
 	{ OP_MULS,			MATCH_TEMPORARY64,	MATCH_ANY,			MATCH_ANY,			&CCodeGen_AArch32::Emit_MulTmp64AnyAny<true>					},
 
-	{ OP_RELTOREF,		MATCH_TMP_REF,		MATCH_CONSTANT,		MATCH_ANY,			&CCodeGen_AArch32::Emit_RelToRef_TmpCst							},
+	{ OP_RELTOREF,		MATCH_VAR_REF,		MATCH_CONSTANT,		MATCH_ANY,			&CCodeGen_AArch32::Emit_RelToRef_VarCst							},
 
-	{ OP_ADDREF,		MATCH_TMP_REF,		MATCH_MEM_REF,		MATCH_ANY,			&CCodeGen_AArch32::Emit_AddRef_TmpMemAny						},
+	{ OP_ADDREF,		MATCH_VAR_REF,		MATCH_VAR_REF,		MATCH_ANY,			&CCodeGen_AArch32::Emit_AddRef_VarVarAny						},
 	
-	{ OP_LOADFROMREF,	MATCH_VARIABLE,		MATCH_TMP_REF,		MATCH_NIL,			&CCodeGen_AArch32::Emit_LoadFromRef_VarTmp						},
+	{ OP_ISREFNULL,		MATCH_VARIABLE,		MATCH_VAR_REF,		MATCH_ANY,			&CCodeGen_AArch32::Emit_IsRefNull_VarVar						},
+
+	{ OP_LOADFROMREF,	MATCH_VARIABLE,		MATCH_VAR_REF,		MATCH_NIL,			&CCodeGen_AArch32::Emit_LoadFromRef_VarVar						},
+	{ OP_LOADFROMREF,	MATCH_VAR_REF,		MATCH_VAR_REF,		MATCH_NIL,			&CCodeGen_AArch32::Emit_LoadFromRef_Ref_VarVar					},
+
+	{ OP_LOAD8FROMREF,	MATCH_VARIABLE,		MATCH_VAR_REF,		MATCH_NIL,			&CCodeGen_AArch32::Emit_Load8FromRef_MemVar						},
+
+	{ OP_LOAD16FROMREF,	MATCH_VARIABLE,		MATCH_VAR_REF,		MATCH_NIL,			&CCodeGen_AArch32::Emit_Load16FromRef_MemVar					},
 
 	//Cannot use MATCH_ANY here because it will match SYM_RELATIVE128
-	{ OP_STOREATREF,	MATCH_NIL,			MATCH_TMP_REF,		MATCH_VARIABLE,		&CCodeGen_AArch32::Emit_StoreAtRef_TmpAny						},
-	{ OP_STOREATREF,	MATCH_NIL,			MATCH_TMP_REF,		MATCH_CONSTANT,		&CCodeGen_AArch32::Emit_StoreAtRef_TmpAny						},
+	{ OP_STOREATREF,	MATCH_NIL,			MATCH_VAR_REF,		MATCH_VARIABLE,		&CCodeGen_AArch32::Emit_StoreAtRef_VarAny						},
+	{ OP_STOREATREF,	MATCH_NIL,			MATCH_VAR_REF,		MATCH_CONSTANT,		&CCodeGen_AArch32::Emit_StoreAtRef_VarAny						},
 	
+	{ OP_STORE8ATREF,	MATCH_NIL,			MATCH_VAR_REF,		MATCH_ANY,			&CCodeGen_AArch32::Emit_Store8AtRef_VarAny						},
+
+	{ OP_STORE16ATREF,	MATCH_NIL,			MATCH_VAR_REF,		MATCH_ANY,			&CCodeGen_AArch32::Emit_Store16AtRef_VarAny						},
+
 	{ OP_MOV,			MATCH_NIL,			MATCH_NIL,			MATCH_NIL,			NULL														},
 };
 
@@ -262,11 +277,6 @@ CCodeGen_AArch32::CCodeGen_AArch32()
 	}
 }
 
-CCodeGen_AArch32::~CCodeGen_AArch32()
-{
-
-}
-
 unsigned int CCodeGen_AArch32::GetAvailableRegisterCount() const
 {
 	return MAX_REGISTERS;
@@ -280,6 +290,11 @@ unsigned int CCodeGen_AArch32::GetAvailableMdRegisterCount() const
 bool CCodeGen_AArch32::CanHold128BitsReturnValueInRegisters() const
 {
 	return false;
+}
+
+uint32 CCodeGen_AArch32::GetPointerSize() const
+{
+	return 4;
 }
 
 void CCodeGen_AArch32::SetStream(Framework::CStream* stream)
@@ -321,7 +336,7 @@ void CCodeGen_AArch32::GenerateCode(const StatementList& statements, unsigned in
 			found = true;
 			break;
 		}
-		assert(found);
+		//assert(found);
 		if(!found)
 		{
 			throw std::runtime_error("No suitable emitter found for statement.");
@@ -347,6 +362,8 @@ uint16 CCodeGen_AArch32::GetSavedRegisterList(uint32 registerUsage)
 		}
 	}
 	registerSave |= (1 << g_callAddressRegister);
+	registerSave |= (1 << g_tempParamRegister0);
+	registerSave |= (1 << g_tempParamRegister1);
 	registerSave |= (1 << g_baseRegister);
 	registerSave |= (1 << CAArch32Assembler::rLR);
 	return registerSave;
@@ -642,6 +659,59 @@ void CCodeGen_AArch32::CommitSymbolRegister(CSymbol* symbol, CAArch32Assembler::
 	default:
 		throw std::runtime_error("Invalid symbol type.");
 		break;
+	}
+}
+
+CAArch32Assembler::REGISTER CCodeGen_AArch32::PrepareSymbolRegisterDefRef(CSymbol* symbol, CAArch32Assembler::REGISTER preferedRegister)
+{
+	switch(symbol->m_type)
+	{
+		case SYM_REG_REFERENCE:
+			assert(symbol->m_valueLow < MAX_REGISTERS);
+			return g_registers[symbol->m_valueLow];
+			break;
+		case SYM_TMP_REFERENCE:
+		case SYM_REL_REFERENCE:
+			return preferedRegister;
+			break;
+		default:
+			throw std::runtime_error("Invalid symbol type.");
+			break;
+	}
+}
+
+CAArch32Assembler::REGISTER CCodeGen_AArch32::PrepareSymbolRegisterUseRef(CSymbol* symbol, CAArch32Assembler::REGISTER preferedRegister)
+{
+	switch(symbol->m_type)
+	{
+		case SYM_REG_REFERENCE:
+			assert(symbol->m_valueLow < MAX_REGISTERS);
+			return g_registers[symbol->m_valueLow];
+			break;
+		case SYM_TMP_REFERENCE:
+		case SYM_REL_REFERENCE:
+			LoadMemoryReferenceInRegister(preferedRegister, symbol);
+			return preferedRegister;
+			break;
+		default:
+			throw std::runtime_error("Invalid symbol type.");
+			break;
+	}
+}
+
+void CCodeGen_AArch32::CommitSymbolRegisterRef(CSymbol* symbol, CAArch32Assembler::REGISTER usedRegister)
+{
+	switch(symbol->m_type)
+	{
+		case SYM_REG_REFERENCE:
+			assert(usedRegister == g_registers[symbol->m_valueLow]);
+			break;
+		case SYM_TMP_REFERENCE:
+			StoreRegisterInTemporaryReference(symbol, usedRegister);
+			break;
+		default:
+			throw std::runtime_error("Invalid symbol type.");
+			break;
 	}
 }
 
@@ -941,6 +1011,20 @@ void CCodeGen_AArch32::Emit_ExternJmp(const STATEMENT& statement)
 	m_assembler.Mov(CAArch32Assembler::r0, g_baseRegister);
 	Emit_Epilog();
 
+	auto targetAddressRegister = CAArch32Assembler::r1;
+	LoadConstantPtrInRegister(targetAddressRegister, src1->GetConstantPtr());
+	m_assembler.Mov(CAArch32Assembler::rPC, targetAddressRegister);
+}
+
+void CCodeGen_AArch32::Emit_ExternJmpDynamic(const STATEMENT& statement)
+{
+	auto src1 = statement.src1->GetSymbol().get();
+
+	assert(src1->m_type == SYM_CONSTANTPTR);
+
+	m_assembler.Mov(CAArch32Assembler::r0, g_baseRegister);
+	Emit_Epilog();
+
 	m_assembler.Ldr_Pc(CAArch32Assembler::rPC, -4);
 
 	//Write target function address
@@ -1009,6 +1093,17 @@ void CCodeGen_AArch32::Emit_Mov_MemCst(const STATEMENT& statement)
 	auto tmpReg = CAArch32Assembler::r0;
 	LoadConstantInRegister(tmpReg, src1->m_valueLow);
 	StoreRegisterInMemory(dst, tmpReg);
+}
+
+void CCodeGen_AArch32::Emit_Mov_RegRefMemRef(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	
+	assert(dst->m_type == SYM_REG_REFERENCE);
+	
+	assert((src1->m_valueLow & 0x03) == 0);
+	LoadMemoryReferenceInRegister(g_registers[dst->m_valueLow], src1);
 }
 
 void CCodeGen_AArch32::Emit_Lzc_VarVar(const STATEMENT& statement)
@@ -1119,6 +1214,34 @@ void CCodeGen_AArch32::Emit_CondJmp_VarCst(const STATEMENT& statement)
 	auto src1Reg = PrepareSymbolRegisterUse(src1, CAArch32Assembler::r1);
 	Cmp_GenericRegCst(src1Reg, src2->m_valueLow, CAArch32Assembler::r2);
 	Emit_CondJmp(statement);
+}
+
+void CCodeGen_AArch32::Emit_CondJmp_Ref_VarCst(const STATEMENT& statement)
+{
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+	
+	auto src1Reg = PrepareSymbolRegisterUseRef(src1, CAArch32Assembler::r0);
+
+	assert(src2->m_type == SYM_CONSTANT);
+	assert(src2->m_valueLow == 0);
+	assert((statement.jmpCondition == CONDITION_NE) || (statement.jmpCondition == CONDITION_EQ));
+	
+	auto label = GetLabel(statement.jmpBlock);
+
+	m_assembler.Tst(src1Reg, src1Reg);
+	switch(statement.jmpCondition)
+	{
+		case CONDITION_EQ:
+			m_assembler.BCc(CAArch32Assembler::CONDITION_EQ, label);
+			break;
+		case CONDITION_NE:
+			m_assembler.BCc(CAArch32Assembler::CONDITION_NE, label);
+			break;
+		default:
+			assert(false);
+			break;
+	}
 }
 
 void CCodeGen_AArch32::Cmp_GetFlag(CAArch32Assembler::REGISTER registerId, Jitter::CONDITION condition)
@@ -1252,69 +1375,141 @@ void CCodeGen_AArch32::Emit_Not_MemMem(const STATEMENT& statement)
 	StoreRegisterInMemory(dst, dstReg);
 }
 
-void CCodeGen_AArch32::Emit_RelToRef_TmpCst(const STATEMENT& statement)
+void CCodeGen_AArch32::Emit_RelToRef_VarCst(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
 
 	assert(src1->m_type == SYM_CONSTANT);
 
-	auto tmpReg = CAArch32Assembler::r0;
+	auto dstReg = PrepareSymbolRegisterDefRef(dst, CAArch32Assembler::r0);
 
 	uint8 immediate = 0;
 	uint8 shiftAmount = 0;
 
 	if(TryGetAluImmediateParams(src1->m_valueLow, immediate, shiftAmount))
 	{
-		m_assembler.Add(tmpReg, g_baseRegister, CAArch32Assembler::MakeImmediateAluOperand(immediate, shiftAmount));
+		m_assembler.Add(dstReg, g_baseRegister, CAArch32Assembler::MakeImmediateAluOperand(immediate, shiftAmount));
 	}
 	else
 	{
-		LoadConstantInRegister(tmpReg, src1->m_valueLow);
-		m_assembler.Add(tmpReg, tmpReg, g_baseRegister);
+		LoadConstantInRegister(dstReg, src1->m_valueLow);
+		m_assembler.Add(dstReg, dstReg, g_baseRegister);
 	}
 
-	StoreRegisterInTemporaryReference(dst, tmpReg);
+	CommitSymbolRegisterRef(dst, dstReg);
 }
 
-void CCodeGen_AArch32::Emit_AddRef_TmpMemAny(const STATEMENT& statement)
+void CCodeGen_AArch32::Emit_AddRef_VarVarAny(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
 	auto src2 = statement.src2->GetSymbol().get();
 	
-	auto tmpReg = CAArch32Assembler::r0;
-	auto src2Reg = PrepareSymbolRegisterUse(src2, CAArch32Assembler::r1);
+	auto dstReg = PrepareSymbolRegisterDefRef(dst, CAArch32Assembler::r0);
+	auto src1Reg = PrepareSymbolRegisterUseRef(src1, CAArch32Assembler::r1);
+	auto src2Reg = PrepareSymbolRegisterUse(src2, CAArch32Assembler::r2);
 
-	LoadMemoryReferenceInRegister(tmpReg, src1);
-	m_assembler.Add(tmpReg, tmpReg, src2Reg);
-	StoreRegisterInTemporaryReference(dst, tmpReg);
+	m_assembler.Add(dstReg, src1Reg, src2Reg);
+
+	CommitSymbolRegisterRef(dst, dstReg);
 }
 
-void CCodeGen_AArch32::Emit_LoadFromRef_VarTmp(const STATEMENT& statement)
+void CCodeGen_AArch32::Emit_IsRefNull_VarVar(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+
+	auto addressReg = PrepareSymbolRegisterUseRef(src1, CAArch32Assembler::r0);
+	auto dstReg = PrepareSymbolRegisterDef(dst, CAArch32Assembler::r1);
+
+	m_assembler.Tst(addressReg, addressReg);
+	Cmp_GetFlag(dstReg, Jitter::CONDITION_EQ);
+
+	CommitSymbolRegister(dst, dstReg);
+}
+
+void CCodeGen_AArch32::Emit_LoadFromRef_VarVar(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
 		
-	auto addressReg = CAArch32Assembler::r0;
+	auto addressReg = PrepareSymbolRegisterUseRef(src1, CAArch32Assembler::r0);
 	auto dstReg = PrepareSymbolRegisterDef(dst, CAArch32Assembler::r1);
 
-	LoadTemporaryReferenceInRegister(addressReg, src1);
 	m_assembler.Ldr(dstReg, addressReg, CAArch32Assembler::MakeImmediateLdrAddress(0));
 
 	CommitSymbolRegister(dst, dstReg);
 }
 
-void CCodeGen_AArch32::Emit_StoreAtRef_TmpAny(const STATEMENT& statement)
+void CCodeGen_AArch32::Emit_LoadFromRef_Ref_VarVar(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+
+	auto dstReg = PrepareSymbolRegisterDefRef(dst, CAArch32Assembler::r0);
+	auto src1Reg = PrepareSymbolRegisterUseRef(src1, CAArch32Assembler::r1);
+
+	m_assembler.Ldr(dstReg, src1Reg, CAArch32Assembler::MakeImmediateLdrAddress(0));
+
+	CommitSymbolRegisterRef(dst, dstReg);
+}
+
+void CCodeGen_AArch32::Emit_Load8FromRef_MemVar(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	
+	auto addressReg = PrepareSymbolRegisterUseRef(src1, CAArch32Assembler::r0);
+	auto dstReg = PrepareSymbolRegisterDef(dst, CAArch32Assembler::r1);
+	
+	m_assembler.Ldrb(dstReg, addressReg, CAArch32Assembler::MakeImmediateLdrAddress(0));
+	
+	CommitSymbolRegister(dst, dstReg);
+}
+
+void CCodeGen_AArch32::Emit_Load16FromRef_MemVar(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	
+	auto addressReg = PrepareSymbolRegisterUseRef(src1, CAArch32Assembler::r0);
+	auto dstReg = PrepareSymbolRegisterDef(dst, CAArch32Assembler::r1);
+	
+	m_assembler.Ldrh(dstReg, addressReg, CAArch32Assembler::MakeImmediateLdrAddress(0));
+	
+	CommitSymbolRegister(dst, dstReg);
+}
+
+void CCodeGen_AArch32::Emit_StoreAtRef_VarAny(const STATEMENT& statement)
 {
 	auto src1 = statement.src1->GetSymbol().get();
 	auto src2 = statement.src2->GetSymbol().get();
 	
-	assert(src1->m_type == SYM_TMP_REFERENCE);
-	
-	auto addressReg = CAArch32Assembler::r0;
+	auto addressReg = PrepareSymbolRegisterUseRef(src1, CAArch32Assembler::r0);
 	auto valueReg = PrepareSymbolRegisterUse(src2, CAArch32Assembler::r1);
 	
-	LoadTemporaryReferenceInRegister(addressReg, src1);
 	m_assembler.Str(valueReg, addressReg, CAArch32Assembler::MakeImmediateLdrAddress(0));
+}
+
+void CCodeGen_AArch32::Emit_Store8AtRef_VarAny(const STATEMENT& statement)
+{
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+	
+	auto addressReg = PrepareSymbolRegisterUseRef(src1, CAArch32Assembler::r0);
+	auto valueReg = PrepareSymbolRegisterUse(src2, CAArch32Assembler::r1);
+	
+	m_assembler.Strb(valueReg, addressReg, CAArch32Assembler::MakeImmediateLdrAddress(0));
+}
+
+void CCodeGen_AArch32::Emit_Store16AtRef_VarAny(const STATEMENT& statement)
+{
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+	
+	auto addressReg = PrepareSymbolRegisterUseRef(src1, CAArch32Assembler::r0);
+	auto valueReg = PrepareSymbolRegisterUse(src2, CAArch32Assembler::r1);
+	
+	m_assembler.Strh(valueReg, addressReg, CAArch32Assembler::MakeImmediateLdrAddress(0));
 }

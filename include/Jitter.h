@@ -80,6 +80,7 @@ namespace Jitter
 		void							Div();
 		void							DivS();
 		void							JumpTo(void*);
+		void							JumpToDynamic(void*);
 		void							Lookup(uint32*);
 		void							Lzc();
 		void							Mult();
@@ -105,9 +106,13 @@ namespace Jitter
 		void							AddRef();
 		void							IsRefNull();
 		void							LoadFromRef();
+		void							Load8FromRef();
+		void							Load16FromRef();
 		void							Load64FromRef();
 		void							LoadRefFromRef();
 		void							StoreAtRef();
+		void							Store8AtRef();
+		void							Store16AtRef();
 		void							Store64AtRef();
 
 		//64-bits
@@ -274,6 +279,7 @@ namespace Jitter
 			CRelativeVersionManager		relativeVersions;
 		};
 
+		void							InsertUnaryStatement(Jitter::OPERATION);
 		void							InsertBinaryStatement(Jitter::OPERATION);
 		void							InsertUnaryMdStatement(Jitter::OPERATION);
 		void							InsertBinaryMdStatement(Jitter::OPERATION);

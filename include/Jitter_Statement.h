@@ -35,7 +35,11 @@ namespace Jitter
 		OP_ADDREF,
 		OP_ISREFNULL,
 		OP_LOADFROMREF,
+		OP_LOAD8FROMREF,
+		OP_LOAD16FROMREF,
 		OP_STOREATREF,
+		OP_STORE8ATREF,
+		OP_STORE16ATREF,
 
 		OP_ADD64,
 		OP_SUB64,
@@ -150,7 +154,8 @@ namespace Jitter
 		OP_RETVAL,
 		OP_JMP,
 		OP_CONDJMP,
-		OP_EXTERNJMP,    //Pass control to another function with same signature (void (*)(void*)) and same input parameter
+		OP_EXTERNJMP,     //Pass control to another function with same signature (void (*)(void*)) and same input parameter
+		OP_EXTERNJMP_DYN, //Same as above, but destination can be changed at run time, cannot be used in AOT mode
 		OP_GOTO,
 		OP_BREAK,
 

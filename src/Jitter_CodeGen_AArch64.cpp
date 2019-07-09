@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <stdexcept>
 #include "Jitter_CodeGen_AArch64.h"
 #include "BitManip.h"
 

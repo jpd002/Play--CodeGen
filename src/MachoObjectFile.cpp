@@ -1,5 +1,6 @@
 #include <cassert>
 #include <cstring>
+#include <stdexcept>
 #include "MachoObjectFile.h"
 
 using namespace Jitter;

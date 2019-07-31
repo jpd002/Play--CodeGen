@@ -158,11 +158,11 @@ namespace Jitter
 
 		struct CONSTMATCHER
 		{
-			OPERATION				op;
-			MATCHTYPE				dstType;
-			MATCHTYPE				src1Type;
-			MATCHTYPE				src2Type;
-			ConstCodeEmitterType	emitter;
+			OPERATION op;
+			MATCHTYPE dstType;
+			MATCHTYPE src1Type;
+			MATCHTYPE src2Type;
+			ConstCodeEmitterType emitter;
 		};
 
 		enum SYSTEMV_MAX_REGISTERS

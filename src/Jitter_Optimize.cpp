@@ -137,21 +137,16 @@ StatementList CJitter::CollapseVersionedStatementList(const VERSIONED_STATEMENT_
 	StatementList result;
 	for(auto newStatement : statements.statements)
 	{
-		if(VersionedSymbolRefPtr src1 = std::dynamic_pointer_cast<CVersionedSymbolRef>(newStatement.src1))
-		{
-			newStatement.src1 = std::make_shared<CSymbolRef>(src1->GetSymbol());
-		}
-
-		if(VersionedSymbolRefPtr src2 = std::dynamic_pointer_cast<CVersionedSymbolRef>(newStatement.src2))
-		{
-			newStatement.src2 = std::make_shared<CSymbolRef>(src2->GetSymbol());
-		}
-
-		if(VersionedSymbolRefPtr dst = std::dynamic_pointer_cast<CVersionedSymbolRef>(newStatement.dst))
-		{
-			newStatement.dst = std::make_shared<CSymbolRef>(dst->GetSymbol());
-		}
-
+		newStatement.VisitOperands(
+			[](SymbolRefPtr& symbolRef, bool)
+			{
+				if(auto versionedSymbolRef = std::dynamic_pointer_cast<CVersionedSymbolRef>(symbolRef))
+				{
+					symbolRef = std::make_shared<CSymbolRef>(symbolRef->GetSymbol());
+				}
+			}
+		);
+		
 		result.push_back(newStatement);
 	}
 	return result;
@@ -169,7 +164,7 @@ void CJitter::Compile()
 
 				//DumpStatementList(m_currentBlock->statements);
 
-				VERSIONED_STATEMENT_LIST versionedStatements = GenerateVersionedStatementList(basicBlock.statements);
+				auto versionedStatements = GenerateVersionedStatementList(basicBlock.statements);
 
 				while(1)
 				{
@@ -880,24 +875,13 @@ void CJitter::MergeBasicBlocks(BASIC_BLOCK& dstBlock, const BASIC_BLOCK& srcBloc
 
 	for(auto statement : srcBlock.statements)
 	{
-		if(statement.dst)
-		{
-			auto symbol = statement.dst->GetSymbol();
-			statement.dst = std::make_shared<CSymbolRef>(dstSymbolTable.MakeSymbol(symbol));
-		}
-
-		if(statement.src1)
-		{
-			auto symbol = statement.src1->GetSymbol();
-			statement.src1 = std::make_shared<CSymbolRef>(dstSymbolTable.MakeSymbol(symbol));
-		}
-
-		if(statement.src2)
-		{
-			auto symbol = statement.src2->GetSymbol();
-			statement.src2 = std::make_shared<CSymbolRef>(dstSymbolTable.MakeSymbol(symbol));
-		}
-
+		statement.VisitOperands(
+			[&dstSymbolTable](SymbolRefPtr& symbolRef, bool)
+			{
+				auto symbol = symbolRef->GetSymbol();
+				symbolRef = std::make_shared<CSymbolRef>(dstSymbolTable.MakeSymbol(symbol));
+			}
+		);
 		dstBlock.statements.push_back(statement);
 	}
 

@@ -18,16 +18,19 @@ private:
 		uint32			dstIsNegative0;
 		uint32			dstIsNegative1;
 		uint32			dstIsNegative2;
+		uint32			dstIsNegative3;
 
 		uint32			dstIsZero0;
 		uint32			dstIsZero1;
 		uint32			dstIsZero2;
+		uint32			dstIsZero3;
 
 		ALIGN16
 
 		float			src0[4];
 		float			src1[4];
 		float			src2[4];
+		uint32			src3[4];
 	};
 
 	CMemoryFunction		m_function;

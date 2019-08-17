@@ -119,6 +119,7 @@ set(CodeGenTest_SRC
 	../tests/Main.cpp
 	../tests/MdAddTest.cpp
 	../tests/MdCallTest.cpp
+	../tests/MdCallTest.h
 	../tests/MdCmpTest.cpp
 	../tests/MdFpFlagTest.cpp
 	../tests/MdFpTest.cpp

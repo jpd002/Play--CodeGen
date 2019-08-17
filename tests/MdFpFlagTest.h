@@ -15,6 +15,11 @@ public:
 private:
 	struct CONTEXT
 	{
+		uint32			dstSzStatus0;
+		uint32			dstSzStatus1;
+		uint32			dstSzStatus2;
+		uint32			dstSzStatus3;
+
 		uint32			dstIsNegative0;
 		uint32			dstIsNegative1;
 		uint32			dstIsNegative2;

@@ -8,6 +8,22 @@ void CMdFpFlagTest::Compile(Jitter::CJitter& jitter)
 
 	jitter.Begin();
 	{
+		jitter.MD_PushRel(offsetof(CONTEXT, src0));
+		jitter.MD_MakeSignZero();
+		jitter.PullRel(offsetof(CONTEXT, dstSzStatus0));
+
+		jitter.MD_PushRel(offsetof(CONTEXT, src1));
+		jitter.MD_MakeSignZero();
+		jitter.PullRel(offsetof(CONTEXT, dstSzStatus1));
+
+		jitter.MD_PushRel(offsetof(CONTEXT, src2));
+		jitter.MD_MakeSignZero();
+		jitter.PullRel(offsetof(CONTEXT, dstSzStatus2));
+
+		jitter.MD_PushRel(offsetof(CONTEXT, src3));
+		jitter.MD_MakeSignZero();
+		jitter.PullRel(offsetof(CONTEXT, dstSzStatus3));
+		
 		//0
 		jitter.MD_PushRel(offsetof(CONTEXT, src0));
 		jitter.MD_IsNegative();
@@ -79,6 +95,11 @@ void CMdFpFlagTest::Run()
 	context.src3[3] = 0x80000001;
 	
 	m_function(&context);
+	
+	TEST_VERIFY(context.dstSzStatus0 == 0x53);
+	TEST_VERIFY(context.dstSzStatus1 == 0x20);
+	TEST_VERIFY(context.dstSzStatus2 == 0xB4);
+	TEST_VERIFY(context.dstSzStatus3 == 0x50);
 	
 	TEST_VERIFY(context.dstIsNegative0 == 0x5);
 	TEST_VERIFY(context.dstIsZero0     == 0x3);

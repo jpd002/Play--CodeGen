@@ -844,6 +844,34 @@ void CCodeGen_x86::Emit_Md_IsZero_Ssse3(CX86Assembler::REGISTER dstRegister, con
 	m_assembler.AndId(CX86Assembler::MakeRegisterAddress(dstRegister), 0x0F);
 }
 
+void CCodeGen_x86::Emit_Md_MakeSz_Ssse3_VarVar(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	
+	auto signRegister = CX86Assembler::xMM0;
+	auto zeroRegister = CX86Assembler::xMM1;
+	auto cstRegister = CX86Assembler::xMM2;
+	
+	auto dstRegister = PrepareSymbolRegisterDef(dst, CX86Assembler::rDX);
+	
+	m_assembler.MovdqaVo(signRegister, MakeVariable128SymbolAddress(src1));
+	m_assembler.PsradVo(signRegister, 31);
+	
+	m_assembler.PxorVo(zeroRegister, CX86Assembler::MakeXmmRegisterAddress(zeroRegister));
+	m_assembler.CmppsVo(zeroRegister, MakeVariable128SymbolAddress(src1), CX86Assembler::SSE_CMP_EQ);
+	
+	m_assembler.PackssdwVo(signRegister, CX86Assembler::MakeXmmRegisterAddress(zeroRegister));
+	
+	//Extract bits
+	LoadConstant64InMdRegister(cstRegister, 0x00020406080A0C0E);
+	m_assembler.PshufbVo(signRegister, CX86Assembler::MakeXmmRegisterAddress(cstRegister));
+	m_assembler.PmovmskbVo(dstRegister, signRegister);
+	m_assembler.AndId(CX86Assembler::MakeRegisterAddress(dstRegister), 0xFF);
+	
+	CommitSymbolRegister(dst, dstRegister);
+}
+
 void CCodeGen_x86::Emit_Md_Expand_RegReg(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
@@ -1142,5 +1170,7 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdFpFlagSsse3ConstMatchers[] =
 	{ OP_MD_ISZERO,     MATCH_REGISTER, MATCH_VARIABLE128, MATCH_NIL, &CCodeGen_x86::Emit_Md_GetFlag_RegVar<MDOP_ISZERO_SSSE3>     },
 	{ OP_MD_ISZERO,     MATCH_MEMORY,   MATCH_VARIABLE128, MATCH_NIL, &CCodeGen_x86::Emit_Md_GetFlag_MemVar<MDOP_ISZERO_SSSE3>     },
 
+	{ OP_MD_MAKESZ,     MATCH_VARIABLE, MATCH_VARIABLE128, MATCH_NIL, &CCodeGen_x86::Emit_Md_MakeSz_Ssse3_VarVar },
+	
 	{ OP_MOV, MATCH_NIL, MATCH_NIL, MATCH_NIL, nullptr },
 };

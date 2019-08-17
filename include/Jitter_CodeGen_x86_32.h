@@ -27,6 +27,8 @@ namespace Jitter
 
 		void								Emit_Prolog(const StatementList&, unsigned int) override;
 		void								Emit_Epilog() override;
+		
+		void								LoadConstant64InMdRegister(CX86Assembler::XMMREGISTER, uint64) override;
 
 		//PARAM
 		void								Emit_Param_Ctx(const STATEMENT&);

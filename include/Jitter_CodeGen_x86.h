@@ -409,6 +409,8 @@ namespace Jitter
 		virtual void				Emit_Prolog(const StatementList&, unsigned int) = 0;
 		virtual void				Emit_Epilog() = 0;
 
+		virtual void				LoadConstant64InMdRegister(CX86Assembler::XMMREGISTER, uint64) = 0;
+
 		CX86Assembler::LABEL		GetLabel(uint32);
 
 		CX86Assembler::CAddress		MakeRelativeSymbolAddress(CSymbol*);
@@ -672,6 +674,7 @@ namespace Jitter
 		void						Emit_Md_IsZero(CX86Assembler::REGISTER, const CX86Assembler::CAddress&);
 		void						Emit_Md_IsNegative_Ssse3(CX86Assembler::REGISTER, const CX86Assembler::CAddress&);
 		void						Emit_Md_IsZero_Ssse3(CX86Assembler::REGISTER, const CX86Assembler::CAddress&);
+		void						Emit_Md_MakeSz_Ssse3_VarVar(const STATEMENT&);
 
 		static CX86Assembler::REGISTER g_baseRegister;
 

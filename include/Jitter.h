@@ -188,6 +188,7 @@ namespace Jitter
 		void							MD_DivS();
 		void							MD_IsNegative();
 		void							MD_IsZero();
+		void							MD_MakeSignZero();
 		void							MD_MaxH();
 		void							MD_MaxW();
 		void							MD_MaxS();

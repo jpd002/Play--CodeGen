@@ -1541,6 +1541,19 @@ void CJitter::MD_IsNegative()
 	m_shadow.Push(tempSym);
 }
 
+void CJitter::MD_MakeSignZero()
+{
+	auto tempSym = MakeSymbol(SYM_TEMPORARY, m_nextTemporary++);
+
+	STATEMENT statement;
+	statement.op   = OP_MD_MAKESZ;
+	statement.src1 = MakeSymbolRef(m_shadow.Pull());
+	statement.dst  = MakeSymbolRef(tempSym);
+	InsertStatement(statement);
+
+	m_shadow.Push(tempSym);
+}
+
 void CJitter::MD_ToWordTruncate()
 {
 	InsertUnaryMdStatement(OP_MD_TOWORD_TRUNCATE);

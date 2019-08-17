@@ -108,6 +108,51 @@ void CAArch64Assembler::ResolveLabelReferences()
 	m_labelReferences.clear();
 }
 
+void CAArch64Assembler::ResolveLiteralReferences()
+{
+	if(m_literal128Refs.empty()) return;
+	
+	unsigned int alignSize = m_stream->Tell() & 0x0F;
+	if(alignSize != 0)
+	{
+		LITERAL128 tempLit;
+		m_stream->Write(&tempLit, 0x10 - alignSize);
+	}
+	
+	std::map<LITERAL128, uint32> literalPositions;
+	const auto getLiteralPos =
+		[this, &literalPositions] (const LITERAL128& literal)
+		{
+			auto literalPosIterator = literalPositions.find(literal);
+			if(literalPosIterator == std::end(literalPositions))
+			{
+				m_stream->Seek(0, Framework::STREAM_SEEK_END);
+				uint32 literalPos = static_cast<uint32>(m_stream->Tell());
+				m_stream->Write64(literal.lo);
+				m_stream->Write64(literal.hi);
+				literalPositions.insert(std::make_pair(literal, literalPos));
+				return literalPos;
+			}
+			else
+			{
+				return literalPosIterator->second;
+			}
+		};
+
+	for(const auto& literalRef : m_literal128Refs)
+	{
+		auto literalPos = getLiteralPos(literalRef.value);
+		m_stream->Seek(literalRef.offset, Framework::STREAM_SEEK_SET);
+		auto offset = literalPos - literalRef.offset;
+		assert((offset & 0x03) == 0);
+		assert(offset < 0x100000);
+		offset /= 4;
+		m_stream->Write32(0x9C000000 | static_cast<uint32>(offset << 5) | literalRef.rt);
+	}
+	m_literal128Refs.clear();
+	m_stream->Seek(0, Framework::STREAM_SEEK_END);
+}
+
 void CAArch64Assembler::Add(REGISTER32 rd, REGISTER32 rn, REGISTER32 rm)
 {
 	uint32 opcode = 0x0B000000;
@@ -715,6 +760,16 @@ void CAArch64Assembler::Ldr_Pc(REGISTER64 rt, uint32 offset)
 	WriteWord(opcode);
 }
 
+void CAArch64Assembler::Ldr_Pc(REGISTERMD rt, const LITERAL128& literal)
+{
+	LITERAL128REF literalRef;
+	literalRef.offset = static_cast<size_t>(m_stream->Tell());
+	literalRef.value = literal;
+	literalRef.rt = rt;
+	m_literal128Refs.push_back(literalRef);
+	WriteWord(0);
+}
+
 void CAArch64Assembler::Ldr_1s(REGISTERMD rt, REGISTER64 rn, uint32 offset)
 {
 	assert((offset & 0x03) == 0);
@@ -1188,6 +1243,15 @@ void CAArch64Assembler::Sub_16b(REGISTERMD rd, REGISTERMD rn, REGISTERMD rm)
 	WriteWord(opcode);
 }
 
+void CAArch64Assembler::Tbl(REGISTERMD rd, REGISTERMD rn, REGISTERMD rm)
+{
+	uint32 opcode = 0x4E002000;
+	opcode |= (rd <<  0);
+	opcode |= (rn <<  5);
+	opcode |= (rm << 16);
+	WriteWord(opcode);
+}
+
 void CAArch64Assembler::Tst(REGISTER32 rn, REGISTER32 rm)
 {
 	uint32 opcode = 0x6A000000;
@@ -1203,6 +1267,14 @@ void CAArch64Assembler::Tst(REGISTER64 rn, REGISTER64 rm)
 	opcode |= (wZR << 0);
 	opcode |= (rn <<  5);
 	opcode |= (rm << 16);
+	WriteWord(opcode);
+}
+
+void CAArch64Assembler::Uaddlv_16b(REGISTERMD rd, REGISTERMD rn)
+{
+	uint32 opcode = 0x6E303800;
+	opcode |= (rd <<  0);
+	opcode |= (rn <<  5);
 	WriteWord(opcode);
 }
 

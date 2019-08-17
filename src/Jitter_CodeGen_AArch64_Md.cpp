@@ -223,6 +223,43 @@ void CCodeGen_AArch64::Emit_Md_Test_VarVar(const STATEMENT& statement)
 	CommitSymbolRegister(dst, dstReg);
 }
 
+void CCodeGen_AArch64::Emit_Md_MakeSz_VarVar(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	
+	m_nextTempRegisterMd = 0;
+	
+	auto dstReg = PrepareSymbolRegisterDef(dst, GetNextTempRegister());
+	auto src1Reg = PrepareSymbolRegisterUseMd(src1, GetNextTempRegisterMd());
+
+	auto signReg = GetNextTempRegisterMd();
+	auto zeroReg = GetNextTempRegisterMd();
+	auto cstReg = GetNextTempRegisterMd();
+	
+	assert(zeroReg == signReg + 1);
+	
+	m_assembler.Cmltz_4s(signReg, src1Reg);
+	m_assembler.Fcmeqz_4s(zeroReg, src1Reg);
+	
+	CAArch64Assembler::LITERAL128 lit1;
+	lit1.lo = 0x0004080C1014181CUL;
+	lit1.hi = 0xFFFFFFFFFFFFFFFFUL;
+	
+	CAArch64Assembler::LITERAL128 lit2;
+	lit2.lo = 0x8040201008040201UL;
+	lit2.hi = 0;
+
+	m_assembler.Ldr_Pc(cstReg, lit1);
+	m_assembler.Tbl(signReg, signReg, cstReg);
+	m_assembler.Ldr_Pc(cstReg, lit2);
+	m_assembler.And_16b(signReg, signReg, cstReg);
+	m_assembler.Uaddlv_16b(signReg, signReg);
+	m_assembler.Umov_1s(dstReg, signReg, 0);
+	
+	CommitSymbolRegister(dst, dstReg);
+}
+
 void CCodeGen_AArch64::Emit_Md_Mov_RegReg(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
@@ -555,6 +592,7 @@ CCodeGen_AArch64::CONSTMATCHER CCodeGen_AArch64::g_mdConstMatchers[] =
 
 	{ OP_MD_ISNEGATIVE,         MATCH_VARIABLE,       MATCH_VARIABLE128,    MATCH_NIL,              &CCodeGen_AArch64::Emit_Md_Test_VarVar<MDOP_CMPLTZW>             },
 	{ OP_MD_ISZERO,             MATCH_VARIABLE,       MATCH_VARIABLE128,    MATCH_NIL,              &CCodeGen_AArch64::Emit_Md_Test_VarVar<MDOP_CMPEQZS>             },
+	{ OP_MD_MAKESZ,             MATCH_VARIABLE,       MATCH_VARIABLE128,    MATCH_NIL,              &CCodeGen_AArch64::Emit_Md_MakeSz_VarVar                         },
 	
 	{ OP_MD_TOSINGLE,           MATCH_VARIABLE128,    MATCH_VARIABLE128,    MATCH_NIL,              &CCodeGen_AArch64::Emit_Md_VarVar<MDOP_TOSINGLE>                 },
 	{ OP_MD_TOWORD_TRUNCATE,    MATCH_VARIABLE128,    MATCH_VARIABLE128,    MATCH_NIL,              &CCodeGen_AArch64::Emit_Md_VarVar<MDOP_TOWORD>                   },

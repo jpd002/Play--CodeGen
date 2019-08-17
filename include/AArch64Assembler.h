@@ -1,11 +1,24 @@
 #pragma once
 
 #include <map>
+#include <vector>
 #include "Stream.h"
 
 class CAArch64Assembler
 {
 public:
+	struct LITERAL128
+	{
+		uint64 lo = 0;
+		uint64 hi = 0;
+
+		bool operator < (const LITERAL128& rhs) const
+		{
+			if(hi == rhs.hi) return lo < rhs.lo;
+			return (hi < rhs.hi);
+		}
+	};
+	
 	enum REGISTER32
 	{
 		w0,  w1,  w2,  w3,
@@ -78,6 +91,7 @@ public:
 	void     ClearLabels();
 	void     MarkLabel(LABEL);
 	void     ResolveLabelReferences();
+	void     ResolveLiteralReferences();
 
 	void    Add(REGISTER32, REGISTER32, REGISTER32);
 	void    Add(REGISTER64, REGISTER64, REGISTER64);
@@ -154,6 +168,7 @@ public:
 	void    Ldrb(REGISTER32, REGISTER64, uint32);
 	void    Ldrh(REGISTER32, REGISTER64, uint32);
 	void    Ldr_Pc(REGISTER64, uint32);
+	void    Ldr_Pc(REGISTERMD, const LITERAL128&);
 	void    Ldr_1s(REGISTERMD, REGISTER64, uint32);
 	void    Ldr_1q(REGISTERMD, REGISTER64, uint32);
 	void    Lsl(REGISTER32, REGISTER32, uint8);
@@ -213,8 +228,10 @@ public:
 	void    Sub_4s(REGISTERMD, REGISTERMD, REGISTERMD);
 	void    Sub_8h(REGISTERMD, REGISTERMD, REGISTERMD);
 	void    Sub_16b(REGISTERMD, REGISTERMD, REGISTERMD);
+	void    Tbl(REGISTERMD, REGISTERMD, REGISTERMD);
 	void    Tst(REGISTER32, REGISTER32);
 	void    Tst(REGISTER64, REGISTER64);
+	void    Uaddlv_16b(REGISTERMD, REGISTERMD);
 	void    Udiv(REGISTER32, REGISTER32, REGISTER32);
 	void    Umov_1s(REGISTER32, REGISTERMD, uint8);
 	void    Umull(REGISTER64, REGISTER32, REGISTER32);
@@ -247,8 +264,17 @@ private:
 		CONDITION condition;
 	};
 	
+	struct LITERAL128REF
+	{
+		size_t offset = 0;
+		uint32 rt = 0;
+		LITERAL128 value;
+	};
+	
 	typedef std::map<LABEL, size_t> LabelMapType;
 	typedef std::multimap<LABEL, LABELREF> LabelReferenceMapType;
+	
+	typedef std::vector<LITERAL128REF> Literal128ArrayType;
 	
 	void    CreateBranchLabelReference(LABEL, CONDITION);
 	void    CreateCompareBranchLabelReference(LABEL, CONDITION, REGISTER32);
@@ -264,6 +290,7 @@ private:
 	unsigned int             m_nextLabelId = 1;
 	LabelMapType             m_labels;
 	LabelReferenceMapType    m_labelReferences;
+	Literal128ArrayType      m_literal128Refs;
 	
 	Framework::CStream*    m_stream = nullptr;
 };

@@ -670,8 +670,10 @@ namespace Jitter
 
 		void						Emit_Md_Abs(CX86Assembler::XMMREGISTER);
 		void						Emit_Md_Not(CX86Assembler::XMMREGISTER);
+		void						Emit_Md_MakeSz(CX86Assembler::XMMREGISTER, const CX86Assembler::CAddress&);
 		void						Emit_Md_IsNegative(CX86Assembler::REGISTER, const CX86Assembler::CAddress&);
 		void						Emit_Md_IsZero(CX86Assembler::REGISTER, const CX86Assembler::CAddress&);
+		void						Emit_Md_MakeSz_VarVar(const STATEMENT&);
 		void						Emit_Md_IsNegative_Ssse3(CX86Assembler::REGISTER, const CX86Assembler::CAddress&);
 		void						Emit_Md_IsZero_Ssse3(CX86Assembler::REGISTER, const CX86Assembler::CAddress&);
 		void						Emit_Md_MakeSz_Ssse3_VarVar(const STATEMENT&);

@@ -3,22 +3,11 @@
 #include <map>
 #include <vector>
 #include "Stream.h"
+#include "Literal128.h"
 
 class CAArch64Assembler
 {
 public:
-	struct LITERAL128
-	{
-		uint64 lo = 0;
-		uint64 hi = 0;
-
-		bool operator < (const LITERAL128& rhs) const
-		{
-			if(hi == rhs.hi) return lo < rhs.lo;
-			return (hi < rhs.hi);
-		}
-	};
-	
 	enum REGISTER32
 	{
 		w0,  w1,  w2,  w3,
@@ -268,7 +257,7 @@ private:
 	{
 		size_t offset = 0;
 		uint32 rt = 0;
-		LITERAL128 value;
+		LITERAL128 value = LITERAL128(0, 0);
 	};
 	
 	typedef std::map<LABEL, size_t> LabelMapType;

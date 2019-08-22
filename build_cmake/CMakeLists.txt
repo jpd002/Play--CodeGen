@@ -86,6 +86,7 @@ add_library(CodeGen
 	../include/Jitter_SymbolRef.h
 	../include/Jitter_SymbolTable.h
 	../include/Jitter.h
+	../include/Literal128.h
 	../include/MachoDefs.h
 	../include/MachoObjectFile.h
 	../include/MemoryFunction.h

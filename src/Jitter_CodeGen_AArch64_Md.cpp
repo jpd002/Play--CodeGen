@@ -242,13 +242,8 @@ void CCodeGen_AArch64::Emit_Md_MakeSz_VarVar(const STATEMENT& statement)
 	m_assembler.Cmltz_4s(signReg, src1Reg);
 	m_assembler.Fcmeqz_4s(zeroReg, src1Reg);
 	
-	CAArch64Assembler::LITERAL128 lit1;
-	lit1.lo = 0x0004080C1014181CUL;
-	lit1.hi = 0xFFFFFFFFFFFFFFFFUL;
-	
-	CAArch64Assembler::LITERAL128 lit2;
-	lit2.lo = 0x8040201008040201UL;
-	lit2.hi = 0;
+	LITERAL128 lit1(0x0004080C1014181CUL, 0xFFFFFFFFFFFFFFFFUL);
+	LITERAL128 lit2(0x8040201008040201UL, 0x0000000000000000UL);
 
 	m_assembler.Ldr_Pc(cstReg, lit1);
 	m_assembler.Tbl(signReg, signReg, cstReg);

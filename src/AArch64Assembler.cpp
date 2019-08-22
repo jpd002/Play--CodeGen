@@ -115,7 +115,7 @@ void CAArch64Assembler::ResolveLiteralReferences()
 	unsigned int alignSize = m_stream->Tell() & 0x0F;
 	if(alignSize != 0)
 	{
-		LITERAL128 tempLit;
+		LITERAL128 tempLit(0, 0);
 		m_stream->Write(&tempLit, 0x10 - alignSize);
 	}
 	

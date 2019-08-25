@@ -34,12 +34,12 @@ void CX86Assembler::End()
 		for(LabelArray::const_iterator labelIterator(m_labelOrder.begin());
 			labelIterator != m_labelOrder.end(); ++labelIterator)
 		{
-			LABELINFO& label = m_labels[*labelIterator];
+			auto& label = m_labels[*labelIterator];
 
 			for(LabelRefArray::iterator labelRefIterator(label.labelRefs.begin());
 				labelRefIterator != label.labelRefs.end(); ++labelRefIterator)
 			{
-				LABELREF& labelRef(*labelRefIterator);
+				auto& labelRef(*labelRefIterator);
 				switch(labelRef.length)
 				{
 					case JMP_NOTSET:
@@ -97,8 +97,8 @@ void CX86Assembler::End()
 			if(readSize != 0)
 			{
 				m_copyBuffer.resize(readSize);
-				m_tmpStream.Read(&m_copyBuffer[0], readSize);
-				m_outputStream->Write(&m_copyBuffer[0], readSize);
+				m_tmpStream.Read(m_copyBuffer.data(), readSize);
+				m_outputStream->Write(m_copyBuffer.data(), readSize);
 			}
 
 			//Write our jump here.
@@ -114,8 +114,8 @@ void CX86Assembler::End()
 		if(lastCopySize != 0)
 		{
 			m_copyBuffer.resize(lastCopySize);
-			m_tmpStream.Read(&m_copyBuffer[0], lastCopySize);
-			m_outputStream->Write(&m_copyBuffer[0], lastCopySize);
+			m_tmpStream.Read(m_copyBuffer.data(), lastCopySize);
+			m_outputStream->Write(m_copyBuffer.data(), lastCopySize);
 		}
 	}
 }
@@ -136,7 +136,7 @@ void CX86Assembler::IncrementJumpOffsetsLocal(LABELINFO& label, LabelRefArray::i
 	for(LabelRefArray::iterator labelRefIterator(startJump);
 		labelRefIterator != label.labelRefs.end(); ++labelRefIterator)
 	{
-		LABELREF& labelRef(*labelRefIterator);
+		auto& labelRef(*labelRefIterator);
 		labelRef.offset += amount;
 	}
 }
@@ -324,7 +324,7 @@ void CX86Assembler::MarkLabel(LABEL label, int32 offset)
 
 	auto labelIterator(m_labels.find(label));
 	assert(labelIterator != m_labels.end());
-	LABELINFO& labelInfo(labelIterator->second);
+	auto& labelInfo(labelIterator->second);
 	labelInfo.start = currentPos;
 	m_currentLabel = &labelInfo;
 	m_labelOrder.push_back(label);

@@ -2,7 +2,10 @@
 #include <string.h>
 #include <assert.h>
 #include <algorithm>
+#include "AlignedAlloc.h"
 #include "MemoryFunction.h"
+
+#define BLOCK_ALIGN 0x10
 
 #ifdef _WIN32
 
@@ -33,7 +36,7 @@ CMemoryFunction::CMemoryFunction(const void* code, size_t size)
 {
 #ifdef _WIN32
 	m_size = size;
-	m_code = malloc(size);
+	m_code = framework_aligned_alloc(size, BLOCK_ALIGN);
 	memcpy(m_code, code, size);
 	
 	DWORD oldProtect = 0;
@@ -62,6 +65,7 @@ CMemoryFunction::CMemoryFunction(const void* code, size_t size)
 	__clear_cache(m_code, reinterpret_cast<uint8*>(m_code) + size);
 #endif
 #endif
+	assert((reinterpret_cast<uint32>(m_code) & (BLOCK_ALIGN - 1)) == 0);
 }
 
 CMemoryFunction::~CMemoryFunction()
@@ -74,7 +78,7 @@ void CMemoryFunction::Reset()
 	if(m_code != nullptr)
 	{
 #ifdef _WIN32
-		free(m_code);
+		framework_aligned_free(m_code);
 #elif defined(__APPLE__)
 		vm_deallocate(mach_task_self(), reinterpret_cast<vm_address_t>(m_code), m_size);
 #elif defined(__ANDROID__) || defined(__linux__) || defined(__FreeBSD__)

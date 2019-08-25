@@ -114,6 +114,8 @@ set(CodeGenTest_SRC
 	../tests/FpIntMixTest.cpp
 	../tests/FpuTest.cpp
 	../tests/HugeJumpTest.cpp
+	../tests/HugeJumpTestLiteral.cpp
+	../tests/HugeJumpTestLiteral.h
 	../tests/LogicTest.cpp
 	../tests/Logic64Test.cpp
 	../tests/LzcTest.cpp

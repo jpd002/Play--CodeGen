@@ -409,10 +409,10 @@ void CCodeGen_x86_64::Emit_Epilog()
 	m_assembler.Pop(CX86Assembler::rBP);
 }
 
-void CCodeGen_x86_64::LoadConstant64InMdRegister(CX86Assembler::XMMREGISTER dstRegister, uint64 constant)
+CX86Assembler::CAddress CCodeGen_x86_64::MakeConstant128Address(const LITERAL128& constant)
 {
-	m_assembler.MovIq(CX86Assembler::rAX, 0x00020406080A0C0E);
-	m_assembler.MovqVo(dstRegister, CX86Assembler::MakeRegisterAddress(CX86Assembler::rAX));
+	auto literalId = m_assembler.CreateLiteral128(constant);
+	return CX86Assembler::MakeLiteral128Address(literalId);
 }
 
 void CCodeGen_x86_64::Emit_Param_Ctx(const STATEMENT& statement)

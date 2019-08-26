@@ -5,6 +5,7 @@
 void CX86Assembler::Begin()
 {
 	m_nextLabelId = 1;
+	m_nextLiteral128Id = 1;
 	m_currentLabel = nullptr;
 	m_tmpStream.ResetBuffer();
 	m_labels.clear();
@@ -118,6 +119,8 @@ void CX86Assembler::End()
 			m_outputStream->Write(m_copyBuffer.data(), lastCopySize);
 		}
 	}
+
+	ResolveLiteralReferences();
 }
 
 void CX86Assembler::IncrementJumpOffsets(LabelArray::const_iterator startLabel, unsigned int amount)
@@ -137,6 +140,14 @@ void CX86Assembler::IncrementJumpOffsetsLocal(LABELINFO& label, LabelRefArray::i
 		labelRefIterator != label.labelRefs.end(); ++labelRefIterator)
 	{
 		auto& labelRef(*labelRefIterator);
+
+		//Make sure any literal ref happens before a label ref
+		for(const auto& literalRefPair : label.literal128Refs)
+		{
+			const auto& literalRef = literalRefPair.second;
+			assert(literalRef.offset < labelRef.offset);
+		}
+
 		labelRef.offset += amount;
 	}
 }
@@ -306,6 +317,16 @@ CX86Assembler::CAddress CX86Assembler::MakeBaseIndexScaleAddress(REGISTER base, 
 	return address;
 }
 
+CX86Assembler::CAddress CX86Assembler::MakeLiteral128Address(LITERAL128ID literalId)
+{
+	CAddress address;
+	address.nOffset = 0;
+	address.ModRm.nMod = 0;
+	address.ModRm.nRM = 5;
+	address.literal128Id = literalId;
+	return address;
+}
+
 CX86Assembler::LABEL CX86Assembler::CreateLabel()
 {
 	LABEL newLabelId = m_nextLabelId++;
@@ -336,6 +357,65 @@ uint32 CX86Assembler::GetLabelOffset(LABEL label) const
 	assert(labelIterator != m_labels.end());
 	const auto& labelInfo(labelIterator->second);
 	return labelInfo.projectedStart;
+}
+
+CX86Assembler::LITERAL128ID CX86Assembler::CreateLiteral128(const LITERAL128& literal)
+{
+	auto literalId = m_nextLiteral128Id++;
+	LITERAL128REF literalRef;
+	literalRef.value = literal;
+	assert(m_currentLabel);
+	m_currentLabel->literal128Refs.insert(std::make_pair(literalId, literalRef));
+	return literalId;
+}
+
+void CX86Assembler::ResolveLiteralReferences()
+{
+	unsigned int alignSize = m_outputStream->Tell() & 0x0F;
+	if(alignSize != 0)
+	{
+		LITERAL128 tempLit(0, 0);
+		m_outputStream->Write(&tempLit, 0x10 - alignSize);
+	}
+	
+	std::map<LITERAL128, uint32> literalPositions;
+	const auto getLiteralPos =
+		[this, &literalPositions] (const LITERAL128& literal)
+		{
+			auto literalPosIterator = literalPositions.find(literal);
+			if(literalPosIterator == std::end(literalPositions))
+			{
+				m_outputStream->Seek(0, Framework::STREAM_SEEK_END);
+				uint32 literalPos = static_cast<uint32>(m_outputStream->Tell());
+				m_outputStream->Write64(literal.lo);
+				m_outputStream->Write64(literal.hi);
+				literalPositions.insert(std::make_pair(literal, literalPos));
+				return literalPos;
+			}
+			else
+			{
+				return literalPosIterator->second;
+			}
+		};
+
+	for(const auto& labelId : m_labelOrder)
+	{
+		const auto& label = m_labels[labelId];
+		assert(label.projectedStart >= label.start);
+		uint32 projectedDiff = label.projectedStart - label.start;
+		for(const auto& literalRefPair : label.literal128Refs)
+		{
+			const auto& literal = literalRefPair.second;
+			auto literalPos = getLiteralPos(literal.value);
+			uint32 projectedOffset = literal.offset + projectedDiff;
+			m_outputStream->Seek(projectedOffset, Framework::STREAM_SEEK_SET);
+			static const uint32 opcodeSize = 4;
+			auto offset = literalPos - projectedOffset - opcodeSize;
+			m_outputStream->Write32(offset);
+		}
+	}
+
+	m_outputStream->Seek(0, Framework::STREAM_SEEK_END);
 }
 
 void CX86Assembler::AdcEd(REGISTER registerId, const CAddress& address)

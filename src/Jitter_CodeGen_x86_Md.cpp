@@ -2,6 +2,8 @@
 
 using namespace Jitter;
 
+const LITERAL128 CCodeGen_x86::g_makeSzShufflePattern = { 0x00020406080A0C0E, 0x8080808080808080 };
+
 CX86Assembler::CAddress CCodeGen_x86::MakeRelative128SymbolElementAddress(CSymbol* symbol, unsigned int elementIdx)
 {
 	assert(symbol->m_type == SYM_RELATIVE128);
@@ -889,17 +891,13 @@ void CCodeGen_x86::Emit_Md_MakeSz_Ssse3_VarVar(const STATEMENT& statement)
 	auto src1 = statement.src1->GetSymbol().get();
 	
 	auto szRegister = CX86Assembler::xMM0;
-	auto cstRegister = CX86Assembler::xMM2;
-	
 	auto dstRegister = PrepareSymbolRegisterDef(dst, CX86Assembler::rDX);
 	
 	Emit_Md_MakeSz(szRegister, MakeVariable128SymbolAddress(src1));
 	
 	//Extract bits
-	LoadConstant64InMdRegister(cstRegister, 0x00020406080A0C0E);
-	m_assembler.PshufbVo(szRegister, CX86Assembler::MakeXmmRegisterAddress(cstRegister));
+	m_assembler.PshufbVo(szRegister, MakeConstant128Address(g_makeSzShufflePattern));
 	m_assembler.PmovmskbVo(dstRegister, szRegister);
-	m_assembler.AndId(CX86Assembler::MakeRegisterAddress(dstRegister), 0xFF);
 	
 	CommitSymbolRegister(dst, dstRegister);
 }

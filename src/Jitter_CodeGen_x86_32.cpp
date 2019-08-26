@@ -168,6 +168,20 @@ void CCodeGen_x86_32::Emit_Prolog(const StatementList& statements, unsigned int 
 		}
 	}
 
+	bool requiresMakeMdSzConstant =
+		[&] ()
+		{
+			if(!m_hasSsse3) return false;
+			for(const auto& statement : statements)
+			{
+				if(statement.op == OP_MD_MAKESZ)
+				{
+					return true;
+				}
+			}
+			return false;
+		}();
+
 	assert((stackSize & 0x0F) == 0);
 	assert((maxParamSpillSize & 0x0F) == 0);
 	maxParamSize = ((maxParamSize + 0xF) & ~0xF);
@@ -191,6 +205,16 @@ void CCodeGen_x86_32::Emit_Prolog(const StatementList& statements, unsigned int 
 	m_assembler.SubId(CX86Assembler::MakeRegisterAddress(CX86Assembler::rSP), 0x0C);
 	m_assembler.Push(CX86Assembler::rAX);
 
+	m_literalStackAlloc = requiresMakeMdSzConstant ? 0x10 : 0;
+	if(requiresMakeMdSzConstant)
+	{
+		m_mdMakeSzConstantOffset = 0;
+		m_assembler.PushId(g_makeSzShufflePattern.w3);
+		m_assembler.PushId(g_makeSzShufflePattern.w2);
+		m_assembler.PushId(g_makeSzShufflePattern.w1);
+		m_assembler.PushId(g_makeSzShufflePattern.w0);
+	}
+
 	//Allocate stack space for temps
 	m_totalStackAlloc = stackSize + maxParamSize + maxParamSpillSize;
 	m_paramSpillBase = stackSize + maxParamSize;
@@ -201,6 +225,8 @@ void CCodeGen_x86_32::Emit_Prolog(const StatementList& statements, unsigned int 
 	{
 		m_assembler.SubId(CX86Assembler::MakeRegisterAddress(CX86Assembler::rSP), m_totalStackAlloc);
 	}
+
+	m_literalBase = m_totalStackAlloc;
 	
 	//-------------------------------
 	//Stack Frame
@@ -211,6 +237,8 @@ void CCodeGen_x86_32::Emit_Prolog(const StatementList& statements, unsigned int 
 	//------------------
 	//Saved rSP
 	//------------------			<----- aligned on 0x10
+	//Literals
+	//------------------			<----- rSP + m_literalsBase
 	//Params spill space
 	//------------------			<----- rSP + m_paramSpillBase
 	//Temporary symbols (stackSize) + alignment adjustment
@@ -222,9 +250,9 @@ void CCodeGen_x86_32::Emit_Prolog(const StatementList& statements, unsigned int 
 
 void CCodeGen_x86_32::Emit_Epilog()
 {
-	if(m_totalStackAlloc != 0)
+	if((m_totalStackAlloc != 0) || (m_literalStackAlloc != 0))
 	{
-		m_assembler.AddId(CX86Assembler::MakeRegisterAddress(CX86Assembler::rSP), m_totalStackAlloc);
+		m_assembler.AddId(CX86Assembler::MakeRegisterAddress(CX86Assembler::rSP), m_totalStackAlloc + m_literalStackAlloc);
 	}
 
 	m_assembler.Pop(CX86Assembler::rSP);
@@ -238,6 +266,13 @@ void CCodeGen_x86_32::Emit_Epilog()
 	}
 
 	m_assembler.Pop(CX86Assembler::rBP);
+}
+
+CX86Assembler::CAddress CCodeGen_x86_32::MakeConstant128Address(const LITERAL128& constant)
+{
+	assert(constant == g_makeSzShufflePattern);
+	assert(m_mdMakeSzConstantOffset != -1);
+	return CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rSP, m_literalBase + m_mdMakeSzConstantOffset);
 }
 
 unsigned int CCodeGen_x86_32::GetAvailableRegisterCount() const

@@ -3,6 +3,7 @@
 #include "Types.h"
 #include "Stream.h"
 #include "MemStream.h"
+#include "Literal128.h"
 #include <map>
 #include <vector>
 
@@ -62,6 +63,7 @@ public:
 	};
 
 	typedef unsigned int LABEL;
+	typedef unsigned int LITERAL128ID;
 
 	class CAddress
 	{
@@ -96,6 +98,7 @@ public:
 		MODRMBYTE		ModRm;
 		SIB				sib;
 		uint32			nOffset;
+		LITERAL128ID	literal128Id = 0;
 
 		bool			HasSib() const;
 		void			Write(Framework::CStream*);
@@ -114,6 +117,7 @@ public:
 	static CAddress							MakeIndRegAddress(REGISTER);
 	static CAddress							MakeIndRegOffAddress(REGISTER, uint32);
 	static CAddress							MakeBaseIndexScaleAddress(REGISTER, REGISTER, uint8);
+	static CAddress							MakeLiteral128Address(LITERAL128ID);
 
 	static bool								HasByteRegister(REGISTER);
 	static BYTEREGISTER						GetByteRegister(REGISTER);
@@ -124,6 +128,9 @@ public:
 	LABEL									CreateLabel();
 	void									MarkLabel(LABEL, int32 = 0);
 	uint32									GetLabelOffset(LABEL) const;
+
+	LITERAL128ID							CreateLiteral128(const LITERAL128&);
+	void									ResolveLiteralReferences();
 
 	void									AdcEd(REGISTER, const CAddress&);
 	void									AdcId(const CAddress&, uint32);
@@ -400,6 +407,13 @@ private:
 
 	typedef std::vector<LABELREF> LabelRefArray;
 
+	struct LITERAL128REF
+	{
+		uint32 offset = 0;
+		LITERAL128 value = LITERAL128(0, 0);
+	};
+	typedef std::map<LITERAL128ID, LITERAL128REF> Literal128Refs;
+
 	struct LABELINFO
 	{
 		LABELINFO()
@@ -414,6 +428,7 @@ private:
 		uint32			size;
 		uint32			projectedStart;
 		LabelRefArray	labelRefs;
+		Literal128Refs	literal128Refs;
 	};
 
 	typedef std::map<LABEL, LABELINFO> LabelMap;
@@ -455,6 +470,7 @@ private:
 	LabelMap								m_labels;
 	LabelArray								m_labelOrder;
 	LABEL									m_nextLabelId = 1;
+	LITERAL128ID							m_nextLiteral128Id = 1;
 	LABELINFO*								m_currentLabel = nullptr;
 	Framework::CStream*						m_outputStream = nullptr;
 	Framework::CMemStream					m_tmpStream;

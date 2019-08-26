@@ -2,6 +2,7 @@
 
 #include "Jitter_CodeGen.h"
 #include "X86Assembler.h"
+#include "Literal128.h"
 
 namespace Jitter
 {
@@ -409,7 +410,7 @@ namespace Jitter
 		virtual void				Emit_Prolog(const StatementList&, unsigned int) = 0;
 		virtual void				Emit_Epilog() = 0;
 
-		virtual void				LoadConstant64InMdRegister(CX86Assembler::XMMREGISTER, uint64) = 0;
+		virtual CX86Assembler::CAddress MakeConstant128Address(const LITERAL128&) = 0;
 
 		CX86Assembler::LABEL		GetLabel(uint32);
 
@@ -687,6 +688,8 @@ namespace Jitter
 
 		virtual CX86Assembler::REGISTER PrepareRefSymbolRegisterUse(CSymbol*, CX86Assembler::REGISTER) = 0;
 
+		static const LITERAL128		g_makeSzShufflePattern;
+
 		CX86Assembler				m_assembler;
 		CX86Assembler::REGISTER*	m_registers = nullptr;
 		CX86Assembler::XMMREGISTER*	m_mdRegisters = nullptr;
@@ -695,6 +698,9 @@ namespace Jitter
 		uint32						m_stackLevel = 0;
 		uint32						m_registerUsage = 0;
 		
+		bool						m_hasSsse3 = false;
+		bool						m_hasSse41 = false;
+
 	private:
 		typedef void (CCodeGen_x86::*ConstCodeEmitterType)(const STATEMENT&);
 
@@ -710,9 +716,6 @@ namespace Jitter
 		void						InsertMatchers(const CONSTMATCHER*);
 		void						SetGenerationFlags();
 		
-		bool						m_hasSsse3 = false;
-		bool						m_hasSse41 = false;
-
 		static CONSTMATCHER			g_constMatchers[];
 		static CONSTMATCHER			g_fpuConstMatchers[];
 		static CONSTMATCHER			g_mdConstMatchers[];

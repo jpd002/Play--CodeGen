@@ -1,6 +1,7 @@
 #include <assert.h>
 #include <stdexcept>
 #include "AArch32Assembler.h"
+#include "LiteralPool.h"
 
 #define OPCODE_BKPT (0xE1200070)
 
@@ -99,6 +100,34 @@ void CAArch32Assembler::ResolveLabelReferences()
 	m_labelReferences.clear();
 }
 
+void CAArch32Assembler::ResolveLiteralReferences()
+{
+	if(m_literal128Refs.empty()) return;
+	
+	CLiteralPool literalPool(m_stream);
+	literalPool.AlignPool();
+
+	for(const auto& literalRef : m_literal128Refs)
+	{
+		auto literalPos = static_cast<uint32>(literalPool.GetLiteralPosition(literalRef.value));
+		m_stream->Seek(literalRef.offset, Framework::STREAM_SEEK_SET);
+		static const uint32 opcodeSize = 8;
+		static const uint32 offsetMax = 0x40000;
+		auto offset = literalPos - literalRef.offset - opcodeSize;
+		assert((offset & 0x03) == 0);
+		assert(offset < offsetMax);
+		if(offset >= offsetMax)
+		{
+			throw std::runtime_error("Literal offset too large.");
+		}
+		offset /= 4;
+		Add(literalRef.rd, CAArch32Assembler::rPC, MakeImmediateAluOperand(offset >> 8, 11));
+		Add(literalRef.rd, literalRef.rd, MakeImmediateAluOperand(offset & 0xFF, 15));
+	}
+	m_literal128Refs.clear();
+	m_stream->Seek(0, Framework::STREAM_SEEK_END);
+}
+
 void CAArch32Assembler::GenericAlu(ALU_OPCODE op, bool setFlags, REGISTER rd, REGISTER rn, REGISTER rm)
 {
 	InstructionAlu instruction;
@@ -152,6 +181,17 @@ void CAArch32Assembler::Add(REGISTER rd, REGISTER rn, const ImmediateAluOperand&
 void CAArch32Assembler::Adds(REGISTER rd, REGISTER rn, REGISTER rm)
 {
 	GenericAlu(ALU_OPCODE_ADD, true, rd, rn, rm);
+}
+
+void CAArch32Assembler::Adrl(REGISTER rd, const LITERAL128& literal)
+{
+	LITERAL128REF literalRef;
+	literalRef.offset = static_cast<size_t>(m_stream->Tell());
+	literalRef.value = literal;
+	literalRef.rd = rd;
+	m_literal128Refs.push_back(literalRef);
+	WriteWord(0);
+	WriteWord(0);
 }
 
 void CAArch32Assembler::And(REGISTER rd, REGISTER rn, REGISTER rm)
@@ -744,6 +784,15 @@ void CAArch32Assembler::Vzip_I32(QUAD_REGISTER qd, QUAD_REGISTER qm)
 	WriteWord(opcode);
 }
 
+void CAArch32Assembler::Vtbl(DOUBLE_REGISTER dd, DOUBLE_REGISTER dn, DOUBLE_REGISTER dm)
+{
+	uint32 opcode = 0xF3B00B00;
+	opcode |= FPSIMD_EncodeDd(dd);
+	opcode |= FPSIMD_EncodeDn(dn);
+	opcode |= FPSIMD_EncodeDm(dm);
+	WriteWord(opcode);
+}
+
 void CAArch32Assembler::Vadd_F32(SINGLE_REGISTER sd, SINGLE_REGISTER sn, SINGLE_REGISTER sm)
 {
 	uint32 opcode = 0x0E300A00;
@@ -786,6 +835,30 @@ void CAArch32Assembler::Vadd_I32(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGIST
 	uint32 opcode = 0xF2200840;
 	opcode |= FPSIMD_EncodeQd(qd);
 	opcode |= FPSIMD_EncodeQn(qn);
+	opcode |= FPSIMD_EncodeQm(qm);
+	WriteWord(opcode);
+}
+
+void CAArch32Assembler::Vpaddl_I8(QUAD_REGISTER qd, QUAD_REGISTER qm)
+{
+	uint32 opcode = 0xF3B002C0;
+	opcode |= FPSIMD_EncodeQd(qd);
+	opcode |= FPSIMD_EncodeQm(qm);
+	WriteWord(opcode);
+}
+
+void CAArch32Assembler::Vpaddl_I16(QUAD_REGISTER qd, QUAD_REGISTER qm)
+{
+	uint32 opcode = 0xF3B402C0;
+	opcode |= FPSIMD_EncodeQd(qd);
+	opcode |= FPSIMD_EncodeQm(qm);
+	WriteWord(opcode);
+}
+
+void CAArch32Assembler::Vpaddl_I32(QUAD_REGISTER qd, QUAD_REGISTER qm)
+{
+	uint32 opcode = 0xF3B802C0;
+	opcode |= FPSIMD_EncodeQd(qd);
 	opcode |= FPSIMD_EncodeQm(qm);
 	WriteWord(opcode);
 }
@@ -1116,6 +1189,14 @@ void CAArch32Assembler::Vceq_I32(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGIST
 	WriteWord(opcode);
 }
 
+void CAArch32Assembler::Vceqz_F32(QUAD_REGISTER qd, QUAD_REGISTER qm)
+{
+	uint32 opcode = 0xF3B90540;
+	opcode |= FPSIMD_EncodeQd(qd);
+	opcode |= FPSIMD_EncodeQm(qm);
+	WriteWord(opcode);
+}
+
 void CAArch32Assembler::Vcgt_I8(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER qm)
 {
 	uint32 opcode = 0xF2000340;
@@ -1139,6 +1220,14 @@ void CAArch32Assembler::Vcgt_I32(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGIST
 	uint32 opcode = 0xF2200340;
 	opcode |= FPSIMD_EncodeQd(qd);
 	opcode |= FPSIMD_EncodeQn(qn);
+	opcode |= FPSIMD_EncodeQm(qm);
+	WriteWord(opcode);
+}
+
+void CAArch32Assembler::Vcltz_I32(QUAD_REGISTER qd, QUAD_REGISTER qm)
+{
+	uint32 opcode = 0xF3B90240;
+	opcode |= FPSIMD_EncodeQd(qd);
 	opcode |= FPSIMD_EncodeQm(qm);
 	WriteWord(opcode);
 }

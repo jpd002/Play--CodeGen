@@ -437,6 +437,46 @@ void CCodeGen_AArch32::Emit_Md_Expand_MemCst(const STATEMENT& statement)
 	m_assembler.Vst1_32x4(tmpReg, dstAddrReg);
 }
 
+void CCodeGen_AArch32::Emit_Md_MakeSz_VarVar(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	
+	auto src1AddrReg = CAArch32Assembler::r0;
+	auto cstAddrReg = CAArch32Assembler::r1;
+	auto src1Reg = CAArch32Assembler::q0;
+	auto signReg = CAArch32Assembler::q1;
+	auto zeroReg = CAArch32Assembler::q2;
+	auto cstReg = CAArch32Assembler::q3;
+
+	LITERAL128 lit1(0x0004080C1014181CUL, 0xFFFFFFFFFFFFFFFFUL);
+	LITERAL128 lit2(0x8040201008040201UL, 0x0000000000000000UL);
+
+	LoadMemory128AddressInRegister(src1AddrReg, src1);
+	m_assembler.Vld1_32x4(src1Reg, src1AddrReg);
+	
+	auto dstReg = PrepareSymbolRegisterDef(dst, CAArch32Assembler::r0);
+	
+	m_assembler.Vcltz_I32(signReg, src1Reg);
+	m_assembler.Vceqz_F32(zeroReg, src1Reg);
+
+	m_assembler.Adrl(cstAddrReg, lit1);
+	m_assembler.Vld1_32x4(cstReg, cstAddrReg);
+	m_assembler.Adrl(cstAddrReg, lit2);
+	m_assembler.Vtbl(
+		static_cast<CAArch32Assembler::DOUBLE_REGISTER>(signReg),
+		static_cast<CAArch32Assembler::DOUBLE_REGISTER>(signReg),
+		static_cast<CAArch32Assembler::DOUBLE_REGISTER>(cstReg));
+	m_assembler.Vld1_32x4(cstReg, cstAddrReg);
+	m_assembler.Vand(signReg, signReg, cstReg);
+	m_assembler.Vpaddl_I8(zeroReg, signReg);
+	m_assembler.Vpaddl_I16(cstReg, zeroReg);
+	m_assembler.Vpaddl_I32(signReg, cstReg);
+	m_assembler.Vmov(dstReg, static_cast<CAArch32Assembler::DOUBLE_REGISTER>(signReg), 0);
+
+	CommitSymbolRegister(dst, dstReg);
+}
+
 void CCodeGen_AArch32::Emit_Md_PackHB_MemMemMem(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
@@ -651,6 +691,7 @@ CCodeGen_AArch32::CONSTMATCHER CCodeGen_AArch32::g_mdConstMatchers[] =
 
 	{ OP_MD_ISNEGATIVE,			MATCH_VARIABLE,				MATCH_MEMORY128,			MATCH_NIL,				&CCodeGen_AArch32::Emit_Md_Test_VarMem<CAArch32Assembler::CONDITION_MI> },
 	{ OP_MD_ISZERO,				MATCH_VARIABLE,				MATCH_MEMORY128,			MATCH_NIL,				&CCodeGen_AArch32::Emit_Md_TestF_VarMem<CAArch32Assembler::CONDITION_EQ> },
+	{ OP_MD_MAKESZ,				MATCH_VARIABLE,				MATCH_MEMORY128,			MATCH_NIL,				&CCodeGen_AArch32::Emit_Md_MakeSz_VarVar },
 
 	{ OP_MD_TOSINGLE,			MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_NIL,				&CCodeGen_AArch32::Emit_Md_MemMem<MDOP_TOSINGLE>				},
 	{ OP_MD_TOWORD_TRUNCATE,	MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_NIL,				&CCodeGen_AArch32::Emit_Md_MemMem<MDOP_TOWORD>					},

@@ -348,6 +348,7 @@ void CCodeGen_AArch32::GenerateCode(const StatementList& statements, unsigned in
 
 	m_assembler.ResolveLabelReferences();
 	m_assembler.ClearLabels();
+	m_assembler.ResolveLiteralReferences();
 	m_labels.clear();
 }
 

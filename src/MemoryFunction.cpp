@@ -65,7 +65,7 @@ CMemoryFunction::CMemoryFunction(const void* code, size_t size)
 	__clear_cache(m_code, reinterpret_cast<uint8*>(m_code) + size);
 #endif
 #endif
-	assert((reinterpret_cast<uint32>(m_code) & (BLOCK_ALIGN - 1)) == 0);
+	assert((reinterpret_cast<uintptr_t>(m_code) & (BLOCK_ALIGN - 1)) == 0);
 }
 
 CMemoryFunction::~CMemoryFunction()

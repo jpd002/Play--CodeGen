@@ -62,6 +62,7 @@ add_library(CodeGen
 	../src/Jitter_RegAlloc.cpp
 	../src/Jitter_Statement.cpp
 	../src/Jitter_SymbolTable.cpp
+	../src/LiteralPool.cpp
 	../src/MachoObjectFile.cpp
 	../src/MemoryFunction.cpp
 	../src/ObjectFile.cpp
@@ -87,6 +88,7 @@ add_library(CodeGen
 	../include/Jitter_SymbolTable.h
 	../include/Jitter.h
 	../include/Literal128.h
+	../include/LiteralPool.h
 	../include/MachoDefs.h
 	../include/MachoObjectFile.h
 	../include/MemoryFunction.h

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Types.h"
+
 struct LITERAL128
 {
 	LITERAL128(uint64 lo, uint64 hi)

@@ -89,10 +89,12 @@ void CMdFpFlagTest::Run()
 	context.src2[2] = -7.5f;
 	context.src2[3] = -8.5f;
 
-	context.src3[0] = 0x7FFFFFFF;
-	context.src3[1] = 0xFFFFFFFF;
-	context.src3[2] = 0x00000001;
-	context.src3[3] = 0x80000001;
+	//Test some weird numbers
+	//NOTE: On ARMv7 NEON, denormals are considered as 0, while they aren't on other archs.
+	context.src3[0] = 0x7FFFFFFF; //NaN
+	context.src3[1] = 0xFFFFFFFF; //NaN (negative)
+	context.src3[2] = 0x7F800000; //INF
+	context.src3[3] = 0xFF800000; //INF (negative)
 	
 	m_function(&context);
 	

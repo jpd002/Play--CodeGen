@@ -1,6 +1,7 @@
 #include <assert.h>
 #include <stdexcept>
 #include "AArch64Assembler.h"
+#include "LiteralPool.h"
 
 void CAArch64Assembler::SetStream(Framework::CStream* stream)
 {
@@ -112,36 +113,12 @@ void CAArch64Assembler::ResolveLiteralReferences()
 {
 	if(m_literal128Refs.empty()) return;
 	
-	unsigned int alignSize = m_stream->Tell() & 0x0F;
-	if(alignSize != 0)
-	{
-		LITERAL128 tempLit(0, 0);
-		m_stream->Write(&tempLit, 0x10 - alignSize);
-	}
-	
-	std::map<LITERAL128, uint32> literalPositions;
-	const auto getLiteralPos =
-		[this, &literalPositions] (const LITERAL128& literal)
-		{
-			auto literalPosIterator = literalPositions.find(literal);
-			if(literalPosIterator == std::end(literalPositions))
-			{
-				m_stream->Seek(0, Framework::STREAM_SEEK_END);
-				uint32 literalPos = static_cast<uint32>(m_stream->Tell());
-				m_stream->Write64(literal.lo);
-				m_stream->Write64(literal.hi);
-				literalPositions.insert(std::make_pair(literal, literalPos));
-				return literalPos;
-			}
-			else
-			{
-				return literalPosIterator->second;
-			}
-		};
+	CLiteralPool literalPool(m_stream);
+	literalPool.AlignPool();
 
 	for(const auto& literalRef : m_literal128Refs)
 	{
-		auto literalPos = getLiteralPos(literalRef.value);
+		auto literalPos = static_cast<uint32>(literalPool.GetLiteralPosition(literalRef.value));
 		m_stream->Seek(literalRef.offset, Framework::STREAM_SEEK_SET);
 		auto offset = literalPos - literalRef.offset;
 		assert((offset & 0x03) == 0);

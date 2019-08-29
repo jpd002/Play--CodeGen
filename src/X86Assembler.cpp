@@ -1,6 +1,7 @@
 #include <assert.h>
 #include <stdexcept>
 #include "X86Assembler.h"
+#include "LiteralPool.h"
 
 void CX86Assembler::Begin()
 {
@@ -371,32 +372,8 @@ CX86Assembler::LITERAL128ID CX86Assembler::CreateLiteral128(const LITERAL128& li
 
 void CX86Assembler::ResolveLiteralReferences()
 {
-	unsigned int alignSize = m_outputStream->Tell() & 0x0F;
-	if(alignSize != 0)
-	{
-		LITERAL128 tempLit(0, 0);
-		m_outputStream->Write(&tempLit, 0x10 - alignSize);
-	}
-	
-	std::map<LITERAL128, uint32> literalPositions;
-	const auto getLiteralPos =
-		[this, &literalPositions] (const LITERAL128& literal)
-		{
-			auto literalPosIterator = literalPositions.find(literal);
-			if(literalPosIterator == std::end(literalPositions))
-			{
-				m_outputStream->Seek(0, Framework::STREAM_SEEK_END);
-				uint32 literalPos = static_cast<uint32>(m_outputStream->Tell());
-				m_outputStream->Write64(literal.lo);
-				m_outputStream->Write64(literal.hi);
-				literalPositions.insert(std::make_pair(literal, literalPos));
-				return literalPos;
-			}
-			else
-			{
-				return literalPosIterator->second;
-			}
-		};
+	CLiteralPool literalPool(m_outputStream);
+	literalPool.AlignPool();
 
 	for(const auto& labelId : m_labelOrder)
 	{
@@ -406,7 +383,7 @@ void CX86Assembler::ResolveLiteralReferences()
 		for(const auto& literalRefPair : label.literal128Refs)
 		{
 			const auto& literal = literalRefPair.second;
-			auto literalPos = getLiteralPos(literal.value);
+			auto literalPos = static_cast<uint32>(literalPool.GetLiteralPosition(literal.value));
 			uint32 projectedOffset = literal.offset + projectedDiff;
 			m_outputStream->Seek(projectedOffset, Framework::STREAM_SEEK_SET);
 			static const uint32 opcodeSize = 4;

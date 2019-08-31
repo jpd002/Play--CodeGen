@@ -2,6 +2,7 @@
 #include <string.h>
 #include <assert.h>
 #include <algorithm>
+#include <cstdint>
 #include "AlignedAlloc.h"
 #include "MemoryFunction.h"
 

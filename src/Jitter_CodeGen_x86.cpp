@@ -49,16 +49,8 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_constMatchers[] =
 	ALU_CONST_MATCHERS(OP_OR,  ALUOP_OR)
 	ALU_CONST_MATCHERS(OP_XOR, ALUOP_XOR)
 
-	{ OP_CMP,		MATCH_REGISTER,		MATCH_REGISTER,		MATCH_REGISTER,		&CCodeGen_x86::Emit_Cmp_RegRegReg					},
-	{ OP_CMP,		MATCH_REGISTER,		MATCH_REGISTER,		MATCH_MEMORY,		&CCodeGen_x86::Emit_Cmp_RegRegMem					},
-	{ OP_CMP,		MATCH_REGISTER,		MATCH_REGISTER,		MATCH_CONSTANT,		&CCodeGen_x86::Emit_Cmp_RegRegCst					},
-	{ OP_CMP,		MATCH_REGISTER,		MATCH_MEMORY,		MATCH_MEMORY,		&CCodeGen_x86::Emit_Cmp_RegMemMem					},
-	{ OP_CMP,		MATCH_REGISTER,		MATCH_MEMORY,		MATCH_CONSTANT,		&CCodeGen_x86::Emit_Cmp_RegMemCst					},
-	{ OP_CMP,		MATCH_MEMORY,		MATCH_REGISTER,		MATCH_REGISTER,		&CCodeGen_x86::Emit_Cmp_MemRegReg					},
-	{ OP_CMP,		MATCH_MEMORY,		MATCH_REGISTER,		MATCH_MEMORY,		&CCodeGen_x86::Emit_Cmp_MemRegMem					},
-	{ OP_CMP,		MATCH_MEMORY,		MATCH_REGISTER,		MATCH_CONSTANT,		&CCodeGen_x86::Emit_Cmp_MemRegCst					},
-	{ OP_CMP,		MATCH_MEMORY,		MATCH_MEMORY,		MATCH_MEMORY,		&CCodeGen_x86::Emit_Cmp_MemMemMem					},
-	{ OP_CMP,		MATCH_MEMORY,		MATCH_MEMORY,		MATCH_CONSTANT,		&CCodeGen_x86::Emit_Cmp_MemMemCst					},
+	{ OP_CMP,		MATCH_VARIABLE,		MATCH_VARIABLE,		MATCH_VARIABLE,		&CCodeGen_x86::Emit_Cmp_VarVarVar					},
+	{ OP_CMP,		MATCH_VARIABLE,		MATCH_VARIABLE,		MATCH_CONSTANT,		&CCodeGen_x86::Emit_Cmp_VarVarCst					},
 	
 	{ OP_NOT,		MATCH_REGISTER,		MATCH_REGISTER,		MATCH_NIL,			&CCodeGen_x86::Emit_Not_RegReg						},
 	{ OP_NOT,		MATCH_REGISTER,		MATCH_MEMORY,		MATCH_NIL,			&CCodeGen_x86::Emit_Not_RegMem						},
@@ -973,136 +965,37 @@ void CCodeGen_x86::Cmp_GetFlag(const CX86Assembler::CAddress& dst, CONDITION fla
 	}
 }
 
-void CCodeGen_x86::Emit_Cmp_RegRegReg(const STATEMENT& statement)
+void CCodeGen_x86::Emit_Cmp_VarVarVar(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
 	auto src2 = statement.src2->GetSymbol().get();
 
-	m_assembler.CmpEd(m_registers[src1->m_valueLow], CX86Assembler::MakeRegisterAddress(m_registers[src2->m_valueLow]));
-	Cmp_GetFlag(CX86Assembler::MakeByteRegisterAddress(CX86Assembler::rAX), statement.jmpCondition);
-	m_assembler.MovzxEb(m_registers[dst->m_valueLow], CX86Assembler::MakeByteRegisterAddress(CX86Assembler::rAX));
+	auto dstReg = PrepareSymbolRegisterDef(dst, CX86Assembler::rCX);
+	auto src1Reg = PrepareSymbolRegisterUse(src1, CX86Assembler::rDX);
+	auto cmpReg = CX86Assembler::rAX;
+
+	m_assembler.CmpEd(src1Reg, MakeVariableSymbolAddress(src2));
+	Cmp_GetFlag(CX86Assembler::MakeByteRegisterAddress(cmpReg), statement.jmpCondition);
+	m_assembler.MovzxEb(dstReg, CX86Assembler::MakeByteRegisterAddress(cmpReg));
+
+	CommitSymbolRegister(dst, dstReg);
 }
 
-void CCodeGen_x86::Emit_Cmp_RegRegMem(const STATEMENT& statement)
+void CCodeGen_x86::Emit_Cmp_VarVarCst(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
 	auto src2 = statement.src2->GetSymbol().get();
 
-	m_assembler.CmpEd(m_registers[src1->m_valueLow], MakeMemorySymbolAddress(src2));
-	Cmp_GetFlag(CX86Assembler::MakeByteRegisterAddress(CX86Assembler::rAX), statement.jmpCondition);
-	m_assembler.MovzxEb(m_registers[dst->m_valueLow], CX86Assembler::MakeByteRegisterAddress(CX86Assembler::rAX));
-}
+	auto dstReg = PrepareSymbolRegisterDef(dst, CX86Assembler::rCX);
+	auto cmpReg = CX86Assembler::rAX;
 
-void CCodeGen_x86::Emit_Cmp_RegRegCst(const STATEMENT& statement)
-{
-	auto dst = statement.dst->GetSymbol().get();
-	auto src1 = statement.src1->GetSymbol().get();
-	auto src2 = statement.src2->GetSymbol().get();
+	m_assembler.CmpId(MakeVariableSymbolAddress(src1), src2->m_valueLow);
+	Cmp_GetFlag(CX86Assembler::MakeByteRegisterAddress(cmpReg), statement.jmpCondition);
+	m_assembler.MovzxEb(dstReg, CX86Assembler::MakeByteRegisterAddress(cmpReg));
 
-	m_assembler.CmpId(CX86Assembler::MakeRegisterAddress(m_registers[src1->m_valueLow]), src2->m_valueLow);
-	Cmp_GetFlag(CX86Assembler::MakeByteRegisterAddress(CX86Assembler::rAX), statement.jmpCondition);
-	m_assembler.MovzxEb(m_registers[dst->m_valueLow], CX86Assembler::MakeByteRegisterAddress(CX86Assembler::rAX));
-}
-
-void CCodeGen_x86::Emit_Cmp_RegMemMem(const STATEMENT& statement)
-{
-	auto dst = statement.dst->GetSymbol().get();
-	auto src1 = statement.src1->GetSymbol().get();
-	auto src2 = statement.src2->GetSymbol().get();
-
-	assert(dst->m_type  == SYM_REGISTER);
-
-	m_assembler.MovEd(CX86Assembler::rAX, MakeMemorySymbolAddress(src1));
-	m_assembler.CmpEd(CX86Assembler::rAX, MakeMemorySymbolAddress(src2));
-	Cmp_GetFlag(CX86Assembler::MakeByteRegisterAddress(CX86Assembler::rAX), statement.jmpCondition);
-	m_assembler.MovzxEb(m_registers[dst->m_valueLow], CX86Assembler::MakeByteRegisterAddress(CX86Assembler::rAX));
-}
-
-void CCodeGen_x86::Emit_Cmp_RegMemCst(const STATEMENT& statement)
-{
-	auto dst = statement.dst->GetSymbol().get();
-	auto src1 = statement.src1->GetSymbol().get();
-	auto src2 = statement.src2->GetSymbol().get();
-
-	assert(dst->m_type  == SYM_REGISTER);
-	assert(src2->m_type == SYM_CONSTANT);
-
-	m_assembler.CmpId(MakeMemorySymbolAddress(src1), src2->m_valueLow);
-	Cmp_GetFlag(CX86Assembler::MakeByteRegisterAddress(CX86Assembler::rAX), statement.jmpCondition);
-	m_assembler.MovzxEb(m_registers[dst->m_valueLow], CX86Assembler::MakeByteRegisterAddress(CX86Assembler::rAX));
-}
-
-void CCodeGen_x86::Emit_Cmp_MemRegReg(const STATEMENT& statement)
-{
-	auto dst = statement.dst->GetSymbol().get();
-	auto src1 = statement.src1->GetSymbol().get();
-	auto src2 = statement.src2->GetSymbol().get();
-
-	assert(src1->m_type == SYM_REGISTER);
-	assert(src2->m_type == SYM_REGISTER);
-
-	m_assembler.CmpEd(m_registers[src1->m_valueLow], CX86Assembler::MakeRegisterAddress(m_registers[src2->m_valueLow]));
-	Cmp_GetFlag(CX86Assembler::MakeByteRegisterAddress(CX86Assembler::rAX), statement.jmpCondition);
-	m_assembler.MovzxEb(CX86Assembler::rAX, CX86Assembler::MakeByteRegisterAddress(CX86Assembler::rAX));
-	m_assembler.MovGd(MakeMemorySymbolAddress(dst), CX86Assembler::rAX);
-}
-
-void CCodeGen_x86::Emit_Cmp_MemRegMem(const STATEMENT& statement)
-{
-	auto dst = statement.dst->GetSymbol().get();
-	auto src1 = statement.src1->GetSymbol().get();
-	auto src2 = statement.src2->GetSymbol().get();
-
-	assert(src1->m_type == SYM_REGISTER);
-
-	m_assembler.CmpEd(m_registers[src1->m_valueLow], MakeMemorySymbolAddress(src2));
-	Cmp_GetFlag(CX86Assembler::MakeByteRegisterAddress(CX86Assembler::rAX), statement.jmpCondition);
-	m_assembler.MovzxEb(CX86Assembler::rAX, CX86Assembler::MakeByteRegisterAddress(CX86Assembler::rAX));
-	m_assembler.MovGd(MakeMemorySymbolAddress(dst), CX86Assembler::rAX);
-}
-
-void CCodeGen_x86::Emit_Cmp_MemRegCst(const STATEMENT& statement)
-{
-	auto dst = statement.dst->GetSymbol().get();
-	auto src1 = statement.src1->GetSymbol().get();
-	auto src2 = statement.src2->GetSymbol().get();
-
-	assert(src1->m_type == SYM_REGISTER);
-	assert(src2->m_type == SYM_CONSTANT);
-
-	m_assembler.CmpId(CX86Assembler::MakeRegisterAddress(m_registers[src1->m_valueLow]), src2->m_valueLow);
-	Cmp_GetFlag(CX86Assembler::MakeByteRegisterAddress(CX86Assembler::rAX), statement.jmpCondition);
-	m_assembler.MovzxEb(CX86Assembler::rAX, CX86Assembler::MakeByteRegisterAddress(CX86Assembler::rAX));
-	m_assembler.MovGd(MakeMemorySymbolAddress(dst), CX86Assembler::rAX);
-}
-
-void CCodeGen_x86::Emit_Cmp_MemMemMem(const STATEMENT& statement)
-{
-	auto dst = statement.dst->GetSymbol().get();
-	auto src1 = statement.src1->GetSymbol().get();
-	auto src2 = statement.src2->GetSymbol().get();
-
-	m_assembler.MovEd(CX86Assembler::rAX, MakeMemorySymbolAddress(src1));
-	m_assembler.CmpEd(CX86Assembler::rAX, MakeMemorySymbolAddress(src2));
-	Cmp_GetFlag(CX86Assembler::MakeByteRegisterAddress(CX86Assembler::rAX), statement.jmpCondition);
-	m_assembler.MovzxEb(CX86Assembler::rAX, CX86Assembler::MakeByteRegisterAddress(CX86Assembler::rAX));
-	m_assembler.MovGd(MakeMemorySymbolAddress(dst), CX86Assembler::rAX);
-}
-
-void CCodeGen_x86::Emit_Cmp_MemMemCst(const STATEMENT& statement)
-{
-	auto dst = statement.dst->GetSymbol().get();
-	auto src1 = statement.src1->GetSymbol().get();
-	auto src2 = statement.src2->GetSymbol().get();
-
-	assert(src2->m_type == SYM_CONSTANT);
-
-	m_assembler.CmpId(MakeMemorySymbolAddress(src1), src2->m_valueLow);
-	Cmp_GetFlag(CX86Assembler::MakeByteRegisterAddress(CX86Assembler::rAX), statement.jmpCondition);
-	m_assembler.MovzxEb(CX86Assembler::rAX, CX86Assembler::MakeByteRegisterAddress(CX86Assembler::rAX));
-	m_assembler.MovGd(MakeMemorySymbolAddress(dst), CX86Assembler::rAX);
+	CommitSymbolRegister(dst, dstReg);
 }
 
 void CCodeGen_x86::CondJmp_JumpTo(CX86Assembler::LABEL label, Jitter::CONDITION condition)

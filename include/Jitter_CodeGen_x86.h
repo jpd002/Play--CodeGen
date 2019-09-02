@@ -487,16 +487,8 @@ namespace Jitter
 
 		//CMP
 		void						Cmp_GetFlag(const CX86Assembler::CAddress&, CONDITION);
-		void						Emit_Cmp_RegRegReg(const STATEMENT&);
-		void						Emit_Cmp_RegRegMem(const STATEMENT&);
-		void						Emit_Cmp_RegRegCst(const STATEMENT&);
-		void						Emit_Cmp_RegMemMem(const STATEMENT&);
-		void						Emit_Cmp_RegMemCst(const STATEMENT&);
-		void						Emit_Cmp_MemRegReg(const STATEMENT&);
-		void						Emit_Cmp_MemRegMem(const STATEMENT&);
-		void						Emit_Cmp_MemRegCst(const STATEMENT&);
-		void						Emit_Cmp_MemMemMem(const STATEMENT&);
-		void						Emit_Cmp_MemMemCst(const STATEMENT&);
+		void						Emit_Cmp_VarVarVar(const STATEMENT&);
+		void						Emit_Cmp_VarVarCst(const STATEMENT&);
 
 		//MUL/MULS
 		template<bool> void			Emit_MulTmp64RegReg(const STATEMENT&);

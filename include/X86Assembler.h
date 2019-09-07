@@ -72,6 +72,7 @@ public:
 
 		bool			nIsExtendedModRM;
 		bool			nIsExtendedSib;
+		bool			usesLegacyByteRegister;
 
 		union MODRMBYTE
 		{
@@ -101,6 +102,7 @@ public:
 		LITERAL128ID	literal128Id = 0;
 
 		bool			HasSib() const;
+		bool			NeedsExtendedByteAddress() const;
 		void			Write(Framework::CStream*);
 	};
 
@@ -113,7 +115,7 @@ public:
 
 	static CAddress							MakeRegisterAddress(REGISTER);
 	static CAddress							MakeXmmRegisterAddress(XMMREGISTER);
-	static CAddress							MakeByteRegisterAddress(REGISTER);
+	static CAddress							MakeByteRegisterAddress(BYTEREGISTER);
 	static CAddress							MakeIndRegAddress(REGISTER);
 	static CAddress							MakeIndRegOffAddress(REGISTER, uint32);
 	static CAddress							MakeBaseIndexScaleAddress(REGISTER, REGISTER, uint8);
@@ -235,7 +237,7 @@ public:
 	void									SubEq(REGISTER, const CAddress&);
 	void									SubId(const CAddress&, uint32);
 	void									SubIq(const CAddress&, uint64);
-	void									TestEb(REGISTER, const CAddress&);
+	void									TestEb(BYTEREGISTER, const CAddress&);
 	void									TestEd(REGISTER, const CAddress&);
 	void									TestEq(REGISTER, const CAddress&);
 	void									XorEd(REGISTER, const CAddress&);

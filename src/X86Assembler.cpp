@@ -179,14 +179,11 @@ CX86Assembler::CAddress CX86Assembler::MakeXmmRegisterAddress(XMMREGISTER regist
 	return MakeRegisterAddress(static_cast<REGISTER>(registerId));
 }
 
-CX86Assembler::CAddress CX86Assembler::MakeByteRegisterAddress(REGISTER registerId)
+CX86Assembler::CAddress CX86Assembler::MakeByteRegisterAddress(BYTEREGISTER registerId)
 {
-	if(!HasByteRegister(registerId))
-	{
-		throw std::runtime_error("Unsupported byte register index.");
-	}
-
-	return MakeRegisterAddress(registerId);
+	auto address = MakeRegisterAddress(static_cast<REGISTER>(registerId));
+	address.usesLegacyByteRegister = true;
+	return address;
 }
 
 CX86Assembler::CAddress CX86Assembler::MakeIndRegAddress(REGISTER registerId)
@@ -437,6 +434,7 @@ void CX86Assembler::AndEq(REGISTER registerId, const CAddress& address)
 
 void CX86Assembler::AndIb(const CAddress& address, uint8 constant)
 {
+	assert(!address.NeedsExtendedByteAddress());
 	WriteEvIb(0x04, address, constant);
 }
 
@@ -482,6 +480,7 @@ void CX86Assembler::CmpEq(REGISTER nRegister, const CAddress& Address)
 
 void CX86Assembler::CmpIb(const CAddress& address, uint8 constant)
 {
+	assert(!address.NeedsExtendedByteAddress());
 	WriteEvIb(0x07, address, constant);
 }
 
@@ -624,6 +623,10 @@ void CX86Assembler::MovEq(REGISTER nRegister, const CAddress& Address)
 
 void CX86Assembler::MovGb(const CAddress& Address, BYTEREGISTER nRegister)
 {
+	if(Address.NeedsExtendedByteAddress())
+	{
+		throw std::runtime_error("Invalid operation.");
+	}
 	WriteEbGbOp(0x88, false, Address, nRegister);
 }
 
@@ -667,6 +670,8 @@ void CX86Assembler::MovIq(REGISTER registerId, uint64 constant)
 
 void CX86Assembler::MovIb(const CX86Assembler::CAddress& address, uint8 constant)
 {
+	assert(!address.NeedsExtendedByteAddress());
+
 	WriteRexByte(false, address);
 	CAddress newAddress(address);
 	newAddress.ModRm.nFnReg = 0x00;
@@ -701,6 +706,8 @@ void CX86Assembler::MovId(const CX86Assembler::CAddress& address, uint32 constan
 
 void CX86Assembler::MovsxEb(REGISTER registerId, const CAddress& address)
 {
+	assert(!address.NeedsExtendedByteAddress());
+	assert(!(address.usesLegacyByteRegister && (registerId > 7)));
 	WriteEvGvOp0F(0xBE, false, address, registerId);
 }
 
@@ -711,6 +718,8 @@ void CX86Assembler::MovsxEw(REGISTER registerId, const CAddress& address)
 
 void CX86Assembler::MovzxEb(REGISTER registerId, const CAddress& address)
 {
+	assert(!address.NeedsExtendedByteAddress());
+	assert(!(address.usesLegacyByteRegister && (registerId > 7)));
 	WriteEvGvOp0F(0xB6, false, address, registerId);
 }
 
@@ -825,6 +834,7 @@ void CX86Assembler::SbbId(const CAddress& Address, uint32 nConstant)
 
 void CX86Assembler::SetaEb(const CAddress& address)
 {
+	assert(!address.NeedsExtendedByteAddress());
 	WriteByte(0x0F);
 	WriteEvOp(0x97, 0x00, false, address);
 }
@@ -836,42 +846,49 @@ void CX86Assembler::SetaeEb(const CAddress& address)
 
 void CX86Assembler::SetbEb(const CAddress& address)
 {
+	assert(!address.NeedsExtendedByteAddress());
 	WriteByte(0x0F);
 	WriteEvOp(0x92, 0x00, false, address);
 }
 
 void CX86Assembler::SetbeEb(const CAddress& address)
 {
+	assert(!address.NeedsExtendedByteAddress());
 	WriteByte(0x0F);
 	WriteEvOp(0x96, 0x00, false, address);
 }
 
 void CX86Assembler::SeteEb(const CAddress& address)
 {
+	assert(!address.NeedsExtendedByteAddress());
 	WriteByte(0x0F);
 	WriteEvOp(0x94, 0x00, false, address);
 }
 
 void CX86Assembler::SetneEb(const CAddress& address)
 {
+	assert(!address.NeedsExtendedByteAddress());
 	WriteByte(0x0F);
 	WriteEvOp(0x95, 0x00, false, address);
 }
 
 void CX86Assembler::SetlEb(const CAddress& address)
 {
+	assert(!address.NeedsExtendedByteAddress());
 	WriteByte(0x0F);
 	WriteEvOp(0x9C, 0x00, false, address);
 }
 
 void CX86Assembler::SetleEb(const CAddress& address)
 {
+	assert(!address.NeedsExtendedByteAddress());
 	WriteByte(0x0F);
 	WriteEvOp(0x9E, 0x00, false, address);
 }
 
 void CX86Assembler::SetgEb(const CAddress& address)
 {
+	assert(!address.NeedsExtendedByteAddress());
 	WriteByte(0x0F);
 	WriteEvOp(0x9F, 0x00, false, address);
 }
@@ -966,13 +983,13 @@ void CX86Assembler::SubIq(const CAddress& address, uint64 constant)
 	WriteEvIq(0x05, address, constant);
 }
 
-void CX86Assembler::TestEb(REGISTER registerId, const CAddress& address)
+void CX86Assembler::TestEb(BYTEREGISTER registerId, const CAddress& address)
 {
-	if(registerId > 3)
+	if(address.NeedsExtendedByteAddress())
 	{
-		throw std::runtime_error("Unsupported byte register index.");
+		throw std::runtime_error("Invalid operation.");
 	}
-	WriteEvGvOp(0x84, false, address, registerId);
+	WriteEbGbOp(0x84, false, address, registerId);
 }
 
 void CX86Assembler::TestEd(REGISTER registerId, const CAddress& address)
@@ -1248,6 +1265,7 @@ CX86Assembler::CAddress::CAddress()
 	sib.byteValue = 0;
 	nIsExtendedModRM = false;
 	nIsExtendedSib = false;
+	usesLegacyByteRegister = false;
 }
 
 void CX86Assembler::CAddress::Write(Framework::CStream* stream)
@@ -1273,4 +1291,9 @@ bool CX86Assembler::CAddress::HasSib() const
 {
 	if(ModRm.nMod == 3) return false;
 	return ModRm.nRM == 4;
+}
+
+bool CX86Assembler::CAddress::NeedsExtendedByteAddress() const
+{
+	return (ModRm.nMod == 0x03) && !usesLegacyByteRegister;
 }

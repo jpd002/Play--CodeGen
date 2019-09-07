@@ -973,7 +973,7 @@ void CCodeGen_x86::Emit_Cmp_VarVarVar(const STATEMENT& statement)
 
 	auto dstReg = PrepareSymbolRegisterDef(dst, CX86Assembler::rCX);
 	auto src1Reg = PrepareSymbolRegisterUse(src1, CX86Assembler::rDX);
-	auto cmpReg = CX86Assembler::rAX;
+	auto cmpReg = CX86Assembler::bAL;
 
 	m_assembler.CmpEd(src1Reg, MakeVariableSymbolAddress(src2));
 	Cmp_GetFlag(CX86Assembler::MakeByteRegisterAddress(cmpReg), statement.jmpCondition);
@@ -989,7 +989,7 @@ void CCodeGen_x86::Emit_Cmp_VarVarCst(const STATEMENT& statement)
 	auto src2 = statement.src2->GetSymbol().get();
 
 	auto dstReg = PrepareSymbolRegisterDef(dst, CX86Assembler::rCX);
-	auto cmpReg = CX86Assembler::rAX;
+	auto cmpReg = CX86Assembler::bAL;
 
 	m_assembler.CmpId(MakeVariableSymbolAddress(src1), src2->m_valueLow);
 	Cmp_GetFlag(CX86Assembler::MakeByteRegisterAddress(cmpReg), statement.jmpCondition);

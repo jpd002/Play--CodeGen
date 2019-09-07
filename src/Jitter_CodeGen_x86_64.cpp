@@ -651,18 +651,19 @@ void CCodeGen_x86_64::Emit_Mov_RegRefMemRef(const STATEMENT& statement)
 
 void CCodeGen_x86_64::Cmp64_RelRel(CX86Assembler::REGISTER dstReg, const STATEMENT& statement)
 {
-	CSymbol* src1 = statement.src1->GetSymbol().get();
-	CSymbol* src2 = statement.src2->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
 
 	assert(src1->m_type == SYM_RELATIVE64);
 	assert(src2->m_type == SYM_RELATIVE64);
 
-	CX86Assembler::REGISTER tmpReg = CX86Assembler::rAX;
+	auto tmpReg = CX86Assembler::rAX;
+	auto cmpReg = CX86Assembler::bCL;
 	m_assembler.MovEq(tmpReg, MakeRelative64SymbolAddress(src1));
 	m_assembler.CmpEq(tmpReg, MakeRelative64SymbolAddress(src2));
 
-	Cmp_GetFlag(CX86Assembler::MakeByteRegisterAddress(tmpReg), statement.jmpCondition);
-	m_assembler.MovzxEb(dstReg, CX86Assembler::MakeByteRegisterAddress(tmpReg));
+	Cmp_GetFlag(CX86Assembler::MakeByteRegisterAddress(cmpReg), statement.jmpCondition);
+	m_assembler.MovzxEb(dstReg, CX86Assembler::MakeByteRegisterAddress(cmpReg));
 }
 
 void CCodeGen_x86_64::Cmp64_RelCst(CX86Assembler::REGISTER dstReg, const STATEMENT& statement)
@@ -694,8 +695,9 @@ void CCodeGen_x86_64::Cmp64_RelCst(CX86Assembler::REGISTER dstReg, const STATEME
 		m_assembler.CmpIq(CX86Assembler::MakeRegisterAddress(tmpReg), constant);
 	}
 
-	Cmp_GetFlag(CX86Assembler::MakeByteRegisterAddress(tmpReg), statement.jmpCondition);
-	m_assembler.MovzxEb(dstReg, CX86Assembler::MakeByteRegisterAddress(tmpReg));
+	auto cmpReg = CX86Assembler::bCL;
+	Cmp_GetFlag(CX86Assembler::MakeByteRegisterAddress(cmpReg), statement.jmpCondition);
+	m_assembler.MovzxEb(dstReg, CX86Assembler::MakeByteRegisterAddress(cmpReg));
 }
 
 void CCodeGen_x86_64::Emit_Cmp64_RegRelRel(const STATEMENT& statement)
@@ -784,7 +786,7 @@ void CCodeGen_x86_64::Emit_IsRefNull_VarVar(const STATEMENT& statement)
 	auto src1 = statement.src1->GetSymbol().get();
 
 	auto addressReg = PrepareRefSymbolRegisterUse(src1, CX86Assembler::rAX);
-	auto tstReg = CX86Assembler::rCX;
+	auto tstReg = CX86Assembler::bCL;
 	auto dstReg = PrepareSymbolRegisterDef(dst, CX86Assembler::rDX);
 
 	m_assembler.TestEq(addressReg, CX86Assembler::MakeRegisterAddress(addressReg));

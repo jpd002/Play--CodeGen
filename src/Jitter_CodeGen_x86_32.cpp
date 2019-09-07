@@ -836,15 +836,16 @@ void CCodeGen_x86_32::Emit_Sra64_MemMemCst(const STATEMENT& statement)
 
 void CCodeGen_x86_32::Emit_Sll64_MemMemVar(const STATEMENT& statement, CX86Assembler::REGISTER shiftRegister)
 {
-	CSymbol* dst = statement.dst->GetSymbol().get();
-	CSymbol* src1 = statement.src1->GetSymbol().get();
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
 
 	CX86Assembler::LABEL doneLabel = m_assembler.CreateLabel();
 	CX86Assembler::LABEL more32Label = m_assembler.CreateLabel();
 
-	CX86Assembler::REGISTER amountReg = CX86Assembler::rCX;
-	CX86Assembler::REGISTER resultLow = CX86Assembler::rAX;
-	CX86Assembler::REGISTER resultHigh = CX86Assembler::rDX;
+	auto amountReg = CX86Assembler::rCX;
+	auto amountRegByte = CX86Assembler::GetByteRegister(amountReg);
+	auto resultLow = CX86Assembler::rAX;
+	auto resultHigh = CX86Assembler::rDX;
 
 	if(shiftRegister != amountReg)
 	{
@@ -854,11 +855,11 @@ void CCodeGen_x86_32::Emit_Sll64_MemMemVar(const STATEMENT& statement, CX86Assem
 	m_assembler.MovEd(resultLow, MakeMemory64SymbolLoAddress(src1));
 	m_assembler.MovEd(resultHigh, MakeMemory64SymbolHiAddress(src1));
 
-	m_assembler.AndIb(CX86Assembler::MakeByteRegisterAddress(amountReg), 0x3F);
-	m_assembler.TestEb(amountReg, CX86Assembler::MakeByteRegisterAddress(amountReg));
+	m_assembler.AndIb(CX86Assembler::MakeByteRegisterAddress(amountRegByte), 0x3F);
+	m_assembler.TestEb(amountRegByte, CX86Assembler::MakeByteRegisterAddress(amountRegByte));
 	m_assembler.JzJx(doneLabel);
 
-	m_assembler.CmpIb(CX86Assembler::MakeByteRegisterAddress(amountReg), 0x20);
+	m_assembler.CmpIb(CX86Assembler::MakeByteRegisterAddress(amountRegByte), 0x20);
 	m_assembler.JnbJx(more32Label);
 
 	m_assembler.ShldEd(CX86Assembler::MakeRegisterAddress(resultHigh), resultLow);
@@ -870,7 +871,7 @@ void CCodeGen_x86_32::Emit_Sll64_MemMemVar(const STATEMENT& statement, CX86Assem
 
 	m_assembler.MovEd(resultHigh, CX86Assembler::MakeRegisterAddress(resultLow));
 	m_assembler.XorEd(resultLow, CX86Assembler::MakeRegisterAddress(resultLow));
-	m_assembler.AndIb(CX86Assembler::MakeByteRegisterAddress(amountReg), 0x1F);
+	m_assembler.AndIb(CX86Assembler::MakeByteRegisterAddress(amountRegByte), 0x1F);
 	m_assembler.ShlEd(CX86Assembler::MakeRegisterAddress(resultHigh));
 
 //$done
@@ -1002,20 +1003,22 @@ void CCodeGen_x86_32::Cmp64_Equal(const STATEMENT& statement)
 
 	bool isEqual	= (statement.jmpCondition == CONDITION_EQ);
 
-	CX86Assembler::REGISTER valReg = CX86Assembler::rDX;
-	CX86Assembler::REGISTER res1Reg = CX86Assembler::rAX;
-	CX86Assembler::REGISTER res2Reg = CX86Assembler::rCX;
+	auto valReg = CX86Assembler::rDX;
+	auto res1Reg = CX86Assembler::rAX;
+	auto res2Reg = CX86Assembler::rCX;
+	auto res1RegByte = CX86Assembler::GetByteRegister(res1Reg);
+	auto res2RegByte = CX86Assembler::GetByteRegister(res2Reg);
 
 	m_assembler.MovEd(valReg, MakeMemory64SymbolLoAddress(src1));
 	cmpLo(valReg, src2);
 
 	if(isEqual)
 	{
-		m_assembler.SeteEb(CX86Assembler::MakeRegisterAddress(res1Reg));
+		m_assembler.SeteEb(CX86Assembler::MakeByteRegisterAddress(res1RegByte));
 	}
 	else
 	{
-		m_assembler.SetneEb(CX86Assembler::MakeRegisterAddress(res1Reg));
+		m_assembler.SetneEb(CX86Assembler::MakeByteRegisterAddress(res1RegByte));
 	}
 	
 	m_assembler.MovEd(valReg, MakeMemory64SymbolHiAddress(src1));
@@ -1023,11 +1026,11 @@ void CCodeGen_x86_32::Cmp64_Equal(const STATEMENT& statement)
 
 	if(isEqual)
 	{
-		m_assembler.SeteEb(CX86Assembler::MakeRegisterAddress(res2Reg));
+		m_assembler.SeteEb(CX86Assembler::MakeByteRegisterAddress(res2RegByte));
 	}
 	else
 	{
-		m_assembler.SetneEb(CX86Assembler::MakeRegisterAddress(res2Reg));
+		m_assembler.SetneEb(CX86Assembler::MakeByteRegisterAddress(res2RegByte));
 	}
 
 	if(isEqual)
@@ -1039,7 +1042,7 @@ void CCodeGen_x86_32::Cmp64_Equal(const STATEMENT& statement)
 		m_assembler.OrEd(res1Reg, CX86Assembler::MakeRegisterAddress(res2Reg));
 	}
 
-	m_assembler.MovzxEb(res1Reg, CX86Assembler::MakeRegisterAddress(res1Reg));
+	m_assembler.MovzxEb(res1Reg, CX86Assembler::MakeByteRegisterAddress(res1RegByte));
 }
 
 struct CompareOrder64Less
@@ -1147,8 +1150,9 @@ void CCodeGen_x86_32::Cmp64_Order(const STATEMENT& statement)
 
 	assert(src1->m_type == SYM_RELATIVE64);
 
-	CX86Assembler::REGISTER regLo = CX86Assembler::rAX;
-	CX86Assembler::REGISTER regHi = CX86Assembler::rDX;
+	auto regLo = CX86Assembler::rAX;
+	auto regHi = CX86Assembler::rDX;
+	auto regLoCmp = CX86Assembler::GetByteRegister(regLo);
 
 	bool isSigned	= compareTraits.IsSigned(statement.jmpCondition);
 	bool orEqual	= compareTraits.OrEqual(statement.jmpCondition);
@@ -1171,15 +1175,15 @@ void CCodeGen_x86_32::Cmp64_Order(const STATEMENT& statement)
 	//setb/l reg[l]
 	if(isSigned)
 	{
-		((m_assembler).*(compareTraits.CheckOrderSigned()))(CX86Assembler::MakeByteRegisterAddress(regLo));
+		((m_assembler).*(compareTraits.CheckOrderSigned()))(CX86Assembler::MakeByteRegisterAddress(regLoCmp));
 	}
 	else
 	{
-		((m_assembler).*(compareTraits.CheckOrderUnsigned()))(CX86Assembler::MakeByteRegisterAddress(regLo));
+		((m_assembler).*(compareTraits.CheckOrderUnsigned()))(CX86Assembler::MakeByteRegisterAddress(regLoCmp));
 	}
 
 	//movzx reg, reg[l]
-	m_assembler.MovzxEb(regLo, CX86Assembler::MakeByteRegisterAddress(regLo));
+	m_assembler.MovzxEb(regLo, CX86Assembler::MakeByteRegisterAddress(regLoCmp));
 
 	//jmp done
 	m_assembler.JmpJx(doneLabel);
@@ -1194,15 +1198,15 @@ void CCodeGen_x86_32::Cmp64_Order(const STATEMENT& statement)
 	//setb/be reg[l]
 	if(orEqual)
 	{
-		((m_assembler).*(compareTraits.CheckOrderOrEqualUnsigned()))(CX86Assembler::MakeByteRegisterAddress(regLo));
+		((m_assembler).*(compareTraits.CheckOrderOrEqualUnsigned()))(CX86Assembler::MakeByteRegisterAddress(regLoCmp));
 	}
 	else
 	{
-		((m_assembler).*(compareTraits.CheckOrderUnsigned()))(CX86Assembler::MakeByteRegisterAddress(regLo));
+		((m_assembler).*(compareTraits.CheckOrderUnsigned()))(CX86Assembler::MakeByteRegisterAddress(regLoCmp));
 	}
 
 	//movzx reg, reg[l]
-	m_assembler.MovzxEb(regLo, CX86Assembler::MakeByteRegisterAddress(regLo));
+	m_assembler.MovzxEb(regLo, CX86Assembler::MakeByteRegisterAddress(regLoCmp));
 
 	//done: ///////////////////////////////////////////////
 	m_assembler.MarkLabel(doneLabel);
@@ -1337,7 +1341,7 @@ void CCodeGen_x86_32::Emit_IsRefNull_VarVar(const STATEMENT& statement)
 	auto src1 = statement.src1->GetSymbol().get();
 
 	auto addressReg = PrepareRefSymbolRegisterUse(src1, CX86Assembler::rAX);
-	auto tstReg = CX86Assembler::rCX;
+	auto tstReg = CX86Assembler::bCL;
 	auto dstReg = PrepareSymbolRegisterDef(dst, CX86Assembler::rDX);
 
 	m_assembler.TestEd(addressReg, CX86Assembler::MakeRegisterAddress(addressReg));

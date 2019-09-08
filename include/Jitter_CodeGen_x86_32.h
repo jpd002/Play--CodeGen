@@ -91,6 +91,10 @@ namespace Jitter
 		void								Emit_Sll64_MemMemMem(const STATEMENT&);
 		void								Emit_Sll64_MemMemCst(const STATEMENT&);
 
+		//CMP
+		void								Emit_Cmp_VarVarVar(const STATEMENT&);
+		void								Emit_Cmp_VarVarCst(const STATEMENT&);
+
 		//CMP64
 		void								Cmp64_Equal(const STATEMENT&);
 		template <typename> void			Cmp64_Order(const STATEMENT&);

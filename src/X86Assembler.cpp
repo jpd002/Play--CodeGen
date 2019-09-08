@@ -706,9 +706,7 @@ void CX86Assembler::MovId(const CX86Assembler::CAddress& address, uint32 constan
 
 void CX86Assembler::MovsxEb(REGISTER registerId, const CAddress& address)
 {
-	assert(!address.NeedsExtendedByteAddress());
-	assert(!(address.usesLegacyByteRegister && (registerId > 7)));
-	WriteEvGvOp0F(0xBE, false, address, registerId);
+	WriteEbGvOp0F(0xBE, false, address, registerId);
 }
 
 void CX86Assembler::MovsxEw(REGISTER registerId, const CAddress& address)
@@ -718,9 +716,7 @@ void CX86Assembler::MovsxEw(REGISTER registerId, const CAddress& address)
 
 void CX86Assembler::MovzxEb(REGISTER registerId, const CAddress& address)
 {
-	assert(!address.NeedsExtendedByteAddress());
-	assert(!(address.usesLegacyByteRegister && (registerId > 7)));
-	WriteEvGvOp0F(0xB6, false, address, registerId);
+	WriteEbGvOp0F(0xB6, false, address, registerId);
 }
 
 void CX86Assembler::MovzxEw(REGISTER registerId, const CAddress& address)
@@ -1062,6 +1058,18 @@ void CX86Assembler::WriteEbGbOp(uint8 nOp, bool nIs64, const CAddress& Address, 
 	CAddress NewAddress(Address);
 	NewAddress.ModRm.nFnReg = nRegister;
 	WriteByte(nOp);
+	NewAddress.Write(&m_tmpStream);
+}
+
+void CX86Assembler::WriteEbGvOp0F(uint8 op, bool is64, const CAddress& address, REGISTER registerId)
+{
+	assert(!(address.usesLegacyByteRegister && (registerId > 7)));
+	bool forcedWrite = address.NeedsExtendedByteAddress();
+	WriteRexByte(is64, address, registerId, forcedWrite);
+	WriteByte(0x0F);
+	CAddress NewAddress(address);
+	NewAddress.ModRm.nFnReg = registerId;
+	WriteByte(op);
 	NewAddress.Write(&m_tmpStream);
 }
 

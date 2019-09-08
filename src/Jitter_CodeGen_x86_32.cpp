@@ -67,6 +67,9 @@ CCodeGen_x86_32::CONSTMATCHER CCodeGen_x86_32::g_constMatchers[] =
 	{ OP_SLL64,			MATCH_MEMORY64,		MATCH_MEMORY64,		MATCH_MEMORY,		&CCodeGen_x86_32::Emit_Sll64_MemMemMem			},
 	{ OP_SLL64,			MATCH_MEMORY64,		MATCH_MEMORY64,		MATCH_CONSTANT,		&CCodeGen_x86_32::Emit_Sll64_MemMemCst			},
 
+	{ OP_CMP,			MATCH_VARIABLE,		MATCH_VARIABLE,		MATCH_VARIABLE,		&CCodeGen_x86_32::Emit_Cmp_VarVarVar			},
+	{ OP_CMP,			MATCH_VARIABLE,		MATCH_VARIABLE,		MATCH_CONSTANT,		&CCodeGen_x86_32::Emit_Cmp_VarVarCst			},
+
 	{ OP_CMP64,			MATCH_REGISTER,		MATCH_RELATIVE64,	MATCH_RELATIVE64,	&CCodeGen_x86_32::Emit_Cmp64_RegRelRel			},
 	{ OP_CMP64,			MATCH_RELATIVE,		MATCH_RELATIVE64,	MATCH_RELATIVE64,	&CCodeGen_x86_32::Emit_Cmp64_RelRelRel			},
 	{ OP_CMP64,			MATCH_REGISTER,		MATCH_RELATIVE64,	MATCH_CONSTANT64,	&CCodeGen_x86_32::Emit_Cmp64_RegRelCst			},
@@ -940,6 +943,39 @@ void CCodeGen_x86_32::Emit_Sll64_MemMemCst(const STATEMENT& statement)
 
 	m_assembler.MovGd(MakeMemory64SymbolLoAddress(dst), regLo);
 	m_assembler.MovGd(MakeMemory64SymbolHiAddress(dst), regHi);
+}
+
+void CCodeGen_x86_32::Emit_Cmp_VarVarVar(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	auto dstReg = PrepareSymbolRegisterDef(dst, CX86Assembler::rCX);
+	auto src1Reg = PrepareSymbolRegisterUse(src1, CX86Assembler::rDX);
+	auto cmpReg = CX86Assembler::bAL;
+
+	m_assembler.CmpEd(src1Reg, MakeVariableSymbolAddress(src2));
+	Cmp_GetFlag(CX86Assembler::MakeByteRegisterAddress(cmpReg), statement.jmpCondition);
+	m_assembler.MovzxEb(dstReg, CX86Assembler::MakeByteRegisterAddress(cmpReg));
+
+	CommitSymbolRegister(dst, dstReg);
+}
+
+void CCodeGen_x86_32::Emit_Cmp_VarVarCst(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	auto dstReg = PrepareSymbolRegisterDef(dst, CX86Assembler::rCX);
+	auto cmpReg = CX86Assembler::bAL;
+
+	m_assembler.CmpId(MakeVariableSymbolAddress(src1), src2->m_valueLow);
+	Cmp_GetFlag(CX86Assembler::MakeByteRegisterAddress(cmpReg), statement.jmpCondition);
+	m_assembler.MovzxEb(dstReg, CX86Assembler::MakeByteRegisterAddress(cmpReg));
+
+	CommitSymbolRegister(dst, dstReg);
 }
 
 //---------------------------------------------------------------------------------

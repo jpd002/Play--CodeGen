@@ -118,6 +118,10 @@ namespace Jitter
 		template <typename> void			Emit_Shift64_RelRelMem(const STATEMENT&);
 		template <typename> void			Emit_Shift64_RelRelCst(const STATEMENT&);
 
+		//CMP
+		void								Emit_Cmp_VarVarVar(const STATEMENT&);
+		void								Emit_Cmp_VarVarCst(const STATEMENT&);
+
 		//CMP64
 		void								Cmp64_RelRel(CX86Assembler::REGISTER, const STATEMENT&);
 		void								Cmp64_RelCst(CX86Assembler::REGISTER, const STATEMENT&);

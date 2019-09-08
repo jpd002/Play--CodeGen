@@ -439,11 +439,11 @@ private:
 
 	void									WriteRexByte(bool, const CAddress&);
 	void									WriteRexByte(bool, const CAddress&, REGISTER&, bool = false);
-	void									WriteEvOp(uint8, uint8, bool, const CAddress&);
 	void									WriteEbOp_0F(uint8, uint8, const CAddress&);
 	void									WriteEbGbOp(uint8, bool, const CAddress&, REGISTER);
 	void									WriteEbGbOp(uint8, bool, const CAddress&, BYTEREGISTER);
 	void									WriteEbGvOp0F(uint8, bool, const CAddress&, REGISTER);
+	void									WriteEvOp(uint8, uint8, bool, const CAddress&);
 	void									WriteEvGvOp(uint8, bool, const CAddress&, REGISTER);
 	void									WriteEvGvOp0F(uint8, bool, const CAddress&, REGISTER);
 	void									WriteEvIb(uint8, const CAddress&, uint8);

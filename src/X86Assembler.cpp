@@ -1035,15 +1035,6 @@ void CX86Assembler::WriteEbOp_0F(uint8 opcode, uint8 subOpcode, const CAddress& 
 	newAddress.Write(&m_tmpStream);
 }
 
-void CX86Assembler::WriteEvOp(uint8 opcode, uint8 subOpcode, bool is64, const CAddress& address)
-{
-	WriteRexByte(is64, address);
-	CAddress newAddress(address);
-	newAddress.ModRm.nFnReg = subOpcode;
-	WriteByte(opcode);
-	newAddress.Write(&m_tmpStream);
-}
-
 void CX86Assembler::WriteEbGbOp(uint8 nOp, bool nIs64, const CAddress& Address, REGISTER nRegister)
 {
 	WriteRexByte(nIs64, Address, nRegister, true);
@@ -1071,6 +1062,15 @@ void CX86Assembler::WriteEbGvOp0F(uint8 op, bool is64, const CAddress& address, 
 	NewAddress.ModRm.nFnReg = registerId;
 	WriteByte(op);
 	NewAddress.Write(&m_tmpStream);
+}
+
+void CX86Assembler::WriteEvOp(uint8 opcode, uint8 subOpcode, bool is64, const CAddress& address)
+{
+	WriteRexByte(is64, address);
+	CAddress newAddress(address);
+	newAddress.ModRm.nFnReg = subOpcode;
+	WriteByte(opcode);
+	newAddress.Write(&m_tmpStream);
 }
 
 void CX86Assembler::WriteEvGvOp(uint8 nOp, bool nIs64, const CAddress& Address, REGISTER nRegister)

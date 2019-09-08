@@ -834,9 +834,7 @@ void CX86Assembler::SbbId(const CAddress& Address, uint32 nConstant)
 
 void CX86Assembler::SetaEb(const CAddress& address)
 {
-	assert(!address.NeedsExtendedByteAddress());
-	WriteByte(0x0F);
-	WriteEvOp(0x97, 0x00, false, address);
+	WriteEbOp_0F(0x97, 0x00, address);
 }
 
 void CX86Assembler::SetaeEb(const CAddress& address)
@@ -846,51 +844,37 @@ void CX86Assembler::SetaeEb(const CAddress& address)
 
 void CX86Assembler::SetbEb(const CAddress& address)
 {
-	assert(!address.NeedsExtendedByteAddress());
-	WriteByte(0x0F);
-	WriteEvOp(0x92, 0x00, false, address);
+	WriteEbOp_0F(0x92, 0x00, address);
 }
 
 void CX86Assembler::SetbeEb(const CAddress& address)
 {
-	assert(!address.NeedsExtendedByteAddress());
-	WriteByte(0x0F);
-	WriteEvOp(0x96, 0x00, false, address);
+	WriteEbOp_0F(0x96, 0x00, address);
 }
 
 void CX86Assembler::SeteEb(const CAddress& address)
 {
-	assert(!address.NeedsExtendedByteAddress());
-	WriteByte(0x0F);
-	WriteEvOp(0x94, 0x00, false, address);
+	WriteEbOp_0F(0x94, 0x00, address);
 }
 
 void CX86Assembler::SetneEb(const CAddress& address)
 {
-	assert(!address.NeedsExtendedByteAddress());
-	WriteByte(0x0F);
-	WriteEvOp(0x95, 0x00, false, address);
+	WriteEbOp_0F(0x95, 0x00, address);
 }
 
 void CX86Assembler::SetlEb(const CAddress& address)
 {
-	assert(!address.NeedsExtendedByteAddress());
-	WriteByte(0x0F);
-	WriteEvOp(0x9C, 0x00, false, address);
+	WriteEbOp_0F(0x9C, 0x00, address);
 }
 
 void CX86Assembler::SetleEb(const CAddress& address)
 {
-	assert(!address.NeedsExtendedByteAddress());
-	WriteByte(0x0F);
-	WriteEvOp(0x9E, 0x00, false, address);
+	WriteEbOp_0F(0x9E, 0x00, address);
 }
 
 void CX86Assembler::SetgEb(const CAddress& address)
 {
-	assert(!address.NeedsExtendedByteAddress());
-	WriteByte(0x0F);
-	WriteEvOp(0x9F, 0x00, false, address);
+	WriteEbOp_0F(0x9F, 0x00, address);
 }
 
 void CX86Assembler::ShlEd(const CAddress& address)
@@ -1041,6 +1025,18 @@ void CX86Assembler::WriteRexByte(bool nIs64, const CAddress& Address, REGISTER& 
 
 		WriteByte(nByte);
 	}
+}
+
+void CX86Assembler::WriteEbOp_0F(uint8 opcode, uint8 subOpcode, const CAddress& address)
+{
+	auto dummyReg = CX86Assembler::rAX;
+	bool forcedWrite = address.NeedsExtendedByteAddress();
+	WriteRexByte(false, address, dummyReg, forcedWrite);
+	WriteByte(0x0F);
+	CAddress newAddress(address);
+	newAddress.ModRm.nFnReg = subOpcode;
+	WriteByte(opcode);
+	newAddress.Write(&m_tmpStream);
 }
 
 void CX86Assembler::WriteEvOp(uint8 opcode, uint8 subOpcode, bool is64, const CAddress& address)

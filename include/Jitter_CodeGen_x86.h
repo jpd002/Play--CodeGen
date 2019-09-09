@@ -387,26 +387,6 @@ namespace Jitter
 			typedef void (CCodeGen_x86::*OpEdType)(CX86Assembler::REGISTER, const CX86Assembler::CAddress&);
 		};
 
-		struct MDOP_ISNEGATIVE : public MDOP_FLAG_BASE
-		{
-			static OpEdType OpEd() { return &CCodeGen_x86::Emit_Md_IsNegative; }
-		};
-
-		struct MDOP_ISZERO : public MDOP_FLAG_BASE
-		{
-			static OpEdType OpEd() { return &CCodeGen_x86::Emit_Md_IsZero; }
-		};
-
-		struct MDOP_ISNEGATIVE_SSSE3 : public MDOP_FLAG_BASE
-		{
-			static OpEdType OpEd() { return &CCodeGen_x86::Emit_Md_IsNegative_Ssse3; }
-		};
-
-		struct MDOP_ISZERO_SSSE3 : public MDOP_FLAG_BASE
-		{
-			static OpEdType OpEd() { return &CCodeGen_x86::Emit_Md_IsZero_Ssse3; }
-		};
-
 		virtual void				Emit_Prolog(const StatementList&, unsigned int) = 0;
 		virtual void				Emit_Epilog() = 0;
 
@@ -654,8 +634,6 @@ namespace Jitter
 		void						Emit_Md_Mov_MemMem(const STATEMENT&);
 		void						Emit_Md_MovMasked_VarVarVar(const STATEMENT&);
 		void						Emit_Md_MovMasked_Sse41_VarVarVar(const STATEMENT&);
-		template <typename> void	Emit_Md_GetFlag_RegVar(const STATEMENT&);
-		template <typename> void	Emit_Md_GetFlag_MemVar(const STATEMENT&);
 		void						Emit_Md_Expand_RegReg(const STATEMENT&);
 		void						Emit_Md_Expand_RegMem(const STATEMENT&);
 		void						Emit_Md_Expand_RegCst(const STATEMENT&);
@@ -672,11 +650,7 @@ namespace Jitter
 		void						Emit_Md_Abs(CX86Assembler::XMMREGISTER);
 		void						Emit_Md_Not(CX86Assembler::XMMREGISTER);
 		void						Emit_Md_MakeSz(CX86Assembler::XMMREGISTER, const CX86Assembler::CAddress&);
-		void						Emit_Md_IsNegative(CX86Assembler::REGISTER, const CX86Assembler::CAddress&);
-		void						Emit_Md_IsZero(CX86Assembler::REGISTER, const CX86Assembler::CAddress&);
 		void						Emit_Md_MakeSz_VarVar(const STATEMENT&);
-		void						Emit_Md_IsNegative_Ssse3(CX86Assembler::REGISTER, const CX86Assembler::CAddress&);
-		void						Emit_Md_IsZero_Ssse3(CX86Assembler::REGISTER, const CX86Assembler::CAddress&);
 		void						Emit_Md_MakeSz_Ssse3_VarVar(const STATEMENT&);
 
 		static CX86Assembler::REGISTER g_baseRegister;

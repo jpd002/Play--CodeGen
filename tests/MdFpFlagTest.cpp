@@ -23,42 +23,6 @@ void CMdFpFlagTest::Compile(Jitter::CJitter& jitter)
 		jitter.MD_PushRel(offsetof(CONTEXT, src3));
 		jitter.MD_MakeSignZero();
 		jitter.PullRel(offsetof(CONTEXT, dstSzStatus3));
-		
-		//0
-		jitter.MD_PushRel(offsetof(CONTEXT, src0));
-		jitter.MD_IsNegative();
-		jitter.PullRel(offsetof(CONTEXT, dstIsNegative0));
-
-		jitter.MD_PushRel(offsetof(CONTEXT, src0));
-		jitter.MD_IsZero();
-		jitter.PullRel(offsetof(CONTEXT, dstIsZero0));
-
-		//1
-		jitter.MD_PushRel(offsetof(CONTEXT, src1));
-		jitter.MD_IsNegative();
-		jitter.PullRel(offsetof(CONTEXT, dstIsNegative1));
-
-		jitter.MD_PushRel(offsetof(CONTEXT, src1));
-		jitter.MD_IsZero();
-		jitter.PullRel(offsetof(CONTEXT, dstIsZero1));
-
-		//2
-		jitter.MD_PushRel(offsetof(CONTEXT, src2));
-		jitter.MD_IsNegative();
-		jitter.PullRel(offsetof(CONTEXT, dstIsNegative2));
-
-		jitter.MD_PushRel(offsetof(CONTEXT, src2));
-		jitter.MD_IsZero();
-		jitter.PullRel(offsetof(CONTEXT, dstIsZero2));
-		
-		//3
-		jitter.MD_PushRel(offsetof(CONTEXT, src3));
-		jitter.MD_IsNegative();
-		jitter.PullRel(offsetof(CONTEXT, dstIsNegative3));
-
-		jitter.MD_PushRel(offsetof(CONTEXT, src3));
-		jitter.MD_IsZero();
-		jitter.PullRel(offsetof(CONTEXT, dstIsZero3));
 	}
 	jitter.End();
 
@@ -102,16 +66,4 @@ void CMdFpFlagTest::Run()
 	TEST_VERIFY(context.dstSzStatus1 == 0x20);
 	TEST_VERIFY(context.dstSzStatus2 == 0xB4);
 	TEST_VERIFY(context.dstSzStatus3 == 0x50);
-	
-	TEST_VERIFY(context.dstIsNegative0 == 0x5);
-	TEST_VERIFY(context.dstIsZero0     == 0x3);
-
-	TEST_VERIFY(context.dstIsNegative1 == 0x2);
-	TEST_VERIFY(context.dstIsZero1     == 0x0);
-
-	TEST_VERIFY(context.dstIsNegative2 == 0xB);
-	TEST_VERIFY(context.dstIsZero2     == 0x4);
-	
-	TEST_VERIFY(context.dstIsNegative3 == 0x5);
-	TEST_VERIFY(context.dstIsZero3     == 0x0);
 }

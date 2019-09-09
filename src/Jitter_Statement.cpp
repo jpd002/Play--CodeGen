@@ -318,11 +318,8 @@ void Jitter::DumpStatementList(std::ostream& outputStream, const StatementList& 
 		case OP_MD_ABS_S:
 			outputStream << " ABS(S)";
 			break;
-		case OP_MD_ISNEGATIVE:
-			outputStream << " ISNEGATIVE";
-			break;
-		case OP_MD_ISZERO:
-			outputStream << " ISZERO";
+		case OP_MD_MAKESZ:
+			outputStream << " MAKESZ";
 			break;
 		case OP_MD_EXPAND:
 			outputStream << " EXPAND";

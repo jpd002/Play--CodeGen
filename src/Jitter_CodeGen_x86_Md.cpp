@@ -257,26 +257,6 @@ void CCodeGen_x86::Emit_Md_SingleOp_MemVar(const STATEMENT& statement)
 	m_assembler.MovapsVo(MakeMemory128SymbolAddress(dst), resultRegister);
 }
 
-template <typename MDOPFLAG>
-void CCodeGen_x86::Emit_Md_GetFlag_RegVar(const STATEMENT& statement)
-{
-	auto dst = statement.dst->GetSymbol().get();
-	auto src1 = statement.src1->GetSymbol().get();
-
-	((*this).*(MDOPFLAG::OpEd()))(m_registers[dst->m_valueLow], MakeVariable128SymbolAddress(src1));
-}
-
-template <typename MDOPFLAG>
-void CCodeGen_x86::Emit_Md_GetFlag_MemVar(const STATEMENT& statement)
-{
-	auto dst = statement.dst->GetSymbol().get();
-	auto src1 = statement.src1->GetSymbol().get();
-
-	auto tmpRegister = CX86Assembler::rAX;
-	((*this).*(MDOPFLAG::OpEd()))(tmpRegister, MakeVariable128SymbolAddress(src1));
-	m_assembler.MovGd(MakeMemorySymbolAddress(dst), tmpRegister);
-}
-
 void CCodeGen_x86::Emit_Md_AddSSW_VarVarVar(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
@@ -744,59 +724,6 @@ void CCodeGen_x86::Emit_Md_Not(CX86Assembler::XMMREGISTER dstRegister)
 	m_assembler.PxorVo(dstRegister, CX86Assembler::MakeXmmRegisterAddress(cstRegister));
 }
 
-void CCodeGen_x86::Emit_Md_IsNegative(CX86Assembler::REGISTER dstRegister, const CX86Assembler::CAddress& srcAddress)
-{
-	auto valueRegister = CX86Assembler::xMM0;
-	auto tmpFlagRegister = CX86Assembler::rDX;
-	assert(dstRegister != tmpFlagRegister);
-
-	//valueRegister = [srcAddress]
-	m_assembler.MovapsVo(valueRegister, srcAddress);
-
-	//----- Generate isNegative
-	//valueRegister >>= 31 (s-extended)
-	m_assembler.PsradVo(valueRegister, 31);
-
-	//Extract bits
-	m_assembler.PmovmskbVo(tmpFlagRegister, valueRegister);
-	
-	//Generate bit field
-	m_assembler.XorEd(dstRegister, CX86Assembler::MakeRegisterAddress(dstRegister));
-	for(unsigned int i = 0; i < 4; i++)
-	{
-		m_assembler.ShrEd(CX86Assembler::MakeRegisterAddress(tmpFlagRegister), 4);
-		m_assembler.RclEd(CX86Assembler::MakeRegisterAddress(dstRegister), 1);
-	}
-}
-
-void CCodeGen_x86::Emit_Md_IsZero(CX86Assembler::REGISTER dstRegister, const CX86Assembler::CAddress& srcAddress)
-{
-	auto valueRegister = CX86Assembler::xMM0;
-	auto zeroRegister = CX86Assembler::xMM1;
-	auto tmpFlagRegister = CX86Assembler::rDX;
-	assert(dstRegister != tmpFlagRegister);
-
-	//Get value - And with 0x7FFFFFFF to remove sign bit
-	m_assembler.PcmpeqdVo(valueRegister, CX86Assembler::MakeXmmRegisterAddress(valueRegister));
-	m_assembler.PsrldVo(valueRegister, 1);
-	m_assembler.PandVo(valueRegister, srcAddress);
-
-	//Generate zero and compare
-	m_assembler.PandnVo(zeroRegister, CX86Assembler::MakeXmmRegisterAddress(zeroRegister));
-	m_assembler.PcmpeqdVo(valueRegister, CX86Assembler::MakeXmmRegisterAddress(zeroRegister));
-
-	//Extract bits
-	m_assembler.PmovmskbVo(tmpFlagRegister, valueRegister);
-	
-	//Generate bit field
-	m_assembler.XorEd(dstRegister, CX86Assembler::MakeRegisterAddress(dstRegister));
-	for(unsigned int i = 0; i < 4; i++)
-	{
-		m_assembler.ShrEd(CX86Assembler::MakeRegisterAddress(tmpFlagRegister), 4);
-		m_assembler.RclEd(CX86Assembler::MakeRegisterAddress(dstRegister), 1);
-	}
-}
-
 void CCodeGen_x86::Emit_Md_MakeSz(CX86Assembler::XMMREGISTER dstRegister, const CX86Assembler::CAddress& srcAddress)
 {
 	auto zeroRegister = CX86Assembler::xMM1;
@@ -834,55 +761,6 @@ void CCodeGen_x86::Emit_Md_MakeSz_VarVar(const STATEMENT& statement)
 	}
 
 	CommitSymbolRegister(dst, dstRegister);
-}
-
-void CCodeGen_x86::Emit_Md_IsNegative_Ssse3(CX86Assembler::REGISTER dstRegister, const CX86Assembler::CAddress& srcAddress)
-{
-	auto valueRegister = CX86Assembler::xMM0;
-	auto shuffleSelectRegister = CX86Assembler::xMM3;
-	auto tmpFlagRegister = CX86Assembler::rDX;
-
-	assert(dstRegister != tmpFlagRegister);
-
-	//valueRegister = [srcAddress]
-	m_assembler.MovdqaVo(valueRegister, srcAddress);
-
-	//----- Generate isNegative
-	//valueRegister >>= 31 (s-extended)
-	m_assembler.PsradVo(valueRegister, 31);
-
-	//Extract bits
-	m_assembler.MovId(tmpFlagRegister, 0x03070B0F);
-	m_assembler.MovdVo(shuffleSelectRegister, CX86Assembler::MakeRegisterAddress(tmpFlagRegister));
-	m_assembler.PshufbVo(valueRegister, CX86Assembler::MakeXmmRegisterAddress(shuffleSelectRegister));
-	m_assembler.PmovmskbVo(dstRegister, valueRegister);
-	m_assembler.AndId(CX86Assembler::MakeRegisterAddress(dstRegister), 0x0F);
-}
-
-void CCodeGen_x86::Emit_Md_IsZero_Ssse3(CX86Assembler::REGISTER dstRegister, const CX86Assembler::CAddress& srcAddress)
-{
-	auto valueRegister = CX86Assembler::xMM0;
-	auto zeroRegister = CX86Assembler::xMM1;
-	auto shuffleSelectRegister = CX86Assembler::xMM2;
-	auto tmpFlagRegister = CX86Assembler::rDX;
-
-	assert(dstRegister != tmpFlagRegister);
-
-	//Get value - And with 0x7FFFFFFF to remove sign bit
-	m_assembler.PcmpeqdVo(valueRegister, CX86Assembler::MakeXmmRegisterAddress(valueRegister));
-	m_assembler.PsrldVo(valueRegister, 1);
-	m_assembler.PandVo(valueRegister, srcAddress);
-
-	//Generate zero and compare
-	m_assembler.PandnVo(zeroRegister, CX86Assembler::MakeXmmRegisterAddress(zeroRegister));
-	m_assembler.PcmpeqdVo(valueRegister, CX86Assembler::MakeXmmRegisterAddress(zeroRegister));
-
-	//Extract bits
-	m_assembler.MovId(tmpFlagRegister, 0x03070B0F);
-	m_assembler.MovdVo(shuffleSelectRegister, CX86Assembler::MakeRegisterAddress(tmpFlagRegister));
-	m_assembler.PshufbVo(valueRegister, CX86Assembler::MakeXmmRegisterAddress(shuffleSelectRegister));
-	m_assembler.PmovmskbVo(dstRegister, valueRegister);
-	m_assembler.AndId(CX86Assembler::MakeRegisterAddress(dstRegister), 0x0F);
 }
 
 void CCodeGen_x86::Emit_Md_MakeSz_Ssse3_VarVar(const STATEMENT& statement)
@@ -1183,12 +1061,6 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdMovMaskedSse41ConstMatchers[] =
 
 CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdFpFlagConstMatchers[] =
 {
-	{ OP_MD_ISNEGATIVE, MATCH_REGISTER, MATCH_VARIABLE128, MATCH_NIL, &CCodeGen_x86::Emit_Md_GetFlag_RegVar<MDOP_ISNEGATIVE> },
-	{ OP_MD_ISNEGATIVE, MATCH_MEMORY,   MATCH_VARIABLE128, MATCH_NIL, &CCodeGen_x86::Emit_Md_GetFlag_MemVar<MDOP_ISNEGATIVE> },
-
-	{ OP_MD_ISZERO,     MATCH_REGISTER, MATCH_VARIABLE128, MATCH_NIL, &CCodeGen_x86::Emit_Md_GetFlag_RegVar<MDOP_ISZERO>     },
-	{ OP_MD_ISZERO,     MATCH_MEMORY,   MATCH_VARIABLE128, MATCH_NIL, &CCodeGen_x86::Emit_Md_GetFlag_MemVar<MDOP_ISZERO>     },
-
 	{ OP_MD_MAKESZ,     MATCH_VARIABLE, MATCH_VARIABLE128, MATCH_NIL, &CCodeGen_x86::Emit_Md_MakeSz_VarVar },
 
 	{ OP_MOV, MATCH_NIL, MATCH_NIL, MATCH_NIL, nullptr },
@@ -1196,12 +1068,6 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdFpFlagConstMatchers[] =
 
 CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdFpFlagSsse3ConstMatchers[] =
 {
-	{ OP_MD_ISNEGATIVE, MATCH_REGISTER, MATCH_VARIABLE128, MATCH_NIL, &CCodeGen_x86::Emit_Md_GetFlag_RegVar<MDOP_ISNEGATIVE_SSSE3> },
-	{ OP_MD_ISNEGATIVE, MATCH_MEMORY,   MATCH_VARIABLE128, MATCH_NIL, &CCodeGen_x86::Emit_Md_GetFlag_MemVar<MDOP_ISNEGATIVE_SSSE3> },
-
-	{ OP_MD_ISZERO,     MATCH_REGISTER, MATCH_VARIABLE128, MATCH_NIL, &CCodeGen_x86::Emit_Md_GetFlag_RegVar<MDOP_ISZERO_SSSE3>     },
-	{ OP_MD_ISZERO,     MATCH_MEMORY,   MATCH_VARIABLE128, MATCH_NIL, &CCodeGen_x86::Emit_Md_GetFlag_MemVar<MDOP_ISZERO_SSSE3>     },
-
 	{ OP_MD_MAKESZ,     MATCH_VARIABLE, MATCH_VARIABLE128, MATCH_NIL, &CCodeGen_x86::Emit_Md_MakeSz_Ssse3_VarVar },
 	
 	{ OP_MOV, MATCH_NIL, MATCH_NIL, MATCH_NIL, nullptr },

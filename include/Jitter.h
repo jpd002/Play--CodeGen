@@ -288,6 +288,7 @@ namespace Jitter
 		bool							ConstantFolding(StatementList&);
 		bool							ConstantPropagation(StatementList&);
 		bool							CopyPropagation(StatementList&);
+		bool							CopyPropagation2(StatementList&);
 		bool							DeadcodeElimination(VERSIONED_STATEMENT_LIST&);
 
 		void							FixFlowControl(StatementList&);

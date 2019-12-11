@@ -172,6 +172,7 @@ void CJitter::Compile()
 					dirty |= ConstantPropagation(versionedStatements.statements);
 					dirty |= ConstantFolding(versionedStatements.statements);
 					dirty |= CopyPropagation(versionedStatements.statements);
+					dirty |= CopyPropagation2(versionedStatements.statements);
 					dirty |= DeadcodeElimination(versionedStatements);
 
 					if(!dirty) break;
@@ -1124,6 +1125,78 @@ bool CJitter::ConstantPropagation(StatementList& statements)
 				changed = true;
 				continue;
 			}
+		}
+	}
+	return changed;
+}
+
+bool CJitter::CopyPropagation2(StatementList& statements)
+{
+	bool changed = false;
+
+	for(auto outerStatementIterator(statements.begin());
+		statements.end() != outerStatementIterator; ++outerStatementIterator)
+	{
+		STATEMENT& outerStatement(*outerStatementIterator);
+
+		//Some operations we can't propagate
+		if(outerStatement.op != OP_ADD) continue;
+
+		CSymbolRef* outerDstSymbol = outerStatement.dst.get();
+		if(outerDstSymbol == NULL) continue;
+
+		//Don't mess with relatives
+		if(outerDstSymbol->GetSymbol()->IsRelative())
+		{
+			continue;
+		}
+
+		//Count number of uses of this symbol
+		unsigned int useCount = 0;
+		for(auto innerStatementIterator(outerStatementIterator);
+			statements.end() != innerStatementIterator; ++innerStatementIterator)
+		{
+			if(outerStatementIterator == innerStatementIterator) continue;
+
+			STATEMENT& innerStatement(*innerStatementIterator);
+
+			if(
+				(innerStatement.src1 && innerStatement.src1->Equals(outerDstSymbol)) || 
+				(innerStatement.src2 && innerStatement.src2->Equals(outerDstSymbol))
+				)
+			{
+				useCount++;
+			}
+		}
+
+		if(useCount == 1)
+		{
+			unsigned int changeCount = 0;
+
+			//Check for OP_SLL that uses the result of this operation and propagate the shift
+			auto innerStatementIterator = std::next(outerStatementIterator);
+			{
+				STATEMENT& innerStatement(*innerStatementIterator);
+				if(innerStatement.op == OP_SLL && innerStatement.src1->Equals(outerDstSymbol))
+				{
+					CSymbol* innerSrc2cst = dynamic_symbolref_cast(SYM_CONSTANT, innerStatement.src2);
+					CSymbol* outerSrc2cst = dynamic_symbolref_cast(SYM_CONSTANT, outerStatement.src2);
+					if(innerSrc2cst && outerSrc2cst)
+					{
+						uint32 result = outerSrc2cst->m_valueLow << innerSrc2cst->m_valueLow;
+						changeCount++;
+
+						std::swap(outerStatement, innerStatement);
+						std::swap(outerStatement.src1, innerStatement.src1);
+						std::swap(outerStatement.dst, innerStatement.dst);
+						innerStatement.src2 = MakeSymbolRef(MakeSymbol(SYM_CONSTANT, result));
+						changed = true;
+
+					}
+				}
+			}
+
+			assert(changeCount <= 1);
 		}
 	}
 	return changed;

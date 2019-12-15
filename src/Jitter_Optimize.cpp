@@ -1172,7 +1172,6 @@ bool CJitter::CopyPropagation(StatementList& statements)
 		{
 			unsigned int changeCount = 0;
 
-			//Check for all OP_MOVs that uses the result of this operation and propagate
 			for(auto innerStatementIterator(outerStatementIterator);
 				statements.end() != innerStatementIterator; ++innerStatementIterator)
 			{
@@ -1180,6 +1179,7 @@ bool CJitter::CopyPropagation(StatementList& statements)
 
 				STATEMENT& innerStatement(*innerStatementIterator);
 
+				//Check for all OP_MOVs that uses the result of this operation and propagate
 				if(innerStatement.op == OP_MOV && innerStatement.src1->Equals(outerDstSymbol))
 				{
 					changeCount++;
@@ -1189,6 +1189,21 @@ bool CJitter::CopyPropagation(StatementList& statements)
 					innerStatement.src2 = outerStatement.src2;
 					innerStatement.jmpCondition = outerStatement.jmpCondition;
 					changed = true;
+				}
+				// find all the add/sub constant and add them together
+				else if(outerStatement.op == innerStatement.op && innerStatement.op == OP_ADD && innerStatement.src1->Equals(outerDstSymbol))
+				{
+					CSymbol* innerSrc2cst = dynamic_symbolref_cast(SYM_CONSTANT, innerStatement.src2);
+					CSymbol* outerSrc2cst = dynamic_symbolref_cast(SYM_CONSTANT, outerStatement.src2);
+					if(innerSrc2cst && outerSrc2cst)
+					{
+						changeCount++;
+						uint32 result = innerSrc2cst->m_valueLow + outerSrc2cst->m_valueLow;
+						outerStatement.src2 = MakeSymbolRef(MakeSymbol(SYM_CONSTANT, result));
+						innerStatement.op = OP_MOV;
+						innerStatement.src2.reset();
+						changed = true;
+					}
 				}
 			}
 

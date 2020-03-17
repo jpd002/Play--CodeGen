@@ -362,6 +362,11 @@ public:
 	void									SubpsVo(XMMREGISTER, const CAddress&);
 	void									ShufpsVo(XMMREGISTER, const CAddress&, uint8);
 
+	//AVX
+	void									VmovapsVo(XMMREGISTER, const CAddress&);
+	void									VmovapsVo(const CAddress&, XMMREGISTER);
+	void									VpadddVo(XMMREGISTER, XMMREGISTER, const CAddress&);
+
 private:
 	enum JMP_TYPE
 	{

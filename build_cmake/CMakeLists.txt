@@ -67,6 +67,7 @@ add_library(CodeGen
 	../src/MemoryFunction.cpp
 	../src/ObjectFile.cpp
 	../src/X86Assembler.cpp
+	../src/X86Assembler_Avx.cpp
 	../src/X86Assembler_Fpu.cpp
 	../src/X86Assembler_Sse.cpp
 

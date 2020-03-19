@@ -127,6 +127,7 @@ namespace Jitter
 		struct MDOP_BASE
 		{
 			typedef void (CX86Assembler::*OpVoType)(CX86Assembler::XMMREGISTER, const CX86Assembler::CAddress&);
+			typedef void (CX86Assembler::*OpVoAvxType)(CX86Assembler::XMMREGISTER, CX86Assembler::XMMREGISTER, const CX86Assembler::CAddress&);
 		};
 
 		struct MDOP_ADDB : public MDOP_BASE
@@ -142,6 +143,7 @@ namespace Jitter
 		struct MDOP_ADDW : public MDOP_BASE
 		{
 			static OpVoType OpVo() { return &CX86Assembler::PadddVo; }
+			static OpVoAvxType OpVoAvx() { return &CX86Assembler::VpadddVo; }
 		};
 
 		struct MDOP_ADDSSB : public MDOP_BASE
@@ -663,6 +665,11 @@ namespace Jitter
 		void						Emit_Md_MakeSz_VarVar(const STATEMENT&);
 		void						Emit_Md_MakeSz_Ssse3_VarVar(const STATEMENT&);
 
+		//MDOP AVX
+		template <typename> void	Emit_Md_Avx_RegRegReg(const STATEMENT&);
+		void						Emit_Md_Avx_Mov_RegVar(const STATEMENT&);
+		void						Emit_Md_Avx_Mov_MemReg(const STATEMENT&);
+
 		static CX86Assembler::REGISTER g_baseRegister;
 
 		CX86Assembler::REGISTER		PrepareSymbolRegisterDef(CSymbol*, CX86Assembler::REGISTER);
@@ -713,5 +720,7 @@ namespace Jitter
 
 		static CONSTMATCHER			g_mdFpFlagConstMatchers[];
 		static CONSTMATCHER			g_mdFpFlagSsse3ConstMatchers[];
+
+		static CONSTMATCHER			g_mdAvxConstMatchers[];
 	};
 }

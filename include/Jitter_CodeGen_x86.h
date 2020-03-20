@@ -249,16 +249,19 @@ namespace Jitter
 		struct MDOP_AND : public MDOP_BASE
 		{
 			static OpVoType OpVo() { return &CX86Assembler::PandVo; }
+			static OpVoAvxType OpVoAvx() { return &CX86Assembler::VpandVo; }
 		};
 
 		struct MDOP_OR : public MDOP_BASE
 		{
 			static OpVoType OpVo() { return &CX86Assembler::PorVo; }
+			static OpVoAvxType OpVoAvx() { return &CX86Assembler::VporVo; }
 		};
 
 		struct MDOP_XOR : public MDOP_BASE
 		{
 			static OpVoType OpVo() { return &CX86Assembler::PxorVo; }
+			static OpVoAvxType OpVoAvx() { return &CX86Assembler::VpxorVo; }
 		};
 
 		struct MDOP_UNPACK_LOWER_BH : public MDOP_BASE
@@ -669,6 +672,8 @@ namespace Jitter
 		template <typename> void	Emit_Md_Avx_RegRegReg(const STATEMENT&);
 		void						Emit_Md_Avx_Mov_RegVar(const STATEMENT&);
 		void						Emit_Md_Avx_Mov_MemReg(const STATEMENT&);
+
+		void						Emit_Md_Avx_Not_VarVar(const STATEMENT&);
 
 		static CX86Assembler::REGISTER g_baseRegister;
 

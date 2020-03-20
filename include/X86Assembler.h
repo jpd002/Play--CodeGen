@@ -367,6 +367,12 @@ public:
 	void									VmovapsVo(const CAddress&, XMMREGISTER);
 	void									VpadddVo(XMMREGISTER, XMMREGISTER, const CAddress&);
 
+	void									VpandVo(XMMREGISTER, XMMREGISTER, const CAddress&);
+	void									VporVo(XMMREGISTER, XMMREGISTER, const CAddress&);
+	void									VpxorVo(XMMREGISTER, XMMREGISTER, const CAddress&);
+
+	void									VpcmpeqdVo(XMMREGISTER, XMMREGISTER, const CAddress&);
+
 private:
 	enum JMP_TYPE
 	{
@@ -396,6 +402,14 @@ private:
 		JMP_NOTSET,
 		JMP_NEAR,
 		JMP_FAR
+	};
+
+	enum VEX_PREFIX
+	{
+		VEX_PREFIX_NONE = 0,
+		VEX_PREFIX_66 = 1,
+		VEX_PREFIX_F3 = 2,
+		VEX_PREFIX_F2 = 3
 	};
 
 	struct LABELREF
@@ -447,6 +461,7 @@ private:
 
 	void									WriteRexByte(bool, const CAddress&);
 	void									WriteRexByte(bool, const CAddress&, REGISTER&, bool = false);
+	void									WriteVex(VEX_PREFIX, XMMREGISTER&, XMMREGISTER, const CAddress&);
 	void									WriteEbOp_0F(uint8, uint8, const CAddress&);
 	void									WriteEbGbOp(uint8, bool, const CAddress&, REGISTER);
 	void									WriteEbGbOp(uint8, bool, const CAddress&, BYTEREGISTER);

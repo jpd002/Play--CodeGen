@@ -669,7 +669,7 @@ namespace Jitter
 		void						Emit_Md_MakeSz_Ssse3_VarVar(const STATEMENT&);
 
 		//MDOP AVX
-		template <typename> void	Emit_Md_Avx_RegRegReg(const STATEMENT&);
+		template <typename> void	Emit_Md_Avx_VarVarVar(const STATEMENT&);
 		void						Emit_Md_Avx_Mov_RegVar(const STATEMENT&);
 		void						Emit_Md_Avx_Mov_MemReg(const STATEMENT&);
 
@@ -681,6 +681,10 @@ namespace Jitter
 		CX86Assembler::REGISTER		PrepareSymbolRegisterUse(CSymbol*, CX86Assembler::REGISTER);
 		CX86Assembler::BYTEREGISTER	PrepareSymbolByteRegisterUse(CSymbol*, CX86Assembler::REGISTER);
 		void						CommitSymbolRegister(CSymbol*, CX86Assembler::REGISTER);
+
+		CX86Assembler::XMMREGISTER	PrepareSymbolRegisterDefMd(CSymbol*, CX86Assembler::XMMREGISTER);
+		CX86Assembler::XMMREGISTER	PrepareSymbolRegisterUseMdAvx(CSymbol*, CX86Assembler::XMMREGISTER);
+		void						CommitSymbolRegisterMdAvx(CSymbol*, CX86Assembler::XMMREGISTER);
 
 		virtual CX86Assembler::REGISTER PrepareRefSymbolRegisterUse(CSymbol*, CX86Assembler::REGISTER) = 0;
 

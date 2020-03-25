@@ -33,6 +33,130 @@ void CCodeGen_x86::Emit_Md_Avx_Mov_MemReg(const STATEMENT& statement)
 	m_assembler.VmovapsVo(MakeMemory128SymbolAddress(dst), m_mdRegisters[src1->m_valueLow]);
 }
 
+void CCodeGen_x86::Emit_Md_Avx_AddSSW_VarVarVar(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	auto uxRegister = CX86Assembler::xMM0;
+	auto uyRegister = CX86Assembler::xMM1;
+	auto resRegister = CX86Assembler::xMM2;
+	auto cstRegister = CX86Assembler::xMM3;
+
+//	This is based on code from http://locklessinc.com/articles/sat_arithmetic/ modified to work without cmovns
+//	s32b sat_adds32b(s32b x, s32b y)
+//	{
+//		u32b ux = x;
+//		u32b uy = y;
+//		u32b res = ux + uy;
+//	
+//		/* Calculate overflowed result. (Don't change the sign bit of ux) */
+//		ux = (ux >> 31) + INT_MAX;
+//	
+//		s32b sign = (s32b) ((ux ^ uy) | ~(uy ^ res))
+//		sign >>= 31;		/* Arithmetic shift, either 0 or ~0*/
+//		res = (res & sign) | (ux & ~sign);
+//		
+//		return res;
+//	}
+
+	//ux = src1
+	//uy = src2
+	m_assembler.VmovdqaVo(uxRegister, MakeVariable128SymbolAddress(src1));
+	m_assembler.VmovdqaVo(uyRegister, MakeVariable128SymbolAddress(src2));
+	
+	//res = ux + uy
+	m_assembler.VpadddVo(resRegister, uxRegister, CX86Assembler::MakeXmmRegisterAddress(uyRegister));
+
+	//cst = 0x7FFFFFFF
+	m_assembler.VpcmpeqdVo(cstRegister, cstRegister, CX86Assembler::MakeXmmRegisterAddress(cstRegister));
+	m_assembler.VpsrldVo(cstRegister, cstRegister, 1);
+
+	//ux = (ux >> 31)
+	m_assembler.VpsrldVo(uxRegister, uxRegister, 31);
+
+	//ux += 0x7FFFFFFF
+	m_assembler.VpadddVo(uxRegister, uxRegister, CX86Assembler::MakeXmmRegisterAddress(cstRegister));
+
+	//uy = ~(uy ^ res)
+	//------
+	//uy ^ res
+	m_assembler.VpxorVo(uyRegister, uyRegister, CX86Assembler::MakeXmmRegisterAddress(resRegister));
+
+	//~(uy ^ res)
+	m_assembler.VpcmpeqdVo(cstRegister, cstRegister, CX86Assembler::MakeXmmRegisterAddress(cstRegister));
+	m_assembler.VpxorVo(uyRegister, uyRegister, CX86Assembler::MakeXmmRegisterAddress(cstRegister));
+
+	//cst = ux ^ uy (reloading uy from src2 because we don't have any registers available)
+	m_assembler.VpxorVo(cstRegister, uxRegister, MakeVariable128SymbolAddress(src2));
+
+	//uy = ((ux ^ uy) | ~(uy ^ res)) >> 31; (signed operation)
+	m_assembler.VporVo(uyRegister, uyRegister, CX86Assembler::MakeXmmRegisterAddress(cstRegister));
+	m_assembler.VpsradVo(uyRegister, uyRegister, 31);
+
+	//res = (res & uy)	(uy is the sign value)
+	m_assembler.VpandVo(resRegister, resRegister, CX86Assembler::MakeXmmRegisterAddress(uyRegister));
+
+	//ux = (ux & ~uy)
+	//------
+	//~uy
+	m_assembler.VpcmpeqdVo(cstRegister, cstRegister, CX86Assembler::MakeXmmRegisterAddress(cstRegister));
+	m_assembler.VpxorVo(uyRegister, uyRegister, CX86Assembler::MakeXmmRegisterAddress(cstRegister));
+
+	//ux & ~uy
+	m_assembler.VpandVo(uxRegister, uxRegister, CX86Assembler::MakeXmmRegisterAddress(uyRegister));
+
+	//res = (res & uy) | (ux & ~uy)
+	m_assembler.VporVo(resRegister, resRegister, CX86Assembler::MakeXmmRegisterAddress(uxRegister));
+
+	//Copy final result
+	m_assembler.VmovdqaVo(MakeVariable128SymbolAddress(dst), resRegister);
+}
+
+void CCodeGen_x86::Emit_Md_Avx_AddUSW_VarVarVar(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	auto xRegister = CX86Assembler::xMM0;
+	auto resRegister = CX86Assembler::xMM1;
+	auto tmpRegister = CX86Assembler::xMM2;
+	auto tmp2Register = CX86Assembler::xMM3;
+
+//	This is based on code from http://locklessinc.com/articles/sat_arithmetic/
+//	u32b sat_addu32b(u32b x, u32b y)
+//	{
+//		u32b res = x + y;
+//		res |= -(res < x);
+//	
+//		return res;
+//	}
+
+	m_assembler.VmovdqaVo(xRegister, MakeVariable128SymbolAddress(src1));
+	m_assembler.VpadddVo(resRegister, xRegister, MakeVariable128SymbolAddress(src2));
+	
+	//-(res < x)
+	//PCMPGT will compare two signed integers, but we want unsigned comparison
+	//Thus, we add 0x80000000 to both values to "convert" them to signed
+	m_assembler.VpcmpeqdVo(tmpRegister, tmpRegister, CX86Assembler::MakeXmmRegisterAddress(tmpRegister));
+	m_assembler.VpslldVo(tmpRegister, tmpRegister, 31);
+	m_assembler.VpadddVo(tmpRegister, tmpRegister, CX86Assembler::MakeXmmRegisterAddress(resRegister));
+
+	m_assembler.VpcmpeqdVo(tmp2Register, tmp2Register, CX86Assembler::MakeXmmRegisterAddress(tmp2Register));
+	m_assembler.VpslldVo(tmp2Register, tmp2Register, 31);
+	m_assembler.VpadddVo(tmp2Register, tmp2Register, CX86Assembler::MakeXmmRegisterAddress(xRegister));
+
+	m_assembler.VpcmpgtdVo(tmp2Register, tmp2Register, CX86Assembler::MakeXmmRegisterAddress(tmpRegister));
+
+	//res |= -(res < x)
+	m_assembler.VporVo(resRegister, resRegister, CX86Assembler::MakeXmmRegisterAddress(tmp2Register));
+
+	//Store result
+	m_assembler.VmovdqaVo(MakeVariable128SymbolAddress(dst), resRegister);
+}
+
 void CCodeGen_x86::Emit_Md_Avx_Not_VarVar(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
@@ -57,9 +181,11 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdAvxConstMatchers[] =
 
 	{ OP_MD_ADDSS_B, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_VARIABLE128, &CCodeGen_x86::Emit_Md_Avx_VarVarVar<MDOP_ADDSSB> },
 	{ OP_MD_ADDSS_H, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_VARIABLE128, &CCodeGen_x86::Emit_Md_Avx_VarVarVar<MDOP_ADDSSH> },
+	{ OP_MD_ADDSS_W, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_VARIABLE128, &CCodeGen_x86::Emit_Md_Avx_AddSSW_VarVarVar       },
 
 	{ OP_MD_ADDUS_B, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_VARIABLE128, &CCodeGen_x86::Emit_Md_Avx_VarVarVar<MDOP_ADDUSB> },
 	{ OP_MD_ADDUS_H, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_VARIABLE128, &CCodeGen_x86::Emit_Md_Avx_VarVarVar<MDOP_ADDUSH> },
+	{ OP_MD_ADDUS_W, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_VARIABLE128, &CCodeGen_x86::Emit_Md_Avx_AddUSW_VarVarVar       },
 
 	{ OP_MD_AND, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_VARIABLE128, &CCodeGen_x86::Emit_Md_Avx_VarVarVar<MDOP_AND> },
 	{ OP_MD_OR,  MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_VARIABLE128, &CCodeGen_x86::Emit_Md_Avx_VarVarVar<MDOP_OR>  },

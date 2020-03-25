@@ -363,8 +363,11 @@ public:
 	void									ShufpsVo(XMMREGISTER, const CAddress&, uint8);
 
 	//AVX
+	void									VmovdqaVo(XMMREGISTER, const CAddress&);
+	void									VmovdqaVo(const CAddress&, XMMREGISTER);
 	void									VmovapsVo(XMMREGISTER, const CAddress&);
 	void									VmovapsVo(const CAddress&, XMMREGISTER);
+
 	void									VpaddbVo(XMMREGISTER, XMMREGISTER, const CAddress&);
 	void									VpaddwVo(XMMREGISTER, XMMREGISTER, const CAddress&);
 	void									VpadddVo(XMMREGISTER, XMMREGISTER, const CAddress&);
@@ -377,7 +380,12 @@ public:
 	void									VporVo(XMMREGISTER, XMMREGISTER, const CAddress&);
 	void									VpxorVo(XMMREGISTER, XMMREGISTER, const CAddress&);
 
+	void									VpslldVo(XMMREGISTER, XMMREGISTER, uint8);
+	void									VpsrldVo(XMMREGISTER, XMMREGISTER, uint8);
+	void									VpsradVo(XMMREGISTER, XMMREGISTER, uint8);
+
 	void									VpcmpeqdVo(XMMREGISTER, XMMREGISTER, const CAddress&);
+	void									VpcmpgtdVo(XMMREGISTER, XMMREGISTER, const CAddress&);
 
 private:
 	enum JMP_TYPE

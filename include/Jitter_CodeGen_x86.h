@@ -133,11 +133,13 @@ namespace Jitter
 		struct MDOP_ADDB : public MDOP_BASE
 		{
 			static OpVoType OpVo() { return &CX86Assembler::PaddbVo; }
+			static OpVoAvxType OpVoAvx() { return &CX86Assembler::VpaddbVo; }
 		};
 
 		struct MDOP_ADDH : public MDOP_BASE
 		{
 			static OpVoType OpVo() { return &CX86Assembler::PaddwVo; }
+			static OpVoAvxType OpVoAvx() { return &CX86Assembler::VpaddwVo; }
 		};
 
 		struct MDOP_ADDW : public MDOP_BASE
@@ -149,21 +151,25 @@ namespace Jitter
 		struct MDOP_ADDSSB : public MDOP_BASE
 		{
 			static OpVoType OpVo() { return &CX86Assembler::PaddsbVo; }
+			static OpVoAvxType OpVoAvx() { return &CX86Assembler::VpaddsbVo; }
 		};
 
 		struct MDOP_ADDSSH : public MDOP_BASE
 		{
 			static OpVoType OpVo() { return &CX86Assembler::PaddswVo; }
+			static OpVoAvxType OpVoAvx() { return &CX86Assembler::VpaddswVo; }
 		};
 
 		struct MDOP_ADDUSB : public MDOP_BASE
 		{
 			static OpVoType OpVo() { return &CX86Assembler::PaddusbVo; }
+			static OpVoAvxType OpVoAvx() { return &CX86Assembler::VpaddusbVo; }
 		};
 
 		struct MDOP_ADDUSH : public MDOP_BASE
 		{
 			static OpVoType OpVo() { return &CX86Assembler::PadduswVo; }
+			static OpVoAvxType OpVoAvx() { return &CX86Assembler::VpadduswVo; }
 		};
 
 		struct MDOP_SUBB : public MDOP_BASE

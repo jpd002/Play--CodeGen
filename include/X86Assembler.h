@@ -365,7 +365,13 @@ public:
 	//AVX
 	void									VmovapsVo(XMMREGISTER, const CAddress&);
 	void									VmovapsVo(const CAddress&, XMMREGISTER);
+	void									VpaddbVo(XMMREGISTER, XMMREGISTER, const CAddress&);
+	void									VpaddwVo(XMMREGISTER, XMMREGISTER, const CAddress&);
 	void									VpadddVo(XMMREGISTER, XMMREGISTER, const CAddress&);
+	void									VpaddsbVo(XMMREGISTER, XMMREGISTER, const CAddress&);
+	void									VpaddswVo(XMMREGISTER, XMMREGISTER, const CAddress&);
+	void									VpaddusbVo(XMMREGISTER, XMMREGISTER, const CAddress&);
+	void									VpadduswVo(XMMREGISTER, XMMREGISTER, const CAddress&);
 
 	void									VpandVo(XMMREGISTER, XMMREGISTER, const CAddress&);
 	void									VporVo(XMMREGISTER, XMMREGISTER, const CAddress&);

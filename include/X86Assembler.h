@@ -494,6 +494,7 @@ private:
 	void									WriteEdVdOp_66_0F_3A(uint8, const CAddress&, XMMREGISTER);
 	void									WriteEdVdOp_F3_0F(uint8, const CAddress&, XMMREGISTER);
 	void									WriteVrOp_66_0F(uint8, uint8, XMMREGISTER);
+	void									WriteVexVoOp(VEX_PREFIX, uint8, XMMREGISTER, XMMREGISTER, const CAddress&);
 	void									WriteStOp(uint8, uint8, uint8);
 
 	void									CreateLabelReference(LABEL, JMP_TYPE);

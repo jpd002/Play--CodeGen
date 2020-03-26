@@ -41,130 +41,83 @@ void CX86Assembler::WriteVex(VEX_PREFIX prefix, XMMREGISTER& dst, XMMREGISTER sr
 	}
 }
 
-void CX86Assembler::VmovdqaVo(XMMREGISTER dst, const CAddress& src)
+void CX86Assembler::WriteVexVoOp(VEX_PREFIX prefix, uint8 op, XMMREGISTER dst, XMMREGISTER src1, const CAddress& src2)
 {
-	WriteVex(VEX_PREFIX_66, dst, CX86Assembler::xMM0, src);
-	WriteByte(0x6F);
-	CAddress newAddress(src);
+	WriteVex(prefix, dst, src1, src2);
+	WriteByte(op);
+	CAddress newAddress(src2);
 	newAddress.ModRm.nFnReg = dst;
 	newAddress.Write(&m_tmpStream);
+}
+
+void CX86Assembler::VmovdqaVo(XMMREGISTER dst, const CAddress& src)
+{
+	WriteVexVoOp(VEX_PREFIX_66, 0x6F, dst, CX86Assembler::xMM0, src);
 }
 
 void CX86Assembler::VmovdqaVo(const CAddress& dst, XMMREGISTER src)
 {
-	WriteVex(VEX_PREFIX_66, src, CX86Assembler::xMM0, dst);
-	WriteByte(0x7F);
-	CAddress newAddress(dst);
-	newAddress.ModRm.nFnReg = src;
-	newAddress.Write(&m_tmpStream);
+	WriteVexVoOp(VEX_PREFIX_66, 0x7F, src, CX86Assembler::xMM0, dst);
 }
 
 void CX86Assembler::VmovapsVo(XMMREGISTER dst, const CAddress& src)
 {
-	WriteVex(VEX_PREFIX_NONE, dst, CX86Assembler::xMM0, src);
-	WriteByte(0x28);
-	CAddress newAddress(src);
-	newAddress.ModRm.nFnReg = dst;
-	newAddress.Write(&m_tmpStream);
+	WriteVexVoOp(VEX_PREFIX_NONE, 0x28, dst, CX86Assembler::xMM0, src);
 }
 
 void CX86Assembler::VmovapsVo(const CAddress& dst, XMMREGISTER src)
 {
-	WriteVex(VEX_PREFIX_NONE, src, CX86Assembler::xMM0, dst);
-	WriteByte(0x29);
-	CAddress newAddress(dst);
-	newAddress.ModRm.nFnReg = src;
-	newAddress.Write(&m_tmpStream);
+	WriteVexVoOp(VEX_PREFIX_NONE, 0x29, src, CX86Assembler::xMM0, dst);
 }
 
 void CX86Assembler::VpaddbVo(XMMREGISTER dst, XMMREGISTER src1, const CAddress& src2)
 {
-	WriteVex(VEX_PREFIX_66, dst, src1, src2);
-	WriteByte(0xFC);
-	CAddress newAddress(src2);
-	newAddress.ModRm.nFnReg = dst;
-	newAddress.Write(&m_tmpStream);
+	WriteVexVoOp(VEX_PREFIX_66, 0xFC, dst, src1, src2);
 }
 
 void CX86Assembler::VpaddwVo(XMMREGISTER dst, XMMREGISTER src1, const CAddress& src2)
 {
-	WriteVex(VEX_PREFIX_66, dst, src1, src2);
-	WriteByte(0xFD);
-	CAddress newAddress(src2);
-	newAddress.ModRm.nFnReg = dst;
-	newAddress.Write(&m_tmpStream);
+	WriteVexVoOp(VEX_PREFIX_66, 0xFD, dst, src1, src2);
 }
 
 void CX86Assembler::VpadddVo(XMMREGISTER dst, XMMREGISTER src1, const CAddress& src2)
 {
-	WriteVex(VEX_PREFIX_66, dst, src1, src2);
-	WriteByte(0xFE);
-	CAddress newAddress(src2);
-	newAddress.ModRm.nFnReg = dst;
-	newAddress.Write(&m_tmpStream);
+	WriteVexVoOp(VEX_PREFIX_66, 0xFE, dst, src1, src2);
 }
 
 void CX86Assembler::VpaddsbVo(XMMREGISTER dst, XMMREGISTER src1, const CAddress& src2)
 {
-	WriteVex(VEX_PREFIX_66, dst, src1, src2);
-	WriteByte(0xEC);
-	CAddress newAddress(src2);
-	newAddress.ModRm.nFnReg = dst;
-	newAddress.Write(&m_tmpStream);
+	WriteVexVoOp(VEX_PREFIX_66, 0xEC, dst, src1, src2);
 }
 
 void CX86Assembler::VpaddswVo(XMMREGISTER dst, XMMREGISTER src1, const CAddress& src2)
 {
-	WriteVex(VEX_PREFIX_66, dst, src1, src2);
-	WriteByte(0xED);
-	CAddress newAddress(src2);
-	newAddress.ModRm.nFnReg = dst;
-	newAddress.Write(&m_tmpStream);
+	WriteVexVoOp(VEX_PREFIX_66, 0xED, dst, src1, src2);
 }
 
 void CX86Assembler::VpaddusbVo(XMMREGISTER dst, XMMREGISTER src1, const CAddress& src2)
 {
-	WriteVex(VEX_PREFIX_66, dst, src1, src2);
-	WriteByte(0xDC);
-	CAddress newAddress(src2);
-	newAddress.ModRm.nFnReg = dst;
-	newAddress.Write(&m_tmpStream);
+	WriteVexVoOp(VEX_PREFIX_66, 0xDC, dst, src1, src2);
 }
 
 void CX86Assembler::VpadduswVo(XMMREGISTER dst, XMMREGISTER src1, const CAddress& src2)
 {
-	WriteVex(VEX_PREFIX_66, dst, src1, src2);
-	WriteByte(0xDD);
-	CAddress newAddress(src2);
-	newAddress.ModRm.nFnReg = dst;
-	newAddress.Write(&m_tmpStream);
+	WriteVexVoOp(VEX_PREFIX_66, 0xDD, dst, src1, src2);
 }
 
 void CX86Assembler::VpandVo(XMMREGISTER dst, XMMREGISTER src1, const CAddress& src2)
 {
-	WriteVex(VEX_PREFIX_66, dst, src1, src2);
-	WriteByte(0xDB);
-	CAddress newAddress(src2);
-	newAddress.ModRm.nFnReg = dst;
-	newAddress.Write(&m_tmpStream);
+	WriteVexVoOp(VEX_PREFIX_66, 0xDB, dst, src1, src2);
 }
 
 void CX86Assembler::VporVo(XMMREGISTER dst, XMMREGISTER src1, const CAddress& src2)
 {
-	WriteVex(VEX_PREFIX_66, dst, src1, src2);
-	WriteByte(0xEB);
-	CAddress newAddress(src2);
-	newAddress.ModRm.nFnReg = dst;
-	newAddress.Write(&m_tmpStream);
+	WriteVexVoOp(VEX_PREFIX_66, 0xEB, dst, src1, src2);
 }
 
 void CX86Assembler::VpxorVo(XMMREGISTER dst, XMMREGISTER src1, const CAddress& src2)
 {
-	WriteVex(VEX_PREFIX_66, dst, src1, src2);
-	WriteByte(0xEF);
-	CAddress newAddress(src2);
-	newAddress.ModRm.nFnReg = dst;
-	newAddress.Write(&m_tmpStream);
+	WriteVexVoOp(VEX_PREFIX_66, 0xEF, dst, src1, src2);
 }
 
 void CX86Assembler::VpslldVo(XMMREGISTER dst, XMMREGISTER src, uint8 amount)
@@ -199,18 +152,10 @@ void CX86Assembler::VpsradVo(XMMREGISTER dst, XMMREGISTER src, uint8 amount)
 
 void CX86Assembler::VpcmpeqdVo(XMMREGISTER dst, XMMREGISTER src1, const CAddress& src2)
 {
-	WriteVex(VEX_PREFIX_66, dst, src1, src2);
-	WriteByte(0x76);
-	CAddress newAddress(src2);
-	newAddress.ModRm.nFnReg = dst;
-	newAddress.Write(&m_tmpStream);
+	WriteVexVoOp(VEX_PREFIX_66, 0x76, dst, src1, src2);
 }
 
 void CX86Assembler::VpcmpgtdVo(XMMREGISTER dst, XMMREGISTER src1, const CAddress& src2)
 {
-	WriteVex(VEX_PREFIX_66, dst, src1, src2);
-	WriteByte(0x66);
-	CAddress newAddress(src2);
-	newAddress.ModRm.nFnReg = dst;
-	newAddress.Write(&m_tmpStream);
+	WriteVexVoOp(VEX_PREFIX_66, 0x66, dst, src1, src2);
 }

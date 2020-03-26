@@ -371,10 +371,21 @@ public:
 	void									VpaddbVo(XMMREGISTER, XMMREGISTER, const CAddress&);
 	void									VpaddwVo(XMMREGISTER, XMMREGISTER, const CAddress&);
 	void									VpadddVo(XMMREGISTER, XMMREGISTER, const CAddress&);
+
 	void									VpaddsbVo(XMMREGISTER, XMMREGISTER, const CAddress&);
 	void									VpaddswVo(XMMREGISTER, XMMREGISTER, const CAddress&);
+
 	void									VpaddusbVo(XMMREGISTER, XMMREGISTER, const CAddress&);
 	void									VpadduswVo(XMMREGISTER, XMMREGISTER, const CAddress&);
+
+	void									VpsubbVo(XMMREGISTER, XMMREGISTER, const CAddress&);
+	void									VpsubwVo(XMMREGISTER, XMMREGISTER, const CAddress&);
+	void									VpsubdVo(XMMREGISTER, XMMREGISTER, const CAddress&);
+
+	void									VpsubswVo(XMMREGISTER, XMMREGISTER, const CAddress&);
+	
+	void									VpsubusbVo(XMMREGISTER, XMMREGISTER, const CAddress&);
+	void									VpsubuswVo(XMMREGISTER, XMMREGISTER, const CAddress&);
 
 	void									VpandVo(XMMREGISTER, XMMREGISTER, const CAddress&);
 	void									VporVo(XMMREGISTER, XMMREGISTER, const CAddress&);

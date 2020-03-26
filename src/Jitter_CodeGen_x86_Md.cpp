@@ -314,7 +314,7 @@ void CCodeGen_x86::Emit_Md_AddSSW_VarVarVar(const STATEMENT& statement)
 	m_assembler.PxorVo(uyRegister, CX86Assembler::MakeXmmRegisterAddress(cstRegister));
 
 	//cst = ux ^ uy (reloading uy from src2 because we don't have any registers available)
-	m_assembler.MovapsVo(cstRegister ,CX86Assembler::MakeXmmRegisterAddress(uxRegister));
+	m_assembler.MovapsVo(cstRegister, CX86Assembler::MakeXmmRegisterAddress(uxRegister));
 	m_assembler.PxorVo(cstRegister, MakeVariable128SymbolAddress(src2));
 
 	//uy = ((ux ^ uy) | ~(uy ^ res)) >> 31; (signed operation)
@@ -393,7 +393,7 @@ void CCodeGen_x86::Emit_Md_SubSSW_VarVarVar(const STATEMENT& statement)
 	m_assembler.PxorVo(uyRegister, CX86Assembler::MakeXmmRegisterAddress(resRegister));
 
 	//cst = ux ^ uy (reloading uy from src2 because we don't have any registers available)
-	m_assembler.MovdqaVo(cstRegister ,CX86Assembler::MakeXmmRegisterAddress(uxRegister));
+	m_assembler.MovdqaVo(cstRegister, CX86Assembler::MakeXmmRegisterAddress(uxRegister));
 	m_assembler.PxorVo(cstRegister, MakeVariable128SymbolAddress(src2));
 
 	//uy = ((ux ^ uy) & (ux ^ res)) >> 31; (signed operation)

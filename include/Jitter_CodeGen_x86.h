@@ -688,6 +688,8 @@ namespace Jitter
 		void						Emit_Md_Avx_Not_VarVar(const STATEMENT&);
 		void						Emit_Md_Avx_AddSSW_VarVarVar(const STATEMENT&);
 		void						Emit_Md_Avx_AddUSW_VarVarVar(const STATEMENT&);
+		void						Emit_Md_Avx_SubSSW_VarVarVar(const STATEMENT&);
+		void						Emit_Md_Avx_SubUSW_VarVarVar(const STATEMENT&);
 
 		static CX86Assembler::REGISTER g_baseRegister;
 

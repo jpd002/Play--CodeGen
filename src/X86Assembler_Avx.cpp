@@ -180,9 +180,29 @@ void CX86Assembler::VpsradVo(XMMREGISTER dst, XMMREGISTER src, uint8 amount)
 	WriteByte(amount);
 }
 
+void CX86Assembler::VpcmpeqbVo(XMMREGISTER dst, XMMREGISTER src1, const CAddress& src2)
+{
+	WriteVexVoOp(VEX_PREFIX_66, 0x74, dst, src1, src2);
+}
+
+void CX86Assembler::VpcmpeqwVo(XMMREGISTER dst, XMMREGISTER src1, const CAddress& src2)
+{
+	WriteVexVoOp(VEX_PREFIX_66, 0x75, dst, src1, src2);
+}
+
 void CX86Assembler::VpcmpeqdVo(XMMREGISTER dst, XMMREGISTER src1, const CAddress& src2)
 {
 	WriteVexVoOp(VEX_PREFIX_66, 0x76, dst, src1, src2);
+}
+
+void CX86Assembler::VpcmpgtbVo(XMMREGISTER dst, XMMREGISTER src1, const CAddress& src2)
+{
+	WriteVexVoOp(VEX_PREFIX_66, 0x64, dst, src1, src2);
+}
+
+void CX86Assembler::VpcmpgtwVo(XMMREGISTER dst, XMMREGISTER src1, const CAddress& src2)
+{
+	WriteVexVoOp(VEX_PREFIX_66, 0x65, dst, src1, src2);
 }
 
 void CX86Assembler::VpcmpgtdVo(XMMREGISTER dst, XMMREGISTER src1, const CAddress& src2)

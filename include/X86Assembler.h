@@ -395,7 +395,12 @@ public:
 	void									VpsrldVo(XMMREGISTER, XMMREGISTER, uint8);
 	void									VpsradVo(XMMREGISTER, XMMREGISTER, uint8);
 
+	void									VpcmpeqbVo(XMMREGISTER, XMMREGISTER, const CAddress&);
+	void									VpcmpeqwVo(XMMREGISTER, XMMREGISTER, const CAddress&);
 	void									VpcmpeqdVo(XMMREGISTER, XMMREGISTER, const CAddress&);
+
+	void									VpcmpgtbVo(XMMREGISTER, XMMREGISTER, const CAddress&);
+	void									VpcmpgtwVo(XMMREGISTER, XMMREGISTER, const CAddress&);
 	void									VpcmpgtdVo(XMMREGISTER, XMMREGISTER, const CAddress&);
 
 	void									VpunpcklbwVo(XMMREGISTER, XMMREGISTER, const CAddress&);

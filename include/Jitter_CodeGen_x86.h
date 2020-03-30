@@ -211,31 +211,37 @@ namespace Jitter
 		struct MDOP_CMPEQB : public MDOP_BASE
 		{
 			static OpVoType OpVo() { return &CX86Assembler::PcmpeqbVo; }
+			static OpVoAvxType OpVoAvx() { return &CX86Assembler::VpcmpeqbVo; }
 		};
 
 		struct MDOP_CMPEQH : public MDOP_BASE
 		{
 			static OpVoType OpVo() { return &CX86Assembler::PcmpeqwVo; }
+			static OpVoAvxType OpVoAvx() { return &CX86Assembler::VpcmpeqwVo; }
 		};
 
 		struct MDOP_CMPEQW : public MDOP_BASE
 		{
 			static OpVoType OpVo() { return &CX86Assembler::PcmpeqdVo; }
+			static OpVoAvxType OpVoAvx() { return &CX86Assembler::VpcmpeqdVo; }
 		};
 
 		struct MDOP_CMPGTB : public MDOP_BASE
 		{
 			static OpVoType OpVo() { return &CX86Assembler::PcmpgtbVo; }
+			static OpVoAvxType OpVoAvx() { return &CX86Assembler::VpcmpgtbVo; }
 		};
 
 		struct MDOP_CMPGTH : public MDOP_BASE
 		{
 			static OpVoType OpVo() { return &CX86Assembler::PcmpgtwVo; }
+			static OpVoAvxType OpVoAvx() { return &CX86Assembler::VpcmpgtwVo; }
 		};
 
 		struct MDOP_CMPGTW : public MDOP_BASE
 		{
 			static OpVoType OpVo() { return &CX86Assembler::PcmpgtdVo; }
+			static OpVoAvxType OpVoAvx() { return &CX86Assembler::VpcmpgtdVo; }
 		};
 
 		struct MDOP_MINH : public MDOP_BASE

@@ -189,3 +189,33 @@ void CX86Assembler::VpcmpgtdVo(XMMREGISTER dst, XMMREGISTER src1, const CAddress
 {
 	WriteVexVoOp(VEX_PREFIX_66, 0x66, dst, src1, src2);
 }
+
+void CX86Assembler::VpunpcklbwVo(XMMREGISTER dst, XMMREGISTER src1, const CAddress& src2)
+{
+	WriteVexVoOp(VEX_PREFIX_66, 0x60, dst, src1, src2);
+}
+
+void CX86Assembler::VpunpcklwdVo(XMMREGISTER dst, XMMREGISTER src1, const CAddress& src2)
+{
+	WriteVexVoOp(VEX_PREFIX_66, 0x61, dst, src1, src2);
+}
+
+void CX86Assembler::VpunpckldqVo(XMMREGISTER dst, XMMREGISTER src1, const CAddress& src2)
+{
+	WriteVexVoOp(VEX_PREFIX_66, 0x62, dst, src1, src2);
+}
+
+void CX86Assembler::VpunpckhbwVo(XMMREGISTER dst, XMMREGISTER src1, const CAddress& src2)
+{
+	WriteVexVoOp(VEX_PREFIX_66, 0x68, dst, src1, src2);
+}
+
+void CX86Assembler::VpunpckhwdVo(XMMREGISTER dst, XMMREGISTER src1, const CAddress& src2)
+{
+	WriteVexVoOp(VEX_PREFIX_66, 0x69, dst, src1, src2);
+}
+
+void CX86Assembler::VpunpckhdqVo(XMMREGISTER dst, XMMREGISTER src1, const CAddress& src2)
+{
+	WriteVexVoOp(VEX_PREFIX_66, 0x6A, dst, src1, src2);
+}

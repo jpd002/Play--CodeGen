@@ -279,31 +279,37 @@ namespace Jitter
 		struct MDOP_UNPACK_LOWER_BH : public MDOP_BASE
 		{
 			static OpVoType OpVo() { return &CX86Assembler::PunpcklbwVo; }
+			static OpVoAvxType OpVoAvx() { return &CX86Assembler::VpunpcklbwVo; }
 		};
 
 		struct MDOP_UNPACK_LOWER_HW : public MDOP_BASE
 		{
 			static OpVoType OpVo() { return &CX86Assembler::PunpcklwdVo; }
+			static OpVoAvxType OpVoAvx() { return &CX86Assembler::VpunpcklwdVo; }
 		};
 
 		struct MDOP_UNPACK_LOWER_WD : public MDOP_BASE
 		{
 			static OpVoType OpVo() { return &CX86Assembler::PunpckldqVo; }
+			static OpVoAvxType OpVoAvx() { return &CX86Assembler::VpunpckldqVo; }
 		};
 
 		struct MDOP_UNPACK_UPPER_BH : public MDOP_BASE
 		{
 			static OpVoType OpVo() { return &CX86Assembler::PunpckhbwVo; }
+			static OpVoAvxType OpVoAvx() { return &CX86Assembler::VpunpckhbwVo; }
 		};
 
 		struct MDOP_UNPACK_UPPER_HW : public MDOP_BASE
 		{
 			static OpVoType OpVo() { return &CX86Assembler::PunpckhwdVo; }
+			static OpVoAvxType OpVoAvx() { return &CX86Assembler::VpunpckhwdVo; }
 		};
 
 		struct MDOP_UNPACK_UPPER_WD : public MDOP_BASE
 		{
 			static OpVoType OpVo() { return &CX86Assembler::PunpckhdqVo; }
+			static OpVoAvxType OpVoAvx() { return &CX86Assembler::VpunpckhdqVo; }
 		};
 
 		struct MDOP_ADDS : public MDOP_BASE
@@ -682,6 +688,7 @@ namespace Jitter
 
 		//MDOP AVX
 		template <typename> void	Emit_Md_Avx_VarVarVar(const STATEMENT&);
+		template <typename> void	Emit_Md_Avx_VarVarVarRev(const STATEMENT&);
 		void						Emit_Md_Avx_Mov_RegVar(const STATEMENT&);
 		void						Emit_Md_Avx_Mov_MemReg(const STATEMENT&);
 

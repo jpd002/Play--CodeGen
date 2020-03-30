@@ -398,6 +398,13 @@ public:
 	void									VpcmpeqdVo(XMMREGISTER, XMMREGISTER, const CAddress&);
 	void									VpcmpgtdVo(XMMREGISTER, XMMREGISTER, const CAddress&);
 
+	void									VpunpcklbwVo(XMMREGISTER, XMMREGISTER, const CAddress&);
+	void									VpunpcklwdVo(XMMREGISTER, XMMREGISTER, const CAddress&);
+	void									VpunpckldqVo(XMMREGISTER, XMMREGISTER, const CAddress&);
+	void									VpunpckhbwVo(XMMREGISTER, XMMREGISTER, const CAddress&);
+	void									VpunpckhwdVo(XMMREGISTER, XMMREGISTER, const CAddress&);
+	void									VpunpckhdqVo(XMMREGISTER, XMMREGISTER, const CAddress&);
+
 private:
 	enum JMP_TYPE
 	{

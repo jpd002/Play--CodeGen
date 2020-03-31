@@ -247,21 +247,25 @@ namespace Jitter
 		struct MDOP_MINH : public MDOP_BASE
 		{
 			static OpVoType OpVo() { return &CX86Assembler::PminswVo; }
+			static OpVoAvxType OpVoAvx() { return &CX86Assembler::VpminswVo; }
 		};
 
 		struct MDOP_MINW : public MDOP_BASE
 		{
 			static OpVoType OpVo() { return &CX86Assembler::PminsdVo; }
+			static OpVoAvxType OpVoAvx() { return &CX86Assembler::VpminsdVo; }
 		};
 
 		struct MDOP_MAXH : public MDOP_BASE
 		{
 			static OpVoType OpVo() { return &CX86Assembler::PmaxswVo; }
+			static OpVoAvxType OpVoAvx() { return &CX86Assembler::VpmaxswVo; }
 		};
 
 		struct MDOP_MAXW : public MDOP_BASE
 		{
 			static OpVoType OpVo() { return &CX86Assembler::PmaxsdVo; }
+			static OpVoAvxType OpVoAvx() { return &CX86Assembler::VpmaxsdVo; }
 		};
 
 		struct MDOP_AND : public MDOP_BASE

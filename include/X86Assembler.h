@@ -403,6 +403,11 @@ public:
 	void									VpcmpgtwVo(XMMREGISTER, XMMREGISTER, const CAddress&);
 	void									VpcmpgtdVo(XMMREGISTER, XMMREGISTER, const CAddress&);
 
+	void									VpmaxswVo(XMMREGISTER, XMMREGISTER, const CAddress&);
+	void									VpmaxsdVo(XMMREGISTER, XMMREGISTER, const CAddress&);
+	void									VpminswVo(XMMREGISTER, XMMREGISTER, const CAddress&);
+	void									VpminsdVo(XMMREGISTER, XMMREGISTER, const CAddress&);
+
 	void									VpunpcklbwVo(XMMREGISTER, XMMREGISTER, const CAddress&);
 	void									VpunpcklwdVo(XMMREGISTER, XMMREGISTER, const CAddress&);
 	void									VpunpckldqVo(XMMREGISTER, XMMREGISTER, const CAddress&);
@@ -441,12 +446,13 @@ private:
 		JMP_FAR
 	};
 
-	enum VEX_PREFIX
+	enum VEX_OPCODE_MAP : uint8
 	{
-		VEX_PREFIX_NONE = 0,
-		VEX_PREFIX_66 = 1,
-		VEX_PREFIX_F3 = 2,
-		VEX_PREFIX_F2 = 3
+		VEX_OPCODE_MAP_NONE = 0x01,
+		VEX_OPCODE_MAP_66 = 0x11,
+		VEX_OPCODE_MAP_66_38 = 0x12,
+		VEX_OPCODE_MAP_F3 = 0x21,
+		VEX_OPCODE_MAP_F2 = 0x31
 	};
 
 	struct LABELREF
@@ -498,7 +504,7 @@ private:
 
 	void									WriteRexByte(bool, const CAddress&);
 	void									WriteRexByte(bool, const CAddress&, REGISTER&, bool = false);
-	void									WriteVex(VEX_PREFIX, XMMREGISTER&, XMMREGISTER, const CAddress&);
+	void									WriteVex(VEX_OPCODE_MAP, XMMREGISTER&, XMMREGISTER, const CAddress&);
 	void									WriteEbOp_0F(uint8, uint8, const CAddress&);
 	void									WriteEbGbOp(uint8, bool, const CAddress&, REGISTER);
 	void									WriteEbGbOp(uint8, bool, const CAddress&, BYTEREGISTER);
@@ -517,7 +523,7 @@ private:
 	void									WriteEdVdOp_66_0F_3A(uint8, const CAddress&, XMMREGISTER);
 	void									WriteEdVdOp_F3_0F(uint8, const CAddress&, XMMREGISTER);
 	void									WriteVrOp_66_0F(uint8, uint8, XMMREGISTER);
-	void									WriteVexVoOp(VEX_PREFIX, uint8, XMMREGISTER, XMMREGISTER, const CAddress&);
+	void									WriteVexVoOp(VEX_OPCODE_MAP, uint8, XMMREGISTER, XMMREGISTER, const CAddress&);
 	void									WriteStOp(uint8, uint8, uint8);
 
 	void									CreateLabelReference(LABEL, JMP_TYPE);

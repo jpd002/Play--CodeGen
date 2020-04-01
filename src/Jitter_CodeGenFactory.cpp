@@ -56,7 +56,9 @@ Jitter::CCodeGen* Jitter::CreateCodeGen()
 #elif defined(__APPLE__)
 	
 	#if TARGET_CPU_ARM
-		return new Jitter::CCodeGen_AArch32();
+		auto codeGen = new Jitter::CCodeGen_AArch32();
+		codeGen->SetPlatformAbi(CCodeGen_AArch32::PLATFORM_ABI_IOS);
+		return codeGen;
 	#elif TARGET_CPU_ARM64
 		return new Jitter::CCodeGen_AArch64();
 	#elif TARGET_CPU_X86
@@ -74,7 +76,13 @@ Jitter::CCodeGen* Jitter::CreateCodeGen()
 #elif defined(__ANDROID__) || defined(__linux__) || defined(__FreeBSD__)
 
 	#if defined(__arm__)
-		return new Jitter::CCodeGen_AArch32();
+		#if defined(__ARM__EABI__)
+			auto codeGen = new Jitter::CCodeGen_AArch32();
+			codeGen->SetPlatformAbi(CCodeGen_AArch32::PLATFORM_ABI_ARMEABI);
+			return codeGen;
+		#else
+			throw std::runtime_error("Unsupported AArch32 ABI.");
+		#endif
 	#elif defined(__aarch64__)
 		return new Jitter::CCodeGen_AArch64();
 	#elif defined(__i386__)

@@ -277,6 +277,11 @@ CCodeGen_AArch32::CCodeGen_AArch32()
 	}
 }
 
+void CCodeGen_AArch32::SetPlatformAbi(PLATFORM_ABI platformAbi)
+{
+	m_platformAbi = platformAbi;
+}
+
 unsigned int CCodeGen_AArch32::GetAvailableRegisterCount() const
 {
 	return MAX_REGISTERS;
@@ -734,13 +739,16 @@ CCodeGen_AArch32::ParamRegisterPair CCodeGen_AArch32::PrepareParam64(PARAM_STATE
 {
 	assert(!paramState.prepared);
 	paramState.prepared = true;
-#ifdef __ANDROID__
-	//TODO: This needs to be an ABI flag or something
-	if(paramState.index & 1)
+	//On ARM EABI, 64 bits params have a 8-byte alignment requirement
+	//If the param is passed through registers, it has to start on an even register
+	//On iOS ABI, 64 bit params have a 4-byte alignment, alignment is not required
+	if(m_platformAbi == PLATFORM_ABI_ARMEABI)
 	{
-		paramState.index++;
+		if(paramState.index & 1)
+		{
+			paramState.index++;
+		}
 	}
-#endif
 	ParamRegisterPair result;
 	for(unsigned int i = 0; i < 2; i++)
 	{

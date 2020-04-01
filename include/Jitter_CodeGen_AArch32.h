@@ -11,8 +11,16 @@ namespace Jitter
 	class CCodeGen_AArch32 : public CCodeGen
 	{
 	public:
+		enum PLATFORM_ABI
+		{
+			PLATFORM_ABI_ARMEABI,
+			PLATFORM_ABI_IOS, //https://developer.apple.com/library/archive/documentation/Xcode/Conceptual/iPhoneOSABIReference/Articles/ARMv6FunctionCallingConventions.html#//apple_ref/doc/uid/TP40009021-SW1
+		};
+		
 												CCodeGen_AArch32();
 		virtual									~CCodeGen_AArch32() = default;
+
+		void									SetPlatformAbi(PLATFORM_ABI);
 
 		void									GenerateCode(const StatementList&, unsigned int) override;
 		void									SetStream(Framework::CStream*) override;
@@ -690,6 +698,7 @@ namespace Jitter
 
 		Framework::CStream*						m_stream = nullptr;
 		CAArch32Assembler						m_assembler;
+		PLATFORM_ABI							m_platformAbi = PLATFORM_ABI_ARMEABI;
 		LabelMapType							m_labels;
 		ParamStack								m_params;
 		uint32									m_stackSize = 0;

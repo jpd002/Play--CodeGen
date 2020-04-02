@@ -126,6 +126,7 @@ namespace Jitter
 		struct FPUOP_SQRT : public FPUOP_BASE
 		{
 			static OpEdType OpEd() { return &CX86Assembler::SqrtssEd; }
+			static OpEdAvxType OpEdAvx() { return &CX86Assembler::VsqrtssEd; }
 		};
 
 		//MDOP -----------------------------------------------------------
@@ -702,6 +703,7 @@ namespace Jitter
 		void						Emit_Md_MakeSz_Ssse3_VarVar(const STATEMENT&);
 
 		//FPUOP AVX
+		template <typename> void	Emit_Fpu_Avx_MemMem(const STATEMENT&);
 		template <typename> void	Emit_Fpu_Avx_MemMemMem(const STATEMENT&);
 
 		//MDOP AVX

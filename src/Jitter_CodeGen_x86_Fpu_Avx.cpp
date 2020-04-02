@@ -9,7 +9,7 @@ void CCodeGen_x86::Emit_Fpu_Avx_MemMem(const STATEMENT& statement)
 	auto src1 = statement.src1->GetSymbol().get();
 
 	((m_assembler).*(FPUOP::OpEdAvx()))(CX86Assembler::xMM0, CX86Assembler::xMM0, MakeMemoryFpSingleSymbolAddress(src1));
-	m_assembler.MovssEd(MakeMemoryFpSingleSymbolAddress(dst), CX86Assembler::xMM0);
+	m_assembler.VmovssEd(MakeMemoryFpSingleSymbolAddress(dst), CX86Assembler::xMM0);
 }
 
 template <typename FPUOP>

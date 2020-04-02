@@ -116,11 +116,13 @@ namespace Jitter
 		struct FPUOP_MAX : public FPUOP_BASE
 		{
 			static OpEdType OpEd() { return &CX86Assembler::MaxssEd; }
+			static OpEdAvxType OpEdAvx() { return &CX86Assembler::VmaxssEd; }
 		};
 
 		struct FPUOP_MIN : public FPUOP_BASE
 		{
 			static OpEdType OpEd() { return &CX86Assembler::MinssEd; }
+			static OpEdAvxType OpEdAvx() { return &CX86Assembler::VminssEd; }
 		};
 
 		struct FPUOP_SQRT : public FPUOP_BASE

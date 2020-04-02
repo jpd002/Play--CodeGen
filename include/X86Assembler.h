@@ -372,6 +372,8 @@ public:
 	void									VsubssEd(XMMREGISTER, XMMREGISTER, const CAddress&);
 	void									VmulssEd(XMMREGISTER, XMMREGISTER, const CAddress&);
 	void									VdivssEd(XMMREGISTER, XMMREGISTER, const CAddress&);
+	void									VmaxssEd(XMMREGISTER, XMMREGISTER, const CAddress&);
+	void									VminssEd(XMMREGISTER, XMMREGISTER, const CAddress&);
 
 	void									VsqrtssEd(XMMREGISTER, XMMREGISTER, const CAddress&);
 

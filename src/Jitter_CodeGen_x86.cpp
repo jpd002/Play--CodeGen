@@ -154,6 +154,7 @@ CCodeGen_x86::CCodeGen_x86()
 
 	InsertMatchers(g_constMatchers);
 	InsertMatchers(g_fpuConstMatchers);
+	InsertMatchers(g_fpuSseConstMatchers);
 	InsertMatchers(g_mdConstMatchers);
 
 	if(m_hasSsse3)

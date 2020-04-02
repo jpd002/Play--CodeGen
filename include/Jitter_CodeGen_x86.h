@@ -752,6 +752,8 @@ namespace Jitter
 		
 		static CONSTMATCHER			g_constMatchers[];
 		static CONSTMATCHER			g_fpuConstMatchers[];
+		static CONSTMATCHER			g_fpuSseConstMatchers[];
+
 		static CONSTMATCHER			g_mdConstMatchers[];
 
 		static CONSTMATCHER			g_mdMinMaxWConstMatchers[];

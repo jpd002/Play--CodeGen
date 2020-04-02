@@ -52,6 +52,7 @@ add_library(CodeGen
 	../src/Jitter_CodeGen_x86_Alu.h
 	../src/Jitter_CodeGen_x86_Div.h
 	../src/Jitter_CodeGen_x86_Fpu.cpp
+	../src/Jitter_CodeGen_x86_Fpu_Sse.cpp
 	../src/Jitter_CodeGen_x86_Md.cpp
 	../src/Jitter_CodeGen_x86_Md_Avx.cpp
 	../src/Jitter_CodeGen_x86_Mul.h

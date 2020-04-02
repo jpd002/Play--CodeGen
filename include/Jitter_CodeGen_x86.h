@@ -86,26 +86,31 @@ namespace Jitter
 		struct FPUOP_BASE
 		{
 			typedef void (CX86Assembler::*OpEdType)(CX86Assembler::XMMREGISTER, const CX86Assembler::CAddress&);
+			typedef void (CX86Assembler::*OpEdAvxType)(CX86Assembler::XMMREGISTER, CX86Assembler::XMMREGISTER, const CX86Assembler::CAddress&);
 		};
 
 		struct FPUOP_ADD : public FPUOP_BASE
 		{
 			static OpEdType OpEd() { return &CX86Assembler::AddssEd; }
+			static OpEdAvxType OpEdAvx() { return &CX86Assembler::VaddssEd; }
 		};
 
 		struct FPUOP_SUB : public FPUOP_BASE
 		{
 			static OpEdType OpEd() { return &CX86Assembler::SubssEd; }
+			static OpEdAvxType OpEdAvx() { return &CX86Assembler::VsubssEd; }
 		};
 
 		struct FPUOP_MUL : public FPUOP_BASE
 		{
 			static OpEdType OpEd() { return &CX86Assembler::MulssEd; }
+			static OpEdAvxType OpEdAvx() { return &CX86Assembler::VmulssEd; }
 		};
 
 		struct FPUOP_DIV : public FPUOP_BASE
 		{
 			static OpEdType OpEd() { return &CX86Assembler::DivssEd; }
+			static OpEdAvxType OpEdAvx() { return &CX86Assembler::VdivssEd; }
 		};
 		
 		struct FPUOP_MAX : public FPUOP_BASE
@@ -696,6 +701,9 @@ namespace Jitter
 		void						Emit_Md_MakeSz_VarVar(const STATEMENT&);
 		void						Emit_Md_MakeSz_Ssse3_VarVar(const STATEMENT&);
 
+		//FPUOP AVX
+		template <typename> void	Emit_Fpu_Avx_MemMemMem(const STATEMENT&);
+
 		//MDOP AVX
 		template <typename> void	Emit_Md_Avx_VarVarVar(const STATEMENT&);
 		template <typename> void	Emit_Md_Avx_VarVarVarRev(const STATEMENT&);
@@ -753,6 +761,7 @@ namespace Jitter
 		static CONSTMATCHER			g_constMatchers[];
 		static CONSTMATCHER			g_fpuConstMatchers[];
 		static CONSTMATCHER			g_fpuSseConstMatchers[];
+		static CONSTMATCHER			g_fpuAvxConstMatchers[];
 
 		static CONSTMATCHER			g_mdConstMatchers[];
 

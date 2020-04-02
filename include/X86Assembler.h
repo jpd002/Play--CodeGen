@@ -363,6 +363,14 @@ public:
 	void									ShufpsVo(XMMREGISTER, const CAddress&, uint8);
 
 	//AVX
+	void									VmovssEd(XMMREGISTER, const CAddress&);
+	void									VmovssEd(const CAddress&, XMMREGISTER);
+
+	void									VaddssEd(XMMREGISTER, XMMREGISTER, const CAddress&);
+	void									VsubssEd(XMMREGISTER, XMMREGISTER, const CAddress&);
+	void									VmulssEd(XMMREGISTER, XMMREGISTER, const CAddress&);
+	void									VdivssEd(XMMREGISTER, XMMREGISTER, const CAddress&);
+
 	void									VmovdqaVo(XMMREGISTER, const CAddress&);
 	void									VmovdqaVo(const CAddress&, XMMREGISTER);
 	void									VmovapsVo(XMMREGISTER, const CAddress&);

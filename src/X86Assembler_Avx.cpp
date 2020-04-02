@@ -56,6 +56,36 @@ void CX86Assembler::WriteVexVoOp(VEX_OPCODE_MAP opMap, uint8 op, XMMREGISTER dst
 	newAddress.Write(&m_tmpStream);
 }
 
+void CX86Assembler::VmovssEd(XMMREGISTER dst, const CAddress& src)
+{
+	WriteVexVoOp(VEX_OPCODE_MAP_F3, 0x10, dst, CX86Assembler::xMM0, src);
+}
+
+void CX86Assembler::VmovssEd(const CAddress& dst, XMMREGISTER src)
+{
+	WriteVexVoOp(VEX_OPCODE_MAP_F3, 0x11, src, CX86Assembler::xMM0, dst);
+}
+
+void CX86Assembler::VaddssEd(XMMREGISTER dst, XMMREGISTER src1, const CAddress& src2)
+{
+	WriteVexVoOp(VEX_OPCODE_MAP_F3, 0x58, dst, src1, src2);
+}
+
+void CX86Assembler::VsubssEd(XMMREGISTER dst, XMMREGISTER src1, const CAddress& src2)
+{
+	WriteVexVoOp(VEX_OPCODE_MAP_F3, 0x5C, dst, src1, src2);
+}
+
+void CX86Assembler::VmulssEd(XMMREGISTER dst, XMMREGISTER src1, const CAddress& src2)
+{
+	WriteVexVoOp(VEX_OPCODE_MAP_F3, 0x59, dst, src1, src2);
+}
+
+void CX86Assembler::VdivssEd(XMMREGISTER dst, XMMREGISTER src1, const CAddress& src2)
+{
+	WriteVexVoOp(VEX_OPCODE_MAP_F3, 0x5E, dst, src1, src2);
+}
+
 void CX86Assembler::VmovdqaVo(XMMREGISTER dst, const CAddress& src)
 {
 	WriteVexVoOp(VEX_OPCODE_MAP_66, 0x6F, dst, CX86Assembler::xMM0, src);

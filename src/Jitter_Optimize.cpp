@@ -1143,10 +1143,11 @@ bool CJitter::ReorderAdd(StatementList& statements)
 		if(outerStatement.op != OP_ADD) continue;
 
 		CSymbolRef* outerDstSymbol = outerStatement.dst.get();
-		if(outerDstSymbol == NULL) continue;
+		assert(outerDstSymbol);
 
+		CSymbol* outerSrc2cst = dynamic_symbolref_cast(SYM_CONSTANT, outerStatement.src2);
 		//Don't mess with relatives
-		if(outerDstSymbol->GetSymbol()->IsRelative())
+		if(outerDstSymbol->GetSymbol()->IsRelative() || !outerSrc2cst)
 		{
 			continue;
 		}
@@ -1157,8 +1158,7 @@ bool CJitter::ReorderAdd(StatementList& statements)
 		if(innerStatement.op == OP_SLL && innerStatement.src1->Equals(outerDstSymbol))
 		{
 			CSymbol* innerSrc2cst = dynamic_symbolref_cast(SYM_CONSTANT, innerStatement.src2);
-			CSymbol* outerSrc2cst = dynamic_symbolref_cast(SYM_CONSTANT, outerStatement.src2);
-			if(innerSrc2cst && outerSrc2cst)
+			if(innerSrc2cst)
 			{
 				uint32 result = outerSrc2cst->m_valueLow << innerSrc2cst->m_valueLow;
 

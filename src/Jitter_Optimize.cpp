@@ -1175,24 +1175,22 @@ bool CJitter::ReorderAdd(StatementList& statements)
 
 			//Check for OP_SLL that uses the result of this operation and propagate the shift
 			auto innerStatementIterator = std::next(outerStatementIterator);
+			STATEMENT& innerStatement(*innerStatementIterator);
+			if(innerStatement.op == OP_SLL && innerStatement.src1->Equals(outerDstSymbol))
 			{
-				STATEMENT& innerStatement(*innerStatementIterator);
-				if(innerStatement.op == OP_SLL && innerStatement.src1->Equals(outerDstSymbol))
+				CSymbol* innerSrc2cst = dynamic_symbolref_cast(SYM_CONSTANT, innerStatement.src2);
+				CSymbol* outerSrc2cst = dynamic_symbolref_cast(SYM_CONSTANT, outerStatement.src2);
+				if(innerSrc2cst && outerSrc2cst)
 				{
-					CSymbol* innerSrc2cst = dynamic_symbolref_cast(SYM_CONSTANT, innerStatement.src2);
-					CSymbol* outerSrc2cst = dynamic_symbolref_cast(SYM_CONSTANT, outerStatement.src2);
-					if(innerSrc2cst && outerSrc2cst)
-					{
-						uint32 result = outerSrc2cst->m_valueLow << innerSrc2cst->m_valueLow;
-						changeCount++;
+					uint32 result = outerSrc2cst->m_valueLow << innerSrc2cst->m_valueLow;
+					changeCount++;
 
-						std::swap(outerStatement, innerStatement);
-						std::swap(outerStatement.src1, innerStatement.src1);
-						std::swap(outerStatement.dst, innerStatement.dst);
-						innerStatement.src2 = MakeSymbolRef(MakeSymbol(SYM_CONSTANT, result));
-						changed = true;
+					std::swap(outerStatement, innerStatement);
+					std::swap(outerStatement.src1, innerStatement.src1);
+					std::swap(outerStatement.dst, innerStatement.dst);
+					innerStatement.src2 = MakeSymbolRef(MakeSymbol(SYM_CONSTANT, result));
+					changed = true;
 
-					}
 				}
 			}
 

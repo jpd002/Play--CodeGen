@@ -1151,50 +1151,24 @@ bool CJitter::ReorderAdd(StatementList& statements)
 			continue;
 		}
 
-		//Count number of uses of this symbol
-		unsigned int useCount = 0;
-		for(auto innerStatementIterator(outerStatementIterator);
-			statements.end() != innerStatementIterator; ++innerStatementIterator)
+		//Check for OP_SLL that uses the result of this operation and propagate the shift
+		auto innerStatementIterator = std::next(outerStatementIterator);
+		STATEMENT& innerStatement(*innerStatementIterator);
+		if(innerStatement.op == OP_SLL && innerStatement.src1->Equals(outerDstSymbol))
 		{
-			if(outerStatementIterator == innerStatementIterator) continue;
-
-			STATEMENT& innerStatement(*innerStatementIterator);
-
-			if(
-				(innerStatement.src1 && innerStatement.src1->Equals(outerDstSymbol)) || 
-				(innerStatement.src2 && innerStatement.src2->Equals(outerDstSymbol))
-				)
+			CSymbol* innerSrc2cst = dynamic_symbolref_cast(SYM_CONSTANT, innerStatement.src2);
+			CSymbol* outerSrc2cst = dynamic_symbolref_cast(SYM_CONSTANT, outerStatement.src2);
+			if(innerSrc2cst && outerSrc2cst)
 			{
-				useCount++;
+				uint32 result = outerSrc2cst->m_valueLow << innerSrc2cst->m_valueLow;
+
+				std::swap(outerStatement, innerStatement);
+				std::swap(outerStatement.src1, innerStatement.src1);
+				std::swap(outerStatement.dst, innerStatement.dst);
+				innerStatement.src2 = MakeSymbolRef(MakeSymbol(SYM_CONSTANT, result));
+				changed = true;
+
 			}
-		}
-
-		if(useCount == 1)
-		{
-			unsigned int changeCount = 0;
-
-			//Check for OP_SLL that uses the result of this operation and propagate the shift
-			auto innerStatementIterator = std::next(outerStatementIterator);
-			STATEMENT& innerStatement(*innerStatementIterator);
-			if(innerStatement.op == OP_SLL && innerStatement.src1->Equals(outerDstSymbol))
-			{
-				CSymbol* innerSrc2cst = dynamic_symbolref_cast(SYM_CONSTANT, innerStatement.src2);
-				CSymbol* outerSrc2cst = dynamic_symbolref_cast(SYM_CONSTANT, outerStatement.src2);
-				if(innerSrc2cst && outerSrc2cst)
-				{
-					uint32 result = outerSrc2cst->m_valueLow << innerSrc2cst->m_valueLow;
-					changeCount++;
-
-					std::swap(outerStatement, innerStatement);
-					std::swap(outerStatement.src1, innerStatement.src1);
-					std::swap(outerStatement.dst, innerStatement.dst);
-					innerStatement.src2 = MakeSymbolRef(MakeSymbol(SYM_CONSTANT, result));
-					changed = true;
-
-				}
-			}
-
-			assert(changeCount <= 1);
 		}
 	}
 	return changed;

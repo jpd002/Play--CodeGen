@@ -172,7 +172,7 @@ void CJitter::Compile()
 					dirty |= ConstantPropagation(versionedStatements.statements);
 					dirty |= ConstantFolding(versionedStatements.statements);
 					dirty |= CopyPropagation(versionedStatements.statements);
-					dirty |= CopyPropagation2(versionedStatements.statements);
+					dirty |= ReorderAdd(versionedStatements.statements);
 					dirty |= DeadcodeElimination(versionedStatements);
 
 					if(!dirty) break;
@@ -1130,7 +1130,7 @@ bool CJitter::ConstantPropagation(StatementList& statements)
 	return changed;
 }
 
-bool CJitter::CopyPropagation2(StatementList& statements)
+bool CJitter::ReorderAdd(StatementList& statements)
 {
 	bool changed = false;
 

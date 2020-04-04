@@ -24,27 +24,34 @@ void CCodeGen_x86::Emit_Fpu_MemMemMem(const STATEMENT& statement)
 	m_assembler.MovssEd(MakeMemoryFpSingleSymbolAddress(dst), CX86Assembler::xMM0);
 }
 
-void CCodeGen_x86::Emit_Fp_Cmp_MemMem(CX86Assembler::REGISTER dstReg, const STATEMENT& statement)
+void CCodeGen_x86::Emit_Fp_Cmp_VarMemMem(const STATEMENT& statement)
 {
-	CSymbol* src1 = statement.src1->GetSymbol().get();
-	CSymbol* src2 = statement.src2->GetSymbol().get();
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
 
-	CX86Assembler::SSE_CMP_TYPE conditionCode(GetSseConditionCode(statement.jmpCondition));
+	auto dstReg = PrepareSymbolRegisterDef(dst, CX86Assembler::rAX);
+
+	auto conditionCode = GetSseConditionCode(statement.jmpCondition);
 	m_assembler.MovssEd(CX86Assembler::xMM0, MakeMemoryFpSingleSymbolAddress(src1));
 	m_assembler.CmpssEd(CX86Assembler::xMM0, MakeMemoryFpSingleSymbolAddress(src2), conditionCode);
 	m_assembler.MovdVo(CX86Assembler::MakeRegisterAddress(dstReg), CX86Assembler::xMM0);
+
+	CommitSymbolRegister(dst, dstReg);
 }
 
-void CCodeGen_x86::Emit_Fp_Cmp_MemCst(CX86Assembler::REGISTER dstReg, const STATEMENT& statement)
+void CCodeGen_x86::Emit_Fp_Cmp_VarMemCst(const STATEMENT& statement)
 {
-	CSymbol* src1 = statement.src1->GetSymbol().get();
-	CSymbol* src2 = statement.src2->GetSymbol().get();
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
 
 	assert(src2->m_type == SYM_CONSTANT);
 
-	CX86Assembler::SSE_CMP_TYPE conditionCode(GetSseConditionCode(statement.jmpCondition));
-	CX86Assembler::XMMREGISTER src1Reg = CX86Assembler::xMM0;
-	CX86Assembler::XMMREGISTER src2Reg = CX86Assembler::xMM1;
+	auto conditionCode = GetSseConditionCode(statement.jmpCondition);
+	auto dstReg = PrepareSymbolRegisterDef(dst, CX86Assembler::rAX);
+	auto src1Reg = CX86Assembler::xMM0;
+	auto src2Reg = CX86Assembler::xMM1;
 
 	if(src2->m_valueLow == 0)
 	{
@@ -52,7 +59,7 @@ void CCodeGen_x86::Emit_Fp_Cmp_MemCst(CX86Assembler::REGISTER dstReg, const STAT
 	}
 	else
 	{
-		CX86Assembler::REGISTER cstReg = CX86Assembler::rDX;
+		auto cstReg = CX86Assembler::rDX;
 		assert(dstReg != cstReg);
 		m_assembler.MovId(cstReg, src2->m_valueLow);
 		m_assembler.MovdVo(src2Reg, CX86Assembler::MakeRegisterAddress(cstReg));
@@ -61,46 +68,8 @@ void CCodeGen_x86::Emit_Fp_Cmp_MemCst(CX86Assembler::REGISTER dstReg, const STAT
 	m_assembler.MovssEd(src1Reg, MakeMemoryFpSingleSymbolAddress(src1));
 	m_assembler.CmpssEd(src1Reg, CX86Assembler::MakeXmmRegisterAddress(src2Reg), conditionCode);
 	m_assembler.MovdVo(CX86Assembler::MakeRegisterAddress(dstReg), src1Reg);
-}
 
-void CCodeGen_x86::Emit_Fp_Cmp_SymMemMem(const STATEMENT& statement)
-{
-	CSymbol* dst = statement.dst->GetSymbol().get();
-
-	switch(dst->m_type)
-	{
-	case SYM_REGISTER:
-		Emit_Fp_Cmp_MemMem(m_registers[dst->m_valueLow], statement);
-		break;
-	case SYM_RELATIVE:
-	case SYM_TEMPORARY:
-		Emit_Fp_Cmp_MemMem(CX86Assembler::rAX, statement);
-		m_assembler.MovGd(MakeMemorySymbolAddress(dst), CX86Assembler::rAX);
-		break;
-	default:
-		assert(0);
-		break;
-	}
-}
-
-void CCodeGen_x86::Emit_Fp_Cmp_SymMemCst(const STATEMENT& statement)
-{
-	CSymbol* dst = statement.dst->GetSymbol().get();
-
-	switch(dst->m_type)
-	{
-	case SYM_REGISTER:
-		Emit_Fp_Cmp_MemCst(m_registers[dst->m_valueLow], statement);
-		break;
-	case SYM_RELATIVE:
-	case SYM_TEMPORARY:
-		Emit_Fp_Cmp_MemCst(CX86Assembler::rAX, statement);
-		m_assembler.MovGd(MakeMemorySymbolAddress(dst), CX86Assembler::rAX);
-		break;
-	default:
-		assert(0);
-		break;
-	}
+	CommitSymbolRegister(dst, dstReg);
 }
 
 void CCodeGen_x86::Emit_Fp_Rsqrt_MemMem(const STATEMENT& statement)
@@ -166,10 +135,8 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_fpuSseConstMatchers[] =
 	{ OP_FP_MAX,			MATCH_MEMORY_FP_SINGLE,		MATCH_MEMORY_FP_SINGLE,			MATCH_MEMORY_FP_SINGLE,		&CCodeGen_x86::Emit_Fpu_MemMemMem<FPUOP_MAX>		},
 	{ OP_FP_MIN,			MATCH_MEMORY_FP_SINGLE,		MATCH_MEMORY_FP_SINGLE,			MATCH_MEMORY_FP_SINGLE,		&CCodeGen_x86::Emit_Fpu_MemMemMem<FPUOP_MIN>		},
 
-	{ OP_FP_CMP,			MATCH_REGISTER,				MATCH_MEMORY_FP_SINGLE,			MATCH_MEMORY_FP_SINGLE,		&CCodeGen_x86::Emit_Fp_Cmp_SymMemMem				},
-	{ OP_FP_CMP,			MATCH_MEMORY,				MATCH_MEMORY_FP_SINGLE,			MATCH_MEMORY_FP_SINGLE,		&CCodeGen_x86::Emit_Fp_Cmp_SymMemMem				},
-	{ OP_FP_CMP,			MATCH_REGISTER,				MATCH_MEMORY_FP_SINGLE,			MATCH_CONSTANT,				&CCodeGen_x86::Emit_Fp_Cmp_SymMemCst				},
-	{ OP_FP_CMP,			MATCH_MEMORY,				MATCH_MEMORY_FP_SINGLE,			MATCH_CONSTANT,				&CCodeGen_x86::Emit_Fp_Cmp_SymMemCst				},
+	{ OP_FP_CMP,			MATCH_VARIABLE,				MATCH_MEMORY_FP_SINGLE,			MATCH_MEMORY_FP_SINGLE,		&CCodeGen_x86::Emit_Fp_Cmp_VarMemMem				},
+	{ OP_FP_CMP,			MATCH_VARIABLE,				MATCH_MEMORY_FP_SINGLE,			MATCH_CONSTANT,				&CCodeGen_x86::Emit_Fp_Cmp_VarMemCst				},
 
 	{ OP_FP_SQRT,			MATCH_MEMORY_FP_SINGLE,		MATCH_MEMORY_FP_SINGLE,			MATCH_NIL,					&CCodeGen_x86::Emit_Fpu_MemMem<FPUOP_SQRT>			},
 	{ OP_FP_RSQRT,			MATCH_MEMORY_FP_SINGLE,		MATCH_MEMORY_FP_SINGLE,			MATCH_NIL,					&CCodeGen_x86::Emit_Fp_Rsqrt_MemMem					},

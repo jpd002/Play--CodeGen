@@ -631,11 +631,9 @@ namespace Jitter
 
 		//FPCMP
 		CX86Assembler::SSE_CMP_TYPE	GetSseConditionCode(Jitter::CONDITION);
-		void						Emit_Fp_Cmp_MemMem(CX86Assembler::REGISTER, const STATEMENT&);
-		void						Emit_Fp_Cmp_MemCst(CX86Assembler::REGISTER, const STATEMENT&);
 
-		void						Emit_Fp_Cmp_SymMemMem(const STATEMENT&);
-		void						Emit_Fp_Cmp_SymMemCst(const STATEMENT&);
+		void						Emit_Fp_Cmp_VarMemMem(const STATEMENT&);
+		void						Emit_Fp_Cmp_VarMemCst(const STATEMENT&);
 
 		//FPABS
 		void						Emit_Fp_Abs_MemMem(const STATEMENT&);

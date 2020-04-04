@@ -27,6 +27,24 @@ void CCodeGen_x86::Emit_Fpu_Avx_MemMemMem(const STATEMENT& statement)
 	m_assembler.VmovssEd(MakeMemoryFpSingleSymbolAddress(dst), dstRegister);
 }
 
+void CCodeGen_x86::Emit_Fp_Avx_Cmp_VarMemMem(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	auto dstReg = PrepareSymbolRegisterDef(dst, CX86Assembler::rAX);
+	auto cmpReg = CX86Assembler::xMM0;
+	auto resReg = CX86Assembler::xMM1;
+
+	auto conditionCode = GetSseConditionCode(statement.jmpCondition);
+	m_assembler.VmovssEd(cmpReg, MakeMemoryFpSingleSymbolAddress(src1));
+	m_assembler.VcmpssEd(resReg, cmpReg, MakeMemoryFpSingleSymbolAddress(src2), conditionCode);
+	m_assembler.VmovdVo(CX86Assembler::MakeRegisterAddress(dstReg), resReg);
+
+	CommitSymbolRegister(dst, dstReg);
+}
+
 void CCodeGen_x86::Emit_Fp_Avx_Rsqrt_MemMem(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
@@ -65,6 +83,8 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_fpuAvxConstMatchers[] =
 	{ OP_FP_DIV, MATCH_MEMORY_FP_SINGLE, MATCH_MEMORY_FP_SINGLE, MATCH_MEMORY_FP_SINGLE, &CCodeGen_x86::Emit_Fpu_Avx_MemMemMem<FPUOP_DIV> },
 	{ OP_FP_MAX, MATCH_MEMORY_FP_SINGLE, MATCH_MEMORY_FP_SINGLE, MATCH_MEMORY_FP_SINGLE, &CCodeGen_x86::Emit_Fpu_Avx_MemMemMem<FPUOP_MAX> },
 	{ OP_FP_MIN, MATCH_MEMORY_FP_SINGLE, MATCH_MEMORY_FP_SINGLE, MATCH_MEMORY_FP_SINGLE, &CCodeGen_x86::Emit_Fpu_Avx_MemMemMem<FPUOP_MIN> },
+
+	{ OP_FP_CMP, MATCH_VARIABLE, MATCH_MEMORY_FP_SINGLE, MATCH_MEMORY_FP_SINGLE, &CCodeGen_x86::Emit_Fp_Avx_Cmp_VarMemMem },
 
 	{ OP_FP_SQRT,  MATCH_MEMORY_FP_SINGLE, MATCH_MEMORY_FP_SINGLE, MATCH_NIL, &CCodeGen_x86::Emit_Fpu_Avx_MemMem<FPUOP_SQRT> },
 	{ OP_FP_RSQRT, MATCH_MEMORY_FP_SINGLE, MATCH_MEMORY_FP_SINGLE, MATCH_NIL, &CCodeGen_x86::Emit_Fp_Avx_Rsqrt_MemMem        },

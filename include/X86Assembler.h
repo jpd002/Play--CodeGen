@@ -380,6 +380,9 @@ public:
 
 	void									VsqrtssEd(XMMREGISTER, XMMREGISTER, const CAddress&);
 
+	void									Vcvtsi2ssEd(XMMREGISTER, const CAddress&);
+	void									Vcvttss2siEd(REGISTER, const CAddress&);
+
 	void									VmovdqaVo(XMMREGISTER, const CAddress&);
 	void									VmovdqaVo(const CAddress&, XMMREGISTER);
 	void									VmovapsVo(XMMREGISTER, const CAddress&);

@@ -76,7 +76,7 @@ Jitter::CCodeGen* Jitter::CreateCodeGen()
 #elif defined(__ANDROID__) || defined(__linux__) || defined(__FreeBSD__)
 
 	#if defined(__arm__)
-		#if defined(__ARM__EABI__)
+		#if defined(__ARM_EABI__)
 			auto codeGen = new Jitter::CCodeGen_AArch32();
 			codeGen->SetPlatformAbi(CCodeGen_AArch32::PLATFORM_ABI_ARMEABI);
 			return codeGen;

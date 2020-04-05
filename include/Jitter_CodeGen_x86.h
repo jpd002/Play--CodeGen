@@ -367,11 +367,13 @@ namespace Jitter
 		struct MDOP_MINS : public MDOP_BASE
 		{
 			static OpVoType OpVo() { return &CX86Assembler::MinpsVo; }
+			static OpVoAvxType OpVoAvx() { return &CX86Assembler::VminpsVo; }
 		};
 
 		struct MDOP_MAXS : public MDOP_BASE
 		{
 			static OpVoType OpVo() { return &CX86Assembler::MaxpsVo; }
+			static OpVoAvxType OpVoAvx() { return &CX86Assembler::VmaxpsVo; }
 		};
 
 		struct MDOP_TOWORD_TRUNCATE : public MDOP_BASE

@@ -333,21 +333,25 @@ namespace Jitter
 		struct MDOP_ADDS : public MDOP_BASE
 		{
 			static OpVoType OpVo() { return &CX86Assembler::AddpsVo; }
+			static OpVoAvxType OpVoAvx() { return &CX86Assembler::VaddpsVo; }
 		};
 
 		struct MDOP_SUBS : public MDOP_BASE
 		{
 			static OpVoType OpVo() { return &CX86Assembler::SubpsVo; }
+			static OpVoAvxType OpVoAvx() { return &CX86Assembler::VsubpsVo; }
 		};
 
 		struct MDOP_MULS : public MDOP_BASE
 		{
 			static OpVoType OpVo() { return &CX86Assembler::MulpsVo; }
+			static OpVoAvxType OpVoAvx() { return &CX86Assembler::VmulpsVo; }
 		};
 
 		struct MDOP_DIVS : public MDOP_BASE
 		{
 			static OpVoType OpVo() { return &CX86Assembler::DivpsVo; }
+			static OpVoAvxType OpVoAvx() { return &CX86Assembler::VdivpsVo; }
 		};
 
 		struct MDOP_CMPLTS : public MDOP_BASE

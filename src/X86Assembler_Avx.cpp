@@ -336,3 +336,23 @@ void CX86Assembler::VpunpckhdqVo(XMMREGISTER dst, XMMREGISTER src1, const CAddre
 {
 	WriteVexVoOp(VEX_OPCODE_MAP_66, 0x6A, dst, src1, src2);
 }
+
+void CX86Assembler::VaddpsVo(XMMREGISTER dst, XMMREGISTER src1, const CAddress& src2)
+{
+	WriteVexVoOp(VEX_OPCODE_MAP_NONE, 0x58, dst, src1, src2);
+}
+
+void CX86Assembler::VsubpsVo(XMMREGISTER dst, XMMREGISTER src1, const CAddress& src2)
+{
+	WriteVexVoOp(VEX_OPCODE_MAP_NONE, 0x5C, dst, src1, src2);
+}
+
+void CX86Assembler::VmulpsVo(XMMREGISTER dst, XMMREGISTER src1, const CAddress& src2)
+{
+	WriteVexVoOp(VEX_OPCODE_MAP_NONE, 0x59, dst, src1, src2);
+}
+
+void CX86Assembler::VdivpsVo(XMMREGISTER dst, XMMREGISTER src1, const CAddress& src2)
+{
+	WriteVexVoOp(VEX_OPCODE_MAP_NONE, 0x5E, dst, src1, src2);
+}

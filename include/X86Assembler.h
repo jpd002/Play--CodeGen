@@ -435,6 +435,11 @@ public:
 	void									VpunpckhwdVo(XMMREGISTER, XMMREGISTER, const CAddress&);
 	void									VpunpckhdqVo(XMMREGISTER, XMMREGISTER, const CAddress&);
 
+	void									VaddpsVo(XMMREGISTER, XMMREGISTER, const CAddress&);
+	void									VsubpsVo(XMMREGISTER, XMMREGISTER, const CAddress&);
+	void									VmulpsVo(XMMREGISTER, XMMREGISTER, const CAddress&);
+	void									VdivpsVo(XMMREGISTER, XMMREGISTER, const CAddress&);
+
 private:
 	enum JMP_TYPE
 	{

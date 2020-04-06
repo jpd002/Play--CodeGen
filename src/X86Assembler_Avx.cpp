@@ -56,6 +56,18 @@ void CX86Assembler::WriteVexVoOp(VEX_OPCODE_MAP opMap, uint8 op, XMMREGISTER dst
 	newAddress.Write(&m_tmpStream);
 }
 
+void CX86Assembler::WriteVexShiftVoOp(uint8 op, XMMREGISTER dst, XMMREGISTER src, uint8 amount)
+{
+	assert(op < 8);
+	auto tmpReg = CX86Assembler::xMM0;
+	auto address = MakeXmmRegisterAddress(src);
+	address.ModRm.nFnReg = op;
+	WriteVex(VEX_OPCODE_MAP_66, tmpReg, dst, address);
+	WriteByte(0x72);
+	address.Write(&m_tmpStream);
+	WriteByte(amount);
+}
+
 void CX86Assembler::VmovdVo(XMMREGISTER dst, const CAddress& src)
 {
 	WriteVexVoOp(VEX_OPCODE_MAP_66, 0x6E, dst, CX86Assembler::xMM0, src);
@@ -229,32 +241,17 @@ void CX86Assembler::VpxorVo(XMMREGISTER dst, XMMREGISTER src1, const CAddress& s
 
 void CX86Assembler::VpslldVo(XMMREGISTER dst, XMMREGISTER src, uint8 amount)
 {
-	auto address = MakeXmmRegisterAddress(dst);
-	address.ModRm.nFnReg = 0x06;
-	WriteVex(VEX_OPCODE_MAP_66, dst, src, address);
-	WriteByte(0x72);
-	address.Write(&m_tmpStream);
-	WriteByte(amount);
+	WriteVexShiftVoOp(0x06, dst, src, amount);
 }
 
 void CX86Assembler::VpsrldVo(XMMREGISTER dst, XMMREGISTER src, uint8 amount)
 {
-	auto address = MakeXmmRegisterAddress(dst);
-	address.ModRm.nFnReg = 0x02;
-	WriteVex(VEX_OPCODE_MAP_66, dst, src, address);
-	WriteByte(0x72);
-	address.Write(&m_tmpStream);
-	WriteByte(amount);
+	WriteVexShiftVoOp(0x02, dst, src, amount);
 }
 
 void CX86Assembler::VpsradVo(XMMREGISTER dst, XMMREGISTER src, uint8 amount)
 {
-	auto address = MakeXmmRegisterAddress(dst);
-	address.ModRm.nFnReg = 0x04;
-	WriteVex(VEX_OPCODE_MAP_66, dst, src, address);
-	WriteByte(0x72);
-	address.Write(&m_tmpStream);
-	WriteByte(amount);
+	WriteVexShiftVoOp(0x04, dst, src, amount);
 }
 
 void CX86Assembler::VpcmpeqbVo(XMMREGISTER dst, XMMREGISTER src1, const CAddress& src2)

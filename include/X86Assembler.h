@@ -428,12 +428,17 @@ public:
 	void									VpminswVo(XMMREGISTER, XMMREGISTER, const CAddress&);
 	void									VpminsdVo(XMMREGISTER, XMMREGISTER, const CAddress&);
 
+	void									VpackssdwVo(XMMREGISTER, XMMREGISTER, const CAddress&);
+
 	void									VpunpcklbwVo(XMMREGISTER, XMMREGISTER, const CAddress&);
 	void									VpunpcklwdVo(XMMREGISTER, XMMREGISTER, const CAddress&);
 	void									VpunpckldqVo(XMMREGISTER, XMMREGISTER, const CAddress&);
 	void									VpunpckhbwVo(XMMREGISTER, XMMREGISTER, const CAddress&);
 	void									VpunpckhwdVo(XMMREGISTER, XMMREGISTER, const CAddress&);
 	void									VpunpckhdqVo(XMMREGISTER, XMMREGISTER, const CAddress&);
+
+	void									VpshufbVo(XMMREGISTER, XMMREGISTER, const CAddress&);
+	void									VpmovmskbVo(REGISTER, XMMREGISTER);
 
 	void									VaddpsVo(XMMREGISTER, XMMREGISTER, const CAddress&);
 	void									VsubpsVo(XMMREGISTER, XMMREGISTER, const CAddress&);
@@ -445,6 +450,8 @@ public:
 
 	void									Vcvtdq2psVo(XMMREGISTER, const CAddress&);
 	void									Vcvttps2dqVo(XMMREGISTER, const CAddress&);
+
+	void									VcmppsVo(XMMREGISTER, XMMREGISTER, const CAddress&, SSE_CMP_TYPE);
 
 private:
 	enum JMP_TYPE

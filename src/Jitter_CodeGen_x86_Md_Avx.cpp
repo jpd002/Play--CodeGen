@@ -338,6 +338,33 @@ void CCodeGen_x86::Emit_Md_Avx_Abs_VarVar(const STATEMENT& statement)
 	CommitSymbolRegisterMdAvx(dst, dstRegister);
 }
 
+void CCodeGen_x86::Emit_Md_Avx_MakeSz_VarVar(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	
+	auto dstRegister = PrepareSymbolRegisterDef(dst, CX86Assembler::rDX);
+	auto src1Register = PrepareSymbolRegisterUseMdAvx(src1, CX86Assembler::xMM0);
+	auto szRegister = CX86Assembler::xMM1;
+	auto zeroRegister = CX86Assembler::xMM2;
+	
+	//Compute sign
+	m_assembler.VpsradVo(szRegister, src1Register, 31);
+	
+	//Compute zero
+	m_assembler.VpxorVo(zeroRegister, zeroRegister, CX86Assembler::MakeXmmRegisterAddress(zeroRegister));
+	m_assembler.VcmppsVo(zeroRegister, zeroRegister, CX86Assembler::MakeXmmRegisterAddress(src1Register), CX86Assembler::SSE_CMP_EQ);
+	
+	//Pack
+	m_assembler.VpackssdwVo(szRegister, szRegister, CX86Assembler::MakeXmmRegisterAddress(zeroRegister));
+	
+	//Extract bits
+	m_assembler.VpshufbVo(szRegister, szRegister, MakeConstant128Address(g_makeSzShufflePattern));
+	m_assembler.VpmovmskbVo(dstRegister, szRegister);
+	
+	CommitSymbolRegister(dst, dstRegister);
+}
+
 CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdAvxConstMatchers[] = 
 {
 	{ OP_MD_ADD_B, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_VARIABLE128, &CCodeGen_x86::Emit_Md_Avx_VarVarVar<MDOP_ADDB> },
@@ -403,6 +430,8 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdAvxConstMatchers[] =
 
 	{ OP_MD_TOWORD_TRUNCATE, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx_VarVar<MDOP_TOWORD_TRUNCATE> },
 	{ OP_MD_TOSINGLE,        MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx_VarVar<MDOP_TOSINGLE>        },
+
+	{ OP_MD_MAKESZ, MATCH_VARIABLE, MATCH_VARIABLE128, MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx_MakeSz_VarVar },
 
 	{ OP_MOV, MATCH_REGISTER128, MATCH_VARIABLE128, MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx_Mov_RegVar, },
 	{ OP_MOV, MATCH_MEMORY128,   MATCH_REGISTER128, MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx_Mov_MemReg, },

@@ -54,6 +54,18 @@ void CX86Assembler::WriteVexVoOp(VEX_OPCODE_MAP opMap, uint8 op, XMMREGISTER dst
 	CAddress newAddress(src2);
 	newAddress.ModRm.nFnReg = dst;
 	newAddress.Write(&m_tmpStream);
+	//Check for rIP relative addressing
+	if(src2.ModRm.nByte == 0x05)
+	{
+		assert(m_currentLabel);
+		auto literalIterator = m_currentLabel->literal128Refs.find(src2.literal128Id);
+		assert(literalIterator != std::end(m_currentLabel->literal128Refs));
+		auto& literal = literalIterator->second;
+		assert(literal.offset == 0);
+		literal.offset = static_cast<uint32>(m_tmpStream.Tell());
+		//Write placeholder
+		m_tmpStream.Write32(0);
+	}
 }
 
 void CX86Assembler::WriteVexShiftVoOp(uint8 op, XMMREGISTER dst, XMMREGISTER src, uint8 amount)
@@ -304,6 +316,11 @@ void CX86Assembler::VpminsdVo(XMMREGISTER dst, XMMREGISTER src1, const CAddress&
 	WriteVexVoOp(VEX_OPCODE_MAP_66_38, 0x39, dst, src1, src2);
 }
 
+void CX86Assembler::VpackssdwVo(XMMREGISTER dst, XMMREGISTER src1, const CAddress& src2)
+{
+	WriteVexVoOp(VEX_OPCODE_MAP_66, 0x6B, dst, src1, src2);
+}
+
 void CX86Assembler::VpunpcklbwVo(XMMREGISTER dst, XMMREGISTER src1, const CAddress& src2)
 {
 	WriteVexVoOp(VEX_OPCODE_MAP_66, 0x60, dst, src1, src2);
@@ -332,6 +349,16 @@ void CX86Assembler::VpunpckhwdVo(XMMREGISTER dst, XMMREGISTER src1, const CAddre
 void CX86Assembler::VpunpckhdqVo(XMMREGISTER dst, XMMREGISTER src1, const CAddress& src2)
 {
 	WriteVexVoOp(VEX_OPCODE_MAP_66, 0x6A, dst, src1, src2);
+}
+
+void CX86Assembler::VpshufbVo(XMMREGISTER dst, XMMREGISTER src1, const CAddress& src2)
+{
+	WriteVexVoOp(VEX_OPCODE_MAP_66_38, 0x00, dst, src1, src2);
+}
+
+void CX86Assembler::VpmovmskbVo(REGISTER dst, XMMREGISTER src)
+{
+	WriteVexVoOp(VEX_OPCODE_MAP_66, 0xD7, static_cast<XMMREGISTER>(dst), CX86Assembler::xMM0, CX86Assembler::MakeXmmRegisterAddress(src));
 }
 
 void CX86Assembler::VaddpsVo(XMMREGISTER dst, XMMREGISTER src1, const CAddress& src2)
@@ -374,3 +401,8 @@ void CX86Assembler::Vcvttps2dqVo(XMMREGISTER dst, const CAddress& src)
 	WriteVexVoOp(VEX_OPCODE_MAP_F3, 0x5B, dst, CX86Assembler::xMM0, src);
 }
 
+void CX86Assembler::VcmppsVo(XMMREGISTER dst, XMMREGISTER src1, const CAddress& src2, SSE_CMP_TYPE condition)
+{
+	WriteVexVoOp(VEX_OPCODE_MAP_NONE, 0xC2, dst, src1, src2);
+	WriteByte(static_cast<uint8>(condition));
+}

@@ -443,6 +443,9 @@ public:
 	void									VminpsVo(XMMREGISTER, XMMREGISTER, const CAddress&);
 	void									VmaxpsVo(XMMREGISTER, XMMREGISTER, const CAddress&);
 
+	void									Vcvtdq2psVo(XMMREGISTER, const CAddress&);
+	void									Vcvttps2dqVo(XMMREGISTER, const CAddress&);
+
 private:
 	enum JMP_TYPE
 	{

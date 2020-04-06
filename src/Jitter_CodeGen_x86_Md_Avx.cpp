@@ -3,6 +3,19 @@
 using namespace Jitter;
 
 template <typename MDOP>
+void CCodeGen_x86::Emit_Md_Avx_VarVar(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+
+	auto dstRegister = PrepareSymbolRegisterDefMd(dst, CX86Assembler::xMM0);
+
+	((m_assembler).*(MDOP::OpVoAvx()))(dstRegister, MakeVariable128SymbolAddress(src1));
+
+	CommitSymbolRegisterMdAvx(dst, dstRegister);
+}
+
+template <typename MDOP>
 void CCodeGen_x86::Emit_Md_Avx_VarVarVar(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
@@ -387,6 +400,9 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdAvxConstMatchers[] =
 
 	{ OP_MD_MIN_S, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_VARIABLE128, &CCodeGen_x86::Emit_Md_Avx_VarVarVar<MDOP_MINS> },
 	{ OP_MD_MAX_S, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_VARIABLE128, &CCodeGen_x86::Emit_Md_Avx_VarVarVar<MDOP_MAXS> },
+
+	{ OP_MD_TOWORD_TRUNCATE, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx_VarVar<MDOP_TOWORD_TRUNCATE> },
+	{ OP_MD_TOSINGLE,        MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx_VarVar<MDOP_TOSINGLE>        },
 
 	{ OP_MOV, MATCH_REGISTER128, MATCH_VARIABLE128, MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx_Mov_RegVar, },
 	{ OP_MOV, MATCH_MEMORY128,   MATCH_REGISTER128, MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx_Mov_MemReg, },

@@ -379,11 +379,13 @@ namespace Jitter
 		struct MDOP_TOWORD_TRUNCATE : public MDOP_BASE
 		{
 			static OpVoType OpVo() { return &CX86Assembler::Cvttps2dqVo; }
+			static OpVoType OpVoAvx() { return &CX86Assembler::Vcvttps2dqVo; }
 		};
 
 		struct MDOP_TOSINGLE : public MDOP_BASE
 		{
 			static OpVoType OpVo() { return &CX86Assembler::Cvtdq2psVo; }
+			static OpVoType OpVoAvx() { return &CX86Assembler::Vcvtdq2psVo; }
 		};
 
 		//MDOP SHIFT -----------------------------------------------------
@@ -719,6 +721,7 @@ namespace Jitter
 		void						Emit_Fp_Avx_ToIntTrunc_RelRel(const STATEMENT&);
 
 		//MDOP AVX
+		template <typename> void	Emit_Md_Avx_VarVar(const STATEMENT&);
 		template <typename> void	Emit_Md_Avx_VarVarVar(const STATEMENT&);
 		template <typename> void	Emit_Md_Avx_VarVarVarRev(const STATEMENT&);
 		void						Emit_Md_Avx_Mov_RegVar(const STATEMENT&);

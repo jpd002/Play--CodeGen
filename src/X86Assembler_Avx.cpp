@@ -366,3 +366,14 @@ void CX86Assembler::VmaxpsVo(XMMREGISTER dst, XMMREGISTER src1, const CAddress& 
 {
 	WriteVexVoOp(VEX_OPCODE_MAP_NONE, 0x5F, dst, src1, src2);
 }
+
+void CX86Assembler::Vcvtdq2psVo(XMMREGISTER dst, const CAddress& src)
+{
+	WriteVexVoOp(VEX_OPCODE_MAP_NONE, 0x5B, dst, CX86Assembler::xMM0, src);
+}
+
+void CX86Assembler::Vcvttps2dqVo(XMMREGISTER dst, const CAddress& src)
+{
+	WriteVexVoOp(VEX_OPCODE_MAP_F3, 0x5B, dst, CX86Assembler::xMM0, src);
+}
+

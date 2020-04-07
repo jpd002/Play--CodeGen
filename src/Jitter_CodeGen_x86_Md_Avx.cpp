@@ -380,6 +380,34 @@ void CCodeGen_x86::Emit_Md_Avx_MakeSz_VarVar(const STATEMENT& statement)
 	CommitSymbolRegister(dst, dstRegister);
 }
 
+void CCodeGen_x86::Emit_Md_Avx_Expand_VarVar(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+
+	auto dstRegister = PrepareSymbolRegisterDefMd(dst, CX86Assembler::xMM0);
+
+	m_assembler.VmovdVo(dstRegister, MakeVariableSymbolAddress(src1));
+	m_assembler.VshufpsVo(dstRegister, dstRegister, CX86Assembler::MakeXmmRegisterAddress(dstRegister), 0x00);
+
+	CommitSymbolRegisterMdAvx(dst, dstRegister);
+}
+
+void CCodeGen_x86::Emit_Md_Avx_Expand_VarCst(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+
+	auto dstRegister = PrepareSymbolRegisterDefMd(dst, CX86Assembler::xMM0);
+	auto cstRegister = CX86Assembler::rAX;
+
+	m_assembler.MovId(cstRegister, src1->m_valueLow);
+	m_assembler.VmovdVo(dstRegister, CX86Assembler::MakeRegisterAddress(cstRegister));
+	m_assembler.VshufpsVo(dstRegister, dstRegister, CX86Assembler::MakeXmmRegisterAddress(dstRegister), 0x00);
+
+	CommitSymbolRegisterMdAvx(dst, dstRegister);
+}
+
 CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdAvxConstMatchers[] = 
 {
 	{ OP_MD_ADD_B, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_VARIABLE128, &CCodeGen_x86::Emit_Md_Avx_VarVarVar<MDOP_ADDB> },
@@ -445,6 +473,9 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdAvxConstMatchers[] =
 
 	{ OP_MD_TOWORD_TRUNCATE, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx_VarVar<MDOP_TOWORD_TRUNCATE> },
 	{ OP_MD_TOSINGLE,        MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx_VarVar<MDOP_TOSINGLE>        },
+
+	{ OP_MD_EXPAND, MATCH_VARIABLE128, MATCH_VARIABLE, MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx_Expand_VarVar },
+	{ OP_MD_EXPAND, MATCH_VARIABLE128, MATCH_CONSTANT, MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx_Expand_VarCst },
 
 	{ OP_MD_MAKESZ, MATCH_VARIABLE, MATCH_VARIABLE128, MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx_MakeSz_VarVar },
 

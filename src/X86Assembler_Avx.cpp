@@ -406,3 +406,9 @@ void CX86Assembler::VcmppsVo(XMMREGISTER dst, XMMREGISTER src1, const CAddress& 
 	WriteVexVoOp(VEX_OPCODE_MAP_NONE, 0xC2, dst, src1, src2);
 	WriteByte(static_cast<uint8>(condition));
 }
+
+void CX86Assembler::VblendpsVo(XMMREGISTER dst, XMMREGISTER src1, const CAddress& src2, uint8 mask)
+{
+	WriteVexVoOp(VEX_OPCODE_MAP_66_3A, 0x0C, dst, src1, src2);
+	WriteByte(mask);
+}

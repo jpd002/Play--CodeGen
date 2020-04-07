@@ -726,6 +726,7 @@ namespace Jitter
 		template <typename> void	Emit_Md_Avx_VarVarVarRev(const STATEMENT&);
 		void						Emit_Md_Avx_Mov_RegVar(const STATEMENT&);
 		void						Emit_Md_Avx_Mov_MemReg(const STATEMENT&);
+		void						Emit_Md_Avx_MovMasked_VarVarVar(const STATEMENT&);
 
 		void						Emit_Md_Avx_Not_VarVar(const STATEMENT&);
 		void						Emit_Md_Avx_Abs_VarVar(const STATEMENT&);

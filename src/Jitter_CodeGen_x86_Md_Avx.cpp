@@ -61,6 +61,21 @@ void CCodeGen_x86::Emit_Md_Avx_Mov_MemReg(const STATEMENT& statement)
 	m_assembler.VmovapsVo(MakeMemory128SymbolAddress(dst), m_mdRegisters[src1->m_valueLow]);
 }
 
+void CCodeGen_x86::Emit_Md_Avx_MovMasked_VarVarVar(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+	uint8 mask = static_cast<uint8>(statement.jmpCondition);
+
+	auto dstRegister = PrepareSymbolRegisterDefMd(dst, CX86Assembler::xMM0);
+	auto src1Register = PrepareSymbolRegisterUseMdAvx(src1, CX86Assembler::xMM1);
+
+	m_assembler.VblendpsVo(dstRegister, src1Register, MakeVariable128SymbolAddress(src2), mask);
+
+	CommitSymbolRegisterMdAvx(dst, dstRegister);
+}
+
 void CCodeGen_x86::Emit_Md_Avx_AddSSW_VarVarVar(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
@@ -435,6 +450,8 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdAvxConstMatchers[] =
 
 	{ OP_MOV, MATCH_REGISTER128, MATCH_VARIABLE128, MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx_Mov_RegVar, },
 	{ OP_MOV, MATCH_MEMORY128,   MATCH_REGISTER128, MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx_Mov_MemReg, },
+
+	{ OP_MD_MOV_MASKED, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_VARIABLE128, &CCodeGen_x86::Emit_Md_Avx_MovMasked_VarVarVar },
 
 	{ OP_MOV, MATCH_NIL,         MATCH_NIL,         MATCH_NIL, nullptr },
 };

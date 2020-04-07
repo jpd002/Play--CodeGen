@@ -453,6 +453,8 @@ public:
 
 	void									VcmppsVo(XMMREGISTER, XMMREGISTER, const CAddress&, SSE_CMP_TYPE);
 
+	void									VblendpsVo(XMMREGISTER, XMMREGISTER, const CAddress&, uint8);
+
 private:
 	enum JMP_TYPE
 	{
@@ -489,6 +491,7 @@ private:
 		VEX_OPCODE_MAP_NONE = 0x01,
 		VEX_OPCODE_MAP_66 = 0x11,
 		VEX_OPCODE_MAP_66_38 = 0x12,
+		VEX_OPCODE_MAP_66_3A = 0x13,
 		VEX_OPCODE_MAP_F3 = 0x21,
 		VEX_OPCODE_MAP_F2 = 0x31
 	};

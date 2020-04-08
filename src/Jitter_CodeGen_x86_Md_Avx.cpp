@@ -335,6 +335,57 @@ void CCodeGen_x86::Emit_Md_Avx_SubUSW_VarVarVar(const STATEMENT& statement)
 	m_assembler.VmovdqaVo(MakeVariable128SymbolAddress(dst), resRegister);
 }
 
+void CCodeGen_x86::Emit_Md_Avx_PackHB_VarVarVar(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	auto dstRegister = PrepareSymbolRegisterDefMd(dst, CX86Assembler::xMM0);
+	auto tempRegister = CX86Assembler::xMM1;
+	auto temp2Register = CX86Assembler::xMM2;
+	auto maskRegister = CX86Assembler::xMM3;
+
+	//Generate mask (0x00FF x8)
+	m_assembler.VpcmpeqdVo(maskRegister, maskRegister, CX86Assembler::MakeXmmRegisterAddress(maskRegister));
+	m_assembler.VpsrlwVo(maskRegister, maskRegister, 0x08);
+
+	//Mask both operands
+	m_assembler.VpandVo(temp2Register, maskRegister, MakeVariable128SymbolAddress(src2));
+	m_assembler.VpandVo(tempRegister, maskRegister, MakeVariable128SymbolAddress(src1));
+
+	//Pack
+	m_assembler.VpackuswbVo(dstRegister, temp2Register, CX86Assembler::MakeXmmRegisterAddress(tempRegister));
+
+	CommitSymbolRegisterMdAvx(dst, dstRegister);
+}
+
+void CCodeGen_x86::Emit_Md_Avx_PackWH_VarVarVar(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	auto dstRegister = PrepareSymbolRegisterDefMd(dst, CX86Assembler::xMM0);
+	auto resultRegister = CX86Assembler::xMM1;
+	auto tempRegister = CX86Assembler::xMM2;
+
+	m_assembler.VmovapsVo(resultRegister, MakeVariable128SymbolAddress(src2));
+	m_assembler.VmovapsVo(tempRegister, MakeVariable128SymbolAddress(src1));
+
+	//Sign extend the lower half word of our registers
+	m_assembler.VpslldVo(resultRegister, resultRegister, 0x10);
+	m_assembler.VpsradVo(resultRegister, resultRegister, 0x10);
+
+	m_assembler.VpslldVo(tempRegister, tempRegister, 0x10);
+	m_assembler.VpsradVo(tempRegister, tempRegister, 0x10);
+
+	//Pack
+	m_assembler.VpackssdwVo(dstRegister, resultRegister, CX86Assembler::MakeXmmRegisterAddress(tempRegister));
+
+	CommitSymbolRegisterMdAvx(dst, dstRegister);
+}
+
 void CCodeGen_x86::Emit_Md_Avx_Not_VarVar(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
@@ -557,6 +608,9 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdAvxConstMatchers[] =
 
 	{ OP_MD_EXPAND, MATCH_VARIABLE128, MATCH_VARIABLE, MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx_Expand_VarVar },
 	{ OP_MD_EXPAND, MATCH_VARIABLE128, MATCH_CONSTANT, MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx_Expand_VarCst },
+
+	{ OP_MD_PACK_HB, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_VARIABLE128, &CCodeGen_x86::Emit_Md_Avx_PackHB_VarVarVar, },
+	{ OP_MD_PACK_WH, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_VARIABLE128, &CCodeGen_x86::Emit_Md_Avx_PackWH_VarVarVar, },
 
 	{ OP_MD_MAKESZ, MATCH_VARIABLE, MATCH_VARIABLE128, MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx_MakeSz_VarVar },
 

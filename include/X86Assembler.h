@@ -434,6 +434,7 @@ public:
 	void									VpminsdVo(XMMREGISTER, XMMREGISTER, const CAddress&);
 
 	void									VpackssdwVo(XMMREGISTER, XMMREGISTER, const CAddress&);
+	void									VpackuswbVo(XMMREGISTER, XMMREGISTER, const CAddress&);
 
 	void									VpunpcklbwVo(XMMREGISTER, XMMREGISTER, const CAddress&);
 	void									VpunpcklwdVo(XMMREGISTER, XMMREGISTER, const CAddress&);

@@ -744,6 +744,9 @@ namespace Jitter
 		void						Emit_Md_Avx_SubSSW_VarVarVar(const STATEMENT&);
 		void						Emit_Md_Avx_SubUSW_VarVarVar(const STATEMENT&);
 
+		void						Emit_Md_Avx_PackHB_VarVarVar(const STATEMENT&);
+		void						Emit_Md_Avx_PackWH_VarVarVar(const STATEMENT&);
+
 		void						Emit_Md_Avx_MakeSz_VarVar(const STATEMENT&);
 
 		void						Emit_Md_Avx_Expand_VarVar(const STATEMENT&);

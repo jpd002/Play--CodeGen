@@ -783,6 +783,7 @@ namespace Jitter
 		
 		bool						m_hasSsse3 = false;
 		bool						m_hasSse41 = false;
+		bool						m_hasAvx = false;
 
 	private:
 		typedef void (CCodeGen_x86::*ConstCodeEmitterType)(const STATEMENT&);

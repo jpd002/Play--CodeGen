@@ -154,27 +154,36 @@ CCodeGen_x86::CCodeGen_x86()
 
 	InsertMatchers(g_constMatchers);
 	InsertMatchers(g_fpuConstMatchers);
-	InsertMatchers(g_fpuSseConstMatchers);
-	InsertMatchers(g_mdConstMatchers);
 
-	if(m_hasSsse3)
+	if(m_hasAvx)
 	{
-		InsertMatchers(g_mdFpFlagSsse3ConstMatchers);
+		InsertMatchers(g_fpuAvxConstMatchers);
+		InsertMatchers(g_mdAvxConstMatchers);
 	}
 	else
 	{
-		InsertMatchers(g_mdFpFlagConstMatchers);
-	}
+		InsertMatchers(g_fpuSseConstMatchers);
+		InsertMatchers(g_mdConstMatchers);
 
-	if(m_hasSse41)
-	{
-		InsertMatchers(g_mdMinMaxWSse41ConstMatchers);
-		InsertMatchers(g_mdMovMaskedSse41ConstMatchers);
-	}
-	else
-	{
-		InsertMatchers(g_mdMinMaxWConstMatchers);
-		InsertMatchers(g_mdMovMaskedConstMatchers);
+		if(m_hasSsse3)
+		{
+			InsertMatchers(g_mdFpFlagSsse3ConstMatchers);
+		}
+		else
+		{
+			InsertMatchers(g_mdFpFlagConstMatchers);
+		}
+
+		if(m_hasSse41)
+		{
+			InsertMatchers(g_mdMinMaxWSse41ConstMatchers);
+			InsertMatchers(g_mdMovMaskedSse41ConstMatchers);
+		}
+		else
+		{
+			InsertMatchers(g_mdMinMaxWConstMatchers);
+			InsertMatchers(g_mdMovMaskedConstMatchers);
+		}
 	}
 }
 
@@ -258,6 +267,7 @@ void CCodeGen_x86::SetGenerationFlags()
 {
 	static const uint32 CPUID_FLAG_SSSE3 = 0x000200;
 	static const uint32 CPUID_FLAG_SSE41 = 0x080000;
+	static const uint32 CPUID_FLAG_AVX = 0x10000000;
 
 #ifdef HAS_CPUID
 
@@ -273,6 +283,7 @@ void CCodeGen_x86::SetGenerationFlags()
 
 	m_hasSsse3 = (cpuInfo[2] & CPUID_FLAG_SSSE3) != 0;
 	m_hasSse41 = (cpuInfo[2] & CPUID_FLAG_SSE41) != 0;
+	m_hasAvx = (cpuInfo[2] & CPUID_FLAG_AVX) != 0;
 
 #endif //HAS_CPUID
 

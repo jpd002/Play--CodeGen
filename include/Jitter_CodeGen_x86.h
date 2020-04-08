@@ -749,6 +749,11 @@ namespace Jitter
 		void						Emit_Md_Avx_Expand_VarVar(const STATEMENT&);
 		void						Emit_Md_Avx_Expand_VarCst(const STATEMENT&);
 
+		void						Emit_Avx_MergeTo256_MemVarVar(const STATEMENT&);
+
+		void						Emit_Md_Avx_Srl256_VarMemVar(const STATEMENT&);
+		void						Emit_Md_Avx_Srl256_VarMemCst(const STATEMENT&);
+
 		static CX86Assembler::REGISTER g_baseRegister;
 
 		CX86Assembler::REGISTER		PrepareSymbolRegisterDef(CSymbol*, CX86Assembler::REGISTER);

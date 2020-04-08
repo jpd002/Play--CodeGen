@@ -161,6 +161,11 @@ void CX86Assembler::VmovdqaVo(const CAddress& dst, XMMREGISTER src)
 	WriteVexVoOp(VEX_OPCODE_MAP_66, 0x7F, src, CX86Assembler::xMM0, dst);
 }
 
+void CX86Assembler::VmovdquVo(XMMREGISTER dst, const CAddress& src)
+{
+	WriteVexVoOp(VEX_OPCODE_MAP_F3, 0x6F, dst, CX86Assembler::xMM0, src);
+}
+
 void CX86Assembler::VmovapsVo(XMMREGISTER dst, const CAddress& src)
 {
 	WriteVexVoOp(VEX_OPCODE_MAP_NONE, 0x28, dst, CX86Assembler::xMM0, src);

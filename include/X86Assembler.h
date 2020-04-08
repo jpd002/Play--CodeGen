@@ -385,6 +385,7 @@ public:
 
 	void									VmovdqaVo(XMMREGISTER, const CAddress&);
 	void									VmovdqaVo(const CAddress&, XMMREGISTER);
+	void									VmovdquVo(XMMREGISTER, const CAddress&);
 	void									VmovapsVo(XMMREGISTER, const CAddress&);
 	void									VmovapsVo(const CAddress&, XMMREGISTER);
 

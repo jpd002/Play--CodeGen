@@ -423,6 +423,64 @@ void CCodeGen_x86::Emit_Md_Avx_Expand_VarCst(const STATEMENT& statement)
 	CommitSymbolRegisterMdAvx(dst, dstRegister);
 }
 
+void CCodeGen_x86::Emit_Avx_MergeTo256_MemVarVar(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	assert(dst->m_type == SYM_TEMPORARY256);
+
+	auto src1Register = CX86Assembler::xMM0;
+	auto src2Register = CX86Assembler::xMM1;
+
+	//TODO: Improve this to write out registers directly to temporary's memory space
+	//instead of passing by temporary registers
+
+	m_assembler.VmovdqaVo(src1Register, MakeVariable128SymbolAddress(src1));
+	m_assembler.VmovdqaVo(src2Register, MakeVariable128SymbolAddress(src2));
+
+	m_assembler.VmovdqaVo(MakeTemporary256SymbolElementAddress(dst, 0x00), src1Register);
+	m_assembler.VmovdqaVo(MakeTemporary256SymbolElementAddress(dst, 0x10), src2Register);
+}
+
+void CCodeGen_x86::Emit_Md_Avx_Srl256_VarMemVar(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	auto offsetRegister = CX86Assembler::rAX;
+	auto resultRegister = CX86Assembler::xMM0;
+
+	assert(src1->m_type == SYM_TEMPORARY256);
+
+	m_assembler.MovEd(offsetRegister, MakeVariableSymbolAddress(src2));
+	m_assembler.AndId(CX86Assembler::MakeRegisterAddress(offsetRegister), 0x7F);
+	m_assembler.ShrEd(CX86Assembler::MakeRegisterAddress(offsetRegister), 3);
+	m_assembler.AddId(CX86Assembler::MakeRegisterAddress(offsetRegister), src1->m_stackLocation + m_stackLevel);
+
+	m_assembler.VmovdquVo(resultRegister, CX86Assembler::MakeBaseIndexScaleAddress(CX86Assembler::rSP, offsetRegister, 1));
+	m_assembler.VmovdqaVo(MakeVariable128SymbolAddress(dst), resultRegister);
+}
+
+void CCodeGen_x86::Emit_Md_Avx_Srl256_VarMemCst(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	auto resultRegister = CX86Assembler::xMM0;
+
+	assert(src1->m_type == SYM_TEMPORARY256);
+	assert(src2->m_type == SYM_CONSTANT);
+
+	uint32 offset = (src2->m_valueLow & 0x7F) / 8;
+
+	m_assembler.VmovdquVo(resultRegister, MakeTemporary256SymbolElementAddress(src1, offset));
+	m_assembler.VmovdqaVo(MakeVariable128SymbolAddress(dst), resultRegister);
+}
+
 CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdAvxConstMatchers[] = 
 {
 	{ OP_MD_ADD_B, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_VARIABLE128, &CCodeGen_x86::Emit_Md_Avx_VarVarVar<MDOP_ADDB> },
@@ -506,6 +564,10 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdAvxConstMatchers[] =
 	{ OP_MOV, MATCH_MEMORY128,   MATCH_REGISTER128, MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx_Mov_MemReg, },
 
 	{ OP_MD_MOV_MASKED, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_VARIABLE128, &CCodeGen_x86::Emit_Md_Avx_MovMasked_VarVarVar },
+
+	{ OP_MERGETO256, MATCH_MEMORY256,   MATCH_VARIABLE128, MATCH_VARIABLE128, &CCodeGen_x86::Emit_Avx_MergeTo256_MemVarVar },
+	{ OP_MD_SRL256,  MATCH_VARIABLE128, MATCH_MEMORY256,   MATCH_VARIABLE,    &CCodeGen_x86::Emit_Md_Avx_Srl256_VarMemVar  },
+	{ OP_MD_SRL256,  MATCH_VARIABLE128, MATCH_MEMORY256,   MATCH_CONSTANT,    &CCodeGen_x86::Emit_Md_Avx_Srl256_VarMemCst  },
 
 	{ OP_MOV, MATCH_NIL,         MATCH_NIL,         MATCH_NIL, nullptr },
 };

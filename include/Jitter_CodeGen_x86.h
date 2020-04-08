@@ -392,36 +392,43 @@ namespace Jitter
 		struct MDOP_SHIFT_BASE
 		{
 			typedef void (CX86Assembler::*OpVoType)(CX86Assembler::XMMREGISTER, uint8);
+			typedef void (CX86Assembler::*OpVoAvxType)(CX86Assembler::XMMREGISTER, CX86Assembler::XMMREGISTER, uint8);
 		};
 		
 		struct MDOP_SRLH : public MDOP_SHIFT_BASE
 		{
 			static OpVoType OpVo() { return &CX86Assembler::PsrlwVo; }
+			static OpVoAvxType OpVoAvx() { return &CX86Assembler::VpsrlwVo; }
 		};
 
 		struct MDOP_SRAH : public MDOP_SHIFT_BASE
 		{
 			static OpVoType OpVo() { return &CX86Assembler::PsrawVo; }
+			static OpVoAvxType OpVoAvx() { return &CX86Assembler::VpsrawVo; }
 		};
 
 		struct MDOP_SLLH : public MDOP_SHIFT_BASE
 		{
 			static OpVoType OpVo() { return &CX86Assembler::PsllwVo; }
+			static OpVoAvxType OpVoAvx() { return &CX86Assembler::VpsllwVo; }
 		};
 
 		struct MDOP_SRLW : public MDOP_SHIFT_BASE
 		{
 			static OpVoType OpVo() { return &CX86Assembler::PsrldVo; }
+			static OpVoAvxType OpVoAvx() { return &CX86Assembler::VpsrldVo; }
 		};
 
 		struct MDOP_SRAW : public MDOP_SHIFT_BASE
 		{
 			static OpVoType OpVo() { return &CX86Assembler::PsradVo; }
+			static OpVoAvxType OpVoAvx() { return &CX86Assembler::VpsradVo; }
 		};
 
 		struct MDOP_SLLW : public MDOP_SHIFT_BASE
 		{
 			static OpVoType OpVo() { return &CX86Assembler::PslldVo; }
+			static OpVoAvxType OpVoAvx() { return &CX86Assembler::VpslldVo; }
 		};
 
 		//MDOP SINGLEOP -------------------------------------------------
@@ -724,6 +731,8 @@ namespace Jitter
 		template <typename> void	Emit_Md_Avx_VarVar(const STATEMENT&);
 		template <typename> void	Emit_Md_Avx_VarVarVar(const STATEMENT&);
 		template <typename> void	Emit_Md_Avx_VarVarVarRev(const STATEMENT&);
+		template <typename, uint8> void
+									Emit_Md_Avx_Shift_VarVarCst(const STATEMENT&);
 		void						Emit_Md_Avx_Mov_RegVar(const STATEMENT&);
 		void						Emit_Md_Avx_Mov_MemReg(const STATEMENT&);
 		void						Emit_Md_Avx_MovMasked_VarVarVar(const STATEMENT&);

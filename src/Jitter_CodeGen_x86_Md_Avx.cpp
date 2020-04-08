@@ -45,6 +45,21 @@ void CCodeGen_x86::Emit_Md_Avx_VarVarVarRev(const STATEMENT& statement)
 	CommitSymbolRegisterMdAvx(dst, dstRegister);
 }
 
+template <typename MDOPSHIFT, uint8 SAMASK>
+void CCodeGen_x86::Emit_Md_Avx_Shift_VarVarCst(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	auto dstRegister = PrepareSymbolRegisterDefMd(dst, CX86Assembler::xMM0);
+	auto src1Register = PrepareSymbolRegisterUseMdAvx(src1, CX86Assembler::xMM1);
+
+	((m_assembler).*(MDOPSHIFT::OpVoAvx()))(dstRegister, src1Register, static_cast<uint8>(src2->m_valueLow & SAMASK));
+
+	CommitSymbolRegisterMdAvx(dst, dstRegister);
+}
+
 void CCodeGen_x86::Emit_Md_Avx_Mov_RegVar(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
@@ -452,6 +467,14 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdAvxConstMatchers[] =
 	{ OP_MD_XOR, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_VARIABLE128, &CCodeGen_x86::Emit_Md_Avx_VarVarVar<MDOP_XOR> },
 
 	{ OP_MD_NOT, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx_Not_VarVar },
+
+	{ OP_MD_SRLH, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_CONSTANT, &CCodeGen_x86::Emit_Md_Avx_Shift_VarVarCst<MDOP_SRLH, 0x0F> },
+	{ OP_MD_SRAH, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_CONSTANT, &CCodeGen_x86::Emit_Md_Avx_Shift_VarVarCst<MDOP_SRAH, 0x0F> },
+	{ OP_MD_SLLH, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_CONSTANT, &CCodeGen_x86::Emit_Md_Avx_Shift_VarVarCst<MDOP_SLLH, 0x0F> },
+
+	{ OP_MD_SRLW, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_CONSTANT, &CCodeGen_x86::Emit_Md_Avx_Shift_VarVarCst<MDOP_SRLW, 0x1F> },
+	{ OP_MD_SRAW, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_CONSTANT, &CCodeGen_x86::Emit_Md_Avx_Shift_VarVarCst<MDOP_SRAW, 0x1F> },
+	{ OP_MD_SLLW, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_CONSTANT, &CCodeGen_x86::Emit_Md_Avx_Shift_VarVarCst<MDOP_SLLW, 0x1F> },
 
 	{ OP_MD_UNPACK_LOWER_BH, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_VARIABLE128, &CCodeGen_x86::Emit_Md_Avx_VarVarVarRev<MDOP_UNPACK_LOWER_BH> },
 	{ OP_MD_UNPACK_LOWER_HW, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_VARIABLE128, &CCodeGen_x86::Emit_Md_Avx_VarVarVarRev<MDOP_UNPACK_LOWER_HW> },

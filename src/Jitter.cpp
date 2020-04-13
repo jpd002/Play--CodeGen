@@ -1440,6 +1440,16 @@ void CJitter::MD_CmpGtW()
 	InsertBinaryMdStatement(OP_MD_CMPGT_W);
 }
 
+void CJitter::MD_CmpLtS()
+{
+	InsertBinaryMdStatement(OP_MD_CMPLT_S);
+}
+
+void CJitter::MD_CmpGtS()
+{
+	InsertBinaryMdStatement(OP_MD_CMPGT_S);
+}
+
 void CJitter::MD_UnpackLowerBH()
 {
 	InsertBinaryMdStatement(OP_MD_UNPACK_LOWER_BH);

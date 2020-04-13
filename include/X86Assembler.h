@@ -345,6 +345,8 @@ public:
 	void									SqrtssEd(XMMREGISTER, const CAddress&);
 	void									CmpssEd(XMMREGISTER, const CAddress&, SSE_CMP_TYPE);
 	void									CmppsVo(XMMREGISTER, const CAddress&, SSE_CMP_TYPE);
+	void									CmpltpsVo(XMMREGISTER, const CAddress&);
+	void									CmpgtpsVo(XMMREGISTER, const CAddress&);
 	void									Cvtsi2ssEd(XMMREGISTER, const CAddress&);
 	void									Cvttss2siEd(REGISTER, const CAddress&);
 	void									Cvtdq2psVo(XMMREGISTER, const CAddress&);

@@ -1,16 +1,6 @@
 #include "MdFpTest.h"
 #include "MemStream.h"
 
-CMdFpTest::CMdFpTest()
-{
-
-}
-
-CMdFpTest::~CMdFpTest()
-{
-
-}
-
 void CMdFpTest::Compile(Jitter::CJitter& jitter)
 {
 	Framework::CMemStream codeStream;
@@ -58,6 +48,18 @@ void CMdFpTest::Compile(Jitter::CJitter& jitter)
 		jitter.MD_PushRel(offsetof(CONTEXT, src1));
 		jitter.MD_MaxS();
 		jitter.MD_PullRel(offsetof(CONTEXT, dstMax));
+
+		//Cmp Less-Than
+		jitter.MD_PushRel(offsetof(CONTEXT, src0));
+		jitter.MD_PushRel(offsetof(CONTEXT, src1));
+		jitter.MD_CmpLtS();
+		jitter.MD_PullRel(offsetof(CONTEXT, dstCmpLt));
+
+		//Cmp Greater-Than
+		jitter.MD_PushRel(offsetof(CONTEXT, src0));
+		jitter.MD_PushRel(offsetof(CONTEXT, src1));
+		jitter.MD_CmpGtS();
+		jitter.MD_PullRel(offsetof(CONTEXT, dstCmpGt));
 
 		//ToWord Truncate
 		jitter.MD_PushRel(offsetof(CONTEXT, src2));
@@ -130,6 +132,16 @@ void CMdFpTest::Run()
 	TEST_VERIFY(context.dstMax[1] ==   600.f);
 	TEST_VERIFY(context.dstMax[2] ==   500.f);
 	TEST_VERIFY(context.dstMax[3] ==  5000.f);
+
+	TEST_VERIFY(context.dstCmpLt[0] != 0);
+	TEST_VERIFY(context.dstCmpLt[1] != 0);
+	TEST_VERIFY(context.dstCmpLt[2] == 0);
+	TEST_VERIFY(context.dstCmpLt[3] == 0);
+
+	TEST_VERIFY(context.dstCmpGt[0] == 0);
+	TEST_VERIFY(context.dstCmpGt[1] == 0);
+	TEST_VERIFY(context.dstCmpGt[2] != 0);
+	TEST_VERIFY(context.dstCmpGt[3] != 0);
 
 	TEST_VERIFY(context.dstCvtWord[0] == 5);
 	TEST_VERIFY(context.dstCvtWord[1] == 6);

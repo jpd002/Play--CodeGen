@@ -7,9 +7,6 @@
 class CMdFpTest : public CTest
 {
 public:
-						CMdFpTest();
-	virtual				~CMdFpTest();
-
 	void				Compile(Jitter::CJitter&) override;
 	void				Run() override;
 
@@ -29,6 +26,8 @@ private:
 		float			dstAbs[4];
 		float			dstMax[4];
 		float			dstMin[4];
+		uint32			dstCmpLt[4];
+		uint32			dstCmpGt[4];
 
 		uint32			dstCvtWord[4];
 		float			dstCvtSingle[4];

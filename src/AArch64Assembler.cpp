@@ -502,6 +502,24 @@ void CAArch64Assembler::Fcmeqz_4s(REGISTERMD rd, REGISTERMD rn)
 	WriteWord(opcode);
 }
 
+void CAArch64Assembler::Fcmge_4s(REGISTERMD rd, REGISTERMD rn, REGISTERMD rm)
+{
+	uint32 opcode = 0x6E20E400;
+	opcode |= (rd <<  0);
+	opcode |= (rn <<  5);
+	opcode |= (rm << 16);
+	WriteWord(opcode);
+}
+
+void CAArch64Assembler::Fcmgt_4s(REGISTERMD rd, REGISTERMD rn, REGISTERMD rm)
+{
+	uint32 opcode = 0x6EA0E400;
+	opcode |= (rd <<  0);
+	opcode |= (rn <<  5);
+	opcode |= (rm << 16);
+	WriteWord(opcode);
+}
+
 void CAArch64Assembler::Fcmltz_4s(REGISTERMD rd, REGISTERMD rn)
 {
 	uint32 opcode = 0x4EA0E800;
@@ -886,6 +904,14 @@ void CAArch64Assembler::Mvn(REGISTER32 rd, REGISTER32 rm)
 	opcode |= (rd  << 0);
 	opcode |= (wZR << 5);
 	opcode |= (rm  << 16);
+	WriteWord(opcode);
+}
+
+void CAArch64Assembler::Mvn_16b(REGISTERMD rd, REGISTERMD rn)
+{
+	uint32 opcode = 0x6E205800;
+	opcode |= (rd <<  0);
+	opcode |= (rn <<  5);
 	WriteWord(opcode);
 }
 

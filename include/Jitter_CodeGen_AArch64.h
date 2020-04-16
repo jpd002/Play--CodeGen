@@ -480,6 +480,11 @@ namespace Jitter
 		{
 			static OpRegType OpReg() { return &CAArch64Assembler::Fmax_4s; }
 		};
+		
+		struct MDOP_CMPGTS : public MDOP_BASE3
+		{
+			static OpRegType OpReg() { return &CAArch64Assembler::Fcmgt_4s; }
+		};
 
 		struct MDOP_TOSINGLE : public MDOP_BASE2
 		{
@@ -709,6 +714,7 @@ namespace Jitter
 		void    Emit_Md_Mov_MemMem(const STATEMENT&);
 		
 		void    Emit_Md_Not_VarVar(const STATEMENT&);
+		void    Emit_Md_CmpLtS_VarVarVar(const STATEMENT&);
 		
 		void    Emit_Md_LoadFromRef_VarVar(const STATEMENT&);
 		void    Emit_Md_StoreAtRef_VarVar(const STATEMENT&);

@@ -277,6 +277,22 @@ void CCodeGen_AArch64::Emit_Md_Not_VarVar(const STATEMENT& statement)
 	CommitSymbolRegisterMd(dst, dstReg);
 }
 
+void CCodeGen_AArch64::Emit_Md_CmpLtS_VarVarVar(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+	
+	auto dstReg = PrepareSymbolRegisterDefMd(dst, GetNextTempRegisterMd());
+	auto src1Reg = PrepareSymbolRegisterUseMd(src1, GetNextTempRegisterMd());
+	auto src2Reg = PrepareSymbolRegisterUseMd(src2, GetNextTempRegisterMd());
+
+	m_assembler.Fcmge_4s(dstReg, src1Reg, src2Reg);
+	m_assembler.Mvn_16b(dstReg, dstReg);
+
+	CommitSymbolRegisterMd(dst, dstReg);
+}
+
 void CCodeGen_AArch64::Emit_Md_LoadFromRef_VarVar(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
@@ -537,6 +553,9 @@ CCodeGen_AArch64::CONSTMATCHER CCodeGen_AArch64::g_mdConstMatchers[] =
 	{ OP_MD_MIN_S,              MATCH_VARIABLE128,    MATCH_VARIABLE128,    MATCH_VARIABLE128,      &CCodeGen_AArch64::Emit_Md_VarVarVar<MDOP_MINS>                  },
 	{ OP_MD_MAX_S,              MATCH_VARIABLE128,    MATCH_VARIABLE128,    MATCH_VARIABLE128,      &CCodeGen_AArch64::Emit_Md_VarVarVar<MDOP_MAXS>                  },
 
+	{ OP_MD_CMPLT_S,            MATCH_VARIABLE128,    MATCH_VARIABLE128,    MATCH_VARIABLE128,      &CCodeGen_AArch64::Emit_Md_CmpLtS_VarVarVar                      },
+	{ OP_MD_CMPGT_S,            MATCH_VARIABLE128,    MATCH_VARIABLE128,    MATCH_VARIABLE128,      &CCodeGen_AArch64::Emit_Md_VarVarVar<MDOP_CMPGTS>                },
+	
 	{ OP_MD_AND,                MATCH_VARIABLE128,    MATCH_VARIABLE128,    MATCH_VARIABLE128,      &CCodeGen_AArch64::Emit_Md_VarVarVar<MDOP_AND>                   },
 	{ OP_MD_OR,                 MATCH_VARIABLE128,    MATCH_VARIABLE128,    MATCH_VARIABLE128,      &CCodeGen_AArch64::Emit_Md_VarVarVar<MDOP_OR>                    },
 	{ OP_MD_XOR,                MATCH_VARIABLE128,    MATCH_VARIABLE128,    MATCH_VARIABLE128,      &CCodeGen_AArch64::Emit_Md_VarVarVar<MDOP_XOR>                   },

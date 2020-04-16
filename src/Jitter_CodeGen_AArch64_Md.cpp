@@ -262,21 +262,6 @@ void CCodeGen_AArch64::Emit_Md_Mov_MemMem(const STATEMENT& statement)
 	StoreRegisterInMemory128(dst, tmpReg);
 }
 
-void CCodeGen_AArch64::Emit_Md_Not_VarVar(const STATEMENT& statement)
-{
-	auto dst = statement.dst->GetSymbol().get();
-	auto src1 = statement.src1->GetSymbol().get();
-
-	auto dstReg = PrepareSymbolRegisterDefMd(dst, GetNextTempRegisterMd());
-	auto src1Reg = PrepareSymbolRegisterUseMd(src1, GetNextTempRegisterMd());
-	auto zeroReg = GetNextTempRegisterMd();
-	
-	m_assembler.Eor_16b(zeroReg, zeroReg, zeroReg);
-	m_assembler.Orn_16b(dstReg, zeroReg, src1Reg);
-
-	CommitSymbolRegisterMd(dst, dstReg);
-}
-
 void CCodeGen_AArch64::Emit_Md_CmpLtS_VarVarVar(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
@@ -559,8 +544,7 @@ CCodeGen_AArch64::CONSTMATCHER CCodeGen_AArch64::g_mdConstMatchers[] =
 	{ OP_MD_AND,                MATCH_VARIABLE128,    MATCH_VARIABLE128,    MATCH_VARIABLE128,      &CCodeGen_AArch64::Emit_Md_VarVarVar<MDOP_AND>                   },
 	{ OP_MD_OR,                 MATCH_VARIABLE128,    MATCH_VARIABLE128,    MATCH_VARIABLE128,      &CCodeGen_AArch64::Emit_Md_VarVarVar<MDOP_OR>                    },
 	{ OP_MD_XOR,                MATCH_VARIABLE128,    MATCH_VARIABLE128,    MATCH_VARIABLE128,      &CCodeGen_AArch64::Emit_Md_VarVarVar<MDOP_XOR>                   },
-	
-	{ OP_MD_NOT,                MATCH_VARIABLE128,    MATCH_VARIABLE128,    MATCH_NIL,              &CCodeGen_AArch64::Emit_Md_Not_VarVar                            },
+	{ OP_MD_NOT,                MATCH_VARIABLE128,    MATCH_VARIABLE128,    MATCH_NIL,              &CCodeGen_AArch64::Emit_Md_VarVar<MDOP_NOT>                      },
 	
 	{ OP_MD_SLLH,               MATCH_VARIABLE128,    MATCH_VARIABLE128,    MATCH_CONSTANT,         &CCodeGen_AArch64::Emit_Md_Shift_VarVarCst<MDOP_SLLH>            },
 	{ OP_MD_SLLW,               MATCH_VARIABLE128,    MATCH_VARIABLE128,    MATCH_CONSTANT,         &CCodeGen_AArch64::Emit_Md_Shift_VarVarCst<MDOP_SLLW>            },

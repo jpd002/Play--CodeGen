@@ -511,6 +511,11 @@ namespace Jitter
 			static OpRegType OpReg() { return &CAArch64Assembler::Eor_16b; }
 		};
 		
+		struct MDOP_NOT : public MDOP_BASE2
+		{
+			static OpRegType OpReg() { return &CAArch64Assembler::Mvn_16b; }
+		};
+		
 		struct MDOP_UNPACK_LOWER_BH : public MDOP_BASE3
 		{
 			static OpRegType OpReg() { return &CAArch64Assembler::Zip1_16b; }
@@ -713,7 +718,6 @@ namespace Jitter
 		void    Emit_Md_Mov_MemReg(const STATEMENT&);
 		void    Emit_Md_Mov_MemMem(const STATEMENT&);
 		
-		void    Emit_Md_Not_VarVar(const STATEMENT&);
 		void    Emit_Md_CmpLtS_VarVarVar(const STATEMENT&);
 		
 		void    Emit_Md_LoadFromRef_VarVar(const STATEMENT&);

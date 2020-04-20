@@ -262,6 +262,11 @@ namespace Jitter
 			static OpRegType OpReg() { return &CAArch32Assembler::Vmax_F32; }
 		};
 
+		struct FPUMDOP_CMPGT : public FPUMDOP_BASE3
+		{
+			static OpRegType OpReg() { return &CAArch32Assembler::Vcgt_F32; }
+		};
+
 		//MDOP -----------------------------------------------------------
 		struct MDOP_BASE2
 		{
@@ -662,6 +667,7 @@ namespace Jitter
 		void									Emit_Md_Mov_MemMem(const STATEMENT&);
 		void									Emit_Md_Not_MemMem(const STATEMENT&);
 		void									Emit_Md_DivS_MemMemMem(const STATEMENT&);
+		void									Emit_Md_CmpLtS_MemMemMem(const STATEMENT&);
 
 		void									Emit_Md_Srl256_MemMemVar(const STATEMENT&);
 		void									Emit_Md_Srl256_MemMemCst(const STATEMENT&);

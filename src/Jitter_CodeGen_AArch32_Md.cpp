@@ -152,25 +152,6 @@ void CCodeGen_AArch32::Emit_Md_Mov_MemMem(const STATEMENT& statement)
 	m_assembler.Vst1_32x4(tmpReg, dstAddrReg);
 }
 
-void CCodeGen_AArch32::Emit_Md_Not_MemMem(const STATEMENT& statement)
-{
-	auto dst = statement.dst->GetSymbol().get();
-	auto src1 = statement.src1->GetSymbol().get();
-
-	auto dstAddrReg = CAArch32Assembler::r0;
-	auto src1AddrReg = CAArch32Assembler::r1;
-	auto zeroReg = CAArch32Assembler::q0;
-	auto tmpReg = CAArch32Assembler::q1;
-
-	LoadMemory128AddressInRegister(dstAddrReg, dst);
-	LoadMemory128AddressInRegister(src1AddrReg, src1);
-
-	m_assembler.Vld1_32x4(tmpReg, src1AddrReg);
-	m_assembler.Veor(zeroReg, zeroReg, zeroReg);
-	m_assembler.Vorn(tmpReg, zeroReg, tmpReg);
-	m_assembler.Vst1_32x4(tmpReg, dstAddrReg);
-}
-
 void CCodeGen_AArch32::Emit_Md_DivS_MemMemMem(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
@@ -634,8 +615,7 @@ CCodeGen_AArch32::CONSTMATCHER CCodeGen_AArch32::g_mdConstMatchers[] =
 	{ OP_MD_AND,				MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_AArch32::Emit_Md_MemMemMem<MDOP_AND>					},
 	{ OP_MD_OR,					MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_AArch32::Emit_Md_MemMemMem<MDOP_OR>					},
 	{ OP_MD_XOR,				MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_MEMORY128,		&CCodeGen_AArch32::Emit_Md_MemMemMem<MDOP_XOR>					},
-
-	{ OP_MD_NOT,				MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_NIL,				&CCodeGen_AArch32::Emit_Md_Not_MemMem							},
+	{ OP_MD_NOT,				MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_NIL,				&CCodeGen_AArch32::Emit_Md_MemMem<MDOP_NOT>						},
 
 	{ OP_MD_SLLH,				MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_CONSTANT,			&CCodeGen_AArch32::Emit_Md_Shift_MemMemCst<MDOP_SLLH>			},
 	{ OP_MD_SLLW,				MATCH_MEMORY128,			MATCH_MEMORY128,			MATCH_CONSTANT,			&CCodeGen_AArch32::Emit_Md_Shift_MemMemCst<MDOP_SLLW>			},

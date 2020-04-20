@@ -433,6 +433,11 @@ namespace Jitter
 			static OpRegType OpReg() { return &CAArch32Assembler::Veor; }
 		};
 
+		struct MDOP_NOT : public MDOP_BASE2
+		{
+			static OpRegType OpReg() { return &CAArch32Assembler::Vmvn; }
+		};
+
 		struct MDOP_SLLH : public MDOP_SHIFT
 		{
 			static OpRegType OpReg() { return &CAArch32Assembler::Vshl_I16; }
@@ -665,7 +670,6 @@ namespace Jitter
 		template <typename> void				Emit_Md_Shift_MemMemCst(const STATEMENT&);
 
 		void									Emit_Md_Mov_MemMem(const STATEMENT&);
-		void									Emit_Md_Not_MemMem(const STATEMENT&);
 		void									Emit_Md_DivS_MemMemMem(const STATEMENT&);
 		void									Emit_Md_CmpLtS_MemMemMem(const STATEMENT&);
 

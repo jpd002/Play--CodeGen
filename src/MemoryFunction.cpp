@@ -144,11 +144,52 @@ CMemoryFunction& CMemoryFunction::operator =(CMemoryFunction&& rhs)
 	return (*this);
 }
 
+extern "C" void trumpoline(void* context, void* block_addr);
+// {
+// 	asm(
+// 		"push	%rbp\n\t"
+// 		"mov		%rsp, %rbp\n\t"
+// 		"call	*%rax\n\t"
+// 		"pop		%rbp\n\t"
+// 	);
+// }
+
 void CMemoryFunction::operator()(void* context)
 {
-	typedef void (*FctType)(void*);
-	auto fct = reinterpret_cast<FctType>(m_code);
-	fct(context);
+	// trumpoline(context, m_code);
+    if(!m_code || !context)
+    {
+        return;
+    }
+	asm(
+        "mov %0, %%rsi\n\t"
+        "mov %1, %%rdi\n\t"
+        "call _trumpoline\n\t"
+         :
+         :
+            "r" (m_code), "g"(context)
+         : "rsi", "rdi"
+    );
+	// typedef void (*FctType)(void*);
+	// FctType fct asm("fct") = reinterpret_cast<FctType>(m_code);
+	// void* cc asm("%rdi") = context;
+	// fct(context);
+	// asm(
+	// 	"movl _context, %rdi\n\t"
+	// 	"mov _m_code, %rax\n\t"
+	// 	"call fct\n\t"
+	// );
+	// asm(
+	// 	"mov %1, %%rdi\n\t"
+	// 	"mov %0, %%rax\n\t"
+	// 	"lcall *(%%rax)\n\t"
+	// 	 :
+	// 	 :
+	// 		"r" (m_code), "g"(context)
+	// 	 : "rax", "rdi", "rbx", "rcx"
+	// );
+	// asm(".intel_syntax noprefix");
+	// asm("call eax\n\t");
 }
 
 void* CMemoryFunction::GetCode() const

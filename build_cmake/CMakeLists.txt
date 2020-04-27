@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.0)
 project(CodeGen)
+enable_language(ASM)
 
 set(CMAKE_MODULE_PATH
 	${CMAKE_CURRENT_SOURCE_DIR}/../../Dependencies/cmake-modules
@@ -65,6 +66,8 @@ add_library(CodeGen
 	../src/Jitter_RegAlloc.cpp
 	../src/Jitter_Statement.cpp
 	../src/Jitter_SymbolTable.cpp
+	../src/Trumpo.S
+	../src/Trumpo.S
 	../src/LiteralPool.cpp
 	../src/MachoObjectFile.cpp
 	../src/MemoryFunction.cpp

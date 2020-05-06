@@ -123,6 +123,9 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_constMatchers[] =
 	{ OP_LOADFROMREF, MATCH_REGISTER128, MATCH_VAR_REF, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_LoadFromRef_Md_RegVar },
 	{ OP_LOADFROMREF, MATCH_MEMORY128,   MATCH_VAR_REF, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_LoadFromRef_Md_MemVar },
 
+	{ OP_LOADFROMREFIDX, MATCH_VARIABLE, MATCH_VAR_REF, MATCH_VARIABLE, MATCH_NIL, &CCodeGen_x86::Emit_LoadFromRefIdx_VarVarVar },
+	{ OP_LOADFROMREFIDX, MATCH_VARIABLE, MATCH_VAR_REF, MATCH_CONSTANT, MATCH_NIL, &CCodeGen_x86::Emit_LoadFromRefIdx_VarVarCst },
+
 	{ OP_LOAD8FROMREF, MATCH_VARIABLE, MATCH_VAR_REF, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Load8FromRef_VarVar },
 
 	{ OP_LOAD16FROMREF, MATCH_VARIABLE, MATCH_VAR_REF, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Load16FromRef_VarVar },
@@ -834,6 +837,41 @@ void CCodeGen_x86::Emit_LoadFromRef_Md_MemVar(const STATEMENT& statement)
 
 	m_assembler.MovapsVo(valueReg, CX86Assembler::MakeIndRegAddress(addressReg));
 	m_assembler.MovapsVo(MakeMemory128SymbolAddress(dst), valueReg);
+}
+
+void CCodeGen_x86::Emit_LoadFromRefIdx_VarVarVar(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	auto addressReg = PrepareRefSymbolRegisterUse(src1, CX86Assembler::rAX);
+	auto indexReg = PrepareSymbolRegisterUse(src2, CX86Assembler::rCX);
+	auto dstReg = PrepareSymbolRegisterDef(dst, CX86Assembler::rDX);
+
+	uint8 scale = static_cast<uint8>(statement.jmpCondition);
+	assert(scale == 1);
+
+	m_assembler.MovEd(dstReg, CX86Assembler::MakeBaseIndexScaleAddress(addressReg, indexReg, scale));
+
+	CommitSymbolRegister(dst, dstReg);
+}
+
+void CCodeGen_x86::Emit_LoadFromRefIdx_VarVarCst(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	auto addressReg = PrepareRefSymbolRegisterUse(src1, CX86Assembler::rAX);
+	auto dstReg = PrepareSymbolRegisterDef(dst, CX86Assembler::rDX);
+
+	uint8 scale = static_cast<uint8>(statement.jmpCondition);
+	assert(scale == 1);
+
+	m_assembler.MovEd(dstReg, CX86Assembler::MakeIndRegOffAddress(addressReg, src2->m_valueLow));
+
+	CommitSymbolRegister(dst, dstReg);
 }
 
 void CCodeGen_x86::Emit_Load8FromRef_VarVar(const STATEMENT& statement)

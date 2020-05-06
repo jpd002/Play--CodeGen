@@ -244,8 +244,14 @@ CX86Assembler::CAddress CX86Assembler::MakeIndRegOffAddress(REGISTER nRegister, 
 		Address.sib.index = 4;
 		Address.sib.base = 4;
 	}
-
-	assert(nRegister != r12);
+	else if(nRegister == r12)
+	{
+		nRegister = static_cast<REGISTER>(4);
+		Address.nIsExtendedModRM = true;
+		Address.sib.scale = 0;
+		Address.sib.index = 4;
+		Address.sib.base = 4;
+	}
 
 	if(nRegister > 7)
 	{

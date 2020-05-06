@@ -134,6 +134,8 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_constMatchers[] =
 
 	{ OP_STOREATREFIDX, MATCH_NIL, MATCH_VAR_REF, MATCH_VARIABLE, MATCH_VARIABLE, &CCodeGen_x86::Emit_StoreAtRefIdx_VarVarVar },
 	{ OP_STOREATREFIDX, MATCH_NIL, MATCH_VAR_REF, MATCH_VARIABLE, MATCH_CONSTANT, &CCodeGen_x86::Emit_StoreAtRefIdx_VarVarCst },
+	{ OP_STOREATREFIDX, MATCH_NIL, MATCH_VAR_REF, MATCH_CONSTANT, MATCH_VARIABLE, &CCodeGen_x86::Emit_StoreAtRefIdx_VarCstVar },
+	{ OP_STOREATREFIDX, MATCH_NIL, MATCH_VAR_REF, MATCH_CONSTANT, MATCH_CONSTANT, &CCodeGen_x86::Emit_StoreAtRefIdx_VarCstCst },
 
 	{ OP_STORE8ATREF, MATCH_NIL, MATCH_VAR_REF, MATCH_CONSTANT, MATCH_NIL, &CCodeGen_x86::Emit_Store8AtRef_VarCst },
 
@@ -933,6 +935,38 @@ void CCodeGen_x86::Emit_StoreAtRefIdx_VarVarCst(const STATEMENT& statement)
 	auto indexReg = PrepareSymbolRegisterUse(src2, CX86Assembler::rDX);
 
 	m_assembler.MovId(CX86Assembler::MakeBaseIndexScaleAddress(addressReg, indexReg, scale), src3->m_valueLow);
+}
+
+void CCodeGen_x86::Emit_StoreAtRefIdx_VarCstVar(const STATEMENT& statement)
+{
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+	auto src3 = statement.src3->GetSymbol().get();
+	
+	uint8 scale = static_cast<uint8>(statement.jmpCondition);
+	assert(scale == 1);
+	
+	auto addressReg = PrepareRefSymbolRegisterUse(src1, CX86Assembler::rAX);
+	auto valueReg = PrepareSymbolRegisterUse(src3, CX86Assembler::rCX);
+
+	m_assembler.MovGd(CX86Assembler::MakeIndRegOffAddress(addressReg, src2->m_valueLow), valueReg);
+}
+
+void CCodeGen_x86::Emit_StoreAtRefIdx_VarCstCst(const STATEMENT& statement)
+{
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+	auto src3 = statement.src3->GetSymbol().get();
+	
+	assert(src2->m_type == SYM_CONSTANT);
+	assert(src3->m_type == SYM_CONSTANT);
+
+	uint8 scale = static_cast<uint8>(statement.jmpCondition);
+	assert(scale == 1);
+
+	auto addressReg = PrepareRefSymbolRegisterUse(src1, CX86Assembler::rAX);
+
+	m_assembler.MovId(CX86Assembler::MakeIndRegOffAddress(addressReg, src2->m_valueLow), src3->m_valueLow);
 }
 
 void CCodeGen_x86::Emit_Store8AtRef_VarCst(const STATEMENT& statement)

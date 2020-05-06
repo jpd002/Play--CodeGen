@@ -4,9 +4,11 @@
 #define CONSTANT_1	(0xFFCC8844)
 #define CONSTANT_2	(0xDEADBEEF)
 #define CONSTANT_3	(0x55555555)
+#define CONSTANT_4	(0xC5C5C5C5)
 
 #define MEMORY_IDX_0 (1)
 #define MEMORY_IDX_1 (8)
+#define MEMORY_IDX_2 (9)
 
 #define ARRAY_IDX_0	(5)
 #define ARRAY_IDX_1	(6)
@@ -18,6 +20,7 @@ void CMemAccessTest::Run()
 	memset(&m_memory, 0x80, sizeof(m_memory));
 
 	m_context.offset = MEMORY_IDX_0 * sizeof(UnitType);
+	m_context.scaledOffset = MEMORY_IDX_2;
 	m_context.memory = m_memory;
 	m_context.value = CONSTANT_3;
 	m_context.array0[ARRAY_IDX_1] = CONSTANT_1;
@@ -25,6 +28,7 @@ void CMemAccessTest::Run()
 	m_function(&m_context);
 
 	TEST_VERIFY(m_memory[MEMORY_IDX_0] == CONSTANT_1);
+	TEST_VERIFY(m_memory[MEMORY_IDX_2] == CONSTANT_4);
 	TEST_VERIFY(m_context.result0 == 0x80808080);
 	TEST_VERIFY(m_context.result1 == CONSTANT_1);
 	TEST_VERIFY(m_context.array0[ARRAY_IDX_0] == CONSTANT_2);
@@ -46,6 +50,15 @@ void CMemAccessTest::Compile(Jitter::CJitter& jitter)
 
 			jitter.PushCst(CONSTANT_1);
 			jitter.StoreAtRef();
+		}
+
+		//Store test (combined idx * 4)
+		{
+			jitter.PushRelRef(offsetof(CONTEXT, memory));
+			jitter.PushRel(offsetof(CONTEXT, scaledOffset));
+
+			jitter.PushCst(CONSTANT_4);
+			jitter.StoreAtRefIdx4();
 		}
 
 		//Read test

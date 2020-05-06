@@ -632,6 +632,28 @@ void CJitter::StoreAtRef()
 	InsertStatement(statement);
 }
 
+void CJitter::StoreAtRefIdx()
+{
+	STATEMENT statement;
+	statement.op   = OP_STOREATREFIDX;
+	statement.jmpCondition = static_cast<CONDITION>(1);
+	statement.src3 = MakeSymbolRef(m_shadow.Pull());
+	statement.src2 = MakeSymbolRef(m_shadow.Pull());
+	statement.src1 = MakeSymbolRef(m_shadow.Pull());
+	InsertStatement(statement);
+}
+
+void CJitter::StoreAtRefIdx4()
+{
+	STATEMENT statement;
+	statement.op   = OP_STOREATREFIDX;
+	statement.jmpCondition = static_cast<CONDITION>(4);
+	statement.src3 = MakeSymbolRef(m_shadow.Pull());
+	statement.src2 = MakeSymbolRef(m_shadow.Pull());
+	statement.src1 = MakeSymbolRef(m_shadow.Pull());
+	InsertStatement(statement);
+}
+
 void CJitter::Store8AtRef()
 {
 	STATEMENT statement;

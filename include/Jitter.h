@@ -111,6 +111,8 @@ namespace Jitter
 		void							Load64FromRef();
 		void							LoadRefFromRef();
 		void							StoreAtRef();
+		void							StoreAtRefIdx();
+		void							StoreAtRefIdx4();
 		void							Store8AtRef();
 		void							Store16AtRef();
 		void							Store64AtRef();

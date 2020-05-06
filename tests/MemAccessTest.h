@@ -16,6 +16,7 @@ private:
 	{
 		void*    memory;
 		uint32   offset;
+		uint32   scaledOffset;
 		uint32   value;
 		uint32   result0;
 		uint32   result1;

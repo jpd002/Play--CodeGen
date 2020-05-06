@@ -30,6 +30,7 @@
 #include "CompareTest.h"
 #include "RegAllocTest.h"
 #include "MemAccessTest.h"
+#include "MemAccessIdxTest.h"
 #include "MemAccess8Test.h"
 #include "MemAccess16Test.h"
 #include "MemAccessRefTest.h"
@@ -78,6 +79,7 @@ static const TestFactoryFunction s_factories[] =
 	[] () { return new CDivTest(true); },
 	[] () { return new CDivTest(false); },
 	[] () { return new CMemAccessTest(); },
+	[] () { return new CMemAccessIdxTest(); },
 	[] () { return new CMemAccess8Test(); },
 	[] () { return new CMemAccess16Test(); },
 	[] () { return new CMemAccessRefTest(); },

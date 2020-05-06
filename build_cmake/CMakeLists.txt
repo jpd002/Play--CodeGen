@@ -146,6 +146,8 @@ set(CodeGenTest_SRC
 	../tests/MemAccess16Test.h
 	../tests/MemAccess64Test.cpp
 	../tests/MemAccess64Test.h
+	../tests/MemAccessIdxTest.cpp
+	../tests/MemAccessIdxTest.h
 	../tests/MemAccessRefTest.cpp
 	../tests/MemAccessRefTest.h
 	../tests/Merge64Test.cpp

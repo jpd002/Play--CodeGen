@@ -92,6 +92,7 @@ CJitter::VERSIONED_STATEMENT_LIST CJitter::GenerateVersionedStatementList(const 
 	{
 		ReplaceUse()(newStatement.src1, result.relativeVersions);
 		ReplaceUse()(newStatement.src2, result.relativeVersions);
+		ReplaceUse()(newStatement.src3, result.relativeVersions);
 
 		if(CSymbol* dst = dynamic_symbolref_cast(SYM_RELATIVE, newStatement.dst))
 		{
@@ -1110,21 +1111,18 @@ bool CJitter::ConstantPropagation(StatementList& statements)
 		{
 			if(outerStatementIterator == innerStatementIterator) continue;
 
-			STATEMENT& innerStatement(*innerStatementIterator);
-
-			if(innerStatement.src1 && innerStatement.src1->Equals(outerStatement.dst.get()))
-			{
-				innerStatement.src1 = outerStatement.src1;
-				changed = true;
-				continue;
-			}
-
-			if(innerStatement.src2 && innerStatement.src2->Equals(outerStatement.dst.get()))
-			{
-				innerStatement.src2 = outerStatement.src1;
-				changed = true;
-				continue;
-			}
+			auto& innerStatement(*innerStatementIterator);
+			
+			innerStatement.VisitSources(
+				[&] (SymbolRefPtr& symbol, bool)
+				{
+					if(symbol->Equals(outerStatement.dst.get()))
+					{
+						symbol = outerStatement.src1;
+						changed = true;
+					}
+				}
+			);
 		}
 	}
 	return changed;
@@ -1202,11 +1200,12 @@ bool CJitter::CopyPropagation(StatementList& statements)
 		{
 			if(outerStatementIterator == innerStatementIterator) continue;
 
-			STATEMENT& innerStatement(*innerStatementIterator);
+			auto& innerStatement(*innerStatementIterator);
 
 			if(
 				(innerStatement.src1 && innerStatement.src1->Equals(outerDstSymbol)) || 
-				(innerStatement.src2 && innerStatement.src2->Equals(outerDstSymbol))
+				(innerStatement.src2 && innerStatement.src2->Equals(outerDstSymbol)) ||
+				(innerStatement.src3 && innerStatement.src3->Equals(outerDstSymbol))
 				)
 			{
 				useCount++;
@@ -1222,7 +1221,7 @@ bool CJitter::CopyPropagation(StatementList& statements)
 			{
 				if(outerStatementIterator == innerStatementIterator) continue;
 
-				STATEMENT& innerStatement(*innerStatementIterator);
+				auto& innerStatement(*innerStatementIterator);
 
 				//Check for all OP_MOVs that uses the result of this operation and propagate
 				if(innerStatement.op == OP_MOV && innerStatement.src1->Equals(outerDstSymbol))
@@ -1232,6 +1231,7 @@ bool CJitter::CopyPropagation(StatementList& statements)
 					innerStatement.op = outerStatement.op;
 					innerStatement.src1 = outerStatement.src1;
 					innerStatement.src2 = outerStatement.src2;
+					innerStatement.src3 = outerStatement.src3;
 					innerStatement.jmpCondition = outerStatement.jmpCondition;
 					changed = true;
 				}
@@ -1295,37 +1295,27 @@ bool CJitter::DeadcodeElimination(VERSIONED_STATEMENT_LIST& versionedStatementLi
 		{
 			if(outerStatementIterator == innerStatementIterator) continue;
 
-			STATEMENT& innerStatement(*innerStatementIterator);
+			const auto& innerStatement(*innerStatementIterator);
+			
+			innerStatement.VisitSources(
+				[&](const SymbolRefPtr& innerSymbolRef, bool)
+				{
+					if(innerSymbolRef->Equals(symbolRef.get()))
+					{
+						used = true;
+						return;
+					}
 
-			if(innerStatement.src1)
-			{
-				if(innerStatement.src1->Equals(symbolRef.get()))
-				{
-					used = true;
-					break;
+					auto symbol(innerSymbolRef->GetSymbol());
+					if(!symbol->Equals(candidate) && symbol->Aliases(candidate))
+					{
+						used = true;
+						return;
+					}
 				}
-
-				SymbolPtr symbol(innerStatement.src1->GetSymbol());
-				if(!symbol->Equals(candidate) && symbol->Aliases(candidate))
-				{
-					used = true;
-					break;
-				}
-			}
-			if(innerStatement.src2)
-			{
-				if(innerStatement.src2->Equals(symbolRef.get()))
-				{
-					used = true;
-					break;
-				}
-				SymbolPtr symbol(innerStatement.src2->GetSymbol());
-				if(!symbol->Equals(candidate) && symbol->Aliases(candidate))
-				{
-					used = true;
-					break;
-				}
-			}
+			);
+			
+			if(used) break;
 		}
 
 		if(!used)
@@ -1374,35 +1364,19 @@ void CJitter::CoalesceTemporaries(BASIC_BLOCK& basicBlock)
 			{
 				if(outerStatementIterator == innerStatementIterator) continue;
 
-				STATEMENT& innerStatement(*innerStatementIterator);
-
-				if(innerStatement.dst)
-				{
-					auto symbol(innerStatement.dst->GetSymbol());
-					if(symbol->Equals(encounteredTemp))
+				const auto& innerStatement(*innerStatementIterator);
+				innerStatement.VisitOperands(
+					[&](const SymbolRefPtr& symbolRef, bool)
 					{
-						used = true;
-						break;
+						auto symbol = symbolRef->GetSymbol();
+						if(symbol->Equals(encounteredTemp))
+						{
+							used = true;
+						}
 					}
-				}
-				if(innerStatement.src1)
-				{
-					auto symbol(innerStatement.src1->GetSymbol());
-					if(symbol->Equals(encounteredTemp))
-					{
-						used = true;
-						break;
-					}
-				}
-				if(innerStatement.src2)
-				{
-					auto symbol(innerStatement.src2->GetSymbol());
-					if(symbol->Equals(encounteredTemp))
-					{
-						used = true;
-						break;
-					}
-				}
+				);
+				
+				if(used) break;
 			}
 
 			if(!used)
@@ -1452,6 +1426,14 @@ void CJitter::CoalesceTemporaries(BASIC_BLOCK& basicBlock)
 					if(symbol->Equals(tempSymbol))
 					{
 						innerStatement.src2 = MakeSymbolRef(candidatePtr);
+					}
+				}
+				if(innerStatement.src3)
+				{
+					auto symbol(innerStatement.src3->GetSymbol());
+					if(symbol->Equals(tempSymbol))
+					{
+						innerStatement.src3 = MakeSymbolRef(candidatePtr);
 					}
 				}
 			}

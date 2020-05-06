@@ -193,6 +193,7 @@ namespace Jitter
 		OPERATION		op;
 		SymbolRefPtr	src1;
 		SymbolRefPtr	src2;
+		SymbolRefPtr	src3;
 		SymbolRefPtr	dst;
 		uint32			jmpBlock;
 		CONDITION		jmpCondition;
@@ -205,6 +206,7 @@ namespace Jitter
 			if(dst) visitor(dst, true);
 			if(src1) visitor(src1, false);
 			if(src2) visitor(src2, false);
+			if(src3) visitor(src3, false);
 		}
 
 		void VisitOperands(const ConstOperandVisitor& visitor) const
@@ -212,6 +214,7 @@ namespace Jitter
 			if(dst) visitor(dst, true);
 			if(src1) visitor(src1, false);
 			if(src2) visitor(src2, false);
+			if(src3) visitor(src3, false);
 		}
 
 		void VisitDestination(const ConstOperandVisitor& visitor) const
@@ -219,10 +222,18 @@ namespace Jitter
 			if(dst) visitor(dst, true);
 		}
 
+		void VisitSources(const OperandVisitor& visitor)
+		{
+			if(src1) visitor(src1, false);
+			if(src2) visitor(src2, false);
+			if(src3) visitor(src3, false);
+		}
+		
 		void VisitSources(const ConstOperandVisitor& visitor) const
 		{
 			if(src1) visitor(src1, false);
 			if(src2) visitor(src2, false);
+			if(src3) visitor(src3, false);
 		}
 	};
 

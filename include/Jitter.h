@@ -106,6 +106,7 @@ namespace Jitter
 		void							AddRef();
 		void							IsRefNull();
 		void							LoadFromRef();
+		void							LoadFromRefIdx();
 		void							Load8FromRef();
 		void							Load16FromRef();
 		void							Load64FromRef();

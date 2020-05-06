@@ -567,6 +567,10 @@ namespace Jitter
 		void						Emit_StoreAtRef_Md_VarReg(const STATEMENT&);
 		void						Emit_StoreAtRef_Md_VarMem(const STATEMENT&);
 
+		//STOREATREFIDX
+		void						Emit_StoreAtRefIdx_VarVarVar(const STATEMENT&);
+		void						Emit_StoreAtRefIdx_VarVarCst(const STATEMENT&);
+		
 		//STORE8ATREF
 		void						Emit_Store8AtRef_VarCst(const STATEMENT&);
 

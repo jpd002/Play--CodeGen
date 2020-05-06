@@ -271,16 +271,22 @@ CX86Assembler::CAddress CX86Assembler::MakeIndRegOffAddress(REGISTER nRegister, 
 
 CX86Assembler::CAddress CX86Assembler::MakeBaseIndexScaleAddress(REGISTER base, REGISTER index, uint8 scale)
 {
-	CAddress address;
-	address.ModRm.nRM = 4;
-	if(base == rBP || base == r13)
+	if(base == rBP)
 	{
 		throw std::runtime_error("Invalid base.");
+	}
+	if(base == r13)
+	{
+		return MakeBaseOffIndexScaleAddress(base, 0, index, scale);
 	}
 	if(index == rSP)
 	{
 		throw std::runtime_error("Invalid index.");
 	}
+
+	CAddress address;
+	address.ModRm.nRM = 4;
+	
 	if(base > 7)
 	{
 		address.nIsExtendedModRM = true;
@@ -310,6 +316,66 @@ CX86Assembler::CAddress CX86Assembler::MakeBaseIndexScaleAddress(REGISTER base, 
 	default:
 		throw std::runtime_error("Invalid scale.");
 		break;
+	}
+
+	return address;
+}
+
+CX86Assembler::CAddress CX86Assembler::MakeBaseOffIndexScaleAddress(REGISTER base, uint32 offset, REGISTER index, uint8 scale)
+{
+	//This could also be rBP, but untested for now
+	if(base != r13)
+	{
+		throw std::runtime_error("Invalid base.");
+	}
+	if(index == rSP)
+	{
+		throw std::runtime_error("Invalid index.");
+	}
+
+	CAddress address;
+	address.ModRm.nRM = 4;
+
+	if(base > 7)
+	{
+		address.nIsExtendedModRM = true;
+		base = static_cast<REGISTER>(base & 7);
+	}
+	if(index > 7)
+	{
+		address.nIsExtendedSib = true;
+		index = static_cast<REGISTER>(index & 7);
+	}
+	address.sib.base = base;
+	address.sib.index = index;
+	switch(scale)
+	{
+	case 1:
+		address.sib.scale = 0;
+		break;
+	case 2:
+		address.sib.scale = 1;
+		break;
+	case 4:
+		address.sib.scale = 2;
+		break;
+	case 8:
+		address.sib.scale = 3;
+		break;
+	default:
+		throw std::runtime_error("Invalid scale.");
+		break;
+	}
+
+	if(GetMinimumConstantSize(offset) == 1)
+	{
+		address.ModRm.nMod = 1;
+		address.nOffset = static_cast<uint8>(offset);
+	}
+	else
+	{
+		address.ModRm.nMod = 2;
+		address.nOffset = offset;
 	}
 
 	return address;
@@ -1010,11 +1076,12 @@ void CX86Assembler::WriteRexByte(bool nIs64, const CAddress& Address)
 
 void CX86Assembler::WriteRexByte(bool nIs64, const CAddress& Address, REGISTER& nRegister, bool forceWrite)
 {
-	if((nIs64) || (Address.nIsExtendedModRM) || (nRegister > 7) || forceWrite)
+	if((nIs64) || (Address.nIsExtendedModRM) || (Address.nIsExtendedSib) || (nRegister > 7) || forceWrite)
 	{
 		uint8 nByte = 0x40;
 		nByte |= nIs64 ? 0x8 : 0x0;
 		nByte |= (nRegister > 7) ? 0x04 : 0x0;
+		nByte |= Address.nIsExtendedSib ? 0x02 : 0x0;
 		nByte |= Address.nIsExtendedModRM ? 0x1 : 0x0;
 
 		nRegister = static_cast<REGISTER>(nRegister & 7);

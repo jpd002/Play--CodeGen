@@ -132,6 +132,9 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_constMatchers[] =
 	{ OP_STOREATREF, MATCH_NIL, MATCH_VAR_REF, MATCH_REGISTER128, MATCH_NIL, &CCodeGen_x86::Emit_StoreAtRef_Md_VarReg },
 	{ OP_STOREATREF, MATCH_NIL, MATCH_VAR_REF, MATCH_MEMORY128,   MATCH_NIL, &CCodeGen_x86::Emit_StoreAtRef_Md_VarMem },
 
+	{ OP_STOREATREFIDX, MATCH_NIL, MATCH_VAR_REF, MATCH_VARIABLE, MATCH_VARIABLE, &CCodeGen_x86::Emit_StoreAtRefIdx_VarVarVar },
+	{ OP_STOREATREFIDX, MATCH_NIL, MATCH_VAR_REF, MATCH_VARIABLE, MATCH_CONSTANT, &CCodeGen_x86::Emit_StoreAtRefIdx_VarVarCst },
+
 	{ OP_STORE8ATREF, MATCH_NIL, MATCH_VAR_REF, MATCH_CONSTANT, MATCH_NIL, &CCodeGen_x86::Emit_Store8AtRef_VarCst },
 
 	{ OP_STORE16ATREF, MATCH_NIL, MATCH_VAR_REF, MATCH_VARIABLE, MATCH_NIL, &CCodeGen_x86::Emit_Store16AtRef_VarVar },
@@ -899,6 +902,37 @@ void CCodeGen_x86::Emit_StoreAtRef_Md_VarMem(const STATEMENT& statement)
 
 	m_assembler.MovapsVo(valueReg, MakeMemory128SymbolAddress(src2));
 	m_assembler.MovapsVo(CX86Assembler::MakeIndRegAddress(addressReg), valueReg);
+}
+
+void CCodeGen_x86::Emit_StoreAtRefIdx_VarVarVar(const STATEMENT& statement)
+{
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+	auto src3 = statement.src3->GetSymbol().get();
+	
+	uint8 scale = static_cast<uint8>(statement.jmpCondition);
+	
+	auto addressReg = PrepareRefSymbolRegisterUse(src1, CX86Assembler::rAX);
+	auto indexReg = PrepareSymbolRegisterUse(src2, CX86Assembler::rDX);
+	auto valueReg = PrepareSymbolRegisterUse(src3, CX86Assembler::rCX);
+
+	m_assembler.MovGd(CX86Assembler::MakeBaseIndexScaleAddress(addressReg, indexReg, scale), valueReg);
+}
+
+void CCodeGen_x86::Emit_StoreAtRefIdx_VarVarCst(const STATEMENT& statement)
+{
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+	auto src3 = statement.src3->GetSymbol().get();
+	
+	assert(src3->m_type == SYM_CONSTANT);
+
+	uint8 scale = static_cast<uint8>(statement.jmpCondition);
+	
+	auto addressReg = PrepareRefSymbolRegisterUse(src1, CX86Assembler::rAX);
+	auto indexReg = PrepareSymbolRegisterUse(src2, CX86Assembler::rDX);
+
+	m_assembler.MovId(CX86Assembler::MakeBaseIndexScaleAddress(addressReg, indexReg, scale), src3->m_valueLow);
 }
 
 void CCodeGen_x86::Emit_Store8AtRef_VarCst(const STATEMENT& statement)

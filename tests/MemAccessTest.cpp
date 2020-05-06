@@ -8,10 +8,14 @@
 #define MEMORY_IDX_0 (1)
 #define MEMORY_IDX_1 (8)
 #define MEMORY_IDX_2 (9)
+#define MEMORY_IDX_3 (13)
+#define MEMORY_IDX_4 (15)
 
 #define MEMORY_IDX_0_VALUE (0xFFCC8844)
 #define MEMORY_IDX_1_VALUE (0x80808080)
 #define MEMORY_IDX_2_VALUE (0xC5C5C5C5)
+#define MEMORY_IDX_3_VALUE (0x01234567)
+#define MEMORY_IDX_4_VALUE (0x89ABCDEF)
 
 #define ARRAY_IDX_0	(5)
 #define ARRAY_IDX_1	(6)
@@ -27,12 +31,15 @@ void CMemAccessTest::Run()
 	m_context.scaledOffset = MEMORY_IDX_2;
 	m_context.memory = m_memory;
 	m_context.value = CONSTANT_3;
+	m_context.memoryValue = MEMORY_IDX_4_VALUE;
 	m_context.array0[ARRAY_IDX_1] = CONSTANT_1;
 
 	m_function(&m_context);
 
 	TEST_VERIFY(m_memory[MEMORY_IDX_0] == MEMORY_IDX_0_VALUE);
 	TEST_VERIFY(m_memory[MEMORY_IDX_2] == MEMORY_IDX_2_VALUE);
+	TEST_VERIFY(m_memory[MEMORY_IDX_3] == MEMORY_IDX_3_VALUE);
+	TEST_VERIFY(m_memory[MEMORY_IDX_4] == MEMORY_IDX_4_VALUE);
 	TEST_VERIFY(m_context.result0 == MEMORY_IDX_1_VALUE);
 	TEST_VERIFY(m_context.result1 == CONSTANT_1);
 	TEST_VERIFY(m_context.array0[ARRAY_IDX_0] == CONSTANT_2);
@@ -60,9 +67,24 @@ void CMemAccessTest::Compile(Jitter::CJitter& jitter)
 		{
 			jitter.PushRelRef(offsetof(CONTEXT, memory));
 			jitter.PushRel(offsetof(CONTEXT, scaledOffset));
-
 			jitter.PushCst(MEMORY_IDX_2_VALUE);
 			jitter.StoreAtRefIdx4();
+		}
+
+		//Store test (combined constant index)
+		{
+			jitter.PushRelRef(offsetof(CONTEXT, memory));
+			jitter.PushCst(MEMORY_IDX_3 * sizeof(UnitType));
+			jitter.PushCst(MEMORY_IDX_3_VALUE);
+			jitter.StoreAtRefIdx();
+		}
+
+		//Store test (combined constant index)
+		{
+			jitter.PushRelRef(offsetof(CONTEXT, memory));
+			jitter.PushCst(MEMORY_IDX_4 * sizeof(UnitType));
+			jitter.PushRel(offsetof(CONTEXT, memoryValue));
+			jitter.StoreAtRefIdx();
 		}
 
 		//Read test

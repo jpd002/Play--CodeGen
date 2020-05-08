@@ -298,6 +298,7 @@ void CCodeGen_AArch32::GenerateCode(const StatementList& statements, unsigned in
 			if(!SymbolMatches(matcher.dstType, statement.dst)) continue;
 			if(!SymbolMatches(matcher.src1Type, statement.src1)) continue;
 			if(!SymbolMatches(matcher.src2Type, statement.src2)) continue;
+			if(!SymbolMatches(matcher.src3Type, statement.src3)) continue;
 			matcher.emitter(statement);
 			found = true;
 			break;

@@ -25,6 +25,17 @@ CAArch32Assembler::LdrAddress CAArch32Assembler::MakeImmediateLdrAddress(int32 i
 	return result;
 }
 
+CAArch32Assembler::LdrAddress CAArch32Assembler::MakeRegisterLdrAddress(REGISTER rm, SHIFT shiftType, uint8 constant)
+{
+	assert(constant < 32);
+	LdrAddress result;
+	memset(&result, 0, sizeof(result));
+	result.shiftRm.immediateShift.rm = rm;
+	result.shiftRm.immediateShift.shiftType = shiftType;
+	result.shiftRm.immediateShift.constant = constant;
+	return result;
+}
+
 CAArch32Assembler::ImmediateAluOperand CAArch32Assembler::MakeImmediateAluOperand(uint8 immediate, uint8 rotateAmount)
 {
 	ImmediateAluOperand operand;
@@ -304,10 +315,12 @@ void CAArch32Assembler::Ldmia(REGISTER rbase, uint16 regList)
 
 void CAArch32Assembler::Ldr(REGISTER rd, REGISTER rbase, const LdrAddress& address)
 {
-	uint32 opcode = 0;
-	assert(address.isImmediate);
+	uint32 opcode = (CONDITION_AL << 28) | (1 << 26) | (1 << 24) | (1 << 23) | (1 << 20);
 	assert(!address.isNegative);
-	opcode = (CONDITION_AL << 28) | (1 << 26) | (1 << 24) | (1 << 23) | (1 << 20) | (static_cast<uint32>(rbase) << 16) | (static_cast<uint32>(rd) << 12) | (static_cast<uint32>(address.immediate));
+	opcode |= (address.isImmediate) ? 0 : (1 << 25);
+	opcode |= static_cast<uint32>(rbase) << 16;
+	opcode |= static_cast<uint32>(rd) << 12;
+	opcode |= static_cast<uint32>(address.immediate);
 	WriteWord(opcode);
 }
 
@@ -508,8 +521,8 @@ void CAArch32Assembler::Stmdb(REGISTER rbase, uint16 regList)
 
 void CAArch32Assembler::Str(REGISTER rd, REGISTER rbase, const LdrAddress& address)
 {
-	assert(address.isImmediate);
 	uint32 opcode = (CONDITION_AL << 28) | (1 << 26) | (1 << 24) | (0 << 20);
+	opcode |= (address.isImmediate) ? 0 : (1 << 25);
 	opcode |= (address.isNegative) ? 0 : (1 << 23);
 	opcode |= static_cast<uint32>(rbase) << 16;
 	opcode |= static_cast<uint32>(rd) << 12;

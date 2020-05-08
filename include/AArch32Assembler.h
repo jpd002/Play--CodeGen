@@ -340,6 +340,8 @@ public:
 	void									Vmax_I32(QUAD_REGISTER, QUAD_REGISTER, QUAD_REGISTER);
 
 	static LdrAddress						MakeImmediateLdrAddress(int32);
+	static LdrAddress						MakeRegisterLdrAddress(REGISTER, SHIFT = SHIFT_LSL, uint8 = 0);
+
 	static ImmediateAluOperand				MakeImmediateAluOperand(uint8, uint8);
 	static RegisterAluOperand				MakeRegisterAluOperand(CAArch32Assembler::REGISTER, const AluLdrShift&);
 	

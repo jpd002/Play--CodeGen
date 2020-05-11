@@ -263,102 +263,102 @@ void CCodeGen_AArch64::Emit_Div_Tmp64AnyAny(const STATEMENT& statement)
 }
 
 #define LOGIC_CONST_MATCHERS(LOGICOP_CST, LOGICOP) \
-	{ LOGICOP_CST,          MATCH_VARIABLE,       MATCH_VARIABLE,       MATCH_CONSTANT,    &CCodeGen_AArch64::Emit_Logic_VarVarCst<LOGICOP>        }, \
-	{ LOGICOP_CST,          MATCH_VARIABLE,       MATCH_ANY,            MATCH_VARIABLE,    &CCodeGen_AArch64::Emit_Logic_VarAnyVar<LOGICOP>        },
+	{ LOGICOP_CST,          MATCH_VARIABLE,       MATCH_VARIABLE,       MATCH_CONSTANT,    MATCH_NIL, &CCodeGen_AArch64::Emit_Logic_VarVarCst<LOGICOP>        }, \
+	{ LOGICOP_CST,          MATCH_VARIABLE,       MATCH_ANY,            MATCH_VARIABLE,    MATCH_NIL, &CCodeGen_AArch64::Emit_Logic_VarAnyVar<LOGICOP>        },
 
 CCodeGen_AArch64::CONSTMATCHER CCodeGen_AArch64::g_constMatchers[] =
 {
-	{ OP_NOP,            MATCH_NIL,            MATCH_NIL,            MATCH_NIL,           &CCodeGen_AArch64::Emit_Nop                                 },
+	{ OP_NOP,            MATCH_NIL,            MATCH_NIL,            MATCH_NIL,           MATCH_NIL,      &CCodeGen_AArch64::Emit_Nop                                 },
 
-	{ OP_MOV,            MATCH_REGISTER,       MATCH_REGISTER,       MATCH_NIL,           &CCodeGen_AArch64::Emit_Mov_RegReg                          },
-	{ OP_MOV,            MATCH_REGISTER,       MATCH_MEMORY,         MATCH_NIL,           &CCodeGen_AArch64::Emit_Mov_RegMem                          },
-	{ OP_MOV,            MATCH_REGISTER,       MATCH_CONSTANT,       MATCH_NIL,           &CCodeGen_AArch64::Emit_Mov_RegCst                          },
-	{ OP_MOV,            MATCH_MEMORY,         MATCH_REGISTER,       MATCH_NIL,           &CCodeGen_AArch64::Emit_Mov_MemReg                          },
-	{ OP_MOV,            MATCH_MEMORY,         MATCH_MEMORY,         MATCH_NIL,           &CCodeGen_AArch64::Emit_Mov_MemMem                          },
-	{ OP_MOV,            MATCH_MEMORY,         MATCH_CONSTANT,       MATCH_NIL,           &CCodeGen_AArch64::Emit_Mov_MemCst                          },
+	{ OP_MOV,            MATCH_REGISTER,       MATCH_REGISTER,       MATCH_NIL,           MATCH_NIL,      &CCodeGen_AArch64::Emit_Mov_RegReg                          },
+	{ OP_MOV,            MATCH_REGISTER,       MATCH_MEMORY,         MATCH_NIL,           MATCH_NIL,      &CCodeGen_AArch64::Emit_Mov_RegMem                          },
+	{ OP_MOV,            MATCH_REGISTER,       MATCH_CONSTANT,       MATCH_NIL,           MATCH_NIL,      &CCodeGen_AArch64::Emit_Mov_RegCst                          },
+	{ OP_MOV,            MATCH_MEMORY,         MATCH_REGISTER,       MATCH_NIL,           MATCH_NIL,      &CCodeGen_AArch64::Emit_Mov_MemReg                          },
+	{ OP_MOV,            MATCH_MEMORY,         MATCH_MEMORY,         MATCH_NIL,           MATCH_NIL,      &CCodeGen_AArch64::Emit_Mov_MemMem                          },
+	{ OP_MOV,            MATCH_MEMORY,         MATCH_CONSTANT,       MATCH_NIL,           MATCH_NIL,      &CCodeGen_AArch64::Emit_Mov_MemCst                          },
 
-	{ OP_MOV,            MATCH_REG_REF,        MATCH_MEM_REF,        MATCH_NIL,           &CCodeGen_AArch64::Emit_Mov_RegRefMemRef                     },
+	{ OP_MOV,            MATCH_REG_REF,        MATCH_MEM_REF,        MATCH_NIL,           MATCH_NIL,      &CCodeGen_AArch64::Emit_Mov_RegRefMemRef                     },
 
-	{ OP_NOT,            MATCH_VARIABLE,       MATCH_VARIABLE,       MATCH_NIL,           &CCodeGen_AArch64::Emit_Not_VarVar                          },
-	{ OP_LZC,            MATCH_VARIABLE,       MATCH_VARIABLE,       MATCH_NIL,           &CCodeGen_AArch64::Emit_Lzc_VarVar                          },
+	{ OP_NOT,            MATCH_VARIABLE,       MATCH_VARIABLE,       MATCH_NIL,           MATCH_NIL,      &CCodeGen_AArch64::Emit_Not_VarVar                          },
+	{ OP_LZC,            MATCH_VARIABLE,       MATCH_VARIABLE,       MATCH_NIL,           MATCH_NIL,      &CCodeGen_AArch64::Emit_Lzc_VarVar                          },
 	
-	{ OP_RELTOREF,       MATCH_VAR_REF,        MATCH_CONSTANT,       MATCH_ANY,           &CCodeGen_AArch64::Emit_RelToRef_VarCst                     },
+	{ OP_RELTOREF,       MATCH_VAR_REF,        MATCH_CONSTANT,       MATCH_ANY,           MATCH_NIL,      &CCodeGen_AArch64::Emit_RelToRef_VarCst                     },
 
-	{ OP_ADDREF,         MATCH_VAR_REF,        MATCH_VAR_REF,        MATCH_ANY,           &CCodeGen_AArch64::Emit_AddRef_VarVarAny                    },
+	{ OP_ADDREF,         MATCH_VAR_REF,        MATCH_VAR_REF,        MATCH_ANY,           MATCH_NIL,      &CCodeGen_AArch64::Emit_AddRef_VarVarAny                    },
 
-	{ OP_ISREFNULL,      MATCH_VARIABLE,       MATCH_VAR_REF,        MATCH_ANY,           &CCodeGen_AArch64::Emit_IsRefNull_VarVar                    },
+	{ OP_ISREFNULL,      MATCH_VARIABLE,       MATCH_VAR_REF,        MATCH_ANY,           MATCH_NIL,      &CCodeGen_AArch64::Emit_IsRefNull_VarVar                    },
 
-	{ OP_LOADFROMREF,    MATCH_VARIABLE,       MATCH_VAR_REF,        MATCH_NIL,           &CCodeGen_AArch64::Emit_LoadFromRef_VarVar                  },
-	{ OP_LOADFROMREF,    MATCH_VAR_REF,        MATCH_VAR_REF,        MATCH_NIL,           &CCodeGen_AArch64::Emit_LoadFromRef_Ref_VarVar              },
+	{ OP_LOADFROMREF,    MATCH_VARIABLE,       MATCH_VAR_REF,        MATCH_NIL,           MATCH_NIL,      &CCodeGen_AArch64::Emit_LoadFromRef_VarVar                  },
+	{ OP_LOADFROMREF,    MATCH_VAR_REF,        MATCH_VAR_REF,        MATCH_NIL,           MATCH_NIL,      &CCodeGen_AArch64::Emit_LoadFromRef_Ref_VarVar              },
 
-	{ OP_LOAD8FROMREF,   MATCH_VARIABLE,       MATCH_VAR_REF,        MATCH_NIL,           &CCodeGen_AArch64::Emit_Load8FromRef_MemVar                 },
+	{ OP_LOAD8FROMREF,   MATCH_VARIABLE,       MATCH_VAR_REF,        MATCH_NIL,           MATCH_NIL,      &CCodeGen_AArch64::Emit_Load8FromRef_MemVar                 },
 	
-	{ OP_LOAD16FROMREF,  MATCH_VARIABLE,       MATCH_VAR_REF,        MATCH_NIL,           &CCodeGen_AArch64::Emit_Load16FromRef_MemVar                },
+	{ OP_LOAD16FROMREF,  MATCH_VARIABLE,       MATCH_VAR_REF,        MATCH_NIL,           MATCH_NIL,      &CCodeGen_AArch64::Emit_Load16FromRef_MemVar                },
 
 	//Cannot use MATCH_ANY here because it will match non 32-bits symbols
-	{ OP_STOREATREF,     MATCH_NIL,            MATCH_VAR_REF,        MATCH_VARIABLE,      &CCodeGen_AArch64::Emit_StoreAtRef_VarAny                   },
-	{ OP_STOREATREF,     MATCH_NIL,            MATCH_VAR_REF,        MATCH_CONSTANT,      &CCodeGen_AArch64::Emit_StoreAtRef_VarAny                   },
+	{ OP_STOREATREF,     MATCH_NIL,            MATCH_VAR_REF,        MATCH_VARIABLE,      MATCH_NIL,      &CCodeGen_AArch64::Emit_StoreAtRef_VarAny                   },
+	{ OP_STOREATREF,     MATCH_NIL,            MATCH_VAR_REF,        MATCH_CONSTANT,      MATCH_NIL,      &CCodeGen_AArch64::Emit_StoreAtRef_VarAny                   },
 	
-	{ OP_STORE8ATREF,    MATCH_NIL,            MATCH_VAR_REF,        MATCH_ANY,           &CCodeGen_AArch64::Emit_Store8AtRef_VarAny                  },
+	{ OP_STORE8ATREF,    MATCH_NIL,            MATCH_VAR_REF,        MATCH_ANY,           MATCH_NIL,      &CCodeGen_AArch64::Emit_Store8AtRef_VarAny                  },
 	
-	{ OP_STORE16ATREF,   MATCH_NIL,            MATCH_VAR_REF,        MATCH_ANY,           &CCodeGen_AArch64::Emit_Store16AtRef_VarAny                 },
+	{ OP_STORE16ATREF,   MATCH_NIL,            MATCH_VAR_REF,        MATCH_ANY,           MATCH_NIL,      &CCodeGen_AArch64::Emit_Store16AtRef_VarAny                 },
 
-	{ OP_PARAM,          MATCH_NIL,            MATCH_CONTEXT,        MATCH_NIL,           &CCodeGen_AArch64::Emit_Param_Ctx                           },
-	{ OP_PARAM,          MATCH_NIL,            MATCH_REGISTER,       MATCH_NIL,           &CCodeGen_AArch64::Emit_Param_Reg                           },
-	{ OP_PARAM,          MATCH_NIL,            MATCH_MEMORY,         MATCH_NIL,           &CCodeGen_AArch64::Emit_Param_Mem                           },
-	{ OP_PARAM,          MATCH_NIL,            MATCH_CONSTANT,       MATCH_NIL,           &CCodeGen_AArch64::Emit_Param_Cst                           },
-	{ OP_PARAM,          MATCH_NIL,            MATCH_MEMORY64,       MATCH_NIL,           &CCodeGen_AArch64::Emit_Param_Mem64                         },
-	{ OP_PARAM,          MATCH_NIL,            MATCH_CONSTANT64,     MATCH_NIL,           &CCodeGen_AArch64::Emit_Param_Cst64                         },
-	{ OP_PARAM,          MATCH_NIL,            MATCH_REGISTER128,    MATCH_NIL,           &CCodeGen_AArch64::Emit_Param_Reg128                        },
-	{ OP_PARAM,          MATCH_NIL,            MATCH_MEMORY128,      MATCH_NIL,           &CCodeGen_AArch64::Emit_Param_Mem128                        },
+	{ OP_PARAM,          MATCH_NIL,            MATCH_CONTEXT,        MATCH_NIL,           MATCH_NIL,      &CCodeGen_AArch64::Emit_Param_Ctx                           },
+	{ OP_PARAM,          MATCH_NIL,            MATCH_REGISTER,       MATCH_NIL,           MATCH_NIL,      &CCodeGen_AArch64::Emit_Param_Reg                           },
+	{ OP_PARAM,          MATCH_NIL,            MATCH_MEMORY,         MATCH_NIL,           MATCH_NIL,      &CCodeGen_AArch64::Emit_Param_Mem                           },
+	{ OP_PARAM,          MATCH_NIL,            MATCH_CONSTANT,       MATCH_NIL,           MATCH_NIL,      &CCodeGen_AArch64::Emit_Param_Cst                           },
+	{ OP_PARAM,          MATCH_NIL,            MATCH_MEMORY64,       MATCH_NIL,           MATCH_NIL,      &CCodeGen_AArch64::Emit_Param_Mem64                         },
+	{ OP_PARAM,          MATCH_NIL,            MATCH_CONSTANT64,     MATCH_NIL,           MATCH_NIL,      &CCodeGen_AArch64::Emit_Param_Cst64                         },
+	{ OP_PARAM,          MATCH_NIL,            MATCH_REGISTER128,    MATCH_NIL,           MATCH_NIL,      &CCodeGen_AArch64::Emit_Param_Reg128                        },
+	{ OP_PARAM,          MATCH_NIL,            MATCH_MEMORY128,      MATCH_NIL,           MATCH_NIL,      &CCodeGen_AArch64::Emit_Param_Mem128                        },
 	
-	{ OP_CALL,           MATCH_NIL,            MATCH_CONSTANTPTR,    MATCH_CONSTANT,      &CCodeGen_AArch64::Emit_Call                                },
+	{ OP_CALL,           MATCH_NIL,            MATCH_CONSTANTPTR,    MATCH_CONSTANT,      MATCH_NIL,      &CCodeGen_AArch64::Emit_Call                                },
 	
-	{ OP_RETVAL,         MATCH_REGISTER,       MATCH_NIL,            MATCH_NIL,           &CCodeGen_AArch64::Emit_RetVal_Reg                          },
-	{ OP_RETVAL,         MATCH_TEMPORARY,      MATCH_NIL,            MATCH_NIL,           &CCodeGen_AArch64::Emit_RetVal_Tmp                          },
-	{ OP_RETVAL,         MATCH_MEMORY64,       MATCH_NIL,            MATCH_NIL,           &CCodeGen_AArch64::Emit_RetVal_Mem64                        },
-	{ OP_RETVAL,         MATCH_REGISTER128,    MATCH_NIL,            MATCH_NIL,           &CCodeGen_AArch64::Emit_RetVal_Reg128                       },
-	{ OP_RETVAL,         MATCH_MEMORY128,      MATCH_NIL,            MATCH_NIL,           &CCodeGen_AArch64::Emit_RetVal_Mem128                       },
+	{ OP_RETVAL,         MATCH_REGISTER,       MATCH_NIL,            MATCH_NIL,           MATCH_NIL,      &CCodeGen_AArch64::Emit_RetVal_Reg                          },
+	{ OP_RETVAL,         MATCH_TEMPORARY,      MATCH_NIL,            MATCH_NIL,           MATCH_NIL,      &CCodeGen_AArch64::Emit_RetVal_Tmp                          },
+	{ OP_RETVAL,         MATCH_MEMORY64,       MATCH_NIL,            MATCH_NIL,           MATCH_NIL,      &CCodeGen_AArch64::Emit_RetVal_Mem64                        },
+	{ OP_RETVAL,         MATCH_REGISTER128,    MATCH_NIL,            MATCH_NIL,           MATCH_NIL,      &CCodeGen_AArch64::Emit_RetVal_Reg128                       },
+	{ OP_RETVAL,         MATCH_MEMORY128,      MATCH_NIL,            MATCH_NIL,           MATCH_NIL,      &CCodeGen_AArch64::Emit_RetVal_Mem128                       },
 	
-	{ OP_EXTERNJMP,      MATCH_NIL,            MATCH_CONSTANTPTR,    MATCH_NIL,           &CCodeGen_AArch64::Emit_ExternJmp                           },
-	{ OP_EXTERNJMP_DYN,  MATCH_NIL,            MATCH_CONSTANTPTR,    MATCH_NIL,           &CCodeGen_AArch64::Emit_ExternJmpDynamic                    },
+	{ OP_EXTERNJMP,      MATCH_NIL,            MATCH_CONSTANTPTR,    MATCH_NIL,           MATCH_NIL,      &CCodeGen_AArch64::Emit_ExternJmp                           },
+	{ OP_EXTERNJMP_DYN,  MATCH_NIL,            MATCH_CONSTANTPTR,    MATCH_NIL,           MATCH_NIL,      &CCodeGen_AArch64::Emit_ExternJmpDynamic                    },
 
-	{ OP_JMP,            MATCH_NIL,            MATCH_NIL,            MATCH_NIL,           &CCodeGen_AArch64::Emit_Jmp                                 },
+	{ OP_JMP,            MATCH_NIL,            MATCH_NIL,            MATCH_NIL,           MATCH_NIL,      &CCodeGen_AArch64::Emit_Jmp                                 },
 	
-	{ OP_CONDJMP,        MATCH_NIL,            MATCH_ANY,            MATCH_VARIABLE,      &CCodeGen_AArch64::Emit_CondJmp_AnyVar                      },
-	{ OP_CONDJMP,        MATCH_NIL,            MATCH_VARIABLE,       MATCH_CONSTANT,      &CCodeGen_AArch64::Emit_CondJmp_VarCst                      },
+	{ OP_CONDJMP,        MATCH_NIL,            MATCH_ANY,            MATCH_VARIABLE,      MATCH_NIL,      &CCodeGen_AArch64::Emit_CondJmp_AnyVar                      },
+	{ OP_CONDJMP,        MATCH_NIL,            MATCH_VARIABLE,       MATCH_CONSTANT,      MATCH_NIL,      &CCodeGen_AArch64::Emit_CondJmp_VarCst                      },
 	
-	{ OP_CONDJMP,        MATCH_NIL,            MATCH_VAR_REF,        MATCH_CONSTANT,      &CCodeGen_AArch64::Emit_CondJmp_Ref_VarCst                  },
+	{ OP_CONDJMP,        MATCH_NIL,            MATCH_VAR_REF,        MATCH_CONSTANT,      MATCH_NIL,      &CCodeGen_AArch64::Emit_CondJmp_Ref_VarCst                  },
 	
-	{ OP_CMP,            MATCH_VARIABLE,       MATCH_ANY,            MATCH_VARIABLE,      &CCodeGen_AArch64::Emit_Cmp_VarAnyVar                       },
-	{ OP_CMP,            MATCH_VARIABLE,       MATCH_VARIABLE,       MATCH_CONSTANT,      &CCodeGen_AArch64::Emit_Cmp_VarVarCst                       },
+	{ OP_CMP,            MATCH_VARIABLE,       MATCH_ANY,            MATCH_VARIABLE,      MATCH_NIL,      &CCodeGen_AArch64::Emit_Cmp_VarAnyVar                       },
+	{ OP_CMP,            MATCH_VARIABLE,       MATCH_VARIABLE,       MATCH_CONSTANT,      MATCH_NIL,      &CCodeGen_AArch64::Emit_Cmp_VarVarCst                       },
 	
-	{ OP_SLL,            MATCH_VARIABLE,       MATCH_ANY,            MATCH_VARIABLE,      &CCodeGen_AArch64::Emit_Shift_VarAnyVar<SHIFTOP_LSL>        },
-	{ OP_SRL,            MATCH_VARIABLE,       MATCH_ANY,            MATCH_VARIABLE,      &CCodeGen_AArch64::Emit_Shift_VarAnyVar<SHIFTOP_LSR>        },
-	{ OP_SRA,            MATCH_VARIABLE,       MATCH_ANY,            MATCH_VARIABLE,      &CCodeGen_AArch64::Emit_Shift_VarAnyVar<SHIFTOP_ASR>        },
+	{ OP_SLL,            MATCH_VARIABLE,       MATCH_ANY,            MATCH_VARIABLE,      MATCH_NIL,      &CCodeGen_AArch64::Emit_Shift_VarAnyVar<SHIFTOP_LSL>        },
+	{ OP_SRL,            MATCH_VARIABLE,       MATCH_ANY,            MATCH_VARIABLE,      MATCH_NIL,      &CCodeGen_AArch64::Emit_Shift_VarAnyVar<SHIFTOP_LSR>        },
+	{ OP_SRA,            MATCH_VARIABLE,       MATCH_ANY,            MATCH_VARIABLE,      MATCH_NIL,      &CCodeGen_AArch64::Emit_Shift_VarAnyVar<SHIFTOP_ASR>        },
 
-	{ OP_SLL,            MATCH_VARIABLE,       MATCH_VARIABLE,       MATCH_CONSTANT,      &CCodeGen_AArch64::Emit_Shift_VarVarCst<SHIFTOP_LSL>        },
-	{ OP_SRL,            MATCH_VARIABLE,       MATCH_VARIABLE,       MATCH_CONSTANT,      &CCodeGen_AArch64::Emit_Shift_VarVarCst<SHIFTOP_LSR>        },
-	{ OP_SRA,            MATCH_VARIABLE,       MATCH_VARIABLE,       MATCH_CONSTANT,      &CCodeGen_AArch64::Emit_Shift_VarVarCst<SHIFTOP_ASR>        },
+	{ OP_SLL,            MATCH_VARIABLE,       MATCH_VARIABLE,       MATCH_CONSTANT,      MATCH_NIL,      &CCodeGen_AArch64::Emit_Shift_VarVarCst<SHIFTOP_LSL>        },
+	{ OP_SRL,            MATCH_VARIABLE,       MATCH_VARIABLE,       MATCH_CONSTANT,      MATCH_NIL,      &CCodeGen_AArch64::Emit_Shift_VarVarCst<SHIFTOP_LSR>        },
+	{ OP_SRA,            MATCH_VARIABLE,       MATCH_VARIABLE,       MATCH_CONSTANT,      MATCH_NIL,      &CCodeGen_AArch64::Emit_Shift_VarVarCst<SHIFTOP_ASR>        },
 	
 	LOGIC_CONST_MATCHERS(OP_AND, LOGICOP_AND)
 	LOGIC_CONST_MATCHERS(OP_OR,  LOGICOP_OR )
 	LOGIC_CONST_MATCHERS(OP_XOR, LOGICOP_XOR)
 
-	{ OP_ADD,            MATCH_VARIABLE,       MATCH_ANY,            MATCH_VARIABLE,      &CCodeGen_AArch64::Emit_AddSub_VarAnyVar<ADDSUBOP_ADD>      },
-	{ OP_ADD,            MATCH_VARIABLE,       MATCH_VARIABLE,       MATCH_CONSTANT,      &CCodeGen_AArch64::Emit_AddSub_VarVarCst<ADDSUBOP_ADD>      },
-	{ OP_SUB,            MATCH_VARIABLE,       MATCH_ANY,            MATCH_VARIABLE,      &CCodeGen_AArch64::Emit_AddSub_VarAnyVar<ADDSUBOP_SUB>      },
-	{ OP_SUB,            MATCH_VARIABLE,       MATCH_VARIABLE,       MATCH_CONSTANT,      &CCodeGen_AArch64::Emit_AddSub_VarVarCst<ADDSUBOP_SUB>      },
+	{ OP_ADD,            MATCH_VARIABLE,       MATCH_ANY,            MATCH_VARIABLE,      MATCH_NIL,      &CCodeGen_AArch64::Emit_AddSub_VarAnyVar<ADDSUBOP_ADD>      },
+	{ OP_ADD,            MATCH_VARIABLE,       MATCH_VARIABLE,       MATCH_CONSTANT,      MATCH_NIL,      &CCodeGen_AArch64::Emit_AddSub_VarVarCst<ADDSUBOP_ADD>      },
+	{ OP_SUB,            MATCH_VARIABLE,       MATCH_ANY,            MATCH_VARIABLE,      MATCH_NIL,      &CCodeGen_AArch64::Emit_AddSub_VarAnyVar<ADDSUBOP_SUB>      },
+	{ OP_SUB,            MATCH_VARIABLE,       MATCH_VARIABLE,       MATCH_CONSTANT,      MATCH_NIL,      &CCodeGen_AArch64::Emit_AddSub_VarVarCst<ADDSUBOP_SUB>      },
 	
-	{ OP_MUL,            MATCH_TEMPORARY64,    MATCH_ANY,            MATCH_ANY,           &CCodeGen_AArch64::Emit_Mul_Tmp64AnyAny<false>              },
-	{ OP_MULS,           MATCH_TEMPORARY64,    MATCH_ANY,            MATCH_ANY,           &CCodeGen_AArch64::Emit_Mul_Tmp64AnyAny<true>               },
+	{ OP_MUL,            MATCH_TEMPORARY64,    MATCH_ANY,            MATCH_ANY,           MATCH_NIL,      &CCodeGen_AArch64::Emit_Mul_Tmp64AnyAny<false>              },
+	{ OP_MULS,           MATCH_TEMPORARY64,    MATCH_ANY,            MATCH_ANY,           MATCH_NIL,      &CCodeGen_AArch64::Emit_Mul_Tmp64AnyAny<true>               },
 
-	{ OP_DIV,            MATCH_TEMPORARY64,    MATCH_ANY,            MATCH_ANY,           &CCodeGen_AArch64::Emit_Div_Tmp64AnyAny<false>              },
-	{ OP_DIVS,           MATCH_TEMPORARY64,    MATCH_ANY,            MATCH_ANY,           &CCodeGen_AArch64::Emit_Div_Tmp64AnyAny<true>               },
+	{ OP_DIV,            MATCH_TEMPORARY64,    MATCH_ANY,            MATCH_ANY,           MATCH_NIL,      &CCodeGen_AArch64::Emit_Div_Tmp64AnyAny<false>              },
+	{ OP_DIVS,           MATCH_TEMPORARY64,    MATCH_ANY,            MATCH_ANY,           MATCH_NIL,      &CCodeGen_AArch64::Emit_Div_Tmp64AnyAny<true>               },
 	
-	{ OP_LABEL,          MATCH_NIL,            MATCH_NIL,            MATCH_NIL,           &CCodeGen_AArch64::MarkLabel                                },
+	{ OP_LABEL,          MATCH_NIL,            MATCH_NIL,            MATCH_NIL,           MATCH_NIL,      &CCodeGen_AArch64::MarkLabel                                },
 
-	{ OP_MOV,            MATCH_NIL,            MATCH_NIL,            MATCH_NIL,           nullptr                                                     },
+	{ OP_MOV,            MATCH_NIL,            MATCH_NIL,            MATCH_NIL,           MATCH_NIL,      nullptr                                                     },
 };
 
 CCodeGen_AArch64::CCodeGen_AArch64()
@@ -373,6 +373,7 @@ CCodeGen_AArch64::CCodeGen_AArch64()
 				matcher.dstType  = constMatcher->dstType;
 				matcher.src1Type = constMatcher->src1Type;
 				matcher.src2Type = constMatcher->src2Type;
+				matcher.src3Type = constMatcher->src3Type;
 				matcher.emitter  = std::bind(constMatcher->emitter, this, std::placeholders::_1);
 				m_matchers.insert(MatcherMapType::value_type(matcher.op, matcher));
 			}
@@ -444,6 +445,7 @@ void CCodeGen_AArch64::GenerateCode(const StatementList& statements, unsigned in
 			if(!SymbolMatches(matcher.dstType, statement.dst)) continue;
 			if(!SymbolMatches(matcher.src1Type, statement.src1)) continue;
 			if(!SymbolMatches(matcher.src2Type, statement.src2)) continue;
+			if(!SymbolMatches(matcher.src3Type, statement.src3)) continue;
 			matcher.emitter(statement);
 			found = true;
 			break;

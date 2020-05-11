@@ -447,37 +447,37 @@ void CCodeGen_AArch64::Emit_Mov_Mem64Cst64(const STATEMENT& statement)
 
 CCodeGen_AArch64::CONSTMATCHER CCodeGen_AArch64::g_64ConstMatchers[] =
 {
-	{ OP_EXTLOW64,       MATCH_VARIABLE,       MATCH_MEMORY64,       MATCH_NIL,           &CCodeGen_AArch64::Emit_ExtLow64VarMem64                    },
-	{ OP_EXTHIGH64,      MATCH_VARIABLE,       MATCH_MEMORY64,       MATCH_NIL,           &CCodeGen_AArch64::Emit_ExtHigh64VarMem64                   },
+	{ OP_EXTLOW64,       MATCH_VARIABLE,       MATCH_MEMORY64,       MATCH_NIL,           MATCH_NIL, &CCodeGen_AArch64::Emit_ExtLow64VarMem64                    },
+	{ OP_EXTHIGH64,      MATCH_VARIABLE,       MATCH_MEMORY64,       MATCH_NIL,           MATCH_NIL, &CCodeGen_AArch64::Emit_ExtHigh64VarMem64                   },
 
-	{ OP_MERGETO64,      MATCH_MEMORY64,       MATCH_ANY,            MATCH_ANY,           &CCodeGen_AArch64::Emit_MergeTo64_Mem64AnyAny               },
+	{ OP_MERGETO64,      MATCH_MEMORY64,       MATCH_ANY,            MATCH_ANY,           MATCH_NIL, &CCodeGen_AArch64::Emit_MergeTo64_Mem64AnyAny               },
 
-	{ OP_LOADFROMREF,    MATCH_MEMORY64,       MATCH_VAR_REF,        MATCH_NIL,           &CCodeGen_AArch64::Emit_LoadFromRef_64_MemVar               },
+	{ OP_LOADFROMREF,    MATCH_MEMORY64,       MATCH_VAR_REF,        MATCH_NIL,           MATCH_NIL, &CCodeGen_AArch64::Emit_LoadFromRef_64_MemVar               },
 
-	{ OP_STOREATREF,     MATCH_NIL,            MATCH_VAR_REF,        MATCH_MEMORY64,      &CCodeGen_AArch64::Emit_StoreAtRef_64_VarAny                },
-	{ OP_STOREATREF,     MATCH_NIL,            MATCH_VAR_REF,        MATCH_CONSTANT64,    &CCodeGen_AArch64::Emit_StoreAtRef_64_VarAny                },
+	{ OP_STOREATREF,     MATCH_NIL,            MATCH_VAR_REF,        MATCH_MEMORY64,      MATCH_NIL, &CCodeGen_AArch64::Emit_StoreAtRef_64_VarAny                },
+	{ OP_STOREATREF,     MATCH_NIL,            MATCH_VAR_REF,        MATCH_CONSTANT64,    MATCH_NIL, &CCodeGen_AArch64::Emit_StoreAtRef_64_VarAny                },
 
-	{ OP_ADD64,          MATCH_MEMORY64,       MATCH_MEMORY64,       MATCH_MEMORY64,      &CCodeGen_AArch64::Emit_Add64_MemMemMem                     },
-	{ OP_ADD64,          MATCH_MEMORY64,       MATCH_MEMORY64,       MATCH_CONSTANT64,    &CCodeGen_AArch64::Emit_Add64_MemMemCst                     },
+	{ OP_ADD64,          MATCH_MEMORY64,       MATCH_MEMORY64,       MATCH_MEMORY64,      MATCH_NIL, &CCodeGen_AArch64::Emit_Add64_MemMemMem                     },
+	{ OP_ADD64,          MATCH_MEMORY64,       MATCH_MEMORY64,       MATCH_CONSTANT64,    MATCH_NIL, &CCodeGen_AArch64::Emit_Add64_MemMemCst                     },
 	
-	{ OP_SUB64,          MATCH_MEMORY64,       MATCH_ANY,            MATCH_MEMORY64,      &CCodeGen_AArch64::Emit_Sub64_MemAnyMem                     },
-	{ OP_SUB64,          MATCH_MEMORY64,       MATCH_MEMORY64,       MATCH_CONSTANT64,    &CCodeGen_AArch64::Emit_Sub64_MemMemCst                     },
+	{ OP_SUB64,          MATCH_MEMORY64,       MATCH_ANY,            MATCH_MEMORY64,      MATCH_NIL, &CCodeGen_AArch64::Emit_Sub64_MemAnyMem                     },
+	{ OP_SUB64,          MATCH_MEMORY64,       MATCH_MEMORY64,       MATCH_CONSTANT64,    MATCH_NIL, &CCodeGen_AArch64::Emit_Sub64_MemMemCst                     },
 
-	{ OP_CMP64,          MATCH_VARIABLE,       MATCH_ANY,            MATCH_MEMORY64,      &CCodeGen_AArch64::Emit_Cmp64_VarAnyMem                     },
-	{ OP_CMP64,          MATCH_VARIABLE,       MATCH_ANY,            MATCH_CONSTANT64,    &CCodeGen_AArch64::Emit_Cmp64_VarMemCst                     },
+	{ OP_CMP64,          MATCH_VARIABLE,       MATCH_ANY,            MATCH_MEMORY64,      MATCH_NIL, &CCodeGen_AArch64::Emit_Cmp64_VarAnyMem                     },
+	{ OP_CMP64,          MATCH_VARIABLE,       MATCH_ANY,            MATCH_CONSTANT64,    MATCH_NIL, &CCodeGen_AArch64::Emit_Cmp64_VarMemCst                     },
 	
-	{ OP_AND64,          MATCH_MEMORY64,       MATCH_MEMORY64,       MATCH_MEMORY64,      &CCodeGen_AArch64::Emit_And64_MemMemMem                     },
+	{ OP_AND64,          MATCH_MEMORY64,       MATCH_MEMORY64,       MATCH_MEMORY64,      MATCH_NIL, &CCodeGen_AArch64::Emit_And64_MemMemMem                     },
 	
-	{ OP_SLL64,          MATCH_MEMORY64,       MATCH_MEMORY64,       MATCH_VARIABLE,      &CCodeGen_AArch64::Emit_Shift64_MemMemVar<SHIFT64OP_LSL>    },
-	{ OP_SRL64,          MATCH_MEMORY64,       MATCH_MEMORY64,       MATCH_VARIABLE,      &CCodeGen_AArch64::Emit_Shift64_MemMemVar<SHIFT64OP_LSR>    },
-	{ OP_SRA64,          MATCH_MEMORY64,       MATCH_MEMORY64,       MATCH_VARIABLE,      &CCodeGen_AArch64::Emit_Shift64_MemMemVar<SHIFT64OP_ASR>    },
+	{ OP_SLL64,          MATCH_MEMORY64,       MATCH_MEMORY64,       MATCH_VARIABLE,      MATCH_NIL, &CCodeGen_AArch64::Emit_Shift64_MemMemVar<SHIFT64OP_LSL>    },
+	{ OP_SRL64,          MATCH_MEMORY64,       MATCH_MEMORY64,       MATCH_VARIABLE,      MATCH_NIL, &CCodeGen_AArch64::Emit_Shift64_MemMemVar<SHIFT64OP_LSR>    },
+	{ OP_SRA64,          MATCH_MEMORY64,       MATCH_MEMORY64,       MATCH_VARIABLE,      MATCH_NIL, &CCodeGen_AArch64::Emit_Shift64_MemMemVar<SHIFT64OP_ASR>    },
 
-	{ OP_SLL64,          MATCH_MEMORY64,       MATCH_MEMORY64,       MATCH_CONSTANT,      &CCodeGen_AArch64::Emit_Shift64_MemMemCst<SHIFT64OP_LSL>    },
-	{ OP_SRL64,          MATCH_MEMORY64,       MATCH_MEMORY64,       MATCH_CONSTANT,      &CCodeGen_AArch64::Emit_Shift64_MemMemCst<SHIFT64OP_LSR>    },
-	{ OP_SRA64,          MATCH_MEMORY64,       MATCH_MEMORY64,       MATCH_CONSTANT,      &CCodeGen_AArch64::Emit_Shift64_MemMemCst<SHIFT64OP_ASR>    },
+	{ OP_SLL64,          MATCH_MEMORY64,       MATCH_MEMORY64,       MATCH_CONSTANT,      MATCH_NIL, &CCodeGen_AArch64::Emit_Shift64_MemMemCst<SHIFT64OP_LSL>    },
+	{ OP_SRL64,          MATCH_MEMORY64,       MATCH_MEMORY64,       MATCH_CONSTANT,      MATCH_NIL, &CCodeGen_AArch64::Emit_Shift64_MemMemCst<SHIFT64OP_LSR>    },
+	{ OP_SRA64,          MATCH_MEMORY64,       MATCH_MEMORY64,       MATCH_CONSTANT,      MATCH_NIL, &CCodeGen_AArch64::Emit_Shift64_MemMemCst<SHIFT64OP_ASR>    },
 	
-	{ OP_MOV,            MATCH_MEMORY64,       MATCH_MEMORY64,       MATCH_NIL,           &CCodeGen_AArch64::Emit_Mov_Mem64Mem64                      },
-	{ OP_MOV,            MATCH_MEMORY64,       MATCH_CONSTANT64,     MATCH_NIL,           &CCodeGen_AArch64::Emit_Mov_Mem64Cst64                      },
+	{ OP_MOV,            MATCH_MEMORY64,       MATCH_MEMORY64,       MATCH_NIL,           MATCH_NIL, &CCodeGen_AArch64::Emit_Mov_Mem64Mem64                      },
+	{ OP_MOV,            MATCH_MEMORY64,       MATCH_CONSTANT64,     MATCH_NIL,           MATCH_NIL, &CCodeGen_AArch64::Emit_Mov_Mem64Cst64                      },
 
-	{ OP_MOV,            MATCH_NIL,            MATCH_NIL,            MATCH_NIL,           nullptr                                                     },
+	{ OP_MOV,            MATCH_NIL,            MATCH_NIL,            MATCH_NIL,           MATCH_NIL, nullptr                                                     },
 };

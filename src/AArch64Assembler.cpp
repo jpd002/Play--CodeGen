@@ -721,6 +721,16 @@ void CAArch64Assembler::Ldr(REGISTER32 rt, REGISTER64 rn, uint32 offset)
 	WriteLoadStoreOpImm(0xB9400000, scaledOffset, rn, rt);
 }
 
+void CAArch64Assembler::Ldr(REGISTER32 rt, REGISTER64 rn, REGISTER64 rm, bool scaled)
+{
+	uint32 opcode = 0xB8606800;
+	opcode |= (rt << 0);
+	opcode |= (rn << 5);
+	opcode |= scaled ? (1 << 12) : 0;
+	opcode |= (rm << 16);
+	WriteWord(opcode);
+}
+
 void CAArch64Assembler::Ldr(REGISTER64 rt, REGISTER64 rn, uint32 offset)
 {
 	assert((offset & 0x07) == 0);
@@ -1150,6 +1160,16 @@ void CAArch64Assembler::Str(REGISTER32 rt, REGISTER64 rn, uint32 offset)
 	uint32 scaledOffset = offset / 4;
 	assert(scaledOffset < 0x1000);
 	WriteLoadStoreOpImm(0xB9000000, scaledOffset, rn, rt);
+}
+
+void CAArch64Assembler::Str(REGISTER32 rt, REGISTER64 rn, REGISTER64 rm, bool scaled)
+{
+	uint32 opcode = 0xB8206800;
+	opcode |= (rt << 0);
+	opcode |= (rn << 5);
+	opcode |= scaled ? (1 << 12) : 0;
+	opcode |= (rm << 16);
+	WriteWord(opcode);
 }
 
 void CAArch64Assembler::Str(REGISTER64 rt, REGISTER64 rn, uint32 offset)

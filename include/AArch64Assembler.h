@@ -155,6 +155,7 @@ public:
 	void    Ld1_4s(REGISTERMD, REGISTER64);
 	void    Ldp_PostIdx(REGISTER64, REGISTER64, REGISTER64, int32);
 	void    Ldr(REGISTER32, REGISTER64, uint32);
+	void    Ldr(REGISTER32, REGISTER64, REGISTER64, bool);
 	void    Ldr(REGISTER64, REGISTER64, uint32);
 	void    Ldrb(REGISTER32, REGISTER64, uint32);
 	void    Ldrh(REGISTER32, REGISTER64, uint32);
@@ -208,6 +209,7 @@ public:
 	void    Stp(REGISTER32, REGISTER32, REGISTER64, int32);
 	void    Stp_PreIdx(REGISTER64, REGISTER64, REGISTER64, int32);
 	void    Str(REGISTER32, REGISTER64, uint32);
+	void    Str(REGISTER32, REGISTER64, REGISTER64, bool);
 	void    Str(REGISTER64, REGISTER64, uint32);
 	void    Strb(REGISTER32, REGISTER64, uint32);
 	void    Strh(REGISTER32, REGISTER64, uint32);

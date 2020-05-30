@@ -61,6 +61,7 @@ add_library(CodeGen
 	../src/Jitter_CodeGen_Wasm.cpp
 	../src/Jitter_CodeGen.cpp
 	../src/Jitter_CodeGenFactory.cpp
+	../src/Jitter_Trampoline.cpp
 	../src/Jitter.cpp
 	../src/Jitter_Optimize.cpp
 	../src/Jitter_RegAlloc.cpp
@@ -93,6 +94,7 @@ add_library(CodeGen
 	../include/Jitter_Symbol.h
 	../include/Jitter_SymbolRef.h
 	../include/Jitter_SymbolTable.h
+	../include/Jitter_Trampoline.h
 	../include/Jitter.h
 	../include/Literal128.h
 	../include/LiteralPool.h

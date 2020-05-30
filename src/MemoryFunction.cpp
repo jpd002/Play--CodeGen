@@ -5,6 +5,7 @@
 #include <cstdint>
 #include "AlignedAlloc.h"
 #include "MemoryFunction.h"
+#include "Jitter_Trampoline.h"
 
 #define BLOCK_ALIGN 0x10
 
@@ -177,11 +178,18 @@ CMemoryFunction& CMemoryFunction::operator =(CMemoryFunction&& rhs)
 	return (*this);
 }
 
-void CMemoryFunction::operator()(void* context)
+void CMemoryFunction::operator()(void* context, bool isTrampoline)
 {
-	typedef void (*FctType)(void*);
-	auto fct = reinterpret_cast<FctType>(m_code);
-	fct(context);
+	if(isTrampoline)
+	{
+		typedef void (*FctType)(void*);
+		auto fct = reinterpret_cast<FctType>(m_code);
+		fct(context);
+	}
+	else
+	{
+		Jitter::CJitter_Trampoline::GetInstance().Trampoline(context, m_code);
+	}
 }
 
 void* CMemoryFunction::GetCode() const

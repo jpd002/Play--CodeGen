@@ -139,6 +139,7 @@ namespace Jitter
 		OP_FP_ADD,
 		OP_FP_SUB,
 		OP_FP_MUL,
+		OP_FP_MULADD,
 		OP_FP_DIV,
 		OP_FP_SQRT,
 		OP_FP_RSQRT,

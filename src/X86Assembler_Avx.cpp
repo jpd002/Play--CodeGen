@@ -416,6 +416,11 @@ void CX86Assembler::VcmpgtpsVo(XMMREGISTER dst, XMMREGISTER src1, const CAddress
 	VcmppsVo(dst, src1, src2, SSE_CMP_NLE);
 }
 
+void CX86Assembler::VxorpsVo(XMMREGISTER dst, XMMREGISTER src1, const CAddress& src2)
+{
+	WriteVexVoOp(VEX_OPCODE_MAP_NONE, 0x57, dst, src1, src2);
+}
+
 void CX86Assembler::VminpsVo(XMMREGISTER dst, XMMREGISTER src1, const CAddress& src2)
 {
 	WriteVexVoOp(VEX_OPCODE_MAP_NONE, 0x5D, dst, src1, src2);

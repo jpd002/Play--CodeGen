@@ -454,6 +454,8 @@ public:
 	void									VcmpltpsVo(XMMREGISTER, XMMREGISTER, const CAddress&);
 	void									VcmpgtpsVo(XMMREGISTER, XMMREGISTER, const CAddress&);
 
+	void									VxorpsVo(XMMREGISTER, XMMREGISTER, const CAddress&);
+
 	void									VminpsVo(XMMREGISTER, XMMREGISTER, const CAddress&);
 	void									VmaxpsVo(XMMREGISTER, XMMREGISTER, const CAddress&);
 

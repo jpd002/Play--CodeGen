@@ -1373,6 +1373,7 @@ CX86Assembler::XMMREGISTER CCodeGen_x86::PrepareSymbolRegisterUseFpuAvx(CSymbol*
 			m_assembler.VmovssEd(preferedRegister, MakeMemory128SymbolAddress(symbol));
 			return preferedRegister;
 	break;
+	case SYM_FP_REL_INT32:
 	case SYM_FP_REL_SINGLE:
 	case SYM_FP_TMP_SINGLE:
 			m_assembler.VmovssEd(preferedRegister, MakeMemoryFpSingleSymbolAddress(symbol));

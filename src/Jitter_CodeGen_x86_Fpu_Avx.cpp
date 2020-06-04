@@ -144,8 +144,6 @@ void CCodeGen_x86::Emit_Fp_Avx_Mov_Reg32RelI32(const STATEMENT& statement)
 
 	m_assembler.Vcvtsi2ssEd(dstRegister, CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, src1->m_valueLow));
 	m_assembler.VmovdVo(CX86Assembler::MakeRegisterAddress(dstReg), dstRegister);
-
-	CommitSymbolRegister(dst, dstReg);
 }
 
 void CCodeGen_x86::Emit_Fp_Avx_Mov_RelSReg(const STATEMENT& statement)
@@ -183,7 +181,6 @@ void CCodeGen_x86::Emit_Fp_Avx_Mov_Reg128Rel(const STATEMENT& statement)
 
 	m_assembler.VmovdVo(dstRegister, CX86Assembler::MakeRegisterAddress(src1Reg));
 	m_assembler.VshufpsVo(dstRegister, dstRegister, CX86Assembler::MakeXmmRegisterAddress(dstRegister), 0x00);
-	CommitSymbolRegisterFpuAvx(dst, dstRegister);
 }
 
 

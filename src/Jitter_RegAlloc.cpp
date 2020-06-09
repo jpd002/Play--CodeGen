@@ -196,7 +196,7 @@ void CJitter::AssociateSymbolsToRegisters(SymbolRegAllocInfo& symbolRegAllocs) c
 			return 
 				(symbolType == SYM_RELATIVE) || (symbolType == SYM_TEMPORARY) ||
 				(symbolType == SYM_REL_REFERENCE) || (symbolType == SYM_TMP_REFERENCE) ||
-				(symbolType == SYM_FP_REL_SINGLE) || (symbolType == SYM_FP_TMP_SINGLE) || || (symbolType == SYM_FP_REL_INT32)
+				(symbolType == SYM_FP_REL_SINGLE) || (symbolType == SYM_FP_TMP_SINGLE) || (symbolType == SYM_FP_REL_INT32) ||
 				(symbolType == SYM_RELATIVE128) || (symbolType == SYM_TEMPORARY128);
 		};
 

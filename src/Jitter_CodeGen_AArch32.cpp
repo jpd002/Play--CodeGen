@@ -1,3 +1,4 @@
+#include <stdexcept>
 #include "Jitter_CodeGen_AArch32.h"
 #include "ObjectFile.h"
 #include "BitManip.h"

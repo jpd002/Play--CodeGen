@@ -90,9 +90,6 @@ void CCodeGen_x86::Emit_Fp_Avx_Rsqrt_MemMem(const STATEMENT& statement)
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
 
-	{StatementList list = {statement};
-	DumpStatementList(list);}
-
 	auto tmpIntRegister = CX86Assembler::rAX;
 	auto resultRegister = PrepareSymbolRegisterDefFpu(dst, CX86Assembler::xMM0);
 	auto sqrtRegister = PrepareSymbolRegisterUseFpuAvx(src1, CX86Assembler::xMM1);
@@ -180,7 +177,6 @@ void CCodeGen_x86::Emit_Fp_Avx_Mov_Reg128Rel(const STATEMENT& statement)
 	auto src1Reg = PrepareSymbolRegisterUse(src1, CX86Assembler::rAX);
 
 	m_assembler.VmovdVo(dstRegister, CX86Assembler::MakeRegisterAddress(src1Reg));
-	m_assembler.VshufpsVo(dstRegister, dstRegister, CX86Assembler::MakeXmmRegisterAddress(dstRegister), 0x00);
 }
 
 

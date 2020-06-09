@@ -22,14 +22,15 @@ void CCodeGen_x86::Emit_Fp_Avx_Neg_VarVar(const STATEMENT& statement)
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
 
+	auto tmpIntRegister = CX86Assembler::rAX;
+	auto tmpXMMRegister = CX86Assembler::xMM2;
+	auto tmpXMM2Register = CX86Assembler::xMM3;
 	auto dstRegister = PrepareSymbolRegisterDefFpu(dst, CX86Assembler::xMM0);
 	auto src1Register = PrepareSymbolRegisterUseFpuAvx(src1, CX86Assembler::xMM1);
-	auto tmpXMMRegister = PrepareSymbolRegisterUseFpuAvx(src1, CX86Assembler::xMM2);
-	auto tmpXMM2Register = PrepareSymbolRegisterUseFpuAvx(src1, CX86Assembler::xMM3);
 
-	m_assembler.VxorpsVo(tmpXMMRegister, tmpXMMRegister, CX86Assembler::MakeXmmRegisterAddress(tmpXMMRegister));
-	m_assembler.VsubpsVo(tmpXMM2Register, tmpXMMRegister, CX86Assembler::MakeXmmRegisterAddress(src1Register));
-	m_assembler.VminpsVo(dstRegister, tmpXMM2Register, CX86Assembler::MakeXmmRegisterAddress(src1Register));
+	m_assembler.MovId(tmpIntRegister, 0x80000000);
+	m_assembler.VmovdVo(tmpXMMRegister, CX86Assembler::MakeRegisterAddress(tmpIntRegister));
+	m_assembler.VxorpsVo(dstRegister, src1Register, CX86Assembler::MakeXmmRegisterAddress(tmpXMMRegister));
 	CommitSymbolRegisterFpuAvx(dst, dstRegister);
 }
 
@@ -47,7 +48,6 @@ void CCodeGen_x86::Emit_Fp_Avx_Abs_VarVar(const STATEMENT& statement)
 	m_assembler.VsubpsVo(tmpXMM2Register, tmpXMMRegister, CX86Assembler::MakeXmmRegisterAddress(src1Register));
 	m_assembler.VmaxpsVo(dstRegister, tmpXMM2Register, CX86Assembler::MakeXmmRegisterAddress(src1Register));
 	CommitSymbolRegisterFpuAvx(dst, dstRegister);
-
 }
 
 template <typename FPUOP>
@@ -288,11 +288,12 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_fpuAvxConstMatchers[] =
 	{ OP_FP_MAX, MATCH_VARIABLE128, MATCH_MEMORY_FP_SINGLE, MATCH_MEMORY_FP_SINGLE, MATCH_NIL, &CCodeGen_x86::Emit_Fpu_Avx_VarVarVar<FPUOP_MAX> },
 	{ OP_FP_MIN, MATCH_VARIABLE128, MATCH_MEMORY_FP_SINGLE, MATCH_MEMORY_FP_SINGLE, MATCH_NIL, &CCodeGen_x86::Emit_Fpu_Avx_VarVarVar<FPUOP_MIN> },
 
-
+	{ OP_FP_ABS, MATCH_MEMORY_FP_SINGLE, MATCH_MEMORY_FP_SINGLE, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Fp_Avx_Abs_VarVar },
 	{ OP_FP_ABS, MATCH_VARIABLE128, MATCH_MEMORY_FP_SINGLE, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Fp_Avx_Abs_VarVar },
 	{ OP_FP_ABS, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Fp_Avx_Abs_VarVar },
 	{ OP_FP_ABS, MATCH_MEMORY_FP_SINGLE, MATCH_VARIABLE128, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Fp_Avx_Abs_VarVar },
 
+	{ OP_FP_NEG, MATCH_MEMORY_FP_SINGLE, MATCH_MEMORY_FP_SINGLE, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Fp_Avx_Neg_VarVar },
 	{ OP_FP_NEG, MATCH_MEMORY_FP_SINGLE, MATCH_VARIABLE128, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Fp_Avx_Neg_VarVar },
 	{ OP_FP_NEG, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Fp_Avx_Neg_VarVar },
 	{ OP_FP_NEG, MATCH_VARIABLE128, MATCH_MEMORY_FP_SINGLE, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Fp_Avx_Neg_VarVar },

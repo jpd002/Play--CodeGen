@@ -727,6 +727,11 @@ namespace Jitter
 		void						Emit_Fp_Avx_Rsqrt_MemMem(const STATEMENT&);
 		void						Emit_Fp_Avx_Rcpl_MemMem(const STATEMENT&);
 		void						Emit_Fp_Avx_Mov_RelSRelI32(const STATEMENT&);
+
+		void						Emit_Fp_Avx_Mov_RelSReg(const STATEMENT&);
+		void						Emit_Fp_Avx_Mov_RegSRelS(const STATEMENT&);
+		void						Emit_Fp_Avx_Mov_RegSRelI32(const STATEMENT&);
+
 		void						Emit_Fp_Avx_ToIntTrunc_RelRel(const STATEMENT&);
 
 		//MDOP AVX
@@ -770,6 +775,8 @@ namespace Jitter
 		CX86Assembler::XMMREGISTER	PrepareSymbolRegisterDefMd(CSymbol*, CX86Assembler::XMMREGISTER);
 		CX86Assembler::XMMREGISTER	PrepareSymbolRegisterUseMdAvx(CSymbol*, CX86Assembler::XMMREGISTER);
 		void						CommitSymbolRegisterMdAvx(CSymbol*, CX86Assembler::XMMREGISTER);
+		CX86Assembler::XMMREGISTER	PrepareSymbolRegisterUseFpuAvx(CSymbol*, CX86Assembler::XMMREGISTER);
+		void						CommitSymbolRegisterFpuAvx(CSymbol*, CX86Assembler::XMMREGISTER);
 
 		virtual CX86Assembler::REGISTER PrepareRefSymbolRegisterUse(CSymbol*, CX86Assembler::REGISTER) = 0;
 

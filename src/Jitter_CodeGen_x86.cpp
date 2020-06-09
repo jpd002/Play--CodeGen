@@ -1,6 +1,7 @@
 #include <functional>
 #include <array>
 #include <assert.h>
+#include <stdexcept>
 #include "Jitter_CodeGen_x86.h"
 
 //Check if CPUID is available

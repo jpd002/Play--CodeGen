@@ -26,6 +26,7 @@ public:
 	void				EndModify();
 	
 private:
+	void				ClearCache();
 	void				Reset();
 
 	void*				m_code;

@@ -66,7 +66,6 @@ CMemoryFunction::CMemoryFunction(const void* code, size_t size)
 	unsigned int allocSize = ((size + page_size - 1) / page_size) * page_size;
 	vm_allocate(mach_task_self(), reinterpret_cast<vm_address_t*>(&m_code), allocSize, TRUE); 
 	memcpy(m_code, code, size);
-	ClearCache();
 	vm_prot_t protection =
 	#ifdef MEMFUNC_MACHVM_STRICT_PROTECTION
 		VM_PROT_READ | VM_PROT_EXECUTE;
@@ -85,8 +84,8 @@ CMemoryFunction::CMemoryFunction(const void* code, size_t size)
 	m_code = mmap(nullptr, size, PROT_WRITE | PROT_EXEC, MAP_PRIVATE | MAP_ANONYMOUS | additionalMapFlags, -1, 0);
 	assert(m_code != MAP_FAILED);
 	memcpy(m_code, code, size);
-	ClearCache();
 #endif
+	ClearCache();
 	assert((reinterpret_cast<uintptr_t>(m_code) & (BLOCK_ALIGN - 1)) == 0);
 }
 

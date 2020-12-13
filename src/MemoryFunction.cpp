@@ -38,6 +38,7 @@
 #include <mach/vm_map.h>
 #elif defined(MEMFUNC_USE_MMAP)
 #include <sys/mman.h>
+#include <pthread.h>
 #else
 #error "No API to use for CMemoryFunction"
 #endif
@@ -83,7 +84,9 @@ CMemoryFunction::CMemoryFunction(const void* code, size_t size)
 	m_size = size;
 	m_code = mmap(nullptr, size, PROT_WRITE | PROT_EXEC, MAP_PRIVATE | MAP_ANONYMOUS | additionalMapFlags, -1, 0);
 	assert(m_code != MAP_FAILED);
+	pthread_jit_write_protect_np(false);
 	memcpy(m_code, code, size);
+	pthread_jit_write_protect_np(true);
 #endif
 	ClearCache();
 	assert((reinterpret_cast<uintptr_t>(m_code) & (BLOCK_ALIGN - 1)) == 0);
@@ -156,6 +159,8 @@ void CMemoryFunction::BeginModify()
 #if defined(MEMFUNC_USE_MACHVM) && defined(MEMFUNC_MACHVM_STRICT_PROTECTION)
 	kern_return_t result = vm_protect(mach_task_self(), reinterpret_cast<vm_address_t>(m_code), m_size, 0, VM_PROT_READ | VM_PROT_WRITE);
 	assert(result == 0);
+#elif defined(MEMFUNC_USE_MMAP)
+	pthread_jit_write_protect_np(false);
 #endif
 }
 
@@ -164,6 +169,8 @@ void CMemoryFunction::EndModify()
 #if defined(MEMFUNC_USE_MACHVM) && defined(MEMFUNC_MACHVM_STRICT_PROTECTION)
 	kern_return_t result = vm_protect(mach_task_self(), reinterpret_cast<vm_address_t>(m_code), m_size, 0, VM_PROT_READ | VM_PROT_EXECUTE);
 	assert(result == 0);
+#elif defined(MEMFUNC_USE_MMAP)
+	pthread_jit_write_protect_np(true);
 #endif
 	ClearCache();
 }

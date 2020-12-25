@@ -446,6 +446,7 @@ public:
 	void									VpshufbVo(XMMREGISTER, XMMREGISTER, const CAddress&);
 	void									VpmovmskbVo(REGISTER, XMMREGISTER);
 
+	void									VandpsVo(XMMREGISTER, XMMREGISTER, const CAddress&);
 	void									VaddpsVo(XMMREGISTER, XMMREGISTER, const CAddress&);
 	void									VsubpsVo(XMMREGISTER, XMMREGISTER, const CAddress&);
 	void									VmulpsVo(XMMREGISTER, XMMREGISTER, const CAddress&);

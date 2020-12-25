@@ -42,11 +42,10 @@ void CCodeGen_x86::Emit_Fp_Avx_Abs_VarVar(const STATEMENT& statement)
 	auto dstRegister = PrepareSymbolRegisterDefFpu(dst, CX86Assembler::xMM0);
 	auto src1Register = PrepareSymbolRegisterUseFpuAvx(src1, CX86Assembler::xMM1);
 	auto tmpXMMRegister = CX86Assembler::xMM2;
-	auto tmpXMM2Register = CX86Assembler::xMM3;
 
-	m_assembler.VxorpsVo(tmpXMMRegister, tmpXMMRegister, CX86Assembler::MakeXmmRegisterAddress(tmpXMMRegister));
-	m_assembler.VsubpsVo(tmpXMM2Register, tmpXMMRegister, CX86Assembler::MakeXmmRegisterAddress(src1Register));
-	m_assembler.VmaxpsVo(dstRegister, tmpXMM2Register, CX86Assembler::MakeXmmRegisterAddress(src1Register));
+	m_assembler.VpcmpeqdVo(tmpXMMRegister, tmpXMMRegister, CX86Assembler::MakeXmmRegisterAddress(tmpXMMRegister));
+	m_assembler.VpsrldVo(tmpXMMRegister, tmpXMMRegister, 1);
+	m_assembler.VandpsVo(dstRegister, tmpXMMRegister, CX86Assembler::MakeXmmRegisterAddress(src1Register));
 	CommitSymbolRegisterFpuAvx(dst, dstRegister);
 }
 

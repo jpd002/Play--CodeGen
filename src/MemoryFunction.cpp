@@ -19,6 +19,9 @@
 	#if TARGET_OS_OSX
 		#define MEMFUNC_USE_MMAP
 		#define MEMFUNC_MMAP_ADDITIONAL_FLAGS (MAP_JIT)
+		#if TARGET_CPU_ARM64
+			#define MEMFUNC_MMAP_REQUIRES_JIT_WRITE_PROTECT
+		#endif
 	#else
 		#define MEMFUNC_USE_MACHVM
 		#if TARGET_OS_IPHONE
@@ -84,9 +87,13 @@ CMemoryFunction::CMemoryFunction(const void* code, size_t size)
 	m_size = size;
 	m_code = mmap(nullptr, size, PROT_WRITE | PROT_EXEC, MAP_PRIVATE | MAP_ANONYMOUS | additionalMapFlags, -1, 0);
 	assert(m_code != MAP_FAILED);
+#ifdef MEMFUNC_MMAP_REQUIRES_JIT_WRITE_PROTECT
 	pthread_jit_write_protect_np(false);
+#endif
 	memcpy(m_code, code, size);
+#ifdef MEMFUNC_MMAP_REQUIRES_JIT_WRITE_PROTECT
 	pthread_jit_write_protect_np(true);
+#endif
 #endif
 	ClearCache();
 	assert((reinterpret_cast<uintptr_t>(m_code) & (BLOCK_ALIGN - 1)) == 0);
@@ -159,7 +166,7 @@ void CMemoryFunction::BeginModify()
 #if defined(MEMFUNC_USE_MACHVM) && defined(MEMFUNC_MACHVM_STRICT_PROTECTION)
 	kern_return_t result = vm_protect(mach_task_self(), reinterpret_cast<vm_address_t>(m_code), m_size, 0, VM_PROT_READ | VM_PROT_WRITE);
 	assert(result == 0);
-#elif defined(MEMFUNC_USE_MMAP)
+#elif defined(MEMFUNC_USE_MMAP) && defined(MEMFUNC_MMAP_REQUIRES_JIT_WRITE_PROTECT)
 	pthread_jit_write_protect_np(false);
 #endif
 }
@@ -169,7 +176,7 @@ void CMemoryFunction::EndModify()
 #if defined(MEMFUNC_USE_MACHVM) && defined(MEMFUNC_MACHVM_STRICT_PROTECTION)
 	kern_return_t result = vm_protect(mach_task_self(), reinterpret_cast<vm_address_t>(m_code), m_size, 0, VM_PROT_READ | VM_PROT_EXECUTE);
 	assert(result == 0);
-#elif defined(MEMFUNC_USE_MMAP)
+#elif defined(MEMFUNC_USE_MMAP) && defined(MEMFUNC_MMAP_REQUIRES_JIT_WRITE_PROTECT)
 	pthread_jit_write_protect_np(true);
 #endif
 	ClearCache();

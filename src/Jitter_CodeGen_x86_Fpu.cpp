@@ -20,6 +20,7 @@ CX86Assembler::CAddress CCodeGen_x86::MakeMemoryFpSingleSymbolAddress(CSymbol* s
 {
 	switch(symbol->m_type)
 	{
+	case SYM_FP_REL_INT32:
 	case SYM_FP_REL_SINGLE:
 		return MakeRelativeFpSingleSymbolAddress(symbol);
 		break;

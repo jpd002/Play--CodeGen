@@ -208,6 +208,7 @@ CCodeGen_x86_64::CONSTMATCHER CCodeGen_x86_64::g_constMatchers[] =
 	{ OP_PARAM_RET, MATCH_NIL, MATCH_MEMORY128, MATCH_NIL, MATCH_NIL, &CCodeGen_x86_64::Emit_Param_Mem128 },
 
 	{ OP_CALL, MATCH_NIL, MATCH_CONSTANTPTR, MATCH_CONSTANT, MATCH_NIL, &CCodeGen_x86_64::Emit_Call },
+	{ OP_CALL, MATCH_NIL, MATCH_RELATIVE64,  MATCH_CONSTANT, MATCH_NIL, &CCodeGen_x86_64::Emit_Call_Rel64 },
 
 	{ OP_RETVAL, MATCH_REGISTER,    MATCH_NIL, MATCH_NIL, MATCH_NIL, &CCodeGen_x86_64::Emit_RetVal_Reg    },
 	{ OP_RETVAL, MATCH_MEMORY,      MATCH_NIL, MATCH_NIL, MATCH_NIL, &CCodeGen_x86_64::Emit_RetVal_Mem    },
@@ -325,7 +326,6 @@ uint32 CCodeGen_x86_64::GetPointerSize() const
 void CCodeGen_x86_64::Emit_Prolog(const StatementList& statements, unsigned int stackSize)
 {
 	m_params.clear();
-
 	//Compute the size needed to store all function call parameters
 	uint32 maxParamSpillSize = 0;
 	{
@@ -363,14 +363,14 @@ void CCodeGen_x86_64::Emit_Prolog(const StatementList& statements, unsigned int 
 	m_assembler.MovEq(CX86Assembler::rBP, CX86Assembler::MakeRegisterAddress(m_paramRegs[0]));
 
 	uint32 savedSize = 0;
-	for(unsigned int i = 0; i < m_maxRegisters; i++)
+	if(m_isTrampoline)
 	{
-		if(m_registerUsage & (1 << i))
+		for(unsigned int i = 0; i < m_maxRegisters; i++)
 		{
 			m_assembler.Push(m_registers[i]);
 			savedSize += 8;
 		}
-	}
+	} 
 
 	uint32 savedRegAlignAdjust = (savedSize != 0) ? (0x10 - (savedSize & 0xF)) : 0;
 
@@ -402,9 +402,9 @@ void CCodeGen_x86_64::Emit_Epilog()
 {
 	m_assembler.AddIq(CX86Assembler::MakeRegisterAddress(CX86Assembler::rSP), m_totalStackAlloc);
 
-	for(int i = m_maxRegisters - 1; i >= 0; i--)
+	if(m_isTrampoline)
 	{
-		if(m_registerUsage & (1 << i))
+		for(int i = m_maxRegisters - 1; i >= 0; i--)
 		{
 			m_assembler.Pop(m_registers[i]);
 		}
@@ -537,6 +537,25 @@ void CCodeGen_x86_64::Emit_Param_Mem128(const STATEMENT& statement)
 			return 0;
 		}
 	);
+}
+
+void CCodeGen_x86_64::Emit_Call_Rel64(const STATEMENT& statement)
+{
+	const auto& src1 = statement.src1->GetSymbol().get();
+	const auto& src2 = statement.src2->GetSymbol().get();
+
+	unsigned int paramCount = src2->m_valueLow;
+	uint32 paramSpillOffset = 0;
+
+	for(unsigned int i = 0; i < paramCount; i++)
+	{
+		auto emitter(m_params.back());
+		m_params.pop_back();
+		paramSpillOffset += emitter(m_paramRegs[i], paramSpillOffset);
+	}
+
+	m_assembler.MovEq(CX86Assembler::rAX, MakeMemory64SymbolAddress(src1));
+	m_assembler.CallEd(CX86Assembler::MakeRegisterAddress(CX86Assembler::rAX));
 }
 
 void CCodeGen_x86_64::Emit_Call(const STATEMENT& statement)

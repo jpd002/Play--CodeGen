@@ -100,3 +100,8 @@ uint32 CCodeGen::GetRegisterUsage(const StatementList& statements)
 	}
 	return registerUsage;
 }
+
+void CCodeGen::SetTrumpoline(bool isTrumpoline)
+{
+	m_isTrampoline = isTrumpoline;
+}

@@ -92,6 +92,7 @@ namespace Jitter
 
 		//CALL
 		void								Emit_Call(const STATEMENT&);
+		void								Emit_Call_Rel64(const STATEMENT&);
 
 		//RETURNVALUE
 		void								Emit_RetVal_Reg(const STATEMENT&);

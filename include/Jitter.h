@@ -74,6 +74,8 @@ namespace Jitter
 		void							Add();
 		void							And();
 		void							Break();
+
+		void							CallRel64(size_t, unsigned int);
 		void							Call(void*, unsigned int, bool);
 		void							Call(void*, unsigned int, RETURN_VALUE_TYPE);
 		void							Cmp(CONDITION);

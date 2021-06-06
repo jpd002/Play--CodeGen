@@ -363,14 +363,16 @@ void CCodeGen_x86_64::Emit_Prolog(const StatementList& statements, unsigned int 
 	m_assembler.MovEq(CX86Assembler::rBP, CX86Assembler::MakeRegisterAddress(m_paramRegs[0]));
 
 	uint32 savedSize = 0;
-	// for(unsigned int i = 0; i < m_maxRegisters; i++)
-	// {
-	// 	if(m_registerUsage & (1 << i))
-	// 	{
-	// 		m_assembler.Push(m_registers[i]);
-	// 		savedSize += 8;
-	// 	}
-	// }
+#if 0
+	for(unsigned int i = 0; i < m_maxRegisters; i++)
+	{
+		if(m_registerUsage & (1 << i))
+		{
+			m_assembler.Push(m_registers[i]);
+			savedSize += 8;
+		}
+	}
+#endif
 
 	uint32 savedRegAlignAdjust = (savedSize != 0) ? (0x10 - (savedSize & 0xF)) : 0;
 
@@ -400,17 +402,17 @@ void CCodeGen_x86_64::Emit_Prolog(const StatementList& statements, unsigned int 
 
 void CCodeGen_x86_64::Emit_Epilog()
 {
-	// return;
-
 	m_assembler.AddIq(CX86Assembler::MakeRegisterAddress(CX86Assembler::rSP), m_totalStackAlloc);
 
-	// for(int i = m_maxRegisters - 1; i >= 0; i--)
-	// {
-	// 	if(m_registerUsage & (1 << i))
-	// 	{
-	// 		m_assembler.Pop(m_registers[i]);
-	// 	}
-	// }
+#if 0
+	for(int i = m_maxRegisters - 1; i >= 0; i--)
+	{
+		if(m_registerUsage & (1 << i))
+		{
+			m_assembler.Pop(m_registers[i]);
+		}
+	}
+#endif
 
 	m_assembler.Pop(CX86Assembler::rBP);
 }

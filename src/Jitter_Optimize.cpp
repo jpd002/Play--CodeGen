@@ -1190,7 +1190,7 @@ bool CJitter::CopyPropagation(StatementList& statements)
 
 		statement.VisitSources(
 		    [&](const SymbolRefPtr& symbolRef, bool) {
-			    auto& symbol = symbolRef->GetSymbol();
+			    auto symbol = symbolRef->GetSymbol();
 			    if(symbol->IsRelative()) return;
 			    if(symbol->IsConstant()) return;
 			    auto& usageInfo = usageInfos[symbol];

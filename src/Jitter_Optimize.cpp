@@ -1176,10 +1176,33 @@ bool CJitter::CopyPropagation(StatementList& statements)
 {
 	bool changed = false;
 
-	for(auto outerStatementIterator(statements.begin());
-		statements.end() != outerStatementIterator; ++outerStatementIterator)
+	struct USAGEINFO
 	{
-		STATEMENT& outerStatement(*outerStatementIterator);
+		uint32 count = 0;
+		StatementList::iterator lastUse;
+	};
+	std::map<SymbolPtr, USAGEINFO> usageInfos;
+
+	for(auto statementIterator(statements.begin());
+	    statements.end() != statementIterator; ++statementIterator)
+	{
+		auto& statement(*statementIterator);
+
+		statement.VisitSources(
+		    [&](const SymbolRefPtr& symbolRef, bool) {
+			    auto& symbol = symbolRef->GetSymbol();
+			    if(symbol->IsRelative()) return;
+			    if(symbol->IsConstant()) return;
+			    auto& usageInfo = usageInfos[symbol];
+			    usageInfo.count++;
+			    usageInfo.lastUse = statementIterator;
+		    });
+	}
+
+	for(auto outerStatementIterator(statements.begin());
+	    statements.end() != outerStatementIterator; ++outerStatementIterator)
+	{
+		auto& outerStatement(*outerStatementIterator);
 
 		//Some operations we can't propagate
 		if(outerStatement.op == OP_RETVAL) continue;
@@ -1188,73 +1211,76 @@ bool CJitter::CopyPropagation(StatementList& statements)
 		if(outerDstSymbol == NULL) continue;
 
 		//Don't mess with relatives
-		if(outerDstSymbol->GetSymbol()->IsRelative()) 
+		if(outerDstSymbol->GetSymbol()->IsRelative())
 		{
 			continue;
 		}
 
-		//Count number of uses of this symbol
-		unsigned int useCount = 0;
-		for(auto innerStatementIterator(outerStatementIterator);
-			statements.end() != innerStatementIterator; ++innerStatementIterator)
+		auto usageInfoIterator = usageInfos.find(outerDstSymbol->GetSymbol());
+		if(usageInfoIterator == std::end(usageInfos))
 		{
-			if(outerStatementIterator == innerStatementIterator) continue;
-
-			auto& innerStatement(*innerStatementIterator);
-
-			if(
-				(innerStatement.src1 && innerStatement.src1->Equals(outerDstSymbol)) || 
-				(innerStatement.src2 && innerStatement.src2->Equals(outerDstSymbol)) ||
-				(innerStatement.src3 && innerStatement.src3->Equals(outerDstSymbol))
-				)
-			{
-				useCount++;
-			}
+			continue;
 		}
 
-		if(useCount == 1)
+		const auto& usageInfo = usageInfoIterator->second;
+		if(usageInfo.count != 1)
 		{
-			unsigned int changeCount = 0;
+			continue;
+		}
 
-			for(auto innerStatementIterator(outerStatementIterator);
-				statements.end() != innerStatementIterator; ++innerStatementIterator)
+		auto& innerStatement(*usageInfo.lastUse);
+		if(!innerStatement.src1->Equals(outerDstSymbol))
+		{
+			//Possibly excluding interesting optimization possibilities
+			continue;
+		}
+
+		//Substitute a OP_MOV statement that use outerDstSymbol with its definition (outerStatement)
+		//Example:
+		//outerDstSymbol -> t0
+		//Before:
+		// - t0 = r0 + r1   //outerStatement
+		// - t1 = t0        //innerStatement
+		//After:
+		// - t0 = r0 + r1   //outerStatement
+		// - t1 = r0 + r1   //innerStatement
+		//After substitution, t0 will not be used anymore making outerStatement eligible for removal
+		if(innerStatement.op == OP_MOV)
+		{
+			innerStatement.op = outerStatement.op;
+			innerStatement.src1 = outerStatement.src1;
+			innerStatement.src2 = outerStatement.src2;
+			innerStatement.src3 = outerStatement.src3;
+			innerStatement.jmpCondition = outerStatement.jmpCondition;
+			changed = true;
+		}
+		//Find all the add/sub constant and add them together
+		//Example
+		//outerDstSymbol -> t0
+		//Before:
+		// - t0 = r0 + 10   //outerStatement
+		// - t1 = t0 + 20   //innerStatement
+		//After:
+		// - t0 = r0 + 10   //outerStatement
+		// - t1 = r0 + 30   //innerStatement
+		//After substitution, t0 will not be used anymore making outerStatement eligible for removal
+		else if(
+			(outerStatement.op == innerStatement.op) && 
+			((innerStatement.op == OP_ADD) || (innerStatement.op == OP_ADDREF))
+			)
+		{
+			auto innerSrc2cst = dynamic_symbolref_cast(SYM_CONSTANT, innerStatement.src2);
+			auto outerSrc2cst = dynamic_symbolref_cast(SYM_CONSTANT, outerStatement.src2);
+			if(innerSrc2cst && outerSrc2cst)
 			{
-				if(outerStatementIterator == innerStatementIterator) continue;
-
-				auto& innerStatement(*innerStatementIterator);
-
-				//Check for all OP_MOVs that uses the result of this operation and propagate
-				if(innerStatement.op == OP_MOV && innerStatement.src1->Equals(outerDstSymbol))
-				{
-					changeCount++;
-
-					innerStatement.op = outerStatement.op;
-					innerStatement.src1 = outerStatement.src1;
-					innerStatement.src2 = outerStatement.src2;
-					innerStatement.src3 = outerStatement.src3;
-					innerStatement.jmpCondition = outerStatement.jmpCondition;
-					changed = true;
-				}
-				// find all the add/sub constant and add them together
-				else if(outerStatement.op == innerStatement.op && innerStatement.op == OP_ADD && innerStatement.src1->Equals(outerDstSymbol))
-				{
-					CSymbol* innerSrc2cst = dynamic_symbolref_cast(SYM_CONSTANT, innerStatement.src2);
-					CSymbol* outerSrc2cst = dynamic_symbolref_cast(SYM_CONSTANT, outerStatement.src2);
-					if(innerSrc2cst && outerSrc2cst)
-					{
-						changeCount++;
-						uint32 result = innerSrc2cst->m_valueLow + outerSrc2cst->m_valueLow;
-						outerStatement.src2 = MakeSymbolRef(MakeSymbol(SYM_CONSTANT, result));
-						innerStatement.op = OP_MOV;
-						innerStatement.src2.reset();
-						changed = true;
-					}
-				}
+				uint32 result = innerSrc2cst->m_valueLow + outerSrc2cst->m_valueLow;
+				innerStatement.src1 = outerStatement.src1;
+				innerStatement.src2 = MakeSymbolRef(MakeSymbol(SYM_CONSTANT, result));
+				changed = true;
 			}
-
-			assert(changeCount <= 1);
 		}
 	}
+
 	return changed;
 }
 

@@ -3,6 +3,7 @@ Release
 .gradle
 .idea
 *.iml
+build_android/.*
 build_android/build
 build_android/local.properties
 build_android/proguard-project.txt

@@ -66,7 +66,6 @@ add_library(CodeGen
 	../src/Jitter_RegAlloc.cpp
 	../src/Jitter_Statement.cpp
 	../src/Jitter_SymbolTable.cpp
-	../src/Trumpo.asm
 	../src/LiteralPool.cpp
 	../src/MachoObjectFile.cpp
 	../src/MemoryFunction.cpp

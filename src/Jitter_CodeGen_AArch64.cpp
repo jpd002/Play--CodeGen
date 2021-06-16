@@ -890,6 +890,7 @@ void CCodeGen_AArch64::Emit_Prolog(const StatementList& statements, uint32 stack
 {
 	uint32 maxParamSpillSize = GetMaxParamSpillSize(statements);
 	m_assembler.Stp_PreIdx(CAArch64Assembler::x29, CAArch64Assembler::x30, CAArch64Assembler::xSP, -16);
+#if 0
 	//Preserve saved registers
 	for(uint32 i = 0; i < 16; i++)
 	{
@@ -900,6 +901,7 @@ void CCodeGen_AArch64::Emit_Prolog(const StatementList& statements, uint32 stack
 			m_assembler.Stp_PreIdx(reg0, reg1, CAArch64Assembler::xSP, -16);
 		}
 	}
+#endif
 	m_assembler.Mov_Sp(CAArch64Assembler::x29, CAArch64Assembler::xSP);
 	uint32 totalStackAlloc = stackSize + maxParamSpillSize;
 	m_paramSpillBase = stackSize;
@@ -913,6 +915,7 @@ void CCodeGen_AArch64::Emit_Prolog(const StatementList& statements, uint32 stack
 void CCodeGen_AArch64::Emit_Epilog()
 {
 	m_assembler.Mov_Sp(CAArch64Assembler::xSP, CAArch64Assembler::x29);
+#if 0
 	//Restore saved registers
 	for(int32 i = 15; i >= 0; i--)
 	{
@@ -923,6 +926,7 @@ void CCodeGen_AArch64::Emit_Epilog()
 			m_assembler.Ldp_PostIdx(reg0, reg1, CAArch64Assembler::xSP, 16);
 		}
 	}
+#endif
 	m_assembler.Ldp_PostIdx(CAArch64Assembler::x29, CAArch64Assembler::x30, CAArch64Assembler::xSP, 16);
 }
 

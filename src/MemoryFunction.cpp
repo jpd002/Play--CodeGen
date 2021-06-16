@@ -148,7 +148,25 @@ extern "C" void trumpoline(void* context, void* block_addr);
 
 void CMemoryFunction::operator()(void* context)
 {
-	trumpoline(context, m_code);
+#if 0
+	typedef void (*FctType)(void*);
+	auto fct = reinterpret_cast<FctType>(m_code);
+	fct(context);
+	//trumpoline(context, m_code);
+#else
+	__asm__ __volatile__
+	(
+	"mov x0, %0\n"
+	"blr %1\n"
+	:
+	: "r"(context), "r"(m_code)
+	: "x0",
+	  "x16", "x17", "x18", "x19",
+	  "x20", "x21", "x22", "x23",
+	  "x24", "x25", "x26", "x27",
+	  "x28", "x29", "x30"
+	);
+#endif
 }
 
 void* CMemoryFunction::GetCode() const

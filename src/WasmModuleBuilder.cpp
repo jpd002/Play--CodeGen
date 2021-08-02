@@ -10,8 +10,16 @@ static void WriteName(Framework::CStream& stream, const char* str)
 	stream.Write(str, length);
 }
 
+void CWasmModuleBuilder::AddFunction(FunctionCode function)
+{
+	m_functions.push_back(std::move(function));
+}
+
 void CWasmModuleBuilder::WriteModule(Framework::CStream& stream)
 {
+	//We only support a single function at the moment
+	assert(m_functions.size() == 1);
+
 	stream.Write32(Wasm::BINARY_MAGIC);
 	stream.Write32(Wasm::BINARY_VERSION);
 
@@ -27,7 +35,7 @@ void CWasmModuleBuilder::WriteModule(Framework::CStream& stream)
 
 		//Type 0
 		stream.Write8(0x60); //Func
-		stream.Write8(1); //Num params
+		stream.Write8(1);    //Num params
 		stream.Write8(Wasm::TYPE_I32);
 		stream.Write8(0); //Num results
 	}
@@ -43,7 +51,7 @@ void CWasmModuleBuilder::WriteModule(Framework::CStream& stream)
 		stream.Write8(1); //Import vector size
 
 		//Import 0
-		WriteName(stream, "env"); //Import module name
+		WriteName(stream, "env");    //Import module name
 		WriteName(stream, "memory"); //Import field name
 		stream.Write8(Wasm::IMPORT_EXPORT_TYPE_MEMORY);
 		stream.Write8(0x00); //Limit type 0
@@ -81,33 +89,20 @@ void CWasmModuleBuilder::WriteModule(Framework::CStream& stream)
 
 	//Section "Code"
 	{
+		const auto& function = m_functions[0];
+
 		//Header
 		Wasm::SECTION_HEADER codeSection;
 		codeSection.code = Wasm::SECTION_ID_CODE;
-		codeSection.size = 0x0E;
+		codeSection.size = function.size() + 3;
 		stream.Write(&codeSection, sizeof(Wasm::SECTION_HEADER));
 
 		stream.Write8(1); //Function vector size
 
 		//Function 0
-		stream.Write8(0x0C); //Function body size
-		stream.Write8(0); //Local declaration count
+		stream.Write8(function.size() + 1); //Function body size
+		stream.Write8(0);                   //Local declaration count
 
-		stream.Write8(0x20); //local.get
-		stream.Write8(0x00);
-
-		stream.Write8(0x41); //i32.const
-		stream.Write8(0x04);
-
-		stream.Write8(Wasm::INST_I32_ADD);
-
-		stream.Write8(0x41); //i32.const
-		stream.Write8(0x7F);
-
-		stream.Write8(0x36); //i32.store
-		stream.Write8(0x02);
-		stream.Write8(0x00);
-
-		stream.Write8(Wasm::INST_END);
+		stream.Write(function.data(), function.size());
 	}
 }

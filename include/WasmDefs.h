@@ -39,6 +39,10 @@ namespace Wasm
 	enum INST_CODE
 	{
 		INST_END = 0x0B,
+		INST_LOCAL_GET = 0x20,
+		INST_I32_LOAD = 0x28,
+		INST_I32_STORE = 0x36,
+		INST_I32_CONST = 0x41,
 		INST_I32_ADD = 0x6A,
 		INST_I32_SHL = 0x74,
 		INST_I32_SHR_S = 0x75,

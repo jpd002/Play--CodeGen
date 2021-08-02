@@ -12,6 +12,8 @@ CCodeGen_Wasm::CONSTMATCHER CCodeGen_Wasm::g_constMatchers[] =
 {
 	{ OP_MOV,            MATCH_RELATIVE,       MATCH_RELATIVE,       MATCH_NIL,           MATCH_NIL,      &CCodeGen_Wasm::Emit_Mov_RelRel                             },
 
+	{ OP_SLL,            MATCH_RELATIVE,       MATCH_RELATIVE,       MATCH_CONSTANT,      MATCH_NIL,      &CCodeGen_Wasm::Emit_Sll_RelRelCst                          },
+
 	{ OP_LABEL,          MATCH_NIL,            MATCH_NIL,            MATCH_NIL,           MATCH_NIL,      &CCodeGen_Wasm::MarkLabel                                   },
 
 	{ OP_MOV,            MATCH_NIL,            MATCH_NIL,            MATCH_NIL,           MATCH_NIL,      nullptr                                                     },
@@ -118,27 +120,79 @@ void CCodeGen_Wasm::Emit_Mov_RelRel(const STATEMENT& statement)
 	assert(src1->m_valueLow < 0x80);
 
 	//Compute Store Offset
-	m_functionStream.Write8(Wasm::INST_LOCAL_GET);
-	m_functionStream.Write8(0x00);
+	{
+		m_functionStream.Write8(Wasm::INST_LOCAL_GET);
+		m_functionStream.Write8(0x00);
 
-	m_functionStream.Write8(Wasm::INST_I32_CONST);
-	m_functionStream.Write8(dst->m_valueLow);
+		m_functionStream.Write8(Wasm::INST_I32_CONST);
+		m_functionStream.Write8(dst->m_valueLow);
 
-	m_functionStream.Write8(Wasm::INST_I32_ADD);
+		m_functionStream.Write8(Wasm::INST_I32_ADD);
+	}
 
 	//Compute Load Offset
-	m_functionStream.Write8(Wasm::INST_LOCAL_GET);
-	m_functionStream.Write8(0x00);
+	{
+		m_functionStream.Write8(Wasm::INST_LOCAL_GET);
+		m_functionStream.Write8(0x00);
 
-	m_functionStream.Write8(Wasm::INST_I32_CONST);
-	m_functionStream.Write8(src1->m_valueLow);
+		m_functionStream.Write8(Wasm::INST_I32_CONST);
+		m_functionStream.Write8(src1->m_valueLow);
 
-	m_functionStream.Write8(Wasm::INST_I32_ADD);
+		m_functionStream.Write8(Wasm::INST_I32_ADD);
+	}
 
 	//Load
 	m_functionStream.Write8(Wasm::INST_I32_LOAD);
 	m_functionStream.Write8(0x02);
 	m_functionStream.Write8(0x00);
+
+	//Store
+	m_functionStream.Write8(Wasm::INST_I32_STORE);
+	m_functionStream.Write8(0x02);
+	m_functionStream.Write8(0x00);
+}
+
+void CCodeGen_Wasm::Emit_Sll_RelRelCst(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	assert(dst->m_valueLow < 0x80);
+	assert(src1->m_valueLow < 0x80);
+	assert(src2->m_valueLow < 0x80);
+
+	//Compute Store Offset
+	{
+		m_functionStream.Write8(Wasm::INST_LOCAL_GET);
+		m_functionStream.Write8(0x00);
+
+		m_functionStream.Write8(Wasm::INST_I32_CONST);
+		m_functionStream.Write8(dst->m_valueLow);
+
+		m_functionStream.Write8(Wasm::INST_I32_ADD);
+	}
+
+	//Compute Load Offset
+	{
+		m_functionStream.Write8(Wasm::INST_LOCAL_GET);
+		m_functionStream.Write8(0x00);
+
+		m_functionStream.Write8(Wasm::INST_I32_CONST);
+		m_functionStream.Write8(src1->m_valueLow);
+
+		m_functionStream.Write8(Wasm::INST_I32_ADD);
+	}
+
+	//Load
+	m_functionStream.Write8(Wasm::INST_I32_LOAD);
+	m_functionStream.Write8(0x02);
+	m_functionStream.Write8(0x00);
+
+	m_functionStream.Write8(Wasm::INST_I32_CONST);
+	m_functionStream.Write8(src2->m_valueLow);
+
+	m_functionStream.Write8(Wasm::INST_I32_SHL);
 
 	//Store
 	m_functionStream.Write8(Wasm::INST_I32_STORE);

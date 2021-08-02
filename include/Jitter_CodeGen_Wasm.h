@@ -38,6 +38,8 @@ namespace Jitter
 
 		void Emit_Mov_RelRel(const STATEMENT&);
 
+		void Emit_Sll_RelRelCst(const STATEMENT&);
+
 		Framework::CStream* m_stream = nullptr;
 		Framework::CMemStream m_functionStream;
 	};

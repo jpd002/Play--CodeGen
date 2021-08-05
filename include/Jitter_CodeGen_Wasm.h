@@ -5,6 +5,16 @@
 
 namespace Jitter
 {
+	class CWasmFunctionRegistry
+	{
+	public:
+		static void RegisterFunction(uintptr_t, const char*, const char*);
+		static int32 FindFunction(uintptr_t);
+
+	private:
+		static std::map<uintptr_t, int32> m_functions;
+	};
+
 	class CCodeGen_Wasm : public CCodeGen
 	{
 	public:
@@ -34,9 +44,20 @@ namespace Jitter
 
 		static CONSTMATCHER g_constMatchers[];
 
+		void PushContext();
+		void PushRelativeAddress(CSymbol*);
+		void PushTemporary(CSymbol*);
+		void PullTemporary(CSymbol*);
+
 		void MarkLabel(const STATEMENT&);
 
 		void Emit_Mov_RelRel(const STATEMENT&);
+		void Emit_Mov_RelTmp(const STATEMENT&);
+
+		void Emit_Param_Ctx(const STATEMENT&);
+
+		void Emit_Call(const STATEMENT&);
+		void Emit_RetVal_Tmp(const STATEMENT&);
 
 		void Emit_Sll_RelRelCst(const STATEMENT&);
 

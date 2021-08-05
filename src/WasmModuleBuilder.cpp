@@ -10,7 +10,7 @@ static void WriteName(Framework::CStream& stream, const char* str)
 	stream.Write(str, length);
 }
 
-void CWasmModuleBuilder::AddFunction(FunctionCode function)
+void CWasmModuleBuilder::AddFunction(FUNCTION function)
 {
 	m_functions.push_back(std::move(function));
 }
@@ -28,16 +28,23 @@ void CWasmModuleBuilder::WriteModule(Framework::CStream& stream)
 		//Header
 		Wasm::SECTION_HEADER typeSection;
 		typeSection.code = Wasm::SECTION_ID_TYPE;
-		typeSection.size = 5;
+		typeSection.size = 1 + 4 + 5;
 		stream.Write(&typeSection, sizeof(Wasm::SECTION_HEADER));
 
-		stream.Write8(1); //Type vector size
+		stream.Write8(2); //Type vector size
 
 		//Type 0
 		stream.Write8(0x60); //Func
 		stream.Write8(1);    //Num params
 		stream.Write8(Wasm::TYPE_I32);
 		stream.Write8(0); //Num results
+
+		//Type 1
+		stream.Write8(0x60); //Func
+		stream.Write8(1);    //Num params
+		stream.Write8(Wasm::TYPE_I32);
+		stream.Write8(1); //Num results
+		stream.Write8(Wasm::TYPE_I32);
 	}
 
 	//Section "Import"
@@ -45,10 +52,10 @@ void CWasmModuleBuilder::WriteModule(Framework::CStream& stream)
 		//Header
 		Wasm::SECTION_HEADER importSection;
 		importSection.code = Wasm::SECTION_ID_IMPORT;
-		importSection.size = 0x0F;
+		importSection.size = 0x20;
 		stream.Write(&importSection, sizeof(Wasm::SECTION_HEADER));
 
-		stream.Write8(1); //Import vector size
+		stream.Write8(2); //Import vector size
 
 		//Import 0
 		WriteName(stream, "env");    //Import module name
@@ -56,6 +63,14 @@ void CWasmModuleBuilder::WriteModule(Framework::CStream& stream)
 		stream.Write8(Wasm::IMPORT_EXPORT_TYPE_MEMORY);
 		stream.Write8(0x00); //Limit type 0
 		stream.Write8(0x01); //Min
+
+		//Import 1
+		WriteName(stream, "env");
+		WriteName(stream, "fctTable");
+		stream.Write8(Wasm::IMPORT_EXPORT_TYPE_TABLE);
+		stream.Write8(0x70); //Funcref
+		stream.Write8(0x00); //Flags
+		stream.Write8(0x01); //Initial
 	}
 
 	//Section "Function"
@@ -91,18 +106,29 @@ void CWasmModuleBuilder::WriteModule(Framework::CStream& stream)
 	{
 		const auto& function = m_functions[0];
 
+		uint32 localDeclCount = (function.localI32Count == 0) ? 0 : 1;
+		uint32 localDeclSize = function.localI32Count + localDeclCount + 1;
+
 		//Header
 		Wasm::SECTION_HEADER codeSection;
 		codeSection.code = Wasm::SECTION_ID_CODE;
-		codeSection.size = function.size() + 3;
+		codeSection.size = function.code.size() + localDeclSize + 2;
 		stream.Write(&codeSection, sizeof(Wasm::SECTION_HEADER));
 
 		stream.Write8(1); //Function vector size
 
 		//Function 0
-		stream.Write8(function.size() + 1); //Function body size
-		stream.Write8(0);                   //Local declaration count
+		stream.Write8(function.code.size() + localDeclSize); //Function body size
+		stream.Write8(localDeclCount);                       //Local declaration count
+		if(function.localI32Count != 0)
+		{
+			stream.Write8(function.localI32Count); //Local type count
+			for(uint32 i = 0; i < function.localI32Count; i++)
+			{
+				stream.Write8(Wasm::TYPE_I32);
+			}
+		}
 
-		stream.Write(function.data(), function.size());
+		stream.Write(function.code.data(), function.code.size());
 	}
 }

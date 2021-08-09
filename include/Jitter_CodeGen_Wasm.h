@@ -30,6 +30,13 @@ namespace Jitter
 		uint32 GetPointerSize() const override;
 
 	private:
+		enum LABEL_FLOW
+		{
+			LABEL_FLOW_IF,
+			LABEL_FLOW_ELSE,
+			LABEL_FLOW_END,
+		};
+
 		typedef void (CCodeGen_Wasm::*ConstCodeEmitterType)(const STATEMENT&);
 
 		struct CONSTMATCHER
@@ -44,24 +51,32 @@ namespace Jitter
 
 		static CONSTMATCHER g_constMatchers[];
 
+		void BuildLabelFlows(const StatementList&);
+
 		void PushContext();
 		void PushRelativeAddress(CSymbol*);
+		void PushRelative(CSymbol*);
 		void PushTemporary(CSymbol*);
 		void PullTemporary(CSymbol*);
 
+		void PushSymbol(CSymbol*);
+
 		void MarkLabel(const STATEMENT&);
 
-		void Emit_Mov_RelRel(const STATEMENT&);
-		void Emit_Mov_RelTmp(const STATEMENT&);
+		void Emit_Mov_RelAny(const STATEMENT&);
 
 		void Emit_Param_Ctx(const STATEMENT&);
 
 		void Emit_Call(const STATEMENT&);
 		void Emit_RetVal_Tmp(const STATEMENT&);
 
+		void Emit_Jmp(const STATEMENT&);
+		void Emit_CondJmp_RelCst(const STATEMENT&);
+
 		void Emit_Sll_RelRelCst(const STATEMENT&);
 
 		Framework::CStream* m_stream = nullptr;
 		Framework::CMemStream m_functionStream;
+		std::map<uint32, LABEL_FLOW> m_labelFlows;
 	};
 }

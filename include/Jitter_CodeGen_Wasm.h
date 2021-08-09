@@ -66,6 +66,7 @@ namespace Jitter
 		void Emit_Mov_RelAny(const STATEMENT&);
 
 		void Emit_Param_Ctx(const STATEMENT&);
+		void Emit_Param_Tmp(const STATEMENT&);
 
 		void Emit_Call(const STATEMENT&);
 		void Emit_RetVal_Tmp(const STATEMENT&);
@@ -74,6 +75,10 @@ namespace Jitter
 		void Emit_CondJmp_RelCst(const STATEMENT&);
 
 		void Emit_Sll_RelRelCst(const STATEMENT&);
+		void Emit_Srl_TmpAnyAny(const STATEMENT&);
+
+		void Emit_Xor_RelAnyAny(const STATEMENT&);
+		void Emit_Xor_TmpAnyAny(const STATEMENT&);
 
 		Framework::CStream* m_stream = nullptr;
 		Framework::CMemStream m_functionStream;

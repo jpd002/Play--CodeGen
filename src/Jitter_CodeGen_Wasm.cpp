@@ -13,6 +13,7 @@ CCodeGen_Wasm::CONSTMATCHER CCodeGen_Wasm::g_constMatchers[] =
 	{ OP_MOV,            MATCH_RELATIVE,       MATCH_ANY,            MATCH_NIL,           MATCH_NIL,      &CCodeGen_Wasm::Emit_Mov_RelAny                             },
 
 	{ OP_PARAM,          MATCH_NIL,            MATCH_CONTEXT,        MATCH_NIL,           MATCH_NIL,      &CCodeGen_Wasm::Emit_Param_Ctx                              },
+	{ OP_PARAM,          MATCH_NIL,            MATCH_TEMPORARY,      MATCH_NIL,           MATCH_NIL,      &CCodeGen_Wasm::Emit_Param_Tmp                              },
 
 	{ OP_CALL,           MATCH_NIL,            MATCH_CONSTANTPTR,    MATCH_CONSTANT,      MATCH_NIL,      &CCodeGen_Wasm::Emit_Call                                   },
 	{ OP_RETVAL,         MATCH_TEMPORARY,      MATCH_NIL,            MATCH_NIL,           MATCH_NIL,      &CCodeGen_Wasm::Emit_RetVal_Tmp                             },
@@ -22,6 +23,10 @@ CCodeGen_Wasm::CONSTMATCHER CCodeGen_Wasm::g_constMatchers[] =
 	{ OP_CONDJMP,        MATCH_NIL,            MATCH_RELATIVE,       MATCH_CONSTANT,      MATCH_NIL,      &CCodeGen_Wasm::Emit_CondJmp_RelCst                         },
 
 	{ OP_SLL,            MATCH_RELATIVE,       MATCH_RELATIVE,       MATCH_CONSTANT,      MATCH_NIL,      &CCodeGen_Wasm::Emit_Sll_RelRelCst                          },
+	{ OP_SRL,            MATCH_TEMPORARY,      MATCH_ANY,            MATCH_ANY,           MATCH_NIL,      &CCodeGen_Wasm::Emit_Srl_TmpAnyAny                          },
+
+	{ OP_XOR,            MATCH_RELATIVE,       MATCH_ANY,            MATCH_ANY,           MATCH_NIL,      &CCodeGen_Wasm::Emit_Xor_RelAnyAny                          },
+	{ OP_XOR,            MATCH_TEMPORARY,      MATCH_ANY,            MATCH_ANY,           MATCH_NIL,      &CCodeGen_Wasm::Emit_Xor_TmpAnyAny                          },
 
 	{ OP_LABEL,          MATCH_NIL,            MATCH_NIL,            MATCH_NIL,           MATCH_NIL,      &CCodeGen_Wasm::MarkLabel                                   },
 
@@ -46,7 +51,8 @@ std::map<uintptr_t, int32> CWasmFunctionRegistry::m_functions;
 
 void CWasmFunctionRegistry::RegisterFunction(uintptr_t functionPtr, const char* functionName, const char* functionSig)
 {
-	assert(!strcmp(functionSig, "vi"));
+	//We only support functions taking an int and returning an int for now
+	assert(!strcmp(functionSig, "ii"));
 	uint32 functionId = RegisterExternFunction(functionName, functionSig);
 	auto fctIterator = m_functions.find(functionPtr);
 	assert(fctIterator == m_functions.end());
@@ -56,7 +62,6 @@ void CWasmFunctionRegistry::RegisterFunction(uintptr_t functionPtr, const char* 
 int32 CWasmFunctionRegistry::FindFunction(uintptr_t functionPtr)
 {
 	auto fctIterator = m_functions.find(functionPtr);
-	assert(false);
 	assert(fctIterator != m_functions.end());
 	return fctIterator->second;
 }
@@ -367,6 +372,12 @@ void CCodeGen_Wasm::Emit_Param_Ctx(const STATEMENT& statement)
 	PushContext();
 }
 
+void CCodeGen_Wasm::Emit_Param_Tmp(const STATEMENT& statement)
+{
+	auto src1 = statement.src1->GetSymbol().get();
+	PushTemporary(src1);
+}
+
 void CCodeGen_Wasm::Emit_Call(const STATEMENT& statement)
 {
 	auto src1 = statement.src1->GetSymbol().get();
@@ -436,4 +447,50 @@ void CCodeGen_Wasm::Emit_Sll_RelRelCst(const STATEMENT& statement)
 	m_functionStream.Write8(Wasm::INST_I32_STORE);
 	m_functionStream.Write8(0x02);
 	m_functionStream.Write8(0x00);
+}
+
+void CCodeGen_Wasm::Emit_Srl_TmpAnyAny(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	PushSymbol(src1);
+	PushSymbol(src2);
+
+	m_functionStream.Write8(Wasm::INST_I32_SHR_U);
+
+	PullTemporary(dst);
+}
+
+void CCodeGen_Wasm::Emit_Xor_RelAnyAny(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	PushRelativeAddress(dst);
+
+	PushSymbol(src1);
+	PushSymbol(src2);
+
+	m_functionStream.Write8(Wasm::INST_I32_XOR);
+
+	m_functionStream.Write8(Wasm::INST_I32_STORE);
+	m_functionStream.Write8(0x02);
+	m_functionStream.Write8(0x00);
+}
+
+void CCodeGen_Wasm::Emit_Xor_TmpAnyAny(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	PushSymbol(src1);
+	PushSymbol(src2);
+
+	m_functionStream.Write8(Wasm::INST_I32_XOR);
+
+	PullTemporary(dst);
 }

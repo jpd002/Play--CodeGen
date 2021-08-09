@@ -107,7 +107,7 @@ void CWasmModuleBuilder::WriteModule(Framework::CStream& stream)
 		const auto& function = m_functions[0];
 
 		uint32 localDeclCount = (function.localI32Count == 0) ? 0 : 1;
-		uint32 localDeclSize = function.localI32Count + localDeclCount + 1;
+		uint32 localDeclSize = (localDeclCount * 2) + 1;
 
 		//Header
 		Wasm::SECTION_HEADER codeSection;
@@ -123,10 +123,7 @@ void CWasmModuleBuilder::WriteModule(Framework::CStream& stream)
 		if(function.localI32Count != 0)
 		{
 			stream.Write8(function.localI32Count); //Local type count
-			for(uint32 i = 0; i < function.localI32Count; i++)
-			{
-				stream.Write8(Wasm::TYPE_I32);
-			}
+			stream.Write8(Wasm::TYPE_I32);
 		}
 
 		stream.Write(function.code.data(), function.code.size());

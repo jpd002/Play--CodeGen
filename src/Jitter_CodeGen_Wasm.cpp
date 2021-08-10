@@ -22,8 +22,12 @@ CCodeGen_Wasm::CONSTMATCHER CCodeGen_Wasm::g_constMatchers[] =
 
 	{ OP_CONDJMP,        MATCH_NIL,            MATCH_RELATIVE,       MATCH_CONSTANT,      MATCH_NIL,      &CCodeGen_Wasm::Emit_CondJmp_RelCst                         },
 
-	{ OP_SLL,            MATCH_RELATIVE,       MATCH_RELATIVE,       MATCH_CONSTANT,      MATCH_NIL,      &CCodeGen_Wasm::Emit_Sll_RelRelCst                          },
+	{ OP_SLL,            MATCH_RELATIVE,       MATCH_ANY,            MATCH_ANY,           MATCH_NIL,      &CCodeGen_Wasm::Emit_Sll_RelAnyAny                          },
+
+	{ OP_SRL,            MATCH_RELATIVE,       MATCH_ANY,            MATCH_ANY,           MATCH_NIL,      &CCodeGen_Wasm::Emit_Srl_RelAnyAny                          },
 	{ OP_SRL,            MATCH_TEMPORARY,      MATCH_ANY,            MATCH_ANY,           MATCH_NIL,      &CCodeGen_Wasm::Emit_Srl_TmpAnyAny                          },
+
+	{ OP_SRA,            MATCH_RELATIVE,       MATCH_ANY,            MATCH_ANY,           MATCH_NIL,      &CCodeGen_Wasm::Emit_Sra_RelAnyAny                          },
 
 	{ OP_XOR,            MATCH_RELATIVE,       MATCH_ANY,            MATCH_ANY,           MATCH_NIL,      &CCodeGen_Wasm::Emit_Xor_RelAnyAny                          },
 	{ OP_XOR,            MATCH_TEMPORARY,      MATCH_ANY,            MATCH_ANY,           MATCH_NIL,      &CCodeGen_Wasm::Emit_Xor_TmpAnyAny                          },
@@ -78,27 +82,6 @@ int32 CWasmFunctionRegistry::FindFunction(uintptr_t functionPtr)
 }
 
 #endif
-
-static void WriteLeb128(Framework::CStream& stream, int32 value)
-{
-	bool more = true;
-	while(more)
-	{
-		uint8 byte = (value & 0x7F);
-		value >>= 7;
-		if(
-		    (value == 0 && ((byte & 0x40) == 0)) ||
-		    (value == -1 && ((byte & 0x40) != 0)))
-		{
-			more = false;
-		}
-		else
-		{
-			byte |= 0x80;
-		}
-		stream.Write8(byte);
-	}
-}
 
 CCodeGen_Wasm::CCodeGen_Wasm()
 {
@@ -294,7 +277,7 @@ void CCodeGen_Wasm::PushTemporary(CSymbol* symbol)
 	uint32 localIdx = (symbol->m_stackLocation / 4) + 1;
 
 	m_functionStream.Write8(Wasm::INST_LOCAL_GET);
-	WriteLeb128(m_functionStream, localIdx);
+	CWasmModuleBuilder::WriteULeb128(m_functionStream, localIdx);
 }
 
 void CCodeGen_Wasm::PullTemporary(CSymbol* symbol)
@@ -304,7 +287,7 @@ void CCodeGen_Wasm::PullTemporary(CSymbol* symbol)
 	uint32 localIdx = (symbol->m_stackLocation / 4) + 1;
 
 	m_functionStream.Write8(Wasm::INST_LOCAL_SET);
-	WriteLeb128(m_functionStream, localIdx);
+	CWasmModuleBuilder::WriteULeb128(m_functionStream, localIdx);
 }
 
 void CCodeGen_Wasm::PushSymbol(CSymbol* symbol)
@@ -319,7 +302,7 @@ void CCodeGen_Wasm::PushSymbol(CSymbol* symbol)
 		break;
 	case SYM_CONSTANT:
 		m_functionStream.Write8(Wasm::INST_I32_CONST);
-		WriteLeb128(m_functionStream, symbol->m_valueLow);
+		CWasmModuleBuilder::WriteULeb128(m_functionStream, symbol->m_valueLow);
 		break;
 	default:
 		assert(false);
@@ -392,7 +375,7 @@ void CCodeGen_Wasm::Emit_Call(const STATEMENT& statement)
 	int32 tableEntryIdx = CWasmFunctionRegistry::FindFunction(src1->m_valueLow);
 
 	m_functionStream.Write8(Wasm::INST_I32_CONST);
-	WriteLeb128(m_functionStream, tableEntryIdx);
+	CWasmModuleBuilder::WriteULeb128(m_functionStream, tableEntryIdx);
 
 	m_functionStream.Write8(Wasm::INST_CALL_INDIRECT);
 	m_functionStream.Write8(0x01); //Signature index
@@ -421,29 +404,37 @@ void CCodeGen_Wasm::Emit_CondJmp_RelCst(const STATEMENT& statement)
 	m_functionStream.Write8(Wasm::INST_I32_EQ);
 }
 
-void CCodeGen_Wasm::Emit_Sll_RelRelCst(const STATEMENT& statement)
+void CCodeGen_Wasm::Emit_Sll_RelAnyAny(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
 	auto src2 = statement.src2->GetSymbol().get();
 
-	assert(src2->m_valueLow < 0x80);
-
 	PushRelativeAddress(dst);
-	PushRelativeAddress(src1);
 
-	//Load
-	m_functionStream.Write8(Wasm::INST_I32_LOAD);
-	m_functionStream.Write8(0x02);
-	m_functionStream.Write8(0x00);
-
-	//Shift
-	m_functionStream.Write8(Wasm::INST_I32_CONST);
-	m_functionStream.Write8(src2->m_valueLow);
+	PushSymbol(src1);
+	PushSymbol(src2);
 
 	m_functionStream.Write8(Wasm::INST_I32_SHL);
 
-	//Store
+	m_functionStream.Write8(Wasm::INST_I32_STORE);
+	m_functionStream.Write8(0x02);
+	m_functionStream.Write8(0x00);
+}
+
+void CCodeGen_Wasm::Emit_Srl_RelAnyAny(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	PushRelativeAddress(dst);
+
+	PushSymbol(src1);
+	PushSymbol(src2);
+
+	m_functionStream.Write8(Wasm::INST_I32_SHR_U);
+
 	m_functionStream.Write8(Wasm::INST_I32_STORE);
 	m_functionStream.Write8(0x02);
 	m_functionStream.Write8(0x00);
@@ -461,6 +452,24 @@ void CCodeGen_Wasm::Emit_Srl_TmpAnyAny(const STATEMENT& statement)
 	m_functionStream.Write8(Wasm::INST_I32_SHR_U);
 
 	PullTemporary(dst);
+}
+
+void CCodeGen_Wasm::Emit_Sra_RelAnyAny(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	PushRelativeAddress(dst);
+
+	PushSymbol(src1);
+	PushSymbol(src2);
+
+	m_functionStream.Write8(Wasm::INST_I32_SHR_S);
+
+	m_functionStream.Write8(Wasm::INST_I32_STORE);
+	m_functionStream.Write8(0x02);
+	m_functionStream.Write8(0x00);
 }
 
 void CCodeGen_Wasm::Emit_Xor_RelAnyAny(const STATEMENT& statement)

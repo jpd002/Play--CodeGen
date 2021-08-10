@@ -8,7 +8,7 @@ namespace Wasm
 		BINARY_VERSION = 0x01,
 	};
 
-	enum SECTION_ID
+	enum SECTION_ID : uint8
 	{
 		SECTION_ID_TYPE = 0x01,
 		SECTION_ID_IMPORT = 0x02,
@@ -23,14 +23,6 @@ namespace Wasm
 		IMPORT_EXPORT_TYPE_TABLE = 0x01,
 		IMPORT_EXPORT_TYPE_MEMORY = 0x02,
 	};
-
-#pragma pack(push, 1)
-	struct SECTION_HEADER
-	{
-		uint8 code;
-		uint8 size;
-	};
-#pragma pack(pop)
 
 	enum TYPE_CODE
 	{

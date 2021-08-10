@@ -10,6 +10,65 @@ static void WriteName(Framework::CStream& stream, const char* str)
 	stream.Write(str, length);
 }
 
+void CWasmModuleBuilder::WriteSLeb128(Framework::CStream& stream, int32 value)
+{
+	bool more = true;
+	while(more)
+	{
+		uint8 byte = (value & 0x7F);
+		value >>= 7;
+		if(
+		    (value == 0 && ((byte & 0x40) == 0)) ||
+		    (value == -1 && ((byte & 0x40) != 0)))
+		{
+			more = false;
+		}
+		else
+		{
+			byte |= 0x80;
+		}
+		stream.Write8(byte);
+	}
+}
+
+void CWasmModuleBuilder::WriteULeb128(Framework::CStream& stream, uint32 value)
+{
+	while(1)
+	{
+		uint8 byte = (value & 0x7F);
+		value >>= 7;
+		if(value != 0)
+		{
+			byte |= 0x80;
+		}
+		stream.Write8(byte);
+		if(value == 0)
+		{
+			break;
+		}
+	}
+}
+
+uint32 CWasmModuleBuilder::GetULeb128Size(uint32 value)
+{
+	uint32 size = 0;
+	while(1)
+	{
+		uint8 byte = (value & 0x7F);
+		value >>= 7;
+		if(value != 0)
+		{
+			byte |= 0x80;
+		}
+		size++;
+		if(value == 0)
+		{
+			break;
+		}
+	}
+	return size;
+}
+
 void CWasmModuleBuilder::AddFunction(FUNCTION function)
 {
 	m_functions.push_back(std::move(function));
@@ -25,11 +84,7 @@ void CWasmModuleBuilder::WriteModule(Framework::CStream& stream)
 
 	//Section "Type"
 	{
-		//Header
-		Wasm::SECTION_HEADER typeSection;
-		typeSection.code = Wasm::SECTION_ID_TYPE;
-		typeSection.size = 1 + 4 + 5;
-		stream.Write(&typeSection, sizeof(Wasm::SECTION_HEADER));
+		WriteSectionHeader(stream, Wasm::SECTION_ID_TYPE, 1 + 4 + 5);
 
 		stream.Write8(2); //Type vector size
 
@@ -49,11 +104,7 @@ void CWasmModuleBuilder::WriteModule(Framework::CStream& stream)
 
 	//Section "Import"
 	{
-		//Header
-		Wasm::SECTION_HEADER importSection;
-		importSection.code = Wasm::SECTION_ID_IMPORT;
-		importSection.size = 0x20;
-		stream.Write(&importSection, sizeof(Wasm::SECTION_HEADER));
+		WriteSectionHeader(stream, Wasm::SECTION_ID_IMPORT, 0x20);
 
 		stream.Write8(2); //Import vector size
 
@@ -75,10 +126,7 @@ void CWasmModuleBuilder::WriteModule(Framework::CStream& stream)
 
 	//Section "Function"
 	{
-		Wasm::SECTION_HEADER functionSection;
-		functionSection.code = Wasm::SECTION_ID_FUNCTION;
-		functionSection.size = 0x02;
-		stream.Write(&functionSection, sizeof(Wasm::SECTION_HEADER));
+		WriteSectionHeader(stream, Wasm::SECTION_ID_FUNCTION, 0x02);
 
 		stream.Write8(1); //Function vector size
 
@@ -88,11 +136,7 @@ void CWasmModuleBuilder::WriteModule(Framework::CStream& stream)
 
 	//Section "Export"
 	{
-		//Header
-		Wasm::SECTION_HEADER exportSection;
-		exportSection.code = Wasm::SECTION_ID_EXPORT;
-		exportSection.size = 0x0A;
-		stream.Write(&exportSection, sizeof(Wasm::SECTION_HEADER));
+		WriteSectionHeader(stream, Wasm::SECTION_ID_EXPORT, 0x0A);
 
 		stream.Write8(1); //Export vector size
 
@@ -106,26 +150,36 @@ void CWasmModuleBuilder::WriteModule(Framework::CStream& stream)
 	{
 		const auto& function = m_functions[0];
 
+		assert(function.localI32Count < 0x80);
+
 		uint32 localDeclCount = (function.localI32Count == 0) ? 0 : 1;
 		uint32 localDeclSize = (localDeclCount * 2) + 1;
+		uint32 functionBodySize = function.code.size() + localDeclSize;
 
-		//Header
-		Wasm::SECTION_HEADER codeSection;
-		codeSection.code = Wasm::SECTION_ID_CODE;
-		codeSection.size = function.code.size() + localDeclSize + 2;
-		stream.Write(&codeSection, sizeof(Wasm::SECTION_HEADER));
+		uint32 sectionSize =
+		    1 + //Vector size
+		    GetULeb128Size(functionBodySize) +
+		    functionBodySize;
+
+		WriteSectionHeader(stream, Wasm::SECTION_ID_CODE, sectionSize);
 
 		stream.Write8(1); //Function vector size
 
 		//Function 0
-		stream.Write8(function.code.size() + localDeclSize); //Function body size
-		stream.Write8(localDeclCount);                       //Local declaration count
+		WriteULeb128(stream, functionBodySize); //Function body size
+		WriteULeb128(stream, localDeclCount);   //Local declaration count
 		if(function.localI32Count != 0)
 		{
-			stream.Write8(function.localI32Count); //Local type count
+			WriteULeb128(stream, function.localI32Count); //Local type count
 			stream.Write8(Wasm::TYPE_I32);
 		}
 
 		stream.Write(function.code.data(), function.code.size());
 	}
+}
+
+void CWasmModuleBuilder::WriteSectionHeader(Framework::CStream& stream, uint8 sectionId, uint32 size)
+{
+	stream.Write8(sectionId);
+	WriteULeb128(stream, size);
 }

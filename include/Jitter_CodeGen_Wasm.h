@@ -74,8 +74,12 @@ namespace Jitter
 		void Emit_Jmp(const STATEMENT&);
 		void Emit_CondJmp_RelCst(const STATEMENT&);
 
-		void Emit_Sll_RelRelCst(const STATEMENT&);
+		void Emit_Sll_RelAnyAny(const STATEMENT&);
+
+		void Emit_Srl_RelAnyAny(const STATEMENT&);
 		void Emit_Srl_TmpAnyAny(const STATEMENT&);
+
+		void Emit_Sra_RelAnyAny(const STATEMENT&);
 
 		void Emit_Xor_RelAnyAny(const STATEMENT&);
 		void Emit_Xor_TmpAnyAny(const STATEMENT&);

@@ -59,7 +59,9 @@ namespace Jitter
 		void PushTemporary(CSymbol*);
 		void PullTemporary(CSymbol*);
 
-		void PushSymbol(CSymbol*);
+		void PrepareSymbolUse(CSymbol*);
+		void PrepareSymbolDef(CSymbol*);
+		void CommitSymbol(CSymbol*);
 
 		void MarkLabel(const STATEMENT&);
 
@@ -74,15 +76,13 @@ namespace Jitter
 		void Emit_Jmp(const STATEMENT&);
 		void Emit_CondJmp_RelCst(const STATEMENT&);
 
-		void Emit_Sll_RelAnyAny(const STATEMENT&);
+		void Emit_Cmp_AnyAnyAny(const STATEMENT&);
 
-		void Emit_Srl_RelAnyAny(const STATEMENT&);
-		void Emit_Srl_TmpAnyAny(const STATEMENT&);
+		void Emit_Sll_AnyAnyAny(const STATEMENT&);
+		void Emit_Srl_AnyAnyAny(const STATEMENT&);
+		void Emit_Sra_AnyAnyAny(const STATEMENT&);
 
-		void Emit_Sra_RelAnyAny(const STATEMENT&);
-
-		void Emit_Xor_RelAnyAny(const STATEMENT&);
-		void Emit_Xor_TmpAnyAny(const STATEMENT&);
+		void Emit_Xor_AnyAnyAny(const STATEMENT&);
 
 		Framework::CStream* m_stream = nullptr;
 		Framework::CMemStream m_functionStream;

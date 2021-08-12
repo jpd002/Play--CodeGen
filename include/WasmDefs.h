@@ -46,6 +46,7 @@ namespace Wasm
 		INST_I32_CONST = 0x41,
 		INST_I32_EQ = 0x46,
 		INST_I32_NE = 0x47,
+		INST_I32_LT_S = 0x48,
 		INST_I32_ADD = 0x6A,
 		INST_I32_XOR = 0x73,
 		INST_I32_SHL = 0x74,

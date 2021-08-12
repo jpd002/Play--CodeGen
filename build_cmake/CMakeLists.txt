@@ -179,3 +179,7 @@ else()
 endif()
 
 target_link_libraries(CodeGenTestSuite CodeGen Framework ${PROJECT_LIBS})
+
+if(USE_EMSCRIPTEN)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s MODULARIZE=1 -s EXPORTED_FUNCTIONS=\"['_main']\" -s ASYNCIFY -s ASYNCIFY_IMPORTS=\"WasmCreateFunction\" -s ASSERTIONS=2 -s ALLOW_TABLE_GROWTH -fexceptions")
+endif()

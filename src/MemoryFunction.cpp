@@ -34,6 +34,11 @@
 	#define MEMFUNC_USE_MMAP
 #endif
 
+#if defined(__EMSCRIPTEN__)
+	#include <emscripten.h>
+	#define MEMFUNC_USE_WASM
+#endif
+
 #if defined(MEMFUNC_USE_WIN32)
 #include <windows.h>
 #elif defined(MEMFUNC_USE_MACHVM)
@@ -42,6 +47,30 @@
 #elif defined(MEMFUNC_USE_MMAP)
 #include <sys/mman.h>
 #include <pthread.h>
+#elif defined(MEMFUNC_USE_WASM)
+EM_JS(int, WasmCreateFunction, (uintptr_t code, uintptr_t size),
+{
+	return Asyncify.handleAsync(async () => 
+	{
+		let moduleBytes = HEAP8.subarray(code, code + size);
+		let module = await WebAssembly.compile(moduleBytes);
+		let moduleInstance = new WebAssembly.Instance(module, {
+			env: {
+				memory: wasmMemory,
+				fctTable : wasmTable
+			}
+		});
+		let fct = moduleInstance.exports.codeGenFunc;
+		let fctId = addFunction(fct, 'vi');
+		out('Compiled function (fctId = ' + fctId + ').');
+		return fctId;
+	});
+});
+EM_JS(void, WasmDeleteFunction, (int fctId),
+{
+	removeFunction(fctId);
+	out('Removed function (fctId = ' + fctId + ').');
+});
 #else
 #error "No API to use for CMemoryFunction"
 #endif
@@ -94,9 +123,14 @@ CMemoryFunction::CMemoryFunction(const void* code, size_t size)
 #ifdef MEMFUNC_MMAP_REQUIRES_JIT_WRITE_PROTECT
 	pthread_jit_write_protect_np(true);
 #endif
+#elif defined(MEMFUNC_USE_WASM)
+	m_size = size;
+	m_code = reinterpret_cast<void*>(WasmCreateFunction(reinterpret_cast<uintptr_t>(code), size));
 #endif
 	ClearCache();
+#if !defined(MEMFUNC_USE_WASM)
 	assert((reinterpret_cast<uintptr_t>(m_code) & (BLOCK_ALIGN - 1)) == 0);
+#endif
 }
 
 CMemoryFunction::~CMemoryFunction()
@@ -125,6 +159,8 @@ void CMemoryFunction::Reset()
 		vm_deallocate(mach_task_self(), reinterpret_cast<vm_address_t>(m_code), m_size);
 #elif defined(MEMFUNC_USE_MMAP)
 		munmap(m_code, m_size);
+#elif defined(MEMFUNC_USE_WASM)
+		WasmDeleteFunction(reinterpret_cast<int>(m_code));
 #endif
 	}
 	m_code = nullptr;

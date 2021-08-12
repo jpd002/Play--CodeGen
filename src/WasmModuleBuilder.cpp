@@ -136,12 +136,12 @@ void CWasmModuleBuilder::WriteModule(Framework::CStream& stream)
 
 	//Section "Export"
 	{
-		WriteSectionHeader(stream, Wasm::SECTION_ID_EXPORT, 0x0A);
+		WriteSectionHeader(stream, Wasm::SECTION_ID_EXPORT, 15);
 
 		stream.Write8(1); //Export vector size
 
 		//Export 0
-		WriteName(stream, "addTwo");
+		WriteName(stream, "codeGenFunc");
 		stream.Write8(Wasm::IMPORT_EXPORT_TYPE_FUNCTION);
 		stream.Write8(0); //Function index
 	}

@@ -37,6 +37,10 @@
 		#warning Architecture not supported
 	#endif
 
+#elif defined(__EMSCRIPTEN__)
+
+	#include "Jitter_CodeGen_Wasm.h"
+
 #endif
 
 Jitter::CCodeGen* Jitter::CreateCodeGen()
@@ -96,6 +100,10 @@ Jitter::CCodeGen* Jitter::CreateCodeGen()
 	#else
 		throw std::runtime_error("Unsupported architecture.");
 	#endif
+
+#elif defined(__EMSCRIPTEN__)
+
+	return new Jitter::CCodeGen_Wasm();
 
 #else
 

@@ -18,9 +18,11 @@ CCodeGen_Wasm::CONSTMATCHER CCodeGen_Wasm::g_constMatchers[] =
 	{ OP_CALL,           MATCH_NIL,            MATCH_CONSTANTPTR,    MATCH_CONSTANT,      MATCH_NIL,      &CCodeGen_Wasm::Emit_Call                                   },
 	{ OP_RETVAL,         MATCH_TEMPORARY,      MATCH_NIL,            MATCH_NIL,           MATCH_NIL,      &CCodeGen_Wasm::Emit_RetVal_Tmp                             },
 
+	{ OP_EXTERNJMP,      MATCH_NIL,            MATCH_CONSTANTPTR,    MATCH_NIL,           MATCH_NIL,      &CCodeGen_Wasm::Emit_ExternJmp                              },
+
 	{ OP_JMP,            MATCH_NIL,            MATCH_NIL,            MATCH_NIL,           MATCH_NIL,      &CCodeGen_Wasm::Emit_Jmp                                    },
 
-	{ OP_CONDJMP,        MATCH_NIL,            MATCH_RELATIVE,       MATCH_CONSTANT,      MATCH_NIL,      &CCodeGen_Wasm::Emit_CondJmp_RelCst                         },
+	{ OP_CONDJMP,        MATCH_NIL,            MATCH_ANY,            MATCH_ANY,           MATCH_NIL,      &CCodeGen_Wasm::Emit_CondJmp_AnyAny                         },
 
 	{ OP_CMP,            MATCH_ANY,            MATCH_ANY,            MATCH_ANY,           MATCH_NIL,      &CCodeGen_Wasm::Emit_Cmp_AnyAnyAny                          },
 
@@ -39,22 +41,25 @@ CCodeGen_Wasm::CONSTMATCHER CCodeGen_Wasm::g_constMatchers[] =
 #ifdef __EMSCRIPTEN__
 
 #include <emscripten.h>
-
+// clang-format off
 EM_JS(int, RegisterExternFunction, (const char* functionName, const char* functionSig), {
 	let fctName = UTF8ToString(functionName);
 	let fctSig = UTF8ToString(functionSig);
 	let fct = Module[fctName];
+	if(fct === undefined)
+	{
+		out(`Warning: Could not find function '${fctName}' (missing export?).`);
+	}
 	let fctId = addFunction(fct, fctSig);
-	out('Registered function ' + fctName + '(' + fctSig + ') => id = ' + fctId + '.');
+	out(`Registered function '${fctName}(${fctSig})' = > id = ${fctId}.`);
 	return fctId;
 });
+// clang-format on
 
 std::map<uintptr_t, int32> CWasmFunctionRegistry::m_functions;
 
 void CWasmFunctionRegistry::RegisterFunction(uintptr_t functionPtr, const char* functionName, const char* functionSig)
 {
-	//We only support functions taking an int and returning an int for now
-	assert(!strcmp(functionSig, "ii"));
 	uint32 functionId = RegisterExternFunction(functionName, functionSig);
 	auto fctIterator = m_functions.find(functionPtr);
 	assert(fctIterator == m_functions.end());
@@ -187,12 +192,16 @@ void CCodeGen_Wasm::BuildLabelFlows(const StatementList& statements)
 			//If we find the target label, we have a If block
 			//If we find an uncond jmp, we have a If/Else block
 
+			bool foundEnd = false;
 			auto innerStatementIterator = outerStatementIterator;
 
 			//Next statement should be a label (start of if block)
 			innerStatementIterator++;
 			assert(innerStatementIterator->op == OP_LABEL);
-			m_labelFlows.insert(std::make_pair(innerStatementIterator->jmpBlock, LABEL_FLOW_IF));
+			{
+				auto insertResult = m_labelFlows.insert(std::make_pair(innerStatementIterator->jmpBlock, LABEL_FLOW_IF));
+				assert(insertResult.second);
+			}
 
 			innerStatementIterator++;
 			for(; innerStatementIterator != statements.end(); innerStatementIterator++)
@@ -209,7 +218,10 @@ void CCodeGen_Wasm::BuildLabelFlows(const StatementList& statements)
 					assert(innerStatementIterator->op == OP_LABEL);
 					assert(innerStatementIterator->jmpBlock == outerStatement.jmpBlock);
 
-					m_labelFlows.insert(std::make_pair(innerStatementIterator->jmpBlock, LABEL_FLOW_ELSE));
+					{
+						auto insertResult = m_labelFlows.insert(std::make_pair(innerStatementIterator->jmpBlock, LABEL_FLOW_ELSE));
+						assert(insertResult.second);
+					}
 
 					//Skip OP_LABEL statement
 					innerStatementIterator++;
@@ -219,9 +231,13 @@ void CCodeGen_Wasm::BuildLabelFlows(const StatementList& statements)
 						const auto& innerStatement = *innerStatementIterator;
 						if(innerStatement.op == OP_LABEL)
 						{
-							assert(innerStatement.jmpBlock == finalLabel);
-							m_labelFlows.insert(std::make_pair(innerStatementIterator->jmpBlock, LABEL_FLOW_END));
-							break;
+							if(innerStatement.jmpBlock == finalLabel)
+							{
+								auto insertResult = m_labelFlows.insert(std::make_pair(innerStatementIterator->jmpBlock, LABEL_FLOW_END));
+								assert(insertResult.second);
+								foundEnd = true;
+								break;
+							}
 						}
 					}
 
@@ -230,11 +246,17 @@ void CCodeGen_Wasm::BuildLabelFlows(const StatementList& statements)
 				else if(innerStatement.op == OP_LABEL)
 				{
 					//If block
-					//TODO
-					//Label is end
-					assert(innerStatement.jmpBlock == outerStatement.jmpBlock);
+					//Check if it's our end label
+					if(innerStatement.jmpBlock == outerStatement.jmpBlock)
+					{
+						auto insertResult = m_labelFlows.insert(std::make_pair(innerStatementIterator->jmpBlock, LABEL_FLOW_END));
+						assert(insertResult.second == true);
+						foundEnd = true;
+						break;
+					}
 				}
 			}
+			assert(foundEnd);
 		}
 	}
 }
@@ -409,7 +431,7 @@ void CCodeGen_Wasm::Emit_Call(const STATEMENT& statement)
 	CWasmModuleBuilder::WriteULeb128(m_functionStream, tableEntryIdx);
 
 	m_functionStream.Write8(Wasm::INST_CALL_INDIRECT);
-	m_functionStream.Write8(0x01); //Signature index
+	m_functionStream.Write8(0x01); //Signature index (ii)
 	m_functionStream.Write8(0x00); //Table index
 }
 
@@ -419,11 +441,34 @@ void CCodeGen_Wasm::Emit_RetVal_Tmp(const STATEMENT& statement)
 	PullTemporary(dst);
 }
 
+void CCodeGen_Wasm::Emit_ExternJmp(const STATEMENT& statement)
+{
+	//Not really supported, but can be used with some caveats
+	//Implemented as a simple indirect call for now (which works fine if the caller returns immediately).
+	//This could be implemented using tail calls which doesn't seem to be widely supported.
+	//Maybe we could emit a return after the call and be done with it? (stack overflow problems maybe)
+
+	auto src1 = statement.src1->GetSymbol().get();
+
+	assert(src1->m_type == SYM_CONSTANTPTR);
+
+	PushContext();
+
+	int32 tableEntryIdx = CWasmFunctionRegistry::FindFunction(src1->m_valueLow);
+
+	m_functionStream.Write8(Wasm::INST_I32_CONST);
+	CWasmModuleBuilder::WriteULeb128(m_functionStream, tableEntryIdx);
+
+	m_functionStream.Write8(Wasm::INST_CALL_INDIRECT);
+	m_functionStream.Write8(0x00); //Signature index (vi)
+	m_functionStream.Write8(0x00); //Table index
+}
+
 void CCodeGen_Wasm::Emit_Jmp(const STATEMENT&)
 {
 }
 
-void CCodeGen_Wasm::Emit_CondJmp_RelCst(const STATEMENT& statement)
+void CCodeGen_Wasm::Emit_CondJmp_AnyAny(const STATEMENT& statement)
 {
 	auto src1 = statement.src1->GetSymbol().get();
 	auto src2 = statement.src2->GetSymbol().get();
@@ -431,8 +476,19 @@ void CCodeGen_Wasm::Emit_CondJmp_RelCst(const STATEMENT& statement)
 	PrepareSymbolUse(src1);
 	PrepareSymbolUse(src2);
 
-	assert(statement.jmpCondition == CONDITION_NE);
-	m_functionStream.Write8(Wasm::INST_I32_EQ);
+	//We use the reverse condition because jmpCondition is the condition to skip
+	switch(statement.jmpCondition)
+	{
+	case CONDITION_EQ:
+		m_functionStream.Write8(Wasm::INST_I32_NE);
+		break;
+	case CONDITION_NE:
+		m_functionStream.Write8(Wasm::INST_I32_EQ);
+		break;
+	default:
+		assert(false);
+		break;
+	}
 }
 
 void CCodeGen_Wasm::Emit_Cmp_AnyAnyAny(const STATEMENT& statement)

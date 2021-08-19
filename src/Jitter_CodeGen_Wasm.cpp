@@ -10,10 +10,23 @@ using namespace Jitter;
 // clang-format off
 CCodeGen_Wasm::CONSTMATCHER CCodeGen_Wasm::g_constMatchers[] =
 {
-	{ OP_MOV,            MATCH_RELATIVE,       MATCH_ANY,            MATCH_NIL,           MATCH_NIL,      &CCodeGen_Wasm::Emit_Mov_RelAny                             },
+	{ OP_MOV,            MATCH_VARIABLE,       MATCH_ANY,            MATCH_NIL,           MATCH_NIL,      &CCodeGen_Wasm::Emit_Mov_VarAny                             },
+
+	{ OP_RELTOREF,       MATCH_VAR_REF,        MATCH_CONSTANT,       MATCH_ANY,           MATCH_NIL,      &CCodeGen_Wasm::Emit_RelToRef_VarCst                        },
+
+	{ OP_ADDREF,         MATCH_ANY,            MATCH_ANY,            MATCH_ANY,           MATCH_NIL,      &CCodeGen_Wasm::Emit_AddRef_AnyAnyAny                       },
+
+	{ OP_ISREFNULL,      MATCH_VARIABLE,       MATCH_VAR_REF,        MATCH_ANY,           MATCH_NIL,      &CCodeGen_Wasm::Emit_IsRefNull_VarVar                       },
+
+	{ OP_LOADFROMREF,    MATCH_VARIABLE,       MATCH_VAR_REF,        MATCH_NIL,           MATCH_NIL,      &CCodeGen_Wasm::Emit_LoadFromRef_VarVar                     },
+	{ OP_LOADFROMREF,    MATCH_VAR_REF,        MATCH_VAR_REF,        MATCH_NIL,           MATCH_NIL,      &CCodeGen_Wasm::Emit_LoadFromRef_Ref_VarVar                 },
+
+	//Cannot use MATCH_ANY here because it will match non 32-bits symbols
+	{ OP_STOREATREF,     MATCH_NIL,            MATCH_VAR_REF,        MATCH_VARIABLE,      MATCH_NIL,      &CCodeGen_Wasm::Emit_StoreAtRef_VarAny                      },
+	{ OP_STOREATREF,     MATCH_NIL,            MATCH_VAR_REF,        MATCH_CONSTANT,      MATCH_NIL,      &CCodeGen_Wasm::Emit_StoreAtRef_VarAny                      },
 
 	{ OP_PARAM,          MATCH_NIL,            MATCH_CONTEXT,        MATCH_NIL,           MATCH_NIL,      &CCodeGen_Wasm::Emit_Param_Ctx                              },
-	{ OP_PARAM,          MATCH_NIL,            MATCH_TEMPORARY,      MATCH_NIL,           MATCH_NIL,      &CCodeGen_Wasm::Emit_Param_Tmp                              },
+	{ OP_PARAM,          MATCH_NIL,            MATCH_ANY,            MATCH_NIL,           MATCH_NIL,      &CCodeGen_Wasm::Emit_Param_Any                              },
 
 	{ OP_CALL,           MATCH_NIL,            MATCH_CONSTANTPTR,    MATCH_CONSTANT,      MATCH_NIL,      &CCodeGen_Wasm::Emit_Call                                   },
 	{ OP_RETVAL,         MATCH_TEMPORARY,      MATCH_NIL,            MATCH_NIL,           MATCH_NIL,      &CCodeGen_Wasm::Emit_RetVal_Tmp                             },
@@ -30,7 +43,12 @@ CCodeGen_Wasm::CONSTMATCHER CCodeGen_Wasm::g_constMatchers[] =
 	{ OP_SRL,            MATCH_ANY,            MATCH_ANY,            MATCH_ANY,           MATCH_NIL,      &CCodeGen_Wasm::Emit_Srl_AnyAnyAny                          },
 	{ OP_SRA,            MATCH_ANY,            MATCH_ANY,            MATCH_ANY,           MATCH_NIL,      &CCodeGen_Wasm::Emit_Sra_AnyAnyAny                          },
 
+	{ OP_AND,            MATCH_ANY,            MATCH_ANY,            MATCH_ANY,           MATCH_NIL,      &CCodeGen_Wasm::Emit_And_AnyAnyAny                          },
+	{ OP_OR,             MATCH_ANY,            MATCH_ANY,            MATCH_ANY,           MATCH_NIL,      &CCodeGen_Wasm::Emit_Or_AnyAnyAny                           },
 	{ OP_XOR,            MATCH_ANY,            MATCH_ANY,            MATCH_ANY,           MATCH_NIL,      &CCodeGen_Wasm::Emit_Xor_AnyAnyAny                          },
+
+	{ OP_ADD,            MATCH_ANY,            MATCH_ANY,            MATCH_ANY,           MATCH_NIL,      &CCodeGen_Wasm::Emit_Add_AnyAnyAny                          },
+	{ OP_SUB,            MATCH_ANY,            MATCH_ANY,            MATCH_ANY,           MATCH_NIL,      &CCodeGen_Wasm::Emit_Sub_AnyAnyAny                          },
 
 	{ OP_LABEL,          MATCH_NIL,            MATCH_NIL,            MATCH_NIL,           MATCH_NIL,      &CCodeGen_Wasm::MarkLabel                                   },
 
@@ -271,12 +289,11 @@ void CCodeGen_Wasm::PushContext()
 void CCodeGen_Wasm::PushRelativeAddress(CSymbol* symbol)
 {
 	assert(symbol->m_type == SYM_RELATIVE);
-	assert(symbol->m_valueLow < 0x80);
 
 	PushContext();
 
 	m_functionStream.Write8(Wasm::INST_I32_CONST);
-	m_functionStream.Write8(symbol->m_valueLow);
+	CWasmModuleBuilder::WriteSLeb128(m_functionStream, symbol->m_valueLow);
 
 	m_functionStream.Write8(Wasm::INST_I32_ADD);
 }
@@ -310,6 +327,47 @@ void CCodeGen_Wasm::PullTemporary(CSymbol* symbol)
 	CWasmModuleBuilder::WriteULeb128(m_functionStream, localIdx);
 }
 
+void CCodeGen_Wasm::PushRelativeRefAddress(CSymbol* symbol)
+{
+	assert(symbol->m_type == SYM_REL_REFERENCE);
+
+	PushContext();
+
+	m_functionStream.Write8(Wasm::INST_I32_CONST);
+	CWasmModuleBuilder::WriteSLeb128(m_functionStream, symbol->m_valueLow);
+
+	m_functionStream.Write8(Wasm::INST_I32_ADD);
+}
+
+void CCodeGen_Wasm::PushRelativeRef(CSymbol* symbol)
+{
+	PushRelativeRefAddress(symbol);
+
+	m_functionStream.Write8(Wasm::INST_I32_LOAD);
+	m_functionStream.Write8(0x02);
+	m_functionStream.Write8(0x00);
+}
+
+void CCodeGen_Wasm::PushTemporaryRef(CSymbol* symbol)
+{
+	assert(symbol->m_type == SYM_TMP_REFERENCE);
+
+	uint32 localIdx = (symbol->m_stackLocation / 4) + 1;
+
+	m_functionStream.Write8(Wasm::INST_LOCAL_GET);
+	CWasmModuleBuilder::WriteULeb128(m_functionStream, localIdx);
+}
+
+void CCodeGen_Wasm::PullTemporaryRef(CSymbol* symbol)
+{
+	assert(symbol->m_type == SYM_TMP_REFERENCE);
+
+	uint32 localIdx = (symbol->m_stackLocation / 4) + 1;
+
+	m_functionStream.Write8(Wasm::INST_LOCAL_SET);
+	CWasmModuleBuilder::WriteULeb128(m_functionStream, localIdx);
+}
+
 void CCodeGen_Wasm::PrepareSymbolUse(CSymbol* symbol)
 {
 	switch(symbol->m_type)
@@ -317,8 +375,14 @@ void CCodeGen_Wasm::PrepareSymbolUse(CSymbol* symbol)
 	case SYM_RELATIVE:
 		PushRelative(symbol);
 		break;
+	case SYM_REL_REFERENCE:
+		PushRelativeRef(symbol);
+		break;
 	case SYM_TEMPORARY:
 		PushTemporary(symbol);
+		break;
+	case SYM_TMP_REFERENCE:
+		PushTemporaryRef(symbol);
 		break;
 	case SYM_CONSTANT:
 		m_functionStream.Write8(Wasm::INST_I32_CONST);
@@ -338,6 +402,7 @@ void CCodeGen_Wasm::PrepareSymbolDef(CSymbol* symbol)
 		PushRelativeAddress(symbol);
 		break;
 	case SYM_TEMPORARY:
+	case SYM_TMP_REFERENCE:
 		break;
 	default:
 		assert(false);
@@ -356,6 +421,9 @@ void CCodeGen_Wasm::CommitSymbol(CSymbol* symbol)
 		break;
 	case SYM_TEMPORARY:
 		PullTemporary(symbol);
+		break;
+	case SYM_TMP_REFERENCE:
+		PullTemporaryRef(symbol);
 		break;
 	default:
 		assert(false);
@@ -387,13 +455,96 @@ void CCodeGen_Wasm::MarkLabel(const STATEMENT& statement)
 	}
 }
 
-void CCodeGen_Wasm::Emit_Mov_RelAny(const STATEMENT& statement)
+void CCodeGen_Wasm::Emit_Mov_VarAny(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
 
-	PushRelativeAddress(dst);
+	PrepareSymbolDef(dst);
 	PrepareSymbolUse(src1);
+
+	CommitSymbol(dst);
+}
+
+void CCodeGen_Wasm::Emit_RelToRef_VarCst(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+
+	PrepareSymbolDef(dst);
+	PrepareSymbolUse(src1);
+	PushContext();
+
+	m_functionStream.Write8(Wasm::INST_I32_ADD);
+
+	CommitSymbol(dst);
+}
+
+void CCodeGen_Wasm::Emit_AddRef_AnyAnyAny(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	PrepareSymbolDef(dst);
+	PrepareSymbolUse(src1);
+	PrepareSymbolUse(src2);
+
+	m_functionStream.Write8(Wasm::INST_I32_ADD);
+
+	CommitSymbol(dst);
+}
+
+void CCodeGen_Wasm::Emit_IsRefNull_VarVar(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+
+	PrepareSymbolDef(dst);
+	PrepareSymbolUse(src1);
+
+	m_functionStream.Write8(Wasm::INST_I32_EQZ);
+
+	CommitSymbol(dst);
+}
+
+void CCodeGen_Wasm::Emit_LoadFromRef_VarVar(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+
+	PrepareSymbolDef(dst);
+	PrepareSymbolUse(src1);
+
+	m_functionStream.Write8(Wasm::INST_I32_LOAD);
+	m_functionStream.Write8(0x02);
+	m_functionStream.Write8(0x00);
+
+	CommitSymbol(dst);
+}
+
+void CCodeGen_Wasm::Emit_LoadFromRef_Ref_VarVar(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+
+	PrepareSymbolDef(dst);
+	PrepareSymbolUse(src1);
+
+	m_functionStream.Write8(Wasm::INST_I32_LOAD);
+	m_functionStream.Write8(0x02);
+	m_functionStream.Write8(0x00);
+
+	CommitSymbol(dst);
+}
+
+void CCodeGen_Wasm::Emit_StoreAtRef_VarAny(const STATEMENT& statement)
+{
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	PrepareSymbolUse(src1);
+	PrepareSymbolUse(src2);
 
 	m_functionStream.Write8(Wasm::INST_I32_STORE);
 	m_functionStream.Write8(0x02);
@@ -408,10 +559,10 @@ void CCodeGen_Wasm::Emit_Param_Ctx(const STATEMENT& statement)
 	PushContext();
 }
 
-void CCodeGen_Wasm::Emit_Param_Tmp(const STATEMENT& statement)
+void CCodeGen_Wasm::Emit_Param_Any(const STATEMENT& statement)
 {
 	auto src1 = statement.src1->GetSymbol().get();
-	PushTemporary(src1);
+	PrepareSymbolUse(src1);
 }
 
 void CCodeGen_Wasm::Emit_Call(const STATEMENT& statement)
@@ -485,6 +636,9 @@ void CCodeGen_Wasm::Emit_CondJmp_AnyAny(const STATEMENT& statement)
 	case CONDITION_NE:
 		m_functionStream.Write8(Wasm::INST_I32_EQ);
 		break;
+	case CONDITION_GT:
+		m_functionStream.Write8(Wasm::INST_I32_LE_S);
+		break;
 	default:
 		assert(false);
 		break;
@@ -505,6 +659,9 @@ void CCodeGen_Wasm::Emit_Cmp_AnyAnyAny(const STATEMENT& statement)
 	{
 	case CONDITION_NE:
 		m_functionStream.Write8(Wasm::INST_I32_NE);
+		break;
+	case CONDITION_BL:
+		m_functionStream.Write8(Wasm::INST_I32_LT_U);
 		break;
 	case CONDITION_LT:
 		m_functionStream.Write8(Wasm::INST_I32_LT_S);
@@ -562,6 +719,36 @@ void CCodeGen_Wasm::Emit_Sra_AnyAnyAny(const STATEMENT& statement)
 	CommitSymbol(dst);
 }
 
+void CCodeGen_Wasm::Emit_And_AnyAnyAny(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	PrepareSymbolDef(dst);
+	PrepareSymbolUse(src1);
+	PrepareSymbolUse(src2);
+
+	m_functionStream.Write8(Wasm::INST_I32_AND);
+
+	CommitSymbol(dst);
+}
+
+void CCodeGen_Wasm::Emit_Or_AnyAnyAny(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	PrepareSymbolDef(dst);
+	PrepareSymbolUse(src1);
+	PrepareSymbolUse(src2);
+
+	m_functionStream.Write8(Wasm::INST_I32_OR);
+
+	CommitSymbol(dst);
+}
+
 void CCodeGen_Wasm::Emit_Xor_AnyAnyAny(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
@@ -573,6 +760,36 @@ void CCodeGen_Wasm::Emit_Xor_AnyAnyAny(const STATEMENT& statement)
 	PrepareSymbolUse(src2);
 
 	m_functionStream.Write8(Wasm::INST_I32_XOR);
+
+	CommitSymbol(dst);
+}
+
+void CCodeGen_Wasm::Emit_Add_AnyAnyAny(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	PrepareSymbolDef(dst);
+	PrepareSymbolUse(src1);
+	PrepareSymbolUse(src2);
+
+	m_functionStream.Write8(Wasm::INST_I32_ADD);
+
+	CommitSymbol(dst);
+}
+
+void CCodeGen_Wasm::Emit_Sub_AnyAnyAny(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	PrepareSymbolDef(dst);
+	PrepareSymbolUse(src1);
+	PrepareSymbolUse(src2);
+
+	m_functionStream.Write8(Wasm::INST_I32_SUB);
 
 	CommitSymbol(dst);
 }

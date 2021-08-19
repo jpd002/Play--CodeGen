@@ -54,10 +54,18 @@ namespace Jitter
 		void BuildLabelFlows(const StatementList&);
 
 		void PushContext();
+
 		void PushRelativeAddress(CSymbol*);
 		void PushRelative(CSymbol*);
+
 		void PushTemporary(CSymbol*);
 		void PullTemporary(CSymbol*);
+
+		void PushRelativeRefAddress(CSymbol*);
+		void PushRelativeRef(CSymbol*);
+
+		void PushTemporaryRef(CSymbol*);
+		void PullTemporaryRef(CSymbol*);
 
 		void PrepareSymbolUse(CSymbol*);
 		void PrepareSymbolDef(CSymbol*);
@@ -65,10 +73,19 @@ namespace Jitter
 
 		void MarkLabel(const STATEMENT&);
 
-		void Emit_Mov_RelAny(const STATEMENT&);
+		void Emit_Mov_VarAny(const STATEMENT&);
+
+		void Emit_RelToRef_VarCst(const STATEMENT&);
+
+		void Emit_AddRef_AnyAnyAny(const STATEMENT&);
+		void Emit_IsRefNull_VarVar(const STATEMENT&);
+		void Emit_LoadFromRef_VarVar(const STATEMENT&);
+		void Emit_LoadFromRef_Ref_VarVar(const STATEMENT&);
+
+		void Emit_StoreAtRef_VarAny(const STATEMENT&);
 
 		void Emit_Param_Ctx(const STATEMENT&);
-		void Emit_Param_Tmp(const STATEMENT&);
+		void Emit_Param_Any(const STATEMENT&);
 
 		void Emit_Call(const STATEMENT&);
 		void Emit_RetVal_Tmp(const STATEMENT&);
@@ -84,7 +101,12 @@ namespace Jitter
 		void Emit_Srl_AnyAnyAny(const STATEMENT&);
 		void Emit_Sra_AnyAnyAny(const STATEMENT&);
 
+		void Emit_And_AnyAnyAny(const STATEMENT&);
+		void Emit_Or_AnyAnyAny(const STATEMENT&);
 		void Emit_Xor_AnyAnyAny(const STATEMENT&);
+
+		void Emit_Add_AnyAnyAny(const STATEMENT&);
+		void Emit_Sub_AnyAnyAny(const STATEMENT&);
 
 		Framework::CStream* m_stream = nullptr;
 		Framework::CMemStream m_functionStream;

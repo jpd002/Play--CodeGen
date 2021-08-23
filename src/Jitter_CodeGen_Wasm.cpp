@@ -21,9 +21,15 @@ CCodeGen_Wasm::CONSTMATCHER CCodeGen_Wasm::g_constMatchers[] =
 	{ OP_LOADFROMREF,    MATCH_VARIABLE,       MATCH_VAR_REF,        MATCH_NIL,           MATCH_NIL,      &CCodeGen_Wasm::Emit_LoadFromRef_VarVar                     },
 	{ OP_LOADFROMREF,    MATCH_VAR_REF,        MATCH_VAR_REF,        MATCH_NIL,           MATCH_NIL,      &CCodeGen_Wasm::Emit_LoadFromRef_Ref_VarVar                 },
 
+	{ OP_LOAD8FROMREF,   MATCH_VARIABLE,       MATCH_VAR_REF,        MATCH_NIL,           MATCH_NIL,      &CCodeGen_Wasm::Emit_Load8FromRef_MemVar                    },
+	{ OP_LOAD16FROMREF,  MATCH_VARIABLE,       MATCH_VAR_REF,        MATCH_NIL,           MATCH_NIL,      &CCodeGen_Wasm::Emit_Load16FromRef_MemVar                  },
+
 	//Cannot use MATCH_ANY here because it will match non 32-bits symbols
 	{ OP_STOREATREF,     MATCH_NIL,            MATCH_VAR_REF,        MATCH_VARIABLE,      MATCH_NIL,      &CCodeGen_Wasm::Emit_StoreAtRef_VarAny                      },
 	{ OP_STOREATREF,     MATCH_NIL,            MATCH_VAR_REF,        MATCH_CONSTANT,      MATCH_NIL,      &CCodeGen_Wasm::Emit_StoreAtRef_VarAny                      },
+
+	{ OP_STORE8ATREF,    MATCH_NIL,            MATCH_VAR_REF,        MATCH_ANY,           MATCH_NIL,      &CCodeGen_Wasm::Emit_Store8AtRef_VarAny                     },
+	{ OP_STORE16ATREF,   MATCH_NIL,            MATCH_VAR_REF,        MATCH_ANY,           MATCH_NIL,      &CCodeGen_Wasm::Emit_Store16AtRef_VarAny                    },
 
 	{ OP_PARAM,          MATCH_NIL,            MATCH_CONTEXT,        MATCH_NIL,           MATCH_NIL,      &CCodeGen_Wasm::Emit_Param_Ctx                              },
 	{ OP_PARAM,          MATCH_NIL,            MATCH_ANY,            MATCH_NIL,           MATCH_NIL,      &CCodeGen_Wasm::Emit_Param_Any                              },
@@ -604,6 +610,36 @@ void CCodeGen_Wasm::Emit_LoadFromRef_Ref_VarVar(const STATEMENT& statement)
 	CommitSymbol(dst);
 }
 
+void CCodeGen_Wasm::Emit_Load8FromRef_MemVar(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+
+	PrepareSymbolDef(dst);
+	PrepareSymbolUse(src1);
+
+	m_functionStream.Write8(Wasm::INST_I32_LOAD8_U);
+	m_functionStream.Write8(0x00); //Align
+	m_functionStream.Write8(0x00);
+
+	CommitSymbol(dst);
+}
+
+void CCodeGen_Wasm::Emit_Load16FromRef_MemVar(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+
+	PrepareSymbolDef(dst);
+	PrepareSymbolUse(src1);
+
+	m_functionStream.Write8(Wasm::INST_I32_LOAD16_U);
+	m_functionStream.Write8(0x01); //Align
+	m_functionStream.Write8(0x00);
+
+	CommitSymbol(dst);
+}
+
 void CCodeGen_Wasm::Emit_StoreAtRef_VarAny(const STATEMENT& statement)
 {
 	auto src1 = statement.src1->GetSymbol().get();
@@ -614,6 +650,32 @@ void CCodeGen_Wasm::Emit_StoreAtRef_VarAny(const STATEMENT& statement)
 
 	m_functionStream.Write8(Wasm::INST_I32_STORE);
 	m_functionStream.Write8(0x02);
+	m_functionStream.Write8(0x00);
+}
+
+void CCodeGen_Wasm::Emit_Store8AtRef_VarAny(const STATEMENT& statement)
+{
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	PrepareSymbolUse(src1);
+	PrepareSymbolUse(src2);
+
+	m_functionStream.Write8(Wasm::INST_I32_STORE8);
+	m_functionStream.Write8(0x00); //Align
+	m_functionStream.Write8(0x00);
+}
+
+void CCodeGen_Wasm::Emit_Store16AtRef_VarAny(const STATEMENT& statement)
+{
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	PrepareSymbolUse(src1);
+	PrepareSymbolUse(src2);
+
+	m_functionStream.Write8(Wasm::INST_I32_STORE16);
+	m_functionStream.Write8(0x01); //Align
 	m_functionStream.Write8(0x00);
 }
 

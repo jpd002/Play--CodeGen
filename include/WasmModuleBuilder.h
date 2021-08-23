@@ -7,6 +7,12 @@
 class CWasmModuleBuilder
 {
 public:
+	struct FUNCTION_TYPE
+	{
+		std::vector<uint32> params;
+		std::vector<uint32> results;
+	};
+
 	typedef std::vector<uint8> FunctionCode;
 	struct FUNCTION
 	{
@@ -19,6 +25,7 @@ public:
 
 	static uint32 GetULeb128Size(uint32);
 
+	void AddFunctionType(FUNCTION_TYPE);
 	void AddFunction(FUNCTION);
 
 	void WriteModule(Framework::CStream&);
@@ -26,5 +33,6 @@ public:
 private:
 	void WriteSectionHeader(Framework::CStream&, uint8, uint32);
 
+	std::vector<FUNCTION_TYPE> m_functionTypes;
 	std::vector<FUNCTION> m_functions;
 };

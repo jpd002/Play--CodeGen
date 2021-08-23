@@ -74,21 +74,25 @@ EM_JS(int, RegisterExternFunction, (const char* functionName, const char* functi
 });
 // clang-format on
 
-std::map<uintptr_t, int32> CWasmFunctionRegistry::m_functions;
+std::map<uintptr_t, CWasmFunctionRegistry::WASM_FUNCTION_INFO> CWasmFunctionRegistry::m_functions;
 
 void CWasmFunctionRegistry::RegisterFunction(uintptr_t functionPtr, const char* functionName, const char* functionSig)
 {
-	uint32 functionId = RegisterExternFunction(functionName, functionSig);
-	auto fctIterator = m_functions.find(functionPtr);
-	assert(fctIterator == m_functions.end());
-	m_functions.insert(std::make_pair(functionPtr, functionId));
+	{
+		auto fctIterator = m_functions.find(functionPtr);
+		assert(fctIterator == m_functions.end());
+	}
+	WASM_FUNCTION_INFO functionInfo;
+	functionInfo.id = RegisterExternFunction(functionName, functionSig);
+	functionInfo.signature = functionSig;
+	m_functions.insert(std::make_pair(functionPtr, functionInfo));
 }
 
-int32 CWasmFunctionRegistry::FindFunction(uintptr_t functionPtr)
+const CWasmFunctionRegistry::WASM_FUNCTION_INFO* CWasmFunctionRegistry::FindFunction(uintptr_t functionPtr)
 {
 	auto fctIterator = m_functions.find(functionPtr);
-	assert(fctIterator != m_functions.end());
-	return fctIterator->second;
+	if(fctIterator == std::end(m_functions)) return nullptr;
+	return &fctIterator->second;
 }
 
 #else
@@ -97,9 +101,10 @@ void CWasmFunctionRegistry::RegisterFunction(uintptr_t functionPtr, const char* 
 {
 }
 
-int32 CWasmFunctionRegistry::FindFunction(uintptr_t functionPtr)
+const CWasmFunctionRegistry::WASM_FUNCTION_INFO* CWasmFunctionRegistry::FindFunction(uintptr_t functionPtr)
 {
-	return 0;
+	static const WASM_FUNCTION_INFO fctInfo = {0, "v"};
+	return &fctInfo;
 }
 
 #endif
@@ -131,9 +136,11 @@ void CCodeGen_Wasm::GenerateCode(const StatementList& statements, unsigned int s
 	assert((stackSize & 0x3) == 0);
 
 	m_functionStream.ResetBuffer();
+	m_signatures.clear();
 	m_labelFlows.clear();
 
 	BuildLabelFlows(statements);
+	PrepareSignatures(moduleBuilder, statements);
 
 	for(const auto& statement : statements)
 	{
@@ -277,6 +284,65 @@ void CCodeGen_Wasm::BuildLabelFlows(const StatementList& statements)
 			assert(foundEnd);
 		}
 	}
+}
+
+void CCodeGen_Wasm::PrepareSignatures(CWasmModuleBuilder& moduleBuilder, const StatementList& statements)
+{
+	//Register this function's signature
+	RegisterSignature(moduleBuilder, "vi");
+
+	for(const auto& statement : statements)
+	{
+		if(statement.op != OP_CALL) continue;
+
+		auto src1 = statement.src1->GetSymbol().get();
+		assert(src1->m_type == SYM_CONSTANTPTR);
+
+		auto fctInfo = CWasmFunctionRegistry::FindFunction(src1->m_valueLow);
+		assert(fctInfo);
+
+		assert(!fctInfo->signature.empty());
+
+		auto signatureIterator = m_signatures.find(fctInfo->signature);
+		if(signatureIterator == std::end(m_signatures))
+		{
+			RegisterSignature(moduleBuilder, fctInfo->signature);
+		}
+	}
+}
+
+void CCodeGen_Wasm::RegisterSignature(CWasmModuleBuilder& moduleBuilder, std::string signature)
+{
+	CWasmModuleBuilder::FUNCTION_TYPE functionType;
+
+	switch(signature[0])
+	{
+	case 'v':
+		break;
+	case 'i':
+		functionType.results.push_back(Wasm::TYPE_I32);
+		break;
+	default:
+		assert(false);
+		break;
+	}
+
+	for(uint32 i = 1; i < signature.size(); i++)
+	{
+		switch(signature[i])
+		{
+		case 'i':
+			functionType.params.push_back(Wasm::TYPE_I32);
+			break;
+		default:
+			assert(false);
+			break;
+		}
+	}
+
+	moduleBuilder.AddFunctionType(std::move(functionType));
+
+	m_signatures.insert(std::make_pair(signature, static_cast<uint32>(m_signatures.size())));
 }
 
 void CCodeGen_Wasm::PushContext()
@@ -575,15 +641,17 @@ void CCodeGen_Wasm::Emit_Call(const STATEMENT& statement)
 
 	unsigned int paramCount = src2->m_valueLow;
 
-	//TODO: Register signature in our module
-	int32 tableEntryIdx = CWasmFunctionRegistry::FindFunction(src1->m_valueLow);
+	auto fctInfo = CWasmFunctionRegistry::FindFunction(src1->m_valueLow);
+	auto sigIdxIterator = m_signatures.find(fctInfo->signature);
+	assert(sigIdxIterator != std::end(m_signatures));
+	auto sigIdx = sigIdxIterator->second;
 
 	m_functionStream.Write8(Wasm::INST_I32_CONST);
-	CWasmModuleBuilder::WriteULeb128(m_functionStream, tableEntryIdx);
+	CWasmModuleBuilder::WriteULeb128(m_functionStream, fctInfo->id);
 
 	m_functionStream.Write8(Wasm::INST_CALL_INDIRECT);
-	m_functionStream.Write8(0x01); //Signature index (ii)
-	m_functionStream.Write8(0x00); //Table index
+	m_functionStream.Write8(sigIdx); //Signature index
+	m_functionStream.Write8(0x00);   //Table index
 }
 
 void CCodeGen_Wasm::Emit_RetVal_Tmp(const STATEMENT& statement)
@@ -605,14 +673,17 @@ void CCodeGen_Wasm::Emit_ExternJmp(const STATEMENT& statement)
 
 	PushContext();
 
-	int32 tableEntryIdx = CWasmFunctionRegistry::FindFunction(src1->m_valueLow);
+	auto fctInfo = CWasmFunctionRegistry::FindFunction(src1->m_valueLow);
+	auto sigIdxIterator = m_signatures.find(fctInfo->signature);
+	assert(sigIdxIterator != std::end(m_signatures));
+	auto sigIdx = sigIdxIterator->second;
 
 	m_functionStream.Write8(Wasm::INST_I32_CONST);
-	CWasmModuleBuilder::WriteULeb128(m_functionStream, tableEntryIdx);
+	CWasmModuleBuilder::WriteULeb128(m_functionStream, fctInfo->id);
 
 	m_functionStream.Write8(Wasm::INST_CALL_INDIRECT);
-	m_functionStream.Write8(0x00); //Signature index (vi)
-	m_functionStream.Write8(0x00); //Table index
+	m_functionStream.Write8(sigIdx); //Signature index
+	m_functionStream.Write8(0x00);   //Table index
 }
 
 void CCodeGen_Wasm::Emit_Jmp(const STATEMENT&)

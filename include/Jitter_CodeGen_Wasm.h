@@ -1,18 +1,27 @@
 #pragma once
+#pragma once
 
 #include "Jitter_CodeGen.h"
 #include "MemStream.h"
+
+class CWasmModuleBuilder;
 
 namespace Jitter
 {
 	class CWasmFunctionRegistry
 	{
 	public:
+		struct WASM_FUNCTION_INFO
+		{
+			int32 id = 0;
+			std::string signature;
+		};
+
 		static void RegisterFunction(uintptr_t, const char*, const char*);
-		static int32 FindFunction(uintptr_t);
+		static const WASM_FUNCTION_INFO* FindFunction(uintptr_t);
 
 	private:
-		static std::map<uintptr_t, int32> m_functions;
+		static std::map<uintptr_t, WASM_FUNCTION_INFO> m_functions;
 	};
 
 	class CCodeGen_Wasm : public CCodeGen
@@ -52,6 +61,8 @@ namespace Jitter
 		static CONSTMATCHER g_constMatchers[];
 
 		void BuildLabelFlows(const StatementList&);
+		void PrepareSignatures(CWasmModuleBuilder&, const StatementList&);
+		void RegisterSignature(CWasmModuleBuilder&, std::string);
 
 		void PushContext();
 
@@ -111,5 +122,6 @@ namespace Jitter
 		Framework::CStream* m_stream = nullptr;
 		Framework::CMemStream m_functionStream;
 		std::map<uint32, LABEL_FLOW> m_labelFlows;
+		std::map<std::string, uint32> m_signatures;
 	};
 }

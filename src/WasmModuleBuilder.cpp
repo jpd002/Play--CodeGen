@@ -69,6 +69,11 @@ uint32 CWasmModuleBuilder::GetULeb128Size(uint32 value)
 	return size;
 }
 
+void CWasmModuleBuilder::AddFunctionType(FUNCTION_TYPE functionType)
+{
+	m_functionTypes.push_back(std::move(functionType));
+}
+
 void CWasmModuleBuilder::AddFunction(FUNCTION function)
 {
 	m_functions.push_back(std::move(function));
@@ -84,22 +89,39 @@ void CWasmModuleBuilder::WriteModule(Framework::CStream& stream)
 
 	//Section "Type"
 	{
-		WriteSectionHeader(stream, Wasm::SECTION_ID_TYPE, 1 + 4 + 5);
+		uint32 sectionSize = 0;
+		sectionSize += GetULeb128Size(m_functionTypes.size());
+		for(const auto& functionType : m_functionTypes)
+		{
+			sectionSize +=
+			    1 + //Type
+			    GetULeb128Size(functionType.params.size()) +
+			    static_cast<uint32>(functionType.params.size()) +
+			    GetULeb128Size(functionType.results.size()) +
+			    static_cast<uint32>(functionType.results.size());
+		}
 
-		stream.Write8(2); //Type vector size
+		WriteSectionHeader(stream, Wasm::SECTION_ID_TYPE, sectionSize);
 
-		//Type 0
-		stream.Write8(0x60); //Func
-		stream.Write8(1);    //Num params
-		stream.Write8(Wasm::TYPE_I32);
-		stream.Write8(0); //Num results
+		//Vector size
+		WriteULeb128(stream, m_functionTypes.size());
 
-		//Type 1
-		stream.Write8(0x60); //Func
-		stream.Write8(1);    //Num params
-		stream.Write8(Wasm::TYPE_I32);
-		stream.Write8(1); //Num results
-		stream.Write8(Wasm::TYPE_I32);
+		for(const auto& functionType : m_functionTypes)
+		{
+			stream.Write8(0x60); //Func
+
+			WriteULeb128(stream, functionType.params.size()); //Num params
+			for(uint32 i = 0; i < functionType.params.size(); i++)
+			{
+				stream.Write8(functionType.params[i]);
+			}
+
+			WriteULeb128(stream, functionType.results.size()); //Num results
+			for(uint32 i = 0; i < functionType.results.size(); i++)
+			{
+				stream.Write8(functionType.results[i]);
+			}
+		}
 	}
 
 	//Section "Import"

@@ -180,6 +180,8 @@ void CCodeGen_Wasm::GenerateCode(const StatementList& statements, unsigned int s
 
 	moduleBuilder.AddFunction(std::move(function));
 	moduleBuilder.WriteModule(*m_stream);
+
+	assert(m_params.empty());
 }
 
 void CCodeGen_Wasm::SetStream(Framework::CStream* stream)
@@ -684,13 +686,13 @@ void CCodeGen_Wasm::Emit_Param_Ctx(const STATEMENT& statement)
 	auto src1 = statement.src1->GetSymbol().get();
 	assert(src1->m_type == SYM_CONTEXT);
 
-	PushContext();
+	m_params.push([this]() { PushContext(); });
 }
 
 void CCodeGen_Wasm::Emit_Param_Any(const STATEMENT& statement)
 {
 	auto src1 = statement.src1->GetSymbol().get();
-	PrepareSymbolUse(src1);
+	m_params.push([this, src1]() { PrepareSymbolUse(src1); });
 }
 
 void CCodeGen_Wasm::Emit_Call(const STATEMENT& statement)
@@ -702,6 +704,12 @@ void CCodeGen_Wasm::Emit_Call(const STATEMENT& statement)
 	assert(src2->m_type == SYM_CONSTANT);
 
 	unsigned int paramCount = src2->m_valueLow;
+	for(unsigned int i = 0; i < paramCount; i++)
+	{
+		auto paramFct = m_params.top();
+		paramFct();
+		m_params.pop();
+	}
 
 	auto fctInfo = CWasmFunctionRegistry::FindFunction(src1->m_valueLow);
 	auto sigIdxIterator = m_signatures.find(fctInfo->signature);

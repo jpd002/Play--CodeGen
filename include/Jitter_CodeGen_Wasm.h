@@ -1,6 +1,6 @@
 #pragma once
-#pragma once
 
+#include <stack>
 #include "Jitter_CodeGen.h"
 #include "MemStream.h"
 
@@ -47,6 +47,9 @@ namespace Jitter
 		};
 
 		typedef void (CCodeGen_Wasm::*ConstCodeEmitterType)(const STATEMENT&);
+
+		typedef std::function<void(void)> ParamEmitterFunction;
+		typedef std::stack<ParamEmitterFunction> ParamStack;
 
 		struct CONSTMATCHER
 		{
@@ -128,5 +131,6 @@ namespace Jitter
 		Framework::CMemStream m_functionStream;
 		std::map<uint32, LABEL_FLOW> m_labelFlows;
 		std::map<std::string, uint32> m_signatures;
+		ParamStack m_params;
 	};
 }

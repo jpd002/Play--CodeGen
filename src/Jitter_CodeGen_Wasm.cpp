@@ -49,6 +49,7 @@ CCodeGen_Wasm::CONSTMATCHER CCodeGen_Wasm::g_constMatchers[] =
 	{ OP_SRL,            MATCH_ANY,            MATCH_ANY,            MATCH_ANY,           MATCH_NIL,      &CCodeGen_Wasm::Emit_Srl_AnyAnyAny                          },
 	{ OP_SRA,            MATCH_ANY,            MATCH_ANY,            MATCH_ANY,           MATCH_NIL,      &CCodeGen_Wasm::Emit_Sra_AnyAnyAny                          },
 
+	{ OP_NOT,            MATCH_ANY,            MATCH_ANY,            MATCH_NIL,           MATCH_NIL,      &CCodeGen_Wasm::Emit_Not_AnyAny                             },
 	{ OP_AND,            MATCH_ANY,            MATCH_ANY,            MATCH_ANY,           MATCH_NIL,      &CCodeGen_Wasm::Emit_And_AnyAnyAny                          },
 	{ OP_OR,             MATCH_ANY,            MATCH_ANY,            MATCH_ANY,           MATCH_NIL,      &CCodeGen_Wasm::Emit_Or_AnyAnyAny                           },
 	{ OP_XOR,            MATCH_ANY,            MATCH_ANY,            MATCH_ANY,           MATCH_NIL,      &CCodeGen_Wasm::Emit_Xor_AnyAnyAny                          },
@@ -898,6 +899,22 @@ void CCodeGen_Wasm::Emit_Sra_AnyAnyAny(const STATEMENT& statement)
 	PrepareSymbolUse(src2);
 
 	m_functionStream.Write8(Wasm::INST_I32_SHR_S);
+
+	CommitSymbol(dst);
+}
+
+void CCodeGen_Wasm::Emit_Not_AnyAny(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+
+	PrepareSymbolDef(dst);
+	PrepareSymbolUse(src1);
+
+	m_functionStream.Write8(Wasm::INST_I32_CONST);
+	CWasmModuleBuilder::WriteSLeb128(m_functionStream, -1);
+
+	m_functionStream.Write8(Wasm::INST_I32_XOR);
 
 	CommitSymbol(dst);
 }

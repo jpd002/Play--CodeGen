@@ -7,6 +7,75 @@
 
 using namespace Jitter;
 
+template <bool isSigned>
+void CCodeGen_Wasm::Emit_Mul_Tmp64AnyAny(const STATEMENT& statement)
+{
+	//TODO: Use a real 64 bit temporary
+
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	assert(dst->m_type == SYM_TEMPORARY64);
+
+	uint32 localIdx = GetTemporaryLocation(dst);
+
+	for(uint32 i = 0; i < 2; i++)
+	{
+		PrepareSymbolUse(src1);
+		m_functionStream.Write8(isSigned ? Wasm::INST_I64_EXTEND_I32_S : Wasm::INST_I64_EXTEND_I32_U);
+
+		PrepareSymbolUse(src2);
+		m_functionStream.Write8(isSigned ? Wasm::INST_I64_EXTEND_I32_S : Wasm::INST_I64_EXTEND_I32_U);
+
+		m_functionStream.Write8(Wasm::INST_I64_MUL);
+
+		if(i == 1)
+		{
+			//HI
+			m_functionStream.Write8(Wasm::INST_I64_CONST);
+			CWasmModuleBuilder::WriteSLeb128(m_functionStream, 32);
+
+			m_functionStream.Write8(Wasm::INST_I64_SHR_U);
+		}
+
+		m_functionStream.Write8(Wasm::INST_I32_WRAP_I64);
+
+		m_functionStream.Write8(Wasm::INST_LOCAL_SET);
+		CWasmModuleBuilder::WriteULeb128(m_functionStream, localIdx + i);
+	}
+}
+
+template <bool isSigned>
+void CCodeGen_Wasm::Emit_Div_Tmp64AnyAny(const STATEMENT& statement)
+{
+	//TODO: Use a real 64 bit temporary
+
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	assert(dst->m_type == SYM_TEMPORARY64);
+
+	uint32 localIdx = GetTemporaryLocation(dst);
+
+	PrepareSymbolUse(src1);
+	PrepareSymbolUse(src2);
+
+	m_functionStream.Write8(isSigned ? Wasm::INST_I32_DIV_S : Wasm::INST_I32_DIV_U);
+
+	m_functionStream.Write8(Wasm::INST_LOCAL_SET);
+	CWasmModuleBuilder::WriteULeb128(m_functionStream, localIdx + 0);
+
+	PrepareSymbolUse(src1);
+	PrepareSymbolUse(src2);
+
+	m_functionStream.Write8(isSigned ? Wasm::INST_I32_REM_S : Wasm::INST_I32_REM_U);
+
+	m_functionStream.Write8(Wasm::INST_LOCAL_SET);
+	CWasmModuleBuilder::WriteULeb128(m_functionStream, localIdx + 1);
+}
+
 // clang-format off
 CCodeGen_Wasm::CONSTMATCHER CCodeGen_Wasm::g_constMatchers[] =
 {
@@ -56,6 +125,15 @@ CCodeGen_Wasm::CONSTMATCHER CCodeGen_Wasm::g_constMatchers[] =
 
 	{ OP_ADD,            MATCH_ANY,            MATCH_ANY,            MATCH_ANY,           MATCH_NIL,      &CCodeGen_Wasm::Emit_Add_AnyAnyAny                          },
 	{ OP_SUB,            MATCH_ANY,            MATCH_ANY,            MATCH_ANY,           MATCH_NIL,      &CCodeGen_Wasm::Emit_Sub_AnyAnyAny                          },
+
+	{ OP_DIV,            MATCH_TEMPORARY64,    MATCH_ANY,            MATCH_ANY,           MATCH_NIL,      &CCodeGen_Wasm::Emit_Div_Tmp64AnyAny<false>                 },
+	{ OP_DIVS,           MATCH_TEMPORARY64,    MATCH_ANY,            MATCH_ANY,           MATCH_NIL,      &CCodeGen_Wasm::Emit_Div_Tmp64AnyAny<true>                  },
+
+	{ OP_MUL,            MATCH_TEMPORARY64,    MATCH_ANY,            MATCH_ANY,           MATCH_NIL,      &CCodeGen_Wasm::Emit_Mul_Tmp64AnyAny<false>                 },
+	{ OP_MULS,           MATCH_TEMPORARY64,    MATCH_ANY,            MATCH_ANY,           MATCH_NIL,      &CCodeGen_Wasm::Emit_Mul_Tmp64AnyAny<true>                  },
+
+	{ OP_EXTLOW64,       MATCH_VARIABLE,       MATCH_MEMORY64,       MATCH_NIL,           MATCH_NIL,      &CCodeGen_Wasm::Emit_ExtLow64VarMem64                       },
+	{ OP_EXTHIGH64,      MATCH_VARIABLE,       MATCH_MEMORY64,       MATCH_NIL,           MATCH_NIL,      &CCodeGen_Wasm::Emit_ExtHigh64VarMem64                      },
 
 	{ OP_LABEL,          MATCH_NIL,            MATCH_NIL,            MATCH_NIL,           MATCH_NIL,      &CCodeGen_Wasm::MarkLabel                                   },
 
@@ -354,6 +432,13 @@ void CCodeGen_Wasm::RegisterSignature(CWasmModuleBuilder& moduleBuilder, std::st
 	m_signatures.insert(std::make_pair(signature, static_cast<uint32>(m_signatures.size())));
 }
 
+uint32 CCodeGen_Wasm::GetTemporaryLocation(CSymbol* symbol) const
+{
+	assert(symbol->IsTemporary());
+	uint32 localIdx = (symbol->m_stackLocation / 4) + 1;
+	return localIdx;
+}
+
 void CCodeGen_Wasm::PushContext()
 {
 	//Context is the first param
@@ -384,9 +469,7 @@ void CCodeGen_Wasm::PushRelative(CSymbol* symbol)
 
 void CCodeGen_Wasm::PushTemporary(CSymbol* symbol)
 {
-	assert(symbol->m_type == SYM_TEMPORARY);
-
-	uint32 localIdx = (symbol->m_stackLocation / 4) + 1;
+	uint32 localIdx = GetTemporaryLocation(symbol);
 
 	m_functionStream.Write8(Wasm::INST_LOCAL_GET);
 	CWasmModuleBuilder::WriteULeb128(m_functionStream, localIdx);
@@ -990,6 +1073,36 @@ void CCodeGen_Wasm::Emit_Sub_AnyAnyAny(const STATEMENT& statement)
 	PrepareSymbolUse(src2);
 
 	m_functionStream.Write8(Wasm::INST_I32_SUB);
+
+	CommitSymbol(dst);
+}
+
+void CCodeGen_Wasm::Emit_ExtLow64VarMem64(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+
+	PrepareSymbolDef(dst);
+
+	uint32 localIdx = GetTemporaryLocation(src1);
+
+	m_functionStream.Write8(Wasm::INST_LOCAL_GET);
+	CWasmModuleBuilder::WriteULeb128(m_functionStream, localIdx + 0);
+
+	CommitSymbol(dst);
+}
+
+void CCodeGen_Wasm::Emit_ExtHigh64VarMem64(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+
+	PrepareSymbolDef(dst);
+
+	uint32 localIdx = GetTemporaryLocation(src1);
+
+	m_functionStream.Write8(Wasm::INST_LOCAL_GET);
+	CWasmModuleBuilder::WriteULeb128(m_functionStream, localIdx + 1);
 
 	CommitSymbol(dst);
 }

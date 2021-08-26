@@ -67,6 +67,8 @@ namespace Jitter
 		void PrepareSignatures(CWasmModuleBuilder&, const StatementList&);
 		void RegisterSignature(CWasmModuleBuilder&, std::string);
 
+		uint32 GetTemporaryLocation(CSymbol*) const;
+
 		void PushContext();
 
 		void PushRelativeAddress(CSymbol*);
@@ -127,6 +129,17 @@ namespace Jitter
 
 		void Emit_Add_AnyAnyAny(const STATEMENT&);
 		void Emit_Sub_AnyAnyAny(const STATEMENT&);
+
+		//MUL
+		template <bool>
+		void Emit_Mul_Tmp64AnyAny(const STATEMENT&);
+
+		//DIV
+		template <bool>
+		void Emit_Div_Tmp64AnyAny(const STATEMENT&);
+
+		void Emit_ExtLow64VarMem64(const STATEMENT&);
+		void Emit_ExtHigh64VarMem64(const STATEMENT&);
 
 		Framework::CStream* m_stream = nullptr;
 		Framework::CMemStream m_functionStream;

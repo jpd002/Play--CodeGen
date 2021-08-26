@@ -777,8 +777,29 @@ void CCodeGen_Wasm::Emit_CondJmp_AnyAny(const STATEMENT& statement)
 	case CONDITION_NE:
 		m_functionStream.Write8(Wasm::INST_I32_EQ);
 		break;
+	case CONDITION_BL:
+		m_functionStream.Write8(Wasm::INST_I32_GE_U);
+		break;
+	case CONDITION_BE:
+		m_functionStream.Write8(Wasm::INST_I32_GT_U);
+		break;
+	case CONDITION_AB:
+		m_functionStream.Write8(Wasm::INST_I32_LE_U);
+		break;
+	case CONDITION_AE:
+		m_functionStream.Write8(Wasm::INST_I32_LT_U);
+		break;
+	case CONDITION_LT:
+		m_functionStream.Write8(Wasm::INST_I32_GE_S);
+		break;
+	case CONDITION_LE:
+		m_functionStream.Write8(Wasm::INST_I32_GT_S);
+		break;
 	case CONDITION_GT:
 		m_functionStream.Write8(Wasm::INST_I32_LE_S);
+		break;
+	case CONDITION_GE:
+		m_functionStream.Write8(Wasm::INST_I32_LT_S);
 		break;
 	default:
 		assert(false);
@@ -798,14 +819,35 @@ void CCodeGen_Wasm::Emit_Cmp_AnyAnyAny(const STATEMENT& statement)
 
 	switch(statement.jmpCondition)
 	{
+	case CONDITION_EQ:
+		m_functionStream.Write8(Wasm::INST_I32_EQ);
+		break;
 	case CONDITION_NE:
 		m_functionStream.Write8(Wasm::INST_I32_NE);
 		break;
 	case CONDITION_BL:
 		m_functionStream.Write8(Wasm::INST_I32_LT_U);
 		break;
+	case CONDITION_BE:
+		m_functionStream.Write8(Wasm::INST_I32_LE_U);
+		break;
+	case CONDITION_AB:
+		m_functionStream.Write8(Wasm::INST_I32_GT_U);
+		break;
+	case CONDITION_AE:
+		m_functionStream.Write8(Wasm::INST_I32_GE_U);
+		break;
 	case CONDITION_LT:
 		m_functionStream.Write8(Wasm::INST_I32_LT_S);
+		break;
+	case CONDITION_LE:
+		m_functionStream.Write8(Wasm::INST_I32_LE_S);
+		break;
+	case CONDITION_GT:
+		m_functionStream.Write8(Wasm::INST_I32_GT_S);
+		break;
+	case CONDITION_GE:
+		m_functionStream.Write8(Wasm::INST_I32_GE_S);
 		break;
 	default:
 		assert(false);

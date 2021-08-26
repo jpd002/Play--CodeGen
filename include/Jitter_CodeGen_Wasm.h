@@ -89,6 +89,8 @@ namespace Jitter
 
 		void MarkLabel(const STATEMENT&);
 
+		void Emit_Nop(const STATEMENT&);
+
 		void Emit_Mov_VarAny(const STATEMENT&);
 
 		void Emit_RelToRef_VarCst(const STATEMENT&);

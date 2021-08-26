@@ -79,6 +79,8 @@ void CCodeGen_Wasm::Emit_Div_Tmp64AnyAny(const STATEMENT& statement)
 // clang-format off
 CCodeGen_Wasm::CONSTMATCHER CCodeGen_Wasm::g_constMatchers[] =
 {
+	{ OP_NOP,            MATCH_NIL,            MATCH_NIL,            MATCH_NIL,           MATCH_NIL,      &CCodeGen_Wasm::Emit_Nop                                    },
+
 	{ OP_MOV,            MATCH_VARIABLE,       MATCH_ANY,            MATCH_NIL,           MATCH_NIL,      &CCodeGen_Wasm::Emit_Mov_VarAny                             },
 
 	{ OP_RELTOREF,       MATCH_VAR_REF,        MATCH_CONSTANT,       MATCH_ANY,           MATCH_NIL,      &CCodeGen_Wasm::Emit_RelToRef_VarCst                        },
@@ -611,6 +613,10 @@ void CCodeGen_Wasm::MarkLabel(const STATEMENT& statement)
 			break;
 		}
 	}
+}
+
+void CCodeGen_Wasm::Emit_Nop(const STATEMENT& statement)
+{
 }
 
 void CCodeGen_Wasm::Emit_Mov_VarAny(const STATEMENT& statement)

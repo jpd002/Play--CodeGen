@@ -302,11 +302,7 @@ void CCodeGen_Wasm::BuildLabelFlows(const StatementList& statements)
 		const auto& outerStatement = *outerStatementIterator;
 		if(outerStatement.op == OP_CONDJMP)
 		{
-			//Check if we find the target label or a uncond jmp first
-			//If we find the target label, we have a If block
-			//If we find an uncond jmp, we have a If/Else block
-
-			bool foundEnd = false;
+			//Find the target label
 			auto innerStatementIterator = outerStatementIterator;
 
 			//Next statement should be a label (start of if block)
@@ -317,56 +313,36 @@ void CCodeGen_Wasm::BuildLabelFlows(const StatementList& statements)
 				assert(insertResult.second);
 			}
 
-			innerStatementIterator++;
+			bool foundEnd = false;
 			for(; innerStatementIterator != statements.end(); innerStatementIterator++)
 			{
 				const auto& innerStatement = *innerStatementIterator;
-				if(innerStatement.op == OP_JMP)
+				if((innerStatement.op == OP_LABEL) &&
+				   (innerStatement.jmpBlock == outerStatement.jmpBlock))
 				{
-					//Take note of the final label
-					uint32 finalLabel = innerStatement.jmpBlock;
-
-					//Next statement should be the label the outer statement is referencing
-					innerStatementIterator++;
-					assert(innerStatementIterator != statements.end());
-					assert(innerStatementIterator->op == OP_LABEL);
-					assert(innerStatementIterator->jmpBlock == outerStatement.jmpBlock);
-
+					foundEnd = true;
+					auto prevStatementIterator = innerStatementIterator;
+					prevStatementIterator--;
+					const auto& prevStatement = *prevStatementIterator;
+					if(prevStatement.op == OP_JMP)
 					{
-						auto insertResult = m_labelFlows.insert(std::make_pair(innerStatementIterator->jmpBlock, LABEL_FLOW_ELSE));
-						assert(insertResult.second);
-					}
-
-					//Skip OP_LABEL statement
-					innerStatementIterator++;
-
-					for(; innerStatementIterator != statements.end(); innerStatementIterator++)
-					{
-						const auto& innerStatement = *innerStatementIterator;
-						if(innerStatement.op == OP_LABEL)
+						//We have a If/Else/EndIf situation
 						{
-							if(innerStatement.jmpBlock == finalLabel)
-							{
-								auto insertResult = m_labelFlows.insert(std::make_pair(innerStatementIterator->jmpBlock, LABEL_FLOW_END));
-								assert(insertResult.second);
-								foundEnd = true;
-								break;
-							}
+							auto insertResult = m_labelFlows.insert(std::make_pair(innerStatementIterator->jmpBlock, LABEL_FLOW_ELSE));
+							assert(insertResult.second);
+						}
+						{
+							auto insertResult = m_labelFlows.insert(std::make_pair(prevStatementIterator->jmpBlock, LABEL_FLOW_END));
+							assert(insertResult.second);
 						}
 					}
-
-					break;
-				}
-				else if(innerStatement.op == OP_LABEL)
-				{
-					//If block
-					//Check if it's our end label
-					if(innerStatement.jmpBlock == outerStatement.jmpBlock)
+					else
 					{
-						auto insertResult = m_labelFlows.insert(std::make_pair(innerStatementIterator->jmpBlock, LABEL_FLOW_END));
-						assert(insertResult.second == true);
-						foundEnd = true;
-						break;
+						//We have a If/EndIf situation
+						{
+							auto insertResult = m_labelFlows.insert(std::make_pair(innerStatementIterator->jmpBlock, LABEL_FLOW_END));
+							assert(insertResult.second);
+						}
 					}
 				}
 			}

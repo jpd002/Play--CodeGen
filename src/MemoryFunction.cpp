@@ -54,7 +54,7 @@ EM_JS(int, WasmCreateFunction, (uintptr_t code, uintptr_t size),
 	{
 		let moduleBytes = HEAP8.subarray(code, code + size);
 		let module = await WebAssembly.compile(moduleBytes);
-		let moduleInstance = new WebAssembly.Instance(module, {
+		let moduleInstance = await WebAssembly.instantiate(module, {
 			env: {
 				memory: wasmMemory,
 				fctTable : wasmTable

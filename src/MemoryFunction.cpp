@@ -62,14 +62,12 @@ EM_JS(int, WasmCreateFunction, (uintptr_t code, uintptr_t size),
 		});
 		let fct = moduleInstance.exports.codeGenFunc;
 		let fctId = addFunction(fct, 'vi');
-		out('Compiled function (fctId = ' + fctId + ').');
 		return fctId;
 	});
 });
 EM_JS(void, WasmDeleteFunction, (int fctId),
 {
 	removeFunction(fctId);
-	out('Removed function (fctId = ' + fctId + ').');
 });
 #else
 #error "No API to use for CMemoryFunction"

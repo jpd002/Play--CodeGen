@@ -50,20 +50,19 @@
 #elif defined(MEMFUNC_USE_WASM)
 EM_JS(int, WasmCreateFunction, (uintptr_t code, uintptr_t size),
 {
-	return Asyncify.handleAsync(async () => 
-	{
-		let moduleBytes = HEAP8.subarray(code, code + size);
-		let module = await WebAssembly.compile(moduleBytes);
-		let moduleInstance = await WebAssembly.instantiate(module, {
-			env: {
-				memory: wasmMemory,
-				fctTable : wasmTable
-			}
-		});
-		let fct = moduleInstance.exports.codeGenFunc;
-		let fctId = addFunction(fct, 'vi');
-		return fctId;
+	//var fs = require('fs');
+	let moduleBytes = HEAP8.subarray(code, code + size);
+	//fs.writeFileSync('module.wasm', moduleBytes);
+	let module = new WebAssembly.Module(moduleBytes);
+	let moduleInstance = new WebAssembly.Instance(module, {
+		env: {
+			memory: wasmMemory,
+			fctTable : wasmTable
+		}
 	});
+	let fct = moduleInstance.exports.codeGenFunc;
+	let fctId = addFunction(fct, 'vi');
+	return fctId;
 });
 EM_JS(void, WasmDeleteFunction, (int fctId),
 {

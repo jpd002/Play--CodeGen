@@ -126,7 +126,7 @@ void CWasmModuleBuilder::WriteModule(Framework::CStream& stream)
 
 	//Section "Import"
 	{
-		WriteSectionHeader(stream, Wasm::SECTION_ID_IMPORT, 0x20);
+		WriteSectionHeader(stream, Wasm::SECTION_ID_IMPORT, 0x23);
 
 		stream.Write8(2); //Import vector size
 
@@ -134,8 +134,9 @@ void CWasmModuleBuilder::WriteModule(Framework::CStream& stream)
 		WriteName(stream, "env");    //Import module name
 		WriteName(stream, "memory"); //Import field name
 		stream.Write8(Wasm::IMPORT_EXPORT_TYPE_MEMORY);
-		stream.Write8(0x00); //Limit type 0
+		stream.Write8(0x03); //Limit type 3 (0x01 = has max, 0x02 = is shared?)
 		stream.Write8(0x01); //Min
+		WriteULeb128(stream, 32768); //Max (default Emscripten value)
 
 		//Import 1
 		WriteName(stream, "env");

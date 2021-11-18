@@ -29,6 +29,11 @@ namespace Wasm
 		TYPE_I32 = 0x7F,
 	};
 
+	enum INST_PREFIX
+	{
+		INST_PREFIX_SIMD = 0xFD,
+	};
+
 	enum INST_CODE
 	{
 		INST_BLOCK = 0x02,
@@ -77,5 +82,12 @@ namespace Wasm
 		INST_I32_WRAP_I64 = 0xA7,
 		INST_I64_EXTEND_I32_S = 0xAC,
 		INST_I64_EXTEND_I32_U = 0xAD,
+	};
+
+	enum INST_CODE_SIMD
+	{
+		INST_V128_LOAD = 0x00,
+		INST_V128_STORE = 0x0B,
+		INST_I8x16_ADD = 0x6E,
 	};
 }

@@ -62,6 +62,7 @@ namespace Jitter
 		};
 
 		static CONSTMATCHER g_constMatchers[];
+		static CONSTMATCHER g_mdConstMatchers[];
 
 		void BuildLabelFlows(const StatementList&);
 		void PrepareSignatures(CWasmModuleBuilder&, const StatementList&);
@@ -82,6 +83,8 @@ namespace Jitter
 
 		void PushTemporaryRef(CSymbol*);
 		void PullTemporaryRef(CSymbol*);
+
+		void PushRelative128(CSymbol*);
 
 		void PrepareSymbolUse(CSymbol*);
 		void PrepareSymbolDef(CSymbol*);
@@ -142,6 +145,9 @@ namespace Jitter
 
 		void Emit_ExtLow64VarMem64(const STATEMENT&);
 		void Emit_ExtHigh64VarMem64(const STATEMENT&);
+
+		//MD_ADDB
+		void Emit_Md_AddB_MemMemMem(const STATEMENT&);
 
 		Framework::CStream* m_stream = nullptr;
 		Framework::CMemStream m_functionStream;

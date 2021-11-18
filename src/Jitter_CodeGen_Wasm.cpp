@@ -214,6 +214,7 @@ CCodeGen_Wasm::CCodeGen_Wasm()
 	    };
 
 	copyMatchers(g_constMatchers);
+	copyMatchers(g_mdConstMatchers);
 }
 
 void CCodeGen_Wasm::GenerateCode(const StatementList& statements, unsigned int stackSize)
@@ -426,7 +427,7 @@ void CCodeGen_Wasm::PushContext()
 
 void CCodeGen_Wasm::PushRelativeAddress(CSymbol* symbol)
 {
-	assert(symbol->m_type == SYM_RELATIVE);
+	assert((symbol->m_type == SYM_RELATIVE) || (symbol->m_type == SYM_RELATIVE128));
 
 	PushContext();
 

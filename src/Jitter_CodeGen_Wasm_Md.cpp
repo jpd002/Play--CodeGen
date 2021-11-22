@@ -9,7 +9,7 @@ void CCodeGen_Wasm::Emit_Md_MemMemMem(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
-	auto src2 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
 
 	PushRelativeAddress(dst);
 

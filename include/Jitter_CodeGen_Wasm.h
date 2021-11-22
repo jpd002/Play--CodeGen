@@ -146,8 +146,8 @@ namespace Jitter
 		void Emit_ExtLow64VarMem64(const STATEMENT&);
 		void Emit_ExtHigh64VarMem64(const STATEMENT&);
 
-		//MD_ADDB
-		void Emit_Md_AddB_MemMemMem(const STATEMENT&);
+		//MD
+		template <uint32> void Emit_Md_MemMemMem(const STATEMENT&);
 
 		Framework::CStream* m_stream = nullptr;
 		Framework::CMemStream m_functionStream;

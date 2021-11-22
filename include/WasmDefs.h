@@ -89,5 +89,7 @@ namespace Wasm
 		INST_V128_LOAD = 0x00,
 		INST_V128_STORE = 0x0B,
 		INST_I8x16_ADD = 0x6E,
+		INST_I8x16_ADD_SAT_S = 0x6F,
+		INST_I8x16_ADD_SAT_U = 0x70,
 	};
 }

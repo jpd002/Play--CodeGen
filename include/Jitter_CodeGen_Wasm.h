@@ -62,6 +62,7 @@ namespace Jitter
 		};
 
 		static CONSTMATCHER g_constMatchers[];
+		static CONSTMATCHER g_fpuConstMatchers[];
 		static CONSTMATCHER g_mdConstMatchers[];
 
 		void BuildLabelFlows(const StatementList&);
@@ -83,6 +84,8 @@ namespace Jitter
 
 		void PushTemporaryRef(CSymbol*);
 		void PullTemporaryRef(CSymbol*);
+
+		void PushRelativeSingle(CSymbol*);
 
 		void PushRelative128(CSymbol*);
 
@@ -145,6 +148,9 @@ namespace Jitter
 
 		void Emit_ExtLow64VarMem64(const STATEMENT&);
 		void Emit_ExtHigh64VarMem64(const STATEMENT&);
+
+		//FPU
+		template <uint32> void Emit_Fpu_MemMemMem(const STATEMENT&);
 
 		//MD
 		template <uint32> void Emit_Md_MemMemMem(const STATEMENT&);

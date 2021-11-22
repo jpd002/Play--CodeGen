@@ -214,6 +214,7 @@ CCodeGen_Wasm::CCodeGen_Wasm()
 	    };
 
 	copyMatchers(g_constMatchers);
+	copyMatchers(g_fpuConstMatchers);
 	copyMatchers(g_mdConstMatchers);
 }
 
@@ -427,7 +428,11 @@ void CCodeGen_Wasm::PushContext()
 
 void CCodeGen_Wasm::PushRelativeAddress(CSymbol* symbol)
 {
-	assert((symbol->m_type == SYM_RELATIVE) || (symbol->m_type == SYM_RELATIVE128));
+	assert(
+		(symbol->m_type == SYM_RELATIVE) ||
+		(symbol->m_type == SYM_FP_REL_SINGLE) ||
+		(symbol->m_type == SYM_RELATIVE128)
+	);
 
 	PushContext();
 

@@ -10,7 +10,7 @@ static void WriteName(Framework::CStream& stream, const char* str)
 	stream.Write(str, length);
 }
 
-void CWasmModuleBuilder::WriteSLeb128(Framework::CStream& stream, int32 value)
+void CWasmModuleBuilder::WriteSLeb128(Framework::CStream& stream, int64 value)
 {
 	bool more = true;
 	while(more)
@@ -31,7 +31,7 @@ void CWasmModuleBuilder::WriteSLeb128(Framework::CStream& stream, int32 value)
 	}
 }
 
-void CWasmModuleBuilder::WriteULeb128(Framework::CStream& stream, uint32 value)
+void CWasmModuleBuilder::WriteULeb128(Framework::CStream& stream, uint64 value)
 {
 	while(1)
 	{

@@ -20,8 +20,8 @@ public:
 		uint32 localI32Count = 0;
 	};
 
-	static void WriteSLeb128(Framework::CStream&, int32);
-	static void WriteULeb128(Framework::CStream&, uint32);
+	static void WriteSLeb128(Framework::CStream&, int64);
+	static void WriteULeb128(Framework::CStream&, uint64);
 
 	static uint32 GetULeb128Size(uint32);
 

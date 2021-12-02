@@ -214,6 +214,7 @@ CCodeGen_Wasm::CCodeGen_Wasm()
 	    };
 
 	copyMatchers(g_constMatchers);
+	copyMatchers(g_64ConstMatchers);
 	copyMatchers(g_fpuConstMatchers);
 	copyMatchers(g_mdConstMatchers);
 }
@@ -430,6 +431,7 @@ void CCodeGen_Wasm::PushRelativeAddress(CSymbol* symbol)
 {
 	assert(
 		(symbol->m_type == SYM_RELATIVE) ||
+		(symbol->m_type == SYM_RELATIVE64) ||
 		(symbol->m_type == SYM_FP_REL_SINGLE) ||
 		(symbol->m_type == SYM_RELATIVE128)
 	);
@@ -528,7 +530,7 @@ void CCodeGen_Wasm::PrepareSymbolUse(CSymbol* symbol)
 		break;
 	case SYM_CONSTANT:
 		m_functionStream.Write8(Wasm::INST_I32_CONST);
-		CWasmModuleBuilder::WriteSLeb128(m_functionStream, symbol->m_valueLow);
+		CWasmModuleBuilder::WriteSLeb128(m_functionStream, static_cast<int32>(symbol->m_valueLow));
 		break;
 	default:
 		assert(false);

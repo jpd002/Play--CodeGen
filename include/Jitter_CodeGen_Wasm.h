@@ -62,6 +62,7 @@ namespace Jitter
 		};
 
 		static CONSTMATCHER g_constMatchers[];
+		static CONSTMATCHER g_64ConstMatchers[];
 		static CONSTMATCHER g_fpuConstMatchers[];
 		static CONSTMATCHER g_mdConstMatchers[];
 
@@ -85,6 +86,8 @@ namespace Jitter
 		void PushTemporaryRef(CSymbol*);
 		void PullTemporaryRef(CSymbol*);
 
+		void PushRelative64(CSymbol*);
+
 		void PushRelativeSingle(CSymbol*);
 
 		void PushRelative128(CSymbol*);
@@ -92,6 +95,8 @@ namespace Jitter
 		void PrepareSymbolUse(CSymbol*);
 		void PrepareSymbolDef(CSymbol*);
 		void CommitSymbol(CSymbol*);
+
+		void PrepareSymbol64Use(CSymbol*);
 
 		void MarkLabel(const STATEMENT&);
 
@@ -137,6 +142,8 @@ namespace Jitter
 
 		void Emit_Add_AnyAnyAny(const STATEMENT&);
 		void Emit_Sub_AnyAnyAny(const STATEMENT&);
+
+		void Emit_Cmp64_MemMemAny(const STATEMENT&);
 
 		//MUL
 		template <bool>

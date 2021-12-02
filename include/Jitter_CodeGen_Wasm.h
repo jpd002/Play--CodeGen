@@ -97,6 +97,8 @@ namespace Jitter
 		void CommitSymbol(CSymbol*);
 
 		void PrepareSymbol64Use(CSymbol*);
+		void PrepareSymbol64Def(CSymbol*);
+		void CommitSymbol64(CSymbol*);
 
 		void MarkLabel(const STATEMENT&);
 
@@ -143,7 +145,9 @@ namespace Jitter
 		void Emit_Add_AnyAnyAny(const STATEMENT&);
 		void Emit_Sub_AnyAnyAny(const STATEMENT&);
 
-		void Emit_Cmp64_MemMemAny(const STATEMENT&);
+		void Emit_Add64_MemAnyAny(const STATEMENT&);
+		void Emit_Sub64_MemAnyAny(const STATEMENT&);
+		void Emit_Cmp64_MemAnyAny(const STATEMENT&);
 
 		//MUL
 		template <bool>

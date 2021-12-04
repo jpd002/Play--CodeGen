@@ -402,6 +402,9 @@ void CCodeGen_Wasm::RegisterSignature(CWasmModuleBuilder& moduleBuilder, std::st
 		case 'i':
 			functionType.params.push_back(Wasm::TYPE_I32);
 			break;
+		case 'j':
+			functionType.params.push_back(Wasm::TYPE_I64);
+			break;
 		default:
 			assert(false);
 			break;

@@ -27,6 +27,7 @@ namespace Wasm
 	enum TYPE_CODE
 	{
 		TYPE_I32 = 0x7F,
+		TYPE_I64 = 0x7E
 	};
 
 	enum INST_PREFIX

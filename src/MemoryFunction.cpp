@@ -53,6 +53,12 @@ EM_JS(int, WasmCreateFunction, (uintptr_t code, uintptr_t size),
 	//var fs = require('fs');
 	let moduleBytes = HEAP8.subarray(code, code + size);
 	//fs.writeFileSync('module.wasm', moduleBytes);
+	//{
+	//	let bytesCopy = new Uint8Array(moduleBytes);
+	//	let blob = new Blob([bytesCopy], { type: "binary/octet-stream" });
+	//	let url = URL.createObjectURL(blob);
+	//	console.log(url);
+	//}
 	let module = new WebAssembly.Module(moduleBytes);
 	let moduleInstance = new WebAssembly.Instance(module, {
 		env: {

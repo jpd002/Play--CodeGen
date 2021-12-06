@@ -535,6 +535,13 @@ void CCodeGen_Wasm::PrepareSymbolUse(CSymbol* symbol)
 		m_functionStream.Write8(Wasm::INST_I32_CONST);
 		CWasmModuleBuilder::WriteSLeb128(m_functionStream, static_cast<int32>(symbol->m_valueLow));
 		break;
+	case SYM_RELATIVE64:
+		PushRelative64(symbol);
+		break;
+	case SYM_CONSTANT64:
+		m_functionStream.Write8(Wasm::INST_I64_CONST);
+		CWasmModuleBuilder::WriteSLeb128(m_functionStream, symbol->GetConstant64());
+		break;
 	default:
 		assert(false);
 		break;
@@ -546,6 +553,7 @@ void CCodeGen_Wasm::PrepareSymbolDef(CSymbol* symbol)
 	switch(symbol->m_type)
 	{
 	case SYM_RELATIVE:
+	case SYM_RELATIVE64:
 		PushRelativeAddress(symbol);
 		break;
 	case SYM_TEMPORARY:
@@ -571,6 +579,11 @@ void CCodeGen_Wasm::CommitSymbol(CSymbol* symbol)
 		break;
 	case SYM_TMP_REFERENCE:
 		PullTemporaryRef(symbol);
+		break;
+	case SYM_RELATIVE64:
+		m_functionStream.Write8(Wasm::INST_I64_STORE);
+		m_functionStream.Write8(0x03);
+		m_functionStream.Write8(0x00);
 		break;
 	default:
 		assert(false);

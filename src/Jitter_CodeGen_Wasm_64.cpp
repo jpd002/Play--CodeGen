@@ -13,60 +13,15 @@ void CCodeGen_Wasm::PushRelative64(CSymbol* symbol)
 	m_functionStream.Write8(0x00);
 }
 
-void CCodeGen_Wasm::PrepareSymbol64Use(CSymbol* symbol)
-{
-	switch (symbol->m_type)
-	{
-	case SYM_RELATIVE64:
-		PushRelative64(symbol);
-		break;
-	case SYM_CONSTANT64:
-		m_functionStream.Write8(Wasm::INST_I64_CONST);
-		CWasmModuleBuilder::WriteSLeb128(m_functionStream, symbol->GetConstant64());
-		break;
-	default:
-		assert(false);
-		break;
-	}
-}
-
-void CCodeGen_Wasm::PrepareSymbol64Def(CSymbol* symbol)
-{
-	switch (symbol->m_type)
-	{
-	case SYM_RELATIVE64:
-		PushRelativeAddress(symbol);
-		break;
-	default:
-		assert(false);
-		break;
-	}
-}
-
-void CCodeGen_Wasm::CommitSymbol64(CSymbol* symbol)
-{
-	switch (symbol->m_type)
-	{
-	case SYM_RELATIVE64:
-		m_functionStream.Write8(Wasm::INST_I64_STORE);
-		m_functionStream.Write8(0x03);
-		m_functionStream.Write8(0x00);
-		break;
-	default:
-		assert(false);
-		break;
-	}
-}
-
 void CCodeGen_Wasm::Emit_Mov64_MemAny(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
 
-	PrepareSymbol64Def(dst);
-	PrepareSymbol64Use(src1);
+	PrepareSymbolDef(dst);
+	PrepareSymbolUse(src1);
 
-	CommitSymbol64(dst);
+	CommitSymbol(dst);
 }
 
 void CCodeGen_Wasm::Emit_Add64_MemAnyAny(const STATEMENT& statement)
@@ -75,13 +30,13 @@ void CCodeGen_Wasm::Emit_Add64_MemAnyAny(const STATEMENT& statement)
 	auto src1 = statement.src1->GetSymbol().get();
 	auto src2 = statement.src2->GetSymbol().get();
 
-	PrepareSymbol64Def(dst);
-	PrepareSymbol64Use(src1);
-	PrepareSymbol64Use(src2);
+	PrepareSymbolDef(dst);
+	PrepareSymbolUse(src1);
+	PrepareSymbolUse(src2);
 
 	m_functionStream.Write8(Wasm::INST_I64_ADD);
 
-	CommitSymbol64(dst);
+	CommitSymbol(dst);
 }
 
 void CCodeGen_Wasm::Emit_Sub64_MemAnyAny(const STATEMENT& statement)
@@ -90,13 +45,13 @@ void CCodeGen_Wasm::Emit_Sub64_MemAnyAny(const STATEMENT& statement)
 	auto src1 = statement.src1->GetSymbol().get();
 	auto src2 = statement.src2->GetSymbol().get();
 
-	PrepareSymbol64Def(dst);
-	PrepareSymbol64Use(src1);
-	PrepareSymbol64Use(src2);
+	PrepareSymbolDef(dst);
+	PrepareSymbolUse(src1);
+	PrepareSymbolUse(src2);
 
 	m_functionStream.Write8(Wasm::INST_I64_SUB);
 
-	CommitSymbol64(dst);
+	CommitSymbol(dst);
 }
 
 void CCodeGen_Wasm::Emit_Cmp64_MemAnyAny(const STATEMENT& statement)
@@ -106,8 +61,8 @@ void CCodeGen_Wasm::Emit_Cmp64_MemAnyAny(const STATEMENT& statement)
 	auto src2 = statement.src2->GetSymbol().get();
 
 	PrepareSymbolDef(dst);
-	PrepareSymbol64Use(src1);
-	PrepareSymbol64Use(src2);
+	PrepareSymbolUse(src1);
+	PrepareSymbolUse(src2);
 
 	switch(statement.jmpCondition)
 	{
@@ -140,6 +95,34 @@ void CCodeGen_Wasm::Emit_Cmp64_MemAnyAny(const STATEMENT& statement)
 	CommitSymbol(dst);
 }
 
+void CCodeGen_Wasm::Emit_Load64FromRef_MemMem(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+
+	PrepareSymbolDef(dst);
+	PrepareSymbolUse(src1);
+
+	m_functionStream.Write8(Wasm::INST_I64_LOAD);
+	m_functionStream.Write8(0x03);
+	m_functionStream.Write8(0x00);
+
+	CommitSymbol(dst);
+}
+
+void CCodeGen_Wasm::Emit_Store64AtRef_MemAny(const STATEMENT& statement)
+{
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	PrepareSymbolUse(src1);
+	PrepareSymbolUse(src2);
+
+	m_functionStream.Write8(Wasm::INST_I64_STORE);
+	m_functionStream.Write8(0x03);
+	m_functionStream.Write8(0x00);
+}
+
 CCodeGen_Wasm::CONSTMATCHER CCodeGen_Wasm::g_64ConstMatchers[] =
 {
 	{ OP_MOV,            MATCH_MEMORY64,       MATCH_MEMORY64,       MATCH_NIL,           MATCH_NIL, &CCodeGen_Wasm::Emit_Mov64_MemAny                        },
@@ -154,6 +137,10 @@ CCodeGen_Wasm::CONSTMATCHER CCodeGen_Wasm::g_64ConstMatchers[] =
 
 	{ OP_CMP64,          MATCH_MEMORY,         MATCH_MEMORY64,       MATCH_MEMORY64,      MATCH_NIL, &CCodeGen_Wasm::Emit_Cmp64_MemAnyAny                     },
 	{ OP_CMP64,          MATCH_MEMORY,         MATCH_MEMORY64,       MATCH_CONSTANT64,    MATCH_NIL, &CCodeGen_Wasm::Emit_Cmp64_MemAnyAny                     },
+
+	{ OP_LOADFROMREF,    MATCH_MEMORY64,       MATCH_MEM_REF,        MATCH_NIL,           MATCH_NIL, &CCodeGen_Wasm::Emit_Load64FromRef_MemMem                },
+	{ OP_STOREATREF,     MATCH_NIL,            MATCH_MEM_REF,        MATCH_MEMORY64,      MATCH_NIL, &CCodeGen_Wasm::Emit_Store64AtRef_MemAny                 },
+	{ OP_STOREATREF,     MATCH_NIL,            MATCH_MEM_REF,        MATCH_CONSTANT64,    MATCH_NIL, &CCodeGen_Wasm::Emit_Store64AtRef_MemAny                 },
 
 	{ OP_MOV,            MATCH_NIL,            MATCH_NIL,            MATCH_NIL,           MATCH_NIL, nullptr                                                  },
 };

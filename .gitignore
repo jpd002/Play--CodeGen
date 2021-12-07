@@ -23,5 +23,6 @@ build_win32/.vs
 *.xcscmblueprint
 xcuserdata
 
-# npm
+# js/npm
 node_modules
+js/out

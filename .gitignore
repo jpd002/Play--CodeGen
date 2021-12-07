@@ -22,3 +22,6 @@ build_win32/.vs
 *.xccheckout
 *.xcscmblueprint
 xcuserdata
+
+# npm
+node_modules

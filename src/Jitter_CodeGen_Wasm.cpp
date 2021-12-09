@@ -10,8 +10,6 @@ using namespace Jitter;
 template <bool isSigned>
 void CCodeGen_Wasm::Emit_Mul_Tmp64AnyAny(const STATEMENT& statement)
 {
-	//TODO: Use a real 64 bit temporary
-
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
 	auto src2 = statement.src2->GetSymbol().get();
@@ -20,37 +18,21 @@ void CCodeGen_Wasm::Emit_Mul_Tmp64AnyAny(const STATEMENT& statement)
 
 	uint32 localIdx = GetTemporaryLocation(dst);
 
-	for(uint32 i = 0; i < 2; i++)
-	{
-		PrepareSymbolUse(src1);
-		m_functionStream.Write8(isSigned ? Wasm::INST_I64_EXTEND_I32_S : Wasm::INST_I64_EXTEND_I32_U);
+	PrepareSymbolUse(src1);
+	m_functionStream.Write8(isSigned ? Wasm::INST_I64_EXTEND_I32_S : Wasm::INST_I64_EXTEND_I32_U);
 
-		PrepareSymbolUse(src2);
-		m_functionStream.Write8(isSigned ? Wasm::INST_I64_EXTEND_I32_S : Wasm::INST_I64_EXTEND_I32_U);
+	PrepareSymbolUse(src2);
+	m_functionStream.Write8(isSigned ? Wasm::INST_I64_EXTEND_I32_S : Wasm::INST_I64_EXTEND_I32_U);
 
-		m_functionStream.Write8(Wasm::INST_I64_MUL);
+	m_functionStream.Write8(Wasm::INST_I64_MUL);
 
-		if(i == 1)
-		{
-			//HI
-			m_functionStream.Write8(Wasm::INST_I64_CONST);
-			CWasmModuleBuilder::WriteSLeb128(m_functionStream, 32);
-
-			m_functionStream.Write8(Wasm::INST_I64_SHR_U);
-		}
-
-		m_functionStream.Write8(Wasm::INST_I32_WRAP_I64);
-
-		m_functionStream.Write8(Wasm::INST_LOCAL_SET);
-		CWasmModuleBuilder::WriteULeb128(m_functionStream, localIdx + i);
-	}
+	m_functionStream.Write8(Wasm::INST_LOCAL_SET);
+	CWasmModuleBuilder::WriteULeb128(m_functionStream, localIdx);
 }
 
 template <bool isSigned>
 void CCodeGen_Wasm::Emit_Div_Tmp64AnyAny(const STATEMENT& statement)
 {
-	//TODO: Use a real 64 bit temporary
-
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
 	auto src2 = statement.src2->GetSymbol().get();
@@ -59,21 +41,30 @@ void CCodeGen_Wasm::Emit_Div_Tmp64AnyAny(const STATEMENT& statement)
 
 	uint32 localIdx = GetTemporaryLocation(dst);
 
+	//Compute dividend
 	PrepareSymbolUse(src1);
 	PrepareSymbolUse(src2);
 
 	m_functionStream.Write8(isSigned ? Wasm::INST_I32_DIV_S : Wasm::INST_I32_DIV_U);
+	m_functionStream.Write8(Wasm::INST_I64_EXTEND_I32_U);
 
-	m_functionStream.Write8(Wasm::INST_LOCAL_SET);
-	CWasmModuleBuilder::WriteULeb128(m_functionStream, localIdx + 0);
-
+	//Compute remainder
 	PrepareSymbolUse(src1);
 	PrepareSymbolUse(src2);
 
 	m_functionStream.Write8(isSigned ? Wasm::INST_I32_REM_S : Wasm::INST_I32_REM_U);
+	m_functionStream.Write8(Wasm::INST_I64_EXTEND_I32_U);
+
+	m_functionStream.Write8(Wasm::INST_I64_CONST);
+	CWasmModuleBuilder::WriteSLeb128(m_functionStream, 32);
+	
+	m_functionStream.Write8(Wasm::INST_I64_SHL);
+
+	//Combine
+	m_functionStream.Write8(Wasm::INST_I64_OR);
 
 	m_functionStream.Write8(Wasm::INST_LOCAL_SET);
-	CWasmModuleBuilder::WriteULeb128(m_functionStream, localIdx + 1);
+	CWasmModuleBuilder::WriteULeb128(m_functionStream, localIdx);
 }
 
 // clang-format off
@@ -228,9 +219,13 @@ void CCodeGen_Wasm::GenerateCode(const StatementList& statements, unsigned int s
 	m_functionStream.ResetBuffer();
 	m_signatures.clear();
 	m_labelFlows.clear();
+	m_temporaryLocations.clear();
+	m_localI32Count = 0;
+	m_localI64Count = 0;
 
 	BuildLabelFlows(statements);
 	PrepareSignatures(moduleBuilder, statements);
+	PrepareLocalVars(statements);
 
 	for(const auto& statement : statements)
 	{
@@ -260,7 +255,8 @@ void CCodeGen_Wasm::GenerateCode(const StatementList& statements, unsigned int s
 
 	CWasmModuleBuilder::FUNCTION function;
 	function.code = CWasmModuleBuilder::FunctionCode(m_functionStream.GetBuffer(), m_functionStream.GetBuffer() + m_functionStream.GetSize());
-	function.localI32Count = stackSize / 4;
+	function.localI32Count = m_localI32Count;
+	function.localI64Count = m_localI64Count;
 
 	moduleBuilder.AddFunction(std::move(function));
 	moduleBuilder.WriteModule(*m_stream);
@@ -419,10 +415,60 @@ void CCodeGen_Wasm::RegisterSignature(CWasmModuleBuilder& moduleBuilder, std::st
 	m_signatures.insert(std::make_pair(signature, static_cast<uint32>(m_signatures.size())));
 }
 
+void CCodeGen_Wasm::PrepareLocalVars(const StatementList& statements)
+{
+	for(const auto& statement : statements)
+	{
+		statement.VisitOperands(
+			[this](const SymbolRefPtr& symbolRef, bool isDef)
+			{
+				auto symbol = symbolRef->GetSymbol();
+				if(!symbol->IsTemporary()) return;
+				if(m_temporaryLocations.find(symbol->m_stackLocation) != std::end(m_temporaryLocations)) return;
+				switch(symbol->m_type)
+				{
+				case SYM_TEMPORARY:
+				case SYM_TMP_REFERENCE:
+					m_temporaryLocations[symbol->m_stackLocation] = m_localI32Count;
+					m_localI32Count++;
+					break;
+				case SYM_TEMPORARY64:
+					m_temporaryLocations[symbol->m_stackLocation] = m_localI64Count;
+					m_localI64Count++;
+					break;
+				default:
+					assert(false);
+					break;
+				}
+			}
+		);
+	}
+}
+
 uint32 CCodeGen_Wasm::GetTemporaryLocation(CSymbol* symbol) const
 {
 	assert(symbol->IsTemporary());
-	uint32 localIdx = (symbol->m_stackLocation / 4) + 1;
+	auto temporaryLocationIterator = m_temporaryLocations.find(symbol->m_stackLocation);
+	assert(temporaryLocationIterator != std::end(m_temporaryLocations));
+	uint32 temporaryLocation = temporaryLocationIterator->second;
+
+	//First local is the function's parameter
+	uint32 localIdx = 0;
+
+	switch(symbol->m_type)
+	{
+	case SYM_TEMPORARY:
+	case SYM_TMP_REFERENCE:
+		localIdx = temporaryLocation + 1;
+		break;
+	case SYM_TEMPORARY64:
+		localIdx = temporaryLocation + m_localI32Count + 1;
+		break;
+	default:
+		assert(false);
+		break;
+	}
+
 	return localIdx;
 }
 
@@ -471,7 +517,7 @@ void CCodeGen_Wasm::PullTemporary(CSymbol* symbol)
 {
 	assert(symbol->m_type == SYM_TEMPORARY);
 
-	uint32 localIdx = (symbol->m_stackLocation / 4) + 1;
+	uint32 localIdx = GetTemporaryLocation(symbol);
 
 	m_functionStream.Write8(Wasm::INST_LOCAL_SET);
 	CWasmModuleBuilder::WriteULeb128(m_functionStream, localIdx);
@@ -502,7 +548,7 @@ void CCodeGen_Wasm::PushTemporaryRef(CSymbol* symbol)
 {
 	assert(symbol->m_type == SYM_TMP_REFERENCE);
 
-	uint32 localIdx = (symbol->m_stackLocation / 4) + 1;
+	uint32 localIdx = GetTemporaryLocation(symbol);
 
 	m_functionStream.Write8(Wasm::INST_LOCAL_GET);
 	CWasmModuleBuilder::WriteULeb128(m_functionStream, localIdx);
@@ -512,7 +558,7 @@ void CCodeGen_Wasm::PullTemporaryRef(CSymbol* symbol)
 {
 	assert(symbol->m_type == SYM_TMP_REFERENCE);
 
-	uint32 localIdx = (symbol->m_stackLocation / 4) + 1;
+	uint32 localIdx = GetTemporaryLocation(symbol);
 
 	m_functionStream.Write8(Wasm::INST_LOCAL_SET);
 	CWasmModuleBuilder::WriteULeb128(m_functionStream, localIdx);
@@ -1096,7 +1142,9 @@ void CCodeGen_Wasm::Emit_ExtLow64VarMem64(const STATEMENT& statement)
 	uint32 localIdx = GetTemporaryLocation(src1);
 
 	m_functionStream.Write8(Wasm::INST_LOCAL_GET);
-	CWasmModuleBuilder::WriteULeb128(m_functionStream, localIdx + 0);
+	CWasmModuleBuilder::WriteULeb128(m_functionStream, localIdx);
+
+	m_functionStream.Write8(Wasm::INST_I32_WRAP_I64);
 
 	CommitSymbol(dst);
 }
@@ -1111,7 +1159,14 @@ void CCodeGen_Wasm::Emit_ExtHigh64VarMem64(const STATEMENT& statement)
 	uint32 localIdx = GetTemporaryLocation(src1);
 
 	m_functionStream.Write8(Wasm::INST_LOCAL_GET);
-	CWasmModuleBuilder::WriteULeb128(m_functionStream, localIdx + 1);
+	CWasmModuleBuilder::WriteULeb128(m_functionStream, localIdx);
+
+	m_functionStream.Write8(Wasm::INST_I64_CONST);
+	CWasmModuleBuilder::WriteSLeb128(m_functionStream, 32);
+
+	m_functionStream.Write8(Wasm::INST_I64_SHR_U);
+
+	m_functionStream.Write8(Wasm::INST_I32_WRAP_I64);
 
 	CommitSymbol(dst);
 }

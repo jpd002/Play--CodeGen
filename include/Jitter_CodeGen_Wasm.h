@@ -69,6 +69,7 @@ namespace Jitter
 		void BuildLabelFlows(const StatementList&);
 		void PrepareSignatures(CWasmModuleBuilder&, const StatementList&);
 		void RegisterSignature(CWasmModuleBuilder&, std::string);
+		void PrepareLocalVars(const StatementList&);
 
 		uint32 GetTemporaryLocation(CSymbol*) const;
 
@@ -172,6 +173,9 @@ namespace Jitter
 		Framework::CMemStream m_functionStream;
 		std::map<uint32, LABEL_FLOW> m_labelFlows;
 		std::map<std::string, uint32> m_signatures;
+		std::map<uint32, uint32> m_temporaryLocations;
+		uint32 m_localI32Count = 0;
+		uint32 m_localI64Count = 0;
 		ParamStack m_params;
 	};
 }

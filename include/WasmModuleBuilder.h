@@ -18,6 +18,7 @@ public:
 	{
 		FunctionCode code;
 		uint32 localI32Count = 0;
+		uint32 localI64Count = 0;
 	};
 
 	static void WriteSLeb128(Framework::CStream&, int64);

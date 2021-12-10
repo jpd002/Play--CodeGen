@@ -169,11 +169,13 @@ namespace Jitter
 		void Emit_Md_LoadFromRef_MemMem(const STATEMENT&);
 		void Emit_Md_StoreAtRef_MemMem(const STATEMENT&);
 
+		typedef std::pair<SYM_TYPE, uint32> TemporaryInstance;
+
 		Framework::CStream* m_stream = nullptr;
 		Framework::CMemStream m_functionStream;
 		std::map<uint32, LABEL_FLOW> m_labelFlows;
 		std::map<std::string, uint32> m_signatures;
-		std::map<uint32, uint32> m_temporaryLocations;
+		std::map<TemporaryInstance, uint32> m_temporaryLocations;
 		uint32 m_localI32Count = 0;
 		uint32 m_localI64Count = 0;
 		ParamStack m_params;

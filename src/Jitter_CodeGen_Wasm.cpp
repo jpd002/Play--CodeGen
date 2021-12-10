@@ -424,16 +424,17 @@ void CCodeGen_Wasm::PrepareLocalVars(const StatementList& statements)
 			{
 				auto symbol = symbolRef->GetSymbol();
 				if(!symbol->IsTemporary()) return;
-				if(m_temporaryLocations.find(symbol->m_stackLocation) != std::end(m_temporaryLocations)) return;
+				auto temporaryInstance = std::make_pair(symbol->m_type, symbol->m_stackLocation);
+				if(m_temporaryLocations.find(temporaryInstance) != std::end(m_temporaryLocations)) return;
 				switch(symbol->m_type)
 				{
 				case SYM_TEMPORARY:
 				case SYM_TMP_REFERENCE:
-					m_temporaryLocations[symbol->m_stackLocation] = m_localI32Count;
+					m_temporaryLocations[temporaryInstance] = m_localI32Count;
 					m_localI32Count++;
 					break;
 				case SYM_TEMPORARY64:
-					m_temporaryLocations[symbol->m_stackLocation] = m_localI64Count;
+					m_temporaryLocations[temporaryInstance] = m_localI64Count;
 					m_localI64Count++;
 					break;
 				default:
@@ -448,7 +449,7 @@ void CCodeGen_Wasm::PrepareLocalVars(const StatementList& statements)
 uint32 CCodeGen_Wasm::GetTemporaryLocation(CSymbol* symbol) const
 {
 	assert(symbol->IsTemporary());
-	auto temporaryLocationIterator = m_temporaryLocations.find(symbol->m_stackLocation);
+	auto temporaryLocationIterator = m_temporaryLocations.find(std::make_pair(symbol->m_type, symbol->m_stackLocation));
 	assert(temporaryLocationIterator != std::end(m_temporaryLocations));
 	uint32 temporaryLocation = temporaryLocationIterator->second;
 

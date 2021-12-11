@@ -145,9 +145,12 @@ namespace Jitter
 		void Emit_Add_AnyAnyAny(const STATEMENT&);
 		void Emit_Sub_AnyAnyAny(const STATEMENT&);
 
+		template <uint32> void Emit_Shift64_MemAnyAny(const STATEMENT&);
+
 		void Emit_Mov64_MemAny(const STATEMENT&);
 		void Emit_Add64_MemAnyAny(const STATEMENT&);
 		void Emit_Sub64_MemAnyAny(const STATEMENT&);
+		void Emit_And64_MemAnyAny(const STATEMENT&);
 		void Emit_Cmp64_MemAnyAny(const STATEMENT&);
 
 		void Emit_Load64FromRef_MemMem(const STATEMENT&);

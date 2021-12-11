@@ -4,6 +4,23 @@
 
 using namespace Jitter;
 
+template <uint32 OP>
+void CCodeGen_Wasm::Emit_Shift64_MemAnyAny(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	PrepareSymbolDef(dst);
+	PrepareSymbolUse(src1);
+	PrepareSymbolUse(src2);
+
+	m_functionStream.Write8(Wasm::INST_I64_EXTEND_I32_U);
+	m_functionStream.Write8(OP);
+
+	CommitSymbol(dst);
+}
+
 void CCodeGen_Wasm::PushRelative64(CSymbol* symbol)
 {
 	PushRelativeAddress(symbol);
@@ -70,6 +87,21 @@ void CCodeGen_Wasm::Emit_Sub64_MemAnyAny(const STATEMENT& statement)
 	PrepareSymbolUse(src2);
 
 	m_functionStream.Write8(Wasm::INST_I64_SUB);
+
+	CommitSymbol(dst);
+}
+
+void CCodeGen_Wasm::Emit_And64_MemAnyAny(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	PrepareSymbolDef(dst);
+	PrepareSymbolUse(src1);
+	PrepareSymbolUse(src2);
+
+	m_functionStream.Write8(Wasm::INST_I64_AND);
 
 	CommitSymbol(dst);
 }
@@ -160,6 +192,14 @@ CCodeGen_Wasm::CONSTMATCHER CCodeGen_Wasm::g_64ConstMatchers[] =
 	{ OP_SUB64,          MATCH_MEMORY64,       MATCH_MEMORY64,       MATCH_MEMORY64,      MATCH_NIL, &CCodeGen_Wasm::Emit_Sub64_MemAnyAny                     },
 	{ OP_SUB64,          MATCH_MEMORY64,       MATCH_MEMORY64,       MATCH_CONSTANT64,    MATCH_NIL, &CCodeGen_Wasm::Emit_Sub64_MemAnyAny                     },
 	{ OP_SUB64,          MATCH_MEMORY64,       MATCH_CONSTANT64,     MATCH_MEMORY64,      MATCH_NIL, &CCodeGen_Wasm::Emit_Sub64_MemAnyAny                     },
+
+	{ OP_AND64,          MATCH_MEMORY64,       MATCH_MEMORY64,       MATCH_MEMORY64,      MATCH_NIL, &CCodeGen_Wasm::Emit_And64_MemAnyAny                     },
+
+	{ OP_SLL64,          MATCH_MEMORY64,       MATCH_MEMORY64,       MATCH_ANY,           MATCH_NIL, &CCodeGen_Wasm::Emit_Shift64_MemAnyAny<Wasm::INST_I64_SHL>     },
+
+	{ OP_SRL64,          MATCH_MEMORY64,       MATCH_MEMORY64,       MATCH_ANY,           MATCH_NIL, &CCodeGen_Wasm::Emit_Shift64_MemAnyAny<Wasm::INST_I64_SHR_U>   },
+
+	{ OP_SRA64,          MATCH_MEMORY64,       MATCH_MEMORY64,       MATCH_ANY,           MATCH_NIL, &CCodeGen_Wasm::Emit_Shift64_MemAnyAny<Wasm::INST_I64_SHR_S>   },
 
 	{ OP_CMP64,          MATCH_MEMORY,         MATCH_MEMORY64,       MATCH_MEMORY64,      MATCH_NIL, &CCodeGen_Wasm::Emit_Cmp64_MemAnyAny                     },
 	{ OP_CMP64,          MATCH_MEMORY,         MATCH_MEMORY64,       MATCH_CONSTANT64,    MATCH_NIL, &CCodeGen_Wasm::Emit_Cmp64_MemAnyAny                     },

@@ -89,6 +89,9 @@ namespace Jitter
 
 		void PushRelative64(CSymbol*);
 
+		void PushTemporary64(CSymbol*);
+		void PullTemporary64(CSymbol*);
+
 		void PushRelativeSingle(CSymbol*);
 
 		void PushRelative128(CSymbol*);
@@ -149,6 +152,8 @@ namespace Jitter
 
 		void Emit_Load64FromRef_MemMem(const STATEMENT&);
 		void Emit_Store64AtRef_MemAny(const STATEMENT&);
+
+		void Emit_RetVal_Tmp64(const STATEMENT&);
 
 		//MUL
 		template <bool>

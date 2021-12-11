@@ -13,6 +13,26 @@ void CCodeGen_Wasm::PushRelative64(CSymbol* symbol)
 	m_functionStream.Write8(0x00);
 }
 
+void CCodeGen_Wasm::PushTemporary64(CSymbol* symbol)
+{
+	assert(symbol->m_type == SYM_TEMPORARY64);
+
+	uint32 localIdx = GetTemporaryLocation(symbol);
+
+	m_functionStream.Write8(Wasm::INST_LOCAL_GET);
+	CWasmModuleBuilder::WriteULeb128(m_functionStream, localIdx);
+}
+
+void CCodeGen_Wasm::PullTemporary64(CSymbol* symbol)
+{
+	assert(symbol->m_type == SYM_TEMPORARY64);
+
+	uint32 localIdx = GetTemporaryLocation(symbol);
+
+	m_functionStream.Write8(Wasm::INST_LOCAL_SET);
+	CWasmModuleBuilder::WriteULeb128(m_functionStream, localIdx);
+}
+
 void CCodeGen_Wasm::Emit_Mov64_MemAny(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
@@ -123,6 +143,12 @@ void CCodeGen_Wasm::Emit_Store64AtRef_MemAny(const STATEMENT& statement)
 	m_functionStream.Write8(0x00);
 }
 
+void CCodeGen_Wasm::Emit_RetVal_Tmp64(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	PullTemporary64(dst);
+}
+
 CCodeGen_Wasm::CONSTMATCHER CCodeGen_Wasm::g_64ConstMatchers[] =
 {
 	{ OP_MOV,            MATCH_MEMORY64,       MATCH_MEMORY64,       MATCH_NIL,           MATCH_NIL, &CCodeGen_Wasm::Emit_Mov64_MemAny                        },
@@ -141,6 +167,8 @@ CCodeGen_Wasm::CONSTMATCHER CCodeGen_Wasm::g_64ConstMatchers[] =
 	{ OP_LOADFROMREF,    MATCH_MEMORY64,       MATCH_MEM_REF,        MATCH_NIL,           MATCH_NIL, &CCodeGen_Wasm::Emit_Load64FromRef_MemMem                },
 	{ OP_STOREATREF,     MATCH_NIL,            MATCH_MEM_REF,        MATCH_MEMORY64,      MATCH_NIL, &CCodeGen_Wasm::Emit_Store64AtRef_MemAny                 },
 	{ OP_STOREATREF,     MATCH_NIL,            MATCH_MEM_REF,        MATCH_CONSTANT64,    MATCH_NIL, &CCodeGen_Wasm::Emit_Store64AtRef_MemAny                 },
+
+	{ OP_RETVAL,         MATCH_TEMPORARY64,    MATCH_NIL,            MATCH_NIL,           MATCH_NIL, &CCodeGen_Wasm::Emit_RetVal_Tmp64                        },
 
 	{ OP_MOV,            MATCH_NIL,            MATCH_NIL,            MATCH_NIL,           MATCH_NIL, nullptr                                                  },
 };

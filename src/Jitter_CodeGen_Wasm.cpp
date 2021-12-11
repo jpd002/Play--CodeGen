@@ -588,6 +588,9 @@ void CCodeGen_Wasm::PrepareSymbolUse(CSymbol* symbol)
 	case SYM_RELATIVE64:
 		PushRelative64(symbol);
 		break;
+	case SYM_TEMPORARY64:
+		PushTemporary64(symbol);
+		break;
 	case SYM_CONSTANT64:
 		m_functionStream.Write8(Wasm::INST_I64_CONST);
 		CWasmModuleBuilder::WriteSLeb128(m_functionStream, symbol->GetConstant64());

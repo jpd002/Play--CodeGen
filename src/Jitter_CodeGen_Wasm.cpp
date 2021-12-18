@@ -485,6 +485,7 @@ void CCodeGen_Wasm::PushRelativeAddress(CSymbol* symbol)
 	assert(
 		(symbol->m_type == SYM_RELATIVE) ||
 		(symbol->m_type == SYM_RELATIVE64) ||
+		(symbol->m_type == SYM_FP_REL_INT32) ||
 		(symbol->m_type == SYM_FP_REL_SINGLE) ||
 		(symbol->m_type == SYM_RELATIVE128)
 	);
@@ -570,6 +571,7 @@ void CCodeGen_Wasm::PrepareSymbolUse(CSymbol* symbol)
 	switch(symbol->m_type)
 	{
 	case SYM_RELATIVE:
+	case SYM_FP_REL_INT32:
 		PushRelative(symbol);
 		break;
 	case SYM_REL_REFERENCE:
@@ -595,6 +597,9 @@ void CCodeGen_Wasm::PrepareSymbolUse(CSymbol* symbol)
 		m_functionStream.Write8(Wasm::INST_I64_CONST);
 		CWasmModuleBuilder::WriteSLeb128(m_functionStream, symbol->GetConstant64());
 		break;
+	case SYM_FP_REL_SINGLE:
+		PushRelativeSingle(symbol);
+		break;
 	default:
 		assert(false);
 		break;
@@ -607,6 +612,8 @@ void CCodeGen_Wasm::PrepareSymbolDef(CSymbol* symbol)
 	{
 	case SYM_RELATIVE:
 	case SYM_RELATIVE64:
+	case SYM_FP_REL_SINGLE:
+	case SYM_FP_REL_INT32:
 		PushRelativeAddress(symbol);
 		break;
 	case SYM_TEMPORARY:
@@ -636,6 +643,11 @@ void CCodeGen_Wasm::CommitSymbol(CSymbol* symbol)
 	case SYM_RELATIVE64:
 		m_functionStream.Write8(Wasm::INST_I64_STORE);
 		m_functionStream.Write8(0x03);
+		m_functionStream.Write8(0x00);
+		break;
+	case SYM_FP_REL_SINGLE:
+		m_functionStream.Write8(Wasm::INST_F32_STORE);
+		m_functionStream.Write8(0x02);
 		m_functionStream.Write8(0x00);
 		break;
 	default:

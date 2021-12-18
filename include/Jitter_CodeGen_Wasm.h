@@ -181,7 +181,7 @@ namespace Jitter
 		void Emit_Md_Mov_MemMem(const STATEMENT&);
 		void Emit_Md_LoadFromRef_MemMem(const STATEMENT&);
 		void Emit_Md_StoreAtRef_MemMem(const STATEMENT&);
-		void Emit_Md_Expand_MemCst(const STATEMENT&);
+		void Emit_Md_Expand_MemAny(const STATEMENT&);
 
 		typedef std::pair<SYM_TYPE, uint32> TemporaryInstance;
 

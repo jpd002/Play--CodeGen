@@ -11,18 +11,14 @@ void CCodeGen_Wasm::Emit_Md_MemMemMem(const STATEMENT& statement)
 	auto src1 = statement.src1->GetSymbol().get();
 	auto src2 = statement.src2->GetSymbol().get();
 
-	PushRelativeAddress(dst);
-
-	PushRelative128(src1);
-	PushRelative128(src2);
+	PrepareSymbolDef(dst);
+	PrepareSymbolUse(src1);
+	PrepareSymbolUse(src2);
 
 	m_functionStream.Write8(Wasm::INST_PREFIX_SIMD);
 	CWasmModuleBuilder::WriteULeb128(m_functionStream, OP);
 
-	m_functionStream.Write8(Wasm::INST_PREFIX_SIMD);
-	m_functionStream.Write8(Wasm::INST_V128_STORE);
-	m_functionStream.Write8(0x04);
-	m_functionStream.Write8(0x00);
+	CommitSymbol(dst);
 }
 
 void CCodeGen_Wasm::PushRelative128(CSymbol* symbol)
@@ -40,13 +36,10 @@ void CCodeGen_Wasm::Emit_Md_Mov_MemMem(const STATEMENT& statement)
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
 
-	PushRelativeAddress(dst);
-	PushRelative128(src1);
+	PrepareSymbolDef(dst);
+	PrepareSymbolUse(src1);
 
-	m_functionStream.Write8(Wasm::INST_PREFIX_SIMD);
-	m_functionStream.Write8(Wasm::INST_V128_STORE);
-	m_functionStream.Write8(0x04);
-	m_functionStream.Write8(0x00);
+	CommitSymbol(dst);
 }
 
 void CCodeGen_Wasm::Emit_Md_LoadFromRef_MemMem(const STATEMENT& statement)
@@ -54,7 +47,7 @@ void CCodeGen_Wasm::Emit_Md_LoadFromRef_MemMem(const STATEMENT& statement)
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
 
-	PushRelativeAddress(dst);
+	PrepareSymbolDef(dst);
 	PrepareSymbolUse(src1);
 
 	m_functionStream.Write8(Wasm::INST_PREFIX_SIMD);
@@ -62,10 +55,7 @@ void CCodeGen_Wasm::Emit_Md_LoadFromRef_MemMem(const STATEMENT& statement)
 	m_functionStream.Write8(0x04);
 	m_functionStream.Write8(0x00);
 
-	m_functionStream.Write8(Wasm::INST_PREFIX_SIMD);
-	m_functionStream.Write8(Wasm::INST_V128_STORE);
-	m_functionStream.Write8(0x04);
-	m_functionStream.Write8(0x00);
+	CommitSymbol(dst);
 }
 
 void CCodeGen_Wasm::Emit_Md_StoreAtRef_MemMem(const STATEMENT& statement)
@@ -74,7 +64,7 @@ void CCodeGen_Wasm::Emit_Md_StoreAtRef_MemMem(const STATEMENT& statement)
 	auto src2 = statement.src2->GetSymbol().get();
 
 	PrepareSymbolUse(src1);
-	PushRelative128(src2);
+	PrepareSymbolUse(src2);
 
 	m_functionStream.Write8(Wasm::INST_PREFIX_SIMD);
 	m_functionStream.Write8(Wasm::INST_V128_STORE);

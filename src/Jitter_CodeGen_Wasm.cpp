@@ -600,6 +600,9 @@ void CCodeGen_Wasm::PrepareSymbolUse(CSymbol* symbol)
 	case SYM_FP_REL_SINGLE:
 		PushRelativeSingle(symbol);
 		break;
+	case SYM_RELATIVE128:
+		PushRelative128(symbol);
+		break;
 	default:
 		assert(false);
 		break;
@@ -612,6 +615,7 @@ void CCodeGen_Wasm::PrepareSymbolDef(CSymbol* symbol)
 	{
 	case SYM_RELATIVE:
 	case SYM_RELATIVE64:
+	case SYM_RELATIVE128:
 	case SYM_FP_REL_SINGLE:
 	case SYM_FP_REL_INT32:
 		PushRelativeAddress(symbol);
@@ -648,6 +652,12 @@ void CCodeGen_Wasm::CommitSymbol(CSymbol* symbol)
 	case SYM_FP_REL_SINGLE:
 		m_functionStream.Write8(Wasm::INST_F32_STORE);
 		m_functionStream.Write8(0x02);
+		m_functionStream.Write8(0x00);
+		break;
+	case SYM_RELATIVE128:
+		m_functionStream.Write8(Wasm::INST_PREFIX_SIMD);
+		m_functionStream.Write8(Wasm::INST_V128_STORE);
+		m_functionStream.Write8(0x04);
 		m_functionStream.Write8(0x00);
 		break;
 	default:

@@ -127,5 +127,11 @@ namespace Wasm
 		INST_I8x16_ADD = 0x6E,
 		INST_I8x16_ADD_SAT_S = 0x6F,
 		INST_I8x16_ADD_SAT_U = 0x70,
+		INST_I16x8_SHL = 0x8B,
+		INST_I16x8_SHR_S = 0x8C,
+		INST_I16x8_SHR_U = 0x8D,
+		INST_I32x4_SHL = 0xAB,
+		INST_I32x4_SHR_S = 0xAC,
+		INST_I32x4_SHR_U = 0xAD,
 	};
 }

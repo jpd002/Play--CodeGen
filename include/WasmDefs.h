@@ -133,5 +133,9 @@ namespace Wasm
 		INST_I32x4_SHL = 0xAB,
 		INST_I32x4_SHR_S = 0xAC,
 		INST_I32x4_SHR_U = 0xAD,
+		INST_F32x4_ADD = 0xE4,
+		INST_F32x4_SUB = 0xE5,
+		INST_F32x4_MUL = 0xE6,
+		INST_F32x4_DIV = 0xE7,
 	};
 }

@@ -35,6 +35,20 @@ void CCodeGen_Wasm::PushRelative128(CSymbol* symbol)
 	m_functionStream.Write8(0x00);
 }
 
+void CCodeGen_Wasm::Emit_Md_Mov_MemMem(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+
+	PushRelativeAddress(dst);
+	PushRelative128(src1);
+
+	m_functionStream.Write8(Wasm::INST_PREFIX_SIMD);
+	m_functionStream.Write8(Wasm::INST_V128_STORE);
+	m_functionStream.Write8(0x04);
+	m_functionStream.Write8(0x00);
+}
+
 void CCodeGen_Wasm::Emit_Md_LoadFromRef_MemMem(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
@@ -70,6 +84,8 @@ void CCodeGen_Wasm::Emit_Md_StoreAtRef_MemMem(const STATEMENT& statement)
 
 CCodeGen_Wasm::CONSTMATCHER CCodeGen_Wasm::g_mdConstMatchers[] =
 {
+	{ OP_MOV,            MATCH_MEMORY128,      MATCH_MEMORY128,      MATCH_NIL,           MATCH_NIL,      &CCodeGen_Wasm::Emit_Md_Mov_MemMem                            },
+
 	{ OP_MD_ADD_B,       MATCH_MEMORY128,      MATCH_MEMORY128,      MATCH_MEMORY128,     MATCH_NIL,      &CCodeGen_Wasm::Emit_Md_MemMemMem<Wasm::INST_I8x16_ADD>       },
 
 	{ OP_MD_ADDSS_B,     MATCH_MEMORY128,      MATCH_MEMORY128,      MATCH_MEMORY128,     MATCH_NIL,      &CCodeGen_Wasm::Emit_Md_MemMemMem<Wasm::INST_I8x16_ADD_SAT_S> },

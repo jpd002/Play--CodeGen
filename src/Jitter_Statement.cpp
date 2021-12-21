@@ -318,6 +318,12 @@ void Jitter::DumpStatementList(std::ostream& outputStream, const StatementList& 
 		case OP_MD_ABS_S:
 			outputStream << " ABS(S)";
 			break;
+		case OP_MD_CMPGT_S:
+			outputStream << " CMP(GT,S) ";
+			break;
+		case OP_MD_CMPLT_S:
+			outputStream << " CMP(LT,S) ";
+			break;
 		case OP_MD_MAKESZ:
 			outputStream << " MAKESZ";
 			break;

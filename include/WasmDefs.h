@@ -125,6 +125,8 @@ namespace Wasm
 		INST_I16x8_GT_S = 0x31,
 		INST_I32x4_EQ = 0x37,
 		INST_I32x4_GT_S = 0x3B,
+		INST_F32x4_LT = 0x43,
+		INST_F32x4_GT = 0x44,
 		INST_I8x16_ADD = 0x6E,
 		INST_I8x16_ADD_SAT_S = 0x6F,
 		INST_I8x16_ADD_SAT_U = 0x70,
@@ -139,5 +141,7 @@ namespace Wasm
 		INST_F32x4_SUB = 0xE5,
 		INST_F32x4_MUL = 0xE6,
 		INST_F32x4_DIV = 0xE7,
+		INST_F32x4_MIN = 0xE8,
+		INST_F32x4_MAX = 0xE9,
 	};
 }

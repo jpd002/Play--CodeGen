@@ -96,6 +96,9 @@ namespace Jitter
 
 		void PushRelative128(CSymbol*);
 
+		void PushTemporary128(CSymbol*);
+		void PullTemporary128(CSymbol*);
+
 		void PrepareSymbolUse(CSymbol*);
 		void PrepareSymbolDef(CSymbol*);
 		void CommitSymbol(CSymbol*);
@@ -193,6 +196,7 @@ namespace Jitter
 		std::map<TemporaryInstance, uint32> m_temporaryLocations;
 		uint32 m_localI32Count = 0;
 		uint32 m_localI64Count = 0;
+		uint32 m_localV128Count = 0;
 		ParamStack m_params;
 	};
 }

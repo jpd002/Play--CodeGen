@@ -63,6 +63,26 @@ void CCodeGen_Wasm::PushRelative128(CSymbol* symbol)
 	m_functionStream.Write8(0x00);
 }
 
+void CCodeGen_Wasm::PushTemporary128(CSymbol* symbol)
+{
+	assert(symbol->m_type == SYM_TEMPORARY128);
+
+	uint32 localIdx = GetTemporaryLocation(symbol);
+
+	m_functionStream.Write8(Wasm::INST_LOCAL_GET);
+	CWasmModuleBuilder::WriteULeb128(m_functionStream, localIdx);
+}
+
+void CCodeGen_Wasm::PullTemporary128(CSymbol* symbol)
+{
+	assert(symbol->m_type == SYM_TEMPORARY128);
+
+	uint32 localIdx = GetTemporaryLocation(symbol);
+
+	m_functionStream.Write8(Wasm::INST_LOCAL_SET);
+	CWasmModuleBuilder::WriteULeb128(m_functionStream, localIdx);
+}
+
 void CCodeGen_Wasm::Emit_Md_Mov_MemMem(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();

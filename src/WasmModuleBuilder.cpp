@@ -175,10 +175,12 @@ void CWasmModuleBuilder::WriteModule(Framework::CStream& stream)
 
 		assert(function.localI32Count < 0x80);
 		assert(function.localI64Count < 0x80);
+		assert(function.localV128Count < 0x80);
 
 		uint32 localDeclCount = 0;
 		if(function.localI32Count != 0) localDeclCount++;
 		if(function.localI64Count != 0) localDeclCount++;
+		if(function.localV128Count != 0) localDeclCount++;
 		uint32 localDeclSize = (localDeclCount * 2) + 1;
 		uint32 functionBodySize = function.code.size() + localDeclSize;
 
@@ -203,6 +205,11 @@ void CWasmModuleBuilder::WriteModule(Framework::CStream& stream)
 		{
 			WriteULeb128(stream, function.localI64Count);
 			stream.Write8(Wasm::TYPE_I64);
+		}
+		if(function.localV128Count != 0)
+		{
+			WriteULeb128(stream, function.localV128Count);
+			stream.Write8(Wasm::TYPE_V128);
 		}
 
 		stream.Write(function.code.data(), function.code.size());

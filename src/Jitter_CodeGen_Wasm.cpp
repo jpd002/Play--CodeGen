@@ -222,6 +222,7 @@ void CCodeGen_Wasm::GenerateCode(const StatementList& statements, unsigned int s
 	m_temporaryLocations.clear();
 	m_localI32Count = 0;
 	m_localI64Count = 0;
+	m_localV128Count = 0;
 
 	BuildLabelFlows(statements);
 	PrepareSignatures(moduleBuilder, statements);
@@ -257,6 +258,7 @@ void CCodeGen_Wasm::GenerateCode(const StatementList& statements, unsigned int s
 	function.code = CWasmModuleBuilder::FunctionCode(m_functionStream.GetBuffer(), m_functionStream.GetBuffer() + m_functionStream.GetSize());
 	function.localI32Count = m_localI32Count;
 	function.localI64Count = m_localI64Count;
+	function.localV128Count = m_localV128Count;
 
 	moduleBuilder.AddFunction(std::move(function));
 	moduleBuilder.WriteModule(*m_stream);
@@ -437,6 +439,10 @@ void CCodeGen_Wasm::PrepareLocalVars(const StatementList& statements)
 					m_temporaryLocations[temporaryInstance] = m_localI64Count;
 					m_localI64Count++;
 					break;
+				case SYM_TEMPORARY128:
+					m_temporaryLocations[temporaryInstance] = m_localV128Count;
+					m_localV128Count++;
+					break;
 				default:
 					assert(false);
 					break;
@@ -464,6 +470,9 @@ uint32 CCodeGen_Wasm::GetTemporaryLocation(CSymbol* symbol) const
 		break;
 	case SYM_TEMPORARY64:
 		localIdx = temporaryLocation + m_localI32Count + 1;
+		break;
+	case SYM_TEMPORARY128:
+		localIdx = temporaryLocation + m_localI32Count + m_localI64Count + 1;
 		break;
 	default:
 		assert(false);
@@ -603,6 +612,9 @@ void CCodeGen_Wasm::PrepareSymbolUse(CSymbol* symbol)
 	case SYM_RELATIVE128:
 		PushRelative128(symbol);
 		break;
+	case SYM_TEMPORARY128:
+		PushTemporary128(symbol);
+		break;
 	default:
 		assert(false);
 		break;
@@ -621,6 +633,7 @@ void CCodeGen_Wasm::PrepareSymbolDef(CSymbol* symbol)
 		PushRelativeAddress(symbol);
 		break;
 	case SYM_TEMPORARY:
+	case SYM_TEMPORARY128:
 	case SYM_TMP_REFERENCE:
 		break;
 	default:
@@ -659,6 +672,9 @@ void CCodeGen_Wasm::CommitSymbol(CSymbol* symbol)
 		m_functionStream.Write8(Wasm::INST_V128_STORE);
 		m_functionStream.Write8(0x04);
 		m_functionStream.Write8(0x00);
+		break;
+	case SYM_TEMPORARY128:
+		PullTemporary128(symbol);
 		break;
 	default:
 		assert(false);

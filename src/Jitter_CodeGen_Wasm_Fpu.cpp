@@ -66,6 +66,7 @@ CCodeGen_Wasm::CONSTMATCHER CCodeGen_Wasm::g_fpuConstMatchers[] =
 {
 	{ OP_FP_ADD,         MATCH_MEMORY_FP_SINGLE,      MATCH_MEMORY_FP_SINGLE,  MATCH_MEMORY_FP_SINGLE,  MATCH_NIL,      &CCodeGen_Wasm::Emit_Fpu_MemMemMem<Wasm::INST_F32_ADD>       },
 	{ OP_FP_MUL,         MATCH_MEMORY_FP_SINGLE,      MATCH_MEMORY_FP_SINGLE,  MATCH_MEMORY_FP_SINGLE,  MATCH_NIL,      &CCodeGen_Wasm::Emit_Fpu_MemMemMem<Wasm::INST_F32_MUL>       },
+	{ OP_FP_DIV,         MATCH_MEMORY_FP_SINGLE,      MATCH_MEMORY_FP_SINGLE,  MATCH_MEMORY_FP_SINGLE,  MATCH_NIL,      &CCodeGen_Wasm::Emit_Fpu_MemMemMem<Wasm::INST_F32_DIV>       },
 
 	{ OP_MOV,            MATCH_MEMORY_FP_SINGLE,      MATCH_RELATIVE_FP_INT32, MATCH_NIL,               MATCH_NIL,      &CCodeGen_Wasm::Emit_Fp_Mov_MemSRelI32                       },
 	{ OP_FP_TOINT_TRUNC, MATCH_MEMORY_FP_SINGLE,      MATCH_MEMORY_FP_SINGLE,  MATCH_NIL,               MATCH_NIL,      &CCodeGen_Wasm::Emit_Fp_ToIntTrunc_MemMem                    },

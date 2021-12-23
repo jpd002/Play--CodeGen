@@ -94,6 +94,56 @@ void CCodeGen_Wasm::Emit_Md_Mov_MemMem(const STATEMENT& statement)
 	CommitSymbol(dst);
 }
 
+void CCodeGen_Wasm::Emit_Md_MakeSz_MemMem(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+
+	static const uint8 zeroConst[0x10] = { 0 };
+
+	static const uint8 makeSzShufflePattern[0x10] =
+	{
+		0x1E, 0x1C, 0x1A, 0x18, 0x16, 0x14, 0x12, 0x10,
+		0x0E, 0x0C, 0x0A, 0x08, 0x06, 0x04, 0x02, 0x00,
+	};
+
+	PrepareSymbolDef(dst);
+
+	//Compute sign
+	{
+		PrepareSymbolUse(src1);
+
+		m_functionStream.Write8(Wasm::INST_I32_CONST);
+		m_functionStream.Write8(31);
+
+		m_functionStream.Write8(Wasm::INST_PREFIX_SIMD);
+		CWasmModuleBuilder::WriteULeb128(m_functionStream, Wasm::INST_I32x4_SHR_S);
+	}
+
+	//Compute zero
+	{
+		PrepareSymbolUse(src1);
+
+		m_functionStream.Write8(Wasm::INST_PREFIX_SIMD);
+		m_functionStream.Write8(Wasm::INST_V128_CONST);
+		m_functionStream.Write(zeroConst, 0x10);
+
+		m_functionStream.Write8(Wasm::INST_PREFIX_SIMD);
+		m_functionStream.Write8(Wasm::INST_F32x4_EQ);
+	}
+
+	//Merge sign and zero
+	m_functionStream.Write8(Wasm::INST_PREFIX_SIMD);
+	CWasmModuleBuilder::WriteULeb128(m_functionStream, Wasm::INST_I8x16_SHUFFLE);
+	m_functionStream.Write(makeSzShufflePattern, 0x10);
+
+	//Extract bits
+	m_functionStream.Write8(Wasm::INST_PREFIX_SIMD);
+	CWasmModuleBuilder::WriteULeb128(m_functionStream, Wasm::INST_I16x8_BITMASK);
+
+	CommitSymbol(dst);
+}
+
 void CCodeGen_Wasm::Emit_Md_LoadFromRef_MemMem(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
@@ -208,6 +258,8 @@ CCodeGen_Wasm::CONSTMATCHER CCodeGen_Wasm::g_mdConstMatchers[] =
 
 	{ OP_MD_SRAH,        MATCH_MEMORY128,      MATCH_MEMORY128,      MATCH_CONSTANT,      MATCH_NIL,      &CCodeGen_Wasm::Emit_Md_Shift_MemMemCst<Wasm::INST_I16x8_SHR_S> },
 	{ OP_MD_SRAW,        MATCH_MEMORY128,      MATCH_MEMORY128,      MATCH_CONSTANT,      MATCH_NIL,      &CCodeGen_Wasm::Emit_Md_Shift_MemMemCst<Wasm::INST_I32x4_SHR_S> },
+
+	{ OP_MD_MAKESZ,      MATCH_MEMORY,         MATCH_MEMORY128,      MATCH_NIL,           MATCH_NIL,      &CCodeGen_Wasm::Emit_Md_MakeSz_MemMem                           },
 
 	{ OP_MD_TOSINGLE,           MATCH_MEMORY128,    MATCH_MEMORY128,    MATCH_NIL,        MATCH_NIL,      &CCodeGen_Wasm::Emit_Md_MemMem<Wasm::INST_F32x4_CONVERT_I32x4_S>   },
 	{ OP_MD_TOWORD_TRUNCATE,    MATCH_MEMORY128,    MATCH_MEMORY128,    MATCH_NIL,        MATCH_NIL,      &CCodeGen_Wasm::Emit_Md_MemMem<Wasm::INST_I32x4_TRUNC_SAT_F32x4_S> },

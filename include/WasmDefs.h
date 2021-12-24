@@ -104,6 +104,7 @@ namespace Wasm
 		INST_I64_SHL = 0x86,
 		INST_I64_SHR_S = 0x87,
 		INST_I64_SHR_U = 0x88,
+		INST_F32_NEG = 0x8C,
 		INST_F32_ADD = 0x92,
 		INST_F32_SUB = 0x93,
 		INST_F32_MUL = 0x94,

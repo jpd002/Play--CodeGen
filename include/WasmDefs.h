@@ -129,6 +129,7 @@ namespace Wasm
 		INST_I16x8_EQ = 0x2D,
 		INST_I16x8_GT_S = 0x31,
 		INST_I32x4_EQ = 0x37,
+		INST_I32x4_LT_U = 0x3A,
 		INST_I32x4_GT_S = 0x3B,
 		INST_F32x4_EQ = 0x41,
 		INST_F32x4_LT = 0x43,

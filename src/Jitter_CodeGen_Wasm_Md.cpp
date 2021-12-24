@@ -94,6 +94,53 @@ void CCodeGen_Wasm::Emit_Md_Mov_MemMem(const STATEMENT& statement)
 	CommitSymbol(dst);
 }
 
+void CCodeGen_Wasm::Emit_Md_AddUSW_MemMemMem(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+//	This is based on code from http://locklessinc.com/articles/sat_arithmetic/
+//	u32b sat_addu32b(u32b x, u32b y)
+//	{
+//		u32b res = x + y;
+//		res |= -(res < x);
+//	
+//		return res;
+//	}
+
+	PrepareSymbolDef(dst);
+	
+	//-(res < x) -> -((x + y) < x)
+	{
+		PrepareSymbolUse(src1);
+		PrepareSymbolUse(src2);
+
+		m_functionStream.Write8(Wasm::INST_PREFIX_SIMD);
+		CWasmModuleBuilder::WriteULeb128(m_functionStream, Wasm::INST_I32x4_ADD);
+
+		PrepareSymbolUse(src1);
+
+		m_functionStream.Write8(Wasm::INST_PREFIX_SIMD);
+		CWasmModuleBuilder::WriteULeb128(m_functionStream, Wasm::INST_I32x4_LT_U);
+	}
+
+	//(x + y)
+	{
+		PrepareSymbolUse(src1);
+		PrepareSymbolUse(src2);
+
+		m_functionStream.Write8(Wasm::INST_PREFIX_SIMD);
+		CWasmModuleBuilder::WriteULeb128(m_functionStream, Wasm::INST_I32x4_ADD);
+	}
+
+	//Combine
+	m_functionStream.Write8(Wasm::INST_PREFIX_SIMD);
+	CWasmModuleBuilder::WriteULeb128(m_functionStream, Wasm::INST_V128_OR);
+
+	CommitSymbol(dst);
+}
+
 void CCodeGen_Wasm::Emit_Md_MakeSz_MemMem(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
@@ -228,6 +275,7 @@ CCodeGen_Wasm::CONSTMATCHER CCodeGen_Wasm::g_mdConstMatchers[] =
 
 	{ OP_MD_ADDUS_B,     MATCH_MEMORY128,      MATCH_MEMORY128,      MATCH_MEMORY128,     MATCH_NIL,      &CCodeGen_Wasm::Emit_Md_MemMemMem<Wasm::INST_I8x16_ADD_SAT_U> },
 	{ OP_MD_ADDUS_H,     MATCH_MEMORY128,      MATCH_MEMORY128,      MATCH_MEMORY128,     MATCH_NIL,      &CCodeGen_Wasm::Emit_Md_MemMemMem<Wasm::INST_I16x8_ADD_SAT_U> },
+	{ OP_MD_ADDUS_W,     MATCH_MEMORY128,      MATCH_MEMORY128,      MATCH_MEMORY128,     MATCH_NIL,      &CCodeGen_Wasm::Emit_Md_AddUSW_MemMemMem                      },
 
 	{ OP_MD_CMPEQ_B,     MATCH_MEMORY128,      MATCH_MEMORY128,      MATCH_MEMORY128,     MATCH_NIL,      &CCodeGen_Wasm::Emit_Md_MemMemMem<Wasm::INST_I8x16_EQ>        },
 	{ OP_MD_CMPEQ_H,     MATCH_MEMORY128,      MATCH_MEMORY128,      MATCH_MEMORY128,     MATCH_NIL,      &CCodeGen_Wasm::Emit_Md_MemMemMem<Wasm::INST_I16x8_EQ>        },

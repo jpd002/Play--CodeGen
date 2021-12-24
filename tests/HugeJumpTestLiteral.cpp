@@ -47,5 +47,5 @@ void CHugeJumpTestLiteral::Run()
 {
 	memset(&m_context, 0, sizeof(CONTEXT));
 	m_function(&m_context);
-	assert(m_context.result == 0x0F);
+	TEST_VERIFY(m_context.result == 0x0F);
 }

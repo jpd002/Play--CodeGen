@@ -36,6 +36,11 @@ namespace Wasm
 		INST_PREFIX_SIMD = 0xFD,
 	};
 
+	enum BLOCK_TYPE
+	{
+		BLOCK_TYPE_VOID = 0x40,
+	};
+
 	enum INST_CODE
 	{
 		INST_BLOCK = 0x02,
@@ -57,7 +62,6 @@ namespace Wasm
 		INST_F32_STORE = 0x38,
 		INST_I32_STORE8 = 0x3A,
 		INST_I32_STORE16 = 0x3B,
-		INST_BLOCKTYPE_VOID = 0x40,
 		INST_I32_CONST = 0x41,
 		INST_I64_CONST = 0x42,
 		INST_I32_EQZ = 0x45,

@@ -227,6 +227,8 @@ void CCodeGen_Wasm::GenerateCode(const StatementList& statements, unsigned int s
 	m_localI32Count = 0;
 	m_localI64Count = 0;
 	m_localV128Count = 0;
+	m_isInsideBlock = false;
+	m_currentBlockDepth = 0;
 
 	BuildLabelFlows(statements);
 	PrepareSignatures(moduleBuilder, statements);
@@ -256,6 +258,10 @@ void CCodeGen_Wasm::GenerateCode(const StatementList& statements, unsigned int s
 		}
 	}
 
+	//Terminate current block
+	assert(m_isInsideBlock);
+	m_functionStream.Write8(Wasm::INST_END);
+	
 	m_functionStream.Write8(Wasm::INST_END);
 
 	CWasmModuleBuilder::FUNCTION function;
@@ -337,7 +343,7 @@ void CCodeGen_Wasm::BuildLabelFlows(const StatementList& statements)
 							assert(insertResult.second);
 						}
 						{
-							auto insertResult = m_labelFlows.insert(std::make_pair(prevStatementIterator->jmpBlock, LABEL_FLOW_END));
+							auto insertResult = m_labelFlows.insert(std::make_pair(prevStatementIterator->jmpBlock, LABEL_FLOW_ENDIF));
 							assert(insertResult.second);
 						}
 					}
@@ -345,13 +351,54 @@ void CCodeGen_Wasm::BuildLabelFlows(const StatementList& statements)
 					{
 						//We have a If/EndIf situation
 						{
-							auto insertResult = m_labelFlows.insert(std::make_pair(innerStatementIterator->jmpBlock, LABEL_FLOW_END));
+							auto insertResult = m_labelFlows.insert(std::make_pair(innerStatementIterator->jmpBlock, LABEL_FLOW_ENDIF));
 							assert(insertResult.second);
 						}
 					}
 				}
 			}
 			assert(foundEnd);
+		}
+	}
+
+	//Look for unbound labels and build blocks
+	for(const auto& statement : statements)
+	{
+		if(statement.op != OP_LABEL) continue;
+		auto labelFlowIterator = m_labelFlows.find(statement.jmpBlock);
+		if(labelFlowIterator != std::end(m_labelFlows)) continue;
+		m_labelFlows.insert(std::make_pair(statement.jmpBlock, LABEL_FLOW_BLOCK));
+	}
+
+	//Validate jmps to other blocks: we can only jump to the next block
+	for(auto outerStatementIterator = statements.begin();
+	    outerStatementIterator != statements.end(); outerStatementIterator++)
+	{
+		const auto& outerStatement = *outerStatementIterator;
+		if(outerStatement.op != OP_JMP) continue;
+
+		//Check that this jmp targets a block (not part of a If structure)
+		{
+			auto labelFlowIterator = m_labelFlows.find(outerStatement.jmpBlock);
+			assert(labelFlowIterator != std::end(m_labelFlows));
+			if(labelFlowIterator->second != LABEL_FLOW_BLOCK) continue;
+		}
+
+		//Check that the next label we encounter is our target label
+		for(auto innerStatementIterator = outerStatementIterator;
+		    innerStatementIterator != statements.end(); innerStatementIterator++)
+		{
+			const auto& innerStatement = *innerStatementIterator;
+			if(innerStatement.op != OP_LABEL) continue;
+
+			//Check that label is a new block
+			auto labelFlowIterator = m_labelFlows.find(innerStatement.jmpBlock);
+			assert(labelFlowIterator != std::end(m_labelFlows));
+			if(labelFlowIterator->second != LABEL_FLOW_BLOCK) continue;
+
+			//This is the next block, check that our jmp targets this.
+			assert(innerStatement.jmpBlock == outerStatement.jmpBlock);
+			break;
 		}
 	}
 }
@@ -689,24 +736,35 @@ void CCodeGen_Wasm::CommitSymbol(CSymbol* symbol)
 void CCodeGen_Wasm::MarkLabel(const STATEMENT& statement)
 {
 	auto labelFlowIterator = m_labelFlows.find(statement.jmpBlock);
-	if(labelFlowIterator != std::end(m_labelFlows))
+	assert(labelFlowIterator != std::end(m_labelFlows));
+	switch(labelFlowIterator->second)
 	{
-		switch(labelFlowIterator->second)
+	case LABEL_FLOW_BLOCK:
+		assert(m_currentBlockDepth == 0);
+		if(m_isInsideBlock)
 		{
-		case LABEL_FLOW_IF:
-			m_functionStream.Write8(Wasm::INST_IF);
-			m_functionStream.Write8(Wasm::INST_BLOCKTYPE_VOID);
-			break;
-		case LABEL_FLOW_ELSE:
-			m_functionStream.Write8(Wasm::INST_ELSE);
-			break;
-		case LABEL_FLOW_END:
 			m_functionStream.Write8(Wasm::INST_END);
-			break;
-		default:
-			assert(false);
-			break;
 		}
+		m_isInsideBlock = true;
+		m_functionStream.Write8(Wasm::INST_BLOCK);
+		m_functionStream.Write8(Wasm::BLOCK_TYPE_VOID);
+		break;
+	case LABEL_FLOW_IF:
+		m_functionStream.Write8(Wasm::INST_IF);
+		m_functionStream.Write8(Wasm::BLOCK_TYPE_VOID);
+		m_currentBlockDepth++;
+		break;
+	case LABEL_FLOW_ELSE:
+		m_functionStream.Write8(Wasm::INST_ELSE);
+		break;
+	case LABEL_FLOW_ENDIF:
+		m_functionStream.Write8(Wasm::INST_END);
+		assert(m_currentBlockDepth != 0);
+		m_currentBlockDepth--;
+		break;
+	default:
+		assert(false);
+		break;
 	}
 }
 
@@ -1008,8 +1066,18 @@ void CCodeGen_Wasm::Emit_ExternJmp(const STATEMENT& statement)
 	m_functionStream.Write8(0x00);   //Table index
 }
 
-void CCodeGen_Wasm::Emit_Jmp(const STATEMENT&)
+void CCodeGen_Wasm::Emit_Jmp(const STATEMENT& statement)
 {
+	auto labelFlowIterator = m_labelFlows.find(statement.jmpBlock);
+	assert(labelFlowIterator != std::end(m_labelFlows));
+	if(labelFlowIterator->second == LABEL_FLOW_BLOCK)
+	{
+		//This can only be used to exit the current block
+		//Validated in BuildLabelFlows
+		assert(m_isInsideBlock);
+		m_functionStream.Write8(Wasm::INST_BR);
+		m_functionStream.Write8(m_currentBlockDepth);
+	}
 }
 
 void CCodeGen_Wasm::Emit_CondJmp_AnyAny(const STATEMENT& statement)

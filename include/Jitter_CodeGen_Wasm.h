@@ -41,9 +41,10 @@ namespace Jitter
 	private:
 		enum LABEL_FLOW
 		{
+			LABEL_FLOW_BLOCK,
 			LABEL_FLOW_IF,
 			LABEL_FLOW_ELSE,
-			LABEL_FLOW_END,
+			LABEL_FLOW_ENDIF,
 		};
 
 		typedef void (CCodeGen_Wasm::*ConstCodeEmitterType)(const STATEMENT&);
@@ -203,6 +204,8 @@ namespace Jitter
 		uint32 m_localI32Count = 0;
 		uint32 m_localI64Count = 0;
 		uint32 m_localV128Count = 0;
+		bool m_isInsideBlock = false;
+		uint32 m_currentBlockDepth = 0;
 		ParamStack m_params;
 	};
 }

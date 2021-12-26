@@ -144,6 +144,7 @@ namespace Jitter
 		void Emit_Sra_AnyAnyAny(const STATEMENT&);
 
 		void Emit_Not_AnyAny(const STATEMENT&);
+		void Emit_Lzc_AnyAny(const STATEMENT&);
 		void Emit_And_AnyAnyAny(const STATEMENT&);
 		void Emit_Or_AnyAnyAny(const STATEMENT&);
 		void Emit_Xor_AnyAnyAny(const STATEMENT&);

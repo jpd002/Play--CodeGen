@@ -116,6 +116,7 @@ CCodeGen_Wasm::CONSTMATCHER CCodeGen_Wasm::g_constMatchers[] =
 	{ OP_SRA,            MATCH_ANY,            MATCH_ANY,            MATCH_ANY,           MATCH_NIL,      &CCodeGen_Wasm::Emit_Sra_AnyAnyAny                          },
 
 	{ OP_NOT,            MATCH_ANY,            MATCH_ANY,            MATCH_NIL,           MATCH_NIL,      &CCodeGen_Wasm::Emit_Not_AnyAny                             },
+	{ OP_LZC,            MATCH_ANY,            MATCH_ANY,            MATCH_NIL,           MATCH_NIL,      &CCodeGen_Wasm::Emit_Lzc_AnyAny                             },
 	{ OP_AND,            MATCH_ANY,            MATCH_ANY,            MATCH_ANY,           MATCH_NIL,      &CCodeGen_Wasm::Emit_And_AnyAnyAny                          },
 	{ OP_OR,             MATCH_ANY,            MATCH_ANY,            MATCH_ANY,           MATCH_NIL,      &CCodeGen_Wasm::Emit_Or_AnyAnyAny                           },
 	{ OP_XOR,            MATCH_ANY,            MATCH_ANY,            MATCH_ANY,           MATCH_NIL,      &CCodeGen_Wasm::Emit_Xor_AnyAnyAny                          },
@@ -1235,6 +1236,54 @@ void CCodeGen_Wasm::Emit_Not_AnyAny(const STATEMENT& statement)
 
 	m_functionStream.Write8(Wasm::INST_I32_XOR);
 
+	CommitSymbol(dst);
+}
+
+void CCodeGen_Wasm::Emit_Lzc_AnyAny(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+
+	PrepareSymbolDef(dst);
+
+	//Check if MSB is 0 or 1
+	PrepareSymbolUse(src1);
+	
+	m_functionStream.Write8(Wasm::INST_I32_CONST);
+	CWasmModuleBuilder::WriteSLeb128(m_functionStream, 0);
+
+	m_functionStream.Write8(Wasm::INST_I32_LT_S);
+
+	m_functionStream.Write8(Wasm::INST_IF);
+	m_functionStream.Write8(Wasm::TYPE_I32);
+	{
+		//First bit is 1
+		PrepareSymbolUse(src1);
+		m_functionStream.Write8(Wasm::INST_I32_CONST);
+		CWasmModuleBuilder::WriteSLeb128(m_functionStream, -1);
+
+		m_functionStream.Write8(Wasm::INST_I32_XOR);
+		
+		m_functionStream.Write8(Wasm::INST_I32_CLZ);
+
+		m_functionStream.Write8(Wasm::INST_I32_CONST);
+		CWasmModuleBuilder::WriteSLeb128(m_functionStream, 1);
+
+		m_functionStream.Write8(Wasm::INST_I32_SUB);
+	}
+	m_functionStream.Write8(Wasm::INST_ELSE);
+	{
+		//First bit is 0
+		PrepareSymbolUse(src1);
+		m_functionStream.Write8(Wasm::INST_I32_CLZ);
+
+		m_functionStream.Write8(Wasm::INST_I32_CONST);
+		CWasmModuleBuilder::WriteSLeb128(m_functionStream, 1);
+
+		m_functionStream.Write8(Wasm::INST_I32_SUB);
+	}
+	m_functionStream.Write8(Wasm::INST_END);
+	
 	CommitSymbol(dst);
 }
 

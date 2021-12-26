@@ -88,6 +88,7 @@ namespace Wasm
 		INST_F32_EQ = 0x5B,
 		INST_F32_LT = 0x5D,
 		INST_F32_LE = 0x5F,
+		INST_I32_CLZ = 0x67,
 		INST_I32_ADD = 0x6A,
 		INST_I32_SUB = 0x6B,
 		INST_I32_DIV_S = 0x6D,

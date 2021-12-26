@@ -95,6 +95,9 @@ namespace Jitter
 
 		void PushRelativeSingle(CSymbol*);
 
+		void PushTemporarySingle(CSymbol*);
+		void PullTemporarySingle(CSymbol*);
+
 		void PushRelative128(CSymbol*);
 
 		void PushTemporary128(CSymbol*);

@@ -670,6 +670,9 @@ void CCodeGen_Wasm::PrepareSymbolUse(CSymbol* symbol)
 	case SYM_FP_REL_SINGLE:
 		PushRelativeSingle(symbol);
 		break;
+	case SYM_FP_TMP_SINGLE:
+		PushTemporarySingle(symbol);
+		break;
 	case SYM_RELATIVE128:
 		PushRelative128(symbol);
 		break;
@@ -696,6 +699,7 @@ void CCodeGen_Wasm::PrepareSymbolDef(CSymbol* symbol)
 	case SYM_TEMPORARY:
 	case SYM_TEMPORARY128:
 	case SYM_TMP_REFERENCE:
+	case SYM_FP_TMP_SINGLE:
 		break;
 	default:
 		assert(false);
@@ -727,6 +731,9 @@ void CCodeGen_Wasm::CommitSymbol(CSymbol* symbol)
 		m_functionStream.Write8(Wasm::INST_F32_STORE);
 		m_functionStream.Write8(0x02);
 		m_functionStream.Write8(0x00);
+		break;
+	case SYM_FP_TMP_SINGLE:
+		PullTemporarySingle(symbol);
 		break;
 	case SYM_RELATIVE128:
 		m_functionStream.Write8(Wasm::INST_PREFIX_SIMD);

@@ -43,6 +43,26 @@ void CCodeGen_Wasm::PushRelativeSingle(CSymbol* symbol)
 	m_functionStream.Write8(0x00);
 }
 
+void CCodeGen_Wasm::PushTemporarySingle(CSymbol* symbol)
+{
+	assert(symbol->m_type == SYM_FP_TMP_SINGLE);
+
+	uint32 localIdx = GetTemporaryLocation(symbol);
+
+	m_functionStream.Write8(Wasm::INST_LOCAL_GET);
+	CWasmModuleBuilder::WriteULeb128(m_functionStream, localIdx);
+}
+
+void CCodeGen_Wasm::PullTemporarySingle(CSymbol* symbol)
+{
+	assert(symbol->m_type == SYM_FP_TMP_SINGLE);
+
+	uint32 localIdx = GetTemporaryLocation(symbol);
+
+	m_functionStream.Write8(Wasm::INST_LOCAL_SET);
+	CWasmModuleBuilder::WriteULeb128(m_functionStream, localIdx);
+}
+
 void CCodeGen_Wasm::Emit_Fp_Cmp_AnyMemMem(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();

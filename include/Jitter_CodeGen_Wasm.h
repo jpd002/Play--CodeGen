@@ -204,6 +204,7 @@ namespace Jitter
 		std::map<TemporaryInstance, uint32> m_temporaryLocations;
 		uint32 m_localI32Count = 0;
 		uint32 m_localI64Count = 0;
+		uint32 m_localF32Count = 0;
 		uint32 m_localV128Count = 0;
 		bool m_isInsideBlock = false;
 		uint32 m_currentBlockDepth = 0;

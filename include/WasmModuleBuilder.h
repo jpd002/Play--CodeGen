@@ -19,6 +19,7 @@ public:
 		FunctionCode code;
 		uint32 localI32Count = 0;
 		uint32 localI64Count = 0;
+		uint32 localF32Count = 0;
 		uint32 localV128Count = 0;
 	};
 

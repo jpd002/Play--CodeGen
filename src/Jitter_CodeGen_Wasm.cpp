@@ -227,6 +227,7 @@ void CCodeGen_Wasm::GenerateCode(const StatementList& statements, unsigned int s
 	m_temporaryLocations.clear();
 	m_localI32Count = 0;
 	m_localI64Count = 0;
+	m_localF32Count = 0;
 	m_localV128Count = 0;
 	m_isInsideBlock = false;
 	m_currentBlockDepth = 0;
@@ -269,6 +270,7 @@ void CCodeGen_Wasm::GenerateCode(const StatementList& statements, unsigned int s
 	function.code = CWasmModuleBuilder::FunctionCode(m_functionStream.GetBuffer(), m_functionStream.GetBuffer() + m_functionStream.GetSize());
 	function.localI32Count = m_localI32Count;
 	function.localI64Count = m_localI64Count;
+	function.localF32Count = m_localF32Count;
 	function.localV128Count = m_localV128Count;
 
 	moduleBuilder.AddFunction(std::move(function));
@@ -491,6 +493,10 @@ void CCodeGen_Wasm::PrepareLocalVars(const StatementList& statements)
 					m_temporaryLocations[temporaryInstance] = m_localI64Count;
 					m_localI64Count++;
 					break;
+				case SYM_FP_TMP_SINGLE:
+					m_temporaryLocations[temporaryInstance] = m_localF32Count;
+					m_localF32Count++;
+					break;
 				case SYM_TEMPORARY128:
 					m_temporaryLocations[temporaryInstance] = m_localV128Count;
 					m_localV128Count++;
@@ -523,8 +529,11 @@ uint32 CCodeGen_Wasm::GetTemporaryLocation(CSymbol* symbol) const
 	case SYM_TEMPORARY64:
 		localIdx = temporaryLocation + m_localI32Count + 1;
 		break;
-	case SYM_TEMPORARY128:
+	case SYM_FP_TMP_SINGLE:
 		localIdx = temporaryLocation + m_localI32Count + m_localI64Count + 1;
+		break;
+	case SYM_TEMPORARY128:
+		localIdx = temporaryLocation + m_localI32Count + m_localI64Count + m_localF32Count + 1;
 		break;
 	default:
 		assert(false);

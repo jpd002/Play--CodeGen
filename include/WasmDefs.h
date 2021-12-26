@@ -27,6 +27,7 @@ namespace Wasm
 	enum TYPE_CODE
 	{
 		TYPE_V128 = 0x7B,
+		TYPE_F32 = 0x7D,
 		TYPE_I64 = 0x7E,
 		TYPE_I32 = 0x7F,
 	};

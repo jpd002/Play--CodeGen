@@ -144,6 +144,22 @@ void CCodeGen_Wasm::Emit_Fp_ToIntTrunc_MemMem(const STATEMENT& statement)
 	m_functionStream.Write8(0x00);
 }
 
+void CCodeGen_Wasm::Emit_Fp_LdCst_TmpCst(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+
+	assert(dst->m_type  == SYM_FP_TMP_SINGLE);
+	assert(src1->m_type == SYM_CONSTANT);
+
+	PrepareSymbolDef(dst);
+	
+	m_functionStream.Write8(Wasm::INST_F32_CONST);
+	m_functionStream.Write32(src1->m_valueLow);
+
+	CommitSymbol(dst);
+}
+
 CCodeGen_Wasm::CONSTMATCHER CCodeGen_Wasm::g_fpuConstMatchers[] =
 {
 	{ OP_FP_ADD,         MATCH_MEMORY_FP_SINGLE,      MATCH_MEMORY_FP_SINGLE,  MATCH_MEMORY_FP_SINGLE,  MATCH_NIL,      &CCodeGen_Wasm::Emit_Fpu_MemMemMem<Wasm::INST_F32_ADD>       },
@@ -160,6 +176,8 @@ CCodeGen_Wasm::CONSTMATCHER CCodeGen_Wasm::g_fpuConstMatchers[] =
 
 	{ OP_MOV,            MATCH_MEMORY_FP_SINGLE,      MATCH_RELATIVE_FP_INT32, MATCH_NIL,               MATCH_NIL,      &CCodeGen_Wasm::Emit_Fp_Mov_MemSRelI32                       },
 	{ OP_FP_TOINT_TRUNC, MATCH_MEMORY_FP_SINGLE,      MATCH_MEMORY_FP_SINGLE,  MATCH_NIL,               MATCH_NIL,      &CCodeGen_Wasm::Emit_Fp_ToIntTrunc_MemMem                    },
+
+	{ OP_FP_LDCST,       MATCH_TEMPORARY_FP_SINGLE,   MATCH_CONSTANT,          MATCH_NIL,               MATCH_NIL,      &CCodeGen_Wasm::Emit_Fp_LdCst_TmpCst                         },
 
 	{ OP_MOV,            MATCH_NIL,                   MATCH_NIL,               MATCH_NIL,               MATCH_NIL,      nullptr                                                      },
 };

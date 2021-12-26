@@ -186,6 +186,7 @@ namespace Jitter
 		void Emit_Fp_Rsqrt_MemMem(const STATEMENT&);
 		void Emit_Fp_Mov_MemSRelI32(const STATEMENT&);
 		void Emit_Fp_ToIntTrunc_MemMem(const STATEMENT&);
+		void Emit_Fp_LdCst_TmpCst(const STATEMENT&);
 		
 		//MD
 		template <uint32> void Emit_Md_MemMem(const STATEMENT&);

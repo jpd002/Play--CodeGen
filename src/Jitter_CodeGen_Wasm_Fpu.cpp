@@ -155,6 +155,7 @@ CCodeGen_Wasm::CONSTMATCHER CCodeGen_Wasm::g_fpuConstMatchers[] =
 
 	{ OP_FP_RSQRT,       MATCH_MEMORY_FP_SINGLE,      MATCH_MEMORY_FP_SINGLE,  MATCH_NIL,               MATCH_NIL,      &CCodeGen_Wasm::Emit_Fp_Rsqrt_MemMem                         },
 
+	{ OP_FP_ABS,         MATCH_MEMORY_FP_SINGLE,      MATCH_MEMORY_FP_SINGLE,  MATCH_NIL,               MATCH_NIL,      &CCodeGen_Wasm::Emit_Fpu_MemMem<Wasm::INST_F32_ABS>          },
 	{ OP_FP_NEG,         MATCH_MEMORY_FP_SINGLE,      MATCH_MEMORY_FP_SINGLE,  MATCH_NIL,               MATCH_NIL,      &CCodeGen_Wasm::Emit_Fpu_MemMem<Wasm::INST_F32_NEG>          },
 
 	{ OP_MOV,            MATCH_MEMORY_FP_SINGLE,      MATCH_RELATIVE_FP_INT32, MATCH_NIL,               MATCH_NIL,      &CCodeGen_Wasm::Emit_Fp_Mov_MemSRelI32                       },

@@ -463,6 +463,11 @@ public:
 	void									VcmppsVo(XMMREGISTER, XMMREGISTER, const CAddress&, SSE_CMP_TYPE);
 
 	void									VblendpsVo(XMMREGISTER, XMMREGISTER, const CAddress&, uint8);
+	void									Vfmadd213ssVo(XMMREGISTER, XMMREGISTER, const CAddress&);
+	void									Vfnmadd213ssVo(XMMREGISTER, XMMREGISTER, const CAddress&);
+	void									Vfmadd213psVo(XMMREGISTER, XMMREGISTER, const CAddress&);
+	void									Vfnmadd213psVo(XMMREGISTER, XMMREGISTER, const CAddress&);
+
 	void									VshufpsVo(XMMREGISTER, XMMREGISTER, const CAddress&, uint8);
 
 private:

@@ -152,6 +152,8 @@ namespace Jitter
 		void							FP_Max();
 		void							FP_Min();
 		void							FP_Mul();
+		void							FP_MulAdd();
+		void							FP_MulSub();
 		void							FP_Div();
 		void							FP_Cmp(CONDITION);
 		void							FP_Neg();
@@ -228,6 +230,8 @@ namespace Jitter
 		void							MD_UnpackUpperHW();
 		void							MD_UnpackUpperWD();
 		void							MD_Xor();
+		void							MD_MulAdd();
+		void							MD_MulSub();
 
 		CCodeGen*						GetCodeGen();
 
@@ -285,6 +289,7 @@ namespace Jitter
 
 		void							InsertUnaryStatement(Jitter::OPERATION);
 		void							InsertBinaryStatement(Jitter::OPERATION);
+		void							InsertTernaryStatement(Jitter::OPERATION);
 		void							InsertUnaryMdStatement(Jitter::OPERATION);
 		void							InsertBinaryMdStatement(Jitter::OPERATION);
 

@@ -107,6 +107,16 @@ namespace Jitter
 			static OpEdAvxType OpEdAvx() { return &CX86Assembler::VmulssEd; }
 		};
 
+		struct FPUOP_MULADD213 : public FPUOP_BASE
+		{
+			static OpEdAvxType OpEdAvx() { return &CX86Assembler::Vfmadd213ssVo; }
+		};
+
+		struct FPUOP_MULSUB213 : public FPUOP_BASE
+		{
+			static OpEdAvxType OpEdAvx() { return &CX86Assembler::Vfnmadd213ssVo; }
+		};
+
 		struct FPUOP_DIV : public FPUOP_BASE
 		{
 			static OpEdType OpEd() { return &CX86Assembler::DivssEd; }
@@ -388,6 +398,16 @@ namespace Jitter
 		{
 			static OpVoType OpVo() { return &CX86Assembler::Cvtdq2psVo; }
 			static OpVoType OpVoAvx() { return &CX86Assembler::Vcvtdq2psVo; }
+		};
+
+		struct MDOP_MULADD213 : public MDOP_BASE
+		{
+			static OpVoAvxType OpVoAvx() { return &CX86Assembler::Vfmadd213psVo; }
+		};
+
+		struct MDOP_MULSUB213 : public MDOP_BASE
+		{
+			static OpVoAvxType OpVoAvx() { return &CX86Assembler::Vfnmadd213psVo; }
 		};
 
 		//MDOP SHIFT -----------------------------------------------------
@@ -722,6 +742,7 @@ namespace Jitter
 		//FPUOP AVX
 		template <typename> void	Emit_Fpu_Avx_MemMem(const STATEMENT&);
 		template <typename> void	Emit_Fpu_Avx_MemMemMem(const STATEMENT&);
+		template <typename> void	Emit_Fpu_Avx_MemMemMemMem(const STATEMENT&);
 
 		void						Emit_Fp_Avx_Cmp_VarMemMem(const STATEMENT&);
 		void						Emit_Fp_Avx_Rsqrt_MemMem(const STATEMENT&);
@@ -733,6 +754,7 @@ namespace Jitter
 		template <typename> void	Emit_Md_Avx_VarVar(const STATEMENT&);
 		template <typename> void	Emit_Md_Avx_VarVarVar(const STATEMENT&);
 		template <typename> void	Emit_Md_Avx_VarVarVarRev(const STATEMENT&);
+		template <typename> void	Emit_Md_Avx_VarVarVarVar(const STATEMENT&);
 		template <typename, uint8> void
 									Emit_Md_Avx_Shift_VarVarCst(const STATEMENT&);
 		void						Emit_Md_Avx_Mov_RegVar(const STATEMENT&);

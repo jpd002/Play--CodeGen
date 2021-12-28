@@ -45,6 +45,27 @@ void CCodeGen_x86::Emit_Md_Avx_VarVarVarRev(const STATEMENT& statement)
 	CommitSymbolRegisterMdAvx(dst, dstRegister);
 }
 
+template <typename MDOP>
+void CCodeGen_x86::Emit_Md_Avx_VarVarVarVar(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+	auto src3 = statement.src3->GetSymbol().get();
+
+	auto dstRegister = PrepareSymbolRegisterDefMd(dst, CX86Assembler::xMM0);
+	auto src1Register =  PrepareSymbolRegisterUseMdAvx(src1, CX86Assembler::xMM1);
+	auto src2Register =  PrepareSymbolRegisterUseMdAvx(src2, CX86Assembler::xMM2);
+
+	if(dstRegister != src1Register)
+	{
+		m_assembler.VmovapsVo(dstRegister, CX86Assembler::MakeXmmRegisterAddress(src1Register));
+	}
+
+	((m_assembler).*(MDOP::OpVoAvx()))(dstRegister, src2Register, MakeVariable128SymbolAddress(src3));
+	CommitSymbolRegisterMdAvx(dst, dstRegister);
+}
+
 template <typename MDOPSHIFT, uint8 SAMASK>
 void CCodeGen_x86::Emit_Md_Avx_Shift_VarVarCst(const STATEMENT& statement)
 {
@@ -619,6 +640,9 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdAvxConstMatchers[] =
 
 	{ OP_MD_TOWORD_TRUNCATE, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx_VarVar<MDOP_TOWORD_TRUNCATE> },
 	{ OP_MD_TOSINGLE,        MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx_VarVar<MDOP_TOSINGLE>        },
+
+	{OP_MD_MULADD, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_VARIABLE128, &CCodeGen_x86::Emit_Md_Avx_VarVarVarVar<MDOP_MULADD213>},
+	{OP_MD_MULSUB, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_VARIABLE128, &CCodeGen_x86::Emit_Md_Avx_VarVarVarVar<MDOP_MULSUB213>},
 
 	{ OP_MD_EXPAND, MATCH_VARIABLE128, MATCH_VARIABLE, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx_Expand_VarVar },
 	{ OP_MD_EXPAND, MATCH_VARIABLE128, MATCH_CONSTANT, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx_Expand_VarCst },

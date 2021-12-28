@@ -993,9 +993,24 @@ void CJitter::FP_MulAdd()
 
 	STATEMENT statement;
 	statement.op	= OP_FP_MULADD;
-	statement.src3	= MakeSymbolRef(m_shadow.Pull());
-	statement.src2	= MakeSymbolRef(m_shadow.Pull());
 	statement.src1	= MakeSymbolRef(m_shadow.Pull());
+	statement.src2	= MakeSymbolRef(m_shadow.Pull());
+	statement.src3	= MakeSymbolRef(m_shadow.Pull());
+	statement.dst	= MakeSymbolRef(tempSym);
+	InsertStatement(statement);
+
+	m_shadow.Push(tempSym);
+}
+
+void CJitter::FP_MulSub()
+{
+	SymbolPtr tempSym = MakeSymbol(SYM_FP_TMP_SINGLE, m_nextTemporary++);
+
+	STATEMENT statement;
+	statement.op	= OP_FP_MULSUB;
+	statement.src1	= MakeSymbolRef(m_shadow.Pull());
+	statement.src2	= MakeSymbolRef(m_shadow.Pull());
+	statement.src3	= MakeSymbolRef(m_shadow.Pull());
 	statement.dst	= MakeSymbolRef(tempSym);
 	InsertStatement(statement);
 

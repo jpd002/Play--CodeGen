@@ -27,6 +27,23 @@ void CCodeGen_x86::Emit_Fpu_Avx_MemMemMem(const STATEMENT& statement)
 	m_assembler.VmovssEd(MakeMemoryFpSingleSymbolAddress(dst), dstRegister);
 }
 
+template <typename FPUOP>
+void CCodeGen_x86::Emit_Fpu_Avx_MemMemMemMem(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+	auto src3 = statement.src3->GetSymbol().get();
+
+	auto dstRegister = CX86Assembler::xMM0;
+	auto src2Register = CX86Assembler::xMM1;
+
+	m_assembler.VmovssEd(dstRegister, MakeMemoryFpSingleSymbolAddress(src1));
+	m_assembler.VmovssEd(src2Register, MakeMemoryFpSingleSymbolAddress(src2));
+	((m_assembler).*(FPUOP::OpEdAvx()))(dstRegister, src2Register, MakeMemoryFpSingleSymbolAddress(src3));
+	m_assembler.VmovssEd(MakeMemoryFpSingleSymbolAddress(dst), dstRegister);
+}
+
 void CCodeGen_x86::Emit_Fp_Avx_Cmp_VarMemMem(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
@@ -101,6 +118,8 @@ void CCodeGen_x86::Emit_Fp_Avx_ToIntTrunc_RelRel(const STATEMENT& statement)
 
 CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_fpuAvxConstMatchers[] = 
 {
+	{ OP_FP_MULADD, MATCH_MEMORY_FP_SINGLE, MATCH_MEMORY_FP_SINGLE, MATCH_MEMORY_FP_SINGLE, MATCH_MEMORY_FP_SINGLE, &CCodeGen_x86::Emit_Fpu_Avx_MemMemMemMem<FPUOP_MULADD213> },
+	{ OP_FP_MULSUB, MATCH_MEMORY_FP_SINGLE, MATCH_MEMORY_FP_SINGLE, MATCH_MEMORY_FP_SINGLE, MATCH_MEMORY_FP_SINGLE, &CCodeGen_x86::Emit_Fpu_Avx_MemMemMemMem<FPUOP_MULSUB213> },
 	{ OP_FP_ADD, MATCH_MEMORY_FP_SINGLE, MATCH_MEMORY_FP_SINGLE, MATCH_MEMORY_FP_SINGLE, MATCH_NIL, &CCodeGen_x86::Emit_Fpu_Avx_MemMemMem<FPUOP_ADD> },
 	{ OP_FP_SUB, MATCH_MEMORY_FP_SINGLE, MATCH_MEMORY_FP_SINGLE, MATCH_MEMORY_FP_SINGLE, MATCH_NIL, &CCodeGen_x86::Emit_Fpu_Avx_MemMemMem<FPUOP_SUB> },
 	{ OP_FP_MUL, MATCH_MEMORY_FP_SINGLE, MATCH_MEMORY_FP_SINGLE, MATCH_MEMORY_FP_SINGLE, MATCH_NIL, &CCodeGen_x86::Emit_Fpu_Avx_MemMemMem<FPUOP_MUL> },

@@ -107,6 +107,16 @@ namespace Jitter
 			static OpEdAvxType OpEdAvx() { return &CX86Assembler::VmulssEd; }
 		};
 
+		struct FPUOP_MULADD213 : public FPUOP_BASE
+		{
+			static OpEdAvxType OpEdAvx() { return &CX86Assembler::Vfmadd213ssVo; }
+		};
+
+		struct FPUOP_MULSUB213 : public FPUOP_BASE
+		{
+			static OpEdAvxType OpEdAvx() { return &CX86Assembler::Vfnmadd213ssVo; }
+		};
+
 		struct FPUOP_DIV : public FPUOP_BASE
 		{
 			static OpEdType OpEd() { return &CX86Assembler::DivssEd; }
@@ -722,6 +732,7 @@ namespace Jitter
 		//FPUOP AVX
 		template <typename> void	Emit_Fpu_Avx_MemMem(const STATEMENT&);
 		template <typename> void	Emit_Fpu_Avx_MemMemMem(const STATEMENT&);
+		template <typename> void	Emit_Fpu_Avx_MemMemMemMem(const STATEMENT&);
 
 		void						Emit_Fp_Avx_Cmp_VarMemMem(const STATEMENT&);
 		void						Emit_Fp_Avx_Rsqrt_MemMem(const STATEMENT&);

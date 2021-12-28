@@ -153,6 +153,7 @@ namespace Jitter
 		void							FP_Min();
 		void							FP_Mul();
 		void							FP_MulAdd();
+		void							FP_MulSub();
 		void							FP_Div();
 		void							FP_Cmp(CONDITION);
 		void							FP_Neg();

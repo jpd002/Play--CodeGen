@@ -448,6 +448,16 @@ void CX86Assembler::VblendpsVo(XMMREGISTER dst, XMMREGISTER src1, const CAddress
 	WriteByte(mask);
 }
 
+void CX86Assembler::Vfmadd213ssVo(XMMREGISTER dst, const XMMREGISTER src1, const CAddress& src2)
+{
+	WriteVexVoOp(VEX_OPCODE_MAP_66_38, 0xA9, dst, src1, src2);
+}
+
+void CX86Assembler::Vfnmadd213ssVo(XMMREGISTER dst, const XMMREGISTER src1, const CAddress& src2)
+{
+	WriteVexVoOp(VEX_OPCODE_MAP_66_38, 0xAD, dst, src1, src2);
+}
+
 void CX86Assembler::VshufpsVo(XMMREGISTER dst, XMMREGISTER src1, const CAddress& src2, uint8 shuffleByte)
 {
 	WriteVexVoOp(VEX_OPCODE_MAP_NONE, 0xC6, dst, src1, src2);

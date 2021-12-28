@@ -192,6 +192,7 @@ namespace Jitter
 		template <uint32> void Emit_Md_MemMem(const STATEMENT&);
 		template <uint32> void Emit_Md_MemMemMem(const STATEMENT&);
 		template <uint32> void Emit_Md_Shift_MemMemCst(const STATEMENT&);
+		template <const uint8*> void Emit_Md_Unpack_MemMemMemRev(const STATEMENT&);
 		void Emit_Md_Mov_MemMem(const STATEMENT&);
 		void Emit_Md_AddUSW_MemMemMem(const STATEMENT&);
 		void Emit_Md_MakeSz_MemMem(const STATEMENT&);

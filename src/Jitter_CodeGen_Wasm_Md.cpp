@@ -4,6 +4,9 @@
 
 using namespace Jitter;
 
+static const uint8 g_unpackLowerWDShuffle[0x10] = { 0, 1, 2, 3, 16, 17, 18, 19, 4, 5, 6, 7, 20, 21, 22, 23 };
+static const uint8 g_unpackUpperWDShuffle[0x10] = { 8, 9, 10, 11, 24, 25, 26, 27, 12, 13, 14, 15, 28, 29, 30, 31 };
+
 template <uint32 OP>
 void CCodeGen_Wasm::Emit_Md_MemMem(const STATEMENT& statement)
 {
@@ -49,6 +52,24 @@ void CCodeGen_Wasm::Emit_Md_Shift_MemMemCst(const STATEMENT& statement)
 
 	m_functionStream.Write8(Wasm::INST_PREFIX_SIMD);
 	CWasmModuleBuilder::WriteULeb128(m_functionStream, OP);
+
+	CommitSymbol(dst);
+}
+
+template <const uint8* SHUFFLE_PATTERN>
+void CCodeGen_Wasm::Emit_Md_Unpack_MemMemMemRev(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	PrepareSymbolDef(dst);
+	PrepareSymbolUse(src2);
+	PrepareSymbolUse(src1);
+
+	m_functionStream.Write8(Wasm::INST_PREFIX_SIMD);
+	CWasmModuleBuilder::WriteULeb128(m_functionStream, Wasm::INST_I8x16_SHUFFLE);
+	m_functionStream.Write(SHUFFLE_PATTERN, 0x10);
 
 	CommitSymbol(dst);
 }
@@ -332,6 +353,10 @@ CCodeGen_Wasm::CONSTMATCHER CCodeGen_Wasm::g_mdConstMatchers[] =
 
 	{ OP_MD_EXPAND,      MATCH_MEMORY128,      MATCH_MEMORY,         MATCH_NIL,           MATCH_NIL,      &CCodeGen_Wasm::Emit_Md_Expand_MemAny                         },
 	{ OP_MD_EXPAND,      MATCH_MEMORY128,      MATCH_CONSTANT,       MATCH_NIL,           MATCH_NIL,      &CCodeGen_Wasm::Emit_Md_Expand_MemAny                         },
+
+	{ OP_MD_UNPACK_LOWER_WD, MATCH_MEMORY128,  MATCH_MEMORY128,      MATCH_MEMORY128,     MATCH_NIL,      &CCodeGen_Wasm::Emit_Md_Unpack_MemMemMemRev<g_unpackLowerWDShuffle> },
+
+	{ OP_MD_UNPACK_UPPER_WD, MATCH_MEMORY128,  MATCH_MEMORY128,      MATCH_MEMORY128,     MATCH_NIL,      &CCodeGen_Wasm::Emit_Md_Unpack_MemMemMemRev<g_unpackUpperWDShuffle> },
 
 	{ OP_MOV,            MATCH_NIL,            MATCH_NIL,            MATCH_NIL,           MATCH_NIL,      nullptr                                                       },
 };

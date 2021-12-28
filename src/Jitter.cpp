@@ -1615,6 +1615,36 @@ void CJitter::MD_ToSingle()
 	InsertUnaryMdStatement(OP_MD_TOSINGLE);
 }
 
+void CJitter::MD_MulAdd()
+{
+	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY128, m_nextTemporary++);
+
+	STATEMENT statement;
+	statement.op	= OP_MD_MULADD;
+	statement.src1	= MakeSymbolRef(m_shadow.Pull());
+	statement.src2	= MakeSymbolRef(m_shadow.Pull());
+	statement.src3	= MakeSymbolRef(m_shadow.Pull());
+	statement.dst	= MakeSymbolRef(tempSym);
+	InsertStatement(statement);
+
+	m_shadow.Push(tempSym);
+}
+
+void CJitter::MD_MulSub()
+{
+	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY128, m_nextTemporary++);
+
+	STATEMENT statement;
+	statement.op	= OP_MD_MULSUB;
+	statement.src1	= MakeSymbolRef(m_shadow.Pull());
+	statement.src2	= MakeSymbolRef(m_shadow.Pull());
+	statement.src3	= MakeSymbolRef(m_shadow.Pull());
+	statement.dst	= MakeSymbolRef(tempSym);
+	InsertStatement(statement);
+
+	m_shadow.Push(tempSym);
+}
+
 //Generic Statement Inserters
 //------------------------------------------------
 

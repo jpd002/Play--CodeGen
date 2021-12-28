@@ -136,6 +136,9 @@ namespace Jitter
 		OP_MD_CMPLT_S,
 		OP_MD_CMPGT_S,
 
+		OP_MD_MULADD,
+		OP_MD_MULSUB,
+
 		OP_FP_ADD,
 		OP_FP_SUB,
 		OP_FP_MUL,

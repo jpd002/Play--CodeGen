@@ -400,6 +400,16 @@ namespace Jitter
 			static OpVoType OpVoAvx() { return &CX86Assembler::Vcvtdq2psVo; }
 		};
 
+		struct MDOP_MULADD213 : public MDOP_BASE
+		{
+			static OpVoAvxType OpVoAvx() { return &CX86Assembler::Vfmadd213psVo; }
+		};
+
+		struct MDOP_MULSUB213 : public MDOP_BASE
+		{
+			static OpVoAvxType OpVoAvx() { return &CX86Assembler::Vfnmadd213psVo; }
+		};
+
 		//MDOP SHIFT -----------------------------------------------------
 		struct MDOP_SHIFT_BASE
 		{
@@ -744,6 +754,7 @@ namespace Jitter
 		template <typename> void	Emit_Md_Avx_VarVar(const STATEMENT&);
 		template <typename> void	Emit_Md_Avx_VarVarVar(const STATEMENT&);
 		template <typename> void	Emit_Md_Avx_VarVarVarRev(const STATEMENT&);
+		template <typename> void	Emit_Md_Avx_VarVarVarVar(const STATEMENT&);
 		template <typename, uint8> void
 									Emit_Md_Avx_Shift_VarVarCst(const STATEMENT&);
 		void						Emit_Md_Avx_Mov_RegVar(const STATEMENT&);

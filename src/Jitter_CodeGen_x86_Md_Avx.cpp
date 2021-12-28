@@ -53,32 +53,17 @@ void CCodeGen_x86::Emit_Md_Avx_VarVarVarVar(const STATEMENT& statement)
 	auto src2 = statement.src2->GetSymbol().get();
 	auto src3 = statement.src3->GetSymbol().get();
 
-	auto tempRegister = CX86Assembler::xMM3;
 	auto dstRegister = PrepareSymbolRegisterDefMd(dst, CX86Assembler::xMM0);
-	auto src1Register = PrepareSymbolRegisterUseMdAvx(src1, CX86Assembler::xMM0);
+	auto src1Register =  PrepareSymbolRegisterUseMdAvx(src1, CX86Assembler::xMM1);
+	auto src2Register =  PrepareSymbolRegisterUseMdAvx(src2, CX86Assembler::xMM2);
 
 	if(dstRegister != src1Register)
 	{
-		m_assembler.VmovapsVo(tempRegister, CX86Assembler::MakeXmmRegisterAddress(src1Register));
+		m_assembler.VmovapsVo(dstRegister, CX86Assembler::MakeXmmRegisterAddress(src1Register));
 	}
 
-	auto src2Register = PrepareSymbolRegisterUseMdAvx(src2, CX86Assembler::xMM2);
-	((m_assembler).*(MDOP::OpVoAvx()))(src1Register, src2Register, MakeVariable128SymbolAddress(src3));
-
-	// hack: reg optimisation doesnt take overrding values into account, so we need to copy and restore
-	if(dstRegister != src1Register)
-	{
-		if(dst->m_type != SYM_REGISTER128)
-		{
-			CommitSymbolRegisterMdAvx(dst, src1Register);
-		}
-		else
-		{
-			m_assembler.VmovapsVo(dstRegister, CX86Assembler::MakeXmmRegisterAddress(src1Register));
-		}
-		m_assembler.VmovapsVo(src1Register, CX86Assembler::MakeXmmRegisterAddress(tempRegister));
-	}
-
+	((m_assembler).*(MDOP::OpVoAvx()))(dstRegister, src2Register, MakeVariable128SymbolAddress(src3));
+	CommitSymbolRegisterMdAvx(dst, dstRegister);
 }
 
 template <typename MDOPSHIFT, uint8 SAMASK>

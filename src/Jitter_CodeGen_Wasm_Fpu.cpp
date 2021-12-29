@@ -136,7 +136,8 @@ void CCodeGen_Wasm::Emit_Fp_ToIntTrunc_MemMem(const STATEMENT& statement)
 	PrepareSymbolDef(dst);
 	PrepareSymbolUse(src1);
 
-	m_functionStream.Write8(Wasm::INST_I32_TRUNC_F32_S);
+	m_functionStream.Write8(Wasm::INST_PREFIX_FC);
+	m_functionStream.Write8(Wasm::INST_I32_TRUNC_SAT_F32_S);
 
 	//Can't use CommitSymbol here since dst is a FP_SINGLE
 	m_functionStream.Write8(Wasm::INST_I32_STORE);

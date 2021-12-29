@@ -34,6 +34,7 @@ namespace Wasm
 
 	enum INST_PREFIX
 	{
+		INST_PREFIX_FC = 0xFC,
 		INST_PREFIX_SIMD = 0xFD,
 	};
 
@@ -125,6 +126,11 @@ namespace Wasm
 		INST_F32_CONVERT_I32_S = 0xB2,
 		INST_I32x4_TRUNC_SAT_F32x4_S = 0xF8,
 		INST_F32x4_CONVERT_I32x4_S = 0xFA
+	};
+
+	enum INST_CODE_FC
+	{
+		INST_I32_TRUNC_SAT_F32_S = 0x00,
 	};
 
 	enum INST_CODE_SIMD

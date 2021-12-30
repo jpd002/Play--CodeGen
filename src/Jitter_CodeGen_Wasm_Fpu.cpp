@@ -84,6 +84,9 @@ void CCodeGen_Wasm::Emit_Fp_Cmp_AnyMemMem(const STATEMENT& statement)
 	case CONDITION_BE:
 		m_functionStream.Write8(Wasm::INST_F32_LE);
 		break;
+	case CONDITION_AB:
+		m_functionStream.Write8(Wasm::INST_F32_GT);
+		break;
 	default:
 		assert(false);
 		break;

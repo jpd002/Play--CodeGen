@@ -178,6 +178,7 @@ namespace Jitter
 
 		void Emit_ExtLow64VarMem64(const STATEMENT&);
 		void Emit_ExtHigh64VarMem64(const STATEMENT&);
+		void Emit_MergeTo64_Mem64AnyAny(const STATEMENT&);
 
 		//FPU
 		template <uint32> void Emit_Fpu_MemMem(const STATEMENT&);

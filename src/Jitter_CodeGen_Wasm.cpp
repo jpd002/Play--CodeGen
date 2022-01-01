@@ -71,6 +71,7 @@ void CCodeGen_Wasm::Emit_Div_Tmp64AnyAny(const STATEMENT& statement)
 CCodeGen_Wasm::CONSTMATCHER CCodeGen_Wasm::g_constMatchers[] =
 {
 	{ OP_NOP,            MATCH_NIL,            MATCH_NIL,            MATCH_NIL,           MATCH_NIL,      &CCodeGen_Wasm::Emit_Nop                                    },
+	{ OP_BREAK,          MATCH_NIL,            MATCH_NIL,            MATCH_NIL,           MATCH_NIL,      &CCodeGen_Wasm::Emit_Break                                  },
 
 	{ OP_MOV,            MATCH_VARIABLE,       MATCH_ANY,            MATCH_NIL,           MATCH_NIL,      &CCodeGen_Wasm::Emit_Mov_VarAny                             },
 
@@ -791,6 +792,11 @@ void CCodeGen_Wasm::MarkLabel(const STATEMENT& statement)
 
 void CCodeGen_Wasm::Emit_Nop(const STATEMENT& statement)
 {
+}
+
+void CCodeGen_Wasm::Emit_Break(const STATEMENT& statement)
+{
+	m_functionStream.Write8(Wasm::INST_UNREACHABLE);
 }
 
 void CCodeGen_Wasm::Emit_Mov_VarAny(const STATEMENT& statement)

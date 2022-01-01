@@ -45,6 +45,7 @@ namespace Wasm
 
 	enum INST_CODE
 	{
+		INST_UNREACHABLE = 0x00,
 		INST_BLOCK = 0x02,
 		INST_IF = 0x04,
 		INST_ELSE = 0x05,

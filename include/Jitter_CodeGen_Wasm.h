@@ -110,6 +110,7 @@ namespace Jitter
 		void MarkLabel(const STATEMENT&);
 
 		void Emit_Nop(const STATEMENT&);
+		void Emit_Break(const STATEMENT&);
 
 		void Emit_Mov_VarAny(const STATEMENT&);
 

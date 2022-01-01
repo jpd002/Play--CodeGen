@@ -374,6 +374,7 @@ void CCodeGen_Wasm::BuildLabelFlows(const StatementList& statements)
 		m_labelFlows.insert(std::make_pair(statement.jmpBlock, LABEL_FLOW_BLOCK));
 	}
 
+#ifdef _DEBUG
 	//Validate jmps to other blocks: we can only jump to the next block
 	for(auto outerStatementIterator = statements.begin();
 	    outerStatementIterator != statements.end(); outerStatementIterator++)
@@ -405,6 +406,7 @@ void CCodeGen_Wasm::BuildLabelFlows(const StatementList& statements)
 			break;
 		}
 	}
+#endif
 }
 
 void CCodeGen_Wasm::PrepareSignatures(CWasmModuleBuilder& moduleBuilder, const StatementList& statements)

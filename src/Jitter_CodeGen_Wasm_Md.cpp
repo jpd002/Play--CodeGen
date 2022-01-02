@@ -4,6 +4,9 @@
 
 using namespace Jitter;
 
+static const uint8 g_packHBShuffle[0x10] = { 0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30 };
+static const uint8 g_packWHShuffle[0x10] = { 0, 1, 4, 5, 8, 9, 12, 13, 16, 17, 20, 21, 24, 25, 28, 29 };
+
 static const uint8 g_unpackLowerWDShuffle[0x10] = { 0, 1, 2, 3, 16, 17, 18, 19, 4, 5, 6, 7, 20, 21, 22, 23 };
 static const uint8 g_unpackUpperWDShuffle[0x10] = { 8, 9, 10, 11, 24, 25, 26, 27, 12, 13, 14, 15, 28, 29, 30, 31 };
 
@@ -359,6 +362,9 @@ CCodeGen_Wasm::CONSTMATCHER CCodeGen_Wasm::g_mdConstMatchers[] =
 
 	{ OP_MD_EXPAND,      MATCH_MEMORY128,      MATCH_MEMORY,         MATCH_NIL,           MATCH_NIL,      &CCodeGen_Wasm::Emit_Md_Expand_MemAny                         },
 	{ OP_MD_EXPAND,      MATCH_MEMORY128,      MATCH_CONSTANT,       MATCH_NIL,           MATCH_NIL,      &CCodeGen_Wasm::Emit_Md_Expand_MemAny                         },
+
+	{ OP_MD_PACK_HB,     MATCH_MEMORY128,      MATCH_MEMORY128,      MATCH_MEMORY128,     MATCH_NIL,      &CCodeGen_Wasm::Emit_Md_Unpack_MemMemMemRev<g_packHBShuffle>  },
+	{ OP_MD_PACK_WH,     MATCH_MEMORY128,      MATCH_MEMORY128,      MATCH_MEMORY128,     MATCH_NIL,      &CCodeGen_Wasm::Emit_Md_Unpack_MemMemMemRev<g_packWHShuffle>  },
 
 	{ OP_MD_UNPACK_LOWER_WD, MATCH_MEMORY128,  MATCH_MEMORY128,      MATCH_MEMORY128,     MATCH_NIL,      &CCodeGen_Wasm::Emit_Md_Unpack_MemMemMemRev<g_unpackLowerWDShuffle> },
 

@@ -504,6 +504,11 @@ void CCodeGen_Wasm::PrepareLocalVars(const StatementList& statements)
 					m_temporaryLocations[temporaryInstance] = m_localV128Count;
 					m_localV128Count++;
 					break;
+				case SYM_TEMPORARY256:
+					//Allocate 2 v128 for a 256-bit temp
+					m_temporaryLocations[temporaryInstance] = m_localV128Count;
+					m_localV128Count += 2;
+					break;
 				default:
 					assert(false);
 					break;
@@ -536,6 +541,7 @@ uint32 CCodeGen_Wasm::GetTemporaryLocation(CSymbol* symbol) const
 		localIdx = temporaryLocation + m_localI32Count + m_localI64Count + 1;
 		break;
 	case SYM_TEMPORARY128:
+	case SYM_TEMPORARY256:
 		localIdx = temporaryLocation + m_localI32Count + m_localI64Count + m_localF32Count + 1;
 		break;
 	default:

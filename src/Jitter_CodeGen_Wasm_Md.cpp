@@ -286,6 +286,120 @@ void CCodeGen_Wasm::Emit_Md_Expand_MemAny(const STATEMENT& statement)
 	CommitSymbol(dst);
 }
 
+void CCodeGen_Wasm::Emit_Md_Srl256_MemMemVar(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	auto localIdx = GetTemporaryLocation(src1);
+
+	PrepareSymbolDef(dst);
+
+	for(uint32 part = 0; part < 2; part++)
+	{
+		m_functionStream.Write8(Wasm::INST_LOCAL_GET);
+		CWasmModuleBuilder::WriteULeb128(m_functionStream, localIdx + part);
+
+		//Generate empty vector
+		{
+			m_functionStream.Write8(Wasm::INST_I32_CONST);
+			CWasmModuleBuilder::WriteSLeb128(m_functionStream, 0);
+
+			m_functionStream.Write8(Wasm::INST_PREFIX_SIMD);
+			m_functionStream.Write8(Wasm::INST_I32x4_SPLAT);
+		}
+
+		//Generate swizzle pattern
+		for(uint32 i = 0; i < 0x10; i++)
+		{
+			PrepareSymbolUse(src2);
+
+			m_functionStream.Write8(Wasm::INST_I32_CONST);
+			CWasmModuleBuilder::WriteSLeb128(m_functionStream, 0x7F);
+
+			m_functionStream.Write8(Wasm::INST_I32_AND);
+
+			m_functionStream.Write8(Wasm::INST_I32_CONST);
+			CWasmModuleBuilder::WriteSLeb128(m_functionStream, 3);
+
+			m_functionStream.Write8(Wasm::INST_I32_SHR_U);
+
+			m_functionStream.Write8(Wasm::INST_I32_CONST);
+			if(part == 0)
+			{
+				CWasmModuleBuilder::WriteSLeb128(m_functionStream, static_cast<int32>(i));
+			}
+			else
+			{
+				CWasmModuleBuilder::WriteSLeb128(m_functionStream, static_cast<int32>(i - 0x10));
+			}
+
+			m_functionStream.Write8(Wasm::INST_I32_ADD);
+
+			m_functionStream.Write8(Wasm::INST_PREFIX_SIMD);
+			m_functionStream.Write8(Wasm::INST_I8x16_REPLACE_LANE);
+			m_functionStream.Write8(i);
+		}
+
+		m_functionStream.Write8(Wasm::INST_PREFIX_SIMD);
+		CWasmModuleBuilder::WriteULeb128(m_functionStream, Wasm::INST_I8x16_SWIZZLE);
+	}
+
+	m_functionStream.Write8(Wasm::INST_PREFIX_SIMD);
+	CWasmModuleBuilder::WriteULeb128(m_functionStream, Wasm::INST_V128_OR);
+
+	CommitSymbol(dst);
+}
+
+void CCodeGen_Wasm::Emit_Md_Srl256_MemMemCst(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	auto localIdx = GetTemporaryLocation(src1);
+	auto byteShiftAmount = (src2->m_valueLow & 0x7F) / 8;
+
+	uint8 shufflePattern[0x10] = {};
+	for(uint32 i = 0; i < 0x10; i++)
+	{
+		shufflePattern[i] = i + byteShiftAmount;
+	}
+
+	PrepareSymbolDef(dst);
+
+	m_functionStream.Write8(Wasm::INST_LOCAL_GET);
+	CWasmModuleBuilder::WriteULeb128(m_functionStream, localIdx + 0);
+
+	m_functionStream.Write8(Wasm::INST_LOCAL_GET);
+	CWasmModuleBuilder::WriteULeb128(m_functionStream, localIdx + 1);
+
+	m_functionStream.Write8(Wasm::INST_PREFIX_SIMD);
+	CWasmModuleBuilder::WriteULeb128(m_functionStream, Wasm::INST_I8x16_SHUFFLE);
+	m_functionStream.Write(shufflePattern, 0x10);
+
+	CommitSymbol(dst);
+}
+
+void CCodeGen_Wasm::Emit_MergeTo256_MemMemMem(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	auto localIdx = GetTemporaryLocation(dst);
+
+	PrepareSymbolUse(src1);
+	PrepareSymbolUse(src2);
+
+	m_functionStream.Write8(Wasm::INST_LOCAL_SET);
+	CWasmModuleBuilder::WriteULeb128(m_functionStream, localIdx + 1);
+
+	m_functionStream.Write8(Wasm::INST_LOCAL_SET);
+	CWasmModuleBuilder::WriteULeb128(m_functionStream, localIdx + 0);
+}
+
 CCodeGen_Wasm::CONSTMATCHER CCodeGen_Wasm::g_mdConstMatchers[] =
 {
 	{ OP_MOV,            MATCH_MEMORY128,      MATCH_MEMORY128,      MATCH_NIL,           MATCH_NIL,      &CCodeGen_Wasm::Emit_Md_Mov_MemMem                            },
@@ -369,6 +483,11 @@ CCodeGen_Wasm::CONSTMATCHER CCodeGen_Wasm::g_mdConstMatchers[] =
 	{ OP_MD_UNPACK_LOWER_WD, MATCH_MEMORY128,  MATCH_MEMORY128,      MATCH_MEMORY128,     MATCH_NIL,      &CCodeGen_Wasm::Emit_Md_Unpack_MemMemMemRev<g_unpackLowerWDShuffle> },
 
 	{ OP_MD_UNPACK_UPPER_WD, MATCH_MEMORY128,  MATCH_MEMORY128,      MATCH_MEMORY128,     MATCH_NIL,      &CCodeGen_Wasm::Emit_Md_Unpack_MemMemMemRev<g_unpackUpperWDShuffle> },
+
+	{ OP_MD_SRL256,      MATCH_VARIABLE128,    MATCH_MEMORY256,      MATCH_VARIABLE,      MATCH_NIL,      &CCodeGen_Wasm::Emit_Md_Srl256_MemMemVar                      },
+	{ OP_MD_SRL256,      MATCH_VARIABLE128,    MATCH_MEMORY256,      MATCH_CONSTANT,      MATCH_NIL,      &CCodeGen_Wasm::Emit_Md_Srl256_MemMemCst                      },
+
+	{ OP_MERGETO256,     MATCH_MEMORY256,      MATCH_VARIABLE128,    MATCH_VARIABLE128,   MATCH_NIL,      &CCodeGen_Wasm::Emit_MergeTo256_MemMemMem                     },
 
 	{ OP_MOV,            MATCH_NIL,            MATCH_NIL,            MATCH_NIL,           MATCH_NIL,      nullptr                                                       },
 };

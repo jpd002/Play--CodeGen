@@ -190,6 +190,9 @@ CCodeGen_Wasm::CONSTMATCHER CCodeGen_Wasm::g_fpuConstMatchers[] =
 
 	{ OP_FP_CMP,         MATCH_ANY,                   MATCH_MEMORY_FP_SINGLE,  MATCH_MEMORY_FP_SINGLE,  MATCH_NIL,      &CCodeGen_Wasm::Emit_Fp_Cmp_AnyMemMem                        },
 
+	{ OP_FP_MIN,         MATCH_MEMORY_FP_SINGLE,      MATCH_MEMORY_FP_SINGLE,  MATCH_MEMORY_FP_SINGLE,  MATCH_NIL,      &CCodeGen_Wasm::Emit_Fpu_MemMemMem<Wasm::INST_F32_MIN>       },
+	{ OP_FP_MAX,         MATCH_MEMORY_FP_SINGLE,      MATCH_MEMORY_FP_SINGLE,  MATCH_MEMORY_FP_SINGLE,  MATCH_NIL,      &CCodeGen_Wasm::Emit_Fpu_MemMemMem<Wasm::INST_F32_MAX>       },
+
 	{ OP_FP_RCPL,        MATCH_MEMORY_FP_SINGLE,      MATCH_MEMORY_FP_SINGLE,  MATCH_NIL,               MATCH_NIL,      &CCodeGen_Wasm::Emit_Fp_Rcpl_MemMem                          },
 	{ OP_FP_SQRT,        MATCH_MEMORY_FP_SINGLE,      MATCH_MEMORY_FP_SINGLE,  MATCH_NIL,               MATCH_NIL,      &CCodeGen_Wasm::Emit_Fpu_MemMem<Wasm::INST_F32_SQRT>         },
 	{ OP_FP_RSQRT,       MATCH_MEMORY_FP_SINGLE,      MATCH_MEMORY_FP_SINGLE,  MATCH_NIL,               MATCH_NIL,      &CCodeGen_Wasm::Emit_Fp_Rsqrt_MemMem                         },

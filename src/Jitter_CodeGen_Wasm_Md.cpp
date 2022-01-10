@@ -8,9 +8,11 @@ static const uint8 g_packHBShuffle[0x10] = { 0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 
 static const uint8 g_packWHShuffle[0x10] = { 0, 1, 4, 5, 8, 9, 12, 13, 16, 17, 20, 21, 24, 25, 28, 29 };
 
 static const uint8 g_unpackLowerBHShuffle[0x10] = { 0, 16, 1, 17, 2, 18, 3, 19, 4, 20, 5, 21, 6, 22, 7, 23 };
+static const uint8 g_unpackLowerHWShuffle[0x10] = { 0, 1, 16, 17, 2, 3, 18, 19, 4, 5, 20, 21, 6, 7, 22, 23 };
 static const uint8 g_unpackLowerWDShuffle[0x10] = { 0, 1, 2, 3, 16, 17, 18, 19, 4, 5, 6, 7, 20, 21, 22, 23 };
 
 static const uint8 g_unpackUpperBHShuffle[0x10] = { 8, 24, 9, 25, 10, 26, 11, 27, 12, 28, 13, 29, 14, 30, 15, 31 };
+static const uint8 g_unpackUpperHWShuffle[0x10] = { 8, 9, 24, 25, 10, 11, 26, 27, 12, 13, 28, 29, 14, 15, 30, 31 };
 static const uint8 g_unpackUpperWDShuffle[0x10] = { 8, 9, 10, 11, 24, 25, 26, 27, 12, 13, 14, 15, 28, 29, 30, 31 };
 
 template <uint32 OP>
@@ -484,9 +486,11 @@ CCodeGen_Wasm::CONSTMATCHER CCodeGen_Wasm::g_mdConstMatchers[] =
 	{ OP_MD_PACK_WH,     MATCH_MEMORY128,      MATCH_MEMORY128,      MATCH_MEMORY128,     MATCH_NIL,      &CCodeGen_Wasm::Emit_Md_Unpack_MemMemMemRev<g_packWHShuffle>  },
 
 	{ OP_MD_UNPACK_LOWER_BH, MATCH_MEMORY128,  MATCH_MEMORY128,      MATCH_MEMORY128,     MATCH_NIL,      &CCodeGen_Wasm::Emit_Md_Unpack_MemMemMemRev<g_unpackLowerBHShuffle> },
+	{ OP_MD_UNPACK_LOWER_HW, MATCH_MEMORY128,  MATCH_MEMORY128,      MATCH_MEMORY128,     MATCH_NIL,      &CCodeGen_Wasm::Emit_Md_Unpack_MemMemMemRev<g_unpackLowerHWShuffle> },
 	{ OP_MD_UNPACK_LOWER_WD, MATCH_MEMORY128,  MATCH_MEMORY128,      MATCH_MEMORY128,     MATCH_NIL,      &CCodeGen_Wasm::Emit_Md_Unpack_MemMemMemRev<g_unpackLowerWDShuffle> },
 
 	{ OP_MD_UNPACK_UPPER_BH, MATCH_MEMORY128,  MATCH_MEMORY128,      MATCH_MEMORY128,     MATCH_NIL,      &CCodeGen_Wasm::Emit_Md_Unpack_MemMemMemRev<g_unpackUpperBHShuffle> },
+	{ OP_MD_UNPACK_UPPER_HW, MATCH_MEMORY128,  MATCH_MEMORY128,      MATCH_MEMORY128,     MATCH_NIL,      &CCodeGen_Wasm::Emit_Md_Unpack_MemMemMemRev<g_unpackUpperHWShuffle> },
 	{ OP_MD_UNPACK_UPPER_WD, MATCH_MEMORY128,  MATCH_MEMORY128,      MATCH_MEMORY128,     MATCH_NIL,      &CCodeGen_Wasm::Emit_Md_Unpack_MemMemMemRev<g_unpackUpperWDShuffle> },
 
 	{ OP_MD_SRL256,      MATCH_VARIABLE128,    MATCH_MEMORY256,      MATCH_VARIABLE,      MATCH_NIL,      &CCodeGen_Wasm::Emit_Md_Srl256_MemMemVar                      },

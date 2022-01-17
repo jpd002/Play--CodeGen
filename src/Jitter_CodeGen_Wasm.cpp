@@ -152,7 +152,19 @@ EM_JS(int, RegisterExternFunction, (const char* functionName, const char* functi
 	{
 		out(`Warning: Could not find function '${fctName}' (missing export?).`);
 	}
-	let fctId = addFunction(fct, fctSig);
+	if(this.codeGenImportTable === undefined) {
+		out("Creating import table...");
+		this.codeGenImportTable = new WebAssembly.Table({
+			element: 'anyfunc',
+			initial: 32
+		});
+		this.codeGenImportTableNextIndex = 0;
+	}
+	//TODO: Check how we can use the export from the WASM module directly
+	//instead of having to wrap the wrapper
+	let wrappedFct = convertJsFunctionToWasm(fct, fctSig);
+	let fctId = this.codeGenImportTableNextIndex++;
+	this.codeGenImportTable.set(fctId, wrappedFct);
 	out(`Registered function '${fctName}(${fctSig})' = > id = ${fctId}.`);
 	return fctId;
 });

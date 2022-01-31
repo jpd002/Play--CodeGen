@@ -123,6 +123,124 @@ void CCodeGen_Wasm::Emit_Md_Mov_MemMem(const STATEMENT& statement)
 	CommitSymbol(dst);
 }
 
+void CCodeGen_Wasm::Emit_Md_AddSSW_MemMemMem(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+//	This is based on code from http://locklessinc.com/articles/sat_arithmetic/ modified to work without cmovns
+//	s32b sat_adds32b(s32b x, s32b y)
+//	{
+//		u32b ux = x;
+//		u32b uy = y;
+//		u32b res = ux + uy;
+//	
+//		/* Calculate overflowed result. (Don't change the sign bit of ux) */
+//		s32b ovf = (ux >> 31) + INT_MAX;
+//	
+//		s32b sign = (s32b) ((ovf ^ uy) | ~(uy ^ res))
+//		sign >>= 31;		/* Arithmetic shift, either 0 or ~0*/
+//		res = (res & sign) | (ovf & ~sign);
+//		
+//		return res;
+//	}
+
+	auto pushRes = [this, src1, src2]()
+	{
+		PrepareSymbolUse(src1);
+		PrepareSymbolUse(src2);
+
+		m_functionStream.Write8(Wasm::INST_PREFIX_SIMD);
+		CWasmModuleBuilder::WriteULeb128(m_functionStream, Wasm::INST_I32x4_ADD);
+	};
+
+	auto pushOvf = [this, src1]()
+	{
+		//Push INT_MAX vector
+		m_functionStream.Write8(Wasm::INST_I32_CONST);
+		CWasmModuleBuilder::WriteSLeb128(m_functionStream, 0x7FFFFFFF);
+
+		m_functionStream.Write8(Wasm::INST_PREFIX_SIMD);
+		m_functionStream.Write8(Wasm::INST_I32x4_SPLAT);
+		
+		//Compute (x >> 31)
+		PrepareSymbolUse(src1);
+
+		m_functionStream.Write8(Wasm::INST_I32_CONST);
+		m_functionStream.Write8(31);
+
+		m_functionStream.Write8(Wasm::INST_PREFIX_SIMD);
+		CWasmModuleBuilder::WriteULeb128(m_functionStream, Wasm::INST_I32x4_SHR_U);
+
+		//Add
+		m_functionStream.Write8(Wasm::INST_PREFIX_SIMD);
+		CWasmModuleBuilder::WriteULeb128(m_functionStream, Wasm::INST_I32x4_ADD);
+	};
+
+	auto pushSign = [this, src2, pushRes, pushOvf]()
+	{
+		//~(uy ^ res)
+		{
+			PrepareSymbolUse(src2);
+			pushRes();
+
+			m_functionStream.Write8(Wasm::INST_PREFIX_SIMD);
+			CWasmModuleBuilder::WriteULeb128(m_functionStream, Wasm::INST_V128_XOR);
+
+			m_functionStream.Write8(Wasm::INST_PREFIX_SIMD);
+			CWasmModuleBuilder::WriteULeb128(m_functionStream, Wasm::INST_V128_NOT);
+		}
+
+		//(ovf ^ uy)
+		{
+			PrepareSymbolUse(src2);
+			pushOvf();
+
+			m_functionStream.Write8(Wasm::INST_PREFIX_SIMD);
+			CWasmModuleBuilder::WriteULeb128(m_functionStream, Wasm::INST_V128_XOR);
+		}
+
+		m_functionStream.Write8(Wasm::INST_PREFIX_SIMD);
+		CWasmModuleBuilder::WriteULeb128(m_functionStream, Wasm::INST_V128_OR);
+
+		//extract sign
+		m_functionStream.Write8(Wasm::INST_I32_CONST);
+		m_functionStream.Write8(31);
+
+		m_functionStream.Write8(Wasm::INST_PREFIX_SIMD);
+		CWasmModuleBuilder::WriteULeb128(m_functionStream, Wasm::INST_I32x4_SHR_S);
+	};
+
+	PrepareSymbolDef(dst);
+
+	//(res & sign)
+	{
+		pushRes();
+		pushSign();
+
+		m_functionStream.Write8(Wasm::INST_PREFIX_SIMD);
+		CWasmModuleBuilder::WriteULeb128(m_functionStream, Wasm::INST_V128_AND);
+	}
+
+	//(ovf & ~sign)
+	{
+		pushOvf();
+		pushSign();
+
+		m_functionStream.Write8(Wasm::INST_PREFIX_SIMD);
+		CWasmModuleBuilder::WriteULeb128(m_functionStream, Wasm::INST_V128_NOT);
+
+		m_functionStream.Write8(Wasm::INST_PREFIX_SIMD);
+		CWasmModuleBuilder::WriteULeb128(m_functionStream, Wasm::INST_V128_AND);
+	}
+
+	m_functionStream.Write8(Wasm::INST_PREFIX_SIMD);
+	CWasmModuleBuilder::WriteULeb128(m_functionStream, Wasm::INST_V128_OR);
+
+	CommitSymbol(dst);
+}
+
 void CCodeGen_Wasm::Emit_Md_AddUSW_MemMemMem(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
@@ -415,6 +533,7 @@ CCodeGen_Wasm::CONSTMATCHER CCodeGen_Wasm::g_mdConstMatchers[] =
 
 	{ OP_MD_ADDSS_B,     MATCH_MEMORY128,      MATCH_MEMORY128,      MATCH_MEMORY128,     MATCH_NIL,      &CCodeGen_Wasm::Emit_Md_MemMemMem<Wasm::INST_I8x16_ADD_SAT_S> },
 	{ OP_MD_ADDSS_H,     MATCH_MEMORY128,      MATCH_MEMORY128,      MATCH_MEMORY128,     MATCH_NIL,      &CCodeGen_Wasm::Emit_Md_MemMemMem<Wasm::INST_I16x8_ADD_SAT_S> },
+	{ OP_MD_ADDSS_W,     MATCH_MEMORY128,      MATCH_MEMORY128,      MATCH_MEMORY128,     MATCH_NIL,      &CCodeGen_Wasm::Emit_Md_AddSSW_MemMemMem                      },
 
 	{ OP_MD_ADDUS_B,     MATCH_MEMORY128,      MATCH_MEMORY128,      MATCH_MEMORY128,     MATCH_NIL,      &CCodeGen_Wasm::Emit_Md_MemMemMem<Wasm::INST_I8x16_ADD_SAT_U> },
 	{ OP_MD_ADDUS_H,     MATCH_MEMORY128,      MATCH_MEMORY128,      MATCH_MEMORY128,     MATCH_NIL,      &CCodeGen_Wasm::Emit_Md_MemMemMem<Wasm::INST_I16x8_ADD_SAT_U> },

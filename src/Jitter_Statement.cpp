@@ -258,11 +258,17 @@ void Jitter::DumpStatementList(std::ostream& outputStream, const StatementList& 
 		case OP_MD_SUBSS_H:
 			outputStream << " -(SSH) ";
 			break;
+		case OP_MD_SUBSS_W:
+			outputStream << " -(SSW) ";
+			break;
 		case OP_MD_SUBUS_B:
 			outputStream << " -(USB) ";
 			break;
 		case OP_MD_SUBUS_H:
 			outputStream << " -(USH) ";
+			break;
+		case OP_MD_SUBUS_W:
+			outputStream << " -(USW) ";
 			break;
 		case OP_MD_SLLW:
 			outputStream << " <<(W) ";

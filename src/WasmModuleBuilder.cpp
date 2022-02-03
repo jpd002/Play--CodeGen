@@ -1,5 +1,6 @@
 #include "WasmModuleBuilder.h"
 #include <cassert>
+#include <cstring>
 #include "WasmDefs.h"
 
 static void WriteName(Framework::CStream& stream, const char* str)

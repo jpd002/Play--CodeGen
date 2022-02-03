@@ -200,10 +200,8 @@ namespace Jitter
 		uint32			jmpBlock;
 		CONDITION		jmpCondition;
 
-		typedef std::function<void (SymbolRefPtr&, bool)> OperandVisitor;
-		typedef std::function<void (const SymbolRefPtr&, bool)> ConstOperandVisitor;
-
-		void VisitOperands(const OperandVisitor& visitor)
+		template <typename F>
+		void VisitOperands(const F& visitor)
 		{
 			if(dst) visitor(dst, true);
 			if(src1) visitor(src1, false);
@@ -211,7 +209,8 @@ namespace Jitter
 			if(src3) visitor(src3, false);
 		}
 
-		void VisitOperands(const ConstOperandVisitor& visitor) const
+		template <typename F>
+		void VisitOperands(const F& visitor) const
 		{
 			if(dst) visitor(dst, true);
 			if(src1) visitor(src1, false);
@@ -219,19 +218,22 @@ namespace Jitter
 			if(src3) visitor(src3, false);
 		}
 
-		void VisitDestination(const ConstOperandVisitor& visitor) const
+		template <typename F>
+		void VisitDestination(const F& visitor) const
 		{
 			if(dst) visitor(dst, true);
 		}
 
-		void VisitSources(const OperandVisitor& visitor)
+		template <typename F>
+		void VisitSources(const F& visitor)
 		{
 			if(src1) visitor(src1, false);
 			if(src2) visitor(src2, false);
 			if(src3) visitor(src3, false);
 		}
 		
-		void VisitSources(const ConstOperandVisitor& visitor) const
+		template <typename F>
+		void VisitSources(const F& visitor) const
 		{
 			if(src1) visitor(src1, false);
 			if(src2) visitor(src2, false);

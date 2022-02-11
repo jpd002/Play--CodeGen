@@ -7,8 +7,7 @@
 class CMdCallTest : public CTest
 {
 public:
-						CMdCallTest();
-	virtual				~CMdCallTest();
+	virtual				~CMdCallTest() = default;
 
 	void				Compile(Jitter::CJitter&) override;
 	void				Run() override;

@@ -3,16 +3,6 @@
 
 #define FUNCTION_MASK	(0x0A)
 
-CMdCallTest::CMdCallTest()
-{
-
-}
-
-CMdCallTest::~CMdCallTest()
-{
-
-}
-
 uint32 CMdCallTest::MdInputFunction(const uint128& value, uint32 mask)
 {
 	assert(mask == FUNCTION_MASK);
@@ -48,6 +38,12 @@ CMdCallTest::uint128 CMdCallTest::MdOutputFunction(uint32 mask)
 
 void CMdCallTest::Compile(Jitter::CJitter& jitter)
 {
+	if(!jitter.GetCodeGen()->Has128BitsCallOperands())
+	{
+		printf("Warning: Skipping MdCallTest because 128-bits call operands are not supported.\n");
+		return;
+	}
+
 	Framework::CMemStream codeStream;
 	jitter.SetStream(&codeStream);
 
@@ -88,6 +84,8 @@ void CMdCallTest::Compile(Jitter::CJitter& jitter)
 
 void CMdCallTest::Run()
 {
+	if(m_function.IsEmpty()) return;
+
 	CONTEXT ALIGN16 context;
 	memset(&context, 0, sizeof(CONTEXT));
 	

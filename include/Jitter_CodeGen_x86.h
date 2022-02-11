@@ -15,6 +15,7 @@ namespace Jitter
 		void			GenerateCode(const StatementList&, unsigned int) override;
 		void			SetStream(Framework::CStream*) override;
 		void			RegisterExternalSymbols(CObjectFile*) const override;
+		bool			Has128BitsCallOperands() const override;
 
 	protected:
 		typedef std::map<uint32, CX86Assembler::LABEL> LabelMapType;

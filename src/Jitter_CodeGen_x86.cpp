@@ -300,6 +300,11 @@ void CCodeGen_x86::RegisterExternalSymbols(CObjectFile*) const
 	//Nothing to register
 }
 
+bool CCodeGen_x86::Has128BitsCallOperands() const
+{
+	return true;
+}
+
 CX86Assembler::LABEL CCodeGen_x86::GetLabel(uint32 blockId)
 {
 	CX86Assembler::LABEL result;

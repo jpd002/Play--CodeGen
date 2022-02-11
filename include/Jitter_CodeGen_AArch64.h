@@ -19,6 +19,7 @@ namespace Jitter
 		void            RegisterExternalSymbols(CObjectFile*) const override;
 		unsigned int    GetAvailableRegisterCount() const override;
 		unsigned int    GetAvailableMdRegisterCount() const override;
+		bool            Has128BitsCallOperands() const override;
 		bool            CanHold128BitsReturnValueInRegisters() const override;
 		uint32          GetPointerSize() const override;
 

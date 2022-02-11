@@ -28,6 +28,7 @@ namespace Jitter
 		unsigned int							GetAvailableRegisterCount() const override;
 		unsigned int							GetAvailableMdRegisterCount() const override;
 		bool									CanHold128BitsReturnValueInRegisters() const override;
+		bool									Has128BitsCallOperands() const override;
 		uint32									GetPointerSize() const override;
 
 	private:

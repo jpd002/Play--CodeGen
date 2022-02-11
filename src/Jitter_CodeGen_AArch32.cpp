@@ -260,6 +260,11 @@ unsigned int CCodeGen_AArch32::GetAvailableMdRegisterCount() const
 	return 0;
 }
 
+bool CCodeGen_AArch32::Has128BitsCallOperands() const
+{
+	return true;
+}
+
 bool CCodeGen_AArch32::CanHold128BitsReturnValueInRegisters() const
 {
 	return false;

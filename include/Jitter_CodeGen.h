@@ -29,6 +29,7 @@ namespace Jitter
 		virtual void			GenerateCode(const StatementList&, unsigned int) = 0;
 		virtual unsigned int	GetAvailableRegisterCount() const = 0;
 		virtual unsigned int	GetAvailableMdRegisterCount() const = 0;
+		virtual bool			Has128BitsCallOperands() const = 0;
 		virtual bool			CanHold128BitsReturnValueInRegisters() const = 0;
 		virtual void			RegisterExternalSymbols(CObjectFile*) const = 0;
 		virtual uint32			GetPointerSize() const = 0;

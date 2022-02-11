@@ -406,6 +406,11 @@ unsigned int CCodeGen_AArch64::GetAvailableMdRegisterCount() const
 	return MAX_MDREGISTERS;
 }
 
+bool CCodeGen_AArch64::Has128BitsCallOperands() const
+{
+	return true;
+}
+
 bool CCodeGen_AArch64::CanHold128BitsReturnValueInRegisters() const
 {
 	return true;

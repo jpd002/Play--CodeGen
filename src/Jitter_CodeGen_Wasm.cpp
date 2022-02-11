@@ -311,6 +311,11 @@ unsigned int CCodeGen_Wasm::GetAvailableMdRegisterCount() const
 	return 0;
 }
 
+bool CCodeGen_Wasm::Has128BitsCallOperands() const
+{
+	return false;
+}
+
 bool CCodeGen_Wasm::CanHold128BitsReturnValueInRegisters() const
 {
 	return false;

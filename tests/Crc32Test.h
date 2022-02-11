@@ -4,15 +4,23 @@
 #include "MemoryFunction.h"
 #include <string>
 
+extern "C" uint32 CCrc32Test_GetNextByte(void*);
+extern "C" uint32 CCrc32Test_GetTableValue(uint32);
+
 class CCrc32Test : public CTest
 {
 public:
 						CCrc32Test(const char*, uint32);
 
+	static void			PrepareExternalFunctions();
+
 	void				Run() override;
 	void				Compile(Jitter::CJitter&) override;
 
 private:
+	friend uint32 (::CCrc32Test_GetNextByte)(void*);
+	friend uint32 (::CCrc32Test_GetTableValue)(uint32);
+
 	enum STATE
 	{
 		STATE_TEST,
@@ -31,10 +39,7 @@ private:
 	void				CompileTestFunction(Jitter::CJitter&);
 	void				CompileComputeFunction(Jitter::CJitter&);
 
-	static uint32		GetNextByte(CONTEXT*);
 	uint32				GetNextByteImpl();
-
-	static uint32		GetTableValue(uint32);
 
 	CONTEXT				m_context;
 	CMemoryFunction		m_testFunction;

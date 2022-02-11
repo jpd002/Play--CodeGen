@@ -1,5 +1,4 @@
-#ifndef _CALL64TEST_H_
-#define _CALL64TEST_H_
+#pragma once
 
 #include "Test.h"
 #include "MemoryFunction.h"
@@ -7,18 +6,14 @@
 class CCall64Test : public CTest
 {
 public:
-						CCall64Test();
-	virtual				~CCall64Test();
+	virtual				~CCall64Test() = default;
+
+	static void			PrepareExternalFunctions();
 
 	void				Compile(Jitter::CJitter&);
 	void				Run();
 
 private:
-	struct uint128
-	{
-		float v[4];
-	};
-
 	struct CONTEXT
 	{
 		uint64			value0;
@@ -37,5 +32,3 @@ private:
 
 	CMemoryFunction		m_function;
 };
-
-#endif

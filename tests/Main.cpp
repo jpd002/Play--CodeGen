@@ -166,8 +166,15 @@ static const TestFactoryFunction s_factories[] =
 	[] () { return new CExternJumpTest(); }
 };
 
+void PrepareExternalFunctions()
+{
+	CCrc32Test::PrepareExternalFunctions();
+	CCall64Test::PrepareExternalFunctions();
+}
+
 int main(int argc, const char** argv)
 {
+	PrepareExternalFunctions();
 	Jitter::CJitter jitter(Jitter::CreateCodeGen());
 	for(const auto& factory : s_factories)
 	{

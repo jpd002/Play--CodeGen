@@ -486,6 +486,17 @@ bool CJitter::FoldConstantOperation(STATEMENT& statement)
 			changed = true;
 		}
 	}
+	else if(statement.op == OP_MERGETO64)
+	{
+		if(src1cst && src2cst)
+		{
+			uint64 result = MergeConstant64(src1cst->m_valueLow, src2cst->m_valueLow);
+			statement.op = OP_MOV;
+			statement.src1 = MakeSymbolRef(MakeConstant64(result));
+			statement.src2.reset();
+			changed = true;
+		}
+	}
 	else if(statement.op == OP_MUL)
 	{
 		if(src1cst && src2cst)

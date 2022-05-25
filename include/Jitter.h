@@ -159,6 +159,8 @@ namespace Jitter
 		void							FP_Sqrt();
 		void							FP_Rsqrt();
 
+		void							FP_Clamp();
+
 		//SIMD (128-bits only)
 		virtual void					MD_PushRel(size_t);
 		virtual void					MD_PushRelExpand(size_t);

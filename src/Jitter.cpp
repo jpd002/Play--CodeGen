@@ -1109,6 +1109,19 @@ void CJitter::FP_Max()
 	m_shadow.Push(tempSym);
 }
 
+void CJitter::FP_Clamp()
+{
+	auto tempSym = MakeSymbol(SYM_FP_TMP_SINGLE, m_nextTemporary++);
+
+	STATEMENT statement;
+	statement.op = OP_FP_CLAMP;
+	statement.src1 = MakeSymbolRef(m_shadow.Pull());
+	statement.dst = MakeSymbolRef(tempSym);
+	InsertStatement(statement);
+
+	m_shadow.Push(tempSym);
+}
+
 //SIMD
 //------------------------------------------------
 void CJitter::MD_PullRel(size_t offset)

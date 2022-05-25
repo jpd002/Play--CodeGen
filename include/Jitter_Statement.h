@@ -148,6 +148,7 @@ namespace Jitter
 		OP_FP_MAX,
 		OP_FP_MIN,
 		OP_FP_CMP,
+		OP_FP_CLAMP,
 
 		OP_FP_LDCST,
 		OP_FP_TOINT_TRUNC,

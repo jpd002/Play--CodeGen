@@ -336,6 +336,11 @@ void CX86Assembler::VpminsdVo(XMMREGISTER dst, XMMREGISTER src1, const CAddress&
 	WriteVexVoOp(VEX_OPCODE_MAP_66_38, 0x39, dst, src1, src2);
 }
 
+void CX86Assembler::VpminudVo(XMMREGISTER dst, XMMREGISTER src1, const CAddress& src2)
+{
+	WriteVexVoOp(VEX_OPCODE_MAP_66_38, 0x3B, dst, src1, src2);
+}
+
 void CX86Assembler::VpackssdwVo(XMMREGISTER dst, XMMREGISTER src1, const CAddress& src2)
 {
 	WriteVexVoOp(VEX_OPCODE_MAP_66, 0x6B, dst, src1, src2);

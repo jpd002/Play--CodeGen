@@ -430,8 +430,11 @@ public:
 
 	void									VpmaxswVo(XMMREGISTER, XMMREGISTER, const CAddress&);
 	void									VpmaxsdVo(XMMREGISTER, XMMREGISTER, const CAddress&);
+	
 	void									VpminswVo(XMMREGISTER, XMMREGISTER, const CAddress&);
 	void									VpminsdVo(XMMREGISTER, XMMREGISTER, const CAddress&);
+
+	void									VpminudVo(XMMREGISTER, XMMREGISTER, const CAddress&);
 
 	void									VpackssdwVo(XMMREGISTER, XMMREGISTER, const CAddress&);
 	void									VpackuswbVo(XMMREGISTER, XMMREGISTER, const CAddress&);

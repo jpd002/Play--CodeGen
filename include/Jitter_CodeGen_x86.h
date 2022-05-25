@@ -727,6 +727,7 @@ namespace Jitter
 		void						Emit_Fp_Avx_Cmp_VarMemMem(const STATEMENT&);
 		void						Emit_Fp_Avx_Rsqrt_MemMem(const STATEMENT&);
 		void						Emit_Fp_Avx_Rcpl_MemMem(const STATEMENT&);
+		void						Emit_Fp_Avx_Clamp_MemMem(const STATEMENT&);
 		void						Emit_Fp_Avx_Mov_RelSRelI32(const STATEMENT&);
 		void						Emit_Fp_Avx_ToIntTrunc_RelRel(const STATEMENT&);
 

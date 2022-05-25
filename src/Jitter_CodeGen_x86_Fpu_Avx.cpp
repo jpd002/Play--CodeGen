@@ -75,6 +75,27 @@ void CCodeGen_x86::Emit_Fp_Avx_Rcpl_MemMem(const STATEMENT& statement)
 	m_assembler.VmovssEd(MakeMemoryFpSingleSymbolAddress(dst), resultRegister);
 }
 
+void CCodeGen_x86::Emit_Fp_Avx_Clamp_MemMem(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+
+	auto tmpIntRegister = CX86Assembler::rAX;
+	auto resultRegister = CX86Assembler::xMM0;
+	auto tmpRegister = CX86Assembler::xMM1;
+
+	//Load constants
+	m_assembler.MovId(tmpIntRegister, 0x7F7FFFFF);
+	m_assembler.VmovdVo(resultRegister, CX86Assembler::MakeRegisterAddress(tmpIntRegister));
+	m_assembler.MovId(tmpIntRegister, 0xFF7FFFFF);
+	m_assembler.VmovdVo(tmpRegister, CX86Assembler::MakeRegisterAddress(tmpIntRegister));
+
+	m_assembler.VpminsdVo(resultRegister, resultRegister, MakeMemoryFpSingleSymbolAddress(src1));
+	m_assembler.VpminudVo(resultRegister, resultRegister, CX86Assembler::MakeXmmRegisterAddress(tmpRegister));
+
+	m_assembler.VmovssEd(MakeMemoryFpSingleSymbolAddress(dst), resultRegister);
+}
+
 void CCodeGen_x86::Emit_Fp_Avx_Mov_RelSRelI32(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
@@ -113,6 +134,8 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_fpuAvxConstMatchers[] =
 	{ OP_FP_SQRT,  MATCH_MEMORY_FP_SINGLE, MATCH_MEMORY_FP_SINGLE, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Fpu_Avx_MemMem<FPUOP_SQRT> },
 	{ OP_FP_RSQRT, MATCH_MEMORY_FP_SINGLE, MATCH_MEMORY_FP_SINGLE, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Fp_Avx_Rsqrt_MemMem        },
 	{ OP_FP_RCPL,  MATCH_MEMORY_FP_SINGLE, MATCH_MEMORY_FP_SINGLE, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Fp_Avx_Rcpl_MemMem         },
+
+	{ OP_FP_CLAMP, MATCH_MEMORY_FP_SINGLE, MATCH_MEMORY_FP_SINGLE, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Fp_Avx_Clamp_MemMem },
 
 	{ OP_MOV,            MATCH_RELATIVE_FP_SINGLE, MATCH_RELATIVE_FP_INT32,  MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Fp_Avx_Mov_RelSRelI32    },
 	{ OP_FP_TOINT_TRUNC, MATCH_RELATIVE_FP_SINGLE, MATCH_RELATIVE_FP_SINGLE, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Fp_Avx_ToIntTrunc_RelRel },

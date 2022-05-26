@@ -776,6 +776,8 @@ namespace Jitter
 		virtual CX86Assembler::REGISTER PrepareRefSymbolRegisterUse(CSymbol*, CX86Assembler::REGISTER) = 0;
 
 		static const LITERAL128		g_makeSzShufflePattern;
+		static const LITERAL128		g_fpClampMask1;
+		static const LITERAL128		g_fpClampMask2;
 
 		CX86Assembler				m_assembler;
 		CX86Assembler::REGISTER*	m_registers = nullptr;

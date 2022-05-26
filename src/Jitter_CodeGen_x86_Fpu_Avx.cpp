@@ -2,6 +2,9 @@
 
 using namespace Jitter;
 
+const LITERAL128 CCodeGen_x86::g_fpClampMask1 = { 0x7F7FFFFF, 0x7F7FFFFF, 0x7F7FFFFF, 0x7F7FFFFF };
+const LITERAL128 CCodeGen_x86::g_fpClampMask2 = { 0xFF7FFFFF, 0xFF7FFFFF, 0xFF7FFFFF, 0xFF7FFFFF };
+
 template <typename FPUOP>
 void CCodeGen_x86::Emit_Fpu_Avx_MemMem(const STATEMENT& statement)
 {
@@ -80,19 +83,11 @@ void CCodeGen_x86::Emit_Fp_Avx_Clamp_MemMem(const STATEMENT& statement)
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
 
-	auto tmpIntRegister = CX86Assembler::rAX;
 	auto resultRegister = CX86Assembler::xMM0;
-	auto tmpRegister = CX86Assembler::xMM1;
 
-	//Load constants
-	m_assembler.MovId(tmpIntRegister, 0x7F7FFFFF);
-	m_assembler.VmovdVo(resultRegister, CX86Assembler::MakeRegisterAddress(tmpIntRegister));
-	m_assembler.MovId(tmpIntRegister, 0xFF7FFFFF);
-	m_assembler.VmovdVo(tmpRegister, CX86Assembler::MakeRegisterAddress(tmpIntRegister));
-
-	m_assembler.VpminsdVo(resultRegister, resultRegister, MakeMemoryFpSingleSymbolAddress(src1));
-	m_assembler.VpminudVo(resultRegister, resultRegister, CX86Assembler::MakeXmmRegisterAddress(tmpRegister));
-
+	m_assembler.VmovssEd(resultRegister, MakeMemoryFpSingleSymbolAddress(src1));
+	m_assembler.VpminsdVo(resultRegister, resultRegister, MakeConstant128Address(g_fpClampMask1));
+	m_assembler.VpminudVo(resultRegister, resultRegister, MakeConstant128Address(g_fpClampMask2));
 	m_assembler.VmovssEd(MakeMemoryFpSingleSymbolAddress(dst), resultRegister);
 }
 

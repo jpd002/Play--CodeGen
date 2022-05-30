@@ -114,44 +114,70 @@ enable_testing()
 
 set(CodeGenTest_SRC
 	../tests/AliasTest.cpp
+	../tests/AliasTest.h
 	../tests/AliasTest2.cpp
+	../tests/AliasTest2.h
 	../tests/Alu64Test.cpp
+	../tests/Alu64Test.h
 	../tests/Call64Test.cpp
-	../tests/ConditionTest.cpp
+	../tests/Call64Test.h
 	../tests/Cmp64Test.cpp
+	../tests/Cmp64Test.h
+	../tests/ConditionTest.cpp
+	../tests/ConditionTest.h
 	../tests/CompareTest.cpp
+	../tests/CompareTest.h
 	../tests/Crc32Test.cpp
+	../tests/Crc32Test.h
 	../tests/CursorTest.cpp
+	../tests/CursorTest.h
 	../tests/DivTest.cpp
+	../tests/DivTest.h
 	../tests/ExternJumpTest.cpp
 	../tests/ExternJumpTest.h
 	../tests/FpIntMixTest.cpp
+	../tests/FpIntMixTest.h
 	../tests/FpuTest.cpp
+	../tests/FpuTest.h
 	../tests/GotoTest.cpp
 	../tests/GotoTest.h
 	../tests/HugeJumpTest.cpp
+	../tests/HugeJumpTest.h
 	../tests/HugeJumpTestLiteral.cpp
 	../tests/HugeJumpTestLiteral.h
 	../tests/LogicTest.cpp
+	../tests/LogicTest.h
 	../tests/Logic64Test.cpp
+	../tests/Logic64Test.h
 	../tests/LzcTest.cpp
+	../tests/LzcTest.h
 	../tests/Main.cpp
 	../tests/MdAddTest.cpp
+	../tests/MdAddTest.h
 	../tests/MdCallTest.cpp
 	../tests/MdCallTest.h
 	../tests/MdCmpTest.cpp
+	../tests/MdCmpTest.h
 	../tests/MdFpFlagTest.cpp
 	../tests/MdFpFlagTest.h
 	../tests/MdFpTest.cpp
+	../tests/MdFpTest.h
 	../tests/MdLogicTest.cpp
+	../tests/MdLogicTest.h
 	../tests/MdManipTest.cpp
+	../tests/MdManipTest.h
 	../tests/MdMemAccessTest.cpp
 	../tests/MdMemAccessTest.h
 	../tests/MdMinMaxTest.cpp
+	../tests/MdMinMaxTest.h
 	../tests/MdShiftTest.cpp
+	../tests/MdShiftTest.h
 	../tests/MdSubTest.cpp
+	../tests/MdSubTest.h
 	../tests/MdTest.cpp
+	../tests/MdTest.h
 	../tests/MdUnpackTest.cpp
+	../tests/MdUnpackTest.h
 	../tests/MemAccessTest.cpp
 	../tests/MemAccessTest.h
 	../tests/MemAccess8Test.cpp
@@ -165,15 +191,25 @@ set(CodeGenTest_SRC
 	../tests/MemAccessRefTest.cpp
 	../tests/MemAccessRefTest.h
 	../tests/Merge64Test.cpp
+	../tests/Merge64Test.h
 	../tests/MultTest.cpp
+	../tests/MultTest.h
 	../tests/NestedIfTest.cpp
+	../tests/NestedIfTest.h
 	../tests/RandomAluTest2.cpp
+	../tests/RandomAluTest2.h
 	../tests/RandomAluTest3.cpp
+	../tests/RandomAluTest3.h
 	../tests/RandomAluTest.cpp
+	../tests/RandomAluTest.h
 	../tests/RegAllocTest.cpp
+	../tests/RegAllocTest.h
 	../tests/Shift64Test.cpp
+	../tests/Shift64Test.h
 	../tests/ShiftTest.cpp
+	../tests/ShiftTest.h
 	../tests/SimpleMdTest.cpp
+	../tests/SimpleMdTest.h
 )
 
 if(ANDROID)

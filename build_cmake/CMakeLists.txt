@@ -135,6 +135,8 @@ set(CodeGenTest_SRC
 	../tests/DivTest.h
 	../tests/ExternJumpTest.cpp
 	../tests/ExternJumpTest.h
+	../tests/FpClampTest.cpp
+	../tests/FpClampTest.h
 	../tests/FpIntMixTest.cpp
 	../tests/FpIntMixTest.h
 	../tests/FpuTest.cpp

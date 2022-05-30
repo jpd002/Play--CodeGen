@@ -13,6 +13,7 @@
 #include "AliasTest2.h"
 #include "FpuTest.h"
 #include "FpIntMixTest.h"
+#include "FpClampTest.h"
 #include "SimpleMdTest.h"
 #include "MdLogicTest.h"
 #include "MdTest.h"
@@ -112,6 +113,7 @@ static const TestFactoryFunction s_factories[] =
 	[] () { return new CMdShiftTest(31); },
 	[] () { return new CMdShiftTest(32); },
 	[] () { return new CMdShiftTest(38); },
+	[] () { return new CFpClampTest(); },
 	[] () { return new CAlu64Test(); },
 	//negative / positive
 	[] () { return new CConditionTest(false,	0xFFFFFFFE, 0xFFFFFFFE); },

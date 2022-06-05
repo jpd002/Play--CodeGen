@@ -1,13 +1,14 @@
 #pragma once
 
-#include <string.h>
-#include <math.h>
+#include <cstdio>
+#include <cstring>
+#include <cmath>
 
 #include "AlignedAlloc.h"
 #include "Jitter.h"
 #include "offsetof_def.h"
 
-#define TEST_VERIFY(a) if(!(a)) { int* p = 0; (*p) = 0; }
+#define TEST_VERIFY(a) if(!(a)) { printf("Verification failed: '%s'. Aborting.\n", #a); std::abort(); }
 
 class CTest
 {

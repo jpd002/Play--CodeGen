@@ -49,6 +49,6 @@ void CFpClampTest::Run()
 
 	m_function(&context);
 
-	TEST_VERIFY(!isunordered(context.result1, 0));
-	TEST_VERIFY(!isunordered(context.result2, 0));
+	TEST_VERIFY(!std::isunordered(context.result1, 0));
+	TEST_VERIFY(!std::isunordered(context.result2, 0));
 }

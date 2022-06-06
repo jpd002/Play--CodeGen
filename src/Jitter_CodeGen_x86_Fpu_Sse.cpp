@@ -102,6 +102,19 @@ void CCodeGen_x86::Emit_Fp_Rcpl_MemMem(const STATEMENT& statement)
 	m_assembler.MovssEd(MakeMemoryFpSingleSymbolAddress(dst), resultRegister);
 }
 
+void CCodeGen_x86::Emit_Fp_Clamp_MemMem(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+
+	auto resultRegister = CX86Assembler::xMM0;
+
+	m_assembler.MovssEd(resultRegister, MakeMemoryFpSingleSymbolAddress(src1));
+	m_assembler.PminsdVo(resultRegister, MakeConstant128Address(g_fpClampMask1));
+	m_assembler.PminudVo(resultRegister, MakeConstant128Address(g_fpClampMask2));
+	m_assembler.MovssEd(MakeMemoryFpSingleSymbolAddress(dst), resultRegister);
+}
+
 void CCodeGen_x86::Emit_Fp_Mov_RelSRelI32(const STATEMENT& statement)
 {
 	CSymbol* dst = statement.dst->GetSymbol().get();
@@ -141,6 +154,8 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_fpuSseConstMatchers[] =
 	{ OP_FP_SQRT,  MATCH_MEMORY_FP_SINGLE, MATCH_MEMORY_FP_SINGLE, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Fpu_MemMem<FPUOP_SQRT> },
 	{ OP_FP_RSQRT, MATCH_MEMORY_FP_SINGLE, MATCH_MEMORY_FP_SINGLE, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Fp_Rsqrt_MemMem        },
 	{ OP_FP_RCPL,  MATCH_MEMORY_FP_SINGLE, MATCH_MEMORY_FP_SINGLE, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Fp_Rcpl_MemMem         },
+
+	{ OP_FP_CLAMP, MATCH_MEMORY_FP_SINGLE, MATCH_MEMORY_FP_SINGLE, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Fp_Clamp_MemMem },
 
 	{ OP_MOV,            MATCH_RELATIVE_FP_SINGLE, MATCH_RELATIVE_FP_INT32,  MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Fp_Mov_RelSRelI32    },
 	{ OP_FP_TOINT_TRUNC, MATCH_RELATIVE_FP_SINGLE, MATCH_RELATIVE_FP_SINGLE, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Fp_ToIntTrunc_RelRel },

@@ -665,6 +665,9 @@ namespace Jitter
 		//FPRCPL
 		void						Emit_Fp_Rcpl_MemMem(const STATEMENT&);
 
+		//FPCLAMP
+		void						Emit_Fp_Clamp_MemMem(const STATEMENT&);
+
 		//FP_MOV
 		void						Emit_Fp_Mov_RelSRelI32(const STATEMENT&);
 

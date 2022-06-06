@@ -307,6 +307,7 @@ public:
 	void									PmaxsdVo(XMMREGISTER, const CAddress&);
 	void									PminswVo(XMMREGISTER, const CAddress&);
 	void									PminsdVo(XMMREGISTER, const CAddress&);
+	void									PminudVo(XMMREGISTER, const CAddress&);
 	void									PmovmskbVo(REGISTER, XMMREGISTER);
 	void									PorVo(XMMREGISTER, const CAddress&);
 	void									PshufbVo(XMMREGISTER, const CAddress&);

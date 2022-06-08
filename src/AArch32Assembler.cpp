@@ -1391,6 +1391,15 @@ void CAArch32Assembler::Vmin_I32(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGIST
 	WriteWord(opcode);
 }
 
+void CAArch32Assembler::Vmin_U32(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER qm)
+{
+	uint32 opcode = 0xF3200650;
+	opcode |= FPSIMD_EncodeQd(qd);
+	opcode |= FPSIMD_EncodeQn(qn);
+	opcode |= FPSIMD_EncodeQm(qm);
+	WriteWord(opcode);
+}
+
 void CAArch32Assembler::Vmax_F32(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGISTER qm)
 {
 	uint32 opcode = 0xF2000F40;

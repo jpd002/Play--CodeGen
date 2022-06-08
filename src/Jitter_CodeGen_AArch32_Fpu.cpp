@@ -176,6 +176,31 @@ void CCodeGen_AArch32::Emit_Fp_Rsqrt_MemMem(const STATEMENT& statement)
 	StoreRegisterInMemoryFpSingle(tempRegisterContext, dst, CAArch32Assembler::s4);
 }
 
+void CCodeGen_AArch32::Emit_Fp_Clamp_MemMem(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+
+	CTempRegisterContext tempRegisterContext;
+	auto cstAddrReg = tempRegisterContext.Allocate();
+	auto tmpReg = CAArch32Assembler::q0;
+	auto cst0Reg = CAArch32Assembler::q1;
+	auto cst1Reg = CAArch32Assembler::q2;
+
+	LITERAL128 lit1(0x7F7FFFFF, 0x7F7FFFFF, 0x7F7FFFFF, 0x7F7FFFFF);
+	LITERAL128 lit2(0xFF7FFFFF, 0xFF7FFFFF, 0xFF7FFFFF, 0xFF7FFFFF);
+
+	m_assembler.Adrl(cstAddrReg, lit1);
+	m_assembler.Vld1_32x4(cst0Reg, cstAddrReg);
+	m_assembler.Adrl(cstAddrReg, lit2);
+	m_assembler.Vld1_32x4(cst1Reg, cstAddrReg);
+
+	LoadMemoryFpSingleInRegister(tempRegisterContext, static_cast<CAArch32Assembler::SINGLE_REGISTER>(tmpReg), src1);
+	m_assembler.Vmin_I32(tmpReg, tmpReg, cst0Reg);
+	m_assembler.Vmin_U32(tmpReg, tmpReg, cst1Reg);
+	StoreRegisterInMemoryFpSingle(tempRegisterContext, dst, static_cast<CAArch32Assembler::SINGLE_REGISTER>(tmpReg));
+}
+
 void CCodeGen_AArch32::Emit_Fp_Cmp_AnyMemMem(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
@@ -274,6 +299,8 @@ CCodeGen_AArch32::CONSTMATCHER CCodeGen_AArch32::g_fpuConstMatchers[] =
 	{ OP_FP_RCPL,  MATCH_MEMORY_FP_SINGLE, MATCH_MEMORY_FP_SINGLE, MATCH_NIL, MATCH_NIL, &CCodeGen_AArch32::Emit_Fp_Rcpl_MemMem         },
 	{ OP_FP_SQRT,  MATCH_MEMORY_FP_SINGLE, MATCH_MEMORY_FP_SINGLE, MATCH_NIL, MATCH_NIL, &CCodeGen_AArch32::Emit_Fpu_MemMem<FPUOP_SQRT> },
 	{ OP_FP_RSQRT, MATCH_MEMORY_FP_SINGLE, MATCH_MEMORY_FP_SINGLE, MATCH_NIL, MATCH_NIL, &CCodeGen_AArch32::Emit_Fp_Rsqrt_MemMem        },
+
+	{ OP_FP_CLAMP, MATCH_MEMORY_FP_SINGLE, MATCH_MEMORY_FP_SINGLE, MATCH_NIL, MATCH_NIL, &CCodeGen_AArch32::Emit_Fp_Clamp_MemMem },
 
 	{ OP_FP_ABS, MATCH_MEMORY_FP_SINGLE, MATCH_MEMORY_FP_SINGLE, MATCH_NIL, MATCH_NIL, &CCodeGen_AArch32::Emit_Fpu_MemMem<FPUOP_ABS> },
 	{ OP_FP_NEG, MATCH_MEMORY_FP_SINGLE, MATCH_MEMORY_FP_SINGLE, MATCH_NIL, MATCH_NIL, &CCodeGen_AArch32::Emit_Fpu_MemMem<FPUOP_NEG> },

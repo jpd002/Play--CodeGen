@@ -315,7 +315,7 @@ void CCodeGen_AArch32::GenerateCode(const StatementList& statements, unsigned in
 			found = true;
 			break;
 		}
-		//assert(found);
+		assert(found);
 		if(!found)
 		{
 			throw std::runtime_error("No suitable emitter found for statement.");

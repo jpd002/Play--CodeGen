@@ -122,6 +122,8 @@ void CCodeGen_x86_32::SetImplicitRetValueParamFixUpRequired(bool implicitRetValu
 void CCodeGen_x86_32::Emit_Prolog(const StatementList& statements, unsigned int stackSize)
 {	
 	//Compute the size needed to store all function call parameters
+	//Also check how much space we need for literals at the same time
+	m_literalOffsets.clear();
 	uint32 maxParamSize = 0;
 	uint32 maxParamSpillSize = 0;
 	{
@@ -167,23 +169,21 @@ void CCodeGen_x86_32::Emit_Prolog(const StatementList& statements, unsigned int 
 				currParamSize = 0;
 				currParamSpillSize = 0;
 				break;
+
+			//Literal Gathering
+			case OP_MD_MAKESZ:
+				if(m_hasSsse3 || m_hasAvx)
+				{
+					m_literalOffsets.insert(std::make_pair(g_makeSzShufflePattern, -1));
+				}
+				break;
+			case OP_FP_CLAMP:
+				m_literalOffsets.insert(std::make_pair(g_fpClampMask1, -1));
+				m_literalOffsets.insert(std::make_pair(g_fpClampMask2, -1));
+				break;
 			}
 		}
 	}
-
-	bool requiresMakeMdSzConstant =
-		[&] ()
-		{
-			if(!m_hasSsse3) return false;
-			for(const auto& statement : statements)
-			{
-				if(statement.op == OP_MD_MAKESZ)
-				{
-					return true;
-				}
-			}
-			return false;
-		}();
 
 	assert((stackSize & 0x0F) == 0);
 	assert((maxParamSpillSize & 0x0F) == 0);
@@ -208,14 +208,19 @@ void CCodeGen_x86_32::Emit_Prolog(const StatementList& statements, unsigned int 
 	m_assembler.SubId(CX86Assembler::MakeRegisterAddress(CX86Assembler::rSP), 0x0C);
 	m_assembler.Push(CX86Assembler::rAX);
 
-	m_literalStackAlloc = requiresMakeMdSzConstant ? 0x10 : 0;
-	if(requiresMakeMdSzConstant)
 	{
-		m_mdMakeSzConstantOffset = 0;
-		m_assembler.PushId(g_makeSzShufflePattern.w3);
-		m_assembler.PushId(g_makeSzShufflePattern.w2);
-		m_assembler.PushId(g_makeSzShufflePattern.w1);
-		m_assembler.PushId(g_makeSzShufflePattern.w0);
+		m_literalStackAlloc = m_literalOffsets.size() * 0x10;
+		int32 literalStackPointer = m_literalStackAlloc;
+		for (auto& literalPair : m_literalOffsets)
+		{
+			literalPair.second = literalStackPointer - 0x10;
+			literalStackPointer -= 0x10;
+			m_assembler.PushId(literalPair.first.w3);
+			m_assembler.PushId(literalPair.first.w2);
+			m_assembler.PushId(literalPair.first.w1);
+			m_assembler.PushId(literalPair.first.w0);
+		}
+		assert(literalStackPointer == 0);
 	}
 
 	//Allocate stack space for temps
@@ -273,9 +278,10 @@ void CCodeGen_x86_32::Emit_Epilog()
 
 CX86Assembler::CAddress CCodeGen_x86_32::MakeConstant128Address(const LITERAL128& constant)
 {
-	assert(constant == g_makeSzShufflePattern);
-	assert(m_mdMakeSzConstantOffset != -1);
-	return CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rSP, m_literalBase + m_mdMakeSzConstantOffset);
+	auto literalOffsetIterator = m_literalOffsets.find(constant);
+	assert(literalOffsetIterator != std::end(m_literalOffsets));
+	assert(literalOffsetIterator->second != -1);
+	return CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rSP, m_literalBase + literalOffsetIterator->second);
 }
 
 unsigned int CCodeGen_x86_32::GetAvailableRegisterCount() const

@@ -138,6 +138,7 @@ namespace Jitter
 
 		typedef std::function<void (CALL_STATE&)> ParamEmitterFunction;
 		typedef std::deque<ParamEmitterFunction> ParamStack;
+		typedef std::map<LITERAL128, int32> LiteralOffsets;
 		
 		typedef void (CCodeGen_x86_32::*ConstCodeEmitterType)(const STATEMENT&);
 
@@ -169,7 +170,7 @@ namespace Jitter
 		uint32								m_totalStackAlloc = 0;
 		uint32								m_literalStackAlloc = 0;
 		uint32								m_literalBase = 0;
-		int32								m_mdMakeSzConstantOffset = -1;
+		LiteralOffsets						m_literalOffsets;
 		bool								m_hasImplicitRetValueParam = false;
 		bool								m_implicitRetValueParamFixUpRequired = false;
 	};

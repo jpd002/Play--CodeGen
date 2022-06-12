@@ -131,6 +131,51 @@ void CCodeGen_Wasm::Emit_Fp_Rsqrt_MemMem(const STATEMENT& statement)
 	CommitSymbol(dst);
 }
 
+void CCodeGen_Wasm::Emit_Fp_Clamp_MemMem(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+
+	PrepareSymbolDef(dst);
+
+	{
+		PrepareSymbolUse(src1);
+
+		m_functionStream.Write8(Wasm::INST_PREFIX_SIMD);
+		m_functionStream.Write8(Wasm::INST_F32x4_SPLAT);
+	}
+	
+	//Load first constant
+	{
+		m_functionStream.Write8(Wasm::INST_I32_CONST);
+		CWasmModuleBuilder::WriteSLeb128(m_functionStream, 0x7F7FFFFF);
+
+		m_functionStream.Write8(Wasm::INST_PREFIX_SIMD);
+		m_functionStream.Write8(Wasm::INST_I32x4_SPLAT);
+	}
+
+	m_functionStream.Write8(Wasm::INST_PREFIX_SIMD);
+	m_functionStream.Write8(Wasm::INST_I32x4_MIN_S);
+
+	//Load second constant
+	{
+		m_functionStream.Write8(Wasm::INST_I32_CONST);
+		CWasmModuleBuilder::WriteSLeb128(m_functionStream, 0xFF7FFFFF);
+
+		m_functionStream.Write8(Wasm::INST_PREFIX_SIMD);
+		m_functionStream.Write8(Wasm::INST_I32x4_SPLAT);
+	}
+
+	m_functionStream.Write8(Wasm::INST_PREFIX_SIMD);
+	m_functionStream.Write8(Wasm::INST_I32x4_MIN_U);
+
+	m_functionStream.Write8(Wasm::INST_PREFIX_SIMD);
+	m_functionStream.Write8(Wasm::INST_F32x4_EXTRACT_LANE);
+	m_functionStream.Write8(0);
+
+	CommitSymbol(dst);
+}
+
 void CCodeGen_Wasm::Emit_Fp_Mov_MemSRelI32(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
@@ -196,6 +241,8 @@ CCodeGen_Wasm::CONSTMATCHER CCodeGen_Wasm::g_fpuConstMatchers[] =
 	{ OP_FP_RCPL,        MATCH_MEMORY_FP_SINGLE,      MATCH_MEMORY_FP_SINGLE,  MATCH_NIL,               MATCH_NIL,      &CCodeGen_Wasm::Emit_Fp_Rcpl_MemMem                          },
 	{ OP_FP_SQRT,        MATCH_MEMORY_FP_SINGLE,      MATCH_MEMORY_FP_SINGLE,  MATCH_NIL,               MATCH_NIL,      &CCodeGen_Wasm::Emit_Fpu_MemMem<Wasm::INST_F32_SQRT>         },
 	{ OP_FP_RSQRT,       MATCH_MEMORY_FP_SINGLE,      MATCH_MEMORY_FP_SINGLE,  MATCH_NIL,               MATCH_NIL,      &CCodeGen_Wasm::Emit_Fp_Rsqrt_MemMem                         },
+
+	{ OP_FP_CLAMP,       MATCH_MEMORY_FP_SINGLE,      MATCH_MEMORY_FP_SINGLE,  MATCH_NIL,               MATCH_NIL,      &CCodeGen_Wasm::Emit_Fp_Clamp_MemMem                         },
 
 	{ OP_FP_ABS,         MATCH_MEMORY_FP_SINGLE,      MATCH_MEMORY_FP_SINGLE,  MATCH_NIL,               MATCH_NIL,      &CCodeGen_Wasm::Emit_Fpu_MemMem<Wasm::INST_F32_ABS>          },
 	{ OP_FP_NEG,         MATCH_MEMORY_FP_SINGLE,      MATCH_MEMORY_FP_SINGLE,  MATCH_NIL,               MATCH_NIL,      &CCodeGen_Wasm::Emit_Fpu_MemMem<Wasm::INST_F32_NEG>          },

@@ -142,35 +142,35 @@ void CCodeGen_Wasm::Emit_Fp_Clamp_MemMem(const STATEMENT& statement)
 		PrepareSymbolUse(src1);
 
 		m_functionStream.Write8(Wasm::INST_PREFIX_SIMD);
-		m_functionStream.Write8(Wasm::INST_F32x4_SPLAT);
+		CWasmModuleBuilder::WriteULeb128(m_functionStream, Wasm::INST_F32x4_SPLAT);
 	}
 	
 	//Load first constant
 	{
 		m_functionStream.Write8(Wasm::INST_I32_CONST);
-		CWasmModuleBuilder::WriteSLeb128(m_functionStream, 0x7F7FFFFF);
+		CWasmModuleBuilder::WriteSLeb128(m_functionStream, static_cast<int32>(0x7F7FFFFF));
 
 		m_functionStream.Write8(Wasm::INST_PREFIX_SIMD);
-		m_functionStream.Write8(Wasm::INST_I32x4_SPLAT);
+		CWasmModuleBuilder::WriteULeb128(m_functionStream, Wasm::INST_I32x4_SPLAT);
 	}
 
 	m_functionStream.Write8(Wasm::INST_PREFIX_SIMD);
-	m_functionStream.Write8(Wasm::INST_I32x4_MIN_S);
+	CWasmModuleBuilder::WriteULeb128(m_functionStream, Wasm::INST_I32x4_MIN_S);
 
 	//Load second constant
 	{
 		m_functionStream.Write8(Wasm::INST_I32_CONST);
-		CWasmModuleBuilder::WriteSLeb128(m_functionStream, 0xFF7FFFFF);
+		CWasmModuleBuilder::WriteSLeb128(m_functionStream, static_cast<int32>(0xFF7FFFFF));
 
 		m_functionStream.Write8(Wasm::INST_PREFIX_SIMD);
-		m_functionStream.Write8(Wasm::INST_I32x4_SPLAT);
+		CWasmModuleBuilder::WriteULeb128(m_functionStream, Wasm::INST_I32x4_SPLAT);
 	}
 
 	m_functionStream.Write8(Wasm::INST_PREFIX_SIMD);
-	m_functionStream.Write8(Wasm::INST_I32x4_MIN_U);
+	CWasmModuleBuilder::WriteULeb128(m_functionStream, Wasm::INST_I32x4_MIN_U);
 
 	m_functionStream.Write8(Wasm::INST_PREFIX_SIMD);
-	m_functionStream.Write8(Wasm::INST_F32x4_EXTRACT_LANE);
+	CWasmModuleBuilder::WriteULeb128(m_functionStream, Wasm::INST_F32x4_EXTRACT_LANE);
 	m_functionStream.Write8(0);
 
 	CommitSymbol(dst);

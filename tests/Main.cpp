@@ -30,6 +30,7 @@
 #include "MdShiftTest.h"
 #include "CompareTest.h"
 #include "RegAllocTest.h"
+#include "RegAllocTempTest.h"
 #include "MemAccessTest.h"
 #include "MemAccessIdxTest.h"
 #include "MemAccess8Test.h"
@@ -56,6 +57,7 @@ static const TestFactoryFunction s_factories[] =
 {
 	[] () { return new CCompareTest(); },
 	[] () { return new CRegAllocTest(); },
+	[] () { return new CRegAllocTempTest(); },
 	[] () { return new CRandomAluTest(true); },
 	[] () { return new CRandomAluTest(false); },
 	[] () { return new CRandomAluTest2(true); },

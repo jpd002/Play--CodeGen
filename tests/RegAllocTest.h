@@ -1,5 +1,4 @@
-#ifndef _REGALLOCTEST_H_
-#define _REGALLOCTEST_H_
+#pragma once
 
 #include "Test.h"
 #include "MemoryFunction.h"
@@ -7,11 +6,10 @@
 class CRegAllocTest : public CTest
 {
 public:
-						CRegAllocTest();
-	virtual				~CRegAllocTest();
+	virtual ~CRegAllocTest() = default;
 
-	void				Compile(Jitter::CJitter&);
-	void				Run();
+	void Compile(Jitter::CJitter&);
+	void Run();
 
 private:
 	enum MAX_VARS
@@ -24,8 +22,6 @@ private:
 		uint32 number[MAX_VARS];
 	};
 
-	CONTEXT				m_context;
-	CMemoryFunction		m_function;
+	CONTEXT m_context;
+	CMemoryFunction m_function;
 };
-
-#endif

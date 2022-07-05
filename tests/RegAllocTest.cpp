@@ -5,16 +5,6 @@
 #define TEST_NUMBER1 (0xDEADDEAD)
 #define TEST_NUMBER2 (0xCAFECAFE)
 
-CRegAllocTest::CRegAllocTest()
-{
-
-}
-
-CRegAllocTest::~CRegAllocTest()
-{
-
-}
-
 void CRegAllocTest::Compile(Jitter::CJitter& jitter)
 {
 	Framework::CMemStream codeStream;

@@ -23,9 +23,20 @@ void CJitter::AllocateRegisters(BASIC_BLOCK& basicBlock)
 	std::cout << std::endl;
 #endif
 
+	//Register allocation is done per "range". A range is a sequence of instructions
+	//that ends with a OP_CALL or with the block's end. We do allocation per range
+	//because changes to relative symbols might need to be visible by functions
+	//called by the block.
+
+	//There's a downside to this which is that temporaries also get the same treatment
+	//and are spilled at the end of a range which might not always be useful.
+	//Keep in mind that a temporary can remain live across a OP_CALL.
+
 	auto allocRanges = ComputeAllocationRanges(basicBlock);
 	for(const auto& allocRange : allocRanges)
 	{
+		bool isLastRange = (allocRange.second + 1) == basicBlock.statements.size();
+
 		SymbolRegAllocInfo symbolRegAllocs;
 		ComputeLivenessForRange(basicBlock, allocRange, symbolRegAllocs);
 
@@ -84,8 +95,8 @@ void CJitter::AllocateRegisters(BASIC_BLOCK& basicBlock)
 			}
 
 			//If symbol is defined, we need to save it at the end
-			//Exception: Temporaries that are not used after the allocation range
-			bool deadTemporary = symbol->IsTemporary() && (symbolRegAlloc.lastUse <= allocRange.second);
+			//Exception: Temporaries can be discarded if we're in the last range of the block
+			bool deadTemporary = symbol->IsTemporary() && isLastRange;
 			if(!deadTemporary && (symbolRegAlloc.firstDef != -1))
 			{
 				STATEMENT statement;

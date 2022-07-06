@@ -107,6 +107,7 @@ namespace Jitter
 		void								Emit_Mov_Mem64Mem64(const STATEMENT&);
 		void								Emit_Mov_Rel64Cst64(const STATEMENT&);
 		void								Emit_Mov_RegRefMemRef(const STATEMENT&);
+		void								Emit_Mov_MemRefRegRef(const STATEMENT&);
 
 		//ALU64
 		template <typename> void			Emit_Alu64_MemMemMem(const STATEMENT&);

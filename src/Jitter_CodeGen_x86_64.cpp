@@ -222,6 +222,7 @@ CCodeGen_x86_64::CONSTMATCHER CCodeGen_x86_64::g_constMatchers[] =
 	{ OP_MOV, MATCH_RELATIVE64, MATCH_CONSTANT64, MATCH_NIL, MATCH_NIL, &CCodeGen_x86_64::Emit_Mov_Rel64Cst64 },
 
 	{ OP_MOV, MATCH_REG_REF, MATCH_MEM_REF, MATCH_NIL, MATCH_NIL, &CCodeGen_x86_64::Emit_Mov_RegRefMemRef },
+	{ OP_MOV, MATCH_MEM_REF, MATCH_REG_REF, MATCH_NIL, MATCH_NIL, &CCodeGen_x86_64::Emit_Mov_MemRefRegRef },
 
 	ALU64_CONST_MATCHERS(OP_ADD64, ALUOP64_ADD)
 	ALU64_CONST_MATCHERS(OP_SUB64, ALUOP64_SUB)
@@ -651,6 +652,16 @@ void CCodeGen_x86_64::Emit_Mov_RegRefMemRef(const STATEMENT& statement)
 	assert(dst->m_type == SYM_REG_REFERENCE);
 
 	m_assembler.MovEq(m_registers[dst->m_valueLow], MakeMemoryReferenceSymbolAddress(src1));
+}
+
+void CCodeGen_x86_64::Emit_Mov_MemRefRegRef(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+
+	assert(src1->m_type == SYM_REG_REFERENCE);
+
+	m_assembler.MovGq(MakeMemoryReferenceSymbolAddress(dst), m_registers[src1->m_valueLow]);
 }
 
 void CCodeGen_x86_64::Emit_Cmp_VarVarVar(const STATEMENT& statement)

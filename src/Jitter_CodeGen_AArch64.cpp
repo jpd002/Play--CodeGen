@@ -277,7 +277,8 @@ CCodeGen_AArch64::CONSTMATCHER CCodeGen_AArch64::g_constMatchers[] =
 	{ OP_MOV,            MATCH_MEMORY,         MATCH_MEMORY,         MATCH_NIL,           MATCH_NIL,      &CCodeGen_AArch64::Emit_Mov_MemMem                          },
 	{ OP_MOV,            MATCH_MEMORY,         MATCH_CONSTANT,       MATCH_NIL,           MATCH_NIL,      &CCodeGen_AArch64::Emit_Mov_MemCst                          },
 
-	{ OP_MOV,            MATCH_REG_REF,        MATCH_MEM_REF,        MATCH_NIL,           MATCH_NIL,      &CCodeGen_AArch64::Emit_Mov_RegRefMemRef                     },
+	{ OP_MOV,            MATCH_REG_REF,        MATCH_MEM_REF,        MATCH_NIL,           MATCH_NIL,      &CCodeGen_AArch64::Emit_Mov_RegRefMemRef                    },
+	{ OP_MOV,            MATCH_MEM_REF,        MATCH_REG_REF,        MATCH_NIL,           MATCH_NIL,      &CCodeGen_AArch64::Emit_Mov_MemRefRegRef                    },
 
 	{ OP_NOT,            MATCH_VARIABLE,       MATCH_VARIABLE,       MATCH_NIL,           MATCH_NIL,      &CCodeGen_AArch64::Emit_Not_VarVar                          },
 	{ OP_LZC,            MATCH_VARIABLE,       MATCH_VARIABLE,       MATCH_NIL,           MATCH_NIL,      &CCodeGen_AArch64::Emit_Lzc_VarVar                          },
@@ -1023,9 +1024,18 @@ void CCodeGen_AArch64::Emit_Mov_RegRefMemRef(const STATEMENT& statement)
 	auto src1 = statement.src1->GetSymbol().get();
 	
 	assert(dst->m_type == SYM_REG_REFERENCE);
-	
-	assert((src1->m_valueLow & 0x07) == 0);
-	m_assembler.Ldr(static_cast<CAArch64Assembler::REGISTER64>(g_registers[dst->m_valueLow]), g_baseRegister, src1->m_valueLow);
+
+	LoadMemoryReferenceInRegister(static_cast<CAArch64Assembler::REGISTER64>(g_registers[dst->m_valueLow]), src1);
+}
+
+void CCodeGen_AArch64::Emit_Mov_MemRefRegRef(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+
+	assert(src1->m_type == SYM_REG_REFERENCE);
+
+	StoreRegisterInTemporaryReference(dst, static_cast<CAArch64Assembler::REGISTER64>(g_registers[src1->m_valueLow]));
 }
 
 void CCodeGen_AArch64::Emit_Not_VarVar(const STATEMENT& statement)

@@ -611,6 +611,9 @@ bool CJitter::FoldConstantOperation(STATEMENT& statement)
 			case CONDITION_EQ:
 				result = src1cst->m_valueLow == src2cst->m_valueLow;
 				break;
+			case CONDITION_BL:
+				result = static_cast<uint32>(src1cst->m_valueLow) < static_cast<uint32>(src2cst->m_valueLow);
+				break;
 			case CONDITION_LE:
 				result = static_cast<int32>(src1cst->m_valueLow) <= static_cast<int32>(src2cst->m_valueLow);
 				break;

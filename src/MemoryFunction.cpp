@@ -63,7 +63,7 @@ EM_JS(int, WasmCreateFunction, (uintptr_t code, uintptr_t size),
 	let moduleInstance = new WebAssembly.Instance(module, {
 		env: {
 			memory: wasmMemory,
-			fctTable : this.codeGenImportTable
+			fctTable : Module.codeGenImportTable
 		}
 	});
 	let fct = moduleInstance.exports.codeGenFunc;

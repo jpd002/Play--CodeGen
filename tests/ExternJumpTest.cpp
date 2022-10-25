@@ -15,6 +15,12 @@ static void DumbFunctionCall(uint32 param)
 
 void CExternJumpTest::Compile(Jitter::CJitter& jitter)
 {
+	if(!jitter.GetCodeGen()->SupportsExternalJumps())
+	{
+		printf("Warning: Skipping ExternJumpTest because external jumps are not supported.\n");
+		return;
+	}
+
 	//Build target function
 	{
 		Framework::CMemStream codeStream;
@@ -75,6 +81,8 @@ void CExternJumpTest::Compile(Jitter::CJitter& jitter)
 
 void CExternJumpTest::Run()
 {
+	if(m_sourceFunction.IsEmpty()) return;
+
 	CONTEXT context;
 	context.cst1 = TEST_CST_1;
 	context.cst2 = TEST_CST_2;

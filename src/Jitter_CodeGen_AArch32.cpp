@@ -271,6 +271,11 @@ bool CCodeGen_AArch32::CanHold128BitsReturnValueInRegisters() const
 	return false;
 }
 
+bool CCodeGen_AArch32::SupportsExternalJumps() const
+{
+	return true;
+}
+
 uint32 CCodeGen_AArch32::GetPointerSize() const
 {
 	return 4;

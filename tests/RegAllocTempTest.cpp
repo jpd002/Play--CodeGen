@@ -1,5 +1,6 @@
 #include "RegAllocTempTest.h"
 #include "MemStream.h"
+#include "Jitter_CodeGen_Wasm.h"
 
 #define TEST_NUMBER1 (0xDEADDEAD)
 #define TEST_NUMBER2 (0xCAFECAFE)
@@ -7,9 +8,14 @@
 #define TEST_NUMBER4 (0x5A5A5A5A)
 #define TEST_NUMBER5 (0xA5A5A5A5)
 
-void CRegAllocTempTest::DummyFunction(uint32 value1, uint32 value2, uint32 value3)
+extern "C" void RegAllocTempTest_DummyFunction(uint32 value1, uint32 value2, uint32 value3)
 {
 
+}
+
+void CRegAllocTempTest::PrepareExternalFunctions()
+{
+	Jitter::CWasmFunctionRegistry::RegisterFunction(reinterpret_cast<uintptr_t>(&RegAllocTempTest_DummyFunction), "_RegAllocTempTest_DummyFunction", "viii");
 }
 
 void CRegAllocTempTest::Compile(Jitter::CJitter& jitter)
@@ -36,7 +42,7 @@ void CRegAllocTempTest::Compile(Jitter::CJitter& jitter)
 		jitter.PushCst(TEST_NUMBER5);
 		jitter.Add();
 
-		jitter.Call(reinterpret_cast<void*>(&DummyFunction), 3, Jitter::CJitter::RETURN_VALUE_NONE);
+		jitter.Call(reinterpret_cast<void*>(&RegAllocTempTest_DummyFunction), 3, Jitter::CJitter::RETURN_VALUE_NONE);
 
 		//Temp is still in stack, pulling it into outValue
 		jitter.PullRel(offsetof(CONTEXT, outValue));

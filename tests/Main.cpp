@@ -174,6 +174,7 @@ void PrepareExternalFunctions()
 {
 	CCrc32Test::PrepareExternalFunctions();
 	CCall64Test::PrepareExternalFunctions();
+	CRegAllocTempTest::PrepareExternalFunctions();
 }
 
 int main(int argc, const char** argv)

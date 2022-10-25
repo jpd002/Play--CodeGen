@@ -8,12 +8,12 @@ class CRegAllocTempTest : public CTest
 public:
 	virtual ~CRegAllocTempTest() = default;
 
+	static void PrepareExternalFunctions();
+
 	void Compile(Jitter::CJitter&);
 	void Run();
 
 private:
-	static void DummyFunction(uint32, uint32, uint32);
-
 	struct CONTEXT
 	{
 		uint32 inValue = 0;

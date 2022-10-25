@@ -1,10 +1,9 @@
 #include "Crc32Test.h"
 #include "MemStream.h"
+#include "Jitter_CodeGen_Wasm.h"
 
 bool		CCrc32Test::m_tableBuilt = false;
 uint32		CCrc32Test::m_table[0x100];
-
-#include "Jitter_CodeGen_Wasm.h"
 
 extern "C" uint32 CCrc32Test_GetNextByte(void* context)
 {

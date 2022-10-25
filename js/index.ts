@@ -1,7 +1,4 @@
-//Note: MdSubTest and ExternJumpTest still don't work on WebAssembly, 
-//they need to be disabled for the whole test suite to run successfully
-
-//If running this in VS code, make sure you are debugging and that you are
+//Note: If running this in VS code, make sure you are debugging and that you are
 //breaking on caught exceptions to get as much info as possible.
 
 import path from "path";

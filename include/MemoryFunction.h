@@ -2,6 +2,10 @@
 
 #include "Types.h"
 
+#if defined(__EMSCRIPTEN__)
+	#include <emscripten/bind.h>
+#endif
+
 class CMemoryFunction
 {
 public:
@@ -24,6 +28,8 @@ public:
 
 	void				BeginModify();
 	void				EndModify();
+
+	CMemoryFunction		CreateInstance();
 	
 private:
 	void				ClearCache();
@@ -31,4 +37,7 @@ private:
 
 	void*				m_code;
 	size_t				m_size;
+#if defined(__EMSCRIPTEN__)
+	emscripten::val		m_wasmModule;
+#endif
 };

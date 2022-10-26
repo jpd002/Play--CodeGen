@@ -48,18 +48,9 @@
 #include <sys/mman.h>
 #include <pthread.h>
 #elif defined(MEMFUNC_USE_WASM)
-EM_JS(int, WasmCreateFunction, (uintptr_t code, uintptr_t size),
+EM_JS(int, WasmCreateFunction, (emscripten::EM_VAL moduleHandle),
 {
-	//var fs = require('fs');
-	let moduleBytes = HEAP8.subarray(code, code + size);
-	//fs.writeFileSync('module.wasm', moduleBytes);
-	//{
-	//	let bytesCopy = new Uint8Array(moduleBytes);
-	//	let blob = new Blob([bytesCopy], { type: "binary/octet-stream" });
-	//	let url = URL.createObjectURL(blob);
-	//	console.log(url);
-	//}
-	let module = new WebAssembly.Module(moduleBytes);
+	let module = Emval.toValue(moduleHandle);
 	let moduleInstance = new WebAssembly.Instance(module, {
 		env: {
 			memory: wasmMemory,
@@ -73,6 +64,20 @@ EM_JS(int, WasmCreateFunction, (uintptr_t code, uintptr_t size),
 EM_JS(void, WasmDeleteFunction, (int fctId),
 {
 	removeFunction(fctId);
+});
+EM_JS(emscripten::EM_VAL, WasmCreateModule, (uintptr_t code, uintptr_t size),
+{
+	//var fs = require('fs');
+	let moduleBytes = HEAP8.subarray(code, code + size);
+	//fs.writeFileSync('module.wasm', moduleBytes);
+	//{
+	//	let bytesCopy = new Uint8Array(moduleBytes);
+	//	let blob = new Blob([bytesCopy], { type: "binary/octet-stream" });
+	//	let url = URL.createObjectURL(blob);
+	//	console.log(url);
+	//}
+	let module = new WebAssembly.Module(moduleBytes);
+	return Emval.toHandle(module);
 });
 #else
 #error "No API to use for CMemoryFunction"
@@ -127,8 +132,9 @@ CMemoryFunction::CMemoryFunction(const void* code, size_t size)
 	pthread_jit_write_protect_np(true);
 #endif
 #elif defined(MEMFUNC_USE_WASM)
+	m_wasmModule = emscripten::val::take_ownership(WasmCreateModule(reinterpret_cast<uintptr_t>(code), size));
 	m_size = size;
-	m_code = reinterpret_cast<void*>(WasmCreateFunction(reinterpret_cast<uintptr_t>(code), size));
+	m_code = reinterpret_cast<void*>(WasmCreateFunction(m_wasmModule.as_handle()));
 #endif
 	ClearCache();
 #if !defined(MEMFUNC_USE_WASM)
@@ -168,6 +174,9 @@ void CMemoryFunction::Reset()
 	}
 	m_code = nullptr;
 	m_size = 0;
+#if defined(MEMFUNC_USE_WASM)
+	m_wasmModule = emscripten::val();
+#endif
 }
 
 bool CMemoryFunction::IsEmpty() const
@@ -180,6 +189,9 @@ CMemoryFunction& CMemoryFunction::operator =(CMemoryFunction&& rhs)
 	Reset();
 	std::swap(m_code, rhs.m_code);
 	std::swap(m_size, rhs.m_size);
+#if defined(MEMFUNC_USE_WASM)
+	std::swap(m_wasmModule, rhs.m_wasmModule);
+#endif
 	return (*this);
 }
 
@@ -219,4 +231,17 @@ void CMemoryFunction::EndModify()
 	pthread_jit_write_protect_np(true);
 #endif
 	ClearCache();
+}
+
+CMemoryFunction CMemoryFunction::CreateInstance()
+{
+#if defined(MEMFUNC_USE_WASM)
+	CMemoryFunction result;
+	result.m_wasmModule = m_wasmModule;
+	result.m_size = m_size;
+	result.m_code = reinterpret_cast<void*>(WasmCreateFunction(m_wasmModule.as_handle()));
+	return result;
+#else
+	return CMemoryFunction(GetCode(), GetSize());
+#endif
 }

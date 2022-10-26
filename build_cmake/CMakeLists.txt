@@ -226,6 +226,7 @@ endif()
 target_link_libraries(CodeGenTestSuite CodeGen Framework ${PROJECT_LIBS})
 
 if(EMSCRIPTEN)
+	target_link_options(CodeGenTestSuite PRIVATE "--bind")
 	target_link_options(CodeGenTestSuite PRIVATE "-sMODULARIZE=1")
 	target_link_options(CodeGenTestSuite PRIVATE "-sEXPORT_NAME=CodeGenTestSuite")
 	target_link_options(CodeGenTestSuite PRIVATE "-sASSERTIONS=2")

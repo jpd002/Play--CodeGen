@@ -139,8 +139,8 @@ void CJitter::Compile()
 					bool dirty = false;
 					dirty |= ConstantPropagation(versionedStatements.statements);
 					dirty |= ConstantFolding(versionedStatements.statements);
-					dirty |= CopyPropagation(versionedStatements.statements);
 					dirty |= ReorderAdd(versionedStatements.statements);
+					dirty |= CopyPropagation(versionedStatements.statements);
 					dirty |= DeadcodeElimination(versionedStatements);
 
 					if(!dirty) break;

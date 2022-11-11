@@ -208,6 +208,8 @@ set(CodeGenTest_SRC
 	../tests/RegAllocTest.h
 	../tests/RegAllocTempTest.cpp
 	../tests/RegAllocTempTest.h
+	../tests/ReorderAddTest.cpp
+	../tests/ReorderAddTest.h
 	../tests/Shift64Test.cpp
 	../tests/Shift64Test.h
 	../tests/ShiftTest.cpp

@@ -31,6 +31,7 @@
 #include "CompareTest.h"
 #include "RegAllocTest.h"
 #include "RegAllocTempTest.h"
+#include "ReorderAddTest.h"
 #include "MemAccessTest.h"
 #include "MemAccessIdxTest.h"
 #include "MemAccess8Test.h"
@@ -69,6 +70,7 @@ static const TestFactoryFunction s_factories[] =
 	[] () { return new CShiftTest(31); },
 	[] () { return new CShiftTest(32); },
 	[] () { return new CShiftTest(44); },
+	[] () { return new CReorderAddTest(); },
 	[] () { return new CCrc32Test("Hello World!", 0x67FCDACC); },
 	[] () { return new CCursorTest(); },
 	[] () { return new CLogicTest(0, false, ~0, false); },

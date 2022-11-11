@@ -1113,40 +1113,41 @@ bool CJitter::ReorderAdd(StatementList& statements)
 {
 	bool changed = false;
 
-	for(auto outerStatementIterator(statements.begin());
-		statements.end() != outerStatementIterator; ++outerStatementIterator)
+	for(auto statementIterator(statements.begin());
+		statements.end() != statementIterator; ++statementIterator)
 	{
-		STATEMENT& outerStatement(*outerStatementIterator);
+		auto& statement(*statementIterator);
 
-		//Some operations we can't propagate
-		if(outerStatement.op != OP_ADD) continue;
+		//We're only interested by additions
+		if(statement.op != OP_ADD) continue;
 
-		CSymbolRef* outerDstSymbol = outerStatement.dst.get();
-		assert(outerDstSymbol);
+		//Do some more checks
+		auto addDst = statement.dst.get();
+		assert(addDst);
 
-		CSymbol* outerSrc2cst = dynamic_symbolref_cast(SYM_CONSTANT, outerStatement.src2);
+		auto addSrc2Cst = dynamic_symbolref_cast(SYM_CONSTANT, statement.src2);
+
 		//Don't mess with relatives
-		if(outerDstSymbol->GetSymbol()->IsRelative() || !outerSrc2cst)
+		if(addDst->GetSymbol()->IsRelative() || !addSrc2Cst)
 		{
 			continue;
 		}
 
 		//Check for OP_SLL that uses the result of this operation and propagate the shift
-		auto innerStatementIterator = std::next(outerStatementIterator);
-		STATEMENT& innerStatement(*innerStatementIterator);
-		if(innerStatement.op == OP_SLL && innerStatement.src1->Equals(outerDstSymbol))
+		auto nextStatementIterator = std::next(statementIterator);
+		auto& nextStatement(*nextStatementIterator);
+		if(nextStatement.op == OP_SLL && nextStatement.src1->Equals(addDst))
 		{
-			CSymbol* innerSrc2cst = dynamic_symbolref_cast(SYM_CONSTANT, innerStatement.src2);
-			if(innerSrc2cst)
+			auto shiftSrc2Cst = dynamic_symbolref_cast(SYM_CONSTANT, nextStatement.src2);
+			if(shiftSrc2Cst)
 			{
-				uint32 result = outerSrc2cst->m_valueLow << innerSrc2cst->m_valueLow;
+				uint32 result = addSrc2Cst->m_valueLow << shiftSrc2Cst->m_valueLow;
 
-				std::swap(outerStatement, innerStatement);
-				std::swap(outerStatement.src1, innerStatement.src1);
-				std::swap(outerStatement.dst, innerStatement.dst);
-				innerStatement.src2 = MakeSymbolRef(MakeSymbol(SYM_CONSTANT, result));
+				std::swap(statement, nextStatement);
+				std::swap(statement.src1, nextStatement.src1);
+				std::swap(statement.dst, nextStatement.dst);
+				nextStatement.src2 = MakeSymbolRef(MakeSymbol(SYM_CONSTANT, result));
 				changed = true;
-
 			}
 		}
 	}

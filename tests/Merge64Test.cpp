@@ -16,6 +16,7 @@ void CMerge64Test::Run()
 
 	TEST_VERIFY(m_context.resultMemMem == MERGED_CONSTANT);
 	TEST_VERIFY(m_context.resultMemCst == MERGED_CONSTANT);
+	TEST_VERIFY(m_context.resultCstMem == MERGED_CONSTANT);
 }
 
 void CMerge64Test::Compile(Jitter::CJitter& jitter)
@@ -34,6 +35,11 @@ void CMerge64Test::Compile(Jitter::CJitter& jitter)
 		jitter.PushRel(offsetof(CONTEXT, op2));
 		jitter.MergeTo64();
 		jitter.PullRel64(offsetof(CONTEXT, resultMemCst));
+
+		jitter.PushRel(offsetof(CONTEXT, op1));
+		jitter.PushCst(CONSTANT_2);
+		jitter.MergeTo64();
+		jitter.PullRel64(offsetof(CONTEXT, resultCstMem));
 	}
 	jitter.End();
 

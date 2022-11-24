@@ -597,6 +597,7 @@ namespace Jitter
 		//MERGETO64
 		void						Emit_MergeTo64_Mem64RegReg(const STATEMENT&);
 		void						Emit_MergeTo64_Mem64RegMem(const STATEMENT&);
+		void						Emit_MergeTo64_Mem64RegCst(const STATEMENT&);
 		void						Emit_MergeTo64_Mem64MemReg(const STATEMENT&);
 		void						Emit_MergeTo64_Mem64MemMem(const STATEMENT&);
 		void						Emit_MergeTo64_Mem64CstReg(const STATEMENT&);

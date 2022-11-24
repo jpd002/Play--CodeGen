@@ -17,6 +17,7 @@ private:
 
 		uint64			resultMemMem;
 		uint64			resultMemCst;
+		uint64			resultCstMem;
 	};
 
 	CONTEXT				m_context;

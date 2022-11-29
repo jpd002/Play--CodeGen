@@ -6,12 +6,10 @@
 class CCall64Test : public CTest
 {
 public:
-	virtual				~CCall64Test() = default;
-
 	static void			PrepareExternalFunctions();
 
-	void				Compile(Jitter::CJitter&);
-	void				Run();
+	void				Compile(Jitter::CJitter&) override;
+	void				Run() override;
 
 private:
 	struct CONTEXT

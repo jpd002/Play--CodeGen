@@ -6,8 +6,6 @@
 class CExternJumpTest : public CTest
 {
 public:
-	virtual ~CExternJumpTest() = default;
-
 	void Compile(Jitter::CJitter&) override;
 	void Run() override;
 

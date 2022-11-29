@@ -8,8 +8,8 @@ class CDivTest : public CTest
 public:
 						CDivTest(bool);
 
-	void				Run();
-	void				Compile(Jitter::CJitter&);
+	void				Run() override;
+	void				Compile(Jitter::CJitter&) override;
 
 private:
 	struct CONTEXT

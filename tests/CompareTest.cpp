@@ -1,16 +1,6 @@
 #include "CompareTest.h"
 #include "MemStream.h"
 
-CCompareTest::CCompareTest()
-{
-
-}
-
-CCompareTest::~CCompareTest()
-{
-
-}
-
 void CCompareTest::Run()
 {
 	memset(&m_context, 0, sizeof(m_context));

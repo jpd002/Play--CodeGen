@@ -7,9 +7,6 @@
 class CMdManipTest : public CTest
 {
 public:
-						CMdManipTest();
-	virtual				~CMdManipTest();
-
 	void				Compile(Jitter::CJitter&) override;
 	void				Run() override;
 

@@ -6,10 +6,8 @@
 class CRegAllocTest : public CTest
 {
 public:
-	virtual ~CRegAllocTest() = default;
-
-	void Compile(Jitter::CJitter&);
-	void Run();
+	void Compile(Jitter::CJitter&) override;
+	void Run() override;
 
 private:
 	enum MAX_VARS

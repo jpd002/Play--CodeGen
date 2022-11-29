@@ -8,8 +8,8 @@ class CRandomAluTest : public CTest
 public:
 						CRandomAluTest(bool);
 
-	void				Compile(Jitter::CJitter&);
-	void				Run();
+	void				Compile(Jitter::CJitter&) override;
+	void				Run() override;
 
 private:
 	struct CONTEXT

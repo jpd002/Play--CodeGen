@@ -7,10 +7,9 @@ class CShift64Test : public CTest
 {
 public:
 						CShift64Test(uint32);
-	virtual				~CShift64Test();
 			
-	void				Run();
-	void				Compile(Jitter::CJitter&);
+	void				Run() override;
+	void				Compile(Jitter::CJitter&) override;
 
 private:
 	struct CONTEXT

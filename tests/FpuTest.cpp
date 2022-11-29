@@ -1,16 +1,6 @@
 #include "FpuTest.h"
 #include "MemStream.h"
 
-CFpuTest::CFpuTest()
-{
-
-}
-
-CFpuTest::~CFpuTest()
-{
-
-}
-
 void CFpuTest::Compile(Jitter::CJitter& jitter)
 {
 	Framework::CMemStream codeStream;

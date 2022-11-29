@@ -8,8 +8,8 @@ class CCmp64Test : public CTest
 public:
 						CCmp64Test(bool, bool, uint64, uint64);
 
-	void				Run();
-	void				Compile(Jitter::CJitter&);
+	void				Run() override;
+	void				Compile(Jitter::CJitter&) override;
 
 private:
 	struct CONTEXT

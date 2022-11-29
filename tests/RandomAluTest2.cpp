@@ -10,11 +10,6 @@ CRandomAluTest2::CRandomAluTest2(bool useConstant)
 
 }
 
-CRandomAluTest2::~CRandomAluTest2()
-{
-
-}
-
 void CRandomAluTest2::Compile(Jitter::CJitter& jitter)
 {
 	Framework::CMemStream codeStream;

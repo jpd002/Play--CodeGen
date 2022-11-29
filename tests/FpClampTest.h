@@ -6,10 +6,8 @@
 class CFpClampTest : public CTest
 {
 public:
-	virtual				~CFpClampTest() = default;
-
-	void				Compile(Jitter::CJitter&);
-	void				Run();
+	void				Compile(Jitter::CJitter&) override;
+	void				Run() override;
 
 private:
 	struct CONTEXT

@@ -8,7 +8,6 @@ class CMdShiftTest : public CTest
 {
 public:
 						CMdShiftTest(uint32);
-	virtual				~CMdShiftTest();
 			
 	void				Run() override;
 	void				Compile(Jitter::CJitter&) override;

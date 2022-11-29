@@ -1,16 +1,6 @@
 #include "FpIntMixTest.h"
 #include "MemStream.h"
 
-CFpIntMixTest::CFpIntMixTest()
-{
-
-}
-
-CFpIntMixTest::~CFpIntMixTest()
-{
-
-}
-
 void CFpIntMixTest::Compile(Jitter::CJitter& jitter)
 {
 	Framework::CMemStream codeStream;

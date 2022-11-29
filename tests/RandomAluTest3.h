@@ -1,5 +1,4 @@
-#ifndef _RANDOMALUTEST3_H_
-#define _RANDOMALUTEST3_H_
+#pragma once
 
 #include "Test.h"
 #include "MemoryFunction.h"
@@ -8,10 +7,9 @@ class CRandomAluTest3 : public CTest
 {
 public:
 						CRandomAluTest3(bool);
-	virtual				~CRandomAluTest3();
 
-	void				Compile(Jitter::CJitter&);
-	void				Run();
+	void				Compile(Jitter::CJitter&) override;
+	void				Run() override;
 
 private:
 	struct CONTEXT
@@ -24,5 +22,3 @@ private:
 	CONTEXT				m_context;
 	CMemoryFunction		m_function;
 };
-
-#endif

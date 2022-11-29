@@ -6,9 +6,6 @@
 class CFpuTest : public CTest
 {
 public:
-						CFpuTest();
-	virtual				~CFpuTest();
-
 	void				Compile(Jitter::CJitter&) override;
 	void				Run() override;
 

@@ -7,8 +7,6 @@
 class CHugeJumpTestLiteral : public CTest
 {
 public:
-	virtual ~CHugeJumpTestLiteral() = default;
-
 	void Compile(Jitter::CJitter&) override;
 	void Run() override;
 

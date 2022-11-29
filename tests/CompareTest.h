@@ -1,5 +1,4 @@
-#ifndef _COMPARETEST_H_
-#define _COMPARETEST_H_
+#pragma once
 
 #include "Test.h"
 #include "MemoryFunction.h"
@@ -7,11 +6,8 @@
 class CCompareTest : public CTest
 {
 public:
-						CCompareTest();
-	virtual				~CCompareTest();
-			
-	void				Run();
-	void				Compile(Jitter::CJitter&);
+	void				Run() override;
+	void				Compile(Jitter::CJitter&) override;
 
 private:
 	struct CONTEXT
@@ -26,5 +22,3 @@ private:
 	CONTEXT				m_context;
 	CMemoryFunction		m_function;
 };
-
-#endif

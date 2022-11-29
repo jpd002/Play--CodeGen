@@ -10,11 +10,6 @@ CShift64Test::CShift64Test(uint32 shiftAmount)
 
 }
 
-CShift64Test::~CShift64Test()
-{
-
-}
-
 void CShift64Test::Run()
 {
 	memset(&m_context, 0, sizeof(m_context));

@@ -10,11 +10,6 @@ CShiftTest::CShiftTest(uint32 shiftAmount)
 
 }
 
-CShiftTest::~CShiftTest()
-{
-
-}
-
 void CShiftTest::Run()
 {
 	memset(&m_context, 0, sizeof(m_context));

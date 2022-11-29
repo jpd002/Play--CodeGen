@@ -7,11 +7,6 @@ CMdShiftTest::CMdShiftTest(uint32 shiftAmount)
 
 }
 
-CMdShiftTest::~CMdShiftTest()
-{
-
-}
-
 void CMdShiftTest::Run()
 {
 	memset(&m_context, 0, sizeof(m_context));

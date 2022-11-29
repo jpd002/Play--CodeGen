@@ -6,12 +6,10 @@
 class CRegAllocTempTest : public CTest
 {
 public:
-	virtual ~CRegAllocTempTest() = default;
-
 	static void PrepareExternalFunctions();
 
-	void Compile(Jitter::CJitter&);
-	void Run();
+	void Compile(Jitter::CJitter&) override;
+	void Run() override;
 
 private:
 	struct CONTEXT

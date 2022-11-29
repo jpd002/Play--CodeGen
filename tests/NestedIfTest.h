@@ -6,8 +6,8 @@
 class CNestedIfTest : public CTest
 {
 public:
-	void				Run();
-	void				Compile(Jitter::CJitter&);
+	void				Run() override;
+	void				Compile(Jitter::CJitter&) override;
 
 private:
 	struct CONTEXT

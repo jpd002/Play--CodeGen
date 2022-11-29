@@ -6,8 +6,6 @@
 class CGotoTest : public CTest
 {
 public:
-	virtual ~CGotoTest() = default;
-
 	void Compile(Jitter::CJitter&) override;
 	void Run() override;
 

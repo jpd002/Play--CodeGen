@@ -151,6 +151,8 @@ set(CodeGenTest_SRC
 	../tests/LogicTest.h
 	../tests/Logic64Test.cpp
 	../tests/Logic64Test.h
+	../tests/LoopTest.cpp
+	../tests/LoopTest.h
 	../tests/LzcTest.cpp
 	../tests/LzcTest.h
 	../tests/Main.cpp

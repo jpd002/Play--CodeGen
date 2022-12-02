@@ -9,6 +9,7 @@
 #include "RandomAluTest3.h"
 #include "ShiftTest.h"
 #include "LogicTest.h"
+#include "LoopTest.h"
 #include "AliasTest.h"
 #include "AliasTest2.h"
 #include "FpuTest.h"
@@ -92,6 +93,7 @@ static const TestFactoryFunction s_factories[] =
 	[] () { return new CGotoTest(); },
 	[] () { return new CHugeJumpTest(); },
 	[] () { return new CHugeJumpTestLiteral(); },
+	[] () { return new CLoopTest(); },
 	[] () { return new CNestedIfTest(); },
 	[] () { return new CLzcTest(); },
 	[] () { return new CAliasTest(); },

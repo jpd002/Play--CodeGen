@@ -14,6 +14,11 @@ private:
 	{
 		uint32 counter = 0;
 		uint32 total = 0;
+		uint32 exit = 0;
+		uint32 done = 0;
+		uint32 prevFinal = 0;
+		uint32 notDone = 0;
+		uint32 canLoop = 1;
 	};
 
 	CONTEXT				m_context;

@@ -351,7 +351,7 @@ void CCodeGen_Wasm::BuildLabelFlows(const StatementList& statements)
 			}
 
 			bool foundEnd = false;
-			for(; innerStatementIterator != statements.end(); innerStatementIterator++)
+			for(; (innerStatementIterator != statements.end()) && !foundEnd; innerStatementIterator++)
 			{
 				const auto& innerStatement = *innerStatementIterator;
 				if((innerStatement.op == OP_LABEL) &&

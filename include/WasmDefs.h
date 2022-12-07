@@ -47,6 +47,7 @@ namespace Wasm
 	{
 		INST_UNREACHABLE = 0x00,
 		INST_BLOCK = 0x02,
+		INST_LOOP = 0x03,
 		INST_IF = 0x04,
 		INST_ELSE = 0x05,
 		INST_BR = 0x0C,

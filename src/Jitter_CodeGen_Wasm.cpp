@@ -1,6 +1,7 @@
 #include "Jitter_CodeGen_Wasm.h"
 
 #include <stdexcept>
+#include <set>
 
 #include "WasmDefs.h"
 #include "WasmModuleBuilder.h"
@@ -243,7 +244,9 @@ void CCodeGen_Wasm::GenerateCode(const StatementList& statements, unsigned int s
 	m_localF32Count = 0;
 	m_localV128Count = 0;
 	m_isInsideBlock = false;
+	m_isInsideLoop = false;
 	m_currentBlockDepth = 0;
+	m_loopBlock = -1;
 
 	BuildLabelFlows(statements);
 	PrepareSignatures(moduleBuilder, statements);
@@ -277,6 +280,12 @@ void CCodeGen_Wasm::GenerateCode(const StatementList& statements, unsigned int s
 	assert(m_isInsideBlock);
 	m_functionStream.Write8(Wasm::INST_END);
 	
+	//Terminate loop
+	if(m_isInsideLoop)
+	{
+		m_functionStream.Write8(Wasm::INST_END);
+	}
+
 	m_functionStream.Write8(Wasm::INST_END);
 
 	CWasmModuleBuilder::FUNCTION function;
@@ -333,11 +342,56 @@ uint32 CCodeGen_Wasm::GetPointerSize() const
 
 void CCodeGen_Wasm::BuildLabelFlows(const StatementList& statements)
 {
+	//Patterns
+	//-----------
+
+	//If/EndIf
+	//-------
+	//OP_CONDJMP y
+	//OP_LABEL x
+	//...
+	//OP_LABEL y
+	//...
+
+	//If/Else/EndIf
+	//-------------
+	//OP_CONDJMP y
+	//OP_LABEL x
+	//...
+	//OP_JMP z
+	//OP_LABEL y
+	//...
+	//OP_LABEL z
+	//...
+
+	//Loop
+	//----
+	//OP_LABEL x
+	//...
+	//OP_CONDJMP z
+	//OP_LABEL y
+	//...
+	//OP_JMP x (jump up)
+	//OP_LABEL z
+	//...
+
+	std::set<uint32> visitedLabels;
 	for(auto outerStatementIterator = statements.begin();
 	    outerStatementIterator != statements.end(); outerStatementIterator++)
 	{
 		const auto& outerStatement = *outerStatementIterator;
-		if(outerStatement.op == OP_CONDJMP)
+		if(outerStatement.op == OP_LABEL)
+		{
+			visitedLabels.insert(outerStatement.jmpBlock);
+		}
+		else if((outerStatement.op == OP_JMP) && visitedLabels.find(outerStatement.jmpBlock) != std::end(visitedLabels))
+		{
+			//Jumping to a label that we've already seen (jumping up)
+			//Note: We only support one loop block
+			assert(m_loopBlock == -1);
+			m_loopBlock = outerStatement.jmpBlock;
+		}
+		else if(outerStatement.op == OP_CONDJMP)
 		{
 			//Find the target label
 			auto innerStatementIterator = outerStatementIterator;
@@ -361,7 +415,8 @@ void CCodeGen_Wasm::BuildLabelFlows(const StatementList& statements)
 					auto prevStatementIterator = innerStatementIterator;
 					prevStatementIterator--;
 					const auto& prevStatement = *prevStatementIterator;
-					if(prevStatement.op == OP_JMP)
+					//Check that we're jumping down to some other block
+					if((prevStatement.op == OP_JMP) && (visitedLabels.find(prevStatement.jmpBlock) == std::end(visitedLabels)))
 					{
 						//We have a If/Else/EndIf situation
 						{
@@ -385,6 +440,12 @@ void CCodeGen_Wasm::BuildLabelFlows(const StatementList& statements)
 			}
 			assert(foundEnd);
 		}
+	}
+
+	if(m_loopBlock != -1)
+	{
+		auto insertResult = m_labelFlows.insert(std::make_pair(m_loopBlock, LABEL_FLOW_LOOP));
+		assert(insertResult.second);
 	}
 
 	//Look for unbound labels and build blocks
@@ -814,6 +875,19 @@ void CCodeGen_Wasm::MarkLabel(const STATEMENT& statement)
 		assert(m_currentBlockDepth != 0);
 		m_currentBlockDepth--;
 		break;
+	case LABEL_FLOW_LOOP:
+		assert(m_currentBlockDepth == 0);
+		if(m_isInsideBlock)
+		{
+			m_functionStream.Write8(Wasm::INST_END);
+		}
+		m_isInsideBlock = true;
+		m_isInsideLoop = true;
+		m_functionStream.Write8(Wasm::INST_LOOP);
+		m_functionStream.Write8(Wasm::BLOCK_TYPE_VOID);
+		m_functionStream.Write8(Wasm::INST_BLOCK);
+		m_functionStream.Write8(Wasm::BLOCK_TYPE_VOID);
+		break;
 	default:
 		assert(false);
 		break;
@@ -1134,6 +1208,13 @@ void CCodeGen_Wasm::Emit_Jmp(const STATEMENT& statement)
 		assert(m_isInsideBlock);
 		m_functionStream.Write8(Wasm::INST_BR);
 		m_functionStream.Write8(m_currentBlockDepth);
+	}
+	else if(labelFlowIterator->second == LABEL_FLOW_LOOP)
+	{
+		assert(m_isInsideBlock);
+		assert(m_isInsideLoop);
+		m_functionStream.Write8(Wasm::INST_BR);
+		m_functionStream.Write8(m_currentBlockDepth + 1);
 	}
 }
 

@@ -47,6 +47,7 @@ namespace Jitter
 			LABEL_FLOW_IF,
 			LABEL_FLOW_ELSE,
 			LABEL_FLOW_ENDIF,
+			LABEL_FLOW_LOOP,
 		};
 
 		typedef void (CCodeGen_Wasm::*ConstCodeEmitterType)(const STATEMENT&);
@@ -225,7 +226,9 @@ namespace Jitter
 		uint32 m_localF32Count = 0;
 		uint32 m_localV128Count = 0;
 		bool m_isInsideBlock = false;
+		bool m_isInsideLoop = false;
 		uint32 m_currentBlockDepth = 0;
+		uint32 m_loopBlock = -1;
 		ParamStack m_params;
 	};
 }

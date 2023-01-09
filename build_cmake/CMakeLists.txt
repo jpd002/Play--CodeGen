@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.0)
 project(CodeGen)
 
+set(PROJECT_LIBS)
+
 set(CMAKE_MODULE_PATH
 	${CMAKE_CURRENT_SOURCE_DIR}/../../Dependencies/cmake-modules
 	${CMAKE_MODULE_PATH}

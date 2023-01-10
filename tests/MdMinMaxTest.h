@@ -2,7 +2,6 @@
 
 #include "Test.h"
 #include "Align16.h"
-#include "MemoryFunction.h"
 
 class CMdMinMaxTest : public CTest
 {
@@ -27,5 +26,5 @@ private:
 		uint8			dstMaxW[16];
 	};
 
-	CMemoryFunction		m_function;
+	FunctionType		m_function;
 };

@@ -2,7 +2,6 @@
 
 #include "Test.h"
 #include "Align16.h"
-#include "MemoryFunction.h"
 
 class CMdAddTest : public CTest
 {
@@ -34,5 +33,5 @@ private:
 	uint32				ComputeWordUnsignedSaturation(uint32, uint32);
 	uint32				ComputeWordSignedSaturation(uint32, uint32);
 
-	CMemoryFunction		m_function;
+	FunctionType		m_function;
 };

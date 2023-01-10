@@ -85,5 +85,5 @@ void CMemAccessIdxTest::Compile(Jitter::CJitter& jitter)
 	}
 	jitter.End();
 
-	m_function = CMemoryFunction(codeStream.GetBuffer(), codeStream.GetSize());
+	m_function = FunctionType(codeStream.GetBuffer(), codeStream.GetSize());
 }

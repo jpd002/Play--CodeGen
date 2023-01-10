@@ -2,7 +2,6 @@
 
 #include "Test.h"
 #include "Align16.h"
-#include "MemoryFunction.h"
 
 class CMdSubTest : public CTest
 {
@@ -33,5 +32,5 @@ private:
 		uint8			dstSubWSSSat[16];
 	};
 
-	CMemoryFunction		m_function;
+	FunctionType		m_function;
 };

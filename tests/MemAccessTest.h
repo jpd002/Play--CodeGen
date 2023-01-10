@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Test.h"
-#include "MemoryFunction.h"
 
 class CMemAccessTest : public CTest
 {
@@ -24,5 +23,5 @@ private:
 
 	CONTEXT         m_context;
 	UnitType        m_memory[0x20];
-	CMemoryFunction m_function;
+	FunctionType    m_function;
 };

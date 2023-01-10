@@ -2,7 +2,6 @@
 
 #include "Test.h"
 #include "Align16.h"
-#include "MemoryFunction.h"
 
 class CMdCallTest : public CTest
 {
@@ -52,5 +51,5 @@ private:
 	static uint32		MdInputFunction(const uint128&, uint32);
 	static uint128		MdOutputFunction(uint32);
 
-	CMemoryFunction		m_function;
+	FunctionType		m_function;
 };

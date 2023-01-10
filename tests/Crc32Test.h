@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Test.h"
-#include "MemoryFunction.h"
 #include <string>
 
 extern "C" uint32 CCrc32Test_GetNextByte(void*);
@@ -42,8 +41,8 @@ private:
 	uint32				GetNextByteImpl();
 
 	CONTEXT				m_context;
-	CMemoryFunction		m_testFunction;
-	CMemoryFunction		m_computeFunction;
+	FunctionType		m_testFunction;
+	FunctionType		m_computeFunction;
 
 	static void			BuildTable();
 

@@ -56,7 +56,7 @@ void CMemAccessRefTest::Compile(Jitter::CJitter& jitter)
 	}
 	jitter.End();
 
-	m_function = CMemoryFunction(codeStream.GetBuffer(), codeStream.GetSize());
+	m_function = FunctionType(codeStream.GetBuffer(), codeStream.GetSize());
 }
 
 void CMemAccessRefTest::EmitNullTest(Jitter::CJitter& jitter, uint32 index, size_t resultOffset)

@@ -2,7 +2,6 @@
 
 #include "Test.h"
 #include "Align16.h"
-#include "MemoryFunction.h"
 
 class CMdManipTest : public CTest
 {
@@ -25,5 +24,5 @@ private:
 		float			dstExpandCst[4];
 	};
 
-	CMemoryFunction		m_function;
+	FunctionType		m_function;
 };

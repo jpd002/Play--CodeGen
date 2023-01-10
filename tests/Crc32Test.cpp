@@ -40,7 +40,7 @@ void CCrc32Test::Run()
 	
 	while(m_context.state != STATE_DONE)
 	{
-		CMemoryFunction* function(NULL);
+		FunctionType* function = nullptr;
 
 		switch(m_context.state)
 		{
@@ -99,7 +99,7 @@ void CCrc32Test::CompileTestFunction(Jitter::CJitter& jitter)
 	}
 	jitter.End();
 
-	m_testFunction = CMemoryFunction(codeStream.GetBuffer(), codeStream.GetSize());
+	m_testFunction = FunctionType(codeStream.GetBuffer(), codeStream.GetSize());
 }
 
 void CCrc32Test::CompileComputeFunction(Jitter::CJitter& jitter)
@@ -131,7 +131,7 @@ void CCrc32Test::CompileComputeFunction(Jitter::CJitter& jitter)
 	}
 	jitter.End();
 
-	m_computeFunction = CMemoryFunction(codeStream.GetBuffer(), codeStream.GetSize());
+	m_computeFunction = FunctionType(codeStream.GetBuffer(), codeStream.GetSize());
 }
 
 uint32 CCrc32Test::GetNextByteImpl()

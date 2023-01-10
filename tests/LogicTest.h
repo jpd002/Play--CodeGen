@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Test.h"
-#include "MemoryFunction.h"
 
 class CLogicTest : public CTest
 {
@@ -23,7 +22,7 @@ private:
 	};
 
 	CONTEXT				m_context;
-	CMemoryFunction		m_function;
+	FunctionType		m_function;
 	
 	uint32				m_value1 = 0;
 	bool				m_constant1 = false;

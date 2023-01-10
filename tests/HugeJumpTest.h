@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Test.h"
-#include "MemoryFunction.h"
 
 class CHugeJumpTest : public CTest
 {
@@ -22,5 +21,5 @@ private:
 	};
 
 	CONTEXT				m_context;
-	CMemoryFunction		m_function;
+	FunctionType		m_function;
 };

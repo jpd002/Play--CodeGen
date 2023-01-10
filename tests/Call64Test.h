@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Test.h"
-#include "MemoryFunction.h"
 
 class CCall64Test : public CTest
 {
@@ -28,5 +27,5 @@ private:
 	static uint64		AddMul64(uint32, uint64, uint64);
 	static uint64		AddMul64_2(uint32, uint64, uint32);
 
-	CMemoryFunction		m_function;
+	FunctionType		m_function;
 };

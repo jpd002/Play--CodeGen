@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Test.h"
-#include "MemoryFunction.h"
 
 class CFpClampTest : public CTest
 {
@@ -20,5 +19,5 @@ private:
 		float result2;
 	};
 
-	CMemoryFunction		m_function;
+	FunctionType		m_function;
 };

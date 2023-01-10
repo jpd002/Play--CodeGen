@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Test.h"
-#include "MemoryFunction.h"
 
 class CCursorTest : public CTest
 {
@@ -16,5 +15,5 @@ private:
 		uint32 result2 = 0;
 	};
 
-	CMemoryFunction m_function;
+	FunctionType m_function;
 };

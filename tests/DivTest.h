@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Test.h"
-#include "MemoryFunction.h"
 
 class CDivTest : public CTest
 {
@@ -26,5 +25,5 @@ private:
 
 	bool				m_isSigned;
 	CONTEXT				m_context;
-	CMemoryFunction		m_function;
+	FunctionType		m_function;
 };

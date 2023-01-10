@@ -2,7 +2,6 @@
 
 #include "Test.h"
 #include "Align16.h"
-#include "MemoryFunction.h"
 
 class CMdFpFlagTest : public CTest
 {
@@ -26,5 +25,5 @@ private:
 		uint32			src3[4];
 	};
 
-	CMemoryFunction		m_function;
+	FunctionType		m_function;
 };

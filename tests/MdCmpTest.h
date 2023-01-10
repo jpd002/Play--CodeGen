@@ -2,7 +2,6 @@
 
 #include "Test.h"
 #include "Align16.h"
-#include "MemoryFunction.h"
 
 class CMdCmpTest : public CTest
 {
@@ -30,5 +29,5 @@ private:
 		uint8			dstCmpGtW[16];
 	};
 
-	CMemoryFunction		m_function;
+	FunctionType		m_function;
 };

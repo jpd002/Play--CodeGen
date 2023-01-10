@@ -7,12 +7,15 @@
 #include "AlignedAlloc.h"
 #include "Jitter.h"
 #include "offsetof_def.h"
+#include "MemoryFunction.h"
 
 #define TEST_VERIFY(a) if(!(a)) { printf("Verification failed: '%s'. Aborting.\n", #a); std::abort(); }
 
 class CTest
 {
 public:
+	typedef CMemoryFunction FunctionType;
+
 	virtual			~CTest() = default;
 
 	virtual void	Run()						= 0;

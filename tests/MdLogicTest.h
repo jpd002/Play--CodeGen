@@ -2,7 +2,6 @@
 
 #include "Test.h"
 #include "Align16.h"
-#include "MemoryFunction.h"
 
 class CMdLogicTest : public CTest
 {
@@ -25,5 +24,5 @@ private:
 	};
 
 	CONTEXT				m_context;
-	CMemoryFunction		m_function;
+	FunctionType		m_function;
 };

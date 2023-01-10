@@ -2,7 +2,6 @@
 
 #include "Test.h"
 #include "Align16.h"
-#include "MemoryFunction.h"
 
 class CMdMemAccessTest : public CTest
 {
@@ -23,5 +22,5 @@ private:
 
 	CONTEXT				m_context;
 	uint32				m_memory[0x20];
-	CMemoryFunction		m_function;
+	FunctionType		m_function;
 };

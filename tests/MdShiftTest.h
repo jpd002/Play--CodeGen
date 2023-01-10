@@ -2,7 +2,6 @@
 
 #include "Test.h"
 #include "Align16.h"
-#include "MemoryFunction.h"
 
 class CMdShiftTest : public CTest
 {
@@ -28,6 +27,6 @@ private:
 	};
 
 	CONTEXT				m_context;
-	CMemoryFunction		m_function;
+	FunctionType		m_function;
 	uint32				m_shiftAmount = 0;
 };

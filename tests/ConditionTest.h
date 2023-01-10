@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Test.h"
-#include "MemoryFunction.h"
 
 class CConditionTest : public CTest
 {
@@ -36,5 +35,5 @@ private:
 	uint32				m_value0 = 0;
 	uint32				m_value1 = 0;
 	CONTEXT				m_context;
-	CMemoryFunction		m_function;
+	FunctionType		m_function;
 };

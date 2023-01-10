@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Test.h"
-#include "MemoryFunction.h"
 
 class CRandomAluTest3 : public CTest
 {
@@ -20,5 +19,5 @@ private:
 
 	bool				m_useConstant;
 	CONTEXT				m_context;
-	CMemoryFunction		m_function;
+	FunctionType		m_function;
 };

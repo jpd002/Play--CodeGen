@@ -220,6 +220,7 @@ set(CodeGenTest_SRC
 	../tests/ShiftTest.h
 	../tests/SimpleMdTest.cpp
 	../tests/SimpleMdTest.h
+	../tests/Test.h
 )
 
 if(ANDROID)

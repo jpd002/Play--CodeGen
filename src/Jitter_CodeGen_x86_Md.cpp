@@ -2,8 +2,6 @@
 
 using namespace Jitter;
 
-const LITERAL128 CCodeGen_x86::g_makeSzShufflePattern = { 0x00020406080A0C0E, 0x8080808080808080 };
-
 CX86Assembler::CAddress CCodeGen_x86::MakeRelative128SymbolElementAddress(CSymbol* symbol, unsigned int elementIdx)
 {
 	assert(symbol->m_type == SYM_RELATIVE128);

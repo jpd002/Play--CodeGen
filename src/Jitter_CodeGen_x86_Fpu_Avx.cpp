@@ -2,9 +2,6 @@
 
 using namespace Jitter;
 
-const LITERAL128 CCodeGen_x86::g_fpClampMask1 = { 0x7F7FFFFF, 0x7F7FFFFF, 0x7F7FFFFF, 0x7F7FFFFF };
-const LITERAL128 CCodeGen_x86::g_fpClampMask2 = { 0xFF7FFFFF, 0xFF7FFFFF, 0xFF7FFFFF, 0xFF7FFFFF };
-
 template <typename FPUOP>
 void CCodeGen_x86::Emit_Fpu_Avx_MemMem(const STATEMENT& statement)
 {

@@ -106,7 +106,11 @@ public:
 		void			Write(Framework::CStream*);
 	};
 
+											CX86Assembler() = default;
+											CX86Assembler(const CX86Assembler&) = delete;
 	virtual									~CX86Assembler() = default;
+
+	CX86Assembler&							operator =(const CX86Assembler&) = delete;
 
 	void									Begin();
 	void									End();

@@ -727,8 +727,6 @@ namespace Jitter
 		void    Emit_Md_Mov_MemReg(const STATEMENT&);
 		void    Emit_Md_Mov_MemMem(const STATEMENT&);
 		
-		void    Emit_Md_CmpLtS_VarVarVar(const STATEMENT&);
-		
 		void    Emit_Md_LoadFromRef_VarVar(const STATEMENT&);
 		void    Emit_Md_StoreAtRef_VarVar(const STATEMENT&);
 	

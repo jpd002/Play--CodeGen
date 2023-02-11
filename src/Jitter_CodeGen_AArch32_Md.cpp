@@ -118,6 +118,30 @@ void CCodeGen_AArch32::Emit_Md_MemMemMem(const STATEMENT& statement)
 	m_assembler.Vst1_32x4(dstReg, dstAddrReg);
 }
 
+template <typename MDOP>
+void CCodeGen_AArch32::Emit_Md_MemMemMemRev(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	auto dstAddrReg = CAArch32Assembler::r0;
+	auto src1AddrReg = CAArch32Assembler::r1;
+	auto src2AddrReg = CAArch32Assembler::r2;
+	auto dstReg = CAArch32Assembler::q0;
+	auto src1Reg = CAArch32Assembler::q1;
+	auto src2Reg = CAArch32Assembler::q2;
+
+	LoadMemory128AddressInRegister(dstAddrReg, dst);
+	LoadMemory128AddressInRegister(src1AddrReg, src1);
+	LoadMemory128AddressInRegister(src2AddrReg, src2);
+
+	m_assembler.Vld1_32x4(src1Reg, src1AddrReg);
+	m_assembler.Vld1_32x4(src2Reg, src2AddrReg);
+	((m_assembler).*(MDOP::OpReg()))(dstReg, src2Reg, src1Reg);
+	m_assembler.Vst1_32x4(dstReg, dstAddrReg);
+}
+
 template <typename MDSHIFTOP>
 void CCodeGen_AArch32::Emit_Md_Shift_MemMemCst(const STATEMENT& statement)
 {
@@ -181,31 +205,6 @@ void CCodeGen_AArch32::Emit_Md_DivS_MemMemMem(const STATEMENT& statement)
 		m_assembler.Vdiv_F32(subDstReg, subSrc1Reg, subSrc2Reg);
 	}
 
-	m_assembler.Vst1_32x4(dstReg, dstAddrReg);
-}
-
-void CCodeGen_AArch32::Emit_Md_CmpLtS_MemMemMem(const STATEMENT& statement)
-{
-	auto dst = statement.dst->GetSymbol().get();
-	auto src1 = statement.src1->GetSymbol().get();
-	auto src2 = statement.src2->GetSymbol().get();
-
-	auto dstAddrReg = CAArch32Assembler::r0;
-	auto src1AddrReg = CAArch32Assembler::r1;
-	auto src2AddrReg = CAArch32Assembler::r2;
-
-	auto dstReg = CAArch32Assembler::q0;
-	auto src1Reg = CAArch32Assembler::q1;
-	auto src2Reg = CAArch32Assembler::q2;
-
-	LoadMemory128AddressInRegister(dstAddrReg, dst);
-	LoadMemory128AddressInRegister(src1AddrReg, src1);
-	LoadMemory128AddressInRegister(src2AddrReg, src2);
-
-	m_assembler.Vld1_32x4(src1Reg, src1AddrReg);
-	m_assembler.Vld1_32x4(src2Reg, src2AddrReg);
-	m_assembler.Vcge_F32(dstReg, src1Reg, src2Reg);
-	m_assembler.Vmvn(dstReg, dstReg);
 	m_assembler.Vst1_32x4(dstReg, dstAddrReg);
 }
 
@@ -609,8 +608,8 @@ CCodeGen_AArch32::CONSTMATCHER CCodeGen_AArch32::g_mdConstMatchers[] =
 	{ OP_MD_MIN_S, MATCH_MEMORY128, MATCH_MEMORY128, MATCH_MEMORY128, MATCH_NIL, &CCodeGen_AArch32::Emit_Md_MemMemMem<FPUMDOP_MIN> },
 	{ OP_MD_MAX_S, MATCH_MEMORY128, MATCH_MEMORY128, MATCH_MEMORY128, MATCH_NIL, &CCodeGen_AArch32::Emit_Md_MemMemMem<FPUMDOP_MAX> },
 
-	{ OP_MD_CMPLT_S, MATCH_MEMORY128, MATCH_MEMORY128, MATCH_MEMORY128, MATCH_NIL, &CCodeGen_AArch32::Emit_Md_CmpLtS_MemMemMem         },
-	{ OP_MD_CMPGT_S, MATCH_MEMORY128, MATCH_MEMORY128, MATCH_MEMORY128, MATCH_NIL, &CCodeGen_AArch32::Emit_Md_MemMemMem<FPUMDOP_CMPGT> },
+	{ OP_MD_CMPLT_S, MATCH_MEMORY128, MATCH_MEMORY128, MATCH_MEMORY128, MATCH_NIL, &CCodeGen_AArch32::Emit_Md_MemMemMemRev<FPUMDOP_CMPGT> },
+	{ OP_MD_CMPGT_S, MATCH_MEMORY128, MATCH_MEMORY128, MATCH_MEMORY128, MATCH_NIL, &CCodeGen_AArch32::Emit_Md_MemMemMem<FPUMDOP_CMPGT>    },
 
 	{ OP_MD_AND, MATCH_MEMORY128, MATCH_MEMORY128, MATCH_MEMORY128, MATCH_NIL, &CCodeGen_AArch32::Emit_Md_MemMemMem<MDOP_AND> },
 	{ OP_MD_OR,  MATCH_MEMORY128, MATCH_MEMORY128, MATCH_MEMORY128, MATCH_NIL, &CCodeGen_AArch32::Emit_Md_MemMemMem<MDOP_OR>  },

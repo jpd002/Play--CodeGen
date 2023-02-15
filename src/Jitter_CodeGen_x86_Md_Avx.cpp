@@ -346,6 +346,20 @@ void CCodeGen_x86::Emit_Md_Avx_SubUSW_VarVarVar(const STATEMENT& statement)
 	m_assembler.VmovdqaVo(MakeVariable128SymbolAddress(dst), resRegister);
 }
 
+void CCodeGen_x86::Emit_Md_Avx_ClampS_VarVar(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+
+	auto dstRegister = PrepareSymbolRegisterDefMd(dst, CX86Assembler::xMM0);
+	auto src1Register = PrepareSymbolRegisterUseMdAvx(src1, CX86Assembler::xMM1);
+
+	m_assembler.VpminsdVo(dstRegister, src1Register, MakeConstant128Address(g_fpClampMask1));
+	m_assembler.VpminudVo(dstRegister, dstRegister, MakeConstant128Address(g_fpClampMask2));
+
+	CommitSymbolRegisterMdAvx(dst, dstRegister);
+}
+
 void CCodeGen_x86::Emit_Md_Avx_PackHB_VarVarVar(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
@@ -567,6 +581,8 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdAvxConstMatchers[] =
 	{ OP_MD_SUBUS_B, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx_VarVarVar<MDOP_SUBUSB> },
 	{ OP_MD_SUBUS_H, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx_VarVarVar<MDOP_SUBUSH> },
 	{ OP_MD_SUBUS_W, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx_SubUSW_VarVarVar       },
+
+	{ OP_MD_CLAMP_S, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_NIL,         MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx_ClampS_VarVar          },
 
 	{ OP_MD_CMPEQ_B, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx_VarVarVar<MDOP_CMPEQB> },
 	{ OP_MD_CMPEQ_H, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx_VarVarVar<MDOP_CMPEQH> },

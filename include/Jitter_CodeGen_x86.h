@@ -699,6 +699,8 @@ namespace Jitter
 		void						Emit_Md_SubUSW_VarVarVar(const STATEMENT&);
 		void						Emit_Md_MinW_VarVarVar(const STATEMENT&);
 		void						Emit_Md_MaxW_VarVarVar(const STATEMENT&);
+		void						Emit_Md_ClampS_RegVar(const STATEMENT&);
+		void						Emit_Md_ClampS_MemVar(const STATEMENT&);
 		void						Emit_Md_PackHB_VarVarVar(const STATEMENT&);
 		void						Emit_Md_PackWH_VarVarVar(const STATEMENT&);
 		void						Emit_Md_Mov_RegVar(const STATEMENT&);
@@ -753,6 +755,7 @@ namespace Jitter
 		void						Emit_Md_Avx_AddUSW_VarVarVar(const STATEMENT&);
 		void						Emit_Md_Avx_SubSSW_VarVarVar(const STATEMENT&);
 		void						Emit_Md_Avx_SubUSW_VarVarVar(const STATEMENT&);
+		void						Emit_Md_Avx_ClampS_VarVar(const STATEMENT&);
 
 		void						Emit_Md_Avx_PackHB_VarVarVar(const STATEMENT&);
 		void						Emit_Md_Avx_PackWH_VarVarVar(const STATEMENT&);

@@ -559,6 +559,34 @@ void CCodeGen_x86::Emit_Md_MaxW_VarVarVar(const STATEMENT& statement)
 	m_assembler.MovdqaVo(MakeVariable128SymbolAddress(dst), mask1Register);
 }
 
+void CCodeGen_x86::Emit_Md_ClampS_RegVar(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+
+	auto dstRegister = m_mdRegisters[dst->m_valueLow];
+	if(!dst->Equals(src1))
+	{
+		m_assembler.MovdqaVo(dstRegister, MakeVariable128SymbolAddress(src1));
+	}
+	
+	m_assembler.PminsdVo(dstRegister, MakeConstant128Address(g_fpClampMask1));
+	m_assembler.PminudVo(dstRegister, MakeConstant128Address(g_fpClampMask2));
+}
+
+void CCodeGen_x86::Emit_Md_ClampS_MemVar(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+
+	auto dstRegister = CX86Assembler::xMM0;
+
+	m_assembler.MovdqaVo(dstRegister, MakeVariable128SymbolAddress(src1));
+	m_assembler.PminsdVo(dstRegister, MakeConstant128Address(g_fpClampMask1));
+	m_assembler.PminudVo(dstRegister, MakeConstant128Address(g_fpClampMask2));
+	m_assembler.MovdqaVo(MakeVariable128SymbolAddress(dst), dstRegister);
+}
+
 void CCodeGen_x86::Emit_Md_PackHB_VarVarVar(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
@@ -959,6 +987,9 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdConstMatchers[] =
 	MD_CONST_MATCHERS_3OPS(OP_MD_SUBUS_B, MDOP_SUBUSB)
 	MD_CONST_MATCHERS_3OPS(OP_MD_SUBUS_H, MDOP_SUBUSH)
 	{ OP_MD_SUBUS_W, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_NIL, &CCodeGen_x86::Emit_Md_SubUSW_VarVarVar },
+
+	{ OP_MD_CLAMP_S, MATCH_REGISTER128, MATCH_VARIABLE128, MATCH_NIL,         MATCH_NIL, &CCodeGen_x86::Emit_Md_ClampS_RegVar    },
+	{ OP_MD_CLAMP_S, MATCH_MEMORY128,   MATCH_VARIABLE128, MATCH_NIL,         MATCH_NIL, &CCodeGen_x86::Emit_Md_ClampS_MemVar    },
 
 	MD_CONST_MATCHERS_3OPS(OP_MD_CMPEQ_B, MDOP_CMPEQB)
 	MD_CONST_MATCHERS_3OPS(OP_MD_CMPEQ_H, MDOP_CMPEQH)

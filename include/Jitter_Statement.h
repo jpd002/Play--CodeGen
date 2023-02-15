@@ -81,6 +81,8 @@ namespace Jitter
 		OP_MD_SUBUS_H,
 		OP_MD_SUBUS_W,
 
+		OP_MD_CLAMP_S,
+
 		OP_MD_CMPEQ_B,
 		OP_MD_CMPEQ_H,
 		OP_MD_CMPEQ_W,

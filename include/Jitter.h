@@ -184,6 +184,7 @@ namespace Jitter
 		void							MD_AddWUS();
 		void							MD_AddS();
 		void							MD_And();
+		void							MD_ClampS();
 		void							MD_CmpEqB();
 		void							MD_CmpEqH();
 		void							MD_CmpEqW();

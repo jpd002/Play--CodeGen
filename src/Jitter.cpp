@@ -1460,6 +1460,11 @@ void CJitter::MD_MaxW()
 	InsertBinaryMdStatement(OP_MD_MAX_W);
 }
 
+void CJitter::MD_ClampS()
+{
+	InsertUnaryMdStatement(OP_MD_CLAMP_S);
+}
+
 void CJitter::MD_CmpEqB()
 {
 	InsertBinaryMdStatement(OP_MD_CMPEQ_B);

@@ -179,6 +179,7 @@ void CCodeGen_x86_32::Emit_Prolog(const StatementList& statements, unsigned int 
 				}
 				break;
 			case OP_FP_CLAMP:
+			case OP_MD_CLAMP_S:
 				m_literalOffsets.insert(std::make_pair(g_fpClampMask1, -1));
 				m_literalOffsets.insert(std::make_pair(g_fpClampMask2, -1));
 				break;

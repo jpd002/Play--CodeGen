@@ -726,7 +726,9 @@ namespace Jitter
 		void    Emit_Md_Mov_RegMem(const STATEMENT&);
 		void    Emit_Md_Mov_MemReg(const STATEMENT&);
 		void    Emit_Md_Mov_MemMem(const STATEMENT&);
-		
+
+		void    Emit_Md_ClampS_VarVar(const STATEMENT&);
+
 		void    Emit_Md_LoadFromRef_VarVar(const STATEMENT&);
 		void    Emit_Md_StoreAtRef_VarVar(const STATEMENT&);
 	
@@ -755,6 +757,9 @@ namespace Jitter
 		static CAArch64Assembler::REGISTER32    g_paramRegisters[MAX_PARAM_REGS];
 		static CAArch64Assembler::REGISTER64    g_paramRegisters64[MAX_PARAM_REGS];
 		static CAArch64Assembler::REGISTER64    g_baseRegister;
+
+		static const LITERAL128    g_fpClampMask1;
+		static const LITERAL128    g_fpClampMask2;
 
 		Framework::CStream*    m_stream = nullptr;
 		CAArch64Assembler      m_assembler;

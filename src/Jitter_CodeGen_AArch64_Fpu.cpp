@@ -118,20 +118,17 @@ void CCodeGen_AArch64::Emit_Fp_Clamp_MemMem(const STATEMENT& statement)
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
 
-	auto resultRegister = GetNextTempRegisterMd();
-	auto cst1Register = GetNextTempRegisterMd();
-	auto cst2Register = GetNextTempRegisterMd();
+	auto resultReg = GetNextTempRegisterMd();
+	auto cst1Reg = GetNextTempRegisterMd();
+	auto cst2Reg = GetNextTempRegisterMd();
 
-	LITERAL128 lit1(0x7F7FFFFF, 0x7F7FFFFF, 0x7F7FFFFF, 0x7F7FFFFF);
-	LITERAL128 lit2(0xFF7FFFFF, 0xFF7FFFFF, 0xFF7FFFFF, 0xFF7FFFFF);
+	m_assembler.Ldr_Pc(cst1Reg, g_fpClampMask1);
+	m_assembler.Ldr_Pc(cst2Reg, g_fpClampMask2);
 
-	m_assembler.Ldr_Pc(cst1Register, lit1);
-	m_assembler.Ldr_Pc(cst2Register, lit2);
-
-	LoadMemoryFpSingleInRegister(resultRegister, src1);
-	m_assembler.Smin_4s(resultRegister, resultRegister, cst1Register);
-	m_assembler.Umin_4s(resultRegister, resultRegister, cst2Register);
-	StoreRegisterInMemoryFpSingle(dst, resultRegister);
+	LoadMemoryFpSingleInRegister(resultReg, src1);
+	m_assembler.Smin_4s(resultReg, resultReg, cst1Reg);
+	m_assembler.Umin_4s(resultReg, resultReg, cst2Reg);
+	StoreRegisterInMemoryFpSingle(dst, resultReg);
 }
 
 void CCodeGen_AArch64::Emit_Fp_Mov_MemSRelI32(const STATEMENT& statement)

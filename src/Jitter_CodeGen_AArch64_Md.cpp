@@ -262,6 +262,25 @@ void CCodeGen_AArch64::Emit_Md_Mov_MemMem(const STATEMENT& statement)
 	StoreRegisterInMemory128(dst, tmpReg);
 }
 
+void CCodeGen_AArch64::Emit_Md_ClampS_VarVar(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	
+	auto dstReg = PrepareSymbolRegisterDefMd(dst, GetNextTempRegisterMd());
+	auto src1Reg = PrepareSymbolRegisterUseMd(src1, GetNextTempRegisterMd());
+	auto cst1Reg = GetNextTempRegisterMd();
+	auto cst2Reg = GetNextTempRegisterMd();
+
+	m_assembler.Ldr_Pc(cst1Reg, g_fpClampMask1);
+	m_assembler.Ldr_Pc(cst2Reg, g_fpClampMask2);
+
+	m_assembler.Smin_4s(dstReg, src1Reg, cst1Reg);
+	m_assembler.Umin_4s(dstReg, dstReg, cst2Reg);
+	
+	CommitSymbolRegisterMd(dst, dstReg);
+}
+
 void CCodeGen_AArch64::Emit_Md_LoadFromRef_VarVar(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
@@ -498,6 +517,8 @@ CCodeGen_AArch64::CONSTMATCHER CCodeGen_AArch64::g_mdConstMatchers[] =
 
 	{ OP_MD_SUBSS_H,            MATCH_VARIABLE128,    MATCH_VARIABLE128,    MATCH_VARIABLE128,      MATCH_NIL, &CCodeGen_AArch64::Emit_Md_VarVarVar<MDOP_SUBHSS>                },
 	{ OP_MD_SUBSS_W,            MATCH_VARIABLE128,    MATCH_VARIABLE128,    MATCH_VARIABLE128,      MATCH_NIL, &CCodeGen_AArch64::Emit_Md_VarVarVar<MDOP_SUBWSS>                },
+
+	{ OP_MD_CLAMP_S,            MATCH_VARIABLE128,    MATCH_VARIABLE128,    MATCH_NIL,              MATCH_NIL, &CCodeGen_AArch64::Emit_Md_ClampS_VarVar                         },
 
 	{ OP_MD_CMPEQ_B,            MATCH_VARIABLE128,    MATCH_VARIABLE128,    MATCH_VARIABLE128,      MATCH_NIL, &CCodeGen_AArch64::Emit_Md_VarVarVar<MDOP_CMPEQB>                },
 	{ OP_MD_CMPEQ_H,            MATCH_VARIABLE128,    MATCH_VARIABLE128,    MATCH_VARIABLE128,      MATCH_NIL, &CCodeGen_AArch64::Emit_Md_VarVarVar<MDOP_CMPEQH>                },

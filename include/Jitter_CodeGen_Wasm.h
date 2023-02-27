@@ -205,6 +205,7 @@ namespace Jitter
 		void Emit_Md_AddUSW_MemMemMem(const STATEMENT&);
 		void Emit_Md_SubSSW_MemMemMem(const STATEMENT&);
 		void Emit_Md_SubUSW_MemMemMem(const STATEMENT&);
+		void Emit_Md_ClampS_MemMem(const STATEMENT&);
 		void Emit_Md_MakeSz_MemMem(const STATEMENT&);
 		void Emit_Md_LoadFromRef_MemMem(const STATEMENT&);
 		void Emit_Md_StoreAtRef_MemMem(const STATEMENT&);

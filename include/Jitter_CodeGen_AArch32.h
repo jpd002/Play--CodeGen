@@ -699,7 +699,8 @@ namespace Jitter
 		void									Emit_Md_Expand_MemMem(const STATEMENT&);
 		void									Emit_Md_Expand_MemCst(const STATEMENT&);
 
-		void									Emit_Md_MakeSz_VarVar(const STATEMENT&);
+		void									Emit_Md_ClampS_MemMem(const STATEMENT&);
+		void									Emit_Md_MakeSz_VarMem(const STATEMENT&);
 
 		void									Emit_Md_PackHB_MemMemMem(const STATEMENT&);
 		void									Emit_Md_PackWH_MemMemMem(const STATEMENT&);
@@ -720,6 +721,9 @@ namespace Jitter
 		static CAArch32Assembler::REGISTER		g_callAddressRegister;
 		static CAArch32Assembler::REGISTER		g_tempParamRegister0;
 		static CAArch32Assembler::REGISTER		g_tempParamRegister1;
+
+		static const LITERAL128					g_fpClampMask1;
+		static const LITERAL128					g_fpClampMask2;
 
 		Framework::CStream*						m_stream = nullptr;
 		CAArch32Assembler						m_assembler;

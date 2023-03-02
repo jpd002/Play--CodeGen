@@ -13,6 +13,9 @@ CAArch32Assembler::REGISTER CCodeGen_AArch32::g_callAddressRegister = CAArch32As
 CAArch32Assembler::REGISTER CCodeGen_AArch32::g_tempParamRegister0 = CAArch32Assembler::r4;
 CAArch32Assembler::REGISTER CCodeGen_AArch32::g_tempParamRegister1 = CAArch32Assembler::r5;
 
+const LITERAL128 CCodeGen_AArch32::g_fpClampMask1(0x7F7FFFFF, 0x7F7FFFFF, 0x7F7FFFFF, 0x7F7FFFFF);
+const LITERAL128 CCodeGen_AArch32::g_fpClampMask2(0xFF7FFFFF, 0xFF7FFFFF, 0xFF7FFFFF, 0xFF7FFFFF);
+
 CAArch32Assembler::REGISTER CCodeGen_AArch32::g_registers[MAX_REGISTERS] =
 {
 	CAArch32Assembler::r4,

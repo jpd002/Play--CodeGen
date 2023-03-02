@@ -187,12 +187,9 @@ void CCodeGen_AArch32::Emit_Fp_Clamp_MemMem(const STATEMENT& statement)
 	auto cst0Reg = CAArch32Assembler::q1;
 	auto cst1Reg = CAArch32Assembler::q2;
 
-	LITERAL128 lit1(0x7F7FFFFF, 0x7F7FFFFF, 0x7F7FFFFF, 0x7F7FFFFF);
-	LITERAL128 lit2(0xFF7FFFFF, 0xFF7FFFFF, 0xFF7FFFFF, 0xFF7FFFFF);
-
-	m_assembler.Adrl(cstAddrReg, lit1);
+	m_assembler.Adrl(cstAddrReg, g_fpClampMask1);
 	m_assembler.Vld1_32x4(cst0Reg, cstAddrReg);
-	m_assembler.Adrl(cstAddrReg, lit2);
+	m_assembler.Adrl(cstAddrReg, g_fpClampMask2);
 	m_assembler.Vld1_32x4(cst1Reg, cstAddrReg);
 
 	LoadMemoryFpSingleInRegister(tempRegisterContext, static_cast<CAArch32Assembler::SINGLE_REGISTER>(tmpReg), src1);

@@ -193,6 +193,25 @@ void CCodeGen_AArch64::Emit_Md_Shift_VarVarCst(const STATEMENT& statement)
 	CommitSymbolRegisterMd(dst, dstReg);
 }
 
+void CCodeGen_AArch64::Emit_Md_ClampS_VarVar(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	
+	auto dstReg = PrepareSymbolRegisterDefMd(dst, GetNextTempRegisterMd());
+	auto src1Reg = PrepareSymbolRegisterUseMd(src1, GetNextTempRegisterMd());
+	auto cst1Reg = GetNextTempRegisterMd();
+	auto cst2Reg = GetNextTempRegisterMd();
+
+	m_assembler.Ldr_Pc(cst1Reg, g_fpClampMask1);
+	m_assembler.Ldr_Pc(cst2Reg, g_fpClampMask2);
+
+	m_assembler.Smin_4s(dstReg, src1Reg, cst1Reg);
+	m_assembler.Umin_4s(dstReg, dstReg, cst2Reg);
+	
+	CommitSymbolRegisterMd(dst, dstReg);
+}
+
 void CCodeGen_AArch64::Emit_Md_MakeSz_VarVar(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
@@ -260,25 +279,6 @@ void CCodeGen_AArch64::Emit_Md_Mov_MemMem(const STATEMENT& statement)
 	
 	LoadMemory128InRegister(tmpReg, src1);
 	StoreRegisterInMemory128(dst, tmpReg);
-}
-
-void CCodeGen_AArch64::Emit_Md_ClampS_VarVar(const STATEMENT& statement)
-{
-	auto dst = statement.dst->GetSymbol().get();
-	auto src1 = statement.src1->GetSymbol().get();
-	
-	auto dstReg = PrepareSymbolRegisterDefMd(dst, GetNextTempRegisterMd());
-	auto src1Reg = PrepareSymbolRegisterUseMd(src1, GetNextTempRegisterMd());
-	auto cst1Reg = GetNextTempRegisterMd();
-	auto cst2Reg = GetNextTempRegisterMd();
-
-	m_assembler.Ldr_Pc(cst1Reg, g_fpClampMask1);
-	m_assembler.Ldr_Pc(cst2Reg, g_fpClampMask2);
-
-	m_assembler.Smin_4s(dstReg, src1Reg, cst1Reg);
-	m_assembler.Umin_4s(dstReg, dstReg, cst2Reg);
-	
-	CommitSymbolRegisterMd(dst, dstReg);
 }
 
 void CCodeGen_AArch64::Emit_Md_LoadFromRef_VarVar(const STATEMENT& statement)

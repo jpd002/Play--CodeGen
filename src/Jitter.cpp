@@ -269,6 +269,8 @@ void CJitter::Call(void* func, unsigned int paramCount, RETURN_VALUE_TYPE return
 	SymbolPtr returnValueSym;
 	switch(returnValue)
 	{
+	case RETURN_VALUE_NONE:
+		break;
 	case RETURN_VALUE_32:
 		returnValueSym = MakeSymbol(SYM_TEMPORARY, m_nextTemporary++);
 		break;
@@ -286,6 +288,9 @@ void CJitter::Call(void* func, unsigned int paramCount, RETURN_VALUE_TYPE return
 			paramCount++;
 			hasImplicitReturnValueParam = true;
 		}
+		break;
+	default:
+		assert(false);
 		break;
 	}
 

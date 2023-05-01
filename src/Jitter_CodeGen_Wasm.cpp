@@ -400,7 +400,7 @@ void CCodeGen_Wasm::BuildLabelFlows(const StatementList& statements)
 			innerStatementIterator++;
 			assert(innerStatementIterator->op == OP_LABEL);
 			{
-				auto insertResult = m_labelFlows.insert(std::make_pair(innerStatementIterator->jmpBlock, LABEL_FLOW_IF));
+				FRAMEWORK_MAYBE_UNUSED auto insertResult = m_labelFlows.insert(std::make_pair(innerStatementIterator->jmpBlock, LABEL_FLOW_IF));
 				assert(insertResult.second);
 			}
 
@@ -420,11 +420,11 @@ void CCodeGen_Wasm::BuildLabelFlows(const StatementList& statements)
 					{
 						//We have a If/Else/EndIf situation
 						{
-							auto insertResult = m_labelFlows.insert(std::make_pair(innerStatementIterator->jmpBlock, LABEL_FLOW_ELSE));
+							FRAMEWORK_MAYBE_UNUSED auto insertResult = m_labelFlows.insert(std::make_pair(innerStatementIterator->jmpBlock, LABEL_FLOW_ELSE));
 							assert(insertResult.second);
 						}
 						{
-							auto insertResult = m_labelFlows.insert(std::make_pair(prevStatementIterator->jmpBlock, LABEL_FLOW_ENDIF));
+							FRAMEWORK_MAYBE_UNUSED auto insertResult = m_labelFlows.insert(std::make_pair(prevStatementIterator->jmpBlock, LABEL_FLOW_ENDIF));
 							assert(insertResult.second);
 						}
 					}
@@ -432,7 +432,7 @@ void CCodeGen_Wasm::BuildLabelFlows(const StatementList& statements)
 					{
 						//We have a If/EndIf situation
 						{
-							auto insertResult = m_labelFlows.insert(std::make_pair(innerStatementIterator->jmpBlock, LABEL_FLOW_ENDIF));
+							FRAMEWORK_MAYBE_UNUSED auto insertResult = m_labelFlows.insert(std::make_pair(innerStatementIterator->jmpBlock, LABEL_FLOW_ENDIF));
 							assert(insertResult.second);
 						}
 					}
@@ -444,7 +444,7 @@ void CCodeGen_Wasm::BuildLabelFlows(const StatementList& statements)
 
 	if(m_loopBlock != -1)
 	{
-		auto insertResult = m_labelFlows.insert(std::make_pair(m_loopBlock, LABEL_FLOW_LOOP));
+		FRAMEWORK_MAYBE_UNUSED auto insertResult = m_labelFlows.insert(std::make_pair(m_loopBlock, LABEL_FLOW_LOOP));
 		assert(insertResult.second);
 	}
 
@@ -1124,7 +1124,7 @@ void CCodeGen_Wasm::Emit_Store16AtRef_VarAny(const STATEMENT& statement)
 
 void CCodeGen_Wasm::Emit_Param_Ctx(const STATEMENT& statement)
 {
-	auto src1 = statement.src1->GetSymbol().get();
+	FRAMEWORK_MAYBE_UNUSED auto src1 = statement.src1->GetSymbol().get();
 	assert(src1->m_type == SYM_CONTEXT);
 
 	m_params.push([this]() { PushContext(); });

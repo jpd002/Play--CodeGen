@@ -1178,7 +1178,7 @@ void CCodeGen_AArch64::Emit_LoadFromRefIdx_VarVarVar(const STATEMENT& statement)
 	auto src1 = statement.src1->GetSymbol().get();
 	auto src2 = statement.src2->GetSymbol().get();
 	
-	uint8 scale = static_cast<uint8>(statement.jmpCondition);
+	FRAMEWORK_MAYBE_UNUSED uint8 scale = static_cast<uint8>(statement.jmpCondition);
 	assert(scale == 1);
 
 	auto dstReg = PrepareSymbolRegisterDef(dst, GetNextTempRegister());
@@ -1198,7 +1198,7 @@ void CCodeGen_AArch64::Emit_LoadFromRefIdx_VarVarCst(const STATEMENT& statement)
 	
 	assert(src2->m_type == SYM_CONSTANT);
 	
-	uint8 scale = static_cast<uint8>(statement.jmpCondition);
+	FRAMEWORK_MAYBE_UNUSED uint8 scale = static_cast<uint8>(statement.jmpCondition);
 	assert(scale == 1);
 
 	auto valueReg = PrepareSymbolRegisterDef(dst, GetNextTempRegister());
@@ -1278,7 +1278,7 @@ void CCodeGen_AArch64::Emit_StoreAtRefIdx_VarCstAny(const STATEMENT& statement)
 	
 	assert(src2->m_type == SYM_CONSTANT);
 	
-	uint8 scale = static_cast<uint8>(statement.jmpCondition);
+	FRAMEWORK_MAYBE_UNUSED uint8 scale = static_cast<uint8>(statement.jmpCondition);
 	assert(scale == 1);
 	
 	auto addressReg = PrepareSymbolRegisterUseRef(src1, GetNextTempRegister64());
@@ -1319,7 +1319,7 @@ void CCodeGen_AArch64::Emit_Store16AtRef_VarAny(const STATEMENT& statement)
 
 void CCodeGen_AArch64::Emit_Param_Ctx(const STATEMENT& statement)
 {
-	auto src1 = statement.src1->GetSymbol().get();
+	FRAMEWORK_MAYBE_UNUSED auto src1 = statement.src1->GetSymbol().get();
 	
 	assert(src1->m_type == SYM_CONTEXT);
 	
@@ -1664,7 +1664,7 @@ void CCodeGen_AArch64::Emit_CondJmp_VarCst(const STATEMENT& statement)
 void CCodeGen_AArch64::Emit_CondJmp_Ref_VarCst(const STATEMENT& statement)
 {
 	auto src1 = statement.src1->GetSymbol().get();
-	auto src2 = statement.src2->GetSymbol().get();
+	FRAMEWORK_MAYBE_UNUSED auto src2 = statement.src2->GetSymbol().get();
 	
 	auto src1Reg = PrepareSymbolRegisterUseRef(src1, GetNextTempRegister64());
 

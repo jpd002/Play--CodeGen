@@ -55,12 +55,7 @@ uint32 CWasmModuleBuilder::GetULeb128Size(uint32 value)
 	uint32 size = 0;
 	while(1)
 	{
-		uint8 byte = (value & 0x7F);
 		value >>= 7;
-		if(value != 0)
-		{
-			byte |= 0x80;
-		}
 		size++;
 		if(value == 0)
 		{

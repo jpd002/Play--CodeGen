@@ -294,7 +294,7 @@ void CCodeGen_AArch32::Emit_Md_StoreAtRef_VarMem(const STATEMENT& statement)
 void CCodeGen_AArch32::Emit_Md_MovMasked_MemMemMem(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
-	auto src1 = statement.src1->GetSymbol().get();
+	FRAMEWORK_MAYBE_UNUSED auto src1 = statement.src1->GetSymbol().get();
 	auto src2 = statement.src2->GetSymbol().get();
 
 	assert(dst->Equals(src1));

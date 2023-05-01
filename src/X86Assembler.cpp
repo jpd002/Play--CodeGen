@@ -1,7 +1,8 @@
-#include <assert.h>
-#include <stdexcept>
 #include "X86Assembler.h"
+#include <cassert>
+#include <stdexcept>
 #include "LiteralPool.h"
+#include "maybe_unused.h"
 
 void CX86Assembler::Begin()
 {
@@ -72,6 +73,11 @@ void CX86Assembler::End()
 								changed = true;
 							}
 						}
+						break;
+					case JMP_FAR:
+						break;
+					default:
+						assert(false);
 						break;
 				}
 			}
@@ -145,7 +151,7 @@ void CX86Assembler::IncrementJumpOffsetsLocal(LABELINFO& label, LabelRefArray::i
 		//Make sure any literal ref happens before a label ref
 		for(const auto& literalRefPair : label.literal128Refs)
 		{
-			const auto& literalRef = literalRefPair.second;
+			FRAMEWORK_MAYBE_UNUSED const auto& literalRef = literalRefPair.second;
 			assert(literalRef.offset < labelRef.offset);
 		}
 

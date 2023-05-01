@@ -2,6 +2,7 @@
 #include "Jitter_CodeGen_AArch32.h"
 #include "ObjectFile.h"
 #include "BitManip.h"
+#include "maybe_unused.h"
 #ifdef __ANDROID__
 #include <cpu-features.h>
 #endif
@@ -838,7 +839,7 @@ void CCodeGen_AArch32::Emit_Nop(const STATEMENT& statement)
 
 void CCodeGen_AArch32::Emit_Param_Ctx(const STATEMENT& statement)
 {
-	auto src1 = statement.src1->GetSymbol().get();
+	FRAMEWORK_MAYBE_UNUSED auto src1 = statement.src1->GetSymbol().get();
 
 	assert(src1->m_type == SYM_CONTEXT);
 	
@@ -1235,7 +1236,7 @@ void CCodeGen_AArch32::Emit_CondJmp_VarCst(const STATEMENT& statement)
 void CCodeGen_AArch32::Emit_CondJmp_Ref_VarCst(const STATEMENT& statement)
 {
 	auto src1 = statement.src1->GetSymbol().get();
-	auto src2 = statement.src2->GetSymbol().get();
+	FRAMEWORK_MAYBE_UNUSED auto src2 = statement.src2->GetSymbol().get();
 	
 	auto src1Reg = PrepareSymbolRegisterUseRef(src1, CAArch32Assembler::r0);
 
@@ -1477,7 +1478,7 @@ void CCodeGen_AArch32::Emit_LoadFromRefIdx_VarVarVar(const STATEMENT& statement)
 	auto src1 = statement.src1->GetSymbol().get();
 	auto src2 = statement.src2->GetSymbol().get();
 
-	uint8 scale = static_cast<uint8>(statement.jmpCondition);
+	FRAMEWORK_MAYBE_UNUSED uint8 scale = static_cast<uint8>(statement.jmpCondition);
 	assert(scale == 1);
 
 	auto dstReg = PrepareSymbolRegisterDef(dst, CAArch32Assembler::r0);
@@ -1497,7 +1498,7 @@ void CCodeGen_AArch32::Emit_LoadFromRefIdx_VarVarCst(const STATEMENT& statement)
 
 	assert(src2->m_type == SYM_CONSTANT);
 	
-	uint8 scale = static_cast<uint8>(statement.jmpCondition);
+	FRAMEWORK_MAYBE_UNUSED uint8 scale = static_cast<uint8>(statement.jmpCondition);
 	assert(scale == 1);
 
 	auto dstReg = PrepareSymbolRegisterDef(dst, CAArch32Assembler::r0);
@@ -1590,7 +1591,7 @@ void CCodeGen_AArch32::Emit_StoreAtRefIdx_VarCstAny(const STATEMENT& statement)
 
 	assert(src2->m_type == SYM_CONSTANT);
 	
-	uint8 scale = static_cast<uint8>(statement.jmpCondition);
+	FRAMEWORK_MAYBE_UNUSED uint8 scale = static_cast<uint8>(statement.jmpCondition);
 	assert(scale == 1);
 
 	auto addressReg = PrepareSymbolRegisterUseRef(src1, CAArch32Assembler::r0);

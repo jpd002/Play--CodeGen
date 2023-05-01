@@ -255,7 +255,6 @@ CCoffObjectFile::SymbolArray CCoffObjectFile::BuildSymbols(const InternalSymbolA
 	//External symbols
 	for(uint32 i = 0; i < externalSymbols.size(); i++)
 	{
-		const auto& externalSymbol = externalSymbols[i];
 		auto& externalSymbolInfo = externalSymbolInfos[i];
 		externalSymbolInfo.symbolIndex = symbols.size();
 

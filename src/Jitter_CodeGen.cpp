@@ -31,19 +31,14 @@ bool CCodeGen::SymbolMatches(MATCHTYPE match, const SymbolRefPtr& symbolRef)
 
 	case MATCH_REL_REF:
 		return (symbol->m_type == SYM_REL_REFERENCE);
-		break;
 	case MATCH_REG_REF:
 		return (symbol->m_type == SYM_REG_REFERENCE);
-		break;
 	case MATCH_TMP_REF:
 		return (symbol->m_type == SYM_TMP_REFERENCE);
-		break;
 	case MATCH_MEM_REF:
 		return (symbol->m_type == SYM_REL_REFERENCE) || (symbol->m_type == SYM_TMP_REFERENCE);
-		break;
 	case MATCH_VAR_REF:
 		return (symbol->m_type == SYM_REG_REFERENCE) || (symbol->m_type == SYM_REL_REFERENCE) || (symbol->m_type == SYM_TMP_REFERENCE);
-		break;
 
 	case MATCH_RELATIVE64:
 		return (symbol->m_type == SYM_RELATIVE64);
@@ -80,8 +75,11 @@ bool CCodeGen::SymbolMatches(MATCHTYPE match, const SymbolRefPtr& symbolRef)
 		
 	case MATCH_CONTEXT:
 		return (symbol->m_type == SYM_CONTEXT);
+
+	default:
+		assert(false);
+		return false;
 	}
-	return false;
 }
 
 uint32 CCodeGen::GetRegisterUsage(const StatementList& statements)

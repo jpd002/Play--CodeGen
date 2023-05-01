@@ -159,7 +159,7 @@ void CCodeGen_x86_32::Emit_Prolog(const StatementList& statements, unsigned int 
 							currParamSize += 8;
 							break;
 						default:
-							assert(0);
+							assert(false);
 							break;
 					}
 				}
@@ -182,6 +182,9 @@ void CCodeGen_x86_32::Emit_Prolog(const StatementList& statements, unsigned int 
 			case OP_MD_CLAMP_S:
 				m_literalOffsets.insert(std::make_pair(g_fpClampMask1, -1));
 				m_literalOffsets.insert(std::make_pair(g_fpClampMask2, -1));
+				break;
+
+			default:
 				break;
 			}
 		}
@@ -1478,7 +1481,7 @@ void CCodeGen_x86_32::Emit_Store8AtRef_VarVar(const STATEMENT& statement)
 void CCodeGen_x86_32::Emit_CondJmp_Ref_VarCst(const STATEMENT& statement)
 {
 	auto src1 = statement.src1->GetSymbol().get();
-	auto src2 = statement.src2->GetSymbol().get();
+	FRAMEWORK_MAYBE_UNUSED auto src2 = statement.src2->GetSymbol().get();
 
 	assert(src2->m_type == SYM_CONSTANT);
 	assert(src2->m_valueLow == 0);

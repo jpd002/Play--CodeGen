@@ -256,7 +256,6 @@ typename CMachoObjectFile<MachoTraits>::SymbolArray CMachoObjectFile<MachoTraits
 	//External symbols
 	for(uint32 i = 0; i < externalSymbols.size(); i++)
 	{
-		const auto& externalSymbol = externalSymbols[i];
 		auto& externalSymbolInfo = externalSymbolInfos[i];
 		externalSymbolInfo.symbolIndex = static_cast<uint32>(symbols.size());
 

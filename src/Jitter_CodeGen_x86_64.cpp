@@ -344,6 +344,8 @@ void CCodeGen_x86_64::Emit_Prolog(const StatementList& statements, unsigned int 
 					case SYM_REGISTER128:
 						currParamSpillSize += 16;
 						break;
+					default:
+						break;
 					}
 				}
 				break;
@@ -903,7 +905,7 @@ void CCodeGen_x86_64::Emit_Store8AtRef_VarVar(const STATEMENT& statement)
 void CCodeGen_x86_64::Emit_CondJmp_Ref_VarCst(const STATEMENT& statement)
 {
 	auto src1 = statement.src1->GetSymbol().get();
-	auto src2 = statement.src2->GetSymbol().get();
+	FRAMEWORK_MAYBE_UNUSED auto src2 = statement.src2->GetSymbol().get();
 
 	assert(src2->m_type == SYM_CONSTANT);
 	assert(src2->m_valueLow == 0);

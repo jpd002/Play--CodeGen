@@ -271,11 +271,10 @@ void CCodeGen_x86::InsertMatchers(const CONSTMATCHER* constMatchers)
 
 void CCodeGen_x86::SetGenerationFlags()
 {
+#ifdef HAS_CPUID
 	static const uint32 CPUID_FLAG_SSSE3 = 0x000200;
 	static const uint32 CPUID_FLAG_SSE41 = 0x080000;
 	static const uint32 CPUID_FLAG_AVX = 0x10000000;
-
-#ifdef HAS_CPUID
 
 #ifdef HAS_CPUID_MSVC
 	std::array<int, 4> cpuInfo;
@@ -382,7 +381,7 @@ CX86Assembler::CAddress CCodeGen_x86::MakeVariableSymbolAddress(CSymbol* symbol)
 
 CX86Assembler::CAddress CCodeGen_x86::MakeRelativeReferenceSymbolAddress(CSymbol* symbol)
 {
-	size_t symbolMask = sizeof(void*) - 1;
+	FRAMEWORK_MAYBE_UNUSED static const size_t symbolMask = sizeof(void*) - 1;
 	assert(symbol->m_type == SYM_REL_REFERENCE);
 	assert((symbol->m_valueLow & symbolMask) == 0);
 	return CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, symbol->m_valueLow);
@@ -390,7 +389,7 @@ CX86Assembler::CAddress CCodeGen_x86::MakeRelativeReferenceSymbolAddress(CSymbol
 
 CX86Assembler::CAddress CCodeGen_x86::MakeTemporaryReferenceSymbolAddress(CSymbol* symbol)
 {
-	size_t symbolMask = sizeof(void*) - 1;
+	FRAMEWORK_MAYBE_UNUSED static const size_t symbolMask = sizeof(void*) - 1;
 	assert(symbol->m_type == SYM_TMP_REFERENCE);
 	assert(((symbol->m_stackLocation + m_stackLevel) & symbolMask) == 0);
 	return CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rSP, symbol->m_stackLocation + m_stackLevel);
@@ -908,7 +907,7 @@ void CCodeGen_x86::Emit_LoadFromRefIdx_VarVarCst(const STATEMENT& statement)
 	auto addressReg = PrepareRefSymbolRegisterUse(src1, CX86Assembler::rAX);
 	auto dstReg = PrepareSymbolRegisterDef(dst, CX86Assembler::rDX);
 
-	uint8 scale = static_cast<uint8>(statement.jmpCondition);
+	FRAMEWORK_MAYBE_UNUSED uint8 scale = static_cast<uint8>(statement.jmpCondition);
 	assert(scale == 1);
 
 	m_assembler.MovEd(dstReg, CX86Assembler::MakeIndRegOffAddress(addressReg, src2->m_valueLow));
@@ -1023,7 +1022,7 @@ void CCodeGen_x86::Emit_StoreAtRefIdx_VarCstVar(const STATEMENT& statement)
 	auto src2 = statement.src2->GetSymbol().get();
 	auto src3 = statement.src3->GetSymbol().get();
 	
-	uint8 scale = static_cast<uint8>(statement.jmpCondition);
+	FRAMEWORK_MAYBE_UNUSED uint8 scale = static_cast<uint8>(statement.jmpCondition);
 	assert(scale == 1);
 	
 	auto addressReg = PrepareRefSymbolRegisterUse(src1, CX86Assembler::rAX);
@@ -1041,7 +1040,7 @@ void CCodeGen_x86::Emit_StoreAtRefIdx_VarCstCst(const STATEMENT& statement)
 	assert(src2->m_type == SYM_CONSTANT);
 	assert(src3->m_type == SYM_CONSTANT);
 
-	uint8 scale = static_cast<uint8>(statement.jmpCondition);
+	FRAMEWORK_MAYBE_UNUSED uint8 scale = static_cast<uint8>(statement.jmpCondition);
 	assert(scale == 1);
 
 	auto addressReg = PrepareRefSymbolRegisterUse(src1, CX86Assembler::rAX);

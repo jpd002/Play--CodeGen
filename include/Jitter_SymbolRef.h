@@ -15,6 +15,8 @@ namespace Jitter
 			
 		}
 
+		virtual ~CSymbolRef() = default;
+
 		SymbolPtr GetSymbol() const
 		{
 			return symbol.lock();
@@ -46,7 +48,7 @@ namespace Jitter
 
 		}
 
-		virtual bool Equals(CSymbolRef* symbolRef) const
+		bool Equals(CSymbolRef* symbolRef) const override
 		{
 			if(symbolRef == NULL) return false;
 			if(!GetSymbol()->Equals(symbolRef->GetSymbol().get())) return false;
@@ -55,7 +57,7 @@ namespace Jitter
 			return versionedSymbolRef->version == version;
 		}
 
-		virtual std::string ToString() const
+		std::string ToString() const override
 		{
 			return CSymbolRef::ToString() + "{" +  std::to_string(version) + "}";
 		}

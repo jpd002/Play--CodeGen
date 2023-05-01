@@ -482,7 +482,7 @@ void CCodeGen_AArch64::Emit_Md_Srl256_VarMemVar(const STATEMENT& statement)
 
 	//Compute offset and modify address
 	LOGICAL_IMM_PARAMS logicalImmParams;
-	bool result = TryGetLogicalImmParams(0x7F, logicalImmParams);
+	FRAMEWORK_MAYBE_UNUSED bool result = TryGetLogicalImmParams(0x7F, logicalImmParams);
 	assert(result);
 	m_assembler.And(offsetRegister, src2Register, logicalImmParams.n, logicalImmParams.immr, logicalImmParams.imms);
 	m_assembler.Lsr(offsetRegister, offsetRegister, 3);

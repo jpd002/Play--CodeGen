@@ -250,6 +250,23 @@ void CJitter::Break()
 	InsertStatement(statement);
 }
 
+void CJitter::CallRel64(size_t offset, unsigned int paramCount)
+{
+	for(unsigned int i = 0; i < paramCount; i++)
+	{
+		STATEMENT paramStatement;
+		paramStatement.src1	= MakeSymbolRef(m_shadow.Pull());
+		paramStatement.op	= OP_PARAM;
+		InsertStatement(paramStatement);
+	}
+
+	STATEMENT callStatement;
+	callStatement.src1 = MakeSymbolRef(MakeSymbol(SYM_RELATIVE64, static_cast<uint32>(offset)));
+	callStatement.src2 = MakeSymbolRef(MakeSymbol(SYM_CONSTANT, paramCount));
+	callStatement.op = OP_CALL;
+	InsertStatement(callStatement);
+}
+
 void CJitter::Call(void* func, unsigned int paramCount, bool keepRet)
 {
 	Call(func, paramCount, keepRet ? RETURN_VALUE_32 : RETURN_VALUE_NONE);

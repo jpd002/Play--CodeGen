@@ -32,6 +32,7 @@ CCodeGen_x86_32::CONSTMATCHER CCodeGen_x86_32::g_constMatchers[] =
 
 	{ OP_PARAM_RET,		MATCH_NIL,			MATCH_MEMORY128,	MATCH_NIL,			&CCodeGen_x86_32::Emit_ParamRet_Mem128			},
 	
+	{ OP_CALL,			MATCH_NIL,			MATCH_RELATIVE,		MATCH_CONSTANT,		&CCodeGen_x86_32::Emit_Call_Rel						},
 	{ OP_CALL,			MATCH_NIL,			MATCH_CONSTANTPTR,	MATCH_CONSTANT,		&CCodeGen_x86_32::Emit_Call						},
 
 	{ OP_RETVAL,		MATCH_TEMPORARY,	MATCH_NIL,			MATCH_NIL,			&CCodeGen_x86_32::Emit_RetVal_Tmp				},
@@ -199,9 +200,9 @@ void CCodeGen_x86_32::Emit_Prolog(const StatementList& statements, unsigned int 
 	m_assembler.MovEd(CX86Assembler::rBP, CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rSP, 8));
 
 	//Save registers
-	for(unsigned int i = 0; i < MAX_REGISTERS; i++)
+	if(m_isTrampoline)
 	{
-		if(m_registerUsage & (1 << i))
+		for(unsigned int i = 0; i < MAX_REGISTERS; i++)
 		{
 			m_assembler.Push(m_registers[i]);
 		}
@@ -270,9 +271,9 @@ void CCodeGen_x86_32::Emit_Epilog()
 
 	m_assembler.Pop(CX86Assembler::rSP);
 
-	for(int i = MAX_REGISTERS - 1; i >= 0; i--)
+	if(m_isTrampoline)
 	{
-		if(m_registerUsage & (1 << i))
+		for(int i = MAX_REGISTERS - 1; i >= 0; i--)
 		{
 			m_assembler.Pop(m_registers[i]);
 		}
@@ -424,6 +425,33 @@ void CCodeGen_x86_32::Emit_ParamRet_Mem128(const STATEMENT& statement)
 	Emit_Param_Mem128(statement);
 	assert(!m_hasImplicitRetValueParam);
 	m_hasImplicitRetValueParam = true;
+}
+
+void CCodeGen_x86_32::Emit_Call_Rel(const STATEMENT& statement)
+{
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	uint32 paramCount = src2->m_valueLow;
+	CALL_STATE callState;
+	for(unsigned int i = 0; i < paramCount; i++)
+	{
+		auto emitter(m_params.back());
+		m_params.pop_back();
+		emitter(callState);
+	}
+
+	m_assembler.MovEd(CX86Assembler::rAX, MakeRelativeSymbolAddress(src1));
+	m_assembler.CallEd(CX86Assembler::MakeRegisterAddress(CX86Assembler::rAX));
+
+	if(m_hasImplicitRetValueParam && m_implicitRetValueParamFixUpRequired)
+	{
+		//Allocated stack space for the extra parameter is cleaned up by the callee. 
+		//So adjust the amount of stack space we free up after the call
+		m_assembler.SubId(CX86Assembler::MakeRegisterAddress(CX86Assembler::rSP), 4);
+	}
+
+	m_hasImplicitRetValueParam = false;
 }
 
 void CCodeGen_x86_32::Emit_Call(const STATEMENT& statement)

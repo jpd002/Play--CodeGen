@@ -44,6 +44,7 @@ namespace Jitter
 		void								Emit_ParamRet_Mem128(const STATEMENT&);
 
 		//CALL
+		void								Emit_Call_Rel(const STATEMENT&);
 		void								Emit_Call(const STATEMENT&);
 
 		//RETURNVALUE

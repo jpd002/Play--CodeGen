@@ -21,7 +21,7 @@ public:
 	CMemoryFunction&	operator =(const CMemoryFunction&) = delete;
 
 	CMemoryFunction&	operator =(CMemoryFunction&&);
-	void				operator()(void*);
+	void				operator()(void*, bool = false);
 
 	void*				GetCode() const;
 	size_t				GetSize() const;

@@ -34,6 +34,7 @@ namespace Jitter
 		virtual bool			SupportsExternalJumps() const = 0;
 		virtual void			RegisterExternalSymbols(CObjectFile*) const = 0;
 		virtual uint32			GetPointerSize() const = 0;
+		void					SetTrumpoline(bool);
 
 	protected:
 		enum MATCHTYPE
@@ -95,5 +96,6 @@ namespace Jitter
 
 		MatcherMapType						m_matchers;
 		ExternalSymbolReferencedHandler		m_externalSymbolReferencedHandler;
+		bool								m_isTrampoline = false;
 	};
 }

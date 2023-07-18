@@ -599,7 +599,7 @@ void CJitter::LoadFromRefIdx(size_t scale)
 	auto tempSym = MakeSymbol(SYM_TEMPORARY, m_nextTemporary++);
 
 	STATEMENT statement;
-	statement.op           = OP_LOADFROMREFIDX;
+	statement.op           = OP_LOADFROMREF;
 	statement.jmpCondition = static_cast<CONDITION>(scale);
 	statement.src2         = MakeSymbolRef(m_shadow.Pull());
 	statement.src1         = MakeSymbolRef(m_shadow.Pull());
@@ -659,7 +659,7 @@ void CJitter::StoreAtRefIdx(size_t scale)
 	assert(scale == 1 || scale == 4);
 
 	STATEMENT statement;
-	statement.op   = OP_STOREATREFIDX;
+	statement.op   = OP_STOREATREF;
 	statement.jmpCondition = static_cast<CONDITION>(scale);
 	statement.src3 = MakeSymbolRef(m_shadow.Pull());
 	statement.src2 = MakeSymbolRef(m_shadow.Pull());

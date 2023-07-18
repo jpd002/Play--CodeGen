@@ -122,14 +122,8 @@ void Jitter::DumpStatementList(std::ostream& outputStream, const StatementList& 
 		case OP_STOREATREF:
 			outputStream << " <- ";
 			break;
-		case OP_STOREATREFIDX:
-			outputStream << " <-(I) ";
-			break;
 		case OP_LOADFROMREF:
 			outputStream << " LOADFROM ";
-			break;
-		case OP_LOADFROMREFIDX:
-			outputStream << " LOADFROM(I) ";
 			break;
 		case OP_RELTOREF:
 			outputStream << " TOREF ";

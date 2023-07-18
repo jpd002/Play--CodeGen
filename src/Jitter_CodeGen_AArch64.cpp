@@ -295,8 +295,8 @@ CCodeGen_AArch64::CONSTMATCHER CCodeGen_AArch64::g_constMatchers[] =
 	{ OP_LOADFROMREF,    MATCH_VARIABLE,       MATCH_VAR_REF,        MATCH_NIL,           MATCH_NIL,      &CCodeGen_AArch64::Emit_LoadFromRef_VarVar                  },
 	{ OP_LOADFROMREF,    MATCH_VAR_REF,        MATCH_VAR_REF,        MATCH_NIL,           MATCH_NIL,      &CCodeGen_AArch64::Emit_LoadFromRef_Ref_VarVar              },
 
-	{ OP_LOADFROMREFIDX, MATCH_VARIABLE,       MATCH_VAR_REF,        MATCH_VARIABLE,      MATCH_NIL,      &CCodeGen_AArch64::Emit_LoadFromRefIdx_VarVarVar            },
-	{ OP_LOADFROMREFIDX, MATCH_VARIABLE,       MATCH_VAR_REF,        MATCH_CONSTANT,      MATCH_NIL,      &CCodeGen_AArch64::Emit_LoadFromRefIdx_VarVarCst            },
+	{ OP_LOADFROMREF,    MATCH_VARIABLE,       MATCH_VAR_REF,        MATCH_VARIABLE,      MATCH_NIL,      &CCodeGen_AArch64::Emit_LoadFromRefIdx_VarVarVar            },
+	{ OP_LOADFROMREF,    MATCH_VARIABLE,       MATCH_VAR_REF,        MATCH_CONSTANT,      MATCH_NIL,      &CCodeGen_AArch64::Emit_LoadFromRefIdx_VarVarCst            },
 
 	{ OP_LOAD8FROMREF,   MATCH_VARIABLE,       MATCH_VAR_REF,        MATCH_NIL,           MATCH_NIL,      &CCodeGen_AArch64::Emit_Load8FromRef_MemVar                 },
 	
@@ -306,8 +306,8 @@ CCodeGen_AArch64::CONSTMATCHER CCodeGen_AArch64::g_constMatchers[] =
 	{ OP_STOREATREF,     MATCH_NIL,            MATCH_VAR_REF,        MATCH_VARIABLE,      MATCH_NIL,      &CCodeGen_AArch64::Emit_StoreAtRef_VarAny                   },
 	{ OP_STOREATREF,     MATCH_NIL,            MATCH_VAR_REF,        MATCH_CONSTANT,      MATCH_NIL,      &CCodeGen_AArch64::Emit_StoreAtRef_VarAny                   },
 	
-	{ OP_STOREATREFIDX,  MATCH_NIL,            MATCH_VAR_REF,        MATCH_VARIABLE,      MATCH_ANY,      &CCodeGen_AArch64::Emit_StoreAtRefIdx_VarVarAny             },
-	{ OP_STOREATREFIDX,  MATCH_NIL,            MATCH_VAR_REF,        MATCH_CONSTANT,      MATCH_ANY,      &CCodeGen_AArch64::Emit_StoreAtRefIdx_VarCstAny             },
+	{ OP_STOREATREF,     MATCH_NIL,            MATCH_VAR_REF,        MATCH_VARIABLE,      MATCH_ANY,      &CCodeGen_AArch64::Emit_StoreAtRefIdx_VarVarAny             },
+	{ OP_STOREATREF,     MATCH_NIL,            MATCH_VAR_REF,        MATCH_CONSTANT,      MATCH_ANY,      &CCodeGen_AArch64::Emit_StoreAtRefIdx_VarCstAny             },
 
 	{ OP_STORE8ATREF,    MATCH_NIL,            MATCH_VAR_REF,        MATCH_ANY,           MATCH_NIL,      &CCodeGen_AArch64::Emit_Store8AtRef_VarAny                  },
 	

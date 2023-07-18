@@ -5,6 +5,8 @@
 class CMemAccessIdxTest : public CTest
 {
 public:
+	CMemAccessIdxTest(bool);
+
 	void Run() override;
 	void Compile(Jitter::CJitter&) override;
 
@@ -18,9 +20,10 @@ private:
 		uint32 index2;
 		uint32 index0Value;
 		uint32 index1Value;
-		uint32 index4Value;
 	};
 
+	size_t          m_accessScale;
+	size_t          m_indexScale;
 	CONTEXT         m_context;
 	UnitType        m_memory[0x20];
 	FunctionType    m_function;

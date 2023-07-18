@@ -100,20 +100,21 @@ namespace Jitter
 		void							Xor();
 
 		//Memory operations
+		//Indexed operations have a default scale of value size
+
 		void							PushRelRef(size_t);
 		void							PushRelAddrRef(size_t);
 
 		void							AddRef();
 		void							IsRefNull();
 		void							LoadFromRef();
-		void							LoadFromRefIdx();
+		void							LoadFromRefIdx(size_t = sizeof(uint32));
 		void							Load8FromRef();
 		void							Load16FromRef();
 		void							Load64FromRef();
 		void							LoadRefFromRef();
 		void							StoreAtRef();
-		void							StoreAtRefIdx();
-		void							StoreAtRefIdx4();
+		void							StoreAtRefIdx(size_t = sizeof(uint32));
 		void							Store8AtRef();
 		void							Store16AtRef();
 		void							Store64AtRef();

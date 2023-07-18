@@ -144,6 +144,7 @@ namespace Jitter
 		void									CommitParam64(PARAM_STATE&);
 
 		CAArch32Assembler::AluLdrShift			GetAluShiftFromSymbol(CAArch32Assembler::SHIFT shiftType, CSymbol* symbol, CAArch32Assembler::REGISTER preferedRegister);
+		CAArch32Assembler::LdrAddress			MakeScaledLdrAddress(CAArch32Assembler::REGISTER, uint8);
 
 		static uint32							RotateRight(uint32);
 		static uint32							RotateLeft(uint32);

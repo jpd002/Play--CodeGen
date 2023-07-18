@@ -611,6 +611,20 @@ CAArch32Assembler::AluLdrShift CCodeGen_AArch32::GetAluShiftFromSymbol(CAArch32A
 	}
 }
 
+CAArch32Assembler::LdrAddress CCodeGen_AArch32::MakeScaledLdrAddress(CAArch32Assembler::REGISTER indexReg, uint8 scale)
+{
+	switch(scale)
+	{
+	default:
+		assert(false);
+		[[fallthrough]];
+	case 1:
+		return CAArch32Assembler::MakeRegisterLdrAddress(indexReg);
+	case 4:
+		return CAArch32Assembler::MakeRegisterLdrAddress(indexReg, CAArch32Assembler::SHIFT_LSL, 2);
+	}
+}
+
 CAArch32Assembler::REGISTER CCodeGen_AArch32::PrepareSymbolRegisterDef(CSymbol* symbol, CAArch32Assembler::REGISTER preferedRegister)
 {
 	switch(symbol->m_type)
@@ -1477,15 +1491,15 @@ void CCodeGen_AArch32::Emit_LoadFromRefIdx_VarVarVar(const STATEMENT& statement)
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
 	auto src2 = statement.src2->GetSymbol().get();
+	uint8 scale = static_cast<uint8>(statement.jmpCondition);
 
-	FRAMEWORK_MAYBE_UNUSED uint8 scale = static_cast<uint8>(statement.jmpCondition);
-	assert(scale == 1);
+	assert((scale == 1) || (scale == 4));
 
 	auto dstReg = PrepareSymbolRegisterDef(dst, CAArch32Assembler::r0);
 	auto addressReg = PrepareSymbolRegisterUseRef(src1, CAArch32Assembler::r1);
 	auto indexReg = PrepareSymbolRegisterUse(src2, CAArch32Assembler::r2);
 
-	m_assembler.Ldr(dstReg, addressReg, CAArch32Assembler::MakeRegisterLdrAddress(indexReg));
+	m_assembler.Ldr(dstReg, addressReg, MakeScaledLdrAddress(indexReg, scale));
 
 	CommitSymbolRegister(dst, dstReg);
 }
@@ -1495,23 +1509,23 @@ void CCodeGen_AArch32::Emit_LoadFromRefIdx_VarVarCst(const STATEMENT& statement)
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
 	auto src2 = statement.src2->GetSymbol().get();
+	uint8 scale = static_cast<uint8>(statement.jmpCondition);
 
 	assert(src2->m_type == SYM_CONSTANT);
-	
-	FRAMEWORK_MAYBE_UNUSED uint8 scale = static_cast<uint8>(statement.jmpCondition);
-	assert(scale == 1);
+	assert((scale == 1) || (scale == 4));
 
 	auto dstReg = PrepareSymbolRegisterDef(dst, CAArch32Assembler::r0);
 	auto addressReg = PrepareSymbolRegisterUseRef(src1, CAArch32Assembler::r1);
+	uint32 scaledIndex = src2->m_valueLow * scale;
 
-	if(src2->m_valueLow < 4096)
+	if(scaledIndex < 0x1000)
 	{
-		m_assembler.Ldr(dstReg, addressReg, CAArch32Assembler::MakeImmediateLdrAddress(src2->m_valueLow));
+		m_assembler.Ldr(dstReg, addressReg, CAArch32Assembler::MakeImmediateLdrAddress(scaledIndex));
 	}
 	else
 	{
 		auto indexReg = PrepareSymbolRegisterUse(src2, CAArch32Assembler::r2);
-		m_assembler.Ldr(dstReg, addressReg, CAArch32Assembler::MakeRegisterLdrAddress(indexReg));
+		m_assembler.Ldr(dstReg, addressReg, MakeScaledLdrAddress(indexReg, scale));
 	}
 
 	CommitSymbolRegister(dst, dstReg);
@@ -1559,28 +1573,15 @@ void CCodeGen_AArch32::Emit_StoreAtRefIdx_VarVarAny(const STATEMENT& statement)
 	auto src1 = statement.src1->GetSymbol().get();
 	auto src2 = statement.src2->GetSymbol().get();
 	auto src3 = statement.src3->GetSymbol().get();
-	
 	uint8 scale = static_cast<uint8>(statement.jmpCondition);
+
+	assert((scale == 1) || (scale == 4));
 
 	auto addressReg = PrepareSymbolRegisterUseRef(src1, CAArch32Assembler::r0);
 	auto indexReg = PrepareSymbolRegisterUse(src2, CAArch32Assembler::r1);
 	auto valueReg = PrepareSymbolRegisterUse(src3, CAArch32Assembler::r2);
 	
-	auto ldrAddress =
-		[&]()
-		{
-			switch(scale)
-			{
-			default:
-				assert(false);
-			case 1:
-				return CAArch32Assembler::MakeRegisterLdrAddress(indexReg);
-			case 4:
-				return CAArch32Assembler::MakeRegisterLdrAddress(indexReg, CAArch32Assembler::SHIFT_LSL, 2);
-			}
-		}();
-
-	m_assembler.Str(valueReg, addressReg, ldrAddress);
+	m_assembler.Str(valueReg, addressReg, MakeScaledLdrAddress(indexReg, scale));
 }
 
 void CCodeGen_AArch32::Emit_StoreAtRefIdx_VarCstAny(const STATEMENT& statement)
@@ -1588,23 +1589,23 @@ void CCodeGen_AArch32::Emit_StoreAtRefIdx_VarCstAny(const STATEMENT& statement)
 	auto src1 = statement.src1->GetSymbol().get();
 	auto src2 = statement.src2->GetSymbol().get();
 	auto src3 = statement.src3->GetSymbol().get();
+	uint8 scale = static_cast<uint8>(statement.jmpCondition);
 
 	assert(src2->m_type == SYM_CONSTANT);
-	
-	FRAMEWORK_MAYBE_UNUSED uint8 scale = static_cast<uint8>(statement.jmpCondition);
-	assert(scale == 1);
+	assert((scale == 1) || (scale == 4));
 
 	auto addressReg = PrepareSymbolRegisterUseRef(src1, CAArch32Assembler::r0);
+	uint32 scaledIndex = src2->m_valueLow * scale;
 	auto valueReg = PrepareSymbolRegisterUse(src3, CAArch32Assembler::r2);
 
-	if(src2->m_valueLow < 4096)
+	if(scaledIndex < 0x1000)
 	{
-		m_assembler.Str(valueReg, addressReg, CAArch32Assembler::MakeImmediateLdrAddress(src2->m_valueLow));
+		m_assembler.Str(valueReg, addressReg, CAArch32Assembler::MakeImmediateLdrAddress(scaledIndex));
 	}
 	else
 	{
 		auto indexReg = PrepareSymbolRegisterUse(src2, CAArch32Assembler::r1);
-		m_assembler.Str(valueReg, addressReg, CAArch32Assembler::MakeRegisterLdrAddress(indexReg));
+		m_assembler.Str(valueReg, addressReg, MakeScaledLdrAddress(indexReg, scale));
 	}
 }
 

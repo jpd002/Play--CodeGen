@@ -1177,15 +1177,15 @@ void CCodeGen_AArch64::Emit_LoadFromRefIdx_VarVarVar(const STATEMENT& statement)
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
 	auto src2 = statement.src2->GetSymbol().get();
-	
-	FRAMEWORK_MAYBE_UNUSED uint8 scale = static_cast<uint8>(statement.jmpCondition);
-	assert(scale == 1);
+	uint8 scale = static_cast<uint8>(statement.jmpCondition);
+
+	assert((scale == 1) || (scale == 4));
 
 	auto dstReg = PrepareSymbolRegisterDef(dst, GetNextTempRegister());
 	auto addressReg = PrepareSymbolRegisterUseRef(src1, GetNextTempRegister64());
 	auto indexReg = PrepareSymbolRegisterUse(src2, GetNextTempRegister());
 
-	m_assembler.Ldr(dstReg, addressReg, static_cast<CAArch64Assembler::REGISTER64>(indexReg), false);
+	m_assembler.Ldr(dstReg, addressReg, static_cast<CAArch64Assembler::REGISTER64>(indexReg), (scale == 4));
 
 	CommitSymbolRegister(dst, dstReg);
 }
@@ -1195,23 +1195,23 @@ void CCodeGen_AArch64::Emit_LoadFromRefIdx_VarVarCst(const STATEMENT& statement)
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
 	auto src2 = statement.src2->GetSymbol().get();
-	
+	uint8 scale = static_cast<uint8>(statement.jmpCondition);
+
 	assert(src2->m_type == SYM_CONSTANT);
-	
-	FRAMEWORK_MAYBE_UNUSED uint8 scale = static_cast<uint8>(statement.jmpCondition);
-	assert(scale == 1);
+	assert((scale == 1) || (scale == 4));
 
 	auto valueReg = PrepareSymbolRegisterDef(dst, GetNextTempRegister());
 	auto addressReg = PrepareSymbolRegisterUseRef(src1, GetNextTempRegister64());
+	uint32 scaledIndex = src2->m_valueLow * scale;
 
-	if(src2->m_valueLow < 16384)
+	if(scaledIndex < 0x4000)
 	{
-		m_assembler.Ldr(valueReg, addressReg, src2->m_valueLow);
+		m_assembler.Ldr(valueReg, addressReg, scaledIndex);
 	}
 	else
 	{
 		auto indexReg = PrepareSymbolRegisterUse(src2, GetNextTempRegister());
-		m_assembler.Ldr(valueReg, addressReg, static_cast<CAArch64Assembler::REGISTER64>(indexReg), false);
+		m_assembler.Ldr(valueReg, addressReg, static_cast<CAArch64Assembler::REGISTER64>(indexReg), (scale == 4));
 	}
 
 	CommitSymbolRegister(dst, valueReg);
@@ -1259,8 +1259,8 @@ void CCodeGen_AArch64::Emit_StoreAtRefIdx_VarVarAny(const STATEMENT& statement)
 	auto src1 = statement.src1->GetSymbol().get();
 	auto src2 = statement.src2->GetSymbol().get();
 	auto src3 = statement.src3->GetSymbol().get();
-	
 	uint8 scale = static_cast<uint8>(statement.jmpCondition);
+
 	assert((scale == 1) || (scale == 4));
 
 	auto addressReg = PrepareSymbolRegisterUseRef(src1, GetNextTempRegister64());
@@ -1275,23 +1275,23 @@ void CCodeGen_AArch64::Emit_StoreAtRefIdx_VarCstAny(const STATEMENT& statement)
 	auto src1 = statement.src1->GetSymbol().get();
 	auto src2 = statement.src2->GetSymbol().get();
 	auto src3 = statement.src3->GetSymbol().get();
+	uint8 scale = static_cast<uint8>(statement.jmpCondition);
 	
 	assert(src2->m_type == SYM_CONSTANT);
-	
-	FRAMEWORK_MAYBE_UNUSED uint8 scale = static_cast<uint8>(statement.jmpCondition);
-	assert(scale == 1);
+	assert((scale == 1) || (scale == 4));
 	
 	auto addressReg = PrepareSymbolRegisterUseRef(src1, GetNextTempRegister64());
+	uint32 scaledIndex = src2->m_valueLow * scale;
 	auto valueReg = PrepareSymbolRegisterUse(src3, GetNextTempRegister());
 	
-	if(src2->m_valueLow < 16384)
+	if(scaledIndex < 0x4000)
 	{
-		m_assembler.Str(valueReg, addressReg, src2->m_valueLow);
+		m_assembler.Str(valueReg, addressReg, scaledIndex);
 	}
 	else
 	{
 		auto indexReg = PrepareSymbolRegisterUse(src2, GetNextTempRegister());
-		m_assembler.Str(valueReg, addressReg, static_cast<CAArch64Assembler::REGISTER64>(indexReg), false);
+		m_assembler.Str(valueReg, addressReg, static_cast<CAArch64Assembler::REGISTER64>(indexReg), (scale == 4));
 	}
 }
 

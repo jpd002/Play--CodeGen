@@ -90,11 +90,8 @@ CCodeGen_Wasm::CONSTMATCHER CCodeGen_Wasm::g_constMatchers[] =
 	{ OP_LOAD8FROMREF,   MATCH_VARIABLE,       MATCH_VAR_REF,        MATCH_NIL,           MATCH_NIL,      &CCodeGen_Wasm::Emit_Load8FromRef_MemVar                    },
 	{ OP_LOAD16FROMREF,  MATCH_VARIABLE,       MATCH_VAR_REF,        MATCH_NIL,           MATCH_NIL,      &CCodeGen_Wasm::Emit_Load16FromRef_MemVar                   },
 
-	//Cannot use MATCH_ANY here because it will match non 32-bits symbols
-	{ OP_STOREATREF,     MATCH_NIL,            MATCH_VAR_REF,        MATCH_VARIABLE,      MATCH_NIL,      &CCodeGen_Wasm::Emit_StoreAtRef_VarAny                      },
-	{ OP_STOREATREF,     MATCH_NIL,            MATCH_VAR_REF,        MATCH_CONSTANT,      MATCH_NIL,      &CCodeGen_Wasm::Emit_StoreAtRef_VarAny                      },
-
-	{ OP_STOREATREF,     MATCH_NIL,            MATCH_VAR_REF,        MATCH_ANY,           MATCH_ANY,      &CCodeGen_Wasm::Emit_StoreAtRefIdx_VarAnyAny                },
+	{ OP_STOREATREF,     MATCH_NIL,            MATCH_VAR_REF,        MATCH_ANY32,         MATCH_NIL,      &CCodeGen_Wasm::Emit_StoreAtRef_VarAny                      },
+	{ OP_STOREATREF,     MATCH_NIL,            MATCH_VAR_REF,        MATCH_ANY32,         MATCH_ANY32,    &CCodeGen_Wasm::Emit_StoreAtRef_VarAnyAny                   },
 
 	{ OP_STORE8ATREF,    MATCH_NIL,            MATCH_VAR_REF,        MATCH_ANY,           MATCH_NIL,      &CCodeGen_Wasm::Emit_Store8AtRef_VarAny                     },
 	{ OP_STORE16ATREF,   MATCH_NIL,            MATCH_VAR_REF,        MATCH_ANY,           MATCH_NIL,      &CCodeGen_Wasm::Emit_Store16AtRef_VarAny                    },
@@ -991,8 +988,8 @@ void CCodeGen_Wasm::Emit_LoadFromRefIdx_VarVarAny(const STATEMENT& statement)
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
 	auto src2 = statement.src2->GetSymbol().get();
-
 	uint8 scale = static_cast<uint8>(statement.jmpCondition);
+
 	assert((scale == 1) || (scale == 4));
 
 	PrepareSymbolDef(dst);
@@ -1063,13 +1060,13 @@ void CCodeGen_Wasm::Emit_StoreAtRef_VarAny(const STATEMENT& statement)
 	m_functionStream.Write8(0x00);
 }
 
-void CCodeGen_Wasm::Emit_StoreAtRefIdx_VarAnyAny(const STATEMENT& statement)
+void CCodeGen_Wasm::Emit_StoreAtRef_VarAnyAny(const STATEMENT& statement)
 {
 	auto src1 = statement.src1->GetSymbol().get();
 	auto src2 = statement.src2->GetSymbol().get();
 	auto src3 = statement.src3->GetSymbol().get();
-
 	uint8 scale = static_cast<uint8>(statement.jmpCondition);
+
 	assert((scale == 1) || (scale == 4));
 
 	PrepareSymbolUse(src1);

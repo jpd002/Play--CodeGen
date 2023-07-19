@@ -294,7 +294,9 @@ CCodeGen_AArch64::CONSTMATCHER CCodeGen_AArch64::g_constMatchers[] =
 
 	{ OP_LOADFROMREF,    MATCH_VARIABLE,       MATCH_VAR_REF,        MATCH_NIL,           MATCH_NIL,      &CCodeGen_AArch64::Emit_LoadFromRef_VarVar                  },
 	{ OP_LOADFROMREF,    MATCH_VARIABLE,       MATCH_VAR_REF,        MATCH_ANY32,         MATCH_NIL,      &CCodeGen_AArch64::Emit_LoadFromRef_VarVarAny               },
+
 	{ OP_LOADFROMREF,    MATCH_VAR_REF,        MATCH_VAR_REF,        MATCH_NIL,           MATCH_NIL,      &CCodeGen_AArch64::Emit_LoadFromRef_Ref_VarVar              },
+	{ OP_LOADFROMREF,    MATCH_VAR_REF,        MATCH_VAR_REF,        MATCH_ANY32,         MATCH_NIL,      &CCodeGen_AArch64::Emit_LoadFromRef_Ref_VarVarAny           },
 
 	{ OP_LOAD8FROMREF,   MATCH_VARIABLE,       MATCH_VAR_REF,        MATCH_NIL,           MATCH_NIL,      &CCodeGen_AArch64::Emit_Load8FromRef_MemVar                 },
 	
@@ -1153,19 +1155,6 @@ void CCodeGen_AArch64::Emit_LoadFromRef_VarVar(const STATEMENT& statement)
 	CommitSymbolRegister(dst, dstReg);
 }
 
-void CCodeGen_AArch64::Emit_LoadFromRef_Ref_VarVar(const STATEMENT& statement)
-{
-	auto dst = statement.dst->GetSymbol().get();
-	auto src1 = statement.src1->GetSymbol().get();
-
-	auto dstReg = PrepareSymbolRegisterDefRef(dst, GetNextTempRegister64());
-	auto src1Reg = PrepareSymbolRegisterUseRef(src1, GetNextTempRegister64());
-
-	m_assembler.Ldr(dstReg, src1Reg, 0);
-
-	CommitSymbolRegisterRef(dst, dstReg);
-}
-
 void CCodeGen_AArch64::Emit_LoadFromRef_VarVarAny(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
@@ -1189,6 +1178,44 @@ void CCodeGen_AArch64::Emit_LoadFromRef_VarVarAny(const STATEMENT& statement)
 	}
 
 	CommitSymbolRegister(dst, valueReg);
+}
+
+void CCodeGen_AArch64::Emit_LoadFromRef_Ref_VarVar(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+
+	auto dstReg = PrepareSymbolRegisterDefRef(dst, GetNextTempRegister64());
+	auto src1Reg = PrepareSymbolRegisterUseRef(src1, GetNextTempRegister64());
+
+	m_assembler.Ldr(dstReg, src1Reg, 0);
+
+	CommitSymbolRegisterRef(dst, dstReg);
+}
+
+void CCodeGen_AArch64::Emit_LoadFromRef_Ref_VarVarAny(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+	uint8 scale = static_cast<uint8>(statement.jmpCondition);
+	
+	assert(scale == 8);
+	
+	auto valueReg = PrepareSymbolRegisterDefRef(dst, GetNextTempRegister64());
+	auto addressReg = PrepareSymbolRegisterUseRef(src1, GetNextTempRegister64());
+
+	if(uint32 scaledIndex = (src2->m_valueLow * scale); src2->IsConstant() && (scaledIndex < 0x8000))
+	{
+		m_assembler.Ldr(valueReg, addressReg, scaledIndex);
+	}
+	else
+	{
+		auto indexReg = PrepareSymbolRegisterUse(src2, GetNextTempRegister());
+		m_assembler.Ldr(valueReg, addressReg, static_cast<CAArch64Assembler::REGISTER64>(indexReg), (scale == 8));
+	}
+
+	CommitSymbolRegisterRef(dst, valueReg);
 }
 
 void CCodeGen_AArch64::Emit_Load8FromRef_MemVar(const STATEMENT& statement)

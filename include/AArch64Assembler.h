@@ -157,6 +157,7 @@ public:
 	void    Ldr(REGISTER32, REGISTER64, uint32);
 	void    Ldr(REGISTER32, REGISTER64, REGISTER64, bool);
 	void    Ldr(REGISTER64, REGISTER64, uint32);
+	void    Ldr(REGISTER64, REGISTER64, REGISTER64, bool);
 	void    Ldrb(REGISTER32, REGISTER64, uint32);
 	void    Ldrh(REGISTER32, REGISTER64, uint32);
 	void    Ldr_Pc(REGISTER64, uint32);

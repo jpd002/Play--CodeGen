@@ -125,26 +125,22 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_constMatchers[] =
 	{ OP_EXTHIGH64, MATCH_REGISTER, MATCH_TEMPORARY64, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_ExtHigh64RegTmp64 },
 	{ OP_EXTHIGH64, MATCH_MEMORY,   MATCH_TEMPORARY64, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_ExtHigh64MemTmp64 },
 
-	{ OP_LOADFROMREF, MATCH_VARIABLE,    MATCH_VAR_REF, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_LoadFromRef_VarVar    },
-	{ OP_LOADFROMREF, MATCH_REGISTER128, MATCH_VAR_REF, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_LoadFromRef_Md_RegVar },
-	{ OP_LOADFROMREF, MATCH_MEMORY128,   MATCH_VAR_REF, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_LoadFromRef_Md_MemVar },
-
-	{ OP_LOADFROMREF, MATCH_VARIABLE, MATCH_VAR_REF, MATCH_VARIABLE, MATCH_NIL, &CCodeGen_x86::Emit_LoadFromRefIdx_VarVarVar },
-	{ OP_LOADFROMREF, MATCH_VARIABLE, MATCH_VAR_REF, MATCH_CONSTANT, MATCH_NIL, &CCodeGen_x86::Emit_LoadFromRefIdx_VarVarCst },
+	{ OP_LOADFROMREF, MATCH_VARIABLE,    MATCH_VAR_REF, MATCH_NIL,   MATCH_NIL, &CCodeGen_x86::Emit_LoadFromRef_VarVar    },
+	{ OP_LOADFROMREF, MATCH_VARIABLE,    MATCH_VAR_REF, MATCH_ANY32, MATCH_NIL, &CCodeGen_x86::Emit_LoadFromRef_VarVarAny },
+	{ OP_LOADFROMREF, MATCH_REGISTER128, MATCH_VAR_REF, MATCH_NIL,   MATCH_NIL, &CCodeGen_x86::Emit_LoadFromRef_Md_RegVar },
+	{ OP_LOADFROMREF, MATCH_MEMORY128,   MATCH_VAR_REF, MATCH_NIL,   MATCH_NIL, &CCodeGen_x86::Emit_LoadFromRef_Md_MemVar },
 
 	{ OP_LOAD8FROMREF, MATCH_VARIABLE, MATCH_VAR_REF, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Load8FromRef_VarVar },
 
 	{ OP_LOAD16FROMREF, MATCH_VARIABLE, MATCH_VAR_REF, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Load16FromRef_VarVar },
 
-	{ OP_STOREATREF, MATCH_NIL, MATCH_VAR_REF, MATCH_VARIABLE,    MATCH_NIL, &CCodeGen_x86::Emit_StoreAtRef_VarVar    },
-	{ OP_STOREATREF, MATCH_NIL, MATCH_VAR_REF, MATCH_CONSTANT,    MATCH_NIL, &CCodeGen_x86::Emit_StoreAtRef_VarCst    },
-	{ OP_STOREATREF, MATCH_NIL, MATCH_VAR_REF, MATCH_REGISTER128, MATCH_NIL, &CCodeGen_x86::Emit_StoreAtRef_Md_VarReg },
-	{ OP_STOREATREF, MATCH_NIL, MATCH_VAR_REF, MATCH_MEMORY128,   MATCH_NIL, &CCodeGen_x86::Emit_StoreAtRef_Md_VarMem },
+	{ OP_STOREATREF, MATCH_NIL, MATCH_VAR_REF, MATCH_VARIABLE, MATCH_NIL,      &CCodeGen_x86::Emit_StoreAtRef_VarVar    },
+	{ OP_STOREATREF, MATCH_NIL, MATCH_VAR_REF, MATCH_CONSTANT, MATCH_NIL,      &CCodeGen_x86::Emit_StoreAtRef_VarCst    },
+	{ OP_STOREATREF, MATCH_NIL, MATCH_VAR_REF, MATCH_ANY32,    MATCH_VARIABLE, &CCodeGen_x86::Emit_StoreAtRef_VarAnyVar },
+	{ OP_STOREATREF, MATCH_NIL, MATCH_VAR_REF, MATCH_ANY32,    MATCH_CONSTANT, &CCodeGen_x86::Emit_StoreAtRef_VarAnyCst },
 
-	{ OP_STOREATREF, MATCH_NIL, MATCH_VAR_REF, MATCH_VARIABLE, MATCH_VARIABLE, &CCodeGen_x86::Emit_StoreAtRefIdx_VarVarVar },
-	{ OP_STOREATREF, MATCH_NIL, MATCH_VAR_REF, MATCH_VARIABLE, MATCH_CONSTANT, &CCodeGen_x86::Emit_StoreAtRefIdx_VarVarCst },
-	{ OP_STOREATREF, MATCH_NIL, MATCH_VAR_REF, MATCH_CONSTANT, MATCH_VARIABLE, &CCodeGen_x86::Emit_StoreAtRefIdx_VarCstVar },
-	{ OP_STOREATREF, MATCH_NIL, MATCH_VAR_REF, MATCH_CONSTANT, MATCH_CONSTANT, &CCodeGen_x86::Emit_StoreAtRefIdx_VarCstCst },
+	{ OP_STOREATREF, MATCH_NIL, MATCH_VAR_REF, MATCH_REGISTER128, MATCH_NIL,      &CCodeGen_x86::Emit_StoreAtRef_Md_VarReg },
+	{ OP_STOREATREF, MATCH_NIL, MATCH_VAR_REF, MATCH_MEMORY128,   MATCH_NIL,      &CCodeGen_x86::Emit_StoreAtRef_Md_VarMem },
 
 	{ OP_STORE8ATREF, MATCH_NIL, MATCH_VAR_REF, MATCH_CONSTANT, MATCH_NIL, &CCodeGen_x86::Emit_Store8AtRef_VarCst },
 
@@ -427,6 +423,22 @@ CX86Assembler::CAddress CCodeGen_x86::MakeVariableReferenceSymbolAddress(CSymbol
 	default:
 		throw std::exception();
 		break;
+	}
+}
+
+CX86Assembler::CAddress CCodeGen_x86::MakeRefBaseScaleSymbolAddress(CSymbol* baseSymbol, CX86Assembler::REGISTER baseRegister,
+	CSymbol* indexSymbol, CX86Assembler::REGISTER indexRegister, uint8 scale)
+{
+	baseRegister = PrepareRefSymbolRegisterUse(baseSymbol, baseRegister);
+	if(indexSymbol->IsConstant())
+	{
+		uint32 scaledIndex = indexSymbol->m_valueLow * scale;
+		return CX86Assembler::MakeIndRegOffAddress(baseRegister, scaledIndex);
+	}
+	else
+	{
+		indexRegister = PrepareSymbolRegisterUse(indexSymbol, indexRegister);
+		return CX86Assembler::MakeBaseIndexScaleAddress(baseRegister, indexRegister, scale);
 	}
 }
 
@@ -856,6 +868,18 @@ void CCodeGen_x86::Emit_LoadFromRef_VarVar(const STATEMENT& statement)
 	CommitSymbolRegister(dst, dstReg);
 }
 
+void CCodeGen_x86::Emit_LoadFromRef_VarVarAny(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+	uint8 scale = static_cast<uint8>(statement.jmpCondition);
+
+	auto dstReg = PrepareSymbolRegisterDef(dst, CX86Assembler::rDX);
+	m_assembler.MovEd(dstReg, MakeRefBaseScaleSymbolAddress(src1, CX86Assembler::rAX, src2, CX86Assembler::rCX, scale));
+	CommitSymbolRegister(dst, dstReg);
+}
+
 void CCodeGen_x86::Emit_LoadFromRef_Md_RegVar(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
@@ -878,38 +902,6 @@ void CCodeGen_x86::Emit_LoadFromRef_Md_MemVar(const STATEMENT& statement)
 
 	m_assembler.MovapsVo(valueReg, CX86Assembler::MakeIndRegAddress(addressReg));
 	m_assembler.MovapsVo(MakeMemory128SymbolAddress(dst), valueReg);
-}
-
-void CCodeGen_x86::Emit_LoadFromRefIdx_VarVarVar(const STATEMENT& statement)
-{
-	auto dst = statement.dst->GetSymbol().get();
-	auto src1 = statement.src1->GetSymbol().get();
-	auto src2 = statement.src2->GetSymbol().get();
-	uint8 scale = static_cast<uint8>(statement.jmpCondition);
-
-	auto addressReg = PrepareRefSymbolRegisterUse(src1, CX86Assembler::rAX);
-	auto indexReg = PrepareSymbolRegisterUse(src2, CX86Assembler::rCX);
-	auto dstReg = PrepareSymbolRegisterDef(dst, CX86Assembler::rDX);
-
-	m_assembler.MovEd(dstReg, CX86Assembler::MakeBaseIndexScaleAddress(addressReg, indexReg, scale));
-
-	CommitSymbolRegister(dst, dstReg);
-}
-
-void CCodeGen_x86::Emit_LoadFromRefIdx_VarVarCst(const STATEMENT& statement)
-{
-	auto dst = statement.dst->GetSymbol().get();
-	auto src1 = statement.src1->GetSymbol().get();
-	auto src2 = statement.src2->GetSymbol().get();
-	uint8 scale = static_cast<uint8>(statement.jmpCondition);
-
-	auto addressReg = PrepareRefSymbolRegisterUse(src1, CX86Assembler::rAX);
-	uint32 scaledIndex = src2->m_valueLow * scale;
-	auto dstReg = PrepareSymbolRegisterDef(dst, CX86Assembler::rDX);
-
-	m_assembler.MovEd(dstReg, CX86Assembler::MakeIndRegOffAddress(addressReg, scaledIndex));
-
-	CommitSymbolRegister(dst, dstReg);
 }
 
 void CCodeGen_x86::Emit_Load8FromRef_VarVar(const STATEMENT& statement)
@@ -982,21 +974,18 @@ void CCodeGen_x86::Emit_StoreAtRef_Md_VarMem(const STATEMENT& statement)
 	m_assembler.MovapsVo(CX86Assembler::MakeIndRegAddress(addressReg), valueReg);
 }
 
-void CCodeGen_x86::Emit_StoreAtRefIdx_VarVarVar(const STATEMENT& statement)
+void CCodeGen_x86::Emit_StoreAtRef_VarAnyVar(const STATEMENT& statement)
 {
 	auto src1 = statement.src1->GetSymbol().get();
 	auto src2 = statement.src2->GetSymbol().get();
 	auto src3 = statement.src3->GetSymbol().get();
 	uint8 scale = static_cast<uint8>(statement.jmpCondition);
 	
-	auto addressReg = PrepareRefSymbolRegisterUse(src1, CX86Assembler::rAX);
-	auto indexReg = PrepareSymbolRegisterUse(src2, CX86Assembler::rDX);
-	auto valueReg = PrepareSymbolRegisterUse(src3, CX86Assembler::rCX);
-
-	m_assembler.MovGd(CX86Assembler::MakeBaseIndexScaleAddress(addressReg, indexReg, scale), valueReg);
+	auto valueReg = PrepareSymbolRegisterUse(src3, CX86Assembler::rDX);
+	m_assembler.MovGd(MakeRefBaseScaleSymbolAddress(src1, CX86Assembler::rAX, src2, CX86Assembler::rCX, scale), valueReg);
 }
 
-void CCodeGen_x86::Emit_StoreAtRefIdx_VarVarCst(const STATEMENT& statement)
+void CCodeGen_x86::Emit_StoreAtRef_VarAnyCst(const STATEMENT& statement)
 {
 	auto src1 = statement.src1->GetSymbol().get();
 	auto src2 = statement.src2->GetSymbol().get();
@@ -1005,42 +994,7 @@ void CCodeGen_x86::Emit_StoreAtRefIdx_VarVarCst(const STATEMENT& statement)
 
 	assert(src3->m_type == SYM_CONSTANT);
 
-	auto addressReg = PrepareRefSymbolRegisterUse(src1, CX86Assembler::rAX);
-	auto indexReg = PrepareSymbolRegisterUse(src2, CX86Assembler::rDX);
-
-	m_assembler.MovId(CX86Assembler::MakeBaseIndexScaleAddress(addressReg, indexReg, scale), src3->m_valueLow);
-}
-
-void CCodeGen_x86::Emit_StoreAtRefIdx_VarCstVar(const STATEMENT& statement)
-{
-	auto src1 = statement.src1->GetSymbol().get();
-	auto src2 = statement.src2->GetSymbol().get();
-	auto src3 = statement.src3->GetSymbol().get();
-	uint8 scale = static_cast<uint8>(statement.jmpCondition);
-
-	assert(src2->m_type == SYM_CONSTANT);
-
-	auto addressReg = PrepareRefSymbolRegisterUse(src1, CX86Assembler::rAX);
-	uint32 scaledIndex = src2->m_valueLow * scale;
-	auto valueReg = PrepareSymbolRegisterUse(src3, CX86Assembler::rCX);
-
-	m_assembler.MovGd(CX86Assembler::MakeIndRegOffAddress(addressReg, scaledIndex), valueReg);
-}
-
-void CCodeGen_x86::Emit_StoreAtRefIdx_VarCstCst(const STATEMENT& statement)
-{
-	auto src1 = statement.src1->GetSymbol().get();
-	auto src2 = statement.src2->GetSymbol().get();
-	auto src3 = statement.src3->GetSymbol().get();
-	uint8 scale = static_cast<uint8>(statement.jmpCondition);
-	
-	assert(src2->m_type == SYM_CONSTANT);
-	assert(src3->m_type == SYM_CONSTANT);
-
-	auto addressReg = PrepareRefSymbolRegisterUse(src1, CX86Assembler::rAX);
-	uint32 scaledIndex = src2->m_valueLow * scale;
-
-	m_assembler.MovId(CX86Assembler::MakeIndRegOffAddress(addressReg, scaledIndex), src3->m_valueLow);
+	m_assembler.MovId(MakeRefBaseScaleSymbolAddress(src1, CX86Assembler::rAX, src2, CX86Assembler::rCX, scale), src3->m_valueLow);
 }
 
 void CCodeGen_x86::Emit_Store8AtRef_VarCst(const STATEMENT& statement)

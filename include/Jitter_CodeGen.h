@@ -42,13 +42,15 @@ namespace Jitter
 			MATCH_NIL,
 
 			MATCH_CONTEXT,
-			MATCH_CONSTANT,
 			MATCH_CONSTANTPTR,
+
+			MATCH_CONSTANT,
 			MATCH_REGISTER,
 			MATCH_RELATIVE,
 			MATCH_TEMPORARY,
 			MATCH_MEMORY,			//Either relative or temporary
 			MATCH_VARIABLE,			//Either relative or temporary or register
+			MATCH_ANY32,			//Any of the 32-bit sized operands (variable or constant)
 
 			MATCH_REG_REF,
 			MATCH_REL_REF,

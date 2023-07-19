@@ -474,6 +474,8 @@ namespace Jitter
 		CX86Assembler::CAddress		MakeMemoryReferenceSymbolAddress(CSymbol*);
 		CX86Assembler::CAddress		MakeVariableReferenceSymbolAddress(CSymbol*);
 
+		CX86Assembler::CAddress		MakeRefBaseScaleSymbolAddress(CSymbol*, CX86Assembler::REGISTER, CSymbol*, CX86Assembler::REGISTER, uint8);
+
 		CX86Assembler::CAddress		MakeRelative64SymbolAddress(CSymbol*);
 		CX86Assembler::CAddress		MakeRelative64SymbolLoAddress(CSymbol*);
 		CX86Assembler::CAddress		MakeRelative64SymbolHiAddress(CSymbol*);
@@ -613,12 +615,9 @@ namespace Jitter
 
 		//LOADFROMREF
 		void						Emit_LoadFromRef_VarVar(const STATEMENT&);
+		void						Emit_LoadFromRef_VarVarAny(const STATEMENT&);
 		void						Emit_LoadFromRef_Md_RegVar(const STATEMENT&);
 		void						Emit_LoadFromRef_Md_MemVar(const STATEMENT&);
-
-		//LOADFROMREFIDX
-		void						Emit_LoadFromRefIdx_VarVarVar(const STATEMENT&);
-		void						Emit_LoadFromRefIdx_VarVarCst(const STATEMENT&);
 
 		//LOAD8FROMREF
 		void						Emit_Load8FromRef_VarVar(const STATEMENT&);
@@ -629,15 +628,11 @@ namespace Jitter
 		//STOREATREF
 		void						Emit_StoreAtRef_VarVar(const STATEMENT&);
 		void						Emit_StoreAtRef_VarCst(const STATEMENT&);
+		void						Emit_StoreAtRef_VarAnyVar(const STATEMENT&);
+		void						Emit_StoreAtRef_VarAnyCst(const STATEMENT&);
 		void						Emit_StoreAtRef_Md_VarReg(const STATEMENT&);
 		void						Emit_StoreAtRef_Md_VarMem(const STATEMENT&);
 
-		//STOREATREFIDX
-		void						Emit_StoreAtRefIdx_VarVarVar(const STATEMENT&);
-		void						Emit_StoreAtRefIdx_VarVarCst(const STATEMENT&);
-		void						Emit_StoreAtRefIdx_VarCstVar(const STATEMENT&);
-		void						Emit_StoreAtRefIdx_VarCstCst(const STATEMENT&);
-		
 		//STORE8ATREF
 		void						Emit_Store8AtRef_VarCst(const STATEMENT&);
 

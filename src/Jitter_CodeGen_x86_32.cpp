@@ -87,6 +87,7 @@ CCodeGen_x86_32::CONSTMATCHER CCodeGen_x86_32::g_constMatchers[] =
 
 	{ OP_LOADFROMREF,	MATCH_MEMORY64,		MATCH_VAR_REF,		MATCH_NIL,			&CCodeGen_x86_32::Emit_LoadFromRef_64_MemVar	},
 	{ OP_LOADFROMREF,	MATCH_VAR_REF,		MATCH_VAR_REF,		MATCH_NIL,			&CCodeGen_x86_32::Emit_LoadFromRef_Ref_VarVar	},
+	{ OP_LOADFROMREF,	MATCH_VAR_REF,		MATCH_VAR_REF,		MATCH_ANY32,		&CCodeGen_x86_32::Emit_LoadFromRef_Ref_VarVarAny},
 
 	{ OP_STOREATREF,	MATCH_NIL,			MATCH_VAR_REF,		MATCH_MEMORY64,		&CCodeGen_x86_32::Emit_StoreAtRef_64_VarMem		},
 	{ OP_STOREATREF,	MATCH_NIL,			MATCH_VAR_REF,		MATCH_CONSTANT64,	&CCodeGen_x86_32::Emit_StoreAtRef_64_VarCst		},
@@ -1433,6 +1434,20 @@ void CCodeGen_x86_32::Emit_LoadFromRef_Ref_VarVar(const STATEMENT& statement)
 
 	m_assembler.MovEd(dstReg, CX86Assembler::MakeIndRegAddress(addressReg));
 
+	CommitRefSymbolRegister(dst, dstReg);
+}
+
+void CCodeGen_x86_32::Emit_LoadFromRef_Ref_VarVarAny(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+	uint8 scale = static_cast<uint8>(statement.jmpCondition);
+
+	assert(scale == 4);
+
+	auto dstReg = PrepareRefSymbolRegisterDef(dst, CX86Assembler::rDX);
+	m_assembler.MovEd(dstReg, MakeRefBaseScaleSymbolAddress(src1, CX86Assembler::rAX, src2, CX86Assembler::rCX, scale));
 	CommitRefSymbolRegister(dst, dstReg);
 }
 

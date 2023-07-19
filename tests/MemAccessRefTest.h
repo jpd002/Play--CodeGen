@@ -21,8 +21,11 @@ private:
 	struct CONTEXT
 	{
 		void*     memory;
+		uint32    readIdx;
 		uint32    readValue;
 		uint32    readValueResult;
+		uint32    readValueCstIdxResult;
+		uint32    readValueVarIdxResult;
 		uint32    nullCheck0;
 		uint32    nullCheck1;
 		uint32    nullCheck2;

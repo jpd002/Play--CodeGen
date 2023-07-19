@@ -645,6 +645,23 @@ void CJitter::LoadRefFromRef()
 	m_shadow.Push(tempSym);
 }
 
+void CJitter::LoadRefFromRefIdx()
+{
+	size_t scale = m_codeGen->GetPointerSize();
+
+	auto tempSym = MakeSymbol(SYM_TMP_REFERENCE, m_nextTemporary++);
+
+	STATEMENT statement;
+	statement.op           = OP_LOADFROMREF;
+	statement.jmpCondition = static_cast<CONDITION>(scale);
+	statement.src2         = MakeSymbolRef(m_shadow.Pull());
+	statement.src1         = MakeSymbolRef(m_shadow.Pull());
+	statement.dst          = MakeSymbolRef(tempSym);
+	InsertStatement(statement);
+
+	m_shadow.Push(tempSym);
+}
+
 void CJitter::StoreAtRef()
 {
 	STATEMENT statement;

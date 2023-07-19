@@ -15,12 +15,15 @@ void CMemAccessRefTest::Run()
 	}
 	m_memory[LOAD_IDX] = &m_context.readValue;
 	m_context.readValue = CONSTANT_1;
+	m_context.readIdx = LOAD_IDX;
 
 	m_context.memory = m_memory;
 
 	m_function(&m_context);
 
 	TEST_VERIFY(m_context.readValueResult == CONSTANT_1);
+	TEST_VERIFY(m_context.readValueCstIdxResult == CONSTANT_1);
+	TEST_VERIFY(m_context.readValueVarIdxResult == CONSTANT_1);
 	TEST_VERIFY(m_context.nullCheck0 != 0);
 	TEST_VERIFY(m_context.nullCheck1 == 0);
 	TEST_VERIFY(m_context.nullCheck2 != 0);
@@ -45,6 +48,26 @@ void CMemAccessRefTest::Compile(Jitter::CJitter& jitter)
 
 			jitter.LoadFromRef();
 			jitter.PullRel(offsetof(CONTEXT, readValueResult));
+		}
+
+		//Read ref idx test (constant index)
+		{
+			jitter.PushRelRef(offsetof(CONTEXT, memory));
+			jitter.PushCst(LOAD_IDX);
+			jitter.LoadRefFromRefIdx();
+
+			jitter.LoadFromRef();
+			jitter.PullRel(offsetof(CONTEXT, readValueCstIdxResult));
+		}
+
+		//Read ref idx test (variable index)
+		{
+			jitter.PushRelRef(offsetof(CONTEXT, memory));
+			jitter.PushRel(offsetof(CONTEXT, readIdx));
+			jitter.LoadRefFromRefIdx();
+
+			jitter.LoadFromRef();
+			jitter.PullRel(offsetof(CONTEXT, readValueVarIdxResult));
 		}
 
 		EmitNullTest(jitter, NULLCHECK_IDX, offsetof(CONTEXT, nullCheck0));

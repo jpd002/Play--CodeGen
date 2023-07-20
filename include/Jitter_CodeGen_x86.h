@@ -767,7 +767,10 @@ namespace Jitter
 		void						Emit_Md_Avx_Srl256_VarMemCst(const STATEMENT&);
 
 		void						Emit_Md_Avx_LoadFromRef_VarVar(const STATEMENT&);
+		void						Emit_Md_Avx_LoadFromRef_VarVarAny(const STATEMENT&);
+
 		void						Emit_Md_Avx_StoreAtRef_VarVar(const STATEMENT&);
+		void						Emit_Md_Avx_StoreAtRef_VarAnyVar(const STATEMENT&);
 
 		static CX86Assembler::REGISTER g_baseRegister;
 

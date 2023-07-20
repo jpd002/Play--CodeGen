@@ -570,6 +570,23 @@ void CCodeGen_x86::Emit_Md_Avx_LoadFromRef_VarVar(const STATEMENT& statement)
 	CommitSymbolRegisterMdAvx(dst, dstReg);
 }
 
+void CCodeGen_x86::Emit_Md_Avx_LoadFromRef_VarVarAny(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+	uint8 scale = static_cast<uint8>(statement.jmpCondition);
+
+	assert(scale == 1);
+
+	auto addressReg = PrepareRefSymbolRegisterUse(src1, CX86Assembler::rAX);
+	auto dstReg = PrepareSymbolRegisterDefMd(dst, CX86Assembler::xMM0);
+
+	m_assembler.VmovapsVo(dstReg, MakeRefBaseScaleSymbolAddress(src1, CX86Assembler::rAX, src2, CX86Assembler::rCX, scale));
+
+	CommitSymbolRegisterMdAvx(dst, dstReg);
+}
+
 void CCodeGen_x86::Emit_Md_Avx_StoreAtRef_VarVar(const STATEMENT& statement)
 {
 	auto src1 = statement.src1->GetSymbol().get();
@@ -579,6 +596,17 @@ void CCodeGen_x86::Emit_Md_Avx_StoreAtRef_VarVar(const STATEMENT& statement)
 	auto valueReg = PrepareSymbolRegisterUseMdAvx(src2, CX86Assembler::xMM0);
 
 	m_assembler.VmovapsVo(CX86Assembler::MakeIndRegAddress(addressReg), valueReg);
+}
+
+void CCodeGen_x86::Emit_Md_Avx_StoreAtRef_VarAnyVar(const STATEMENT& statement)
+{
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+	uint8 scale = static_cast<uint8>(statement.jmpCondition);
+	auto src3 = statement.src3->GetSymbol().get();
+
+	auto valueReg = PrepareSymbolRegisterUseMdAvx(src3, CX86Assembler::xMM0);
+	m_assembler.VmovapsVo(MakeRefBaseScaleSymbolAddress(src1, CX86Assembler::rAX, src2, CX86Assembler::rCX, scale), valueReg);
 }
 
 CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdAvxConstMatchers[] = 
@@ -678,9 +706,11 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdAvxConstMatchers[] =
 	{ OP_MD_SRL256,  MATCH_VARIABLE128, MATCH_MEMORY256,   MATCH_VARIABLE,    MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx_Srl256_VarMemVar  },
 	{ OP_MD_SRL256,  MATCH_VARIABLE128, MATCH_MEMORY256,   MATCH_CONSTANT,    MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx_Srl256_VarMemCst  },
 
-	{ OP_LOADFROMREF, MATCH_VARIABLE128, MATCH_VAR_REF, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx_LoadFromRef_VarVar },
+	{ OP_LOADFROMREF, MATCH_VARIABLE128, MATCH_VAR_REF, MATCH_NIL,   MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx_LoadFromRef_VarVar },
+	{ OP_LOADFROMREF, MATCH_VARIABLE128, MATCH_VAR_REF, MATCH_ANY32, MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx_LoadFromRef_VarVarAny },
 
-	{ OP_STOREATREF, MATCH_NIL, MATCH_VAR_REF, MATCH_VARIABLE128,   MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx_StoreAtRef_VarVar },
+	{ OP_STOREATREF, MATCH_NIL, MATCH_VAR_REF, MATCH_VARIABLE128, MATCH_NIL,         &CCodeGen_x86::Emit_Md_Avx_StoreAtRef_VarVar },
+	{ OP_STOREATREF, MATCH_NIL, MATCH_VAR_REF, MATCH_ANY32,       MATCH_VARIABLE128, &CCodeGen_x86::Emit_Md_Avx_StoreAtRef_VarAnyVar },
 
 	{ OP_MOV, MATCH_NIL,         MATCH_NIL,         MATCH_NIL, MATCH_NIL, nullptr },
 };

@@ -172,7 +172,9 @@ namespace Jitter
 		virtual void					MD_PullRel(size_t, bool, bool, bool, bool);
 
 		void							MD_LoadFromRef();
+		void							MD_LoadFromRefIdx(size_t = 0x10);
 		void							MD_StoreAtRef();
+		void							MD_StoreAtRefIdx(size_t = 0x10);
 
 		void							MD_AbsS();
 		void							MD_AddB();

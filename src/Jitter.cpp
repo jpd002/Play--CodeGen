@@ -1227,9 +1227,34 @@ void CJitter::MD_LoadFromRef()
 	m_shadow.Push(tempSym);
 }
 
+void CJitter::MD_LoadFromRefIdx(size_t scale)
+{
+	//Natural scale not supported yet (no use for it atm and x86 doesn't support it)
+	assert(scale == 1);
+
+	auto tempSym = MakeSymbol(SYM_TEMPORARY128, m_nextTemporary++);
+
+	STATEMENT statement;
+	statement.op           = OP_LOADFROMREF;
+	statement.jmpCondition = static_cast<CONDITION>(scale);
+	statement.src2         = MakeSymbolRef(m_shadow.Pull());
+	statement.src1         = MakeSymbolRef(m_shadow.Pull());
+	statement.dst          = MakeSymbolRef(tempSym);
+	InsertStatement(statement);
+
+	m_shadow.Push(tempSym);
+}
+
 void CJitter::MD_StoreAtRef()
 {
 	StoreAtRef();
+}
+
+void CJitter::MD_StoreAtRefIdx(size_t scale)
+{
+	//Natural scale not supported yet (no use for it atm and x86 doesn't support it)
+	assert(scale == 1);
+	StoreAtRefIdx(scale);
 }
 
 void CJitter::MD_AddB()

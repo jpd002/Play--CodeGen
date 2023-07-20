@@ -221,6 +221,7 @@ set(CodeGenTest_SRC
 	../tests/SimpleMdTest.cpp
 	../tests/SimpleMdTest.h
 	../tests/Test.h
+	../tests/uint128.h
 )
 
 if(ANDROID)

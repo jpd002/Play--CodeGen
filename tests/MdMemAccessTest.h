@@ -2,6 +2,7 @@
 
 #include "Test.h"
 #include "Align16.h"
+#include "uint128.h"
 
 class CMdMemAccessTest : public CTest
 {
@@ -10,17 +11,23 @@ public:
 	void				Compile(Jitter::CJitter&) override;
 
 private:
+	static constexpr size_t ITEM_COUNT = 0x10;
+
 	struct CONTEXT
 	{
 		ALIGN16
 
-		uint32			op[4];
-		uint32			result[4];
+		uint128			op;
+		uint128			loadResult0;
+		uint128			loadResult1;
 
-		uint32*			array;
+		uint32			loadFromIdx1;
+		uint32			storeAtIdx1;
+
+		uint128*		array;
 	};
 
 	CONTEXT				m_context;
-	uint32				m_memory[0x20];
+	uint128				m_memory[ITEM_COUNT];
 	FunctionType		m_function;
 };

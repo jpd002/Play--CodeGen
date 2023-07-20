@@ -2,6 +2,7 @@
 
 #include "Test.h"
 #include "Align16.h"
+#include "uint128.h"
 
 class CMdCallTest : public CTest
 {
@@ -10,29 +11,6 @@ public:
 	void				Run() override;
 
 private:
-	struct uint128
-	{
-		union
-		{
-			struct
-			{
-				uint32 nV[4];
-			};
-			struct
-			{
-				uint32 nV0;
-				uint32 nV1;
-				uint32 nV2;
-				uint32 nV3;
-			};
-			struct
-			{
-				uint64 nD0;
-				uint64 nD1;
-			};
-		};
-	};
-
 	struct CONTEXT
 	{
 		ALIGN16

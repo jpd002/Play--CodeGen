@@ -616,8 +616,6 @@ namespace Jitter
 		//LOADFROMREF
 		void						Emit_LoadFromRef_VarVar(const STATEMENT&);
 		void						Emit_LoadFromRef_VarVarAny(const STATEMENT&);
-		void						Emit_LoadFromRef_Md_RegVar(const STATEMENT&);
-		void						Emit_LoadFromRef_Md_MemVar(const STATEMENT&);
 
 		//LOAD8FROMREF
 		void						Emit_Load8FromRef_VarVar(const STATEMENT&);
@@ -630,8 +628,6 @@ namespace Jitter
 		void						Emit_StoreAtRef_VarCst(const STATEMENT&);
 		void						Emit_StoreAtRef_VarAnyVar(const STATEMENT&);
 		void						Emit_StoreAtRef_VarAnyCst(const STATEMENT&);
-		void						Emit_StoreAtRef_Md_VarReg(const STATEMENT&);
-		void						Emit_StoreAtRef_Md_VarMem(const STATEMENT&);
 
 		//STORE8ATREF
 		void						Emit_Store8AtRef_VarCst(const STATEMENT&);
@@ -722,6 +718,11 @@ namespace Jitter
 		void						Emit_Md_MakeSz_VarVar(const STATEMENT&);
 		void						Emit_Md_MakeSz_Ssse3_VarVar(const STATEMENT&);
 
+		void						Emit_Md_LoadFromRef_RegVar(const STATEMENT&);
+		void						Emit_Md_LoadFromRef_MemVar(const STATEMENT&);
+		void						Emit_Md_StoreAtRef_VarReg(const STATEMENT&);
+		void						Emit_Md_StoreAtRef_VarMem(const STATEMENT&);
+
 		//FPUOP AVX
 		template <typename> void	Emit_Fpu_Avx_MemMem(const STATEMENT&);
 		template <typename> void	Emit_Fpu_Avx_MemMemMem(const STATEMENT&);
@@ -764,6 +765,9 @@ namespace Jitter
 
 		void						Emit_Md_Avx_Srl256_VarMemVar(const STATEMENT&);
 		void						Emit_Md_Avx_Srl256_VarMemCst(const STATEMENT&);
+
+		void						Emit_Md_Avx_LoadFromRef_VarVar(const STATEMENT&);
+		void						Emit_Md_Avx_StoreAtRef_VarVar(const STATEMENT&);
 
 		static CX86Assembler::REGISTER g_baseRegister;
 

@@ -557,6 +557,30 @@ void CCodeGen_x86::Emit_Md_Avx_Srl256_VarMemCst(const STATEMENT& statement)
 	m_assembler.VmovdqaVo(MakeVariable128SymbolAddress(dst), resultRegister);
 }
 
+void CCodeGen_x86::Emit_Md_Avx_LoadFromRef_VarVar(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+
+	auto addressReg = PrepareRefSymbolRegisterUse(src1, CX86Assembler::rAX);
+	auto dstReg = PrepareSymbolRegisterDefMd(dst, CX86Assembler::xMM0);
+
+	m_assembler.VmovapsVo(dstReg, CX86Assembler::MakeIndRegAddress(addressReg));
+
+	CommitSymbolRegisterMdAvx(dst, dstReg);
+}
+
+void CCodeGen_x86::Emit_Md_Avx_StoreAtRef_VarVar(const STATEMENT& statement)
+{
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	auto addressReg = PrepareRefSymbolRegisterUse(src1, CX86Assembler::rAX);
+	auto valueReg = PrepareSymbolRegisterUseMdAvx(src2, CX86Assembler::xMM0);
+
+	m_assembler.VmovapsVo(CX86Assembler::MakeIndRegAddress(addressReg), valueReg);
+}
+
 CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdAvxConstMatchers[] = 
 {
 	{ OP_MD_ADD_B, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx_VarVarVar<MDOP_ADDB> },
@@ -653,6 +677,10 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdAvxConstMatchers[] =
 	{ OP_MERGETO256, MATCH_MEMORY256,   MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_NIL, &CCodeGen_x86::Emit_Avx_MergeTo256_MemVarVar },
 	{ OP_MD_SRL256,  MATCH_VARIABLE128, MATCH_MEMORY256,   MATCH_VARIABLE,    MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx_Srl256_VarMemVar  },
 	{ OP_MD_SRL256,  MATCH_VARIABLE128, MATCH_MEMORY256,   MATCH_CONSTANT,    MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx_Srl256_VarMemCst  },
+
+	{ OP_LOADFROMREF, MATCH_VARIABLE128, MATCH_VAR_REF, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx_LoadFromRef_VarVar },
+
+	{ OP_STOREATREF, MATCH_NIL, MATCH_VAR_REF, MATCH_VARIABLE128,   MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx_StoreAtRef_VarVar },
 
 	{ OP_MOV, MATCH_NIL,         MATCH_NIL,         MATCH_NIL, MATCH_NIL, nullptr },
 };

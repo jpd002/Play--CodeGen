@@ -294,6 +294,31 @@ void CCodeGen_AArch64::Emit_Md_LoadFromRef_VarVar(const STATEMENT& statement)
 	CommitSymbolRegisterMd(dst, dstReg);
 }
 
+void CCodeGen_AArch64::Emit_Md_LoadFromRef_VarVarAny(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+	uint8 scale = static_cast<uint8>(statement.jmpCondition);
+
+	assert(scale == 1);
+
+	auto src1AddrReg = PrepareSymbolRegisterUseRef(src1, GetNextTempRegister64());
+	auto dstReg = PrepareSymbolRegisterDefMd(dst, GetNextTempRegisterMd());
+
+	if(uint32 scaledIndex = (src2->m_valueLow * scale); src2->IsConstant() && (scaledIndex < 0x10000))
+	{
+		m_assembler.Ldr_1q(dstReg, src1AddrReg, scaledIndex);
+	}
+	else
+	{
+		auto indexReg = PrepareSymbolRegisterUse(src2, GetNextTempRegister());
+		m_assembler.Ldr_1q(dstReg, src1AddrReg, static_cast<CAArch64Assembler::REGISTER64>(indexReg), (scale == 0x10));
+	}
+
+	CommitSymbolRegisterMd(dst, dstReg);
+}
+
 void CCodeGen_AArch64::Emit_Md_StoreAtRef_VarVar(const STATEMENT& statement)
 {
 	auto src1 = statement.src1->GetSymbol().get();
@@ -303,6 +328,29 @@ void CCodeGen_AArch64::Emit_Md_StoreAtRef_VarVar(const STATEMENT& statement)
 	auto src2Reg = PrepareSymbolRegisterUseMd(src2, GetNextTempRegisterMd());
 
 	m_assembler.Str_1q(src2Reg, src1AddrReg, 0);
+}
+
+void CCodeGen_AArch64::Emit_Md_StoreAtRef_VarAnyVar(const STATEMENT& statement)
+{
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+	auto src3 = statement.src3->GetSymbol().get();
+	uint8 scale = static_cast<uint8>(statement.jmpCondition);
+
+	assert(scale == 1);
+
+	auto src1AddrReg = PrepareSymbolRegisterUseRef(src1, GetNextTempRegister64());
+	auto src2Reg = PrepareSymbolRegisterUseMd(src3, GetNextTempRegisterMd());
+
+	if(uint32 scaledIndex = (src2->m_valueLow * scale); src2->IsConstant() && (scaledIndex < 0x10000))
+	{
+		m_assembler.Str_1q(src2Reg, src1AddrReg, scaledIndex);
+	}
+	else
+	{
+		auto indexReg = PrepareSymbolRegisterUse(src2, GetNextTempRegister());
+		m_assembler.Str_1q(src2Reg, src1AddrReg, static_cast<CAArch64Assembler::REGISTER64>(indexReg), (scale == 0x10));
+	}
 }
 
 void CCodeGen_AArch64::Emit_Md_MovMasked_VarVarVar(const STATEMENT& statement)
@@ -568,8 +616,10 @@ CCodeGen_AArch64::CONSTMATCHER CCodeGen_AArch64::g_mdConstMatchers[] =
 	{ OP_MD_TOSINGLE,           MATCH_VARIABLE128,    MATCH_VARIABLE128,    MATCH_NIL,              MATCH_NIL, &CCodeGen_AArch64::Emit_Md_VarVar<MDOP_TOSINGLE>                 },
 	{ OP_MD_TOWORD_TRUNCATE,    MATCH_VARIABLE128,    MATCH_VARIABLE128,    MATCH_NIL,              MATCH_NIL, &CCodeGen_AArch64::Emit_Md_VarVar<MDOP_TOWORD>                   },
 
-	{ OP_LOADFROMREF,           MATCH_VARIABLE128,    MATCH_VAR_REF,        MATCH_NIL,              MATCH_NIL, &CCodeGen_AArch64::Emit_Md_LoadFromRef_VarVar                    },
-	{ OP_STOREATREF,            MATCH_NIL,            MATCH_VAR_REF,        MATCH_VARIABLE128,      MATCH_NIL, &CCodeGen_AArch64::Emit_Md_StoreAtRef_VarVar                     },
+	{ OP_LOADFROMREF,           MATCH_VARIABLE128,    MATCH_VAR_REF,        MATCH_NIL,              MATCH_NIL,         &CCodeGen_AArch64::Emit_Md_LoadFromRef_VarVar            },
+	{ OP_LOADFROMREF,           MATCH_VARIABLE128,    MATCH_VAR_REF,        MATCH_ANY32,            MATCH_NIL,         &CCodeGen_AArch64::Emit_Md_LoadFromRef_VarVarAny         },
+	{ OP_STOREATREF,            MATCH_NIL,            MATCH_VAR_REF,        MATCH_VARIABLE128,      MATCH_NIL,         &CCodeGen_AArch64::Emit_Md_StoreAtRef_VarVar             },
+	{ OP_STOREATREF,            MATCH_NIL,            MATCH_VAR_REF,        MATCH_ANY32,            MATCH_VARIABLE128, &CCodeGen_AArch64::Emit_Md_StoreAtRef_VarAnyVar          },
 
 	{ OP_MD_MOV_MASKED,         MATCH_VARIABLE128,    MATCH_VARIABLE128,    MATCH_VARIABLE128,      MATCH_NIL, &CCodeGen_AArch64::Emit_Md_MovMasked_VarVarVar                   },
 

@@ -515,6 +515,24 @@ void CCodeGen_AArch32::LoadConstantPtrInRegister(CAArch32Assembler::REGISTER reg
 	}
 }
 
+void CCodeGen_AArch32::LoadRefIndexAddress(CAArch32Assembler::REGISTER dstRegister, CSymbol* refSymbol, CAArch32Assembler::REGISTER refRegister, CSymbol* indexSymbol, CAArch32Assembler::REGISTER indexRegister, uint8 scale)
+{
+	assert(scale == 1);
+
+	refRegister = PrepareSymbolRegisterUseRef(refSymbol, refRegister);
+
+	if(uint8 immediate = 0, shiftAmount = 0;
+		indexSymbol->IsConstant() && TryGetAluImmediateParams(indexSymbol->m_valueLow, immediate, shiftAmount))
+	{
+		m_assembler.Add(dstRegister, refRegister, CAArch32Assembler::MakeImmediateAluOperand(immediate, shiftAmount));
+	}
+	else
+	{
+		auto indexReg = PrepareSymbolRegisterUse(indexSymbol, indexRegister);
+		m_assembler.Add(dstRegister, refRegister, indexReg);
+	}
+}
+
 void CCodeGen_AArch32::LoadMemoryInRegister(CAArch32Assembler::REGISTER registerId, CSymbol* src)
 {
 	switch(src->m_type)
@@ -1434,10 +1452,8 @@ void CCodeGen_AArch32::Emit_AddRef_VarVarAny(const STATEMENT& statement)
 	auto src2 = statement.src2->GetSymbol().get();
 	
 	auto dstReg = PrepareSymbolRegisterDefRef(dst, CAArch32Assembler::r0);
-	auto src1Reg = PrepareSymbolRegisterUseRef(src1, CAArch32Assembler::r1);
-	auto src2Reg = PrepareSymbolRegisterUse(src2, CAArch32Assembler::r2);
 
-	m_assembler.Add(dstReg, src1Reg, src2Reg);
+	LoadRefIndexAddress(dstReg, src1, CAArch32Assembler::r1, src2, CAArch32Assembler::r2, 1);
 
 	CommitSymbolRegisterRef(dst, dstReg);
 }

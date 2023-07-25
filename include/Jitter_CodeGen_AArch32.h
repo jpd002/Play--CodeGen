@@ -151,6 +151,7 @@ namespace Jitter
 		bool									TryGetAluImmediateParams(uint32, uint8&, uint8&);
 		void									LoadConstantInRegister(CAArch32Assembler::REGISTER, uint32);
 		void									LoadConstantPtrInRegister(CAArch32Assembler::REGISTER, uintptr_t);
+		void									LoadRefIndexAddress(CAArch32Assembler::REGISTER, CSymbol*, CAArch32Assembler::REGISTER, CSymbol*, CAArch32Assembler::REGISTER, uint8);
 
 		//ALUOP ----------------------------------------------------------
 		struct ALUOP_BASE
@@ -688,7 +689,9 @@ namespace Jitter
 		void									Emit_Md_Srl256_MemMemCst(const STATEMENT&);
 
 		void									Emit_Md_LoadFromRef_MemVar(const STATEMENT&);
+		void									Emit_Md_LoadFromRef_MemVarAny(const STATEMENT&);
 		void									Emit_Md_StoreAtRef_VarMem(const STATEMENT&);
+		void									Emit_Md_StoreAtRef_VarAnyMem(const STATEMENT&);
 
 		void									Emit_Md_MovMasked_MemMemMem(const STATEMENT&);
 		void									Emit_Md_Expand_MemReg(const STATEMENT&);

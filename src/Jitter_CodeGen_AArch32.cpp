@@ -213,7 +213,8 @@ CCodeGen_AArch32::CONSTMATCHER CCodeGen_AArch32::g_constMatchers[] =
 	{ OP_LOADFROMREF, MATCH_VARIABLE, MATCH_VAR_REF, MATCH_NIL,   MATCH_NIL, &CCodeGen_AArch32::Emit_LoadFromRef_VarVar    },
 	{ OP_LOADFROMREF, MATCH_VARIABLE, MATCH_VAR_REF, MATCH_ANY32, MATCH_NIL, &CCodeGen_AArch32::Emit_LoadFromRef_VarVarAny },
 
-	{ OP_LOADFROMREF, MATCH_VAR_REF,  MATCH_VAR_REF, MATCH_NIL, MATCH_NIL, &CCodeGen_AArch32::Emit_LoadFromRef_Ref_VarVar },
+	{ OP_LOADFROMREF, MATCH_VAR_REF, MATCH_VAR_REF, MATCH_NIL, MATCH_NIL, &CCodeGen_AArch32::Emit_LoadFromRef_Ref_VarVar },
+	{ OP_LOADFROMREF, MATCH_VAR_REF, MATCH_VAR_REF, MATCH_ANY32, MATCH_NIL, &CCodeGen_AArch32::Emit_LoadFromRef_Ref_VarVarAny },
 
 	{ OP_LOAD8FROMREF, MATCH_VARIABLE, MATCH_VAR_REF, MATCH_NIL, MATCH_NIL, &CCodeGen_AArch32::Emit_Load8FromRef_MemVar },
 
@@ -1502,6 +1503,31 @@ void CCodeGen_AArch32::Emit_LoadFromRef_Ref_VarVar(const STATEMENT& statement)
 	auto src1Reg = PrepareSymbolRegisterUseRef(src1, CAArch32Assembler::r1);
 
 	m_assembler.Ldr(dstReg, src1Reg, CAArch32Assembler::MakeImmediateLdrAddress(0));
+
+	CommitSymbolRegisterRef(dst, dstReg);
+}
+
+void CCodeGen_AArch32::Emit_LoadFromRef_Ref_VarVarAny(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+	uint8 scale = static_cast<uint8>(statement.jmpCondition);
+
+	assert(scale == 4);
+
+	auto dstReg = PrepareSymbolRegisterDefRef(dst, CAArch32Assembler::r0);
+	auto src1Reg = PrepareSymbolRegisterUseRef(src1, CAArch32Assembler::r1);
+
+	if(uint32 scaledIndex = (src2->m_valueLow * scale); src2->IsConstant() && (scaledIndex < 0x1000))
+	{
+		m_assembler.Ldr(dstReg, src1Reg, CAArch32Assembler::MakeImmediateLdrAddress(scaledIndex));
+	}
+	else
+	{
+		auto indexReg = PrepareSymbolRegisterUse(src2, CAArch32Assembler::r2);
+		m_assembler.Ldr(dstReg, src1Reg, MakeScaledLdrAddress(indexReg, scale));
+	}
 
 	CommitSymbolRegisterRef(dst, dstReg);
 }

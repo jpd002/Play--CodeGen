@@ -83,9 +83,11 @@ CCodeGen_Wasm::CONSTMATCHER CCodeGen_Wasm::g_constMatchers[] =
 	{ OP_ISREFNULL,      MATCH_VARIABLE,       MATCH_VAR_REF,        MATCH_ANY,           MATCH_NIL,      &CCodeGen_Wasm::Emit_IsRefNull_VarVar                       },
 
 	{ OP_LOADFROMREF,    MATCH_VARIABLE,       MATCH_VAR_REF,        MATCH_NIL,           MATCH_NIL,      &CCodeGen_Wasm::Emit_LoadFromRef_VarVar                     },
-	{ OP_LOADFROMREF,    MATCH_VAR_REF,        MATCH_VAR_REF,        MATCH_NIL,           MATCH_NIL,      &CCodeGen_Wasm::Emit_LoadFromRef_Ref_VarVar                 },
+	{ OP_LOADFROMREF,    MATCH_VARIABLE,       MATCH_VAR_REF,        MATCH_ANY32,         MATCH_NIL,      &CCodeGen_Wasm::Emit_LoadFromRef_VarVarAny                  },
 
-	{ OP_LOADFROMREF,    MATCH_VARIABLE,       MATCH_VAR_REF,        MATCH_ANY,           MATCH_NIL,      &CCodeGen_Wasm::Emit_LoadFromRefIdx_VarVarAny               },
+	// Reusing the same generators for refs since they're 32-bit values
+	{ OP_LOADFROMREF,    MATCH_VAR_REF,        MATCH_VAR_REF,        MATCH_NIL,           MATCH_NIL,      &CCodeGen_Wasm::Emit_LoadFromRef_VarVar                     },
+	{ OP_LOADFROMREF,    MATCH_VAR_REF,        MATCH_VAR_REF,        MATCH_ANY32,         MATCH_NIL,      &CCodeGen_Wasm::Emit_LoadFromRef_VarVarAny                  },
 
 	{ OP_LOAD8FROMREF,   MATCH_VARIABLE,       MATCH_VAR_REF,        MATCH_NIL,           MATCH_NIL,      &CCodeGen_Wasm::Emit_Load8FromRef_MemVar                    },
 	{ OP_LOAD16FROMREF,  MATCH_VARIABLE,       MATCH_VAR_REF,        MATCH_NIL,           MATCH_NIL,      &CCodeGen_Wasm::Emit_Load16FromRef_MemVar                   },
@@ -968,22 +970,7 @@ void CCodeGen_Wasm::Emit_LoadFromRef_VarVar(const STATEMENT& statement)
 	CommitSymbol(dst);
 }
 
-void CCodeGen_Wasm::Emit_LoadFromRef_Ref_VarVar(const STATEMENT& statement)
-{
-	auto dst = statement.dst->GetSymbol().get();
-	auto src1 = statement.src1->GetSymbol().get();
-
-	PrepareSymbolDef(dst);
-	PrepareSymbolUse(src1);
-
-	m_functionStream.Write8(Wasm::INST_I32_LOAD);
-	m_functionStream.Write8(0x02);
-	m_functionStream.Write8(0x00);
-
-	CommitSymbol(dst);
-}
-
-void CCodeGen_Wasm::Emit_LoadFromRefIdx_VarVarAny(const STATEMENT& statement)
+void CCodeGen_Wasm::Emit_LoadFromRef_VarVarAny(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
@@ -1005,6 +992,9 @@ void CCodeGen_Wasm::Emit_LoadFromRefIdx_VarVarAny(const STATEMENT& statement)
 		m_functionStream.Write8(Wasm::INST_I32_CONST);
 		m_functionStream.Write8(2);
 		m_functionStream.Write8(Wasm::INST_I32_SHL);
+		break;
+	default:
+		assert(false);
 		break;
 	}
 

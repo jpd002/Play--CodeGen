@@ -207,7 +207,9 @@ namespace Jitter
 		void Emit_Md_ClampS_MemMem(const STATEMENT&);
 		void Emit_Md_MakeSz_MemMem(const STATEMENT&);
 		void Emit_Md_LoadFromRef_MemMem(const STATEMENT&);
+		void Emit_Md_LoadFromRef_MemMemAny(const STATEMENT&);
 		void Emit_Md_StoreAtRef_MemMem(const STATEMENT&);
+		void Emit_Md_StoreAtRef_MemAnyMem(const STATEMENT&);
 		void Emit_Md_MovMasked_MemMemMem(const STATEMENT&);
 		void Emit_Md_Expand_MemAny(const STATEMENT&);
 		void Emit_Md_Srl256_MemMemVar(const STATEMENT&);

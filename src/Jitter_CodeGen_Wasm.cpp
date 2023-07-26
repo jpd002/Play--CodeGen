@@ -1072,6 +1072,9 @@ void CCodeGen_Wasm::Emit_StoreAtRef_VarAnyAny(const STATEMENT& statement)
 		m_functionStream.Write8(2);
 		m_functionStream.Write8(Wasm::INST_I32_SHL);
 		break;
+	default:
+		assert(false);
+		break;
 	}
 
 	m_functionStream.Write8(Wasm::INST_I32_ADD);

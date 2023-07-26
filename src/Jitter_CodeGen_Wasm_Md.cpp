@@ -550,6 +550,29 @@ void CCodeGen_Wasm::Emit_Md_LoadFromRef_MemMem(const STATEMENT& statement)
 	CommitSymbol(dst);
 }
 
+void CCodeGen_Wasm::Emit_Md_LoadFromRef_MemMemAny(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+	uint8 scale = static_cast<uint8>(statement.jmpCondition);
+
+	assert(scale == 1);
+
+	PrepareSymbolDef(dst);
+	PrepareSymbolUse(src1);
+	PrepareSymbolUse(src2);
+
+	m_functionStream.Write8(Wasm::INST_I32_ADD);
+
+	m_functionStream.Write8(Wasm::INST_PREFIX_SIMD);
+	m_functionStream.Write8(Wasm::INST_V128_LOAD);
+	m_functionStream.Write8(0x04);
+	m_functionStream.Write8(0x00);
+
+	CommitSymbol(dst);
+}
+
 void CCodeGen_Wasm::Emit_Md_StoreAtRef_MemMem(const STATEMENT& statement)
 {
 	auto src1 = statement.src1->GetSymbol().get();
@@ -557,6 +580,28 @@ void CCodeGen_Wasm::Emit_Md_StoreAtRef_MemMem(const STATEMENT& statement)
 
 	PrepareSymbolUse(src1);
 	PrepareSymbolUse(src2);
+
+	m_functionStream.Write8(Wasm::INST_PREFIX_SIMD);
+	m_functionStream.Write8(Wasm::INST_V128_STORE);
+	m_functionStream.Write8(0x04);
+	m_functionStream.Write8(0x00);
+}
+
+void CCodeGen_Wasm::Emit_Md_StoreAtRef_MemAnyMem(const STATEMENT& statement)
+{
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+	auto src3 = statement.src3->GetSymbol().get();
+	uint8 scale = static_cast<uint8>(statement.jmpCondition);
+
+	assert(scale == 1);
+
+	PrepareSymbolUse(src1);
+	PrepareSymbolUse(src2);
+
+	m_functionStream.Write8(Wasm::INST_I32_ADD);
+
+	PrepareSymbolUse(src3);
 
 	m_functionStream.Write8(Wasm::INST_PREFIX_SIMD);
 	m_functionStream.Write8(Wasm::INST_V128_STORE);
@@ -794,7 +839,10 @@ CCodeGen_Wasm::CONSTMATCHER CCodeGen_Wasm::g_mdConstMatchers[] =
 	{ OP_MD_TOWORD_TRUNCATE,    MATCH_MEMORY128,    MATCH_MEMORY128,    MATCH_NIL,        MATCH_NIL,      &CCodeGen_Wasm::Emit_Md_MemMem<Wasm::INST_I32x4_TRUNC_SAT_F32x4_S> },
 
 	{ OP_LOADFROMREF,    MATCH_MEMORY128,      MATCH_MEM_REF,        MATCH_NIL,           MATCH_NIL,      &CCodeGen_Wasm::Emit_Md_LoadFromRef_MemMem                    },
+	{ OP_LOADFROMREF,    MATCH_MEMORY128,      MATCH_MEM_REF,        MATCH_ANY32,         MATCH_NIL,      &CCodeGen_Wasm::Emit_Md_LoadFromRef_MemMemAny                 },
+
 	{ OP_STOREATREF,     MATCH_NIL,            MATCH_MEM_REF,        MATCH_MEMORY128,     MATCH_NIL,      &CCodeGen_Wasm::Emit_Md_StoreAtRef_MemMem                     },
+	{ OP_STOREATREF,     MATCH_NIL,            MATCH_MEM_REF,        MATCH_ANY32,         MATCH_MEMORY128,&CCodeGen_Wasm::Emit_Md_StoreAtRef_MemAnyMem                  },
 
 	{ OP_MD_MOV_MASKED,  MATCH_MEMORY128,      MATCH_MEMORY128,      MATCH_MEMORY128,     MATCH_NIL,      &CCodeGen_Wasm::Emit_Md_MovMasked_MemMemMem                   },
 

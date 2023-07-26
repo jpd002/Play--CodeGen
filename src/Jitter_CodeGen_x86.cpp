@@ -1232,38 +1232,3 @@ CX86Assembler::XMMREGISTER CCodeGen_x86::PrepareSymbolRegisterDefMd(CSymbol* sym
 		break;
 	}
 }
-
-CX86Assembler::XMMREGISTER CCodeGen_x86::PrepareSymbolRegisterUseMdAvx(CSymbol* symbol, CX86Assembler::XMMREGISTER preferedRegister)
-{
-	switch(symbol->m_type)
-	{
-	case SYM_REGISTER128:
-		return m_mdRegisters[symbol->m_valueLow];
-		break;
-	case SYM_TEMPORARY128:
-	case SYM_RELATIVE128:
-		m_assembler.VmovapsVo(preferedRegister, MakeMemory128SymbolAddress(symbol));
-		return preferedRegister;
-		break;
-	default:
-		throw std::runtime_error("Invalid symbol type.");
-		break;
-	}
-}
-
-void CCodeGen_x86::CommitSymbolRegisterMdAvx(CSymbol* symbol, CX86Assembler::XMMREGISTER usedRegister)
-{
-	switch(symbol->m_type)
-	{
-	case SYM_REGISTER128:
-		assert(usedRegister == m_mdRegisters[symbol->m_valueLow]);
-		break;
-	case SYM_TEMPORARY128:
-	case SYM_RELATIVE128:
-		m_assembler.VmovapsVo(MakeMemory128SymbolAddress(symbol), usedRegister);
-		break;
-	default:
-		throw std::runtime_error("Invalid symbol type.");
-		break;
-	}
-}

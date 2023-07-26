@@ -1,4 +1,5 @@
 #include "Jitter_CodeGen_x86.h"
+#include <stdexcept>
 
 using namespace Jitter;
 
@@ -70,6 +71,41 @@ CX86Assembler::CAddress CCodeGen_x86::MakeMemory128SymbolElementAddress(CSymbol*
 		break;
 	default:
 		throw std::exception();
+		break;
+	}
+}
+
+CX86Assembler::XMMREGISTER CCodeGen_x86::PrepareSymbolRegisterUseMdSse(CSymbol* symbol, CX86Assembler::XMMREGISTER preferedRegister)
+{
+	switch(symbol->m_type)
+	{
+	case SYM_REGISTER128:
+		return m_mdRegisters[symbol->m_valueLow];
+		break;
+	case SYM_TEMPORARY128:
+	case SYM_RELATIVE128:
+		m_assembler.MovapsVo(preferedRegister, MakeMemory128SymbolAddress(symbol));
+		return preferedRegister;
+		break;
+	default:
+		throw std::runtime_error("Invalid symbol type.");
+		break;
+	}
+}
+
+void CCodeGen_x86::CommitSymbolRegisterMdSse(CSymbol* symbol, CX86Assembler::XMMREGISTER usedRegister)
+{
+	switch(symbol->m_type)
+	{
+	case SYM_REGISTER128:
+		assert(usedRegister == m_mdRegisters[symbol->m_valueLow]);
+		break;
+	case SYM_TEMPORARY128:
+	case SYM_RELATIVE128:
+		m_assembler.MovapsVo(MakeMemory128SymbolAddress(symbol), usedRegister);
+		break;
+	default:
+		throw std::runtime_error("Invalid symbol type.");
 		break;
 	}
 }
@@ -942,51 +978,58 @@ void CCodeGen_x86::Emit_MergeTo256_MemVarVar(const STATEMENT& statement)
 	m_assembler.MovdqaVo(MakeTemporary256SymbolElementAddress(dst, 0x10), src2Register);
 }
 
-void CCodeGen_x86::Emit_Md_LoadFromRef_RegVar(const STATEMENT& statement)
-{
-	auto dst = statement.dst->GetSymbol().get();
-	auto src1 = statement.src1->GetSymbol().get();
-
-	assert(dst->m_type == SYM_REGISTER128);
-
-	auto addressReg = PrepareRefSymbolRegisterUse(src1, CX86Assembler::rAX);
-
-	m_assembler.MovapsVo(m_mdRegisters[dst->m_valueLow], CX86Assembler::MakeIndRegAddress(addressReg));
-}
-
-void CCodeGen_x86::Emit_Md_LoadFromRef_MemVar(const STATEMENT& statement)
+void CCodeGen_x86::Emit_Md_LoadFromRef_VarVar(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
 
 	auto addressReg = PrepareRefSymbolRegisterUse(src1, CX86Assembler::rAX);
-	auto valueReg = CX86Assembler::xMM0;
+	auto valueReg = PrepareSymbolRegisterDefMd(dst, CX86Assembler::xMM0);
 
 	m_assembler.MovapsVo(valueReg, CX86Assembler::MakeIndRegAddress(addressReg));
-	m_assembler.MovapsVo(MakeMemory128SymbolAddress(dst), valueReg);
+
+	CommitSymbolRegisterMdSse(dst, valueReg);
 }
 
-void CCodeGen_x86::Emit_Md_StoreAtRef_VarReg(const STATEMENT& statement)
+void CCodeGen_x86::Emit_Md_LoadFromRef_VarVarAny(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+	uint8 scale = static_cast<uint8>(statement.jmpCondition);
+
+	assert(scale == 1);
+
+	auto addressReg = PrepareRefSymbolRegisterUse(src1, CX86Assembler::rAX);
+	auto dstReg = PrepareSymbolRegisterDefMd(dst, CX86Assembler::xMM0);
+
+	m_assembler.MovapsVo(dstReg, MakeRefBaseScaleSymbolAddress(src1, CX86Assembler::rAX, src2, CX86Assembler::rCX, scale));
+
+	CommitSymbolRegisterMdSse(dst, dstReg);
+}
+
+void CCodeGen_x86::Emit_Md_StoreAtRef_VarVar(const STATEMENT& statement)
 {
 	auto src1 = statement.src1->GetSymbol().get();
 	auto src2 = statement.src2->GetSymbol().get();
 
-	assert(src2->m_type == SYM_REGISTER128);
-
 	auto addressReg = PrepareRefSymbolRegisterUse(src1, CX86Assembler::rAX);
-	m_assembler.MovapsVo(CX86Assembler::MakeIndRegAddress(addressReg), m_mdRegisters[src2->m_valueLow]);
-}
+	auto valueReg = PrepareSymbolRegisterUseMdSse(src2, CX86Assembler::xMM0);
 
-void CCodeGen_x86::Emit_Md_StoreAtRef_VarMem(const STATEMENT& statement)
-{
-	auto src1 = statement.src1->GetSymbol().get();
-	auto src2 = statement.src2->GetSymbol().get();
-
-	auto addressReg = PrepareRefSymbolRegisterUse(src1, CX86Assembler::rAX);
-	auto valueReg = CX86Assembler::xMM0;
-
-	m_assembler.MovapsVo(valueReg, MakeMemory128SymbolAddress(src2));
 	m_assembler.MovapsVo(CX86Assembler::MakeIndRegAddress(addressReg), valueReg);
+}
+
+void CCodeGen_x86::Emit_Md_StoreAtRef_VarAnyVar(const STATEMENT& statement)
+{
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+	uint8 scale = static_cast<uint8>(statement.jmpCondition);
+	auto src3 = statement.src3->GetSymbol().get();
+
+	assert(scale == 1);
+
+	auto valueReg = PrepareSymbolRegisterUseMdSse(src3, CX86Assembler::xMM0);
+	m_assembler.MovapsVo(MakeRefBaseScaleSymbolAddress(src1, CX86Assembler::rAX, src2, CX86Assembler::rCX, scale), valueReg);
 }
 
 #define MD_CONST_MATCHERS_SHIFT(MDOP_CST, MDOP, SAMASK) \
@@ -1104,11 +1147,11 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdConstMatchers[] =
 
 	{ OP_MERGETO256, MATCH_MEMORY256, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_NIL, &CCodeGen_x86::Emit_MergeTo256_MemVarVar },
 
-	{ OP_LOADFROMREF, MATCH_REGISTER128, MATCH_VAR_REF, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Md_LoadFromRef_RegVar },
-	{ OP_LOADFROMREF, MATCH_MEMORY128,   MATCH_VAR_REF, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Md_LoadFromRef_MemVar },
+	{ OP_LOADFROMREF, MATCH_VARIABLE128, MATCH_VAR_REF, MATCH_NIL,   MATCH_NIL, &CCodeGen_x86::Emit_Md_LoadFromRef_VarVar    },
+	{ OP_LOADFROMREF, MATCH_VARIABLE128, MATCH_VAR_REF, MATCH_ANY32, MATCH_NIL, &CCodeGen_x86::Emit_Md_LoadFromRef_VarVarAny },
 
-	{ OP_STOREATREF, MATCH_NIL, MATCH_VAR_REF, MATCH_REGISTER128, MATCH_NIL, &CCodeGen_x86::Emit_Md_StoreAtRef_VarReg },
-	{ OP_STOREATREF, MATCH_NIL, MATCH_VAR_REF, MATCH_MEMORY128,   MATCH_NIL, &CCodeGen_x86::Emit_Md_StoreAtRef_VarMem },
+	{ OP_STOREATREF, MATCH_NIL, MATCH_VAR_REF, MATCH_VARIABLE128, MATCH_NIL,         &CCodeGen_x86::Emit_Md_StoreAtRef_VarVar    },
+	{ OP_STOREATREF, MATCH_NIL, MATCH_VAR_REF, MATCH_ANY32,       MATCH_VARIABLE128, &CCodeGen_x86::Emit_Md_StoreAtRef_VarAnyVar },
 
 	{ OP_MOV, MATCH_NIL, MATCH_NIL, MATCH_NIL, MATCH_NIL, nullptr },
 };

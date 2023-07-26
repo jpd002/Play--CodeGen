@@ -1,6 +1,42 @@
 #include "Jitter_CodeGen_x86.h"
+#include <stdexcept>
 
 using namespace Jitter;
+
+CX86Assembler::XMMREGISTER CCodeGen_x86::PrepareSymbolRegisterUseMdAvx(CSymbol* symbol, CX86Assembler::XMMREGISTER preferedRegister)
+{
+	switch(symbol->m_type)
+	{
+	case SYM_REGISTER128:
+		return m_mdRegisters[symbol->m_valueLow];
+		break;
+	case SYM_TEMPORARY128:
+	case SYM_RELATIVE128:
+		m_assembler.VmovapsVo(preferedRegister, MakeMemory128SymbolAddress(symbol));
+		return preferedRegister;
+		break;
+	default:
+		throw std::runtime_error("Invalid symbol type.");
+		break;
+	}
+}
+
+void CCodeGen_x86::CommitSymbolRegisterMdAvx(CSymbol* symbol, CX86Assembler::XMMREGISTER usedRegister)
+{
+	switch(symbol->m_type)
+	{
+	case SYM_REGISTER128:
+		assert(usedRegister == m_mdRegisters[symbol->m_valueLow]);
+		break;
+	case SYM_TEMPORARY128:
+	case SYM_RELATIVE128:
+		m_assembler.VmovapsVo(MakeMemory128SymbolAddress(symbol), usedRegister);
+		break;
+	default:
+		throw std::runtime_error("Invalid symbol type.");
+		break;
+	}
+}
 
 template <typename MDOP>
 void CCodeGen_x86::Emit_Md_Avx_VarVar(const STATEMENT& statement)
@@ -604,6 +640,8 @@ void CCodeGen_x86::Emit_Md_Avx_StoreAtRef_VarAnyVar(const STATEMENT& statement)
 	auto src2 = statement.src2->GetSymbol().get();
 	uint8 scale = static_cast<uint8>(statement.jmpCondition);
 	auto src3 = statement.src3->GetSymbol().get();
+
+	assert(scale == 1);
 
 	auto valueReg = PrepareSymbolRegisterUseMdAvx(src3, CX86Assembler::xMM0);
 	m_assembler.VmovapsVo(MakeRefBaseScaleSymbolAddress(src1, CX86Assembler::rAX, src2, CX86Assembler::rCX, scale), valueReg);

@@ -718,10 +718,11 @@ namespace Jitter
 		void						Emit_Md_MakeSz_VarVar(const STATEMENT&);
 		void						Emit_Md_MakeSz_Ssse3_VarVar(const STATEMENT&);
 
-		void						Emit_Md_LoadFromRef_RegVar(const STATEMENT&);
-		void						Emit_Md_LoadFromRef_MemVar(const STATEMENT&);
-		void						Emit_Md_StoreAtRef_VarReg(const STATEMENT&);
-		void						Emit_Md_StoreAtRef_VarMem(const STATEMENT&);
+		void						Emit_Md_LoadFromRef_VarVar(const STATEMENT&);
+		void						Emit_Md_LoadFromRef_VarVarAny(const STATEMENT&);
+
+		void						Emit_Md_StoreAtRef_VarVar(const STATEMENT&);
+		void						Emit_Md_StoreAtRef_VarAnyVar(const STATEMENT&);
 
 		//FPUOP AVX
 		template <typename> void	Emit_Fpu_Avx_MemMem(const STATEMENT&);
@@ -780,7 +781,9 @@ namespace Jitter
 		void						CommitSymbolRegister(CSymbol*, CX86Assembler::REGISTER);
 
 		CX86Assembler::XMMREGISTER	PrepareSymbolRegisterDefMd(CSymbol*, CX86Assembler::XMMREGISTER);
+		CX86Assembler::XMMREGISTER	PrepareSymbolRegisterUseMdSse(CSymbol*, CX86Assembler::XMMREGISTER);
 		CX86Assembler::XMMREGISTER	PrepareSymbolRegisterUseMdAvx(CSymbol*, CX86Assembler::XMMREGISTER);
+		void						CommitSymbolRegisterMdSse(CSymbol*, CX86Assembler::XMMREGISTER);
 		void						CommitSymbolRegisterMdAvx(CSymbol*, CX86Assembler::XMMREGISTER);
 
 		virtual CX86Assembler::REGISTER PrepareRefSymbolRegisterUse(CSymbol*, CX86Assembler::REGISTER) = 0;

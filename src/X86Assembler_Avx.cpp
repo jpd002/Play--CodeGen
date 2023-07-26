@@ -3,8 +3,6 @@
 
 void CX86Assembler::WriteVex(VEX_OPCODE_MAP opMap, XMMREGISTER& dst, XMMREGISTER src1, const CAddress& src2)
 {
-	assert(!src2.nIsExtendedSib);
-
 	uint8 prefix = (opMap >> 4) & 0x0F;
 	uint8 map = (opMap & 0x0F);
 
@@ -17,7 +15,7 @@ void CX86Assembler::WriteVex(VEX_OPCODE_MAP opMap, XMMREGISTER& dst, XMMREGISTER
 		dst = static_cast<XMMREGISTER>(dst & 7);
 	}
 
-	if(src2.nIsExtendedModRM || (map != 1))
+	if(src2.nIsExtendedModRM || src2.nIsExtendedSib || (map != 1))
 	{
 		//Three byte VEX
 		uint8 b1 = 0;

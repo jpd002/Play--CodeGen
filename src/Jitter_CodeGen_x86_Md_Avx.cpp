@@ -615,11 +615,8 @@ void CCodeGen_x86::Emit_Md_Avx_LoadFromRef_VarVarAny(const STATEMENT& statement)
 
 	assert(scale == 1);
 
-	auto addressReg = PrepareRefSymbolRegisterUse(src1, CX86Assembler::rAX);
 	auto dstReg = PrepareSymbolRegisterDefMd(dst, CX86Assembler::xMM0);
-
 	m_assembler.VmovapsVo(dstReg, MakeRefBaseScaleSymbolAddress(src1, CX86Assembler::rAX, src2, CX86Assembler::rCX, scale));
-
 	CommitSymbolRegisterMdAvx(dst, dstReg);
 }
 

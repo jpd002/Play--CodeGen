@@ -1000,11 +1000,8 @@ void CCodeGen_x86::Emit_Md_LoadFromRef_VarVarAny(const STATEMENT& statement)
 
 	assert(scale == 1);
 
-	auto addressReg = PrepareRefSymbolRegisterUse(src1, CX86Assembler::rAX);
 	auto dstReg = PrepareSymbolRegisterDefMd(dst, CX86Assembler::xMM0);
-
 	m_assembler.MovapsVo(dstReg, MakeRefBaseScaleSymbolAddress(src1, CX86Assembler::rAX, src2, CX86Assembler::rCX, scale));
-
 	CommitSymbolRegisterMdSse(dst, dstReg);
 }
 

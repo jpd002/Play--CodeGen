@@ -1216,15 +1216,7 @@ void CJitter::MD_PushCstExpand(float value)
 
 void CJitter::MD_LoadFromRef()
 {
-	auto tempSym = MakeSymbol(SYM_TEMPORARY128, m_nextTemporary++);
-
-	STATEMENT statement;
-	statement.op	= OP_LOADFROMREF;
-	statement.src1	= MakeSymbolRef(m_shadow.Pull());
-	statement.dst	= MakeSymbolRef(tempSym);
-	InsertStatement(statement);
-
-	m_shadow.Push(tempSym);
+	InsertUnaryMdStatement(OP_LOADFROMREF);
 }
 
 void CJitter::MD_LoadFromRefIdx(size_t scale)

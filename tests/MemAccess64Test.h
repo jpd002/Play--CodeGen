@@ -19,6 +19,7 @@ private:
 		void*     memory;
 		uint64    writeValue;
 		uint64    readValue;
+		uint64    readValueIdx;
 	};
 
 	CONTEXT            m_context;

@@ -782,6 +782,17 @@ void CX86Assembler::MovId(const CX86Assembler::CAddress& address, uint32 constan
 	WriteDWord(constant);
 }
 
+void CX86Assembler::MovIq(const CX86Assembler::CAddress& address, uint32 constant)
+{
+	WriteRexByte(true, address);
+	CAddress newAddress(address);
+	newAddress.ModRm.nFnReg = 0x00;
+
+	WriteByte(0xC7);
+	newAddress.Write(&m_tmpStream);
+	WriteDWord(constant);
+}
+
 void CX86Assembler::MovsxEb(REGISTER registerId, const CAddress& address)
 {
 	WriteEbGvOp0F(0xBE, false, address, registerId);

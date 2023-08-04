@@ -203,6 +203,8 @@ namespace Jitter
 		CX86Assembler::REGISTER				PrepareRefSymbolRegisterUse(CSymbol*, CX86Assembler::REGISTER) override;
 		void								CommitRefSymbolRegister(CSymbol*, CX86Assembler::REGISTER);
 
+		void								WriteConstant64ToAddress(const CX86Assembler::CAddress&, CX86Assembler::REGISTER, uint64);
+
 		static CONSTMATCHER					g_constMatchers[];
 		static CX86Assembler::REGISTER		g_systemVRegisters[SYSTEMV_MAX_REGISTERS];
 		static CX86Assembler::REGISTER		g_systemVParamRegs[SYSTEMV_MAX_PARAMS];

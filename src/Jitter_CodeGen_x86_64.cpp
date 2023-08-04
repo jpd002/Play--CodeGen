@@ -628,24 +628,10 @@ void CCodeGen_x86_64::Emit_Mov_Mem64Mem64(const STATEMENT& statement)
 
 void CCodeGen_x86_64::Emit_Mov_Rel64Cst64(const STATEMENT& statement)
 {
-	CSymbol* dst = statement.dst->GetSymbol().get();
-	CSymbol* src1 = statement.src1->GetSymbol().get();
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
 
-	assert(dst->m_type  == SYM_RELATIVE64);
-	assert(src1->m_type == SYM_CONSTANT64);
-
-	uint64 constant = CombineConstant64(src1->m_valueLow, src1->m_valueHigh);
-	CX86Assembler::REGISTER tmpReg = CX86Assembler::rAX;
-
-	if(constant == 0)
-	{
-		m_assembler.XorGq(CX86Assembler::MakeRegisterAddress(tmpReg), tmpReg);
-	}
-	else
-	{
-		m_assembler.MovIq(tmpReg, constant);
-	}
-	m_assembler.MovGq(MakeRelative64SymbolAddress(dst), tmpReg);
+	WriteConstant64ToAddress(MakeRelative64SymbolAddress(dst), CX86Assembler::rAX, src1->GetConstant64());
 }
 
 void CCodeGen_x86_64::Emit_Mov_RegRefMemRef(const STATEMENT& statement)
@@ -902,10 +888,7 @@ void CCodeGen_x86_64::Emit_StoreAtRef_64_VarCst(const STATEMENT& statement)
 	auto src2 = statement.src2->GetSymbol().get();
 
 	auto addressReg = PrepareRefSymbolRegisterUse(src1, CX86Assembler::rAX);
-	auto valueReg = CX86Assembler::rDX;
-
-	m_assembler.MovIq(valueReg, src2->GetConstant64());
-	m_assembler.MovGq(CX86Assembler::MakeIndRegAddress(addressReg), valueReg);
+	WriteConstant64ToAddress(CX86Assembler::MakeIndRegAddress(addressReg), CX86Assembler::rDX, src2->GetConstant64());
 }
 
 void CCodeGen_x86_64::Emit_Store8AtRef_VarVar(const STATEMENT& statement)
@@ -983,5 +966,18 @@ void CCodeGen_x86_64::CommitRefSymbolRegister(CSymbol* symbol, CX86Assembler::RE
 	default:
 		throw std::runtime_error("Invalid symbol type.");
 		break;
+	}
+}
+
+void CCodeGen_x86_64::WriteConstant64ToAddress(const CX86Assembler::CAddress& dstAddress, CX86Assembler::REGISTER tempRegister, uint64 constant)
+{
+	if(static_cast<int32>(constant) == constant)
+	{
+		m_assembler.MovIq(dstAddress, static_cast<uint32>(constant));
+	}
+	else
+	{
+		m_assembler.MovIq(tempRegister, constant);
+		m_assembler.MovGq(dstAddress, tempRegister);
 	}
 }

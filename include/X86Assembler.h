@@ -194,6 +194,7 @@ public:
 	void									MovIb(const CAddress&, uint8);
 	void									MovIw(const CAddress&, uint16);
 	void									MovId(const CAddress&, uint32);
+	void									MovIq(const CAddress&, uint32);
 	void									MovsxEb(REGISTER, const CAddress&);
 	void									MovsxEw(REGISTER, const CAddress&);
 	void									MovzxEb(REGISTER, const CAddress&);

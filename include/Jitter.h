@@ -112,6 +112,7 @@ namespace Jitter
 		void							Load8FromRef();
 		void							Load16FromRef();
 		void							Load64FromRef();
+		void							Load64FromRefIdx(size_t = sizeof(uint64));
 		void							LoadRefFromRef();
 		void							LoadRefFromRefIdx();
 		void							StoreAtRef();
@@ -119,6 +120,7 @@ namespace Jitter
 		void							Store8AtRef();
 		void							Store16AtRef();
 		void							Store64AtRef();
+		void							Store64AtRefIdx(size_t = sizeof(uint64));
 
 		//64-bits
 		virtual void					PushRel64(size_t);

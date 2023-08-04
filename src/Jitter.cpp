@@ -632,6 +632,23 @@ void CJitter::Load64FromRef()
 	m_shadow.Push(tempSym);
 }
 
+void CJitter::Load64FromRefIdx(size_t scale)
+{
+	assert(scale == 1);
+
+	auto tempSym = MakeSymbol(SYM_TEMPORARY64, m_nextTemporary++);
+
+	STATEMENT statement;
+	statement.op           = OP_LOADFROMREF;
+	statement.jmpCondition = static_cast<CONDITION>(scale);
+	statement.src2         = MakeSymbolRef(m_shadow.Pull());
+	statement.src1         = MakeSymbolRef(m_shadow.Pull());
+	statement.dst          = MakeSymbolRef(tempSym);
+	InsertStatement(statement);
+
+	m_shadow.Push(tempSym);
+}
+
 void CJitter::LoadRefFromRef()
 {
 	auto tempSym = MakeSymbol(SYM_TMP_REFERENCE, m_nextTemporary++);
@@ -705,6 +722,12 @@ void CJitter::Store16AtRef()
 void CJitter::Store64AtRef()
 {
 	StoreAtRef();
+}
+
+void CJitter::Store64AtRefIdx(size_t scale)
+{
+	assert(scale == 1);
+	StoreAtRefIdx(scale);
 }
 
 //64-bits

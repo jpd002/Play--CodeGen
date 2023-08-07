@@ -21,82 +21,82 @@ CX86Assembler::XMMREGISTER CCodeGen_x86_32::g_mdRegisters[MAX_MDREGISTERS] =
 
 CCodeGen_x86_32::CONSTMATCHER CCodeGen_x86_32::g_constMatchers[] = 
 { 
-	{ OP_PARAM,			MATCH_NIL,			MATCH_CONTEXT,		MATCH_NIL,			&CCodeGen_x86_32::Emit_Param_Ctx				},
-	{ OP_PARAM,			MATCH_NIL,			MATCH_MEMORY,		MATCH_NIL,			&CCodeGen_x86_32::Emit_Param_Mem				},
-	{ OP_PARAM,			MATCH_NIL,			MATCH_CONSTANT,		MATCH_NIL,			&CCodeGen_x86_32::Emit_Param_Cst				},
-	{ OP_PARAM,			MATCH_NIL,			MATCH_REGISTER,		MATCH_NIL,			&CCodeGen_x86_32::Emit_Param_Reg				},
-	{ OP_PARAM,			MATCH_NIL,			MATCH_MEMORY64,		MATCH_NIL,			&CCodeGen_x86_32::Emit_Param_Mem64				},
-	{ OP_PARAM,			MATCH_NIL,			MATCH_CONSTANT64,	MATCH_NIL,			&CCodeGen_x86_32::Emit_Param_Cst64				},
-	{ OP_PARAM,			MATCH_NIL,			MATCH_REGISTER128,	MATCH_NIL,			&CCodeGen_x86_32::Emit_Param_Reg128				},
-	{ OP_PARAM,			MATCH_NIL,			MATCH_MEMORY128,	MATCH_NIL,			&CCodeGen_x86_32::Emit_Param_Mem128				},
+	{ OP_PARAM,         MATCH_NIL,          MATCH_CONTEXT,     MATCH_NIL,      MATCH_NIL, &CCodeGen_x86_32::Emit_Param_Ctx     },
+	{ OP_PARAM,         MATCH_NIL,          MATCH_MEMORY,      MATCH_NIL,      MATCH_NIL, &CCodeGen_x86_32::Emit_Param_Mem     },
+	{ OP_PARAM,         MATCH_NIL,          MATCH_CONSTANT,    MATCH_NIL,      MATCH_NIL, &CCodeGen_x86_32::Emit_Param_Cst     },
+	{ OP_PARAM,         MATCH_NIL,          MATCH_REGISTER,    MATCH_NIL,      MATCH_NIL, &CCodeGen_x86_32::Emit_Param_Reg     },
+	{ OP_PARAM,         MATCH_NIL,          MATCH_MEMORY64,    MATCH_NIL,      MATCH_NIL, &CCodeGen_x86_32::Emit_Param_Mem64   },
+	{ OP_PARAM,         MATCH_NIL,          MATCH_CONSTANT64,  MATCH_NIL,      MATCH_NIL, &CCodeGen_x86_32::Emit_Param_Cst64   },
+	{ OP_PARAM,         MATCH_NIL,          MATCH_REGISTER128, MATCH_NIL,      MATCH_NIL, &CCodeGen_x86_32::Emit_Param_Reg128  },
+	{ OP_PARAM,         MATCH_NIL,          MATCH_MEMORY128,   MATCH_NIL,      MATCH_NIL, &CCodeGen_x86_32::Emit_Param_Mem128  },
 
-	{ OP_PARAM_RET,		MATCH_NIL,			MATCH_MEMORY128,	MATCH_NIL,			&CCodeGen_x86_32::Emit_ParamRet_Mem128			},
+	{ OP_PARAM_RET,     MATCH_NIL,          MATCH_MEMORY128,   MATCH_NIL,      MATCH_NIL, &CCodeGen_x86_32::Emit_ParamRet_Mem128 },
 	
-	{ OP_CALL,			MATCH_NIL,			MATCH_CONSTANTPTR,	MATCH_CONSTANT,		&CCodeGen_x86_32::Emit_Call						},
+	{ OP_CALL,          MATCH_NIL,          MATCH_CONSTANTPTR, MATCH_CONSTANT, MATCH_NIL, &CCodeGen_x86_32::Emit_Call },
 
-	{ OP_RETVAL,		MATCH_TEMPORARY,	MATCH_NIL,			MATCH_NIL,			&CCodeGen_x86_32::Emit_RetVal_Tmp				},
-	{ OP_RETVAL,		MATCH_REGISTER,		MATCH_NIL,			MATCH_NIL,			&CCodeGen_x86_32::Emit_RetVal_Reg				},
-	{ OP_RETVAL,		MATCH_MEMORY64,		MATCH_NIL,			MATCH_NIL,			&CCodeGen_x86_32::Emit_RetVal_Mem64				},
+	{ OP_RETVAL,        MATCH_TEMPORARY,    MATCH_NIL,         MATCH_NIL,      MATCH_NIL, &CCodeGen_x86_32::Emit_RetVal_Tmp   },
+	{ OP_RETVAL,        MATCH_REGISTER,     MATCH_NIL,         MATCH_NIL,      MATCH_NIL, &CCodeGen_x86_32::Emit_RetVal_Reg   },
+	{ OP_RETVAL,        MATCH_MEMORY64,     MATCH_NIL,         MATCH_NIL,      MATCH_NIL, &CCodeGen_x86_32::Emit_RetVal_Mem64 },
 
-	{ OP_EXTERNJMP,		MATCH_NIL,			MATCH_CONSTANTPTR,	MATCH_NIL,			&CCodeGen_x86_32::Emit_ExternJmp				},
-	{ OP_EXTERNJMP_DYN,	MATCH_NIL,			MATCH_CONSTANTPTR,	MATCH_NIL,			&CCodeGen_x86_32::Emit_ExternJmp				},
+	{ OP_EXTERNJMP,     MATCH_NIL,          MATCH_CONSTANTPTR, MATCH_NIL,      MATCH_NIL, &CCodeGen_x86_32::Emit_ExternJmp },
+	{ OP_EXTERNJMP_DYN, MATCH_NIL,          MATCH_CONSTANTPTR, MATCH_NIL,      MATCH_NIL, &CCodeGen_x86_32::Emit_ExternJmp },
 
-	{ OP_MOV,			MATCH_MEMORY64,		MATCH_MEMORY64,		MATCH_NIL,			&CCodeGen_x86_32::Emit_Mov_Mem64Mem64			},
-	{ OP_MOV,			MATCH_MEMORY64,		MATCH_CONSTANT64,	MATCH_NIL,			&CCodeGen_x86_32::Emit_Mov_Mem64Cst64			},
+	{ OP_MOV,           MATCH_MEMORY64,     MATCH_MEMORY64,    MATCH_NIL,      MATCH_NIL, &CCodeGen_x86_32::Emit_Mov_Mem64Mem64 },
+	{ OP_MOV,           MATCH_MEMORY64,     MATCH_CONSTANT64,  MATCH_NIL,      MATCH_NIL, &CCodeGen_x86_32::Emit_Mov_Mem64Cst64 },
 
-	{ OP_MOV,			MATCH_REG_REF,		MATCH_MEM_REF,		MATCH_NIL,			&CCodeGen_x86_32::Emit_Mov_RegRefMemRef			},
-	{ OP_MOV,			MATCH_MEM_REF,		MATCH_REG_REF,		MATCH_NIL,			&CCodeGen_x86_32::Emit_Mov_MemRefRegRef			},
+	{ OP_MOV,           MATCH_REG_REF,      MATCH_MEM_REF,     MATCH_NIL,      MATCH_NIL, &CCodeGen_x86_32::Emit_Mov_RegRefMemRef },
+	{ OP_MOV,           MATCH_MEM_REF,      MATCH_REG_REF,     MATCH_NIL,      MATCH_NIL, &CCodeGen_x86_32::Emit_Mov_MemRefRegRef },
 
-	{ OP_ADD64,			MATCH_MEMORY64,		MATCH_MEMORY64,		MATCH_MEMORY64,		&CCodeGen_x86_32::Emit_Add64_MemMemMem			},
-	{ OP_ADD64,			MATCH_MEMORY64,		MATCH_MEMORY64,		MATCH_CONSTANT64,	&CCodeGen_x86_32::Emit_Add64_MemMemCst			},
+	{ OP_ADD64,         MATCH_MEMORY64,     MATCH_MEMORY64,    MATCH_MEMORY64,   MATCH_NIL, &CCodeGen_x86_32::Emit_Add64_MemMemMem },
+	{ OP_ADD64,         MATCH_MEMORY64,     MATCH_MEMORY64,    MATCH_CONSTANT64, MATCH_NIL, &CCodeGen_x86_32::Emit_Add64_MemMemCst },
 
-	{ OP_SUB64,			MATCH_MEMORY64,		MATCH_MEMORY64,		MATCH_MEMORY64,		&CCodeGen_x86_32::Emit_Sub64_MemMemMem			},
-	{ OP_SUB64,			MATCH_MEMORY64,		MATCH_MEMORY64,		MATCH_CONSTANT64,	&CCodeGen_x86_32::Emit_Sub64_MemMemCst			},
-	{ OP_SUB64,			MATCH_MEMORY64,		MATCH_CONSTANT64,	MATCH_MEMORY64,		&CCodeGen_x86_32::Emit_Sub64_MemCstMem			},
+	{ OP_SUB64,         MATCH_MEMORY64,     MATCH_MEMORY64,    MATCH_MEMORY64,   MATCH_NIL, &CCodeGen_x86_32::Emit_Sub64_MemMemMem },
+	{ OP_SUB64,         MATCH_MEMORY64,     MATCH_MEMORY64,    MATCH_CONSTANT64, MATCH_NIL, &CCodeGen_x86_32::Emit_Sub64_MemMemCst },
+	{ OP_SUB64,         MATCH_MEMORY64,     MATCH_CONSTANT64,  MATCH_MEMORY64,   MATCH_NIL, &CCodeGen_x86_32::Emit_Sub64_MemCstMem },
 
-	{ OP_AND64,			MATCH_MEMORY64,		MATCH_MEMORY64,		MATCH_MEMORY64,		&CCodeGen_x86_32::Emit_And64_MemMemMem			},
+	{ OP_AND64,         MATCH_MEMORY64,     MATCH_MEMORY64,    MATCH_MEMORY64,   MATCH_NIL, &CCodeGen_x86_32::Emit_And64_MemMemMem },
 
-	{ OP_SRL64,			MATCH_MEMORY64,		MATCH_MEMORY64,		MATCH_REGISTER,		&CCodeGen_x86_32::Emit_Srl64_MemMemReg			},
-	{ OP_SRL64,			MATCH_MEMORY64,		MATCH_MEMORY64,		MATCH_MEMORY,		&CCodeGen_x86_32::Emit_Srl64_MemMemMem			},
-	{ OP_SRL64,			MATCH_MEMORY64,		MATCH_MEMORY64,		MATCH_CONSTANT,		&CCodeGen_x86_32::Emit_Srl64_MemMemCst			},
+	{ OP_SRL64,         MATCH_MEMORY64,     MATCH_MEMORY64,    MATCH_REGISTER,   MATCH_NIL, &CCodeGen_x86_32::Emit_Srl64_MemMemReg },
+	{ OP_SRL64,         MATCH_MEMORY64,     MATCH_MEMORY64,    MATCH_MEMORY,     MATCH_NIL, &CCodeGen_x86_32::Emit_Srl64_MemMemMem },
+	{ OP_SRL64,         MATCH_MEMORY64,     MATCH_MEMORY64,    MATCH_CONSTANT,   MATCH_NIL, &CCodeGen_x86_32::Emit_Srl64_MemMemCst },
 
-	{ OP_SRA64,			MATCH_MEMORY64,		MATCH_MEMORY64,		MATCH_REGISTER,		&CCodeGen_x86_32::Emit_Sra64_MemMemReg			},
-	{ OP_SRA64,			MATCH_MEMORY64,		MATCH_MEMORY64,		MATCH_MEMORY,		&CCodeGen_x86_32::Emit_Sra64_MemMemMem			},
-	{ OP_SRA64,			MATCH_MEMORY64,		MATCH_MEMORY64,		MATCH_CONSTANT,		&CCodeGen_x86_32::Emit_Sra64_MemMemCst			},
+	{ OP_SRA64,         MATCH_MEMORY64,     MATCH_MEMORY64,    MATCH_REGISTER,   MATCH_NIL, &CCodeGen_x86_32::Emit_Sra64_MemMemReg },
+	{ OP_SRA64,         MATCH_MEMORY64,     MATCH_MEMORY64,    MATCH_MEMORY,     MATCH_NIL, &CCodeGen_x86_32::Emit_Sra64_MemMemMem },
+	{ OP_SRA64,         MATCH_MEMORY64,     MATCH_MEMORY64,    MATCH_CONSTANT,   MATCH_NIL, &CCodeGen_x86_32::Emit_Sra64_MemMemCst },
 
-	{ OP_SLL64,			MATCH_MEMORY64,		MATCH_MEMORY64,		MATCH_REGISTER,		&CCodeGen_x86_32::Emit_Sll64_MemMemReg			},
-	{ OP_SLL64,			MATCH_MEMORY64,		MATCH_MEMORY64,		MATCH_MEMORY,		&CCodeGen_x86_32::Emit_Sll64_MemMemMem			},
-	{ OP_SLL64,			MATCH_MEMORY64,		MATCH_MEMORY64,		MATCH_CONSTANT,		&CCodeGen_x86_32::Emit_Sll64_MemMemCst			},
+	{ OP_SLL64,         MATCH_MEMORY64,     MATCH_MEMORY64,    MATCH_REGISTER,   MATCH_NIL, &CCodeGen_x86_32::Emit_Sll64_MemMemReg },
+	{ OP_SLL64,         MATCH_MEMORY64,     MATCH_MEMORY64,    MATCH_MEMORY,     MATCH_NIL, &CCodeGen_x86_32::Emit_Sll64_MemMemMem },
+	{ OP_SLL64,         MATCH_MEMORY64,     MATCH_MEMORY64,    MATCH_CONSTANT,   MATCH_NIL, &CCodeGen_x86_32::Emit_Sll64_MemMemCst },
 
-	{ OP_CMP,			MATCH_VARIABLE,		MATCH_VARIABLE,		MATCH_VARIABLE,		&CCodeGen_x86_32::Emit_Cmp_VarVarVar			},
-	{ OP_CMP,			MATCH_VARIABLE,		MATCH_VARIABLE,		MATCH_CONSTANT,		&CCodeGen_x86_32::Emit_Cmp_VarVarCst			},
+	{ OP_CMP,           MATCH_VARIABLE,     MATCH_VARIABLE,    MATCH_VARIABLE,   MATCH_NIL, &CCodeGen_x86_32::Emit_Cmp_VarVarVar },
+	{ OP_CMP,           MATCH_VARIABLE,     MATCH_VARIABLE,    MATCH_CONSTANT,   MATCH_NIL, &CCodeGen_x86_32::Emit_Cmp_VarVarCst },
 
-	{ OP_CMP64,			MATCH_REGISTER,		MATCH_RELATIVE64,	MATCH_RELATIVE64,	&CCodeGen_x86_32::Emit_Cmp64_RegRelRel			},
-	{ OP_CMP64,			MATCH_RELATIVE,		MATCH_RELATIVE64,	MATCH_RELATIVE64,	&CCodeGen_x86_32::Emit_Cmp64_RelRelRel			},
-	{ OP_CMP64,			MATCH_REGISTER,		MATCH_RELATIVE64,	MATCH_CONSTANT64,	&CCodeGen_x86_32::Emit_Cmp64_RegRelCst			},
-	{ OP_CMP64,			MATCH_RELATIVE,		MATCH_RELATIVE64,	MATCH_CONSTANT64,	&CCodeGen_x86_32::Emit_Cmp64_RelRelCst			},
-	{ OP_CMP64,			MATCH_TEMPORARY,	MATCH_RELATIVE64,	MATCH_RELATIVE64,	&CCodeGen_x86_32::Emit_Cmp64_TmpRelRoc			},
-	{ OP_CMP64,			MATCH_TEMPORARY,	MATCH_RELATIVE64,	MATCH_CONSTANT64,	&CCodeGen_x86_32::Emit_Cmp64_TmpRelRoc			},
+	{ OP_CMP64,         MATCH_REGISTER,     MATCH_RELATIVE64,  MATCH_RELATIVE64, MATCH_NIL, &CCodeGen_x86_32::Emit_Cmp64_RegRelRel },
+	{ OP_CMP64,         MATCH_RELATIVE,     MATCH_RELATIVE64,  MATCH_RELATIVE64, MATCH_NIL, &CCodeGen_x86_32::Emit_Cmp64_RelRelRel },
+	{ OP_CMP64,         MATCH_REGISTER,     MATCH_RELATIVE64,  MATCH_CONSTANT64, MATCH_NIL, &CCodeGen_x86_32::Emit_Cmp64_RegRelCst },
+	{ OP_CMP64,         MATCH_RELATIVE,     MATCH_RELATIVE64,  MATCH_CONSTANT64, MATCH_NIL, &CCodeGen_x86_32::Emit_Cmp64_RelRelCst },
+	{ OP_CMP64,         MATCH_TEMPORARY,    MATCH_RELATIVE64,  MATCH_RELATIVE64, MATCH_NIL, &CCodeGen_x86_32::Emit_Cmp64_TmpRelRoc },
+	{ OP_CMP64,         MATCH_TEMPORARY,    MATCH_RELATIVE64,  MATCH_CONSTANT64, MATCH_NIL, &CCodeGen_x86_32::Emit_Cmp64_TmpRelRoc },
 
-	{ OP_RELTOREF,		MATCH_VAR_REF,		MATCH_CONSTANT,		MATCH_NIL,			&CCodeGen_x86_32::Emit_RelToRef_VarCst			},
+	{ OP_RELTOREF,      MATCH_VAR_REF,      MATCH_CONSTANT,    MATCH_NIL,        MATCH_NIL, &CCodeGen_x86_32::Emit_RelToRef_VarCst },
 
-	{ OP_ADDREF,		MATCH_VAR_REF,		MATCH_VAR_REF,		MATCH_VARIABLE,		&CCodeGen_x86_32::Emit_AddRef_VarVarVar			},
-	{ OP_ADDREF,		MATCH_VAR_REF,		MATCH_VAR_REF,		MATCH_CONSTANT,		&CCodeGen_x86_32::Emit_AddRef_VarVarCst			},
+	{ OP_ADDREF,        MATCH_VAR_REF,      MATCH_VAR_REF,     MATCH_VARIABLE,   MATCH_NIL, &CCodeGen_x86_32::Emit_AddRef_VarVarVar },
+	{ OP_ADDREF,        MATCH_VAR_REF,      MATCH_VAR_REF,     MATCH_CONSTANT,   MATCH_NIL, &CCodeGen_x86_32::Emit_AddRef_VarVarCst },
 
-	{ OP_ISREFNULL,		MATCH_VARIABLE,		MATCH_VAR_REF,		MATCH_NIL,			&CCodeGen_x86_32::Emit_IsRefNull_VarVar			},
+	{ OP_ISREFNULL,     MATCH_VARIABLE,     MATCH_VAR_REF,     MATCH_NIL,        MATCH_NIL, &CCodeGen_x86_32::Emit_IsRefNull_VarVar },
 
-	{ OP_LOADFROMREF,	MATCH_MEMORY64,		MATCH_VAR_REF,		MATCH_NIL,			&CCodeGen_x86_32::Emit_LoadFromRef_64_MemVar	},
-	{ OP_LOADFROMREF,	MATCH_VAR_REF,		MATCH_VAR_REF,		MATCH_NIL,			&CCodeGen_x86_32::Emit_LoadFromRef_Ref_VarVar	},
-	{ OP_LOADFROMREF,	MATCH_VAR_REF,		MATCH_VAR_REF,		MATCH_ANY32,		&CCodeGen_x86_32::Emit_LoadFromRef_Ref_VarVarAny},
+	{ OP_LOADFROMREF,   MATCH_MEMORY64,     MATCH_VAR_REF,     MATCH_NIL,        MATCH_NIL, &CCodeGen_x86_32::Emit_LoadFromRef_64_MemVar     },
+	{ OP_LOADFROMREF,   MATCH_VAR_REF,      MATCH_VAR_REF,     MATCH_NIL,        MATCH_NIL, &CCodeGen_x86_32::Emit_LoadFromRef_Ref_VarVar    },
+	{ OP_LOADFROMREF,   MATCH_VAR_REF,      MATCH_VAR_REF,     MATCH_ANY32,      MATCH_NIL, &CCodeGen_x86_32::Emit_LoadFromRef_Ref_VarVarAny },
 
-	{ OP_STOREATREF,	MATCH_NIL,			MATCH_VAR_REF,		MATCH_MEMORY64,		&CCodeGen_x86_32::Emit_StoreAtRef_64_VarMem		},
-	{ OP_STOREATREF,	MATCH_NIL,			MATCH_VAR_REF,		MATCH_CONSTANT64,	&CCodeGen_x86_32::Emit_StoreAtRef_64_VarCst		},
+	{ OP_STOREATREF,    MATCH_NIL,          MATCH_VAR_REF,     MATCH_MEMORY64,   MATCH_NIL, &CCodeGen_x86_32::Emit_StoreAtRef_64_VarMem },
+	{ OP_STOREATREF,    MATCH_NIL,          MATCH_VAR_REF,     MATCH_CONSTANT64, MATCH_NIL, &CCodeGen_x86_32::Emit_StoreAtRef_64_VarCst },
 
-	{ OP_STORE8ATREF,	MATCH_NIL,			MATCH_VAR_REF,		MATCH_VARIABLE,		&CCodeGen_x86_32::Emit_Store8AtRef_VarVar		},
+	{ OP_STORE8ATREF,   MATCH_NIL,          MATCH_VAR_REF,     MATCH_VARIABLE,   MATCH_NIL, &CCodeGen_x86_32::Emit_Store8AtRef_VarVar   },
 
-	{ OP_CONDJMP,		MATCH_NIL,			MATCH_VAR_REF,		MATCH_CONSTANT,		&CCodeGen_x86_32::Emit_CondJmp_Ref_VarCst		},
+	{ OP_CONDJMP,       MATCH_NIL,          MATCH_VAR_REF,     MATCH_CONSTANT,   MATCH_NIL, &CCodeGen_x86_32::Emit_CondJmp_Ref_VarCst   },
 
-	{ OP_MOV,			MATCH_NIL,			MATCH_NIL,			MATCH_NIL,			NULL											},
+	{ OP_MOV,           MATCH_NIL,          MATCH_NIL,         MATCH_NIL,        MATCH_NIL, nullptr },
 };
 
 CCodeGen_x86_32::CCodeGen_x86_32()
@@ -111,6 +111,7 @@ CCodeGen_x86_32::CCodeGen_x86_32()
 		matcher.dstType		= constMatcher->dstType;
 		matcher.src1Type	= constMatcher->src1Type;
 		matcher.src2Type	= constMatcher->src2Type;
+		matcher.src3Type	= constMatcher->src3Type;
 		matcher.emitter		= std::bind(constMatcher->emitter, this, std::placeholders::_1);
 		m_matchers.insert(MatcherMapType::value_type(matcher.op, matcher));
 	}

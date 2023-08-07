@@ -150,6 +150,7 @@ namespace Jitter
 			MATCHTYPE				dstType;
 			MATCHTYPE				src1Type;
 			MATCHTYPE				src2Type;
+			MATCHTYPE				src3Type;
 			ConstCodeEmitterType	emitter;
 		};
 

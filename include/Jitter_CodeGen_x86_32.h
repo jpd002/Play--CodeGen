@@ -118,12 +118,15 @@ namespace Jitter
 
 		//LOADFROMREF
 		void								Emit_LoadFromRef_64_MemVar(const STATEMENT&);
+		void								Emit_LoadFromRef_64_MemVarAny(const STATEMENT&);
 		void								Emit_LoadFromRef_Ref_VarVar(const STATEMENT&);
 		void								Emit_LoadFromRef_Ref_VarVarAny(const STATEMENT&);
 
 		//STOREATREF
 		void								Emit_StoreAtRef_64_VarMem(const STATEMENT&);
 		void								Emit_StoreAtRef_64_VarCst(const STATEMENT&);
+		void								Emit_StoreAtRef_64_VarAnyMem(const STATEMENT&);
+		void								Emit_StoreAtRef_64_VarAnyCst(const STATEMENT&);
 
 		//STORE8ATREF
 		void								Emit_Store8AtRef_VarVar(const STATEMENT&);
@@ -141,7 +144,8 @@ namespace Jitter
 		typedef std::function<void (CALL_STATE&)> ParamEmitterFunction;
 		typedef std::deque<ParamEmitterFunction> ParamStack;
 		typedef std::map<LITERAL128, int32> LiteralOffsets;
-		
+		typedef std::pair<CX86Assembler::CAddress, CX86Assembler::CAddress> AddressPair;
+
 		typedef void (CCodeGen_x86_32::*ConstCodeEmitterType)(const STATEMENT&);
 
 		struct CONSTMATCHER
@@ -164,6 +168,8 @@ namespace Jitter
 		CX86Assembler::REGISTER				PrepareRefSymbolRegisterUse(CSymbol*, CX86Assembler::REGISTER) override;
 		void								CommitRefSymbolRegister(CSymbol*, CX86Assembler::REGISTER);
 
+		AddressPair							MakeRefBaseScaleSymbolAddress64(CSymbol*, CX86Assembler::REGISTER, CSymbol*, CX86Assembler::REGISTER, uint8);
+		
 		static CONSTMATCHER					g_constMatchers[];
 		static CX86Assembler::REGISTER		g_registers[MAX_REGISTERS];
 		static CX86Assembler::XMMREGISTER	g_mdRegisters[MAX_MDREGISTERS];

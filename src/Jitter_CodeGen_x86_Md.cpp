@@ -927,7 +927,7 @@ void CCodeGen_x86::Emit_Md_Srl256_VarMem(CSymbol* dst, CSymbol* src1, const CX86
 	m_assembler.ShrEd(CX86Assembler::MakeRegisterAddress(offsetRegister), 3);
 	m_assembler.AddId(CX86Assembler::MakeRegisterAddress(offsetRegister), src1->m_stackLocation + m_stackLevel);
 
-	m_assembler.MovdquVo(resultRegister, CX86Assembler::MakeBaseIndexScaleAddress(CX86Assembler::rSP, offsetRegister, 1));
+	m_assembler.MovdquVo(resultRegister, CX86Assembler::MakeBaseOffIndexScaleAddress(CX86Assembler::rSP, 0, offsetRegister, 1));
 	m_assembler.MovdqaVo(MakeVariable128SymbolAddress(dst), resultRegister);
 }
 

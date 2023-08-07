@@ -122,7 +122,6 @@ public:
 	static CAddress							MakeByteRegisterAddress(BYTEREGISTER);
 	static CAddress							MakeIndRegAddress(REGISTER);
 	static CAddress							MakeIndRegOffAddress(REGISTER, uint32);
-	static CAddress							MakeBaseIndexScaleAddress(REGISTER, REGISTER, uint8);
 	static CAddress							MakeLiteral128Address(LITERAL128ID);
 	static CAddress							MakeBaseOffIndexScaleAddress(REGISTER, uint32, REGISTER, uint8);
 

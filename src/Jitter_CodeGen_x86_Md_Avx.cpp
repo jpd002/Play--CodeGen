@@ -572,7 +572,7 @@ void CCodeGen_x86::Emit_Md_Avx_Srl256_VarMemVar(const STATEMENT& statement)
 	m_assembler.ShrEd(CX86Assembler::MakeRegisterAddress(offsetRegister), 3);
 	m_assembler.AddId(CX86Assembler::MakeRegisterAddress(offsetRegister), src1->m_stackLocation + m_stackLevel);
 
-	m_assembler.VmovdquVo(resultRegister, CX86Assembler::MakeBaseIndexScaleAddress(CX86Assembler::rSP, offsetRegister, 1));
+	m_assembler.VmovdquVo(resultRegister, CX86Assembler::MakeBaseOffIndexScaleAddress(CX86Assembler::rSP, 0, offsetRegister, 1));
 	m_assembler.VmovdqaVo(MakeVariable128SymbolAddress(dst), resultRegister);
 }
 

@@ -433,7 +433,7 @@ CX86Assembler::CAddress CCodeGen_x86::MakeRefBaseScaleSymbolAddress(CSymbol* bas
 	else
 	{
 		indexRegister = PrepareSymbolRegisterUse(indexSymbol, indexRegister);
-		return CX86Assembler::MakeBaseIndexScaleAddress(baseRegister, indexRegister, scale);
+		return CX86Assembler::MakeBaseOffIndexScaleAddress(baseRegister, 0, indexRegister, scale);
 	}
 }
 

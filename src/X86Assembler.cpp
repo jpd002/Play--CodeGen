@@ -281,65 +281,8 @@ CX86Assembler::CAddress CX86Assembler::MakeIndRegOffAddress(REGISTER nRegister, 
 	return Address;
 }
 
-CX86Assembler::CAddress CX86Assembler::MakeBaseIndexScaleAddress(REGISTER base, REGISTER index, uint8 scale)
-{
-	if(base == rBP)
-	{
-		throw std::runtime_error("Invalid base.");
-	}
-	if(base == r13)
-	{
-		return MakeBaseOffIndexScaleAddress(base, 0, index, scale);
-	}
-	if(index == rSP)
-	{
-		throw std::runtime_error("Invalid index.");
-	}
-
-	CAddress address;
-	address.ModRm.nRM = 4;
-	
-	if(base > 7)
-	{
-		address.nIsExtendedModRM = true;
-		base = static_cast<REGISTER>(base & 7);
-	}
-	if(index > 7)
-	{
-		address.nIsExtendedSib = true;
-		index = static_cast<REGISTER>(index & 7);
-	}
-	address.sib.base = base;
-	address.sib.index = index;
-	switch(scale)
-	{
-	case 1:
-		address.sib.scale = 0;
-		break;
-	case 2:
-		address.sib.scale = 1;
-		break;
-	case 4:
-		address.sib.scale = 2;
-		break;
-	case 8:
-		address.sib.scale = 3;
-		break;
-	default:
-		throw std::runtime_error("Invalid scale.");
-		break;
-	}
-
-	return address;
-}
-
 CX86Assembler::CAddress CX86Assembler::MakeBaseOffIndexScaleAddress(REGISTER base, uint32 offset, REGISTER index, uint8 scale)
 {
-	//This could also be rBP, but untested for now
-	if(base != r13)
-	{
-		throw std::runtime_error("Invalid base.");
-	}
 	if(index == rSP)
 	{
 		throw std::runtime_error("Invalid index.");
@@ -379,7 +322,12 @@ CX86Assembler::CAddress CX86Assembler::MakeBaseOffIndexScaleAddress(REGISTER bas
 		break;
 	}
 
-	if(GetMinimumConstantSize(offset) == 1)
+	//If base is rBP or r13 (collapsed to rBP above), we can't use offset-less encoding
+	if((offset == 0) && (base != rBP))
+	{
+		address.ModRm.nMod = 0;
+	}
+	else if(GetMinimumConstantSize(offset) == 1)
 	{
 		address.ModRm.nMod = 1;
 		address.nOffset = static_cast<uint8>(offset);

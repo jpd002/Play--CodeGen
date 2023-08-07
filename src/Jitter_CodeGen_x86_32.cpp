@@ -1477,10 +1477,8 @@ void CCodeGen_x86_32::Emit_StoreAtRef_64_VarCst(const STATEMENT& statement)
 
 	assert(src2->m_type == SYM_CONSTANT64);
 
-	m_assembler.MovId(valueLoReg, src2->m_valueLow);
-	m_assembler.MovId(valueHiReg, src2->m_valueHigh);
-	m_assembler.MovGd(CX86Assembler::MakeIndRegAddress(addressReg), valueLoReg);
-	m_assembler.MovGd(CX86Assembler::MakeIndRegOffAddress(addressReg, 4), valueHiReg);
+	m_assembler.MovId(CX86Assembler::MakeIndRegAddress(addressReg), src2->m_valueLow);
+	m_assembler.MovId(CX86Assembler::MakeIndRegOffAddress(addressReg, 4), src2->m_valueHigh);
 }
 
 void CCodeGen_x86_32::Emit_Store8AtRef_VarVar(const STATEMENT& statement)

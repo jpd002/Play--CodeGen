@@ -108,6 +108,7 @@ namespace Jitter
 		void									LoadMemory64LowInRegister(CAArch32Assembler::REGISTER, CSymbol*);
 		void									LoadMemory64HighInRegister(CAArch32Assembler::REGISTER, CSymbol*);
 		void									LoadMemory64InRegisters(CAArch32Assembler::REGISTER, CAArch32Assembler::REGISTER, CSymbol*);
+		void									LoadSymbol64InRegisters(CAArch32Assembler::REGISTER, CAArch32Assembler::REGISTER, CSymbol*);
 
 		void									StoreRegisterInMemory64Low(CSymbol*, CAArch32Assembler::REGISTER);
 		void									StoreRegisterInMemory64High(CSymbol*, CAArch32Assembler::REGISTER);
@@ -605,6 +606,7 @@ namespace Jitter
 		void									Emit_LoadFromRef_Ref_VarVar(const STATEMENT&);
 		void									Emit_LoadFromRef_Ref_VarVarAny(const STATEMENT&);
 		void									Emit_LoadFromRef_64_MemVar(const STATEMENT&);
+		void									Emit_LoadFromRef_64_MemVarAny(const STATEMENT&);
 		
 		//LOAD8FROMREF
 		void									Emit_Load8FromRef_MemVar(const STATEMENT&);
@@ -621,8 +623,8 @@ namespace Jitter
 		//STOREATREF
 		void									Emit_StoreAtRef_VarAny(const STATEMENT&);
 		void									Emit_StoreAtRef_VarAnyAny(const STATEMENT&);
-		void									Emit_StoreAtRef_64_VarMem(const STATEMENT&);
-		void									Emit_StoreAtRef_64_VarCst(const STATEMENT&);
+		void									Emit_StoreAtRef_64_VarAny(const STATEMENT&);
+		void									Emit_StoreAtRef_64_VarAnyAny(const STATEMENT&);
 
 		//MOV64
 		void									Emit_Mov_Mem64Mem64(const STATEMENT&);

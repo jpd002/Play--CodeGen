@@ -79,6 +79,24 @@ void CCodeGen_AArch32::LoadMemory64InRegisters(CAArch32Assembler::REGISTER regLo
 	}
 }
 
+void CCodeGen_AArch32::LoadSymbol64InRegisters(CAArch32Assembler::REGISTER regLo, CAArch32Assembler::REGISTER regHi, CSymbol* symbol)
+{
+	switch(symbol->m_type)
+	{
+	case SYM_RELATIVE64:
+	case SYM_TEMPORARY64:
+		LoadMemory64InRegisters(regLo, regHi, symbol);
+		break;
+	case SYM_CONSTANT64:
+		LoadConstantInRegister(regLo, symbol->m_valueLow);
+		LoadConstantInRegister(regHi, symbol->m_valueHigh);
+		break;
+	default:
+		assert(false);
+		break;
+	}
+}
+
 void CCodeGen_AArch32::StoreRegistersInMemory64(CSymbol* symbol, CAArch32Assembler::REGISTER regLo, CAArch32Assembler::REGISTER regHi)
 {
 	if(
@@ -208,7 +226,33 @@ void CCodeGen_AArch32::Emit_LoadFromRef_64_MemVar(const STATEMENT& statement)
 	StoreRegistersInMemory64(dst, dstLoReg, dstHiReg);
 }
 
-void CCodeGen_AArch32::Emit_StoreAtRef_64_VarMem(const STATEMENT& statement)
+void CCodeGen_AArch32::Emit_LoadFromRef_64_MemVarAny(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+	uint8 scale = static_cast<uint8>(statement.jmpCondition);
+
+	assert(scale == 1);
+
+	auto addressReg = PrepareSymbolRegisterUseRef(src1, CAArch32Assembler::r2);
+	auto dstLoReg = CAArch32Assembler::r0;
+	auto dstHiReg = CAArch32Assembler::r1;
+
+	if(uint32 scaledIndex = (src2->m_valueLow * scale); src2->IsConstant() && (scaledIndex < 0x1000))
+	{
+		m_assembler.Ldrd(dstLoReg, addressReg, CAArch32Assembler::MakeImmediateLdrAddress(scaledIndex));
+	}
+	else
+	{
+		auto indexReg = PrepareSymbolRegisterUse(src2, CAArch32Assembler::r3);
+		m_assembler.Ldrd(dstLoReg, addressReg, MakeScaledLdrAddress(indexReg, scale));
+	}
+
+	StoreRegistersInMemory64(dst, dstLoReg, dstHiReg);
+}
+
+void CCodeGen_AArch32::Emit_StoreAtRef_64_VarAny(const STATEMENT& statement)
 {
 	auto src1 = statement.src1->GetSymbol().get();
 	auto src2 = statement.src2->GetSymbol().get();
@@ -217,24 +261,34 @@ void CCodeGen_AArch32::Emit_StoreAtRef_64_VarMem(const STATEMENT& statement)
 	auto src2LoReg = CAArch32Assembler::r0;
 	auto src2HiReg = CAArch32Assembler::r1;
 
-	LoadMemory64InRegisters(src2LoReg, src2HiReg, src2);
-
+	LoadSymbol64InRegisters(src2LoReg, src2HiReg, src2);
 	m_assembler.Strd(src2LoReg, addressReg, CAArch32Assembler::MakeImmediateLdrAddress(0));
 }
 
-void CCodeGen_AArch32::Emit_StoreAtRef_64_VarCst(const STATEMENT& statement)
+void CCodeGen_AArch32::Emit_StoreAtRef_64_VarAnyAny(const STATEMENT& statement)
 {
 	auto src1 = statement.src1->GetSymbol().get();
 	auto src2 = statement.src2->GetSymbol().get();
+	auto src3 = statement.src3->GetSymbol().get();
+	uint8 scale = static_cast<uint8>(statement.jmpCondition);
+
+	assert(scale == 1);
 
 	auto addressReg = PrepareSymbolRegisterUseRef(src1, CAArch32Assembler::r2);
-	auto src2LoReg = CAArch32Assembler::r0;
-	auto src2HiReg = CAArch32Assembler::r1;
+	auto valueLoReg = CAArch32Assembler::r0;
+	auto valueHiReg = CAArch32Assembler::r1;
 
-	LoadConstantInRegister(src2LoReg, src2->m_valueLow);
-	LoadConstantInRegister(src2HiReg, src2->m_valueHigh);
+	LoadSymbol64InRegisters(valueLoReg, valueHiReg, src3);
 
-	m_assembler.Strd(src2LoReg, addressReg, CAArch32Assembler::MakeImmediateLdrAddress(0));
+	if(uint32 scaledIndex = (src2->m_valueLow * scale); src2->IsConstant() && (scaledIndex < 0x1000))
+	{
+		m_assembler.Strd(valueLoReg, addressReg, CAArch32Assembler::MakeImmediateLdrAddress(scaledIndex));
+	}
+	else
+	{
+		auto indexReg = PrepareSymbolRegisterUse(src2, CAArch32Assembler::r3);
+		m_assembler.Strd(valueLoReg, addressReg, MakeScaledLdrAddress(indexReg, scale));
+	}
 }
 
 void CCodeGen_AArch32::Emit_Add64_MemMemMem(const STATEMENT& statement)
@@ -878,10 +932,13 @@ CCodeGen_AArch32::CONSTMATCHER CCodeGen_AArch32::g_64ConstMatchers[] =
 
 	{ OP_MERGETO64, MATCH_MEMORY64, MATCH_ANY, MATCH_ANY, MATCH_NIL, &CCodeGen_AArch32::Emit_MergeTo64_Mem64AnyAny },
 
-	{ OP_LOADFROMREF, MATCH_MEMORY64, MATCH_VAR_REF, MATCH_NIL, MATCH_NIL, &CCodeGen_AArch32::Emit_LoadFromRef_64_MemVar },
+	{ OP_LOADFROMREF, MATCH_MEMORY64, MATCH_VAR_REF, MATCH_NIL,   MATCH_NIL, &CCodeGen_AArch32::Emit_LoadFromRef_64_MemVar },
+	{ OP_LOADFROMREF, MATCH_MEMORY64, MATCH_VAR_REF, MATCH_ANY32, MATCH_NIL, &CCodeGen_AArch32::Emit_LoadFromRef_64_MemVarAny },
 
-	{ OP_STOREATREF, MATCH_NIL, MATCH_VAR_REF, MATCH_MEMORY64,   MATCH_NIL, &CCodeGen_AArch32::Emit_StoreAtRef_64_VarMem },
-	{ OP_STOREATREF, MATCH_NIL, MATCH_VAR_REF, MATCH_CONSTANT64, MATCH_NIL, &CCodeGen_AArch32::Emit_StoreAtRef_64_VarCst },
+	{ OP_STOREATREF, MATCH_NIL, MATCH_VAR_REF, MATCH_MEMORY64,   MATCH_NIL,        &CCodeGen_AArch32::Emit_StoreAtRef_64_VarAny },
+	{ OP_STOREATREF, MATCH_NIL, MATCH_VAR_REF, MATCH_CONSTANT64, MATCH_NIL,        &CCodeGen_AArch32::Emit_StoreAtRef_64_VarAny },
+	{ OP_STOREATREF, MATCH_NIL, MATCH_VAR_REF, MATCH_ANY32,      MATCH_MEMORY64,   &CCodeGen_AArch32::Emit_StoreAtRef_64_VarAnyAny },
+	{ OP_STOREATREF, MATCH_NIL, MATCH_VAR_REF, MATCH_ANY32,      MATCH_CONSTANT64, &CCodeGen_AArch32::Emit_StoreAtRef_64_VarAnyAny },
 
 	{ OP_ADD64, MATCH_MEMORY64, MATCH_MEMORY64, MATCH_MEMORY64,   MATCH_NIL, &CCodeGen_AArch32::Emit_Add64_MemMemMem },
 	{ OP_ADD64, MATCH_MEMORY64, MATCH_MEMORY64, MATCH_CONSTANT64, MATCH_NIL, &CCodeGen_AArch32::Emit_Add64_MemMemCst },

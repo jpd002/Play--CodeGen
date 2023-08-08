@@ -362,15 +362,25 @@ void CAArch32Assembler::Ldr_Pc(REGISTER rt, int32 offset)
 
 void CAArch32Assembler::Ldrd(REGISTER rt, REGISTER rn, const LdrAddress& address)
 {
-	assert(address.isImmediate);
 	assert(!address.isNegative);
-	assert(address.immediate < 0x100);
-	uint32 opcode = 0x01C000D0;
+	uint32 opcode = 0x018000D0;
+	if(address.isImmediate)
+	{
+		assert(address.isImmediate);
+		assert(address.immediate < 0x100);
+		opcode |= (1 << 22);
+		opcode |= (address.immediate >> 4) << 8;
+		opcode |= (address.immediate & 0xF);
+	}
+	else
+	{
+		//No shift supported
+		assert((address.immediate & 0xFFF0) == 0);
+		opcode |= (address.shiftRm.registerShift.rm);
+	}
 	opcode |= (CONDITION_AL << 28);
 	opcode |= (rn << 16);
 	opcode |= (rt << 12);
-	opcode |= (address.immediate >> 4) << 8;
-	opcode |= (address.immediate & 0xF);
 	WriteWord(opcode);
 }
 
@@ -552,15 +562,24 @@ void CAArch32Assembler::Strh(REGISTER rd, REGISTER rbase, const LdrAddress& addr
 
 void CAArch32Assembler::Strd(REGISTER rt, REGISTER rn, const LdrAddress& address)
 {
-	assert(address.isImmediate);
+	uint32 opcode = 0x018000F0;
 	assert(!address.isNegative);
-	assert(address.immediate < 0x100);
-	uint32 opcode = 0x01C000F0;
+	if(address.isImmediate)
+	{
+		assert(address.immediate < 0x100);
+		opcode |= (1 << 22);
+		opcode |= (address.immediate >> 4) << 8;
+		opcode |= (address.immediate & 0xF);
+	}
+	else
+	{
+		//No shift supported
+		assert((address.immediate & 0xFFF0) == 0);
+		opcode |= (address.shiftRm.registerShift.rm);
+	}
 	opcode |= (CONDITION_AL << 28);
 	opcode |= (rn << 16);
 	opcode |= (rt << 12);
-	opcode |= (address.immediate >> 4) << 8;
-	opcode |= (address.immediate & 0xF);
 	WriteWord(opcode);
 }
 

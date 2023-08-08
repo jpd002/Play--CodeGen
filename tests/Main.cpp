@@ -170,7 +170,8 @@ static const TestFactoryFunction s_factories[] =
 	[] () { return new CShift64Test(64); },
 	[] () { return new CShift64Test(76); },
 	[] () { return new CMerge64Test(); },
-	[] () { return new CMemAccess64Test(); },
+	[] () { return new CMemAccess64Test(false); },
+	[] () { return new CMemAccess64Test(true); },
 	[] () { return new CCall64Test(); },
 	[] () { return new CExternJumpTest(); }
 };

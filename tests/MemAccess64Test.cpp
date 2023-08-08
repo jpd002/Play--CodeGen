@@ -14,9 +14,22 @@
 #define LOAD_IDX_0 (5)
 #define LOAD_IDX_1 (6)
 
+CMemAccess64Test::CMemAccess64Test(bool useVariableIndices)
+	: m_useVariableIndices(useVariableIndices)
+{
+
+}
+
 void CMemAccess64Test::Run()
 {
-	memset(&m_context, 0, sizeof(m_context));
+	m_context = {};
+	m_context.storeIdx0 = STORE_IDX_0 * sizeof(uint64);
+	m_context.storeIdx1 = STORE_IDX_1 * sizeof(uint64);
+	m_context.storeIdx2 = STORE_IDX_2 * sizeof(uint64);
+	m_context.storeIdx3 = STORE_IDX_3 * sizeof(uint64);
+	m_context.loadIdx0 = LOAD_IDX_0 * sizeof(uint64);
+	m_context.loadIdx1 = LOAD_IDX_1 * sizeof(uint64);
+
 	memset(&m_memory, 0x80, sizeof(m_memory));
 
 	m_memory[LOAD_IDX_0] = CONSTANT_3;
@@ -37,6 +50,26 @@ void CMemAccess64Test::Run()
 
 void CMemAccess64Test::Compile(Jitter::CJitter& jitter)
 {
+#define PUSH_LOAD_IDX(idx) \
+	if(m_useVariableIndices) \
+	{ \
+		jitter.PushRel(offsetof(CONTEXT, loadIdx##idx)); \
+	} \
+	else \
+	{ \
+		jitter.PushCst(LOAD_IDX_##idx * sizeof(uint64)); \
+	}
+
+#define PUSH_STORE_IDX(idx) \
+	if(m_useVariableIndices) \
+	{ \
+		jitter.PushRel(offsetof(CONTEXT, storeIdx##idx)); \
+	} \
+	else \
+	{ \
+		jitter.PushCst(STORE_IDX_##idx * sizeof(uint64)); \
+	}
+	
 	Framework::CMemStream codeStream;
 	jitter.SetStream(&codeStream);
 
@@ -45,7 +78,7 @@ void CMemAccess64Test::Compile(Jitter::CJitter& jitter)
 		//Store test 64
 		{
 			jitter.PushRelRef(offsetof(CONTEXT, memory));
-			jitter.PushCst(STORE_IDX_0 * sizeof(uint64));
+			PUSH_STORE_IDX(0);
 			jitter.AddRef();
 
 			jitter.PushRel64(offsetof(CONTEXT, writeValue));
@@ -55,7 +88,7 @@ void CMemAccess64Test::Compile(Jitter::CJitter& jitter)
 		//Store test 64 (cst)
 		{
 			jitter.PushRelRef(offsetof(CONTEXT, memory));
-			jitter.PushCst(STORE_IDX_1 * sizeof(uint64));
+			PUSH_STORE_IDX(1);
 			jitter.AddRef();
 
 			jitter.PushCst64(CONSTANT_2);
@@ -65,7 +98,7 @@ void CMemAccess64Test::Compile(Jitter::CJitter& jitter)
 		//Store test 64 (indexed)
 		{
 			jitter.PushRelRef(offsetof(CONTEXT, memory));
-			jitter.PushCst(STORE_IDX_2 * sizeof(uint64));
+			PUSH_STORE_IDX(2);
 
 			jitter.PushRel64(offsetof(CONTEXT, writeValue));
 			jitter.Store64AtRefIdx(1);
@@ -74,7 +107,8 @@ void CMemAccess64Test::Compile(Jitter::CJitter& jitter)
 		//Store test 64 (indexed, constant)
 		{
 			jitter.PushRelRef(offsetof(CONTEXT, memory));
-			jitter.PushCst(STORE_IDX_3 * sizeof(uint64));
+			PUSH_STORE_IDX(3);
+
 			jitter.PushCst64(CONSTANT_4);
 			jitter.Store64AtRefIdx(1);
 		}
@@ -82,7 +116,7 @@ void CMemAccess64Test::Compile(Jitter::CJitter& jitter)
 		//Read test 64
 		{
 			jitter.PushRelRef(offsetof(CONTEXT, memory));
-			jitter.PushCst(LOAD_IDX_0 * sizeof(uint64));
+			PUSH_LOAD_IDX(0);
 			jitter.AddRef();
 
 			jitter.Load64FromRef();
@@ -92,7 +126,7 @@ void CMemAccess64Test::Compile(Jitter::CJitter& jitter)
 		//Read test 64 (indexed)
 		{
 			jitter.PushRelRef(offsetof(CONTEXT, memory));
-			jitter.PushCst(LOAD_IDX_1 * sizeof(uint64));
+			PUSH_LOAD_IDX(1);
 
 			jitter.Load64FromRefIdx(1);
 			jitter.PullRel64(offsetof(CONTEXT, readValueIdx));

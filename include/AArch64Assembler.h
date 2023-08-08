@@ -213,6 +213,7 @@ public:
 	void    Str(REGISTER32, REGISTER64, uint32);
 	void    Str(REGISTER32, REGISTER64, REGISTER64, bool);
 	void    Str(REGISTER64, REGISTER64, uint32);
+	void    Str(REGISTER64, REGISTER64, REGISTER64, bool);
 	void    Strb(REGISTER32, REGISTER64, uint32);
 	void    Strh(REGISTER32, REGISTER64, uint32);
 	void    Str_1s(REGISTERMD, REGISTER64, uint32);

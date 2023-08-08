@@ -219,6 +219,31 @@ void CCodeGen_AArch64::Emit_LoadFromRef_64_MemVar(const STATEMENT& statement)
 	StoreRegisterInMemory64(dst, dstReg);
 }
 
+void CCodeGen_AArch64::Emit_LoadFromRef_64_MemVarAny(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+	uint8 scale = static_cast<uint8>(statement.jmpCondition);
+
+	assert(scale == 1);
+
+	auto addressReg = PrepareSymbolRegisterUseRef(src1, GetNextTempRegister64());
+	auto dstReg = GetNextTempRegister64();
+
+	if(uint32 scaledIndex = (src2->m_valueLow * scale); src2->IsConstant() && (scaledIndex < 0x8000))
+	{
+		m_assembler.Ldr(dstReg, addressReg, scaledIndex);
+	}
+	else
+	{
+		auto indexReg = PrepareSymbolRegisterUse(src2, GetNextTempRegister());
+		m_assembler.Ldr(dstReg, addressReg, static_cast<CAArch64Assembler::REGISTER64>(indexReg), (scale == 8));
+	}
+
+	StoreRegisterInMemory64(dst, dstReg);
+}
+
 void CCodeGen_AArch64::Emit_StoreAtRef_64_VarAny(const STATEMENT& statement)
 {
 	auto src1 = statement.src1->GetSymbol().get();
@@ -229,6 +254,31 @@ void CCodeGen_AArch64::Emit_StoreAtRef_64_VarAny(const STATEMENT& statement)
 
 	LoadSymbol64InRegister(valueReg, src2);
 	m_assembler.Str(valueReg, addressReg, 0);
+}
+
+void CCodeGen_AArch64::Emit_StoreAtRef_64_VarAnyAny(const STATEMENT& statement)
+{
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+	auto src3 = statement.src3->GetSymbol().get();
+	uint8 scale = static_cast<uint8>(statement.jmpCondition);
+
+	assert(scale == 1);
+
+	auto addressReg = PrepareSymbolRegisterUseRef(src1, GetNextTempRegister64());
+	auto valueReg = GetNextTempRegister64();
+
+	LoadSymbol64InRegister(valueReg, src3);
+
+	if(uint32 scaledIndex = (src2->m_valueLow * scale); src2->IsConstant() && (scaledIndex < 0x8000))
+	{
+		m_assembler.Str(valueReg, addressReg, scaledIndex);
+	}
+	else
+	{
+		auto indexReg = PrepareSymbolRegisterUse(src2, GetNextTempRegister());
+		m_assembler.Str(valueReg, addressReg, static_cast<CAArch64Assembler::REGISTER64>(indexReg), (scale == 8));
+	}
 }
 
 void CCodeGen_AArch64::Emit_Add64_MemMemMem(const STATEMENT& statement)
@@ -453,9 +503,13 @@ CCodeGen_AArch64::CONSTMATCHER CCodeGen_AArch64::g_64ConstMatchers[] =
 	{ OP_MERGETO64,      MATCH_MEMORY64,       MATCH_ANY,            MATCH_ANY,           MATCH_NIL, &CCodeGen_AArch64::Emit_MergeTo64_Mem64AnyAny               },
 
 	{ OP_LOADFROMREF,    MATCH_MEMORY64,       MATCH_VAR_REF,        MATCH_NIL,           MATCH_NIL, &CCodeGen_AArch64::Emit_LoadFromRef_64_MemVar               },
+	{ OP_LOADFROMREF,    MATCH_MEMORY64,       MATCH_VAR_REF,        MATCH_ANY32,         MATCH_NIL, &CCodeGen_AArch64::Emit_LoadFromRef_64_MemVarAny            },
 
 	{ OP_STOREATREF,     MATCH_NIL,            MATCH_VAR_REF,        MATCH_MEMORY64,      MATCH_NIL, &CCodeGen_AArch64::Emit_StoreAtRef_64_VarAny                },
 	{ OP_STOREATREF,     MATCH_NIL,            MATCH_VAR_REF,        MATCH_CONSTANT64,    MATCH_NIL, &CCodeGen_AArch64::Emit_StoreAtRef_64_VarAny                },
+
+	{ OP_STOREATREF,     MATCH_NIL,            MATCH_VAR_REF,        MATCH_ANY32,         MATCH_MEMORY64,   &CCodeGen_AArch64::Emit_StoreAtRef_64_VarAnyAny      },
+	{ OP_STOREATREF,     MATCH_NIL,            MATCH_VAR_REF,        MATCH_ANY32,         MATCH_CONSTANT64, &CCodeGen_AArch64::Emit_StoreAtRef_64_VarAnyAny      },
 
 	{ OP_ADD64,          MATCH_MEMORY64,       MATCH_MEMORY64,       MATCH_MEMORY64,      MATCH_NIL, &CCodeGen_AArch64::Emit_Add64_MemMemMem                     },
 	{ OP_ADD64,          MATCH_MEMORY64,       MATCH_MEMORY64,       MATCH_CONSTANT64,    MATCH_NIL, &CCodeGen_AArch64::Emit_Add64_MemMemCst                     },

@@ -286,10 +286,10 @@ void CCodeGen_AArch64::Emit_Md_LoadFromRef_VarVar(const STATEMENT& statement)
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
 
-	auto src1AddrReg = PrepareSymbolRegisterUseRef(src1, GetNextTempRegister64());
+	auto addressReg = PrepareSymbolRegisterUseRef(src1, GetNextTempRegister64());
 	auto dstReg = PrepareSymbolRegisterDefMd(dst, GetNextTempRegisterMd());
 
-	m_assembler.Ldr_1q(dstReg, src1AddrReg, 0);
+	m_assembler.Ldr_1q(dstReg, addressReg, 0);
 
 	CommitSymbolRegisterMd(dst, dstReg);
 }
@@ -303,17 +303,17 @@ void CCodeGen_AArch64::Emit_Md_LoadFromRef_VarVarAny(const STATEMENT& statement)
 
 	assert(scale == 1);
 
-	auto src1AddrReg = PrepareSymbolRegisterUseRef(src1, GetNextTempRegister64());
+	auto addressReg = PrepareSymbolRegisterUseRef(src1, GetNextTempRegister64());
 	auto dstReg = PrepareSymbolRegisterDefMd(dst, GetNextTempRegisterMd());
 
 	if(uint32 scaledIndex = (src2->m_valueLow * scale); src2->IsConstant() && (scaledIndex < 0x10000))
 	{
-		m_assembler.Ldr_1q(dstReg, src1AddrReg, scaledIndex);
+		m_assembler.Ldr_1q(dstReg, addressReg, scaledIndex);
 	}
 	else
 	{
 		auto indexReg = PrepareSymbolRegisterUse(src2, GetNextTempRegister());
-		m_assembler.Ldr_1q(dstReg, src1AddrReg, static_cast<CAArch64Assembler::REGISTER64>(indexReg), (scale == 0x10));
+		m_assembler.Ldr_1q(dstReg, addressReg, static_cast<CAArch64Assembler::REGISTER64>(indexReg), (scale == 0x10));
 	}
 
 	CommitSymbolRegisterMd(dst, dstReg);
@@ -324,10 +324,10 @@ void CCodeGen_AArch64::Emit_Md_StoreAtRef_VarVar(const STATEMENT& statement)
 	auto src1 = statement.src1->GetSymbol().get();
 	auto src2 = statement.src2->GetSymbol().get();
 
-	auto src1AddrReg = PrepareSymbolRegisterUseRef(src1, GetNextTempRegister64());
-	auto src2Reg = PrepareSymbolRegisterUseMd(src2, GetNextTempRegisterMd());
+	auto addressReg = PrepareSymbolRegisterUseRef(src1, GetNextTempRegister64());
+	auto valueReg = PrepareSymbolRegisterUseMd(src2, GetNextTempRegisterMd());
 
-	m_assembler.Str_1q(src2Reg, src1AddrReg, 0);
+	m_assembler.Str_1q(valueReg, addressReg, 0);
 }
 
 void CCodeGen_AArch64::Emit_Md_StoreAtRef_VarAnyVar(const STATEMENT& statement)
@@ -339,17 +339,17 @@ void CCodeGen_AArch64::Emit_Md_StoreAtRef_VarAnyVar(const STATEMENT& statement)
 
 	assert(scale == 1);
 
-	auto src1AddrReg = PrepareSymbolRegisterUseRef(src1, GetNextTempRegister64());
-	auto src2Reg = PrepareSymbolRegisterUseMd(src3, GetNextTempRegisterMd());
+	auto addressReg = PrepareSymbolRegisterUseRef(src1, GetNextTempRegister64());
+	auto valueReg = PrepareSymbolRegisterUseMd(src3, GetNextTempRegisterMd());
 
 	if(uint32 scaledIndex = (src2->m_valueLow * scale); src2->IsConstant() && (scaledIndex < 0x10000))
 	{
-		m_assembler.Str_1q(src2Reg, src1AddrReg, scaledIndex);
+		m_assembler.Str_1q(valueReg, addressReg, scaledIndex);
 	}
 	else
 	{
 		auto indexReg = PrepareSymbolRegisterUse(src2, GetNextTempRegister());
-		m_assembler.Str_1q(src2Reg, src1AddrReg, static_cast<CAArch64Assembler::REGISTER64>(indexReg), (scale == 0x10));
+		m_assembler.Str_1q(valueReg, addressReg, static_cast<CAArch64Assembler::REGISTER64>(indexReg), (scale == 0x10));
 	}
 }
 

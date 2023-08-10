@@ -167,7 +167,9 @@ namespace Jitter
 		void Emit_Cmp64_MemAnyAny(const STATEMENT&);
 
 		void Emit_Load64FromRef_MemMem(const STATEMENT&);
+		void Emit_Load64FromRef_MemMemAny(const STATEMENT&);
 		void Emit_Store64AtRef_MemAny(const STATEMENT&);
+		void Emit_Store64AtRef_MemAnyAny(const STATEMENT&);
 
 		void Emit_RetVal_Tmp64(const STATEMENT&);
 

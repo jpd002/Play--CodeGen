@@ -191,6 +191,28 @@ void CCodeGen_Wasm::Emit_Load64FromRef_MemMem(const STATEMENT& statement)
 	CommitSymbol(dst);
 }
 
+void CCodeGen_Wasm::Emit_Load64FromRef_MemMemAny(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+	FRAMEWORK_MAYBE_UNUSED uint8 scale = static_cast<uint8>(statement.jmpCondition);
+
+	assert(scale == 1);
+
+	PrepareSymbolDef(dst);
+	PrepareSymbolUse(src1);
+	PrepareSymbolUse(src2);
+
+	m_functionStream.Write8(Wasm::INST_I32_ADD);
+
+	m_functionStream.Write8(Wasm::INST_I64_LOAD);
+	m_functionStream.Write8(0x03);
+	m_functionStream.Write8(0x00);
+
+	CommitSymbol(dst);
+}
+
 void CCodeGen_Wasm::Emit_Store64AtRef_MemAny(const STATEMENT& statement)
 {
 	auto src1 = statement.src1->GetSymbol().get();
@@ -198,6 +220,27 @@ void CCodeGen_Wasm::Emit_Store64AtRef_MemAny(const STATEMENT& statement)
 
 	PrepareSymbolUse(src1);
 	PrepareSymbolUse(src2);
+
+	m_functionStream.Write8(Wasm::INST_I64_STORE);
+	m_functionStream.Write8(0x03);
+	m_functionStream.Write8(0x00);
+}
+
+void CCodeGen_Wasm::Emit_Store64AtRef_MemAnyAny(const STATEMENT& statement)
+{
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+	auto src3 = statement.src3->GetSymbol().get();
+	FRAMEWORK_MAYBE_UNUSED uint8 scale = static_cast<uint8>(statement.jmpCondition);
+
+	assert(scale == 1);
+
+	PrepareSymbolUse(src1);
+	PrepareSymbolUse(src2);
+
+	m_functionStream.Write8(Wasm::INST_I32_ADD);
+
+	PrepareSymbolUse(src3);
 
 	m_functionStream.Write8(Wasm::INST_I64_STORE);
 	m_functionStream.Write8(0x03);
@@ -236,8 +279,12 @@ CCodeGen_Wasm::CONSTMATCHER CCodeGen_Wasm::g_64ConstMatchers[] =
 	{ OP_CMP64,          MATCH_MEMORY,         MATCH_MEMORY64,       MATCH_CONSTANT64,    MATCH_NIL, &CCodeGen_Wasm::Emit_Cmp64_MemAnyAny                     },
 
 	{ OP_LOADFROMREF,    MATCH_MEMORY64,       MATCH_MEM_REF,        MATCH_NIL,           MATCH_NIL, &CCodeGen_Wasm::Emit_Load64FromRef_MemMem                },
-	{ OP_STOREATREF,     MATCH_NIL,            MATCH_MEM_REF,        MATCH_MEMORY64,      MATCH_NIL, &CCodeGen_Wasm::Emit_Store64AtRef_MemAny                 },
-	{ OP_STOREATREF,     MATCH_NIL,            MATCH_MEM_REF,        MATCH_CONSTANT64,    MATCH_NIL, &CCodeGen_Wasm::Emit_Store64AtRef_MemAny                 },
+	{ OP_LOADFROMREF,    MATCH_MEMORY64,       MATCH_MEM_REF,        MATCH_ANY32,         MATCH_NIL, &CCodeGen_Wasm::Emit_Load64FromRef_MemMemAny             },
+
+	{ OP_STOREATREF,     MATCH_NIL,            MATCH_MEM_REF,        MATCH_MEMORY64,      MATCH_NIL,        &CCodeGen_Wasm::Emit_Store64AtRef_MemAny          },
+	{ OP_STOREATREF,     MATCH_NIL,            MATCH_MEM_REF,        MATCH_CONSTANT64,    MATCH_NIL,        &CCodeGen_Wasm::Emit_Store64AtRef_MemAny          },
+	{ OP_STOREATREF,     MATCH_NIL,            MATCH_MEM_REF,        MATCH_ANY32,         MATCH_MEMORY64,   &CCodeGen_Wasm::Emit_Store64AtRef_MemAnyAny       },
+	{ OP_STOREATREF,     MATCH_NIL,            MATCH_MEM_REF,        MATCH_ANY32,         MATCH_CONSTANT64, &CCodeGen_Wasm::Emit_Store64AtRef_MemAnyAny       },
 
 	{ OP_RETVAL,         MATCH_TEMPORARY64,    MATCH_NIL,            MATCH_NIL,           MATCH_NIL, &CCodeGen_Wasm::Emit_RetVal_Tmp64                        },
 

@@ -111,6 +111,7 @@ namespace Jitter
 		void							LoadFromRefIdx(size_t = sizeof(uint32));
 		void							Load8FromRef();
 		void							Load16FromRef();
+		void							Load16FromRefIdx(size_t = sizeof(uint16));
 		void							Load64FromRef();
 		void							Load64FromRefIdx(size_t = sizeof(uint64));
 		void							LoadRefFromRef();
@@ -119,6 +120,7 @@ namespace Jitter
 		void							StoreAtRefIdx(size_t = sizeof(uint32));
 		void							Store8AtRef();
 		void							Store16AtRef();
+		void							Store16AtRefIdx(size_t = sizeof(uint16));
 		void							Store64AtRef();
 		void							Store64AtRefIdx(size_t = sizeof(uint64));
 

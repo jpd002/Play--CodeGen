@@ -5,6 +5,9 @@
 class CMemAccess64Test : public CTest
 {
 public:
+	typedef uint64 MemoryValueType;
+	typedef uint64 VariableValueType;
+
 	CMemAccess64Test(bool);
 
 	void    Run() override;
@@ -18,10 +21,10 @@ private:
 
 	struct CONTEXT
 	{
-		void*     memory;
-		uint64    writeValue;
-		uint64    readValue;
-		uint64    readValueIdx;
+		void*             memory;
+		VariableValueType writeValue;
+		VariableValueType readValue;
+		VariableValueType readValueIdx;
 
 		uint32    storeIdx0;
 		uint32    storeIdx1;
@@ -32,7 +35,7 @@ private:
 	};
 
 	CONTEXT            m_context;
-	uint64             m_memory[MEMORY_SIZE];
+	MemoryValueType    m_memory[MEMORY_SIZE];
 	FunctionType       m_function;
 	bool               m_useVariableIndices;
 };

@@ -130,7 +130,8 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_constMatchers[] =
 
 	{ OP_LOAD8FROMREF, MATCH_VARIABLE, MATCH_VAR_REF, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Load8FromRef_VarVar },
 
-	{ OP_LOAD16FROMREF, MATCH_VARIABLE, MATCH_VAR_REF, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Load16FromRef_VarVar },
+	{ OP_LOAD16FROMREF, MATCH_VARIABLE, MATCH_VAR_REF, MATCH_NIL,   MATCH_NIL, &CCodeGen_x86::Emit_Load16FromRef_VarVar    },
+	{ OP_LOAD16FROMREF, MATCH_VARIABLE, MATCH_VAR_REF, MATCH_ANY32, MATCH_NIL, &CCodeGen_x86::Emit_Load16FromRef_VarVarAny },
 
 	{ OP_STOREATREF, MATCH_NIL, MATCH_VAR_REF, MATCH_VARIABLE, MATCH_NIL,      &CCodeGen_x86::Emit_StoreAtRef_VarVar    },
 	{ OP_STOREATREF, MATCH_NIL, MATCH_VAR_REF, MATCH_CONSTANT, MATCH_NIL,      &CCodeGen_x86::Emit_StoreAtRef_VarCst    },
@@ -139,8 +140,10 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_constMatchers[] =
 
 	{ OP_STORE8ATREF, MATCH_NIL, MATCH_VAR_REF, MATCH_CONSTANT, MATCH_NIL, &CCodeGen_x86::Emit_Store8AtRef_VarCst },
 
-	{ OP_STORE16ATREF, MATCH_NIL, MATCH_VAR_REF, MATCH_VARIABLE, MATCH_NIL, &CCodeGen_x86::Emit_Store16AtRef_VarVar },
-	{ OP_STORE16ATREF, MATCH_NIL, MATCH_VAR_REF, MATCH_CONSTANT, MATCH_NIL, &CCodeGen_x86::Emit_Store16AtRef_VarCst },
+	{ OP_STORE16ATREF, MATCH_NIL, MATCH_VAR_REF, MATCH_VARIABLE, MATCH_NIL,      &CCodeGen_x86::Emit_Store16AtRef_VarVar },
+	{ OP_STORE16ATREF, MATCH_NIL, MATCH_VAR_REF, MATCH_CONSTANT, MATCH_NIL,      &CCodeGen_x86::Emit_Store16AtRef_VarCst },
+	{ OP_STORE16ATREF, MATCH_NIL, MATCH_VAR_REF, MATCH_ANY32,    MATCH_VARIABLE, &CCodeGen_x86::Emit_Store16AtRef_VarAnyVar },
+	{ OP_STORE16ATREF, MATCH_NIL, MATCH_VAR_REF, MATCH_ANY32,    MATCH_CONSTANT, &CCodeGen_x86::Emit_Store16AtRef_VarAnyCst },
 
 	{ OP_MOV, MATCH_NIL, MATCH_NIL, MATCH_NIL, MATCH_NIL, nullptr },
 };
@@ -901,6 +904,20 @@ void CCodeGen_x86::Emit_Load16FromRef_VarVar(const STATEMENT& statement)
 	CommitSymbolRegister(dst, dstReg);
 }
 
+void CCodeGen_x86::Emit_Load16FromRef_VarVarAny(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+	uint8 scale = static_cast<uint8>(statement.jmpCondition);
+
+	assert(scale == 1);
+
+	auto dstReg = PrepareSymbolRegisterDef(dst, CX86Assembler::rDX);
+	m_assembler.MovzxEw(dstReg, MakeRefBaseScaleSymbolAddress(src1, CX86Assembler::rAX, src2, CX86Assembler::rCX, scale));
+	CommitSymbolRegister(dst, dstReg);
+}
+
 void CCodeGen_x86::Emit_StoreAtRef_VarVar(const STATEMENT& statement)
 {
 	auto src1 = statement.src1->GetSymbol().get();
@@ -975,6 +992,32 @@ void CCodeGen_x86::Emit_Store16AtRef_VarCst(const STATEMENT& statement)
 
 	auto addressReg = PrepareRefSymbolRegisterUse(src1, CX86Assembler::rAX);
 	m_assembler.MovIw(CX86Assembler::MakeIndRegAddress(addressReg), static_cast<uint16>(src2->m_valueLow));
+}
+
+void CCodeGen_x86::Emit_Store16AtRef_VarAnyVar(const STATEMENT& statement)
+{
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+	auto src3 = statement.src3->GetSymbol().get();
+	FRAMEWORK_MAYBE_UNUSED uint8 scale = static_cast<uint8>(statement.jmpCondition);
+	
+	assert(scale == 1);
+
+	auto valueReg = PrepareSymbolRegisterUse(src3, CX86Assembler::rDX);
+	m_assembler.MovGw(MakeRefBaseScaleSymbolAddress(src1, CX86Assembler::rAX, src2, CX86Assembler::rCX, scale), valueReg);
+}
+
+void CCodeGen_x86::Emit_Store16AtRef_VarAnyCst(const STATEMENT& statement)
+{
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+	auto src3 = statement.src3->GetSymbol().get();
+	FRAMEWORK_MAYBE_UNUSED uint8 scale = static_cast<uint8>(statement.jmpCondition);
+
+	assert(src3->m_type == SYM_CONSTANT);
+	assert(scale == 1);
+
+	m_assembler.MovIw(MakeRefBaseScaleSymbolAddress(src1, CX86Assembler::rAX, src2, CX86Assembler::rCX, scale), src3->m_valueLow);
 }
 
 void CCodeGen_x86::Cmp_GetFlag(const CX86Assembler::CAddress& dst, CONDITION flag)

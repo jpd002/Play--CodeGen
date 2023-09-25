@@ -1,38 +1,75 @@
 #include "MemAccess8Test.h"
 #include "MemStream.h"
 
-#define CONSTANT_1	(0xCC)
-#define CONSTANT_2	(0xEF)
-#define CONSTANT_3	(0x55)
+#define CONSTANT_1	(0x23)
+#define CONSTANT_2	(0xF1)
+#define CONSTANT_3	(0x58)
+#define CONSTANT_4	(0x42)
+#define CONSTANT_5	(0x87)
 
-#define MEMORY_IDX_0 (1)
-#define MEMORY_IDX_1 (8)
+#define STORE_IDX_0 (1)
+#define STORE_IDX_1 (2)
+#define STORE_IDX_2 (3)
+#define STORE_IDX_3 (4)
+#define LOAD_IDX_0 (5)
+#define LOAD_IDX_1 (6)
 
-#define ARRAY_IDX_0	(5)
-#define ARRAY_IDX_1	(6)
-#define ARRAY_IDX_2	(7)
+CMemAccess8Test::CMemAccess8Test(bool useVariableIndices)
+	: m_useVariableIndices(useVariableIndices)
+{
+
+}
 
 void CMemAccess8Test::Run()
 {
-	memset(&m_context, 0, sizeof(m_context));
+	m_context = {};
+	m_context.storeIdx0 = STORE_IDX_0 * sizeof(MemoryValueType);
+	m_context.storeIdx1 = STORE_IDX_1 * sizeof(MemoryValueType);
+	m_context.storeIdx2 = STORE_IDX_2 * sizeof(MemoryValueType);
+	m_context.storeIdx3 = STORE_IDX_3 * sizeof(MemoryValueType);
+	m_context.loadIdx0 = LOAD_IDX_0 * sizeof(MemoryValueType);
+	m_context.loadIdx1 = LOAD_IDX_1 * sizeof(MemoryValueType);
+
 	memset(&m_memory, 0x80, sizeof(m_memory));
 
-	m_context.offset = MEMORY_IDX_0 * sizeof(UnitType);
+	m_memory[LOAD_IDX_0] = CONSTANT_3;
+	m_memory[LOAD_IDX_1] = CONSTANT_5;
+
+	m_context.writeValue = CONSTANT_1;
 	m_context.memory = m_memory;
-	m_context.value = CONSTANT_3;
-	m_context.array0[ARRAY_IDX_1] = CONSTANT_1;
 
 	m_function(&m_context);
 
-	TEST_VERIFY(m_memory[MEMORY_IDX_0] == CONSTANT_1);
-	TEST_VERIFY(m_context.result0 == 0x80);
-	TEST_VERIFY(m_context.result1 == CONSTANT_1);
-	TEST_VERIFY(m_context.array0[ARRAY_IDX_0] == CONSTANT_2);
-	TEST_VERIFY(m_context.array0[ARRAY_IDX_2] == CONSTANT_3);
+	TEST_VERIFY(m_memory[STORE_IDX_0] == CONSTANT_1);
+	TEST_VERIFY(m_memory[STORE_IDX_1] == CONSTANT_2);
+	TEST_VERIFY(m_memory[STORE_IDX_2] == CONSTANT_1);
+	TEST_VERIFY(m_memory[STORE_IDX_3] == CONSTANT_4);
+	TEST_VERIFY(m_context.readValue == CONSTANT_3);
+	TEST_VERIFY(m_context.readValueIdx == CONSTANT_5);
 }
 
 void CMemAccess8Test::Compile(Jitter::CJitter& jitter)
 {
+#define PUSH_LOAD_IDX(idx) \
+	if(m_useVariableIndices) \
+	{ \
+		jitter.PushRel(offsetof(CONTEXT, loadIdx##idx)); \
+	} \
+	else \
+	{ \
+		jitter.PushCst(LOAD_IDX_##idx * sizeof(MemoryValueType)); \
+	}
+
+#define PUSH_STORE_IDX(idx) \
+	if(m_useVariableIndices) \
+	{ \
+		jitter.PushRel(offsetof(CONTEXT, storeIdx##idx)); \
+	} \
+	else \
+	{ \
+		jitter.PushCst(STORE_IDX_##idx * sizeof(MemoryValueType)); \
+	}
+	
 	Framework::CMemStream codeStream;
 	jitter.SetStream(&codeStream);
 
@@ -41,51 +78,58 @@ void CMemAccess8Test::Compile(Jitter::CJitter& jitter)
 		//Store test
 		{
 			jitter.PushRelRef(offsetof(CONTEXT, memory));
-			jitter.PushRel(offsetof(CONTEXT, offset));
+			PUSH_STORE_IDX(0);
 			jitter.AddRef();
 
-			jitter.PushCst(CONSTANT_1);
+			jitter.PushRel(offsetof(CONTEXT, writeValue));
 			jitter.Store8AtRef();
 		}
 
-		//Read test
+		//Store test (cst)
 		{
 			jitter.PushRelRef(offsetof(CONTEXT, memory));
-			jitter.PushCst(MEMORY_IDX_1);
-			jitter.AddRef();
-
-			jitter.Load8FromRef();
-			jitter.PullRel(offsetof(CONTEXT, result0));
-		}
-
-		//Write array test (cst)
-		{
-			jitter.PushRelAddrRef(offsetof(CONTEXT, array0));
-			jitter.PushCst(ARRAY_IDX_0 * sizeof(UnitType));
+			PUSH_STORE_IDX(1);
 			jitter.AddRef();
 
 			jitter.PushCst(CONSTANT_2);
 			jitter.Store8AtRef();
 		}
 
-		//Write array test (variable)
+		//Store test (indexed)
 		{
-			jitter.PushRelAddrRef(offsetof(CONTEXT, array0));
-			jitter.PushCst(ARRAY_IDX_2 * sizeof(UnitType));
-			jitter.AddRef();
+			jitter.PushRelRef(offsetof(CONTEXT, memory));
+			PUSH_STORE_IDX(2);
 
-			jitter.PushRel(offsetof(CONTEXT, value));
-			jitter.Store8AtRef();
+			jitter.PushRel(offsetof(CONTEXT, writeValue));
+			jitter.Store8AtRefIdx(1);
 		}
 
-		//Read array test
+		//Store test (indexed, constant)
 		{
-			jitter.PushRelAddrRef(offsetof(CONTEXT, array0));
-			jitter.PushCst(ARRAY_IDX_1 * sizeof(UnitType));
+			jitter.PushRelRef(offsetof(CONTEXT, memory));
+			PUSH_STORE_IDX(3);
+
+			jitter.PushCst(CONSTANT_4);
+			jitter.Store8AtRefIdx(1);
+		}
+
+		//Read test
+		{
+			jitter.PushRelRef(offsetof(CONTEXT, memory));
+			PUSH_LOAD_IDX(0);
 			jitter.AddRef();
 
 			jitter.Load8FromRef();
-			jitter.PullRel(offsetof(CONTEXT, result1));
+			jitter.PullRel(offsetof(CONTEXT, readValue));
+		}
+
+		//Read test (indexed)
+		{
+			jitter.PushRelRef(offsetof(CONTEXT, memory));
+			PUSH_LOAD_IDX(1);
+
+			jitter.Load8FromRefIdx(1);
+			jitter.PullRel(offsetof(CONTEXT, readValueIdx));
 		}
 	}
 	jitter.End();

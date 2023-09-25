@@ -11,6 +11,7 @@ bool CCodeGen::SymbolMatches(MATCHTYPE match, const SymbolRefPtr& symbolRef)
 {
 	if(match == MATCH_ANY) return true;
 	if(match == MATCH_NIL) { if(!symbolRef) return true; else return false; }
+	if(!symbolRef) return false;
 	CSymbol* symbol = symbolRef->GetSymbol().get();
 	switch(match)
 	{

@@ -5,23 +5,37 @@
 class CMemAccess8Test : public CTest
 {
 public:
-	void Run() override;
-	void Compile(Jitter::CJitter&) override;
+	typedef uint8 MemoryValueType;
+	typedef uint32 VariableValueType;
+
+	CMemAccess8Test(bool);
+
+	void    Run() override;
+	void    Compile(Jitter::CJitter&) override;
 
 private:
-	typedef uint8 UnitType;
+	enum
+	{
+		MEMORY_SIZE = 0x20,
+	};
 
 	struct CONTEXT
 	{
-		void*    memory;
-		uint32   offset;
-		uint32   value;
-		uint32   result0;
-		uint32   result1;
-		UnitType array0[0x10];
+		void*             memory;
+		VariableValueType writeValue;
+		VariableValueType readValue;
+		VariableValueType readValueIdx;
+
+		uint32    storeIdx0;
+		uint32    storeIdx1;
+		uint32    storeIdx2;
+		uint32    storeIdx3;
+		uint32    loadIdx0;
+		uint32    loadIdx1;
 	};
 
-	CONTEXT         m_context;
-	UnitType        m_memory[0x20];
-	FunctionType    m_function;
+	CONTEXT            m_context;
+	MemoryValueType    m_memory[MEMORY_SIZE];
+	FunctionType       m_function;
+	bool               m_useVariableIndices;
 };

@@ -595,23 +595,18 @@ void CJitter::LoadFromRef()
 void CJitter::LoadFromRefIdx(size_t scale)
 {
 	assert(scale == 1 || scale == 4);
-
-	auto tempSym = MakeSymbol(SYM_TEMPORARY, m_nextTemporary++);
-
-	STATEMENT statement;
-	statement.op           = OP_LOADFROMREF;
-	statement.jmpCondition = static_cast<CONDITION>(scale);
-	statement.src2         = MakeSymbolRef(m_shadow.Pull());
-	statement.src1         = MakeSymbolRef(m_shadow.Pull());
-	statement.dst          = MakeSymbolRef(tempSym);
-	InsertStatement(statement);
-
-	m_shadow.Push(tempSym);
+	InsertLoadFromRefIdxStatement(OP_LOADFROMREF, scale);
 }
 
 void CJitter::Load8FromRef()
 {
 	InsertUnaryStatement(OP_LOAD8FROMREF);
+}
+
+void CJitter::Load8FromRefIdx(size_t scale)
+{
+	assert(scale == 1);
+	InsertLoadFromRefIdxStatement(OP_LOAD8FROMREF, scale);
 }
 
 void CJitter::Load16FromRef()
@@ -622,18 +617,7 @@ void CJitter::Load16FromRef()
 void CJitter::Load16FromRefIdx(size_t scale)
 {
 	assert(scale == 1);
-
-	auto tempSym = MakeSymbol(SYM_TEMPORARY, m_nextTemporary++);
-
-	STATEMENT statement;
-	statement.op           = OP_LOAD16FROMREF;
-	statement.jmpCondition = static_cast<CONDITION>(scale);
-	statement.src2         = MakeSymbolRef(m_shadow.Pull());
-	statement.src1         = MakeSymbolRef(m_shadow.Pull());
-	statement.dst          = MakeSymbolRef(tempSym);
-	InsertStatement(statement);
-
-	m_shadow.Push(tempSym);
+	InsertLoadFromRefIdxStatement(OP_LOAD16FROMREF, scale);
 }
 
 void CJitter::Load64FromRef()
@@ -708,14 +692,7 @@ void CJitter::StoreAtRef()
 void CJitter::StoreAtRefIdx(size_t scale)
 {
 	assert(scale == 1 || scale == 4);
-
-	STATEMENT statement;
-	statement.op   = OP_STOREATREF;
-	statement.jmpCondition = static_cast<CONDITION>(scale);
-	statement.src3 = MakeSymbolRef(m_shadow.Pull());
-	statement.src2 = MakeSymbolRef(m_shadow.Pull());
-	statement.src1 = MakeSymbolRef(m_shadow.Pull());
-	InsertStatement(statement);
+	InsertStoreAtRefIdxStatement(OP_STOREATREF, scale);
 }
 
 void CJitter::Store8AtRef()
@@ -725,6 +702,12 @@ void CJitter::Store8AtRef()
 	statement.src2 = MakeSymbolRef(m_shadow.Pull());
 	statement.src1 = MakeSymbolRef(m_shadow.Pull());
 	InsertStatement(statement);
+}
+
+void CJitter::Store8AtRefIdx(size_t scale)
+{
+	assert(scale == 1);
+	InsertStoreAtRefIdxStatement(OP_STORE8ATREF, scale);
 }
 
 void CJitter::Store16AtRef()
@@ -739,14 +722,7 @@ void CJitter::Store16AtRef()
 void CJitter::Store16AtRefIdx(size_t scale)
 {
 	assert(scale == 1);
-
-	STATEMENT statement;
-	statement.op   = OP_STORE16ATREF;
-	statement.jmpCondition = static_cast<CONDITION>(scale);
-	statement.src3 = MakeSymbolRef(m_shadow.Pull());
-	statement.src2 = MakeSymbolRef(m_shadow.Pull());
-	statement.src1 = MakeSymbolRef(m_shadow.Pull());
-	InsertStatement(statement);
+	InsertStoreAtRefIdxStatement(OP_STORE16ATREF, scale);
 }
 
 void CJitter::Store64AtRef()
@@ -1716,6 +1692,32 @@ void CJitter::InsertBinaryStatement(Jitter::OPERATION operation)
 	InsertStatement(statement);
 
 	m_shadow.Push(tempSym);
+}
+
+void CJitter::InsertLoadFromRefIdxStatement(Jitter::OPERATION operation, size_t scale)
+{
+	auto tempSym = MakeSymbol(SYM_TEMPORARY, m_nextTemporary++);
+
+	STATEMENT statement;
+	statement.op           = operation;
+	statement.jmpCondition = static_cast<CONDITION>(scale);
+	statement.src2         = MakeSymbolRef(m_shadow.Pull());
+	statement.src1         = MakeSymbolRef(m_shadow.Pull());
+	statement.dst          = MakeSymbolRef(tempSym);
+	InsertStatement(statement);
+
+	m_shadow.Push(tempSym);
+}
+
+void CJitter::InsertStoreAtRefIdxStatement(Jitter::OPERATION operation, size_t scale)
+{
+	STATEMENT statement;
+	statement.op   = operation;
+	statement.jmpCondition = static_cast<CONDITION>(scale);
+	statement.src3 = MakeSymbolRef(m_shadow.Pull());
+	statement.src2 = MakeSymbolRef(m_shadow.Pull());
+	statement.src1 = MakeSymbolRef(m_shadow.Pull());
+	InsertStatement(statement);
 }
 
 void CJitter::InsertUnaryMdStatement(Jitter::OPERATION operation)

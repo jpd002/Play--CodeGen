@@ -97,7 +97,8 @@ CCodeGen_x86_32::CONSTMATCHER CCodeGen_x86_32::g_constMatchers[] =
 	{ OP_STOREATREF,    MATCH_NIL,          MATCH_VAR_REF,     MATCH_ANY32,      MATCH_MEMORY64,   &CCodeGen_x86_32::Emit_StoreAtRef_64_VarAnyMem },
 	{ OP_STOREATREF,    MATCH_NIL,          MATCH_VAR_REF,     MATCH_ANY32,      MATCH_CONSTANT64, &CCodeGen_x86_32::Emit_StoreAtRef_64_VarAnyCst },
 
-	{ OP_STORE8ATREF,   MATCH_NIL,          MATCH_VAR_REF,     MATCH_VARIABLE,   MATCH_NIL, &CCodeGen_x86_32::Emit_Store8AtRef_VarVar   },
+	{ OP_STORE8ATREF,   MATCH_NIL,          MATCH_VAR_REF,     MATCH_VARIABLE,   MATCH_NIL,      &CCodeGen_x86_32::Emit_Store8AtRef_VarVar    },
+	{ OP_STORE8ATREF,   MATCH_NIL,          MATCH_VAR_REF,     MATCH_ANY32,      MATCH_VARIABLE, &CCodeGen_x86_32::Emit_Store8AtRef_VarAnyVar },
 
 	{ OP_CONDJMP,       MATCH_NIL,          MATCH_VAR_REF,     MATCH_CONSTANT,   MATCH_NIL, &CCodeGen_x86_32::Emit_CondJmp_Ref_VarCst   },
 
@@ -1547,6 +1548,19 @@ void CCodeGen_x86_32::Emit_Store8AtRef_VarVar(const STATEMENT& statement)
 	auto addressReg = PrepareRefSymbolRegisterUse(src1, CX86Assembler::rAX);
 	auto valueReg = PrepareSymbolByteRegisterUse(src2, CX86Assembler::rDX);
 	m_assembler.MovGb(CX86Assembler::MakeIndRegAddress(addressReg), valueReg);
+}
+
+void CCodeGen_x86_32::Emit_Store8AtRef_VarAnyVar(const STATEMENT& statement)
+{
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+	auto src3 = statement.src3->GetSymbol().get();
+	uint8 scale = static_cast<uint8>(statement.jmpCondition);
+
+	assert(scale == 1);
+
+	auto valueReg = PrepareSymbolByteRegisterUse(src3, CX86Assembler::rDX);
+	m_assembler.MovGb(MakeRefBaseScaleSymbolAddress(src1, CX86Assembler::rAX, src2, CX86Assembler::rCX, scale), valueReg);
 }
 
 void CCodeGen_x86_32::Emit_CondJmp_Ref_VarCst(const STATEMENT& statement)

@@ -130,6 +130,7 @@ namespace Jitter
 
 		//STORE8ATREF
 		void								Emit_Store8AtRef_VarVar(const STATEMENT&);
+		void								Emit_Store8AtRef_VarAnyVar(const STATEMENT&);
 
 		//CONDJMP
 		void								Emit_CondJmp_Ref_VarCst(const STATEMENT&);

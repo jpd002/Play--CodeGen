@@ -159,7 +159,9 @@ public:
 	void    Ldr(REGISTER64, REGISTER64, uint32);
 	void    Ldr(REGISTER64, REGISTER64, REGISTER64, bool);
 	void    Ldrb(REGISTER32, REGISTER64, uint32);
+	void    Ldrb(REGISTER32, REGISTER64, REGISTER64, bool);
 	void    Ldrh(REGISTER32, REGISTER64, uint32);
+	void    Ldrh(REGISTER32, REGISTER64, REGISTER64, bool);
 	void    Ldr_Pc(REGISTER64, uint32);
 	void    Ldr_Pc(REGISTERMD, const LITERAL128&);
 	void    Ldr_1s(REGISTERMD, REGISTER64, uint32);
@@ -215,7 +217,9 @@ public:
 	void    Str(REGISTER64, REGISTER64, uint32);
 	void    Str(REGISTER64, REGISTER64, REGISTER64, bool);
 	void    Strb(REGISTER32, REGISTER64, uint32);
+	void    Strb(REGISTER32, REGISTER64, REGISTER64, bool);
 	void    Strh(REGISTER32, REGISTER64, uint32);
+	void    Strh(REGISTER32, REGISTER64, REGISTER64, bool);
 	void    Str_1s(REGISTERMD, REGISTER64, uint32);
 	void    Str_1q(REGISTERMD, REGISTER64, uint32);
 	void    Str_1q(REGISTERMD, REGISTER64, REGISTER64, bool);

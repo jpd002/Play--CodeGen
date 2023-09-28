@@ -326,21 +326,28 @@ void CAArch32Assembler::Ldr(REGISTER rd, REGISTER rbase, const LdrAddress& addre
 
 void CAArch32Assembler::Ldrb(REGISTER rd, REGISTER rbase, const LdrAddress& address)
 {
-	assert(address.isImmediate);
 	assert(!address.isNegative);
-	uint32 opcode = (CONDITION_AL << 28) | 0x05D00000 | (static_cast<uint32>(rbase) << 16) | (static_cast<uint32>(rd) << 12) | (static_cast<uint32>(address.immediate));
+	uint32 opcode = (CONDITION_AL << 28) | 0x05D00000;
+	opcode |= (address.isImmediate) ? 0 : (1 << 25);
+	opcode |= static_cast<uint32>(rbase) << 16;
+	opcode |= static_cast<uint32>(rd) << 12;
+	opcode |= static_cast<uint32>(address.immediate);
 	WriteWord(opcode);
 }
 
 void CAArch32Assembler::Ldrh(REGISTER rd, REGISTER rbase, const LdrAddress& address)
 {
-	assert(address.isImmediate);
 	assert(!address.isNegative);
-	assert(address.immediate < 0x100);
+	assert(
+		(address.isImmediate && (address.immediate < 0x100)) || 
+		(!address.isImmediate && (address.immediate < 0x10)));
 	uint32 imm4L = (address.immediate & 0x0F);
 	uint32 imm4H = (address.immediate & 0xF0) >> 4;
-	uint32 opcode = (CONDITION_AL << 28) | 0x01D000B0 | (static_cast<uint32>(rbase) << 16) | (static_cast<uint32>(rd) << 12) 
-		| (imm4H << 8) | (imm4L);
+	uint32 opcode = (CONDITION_AL << 28) | 0x019000B0;
+	opcode |= address.isImmediate ? (1 << 22) : 0;
+	opcode |= static_cast<uint32>(rbase) << 16;
+	opcode |= static_cast<uint32>(rd) << 12;
+	opcode |= (imm4H << 8) | (imm4L);
 	WriteWord(opcode);
 }
 
@@ -542,21 +549,28 @@ void CAArch32Assembler::Str(REGISTER rd, REGISTER rbase, const LdrAddress& addre
 
 void CAArch32Assembler::Strb(REGISTER rd, REGISTER rbase, const LdrAddress& address)
 {
-	assert(address.isImmediate);
 	assert(!address.isNegative);
-	uint32 opcode = (CONDITION_AL << 28) | 0x05C00000 | (static_cast<uint32>(rbase) << 16) | (static_cast<uint32>(rd) << 12) | (static_cast<uint32>(address.immediate));
+	uint32 opcode = (CONDITION_AL << 28) | 0x05C00000;
+	opcode |= (address.isImmediate) ? 0 : (1 << 25);
+	opcode |= static_cast<uint32>(rbase) << 16;
+	opcode |= static_cast<uint32>(rd) << 12;
+	opcode |= static_cast<uint32>(address.immediate);
 	WriteWord(opcode);
 }
 
 void CAArch32Assembler::Strh(REGISTER rd, REGISTER rbase, const LdrAddress& address)
 {
-	assert(address.isImmediate);
 	assert(!address.isNegative);
-	assert(address.immediate < 0x100);
+	assert(
+		(address.isImmediate && (address.immediate < 0x100)) || 
+		(!address.isImmediate && (address.immediate < 0x10)));
 	uint32 imm4L = (address.immediate & 0x0F);
 	uint32 imm4H = (address.immediate & 0xF0) >> 4;
-	uint32 opcode = (CONDITION_AL << 28) | 0x01C000B0 | (static_cast<uint32>(rbase) << 16) | (static_cast<uint32>(rd) << 12) 
-		| (imm4H << 8) | (imm4L);
+	uint32 opcode = (CONDITION_AL << 28) | 0x018000B0;
+	opcode |= address.isImmediate ? (1 << 22) : 0;
+	opcode |= static_cast<uint32>(rbase) << 16;
+	opcode |= static_cast<uint32>(rd) << 12;
+	opcode |= (imm4H << 8) | (imm4L);
 	WriteWord(opcode);
 }
 

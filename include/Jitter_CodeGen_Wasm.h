@@ -122,15 +122,23 @@ namespace Jitter
 		void Emit_AddRef_AnyAnyAny(const STATEMENT&);
 		void Emit_IsRefNull_VarVar(const STATEMENT&);
 
+		template <uint8, uint8>
+		void Emit_Generic_LoadFromRef_MemVar(const STATEMENT&);
+
+		template <uint8, uint8>
+		void Emit_Generic_LoadFromRef_MemVarAny(const STATEMENT&);
+
+		template <uint8, uint8>
+		void Emit_Generic_StoreAtRef_VarAny(const STATEMENT&);
+
+		template <uint8, uint8>
+		void Emit_Generic_StoreAtRef_VarAnyAny(const STATEMENT&);
+
 		void Emit_LoadFromRef_VarVar(const STATEMENT&);
 		void Emit_LoadFromRef_VarVarAny(const STATEMENT&);
-		void Emit_Load8FromRef_MemVar(const STATEMENT&);
-		void Emit_Load16FromRef_MemVar(const STATEMENT&);
 
 		void Emit_StoreAtRef_VarAny(const STATEMENT&);
 		void Emit_StoreAtRef_VarAnyAny(const STATEMENT&);
-		void Emit_Store8AtRef_VarAny(const STATEMENT&);
-		void Emit_Store16AtRef_VarAny(const STATEMENT&);
 
 		void Emit_Param_Ctx(const STATEMENT&);
 		void Emit_Param_Any(const STATEMENT&);
@@ -165,11 +173,6 @@ namespace Jitter
 		void Emit_Sub64_MemAnyAny(const STATEMENT&);
 		void Emit_And64_MemAnyAny(const STATEMENT&);
 		void Emit_Cmp64_MemAnyAny(const STATEMENT&);
-
-		void Emit_Load64FromRef_MemMem(const STATEMENT&);
-		void Emit_Load64FromRef_MemMemAny(const STATEMENT&);
-		void Emit_Store64AtRef_MemAny(const STATEMENT&);
-		void Emit_Store64AtRef_MemAnyAny(const STATEMENT&);
 
 		void Emit_RetVal_Tmp64(const STATEMENT&);
 

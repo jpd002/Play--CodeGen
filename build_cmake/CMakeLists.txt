@@ -63,6 +63,7 @@ add_library(CodeGen
 	../src/Jitter_CodeGen_Wasm.cpp
 	../src/Jitter_CodeGen_Wasm_64.cpp
 	../src/Jitter_CodeGen_Wasm_Fpu.cpp
+	../src/Jitter_CodeGen_Wasm_LoadStore.h
 	../src/Jitter_CodeGen_Wasm_Md.cpp
 	../src/Jitter_CodeGen.cpp
 	../src/Jitter_CodeGenFactory.cpp

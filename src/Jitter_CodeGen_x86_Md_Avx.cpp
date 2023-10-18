@@ -526,11 +526,18 @@ void CCodeGen_x86::Emit_Md_Avx_Expand_VarCst(const STATEMENT& statement)
 	auto src1 = statement.src1->GetSymbol().get();
 
 	auto dstRegister = PrepareSymbolRegisterDefMd(dst, CX86Assembler::xMM0);
-	auto cstRegister = CX86Assembler::rAX;
 
-	m_assembler.MovId(cstRegister, src1->m_valueLow);
-	m_assembler.VmovdVo(dstRegister, CX86Assembler::MakeRegisterAddress(cstRegister));
-	m_assembler.VshufpsVo(dstRegister, dstRegister, CX86Assembler::MakeXmmRegisterAddress(dstRegister), 0x00);
+	if(src1->m_valueLow == 0)
+	{
+		m_assembler.VpxorVo(dstRegister, dstRegister, CX86Assembler::MakeXmmRegisterAddress(dstRegister));
+	}
+	else
+	{
+		auto cstRegister = CX86Assembler::rAX;
+		m_assembler.MovId(cstRegister, src1->m_valueLow);
+		m_assembler.VmovdVo(dstRegister, CX86Assembler::MakeRegisterAddress(cstRegister));
+		m_assembler.VshufpsVo(dstRegister, dstRegister, CX86Assembler::MakeXmmRegisterAddress(dstRegister), 0x00);
+	}
 
 	CommitSymbolRegisterMdAvx(dst, dstRegister);
 }

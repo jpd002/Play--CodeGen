@@ -876,9 +876,16 @@ void CCodeGen_x86::Emit_Md_Expand_VarCst(const STATEMENT& statement)
 	auto cstRegister = CX86Assembler::rAX;
 	auto resultRegister = PrepareSymbolRegisterDefMd(dst, CX86Assembler::xMM0);
 
-	m_assembler.MovId(cstRegister, src1->m_valueLow);
-	m_assembler.MovdVo(resultRegister, CX86Assembler::MakeRegisterAddress(cstRegister));
-	m_assembler.PshufdVo(resultRegister, CX86Assembler::MakeXmmRegisterAddress(resultRegister), 0x00);
+	if(src1->m_valueLow == 0)
+	{
+		m_assembler.PxorVo(resultRegister, CX86Assembler::MakeXmmRegisterAddress(resultRegister));
+	}
+	else
+	{
+		m_assembler.MovId(cstRegister, src1->m_valueLow);
+		m_assembler.MovdVo(resultRegister, CX86Assembler::MakeRegisterAddress(cstRegister));
+		m_assembler.PshufdVo(resultRegister, CX86Assembler::MakeXmmRegisterAddress(resultRegister), 0x00);
+	}
 
 	CommitSymbolRegisterMdSse(dst, resultRegister);
 }

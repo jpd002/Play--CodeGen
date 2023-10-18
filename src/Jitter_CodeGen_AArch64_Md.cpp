@@ -413,9 +413,15 @@ void CCodeGen_AArch64::Emit_Md_Expand_VarCst(const STATEMENT& statement)
 	auto dstReg = PrepareSymbolRegisterDefMd(dst, GetNextTempRegisterMd());
 	auto src1Reg = GetNextTempRegister();
 
-	LoadConstantInRegister(src1Reg, src1->m_valueLow);
-
-	m_assembler.Dup_4s(dstReg, src1Reg);
+	if(src1->m_valueLow == 0)
+	{
+		m_assembler.Eor_16b(dstReg, dstReg, dstReg);
+	}
+	else
+	{
+		LoadConstantInRegister(src1Reg, src1->m_valueLow);
+		m_assembler.Dup_4s(dstReg, src1Reg);
+	}
 
 	CommitSymbolRegisterMd(dst, dstReg);
 }

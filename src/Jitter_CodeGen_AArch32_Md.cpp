@@ -407,10 +407,18 @@ void CCodeGen_AArch32::Emit_Md_Expand_MemCst(const STATEMENT& statement)
 	auto src1Reg = CAArch32Assembler::r1;
 	auto tmpReg = CAArch32Assembler::q0;
 
-	LoadConstantInRegister(src1Reg, src1->m_valueLow);
 	LoadMemory128AddressInRegister(dstAddrReg, dst);
 
-	m_assembler.Vdup(tmpReg, src1Reg);
+	if(src1->m_valueLow == 0)
+	{
+		m_assembler.Veor(tmpReg, tmpReg, tmpReg);
+	}
+	else
+	{
+		LoadConstantInRegister(src1Reg, src1->m_valueLow);
+		m_assembler.Vdup(tmpReg, src1Reg);
+	}
+
 	m_assembler.Vst1_32x4(tmpReg, dstAddrReg);
 }
 

@@ -704,12 +704,9 @@ namespace Jitter
 		void						Emit_Md_Mov_MemMem(const STATEMENT&);
 		void						Emit_Md_MovMasked_VarVarVar(const STATEMENT&);
 		void						Emit_Md_MovMasked_Sse41_VarVarVar(const STATEMENT&);
-		void						Emit_Md_Expand_RegReg(const STATEMENT&);
-		void						Emit_Md_Expand_RegMem(const STATEMENT&);
-		void						Emit_Md_Expand_RegCst(const STATEMENT&);
-		void						Emit_Md_Expand_MemReg(const STATEMENT&);
-		void						Emit_Md_Expand_MemMem(const STATEMENT&);
-		void						Emit_Md_Expand_MemCst(const STATEMENT&);
+		void						Emit_Md_Expand_VarReg(const STATEMENT&);
+		void						Emit_Md_Expand_VarMem(const STATEMENT&);
+		void						Emit_Md_Expand_VarCst(const STATEMENT&);
 
 		void						Emit_MergeTo256_MemVarVar(const STATEMENT&);
 

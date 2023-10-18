@@ -19,6 +19,10 @@ void CMdManipTest::Compile(Jitter::CJitter& jitter)
 		//Push Cst Expand
 		jitter.MD_PushCstExpand(31415.f);
 		jitter.MD_PullRel(offsetof(CONTEXT, dstExpandCst));
+
+		//Push Cst Expand Zero
+		jitter.MD_PushCstExpand(0U);
+		jitter.MD_PullRel(offsetof(CONTEXT, dstExpandCstZero));
 	}
 	jitter.End();
 
@@ -28,7 +32,7 @@ void CMdManipTest::Compile(Jitter::CJitter& jitter)
 void CMdManipTest::Run()
 {
 	CONTEXT ALIGN16 context;
-	memset(&context, 0, sizeof(CONTEXT));
+	memset(&context, 0xFF, sizeof(CONTEXT));
 	
 	context.dstMasked[0] = 1.0f;
 	context.dstMasked[1] = 1.0f;
@@ -66,4 +70,9 @@ void CMdManipTest::Run()
 	TEST_VERIFY(context.dstExpandCst[1] == 31415.0f);
 	TEST_VERIFY(context.dstExpandCst[2] == 31415.0f);
 	TEST_VERIFY(context.dstExpandCst[3] == 31415.0f);
+
+	TEST_VERIFY(context.dstExpandCstZero[0] == 0);
+	TEST_VERIFY(context.dstExpandCstZero[1] == 0);
+	TEST_VERIFY(context.dstExpandCstZero[2] == 0);
+	TEST_VERIFY(context.dstExpandCstZero[3] == 0);
 }

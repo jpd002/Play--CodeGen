@@ -150,6 +150,7 @@ CCodeGen_Wasm::CONSTMATCHER CCodeGen_Wasm::g_constMatchers[] =
 
 #include <emscripten.h>
 // clang-format off
+EM_JS_DEPS(WasmRegisterExternFunction, "$convertJsFunctionToWasm");
 EM_JS(int, RegisterExternFunction, (const char* functionName, const char* functionSig), {
 	let fctName = UTF8ToString(functionName);
 	let fctSig = UTF8ToString(functionSig);

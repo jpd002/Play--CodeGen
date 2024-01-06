@@ -48,6 +48,7 @@
 #include <sys/mman.h>
 #include <pthread.h>
 #elif defined(MEMFUNC_USE_WASM)
+EM_JS_DEPS(WasmMemoryFunction, "$addFunction,$removeFunction");
 EM_JS(int, WasmCreateFunction, (emscripten::EM_VAL moduleHandle),
 {
 	let module = Emval.toValue(moduleHandle);

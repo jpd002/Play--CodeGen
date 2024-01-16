@@ -204,6 +204,8 @@ public:
 	void									NotEd(const CAddress&);
 	void									OrEd(REGISTER, const CAddress&);
 	void									OrId(const CAddress&, uint32);
+	void									OrEq(REGISTER, const CAddress&);
+	void									OrIq(const CAddress&, uint64);
 	void									Pop(REGISTER);
 	void									Push(REGISTER);
 	void									PushEd(const CAddress&);

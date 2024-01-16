@@ -791,6 +791,16 @@ void CX86Assembler::OrId(const CAddress& address, uint32 constant)
 	WriteEvId(0x01, address, constant);
 }
 
+void CX86Assembler::OrEq(REGISTER registerId, const CAddress& address)
+{
+	WriteEvGvOp(0x0B, true, address, registerId);
+}
+
+void CX86Assembler::OrIq(const CAddress& address, uint64 constant)
+{
+	assert(0);
+}
+
 void CX86Assembler::Pop(REGISTER registerId)
 {
 	CAddress Address(MakeRegisterAddress(registerId));

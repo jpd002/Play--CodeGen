@@ -44,6 +44,7 @@ namespace Jitter
 		OP_ADD64,
 		OP_SUB64,
 		OP_AND64,
+		OP_OR64,
 		OP_CMP64,
 		OP_MERGETO64,
 		OP_EXTLOW64,

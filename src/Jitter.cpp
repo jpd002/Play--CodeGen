@@ -753,6 +753,11 @@ void CJitter::Cmp64(CONDITION condition)
 	m_shadow.Push(tempSym);
 }
 
+void CJitter::Or64()
+{
+	InsertBinary64Statement(OP_OR64);
+}
+
 void CJitter::Sub64()
 {
 	InsertBinary64Statement(OP_SUB64);

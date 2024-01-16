@@ -805,30 +805,12 @@ void CJitter::ExtHigh64()
 
 void CJitter::Add64()
 {
-	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY64, m_nextTemporary++);
-
-	STATEMENT statement;
-	statement.op	= OP_ADD64;
-	statement.src2	= MakeSymbolRef(m_shadow.Pull());
-	statement.src1	= MakeSymbolRef(m_shadow.Pull());
-	statement.dst	= MakeSymbolRef(tempSym);
-	InsertStatement(statement);
-
-	m_shadow.Push(tempSym);
+	InsertBinary64Statement(OP_ADD64);
 }
 
 void CJitter::And64()
 {
-	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY64, m_nextTemporary++);
-
-	STATEMENT statement;
-	statement.op	= OP_AND64;
-	statement.src2	= MakeSymbolRef(m_shadow.Pull());
-	statement.src1	= MakeSymbolRef(m_shadow.Pull());
-	statement.dst	= MakeSymbolRef(tempSym);
-	InsertStatement(statement);
-
-	m_shadow.Push(tempSym);
+	InsertBinary64Statement(OP_AND64);
 }
 
 void CJitter::Cmp64(CONDITION condition)
@@ -848,16 +830,7 @@ void CJitter::Cmp64(CONDITION condition)
 
 void CJitter::Sub64()
 {
-	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY64, m_nextTemporary++);
-
-	STATEMENT statement;
-	statement.op	= OP_SUB64;
-	statement.src2	= MakeSymbolRef(m_shadow.Pull());
-	statement.src1	= MakeSymbolRef(m_shadow.Pull());
-	statement.dst	= MakeSymbolRef(tempSym);
-	InsertStatement(statement);
-
-	m_shadow.Push(tempSym);
+	InsertBinary64Statement(OP_SUB64);
 }
 
 void CJitter::Srl64()
@@ -1718,6 +1691,20 @@ void CJitter::InsertStoreAtRefIdxStatement(Jitter::OPERATION operation, size_t s
 	statement.src2 = MakeSymbolRef(m_shadow.Pull());
 	statement.src1 = MakeSymbolRef(m_shadow.Pull());
 	InsertStatement(statement);
+}
+
+void CJitter::InsertBinary64Statement(Jitter::OPERATION operation)
+{
+	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY64, m_nextTemporary++);
+
+	STATEMENT statement;
+	statement.op = operation;
+	statement.src2 = MakeSymbolRef(m_shadow.Pull());
+	statement.src1 = MakeSymbolRef(m_shadow.Pull());
+	statement.dst = MakeSymbolRef(tempSym);
+	InsertStatement(statement);
+
+	m_shadow.Push(tempSym);
 }
 
 void CJitter::InsertUnaryMdStatement(Jitter::OPERATION operation)

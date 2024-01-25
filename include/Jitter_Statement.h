@@ -24,6 +24,9 @@ namespace Jitter
 		OP_SRL,
 		OP_SLL,
 
+		OP_ROL,
+		OP_ROR,
+
 		OP_MUL,
 		OP_MULS,
 		OP_DIV,
@@ -45,6 +48,7 @@ namespace Jitter
 		OP_SUB64,
 		OP_AND64,
 		OP_OR64,
+		OP_XOR64,
 		OP_CMP64,
 		OP_MERGETO64,
 		OP_EXTLOW64,

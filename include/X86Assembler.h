@@ -211,6 +211,8 @@ public:
 	void									PushEd(const CAddress&);
 	void									PushId(uint32);
 	void									RclEd(const CAddress&, uint8);
+	void									RolEd(const CAddress&);
+	void									RolEd(const CAddress&, uint8);
 	void									RepMovsb();
 	void									Ret();
 	void									SarEd(const CAddress&);
@@ -249,6 +251,8 @@ public:
 	void									TestEq(REGISTER, const CAddress&);
 	void									XorEd(REGISTER, const CAddress&);
 	void									XorId(const CAddress&, uint32);
+	void									XorEq(REGISTER, const CAddress&);
+	void									XorIq(const CAddress&, uint64);
 	void									XorGd(const CAddress&, REGISTER);
 	void									XorGq(const CAddress&, REGISTER);
 

@@ -18,6 +18,7 @@ private:
 		uint64			resultAndZero1;
 		uint64			resultAndZero2;
 		uint64			resultOr;
+		uint64			resultXor;
 	};
 
 	CONTEXT				m_context;

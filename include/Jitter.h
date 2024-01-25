@@ -87,6 +87,7 @@ namespace Jitter
 		void							MultS();
 		void							Not();
 		void							Or();
+		void							Rol(uint8);
 		void							SignExt();
 		void							SignExt8();
 		void							SignExt16();
@@ -147,6 +148,7 @@ namespace Jitter
 		void							Sra64(uint8);
 		void							Shl64();
 		void							Shl64(uint8);
+		void							Xor64();
 
 		//FPU
 		virtual void					FP_PushWord(size_t);

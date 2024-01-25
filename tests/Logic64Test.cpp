@@ -17,6 +17,7 @@ void CLogic64Test::Run()
 	TEST_VERIFY(m_context.resultAndZero1 == 0);
 	TEST_VERIFY(m_context.resultAndZero2 == 0);
 	TEST_VERIFY(m_context.resultOr == (CONSTANT_1 | CONSTANT_2));
+	TEST_VERIFY(m_context.resultXor == (CONSTANT_1 ^ CONSTANT_2));
 }
 
 void CLogic64Test::Compile(Jitter::CJitter& jitter)
@@ -45,6 +46,11 @@ void CLogic64Test::Compile(Jitter::CJitter& jitter)
 		jitter.PushRel64(offsetof(CONTEXT, op2));
 		jitter.Or64();
 		jitter.PullRel64(offsetof(CONTEXT, resultOr));
+
+		jitter.PushRel64(offsetof(CONTEXT, op1));
+		jitter.PushRel64(offsetof(CONTEXT, op2));
+		jitter.Xor64();
+		jitter.PullRel64(offsetof(CONTEXT, resultXor));
 	}
 	jitter.End();
 

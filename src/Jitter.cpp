@@ -429,6 +429,11 @@ void CJitter::Or()
 	InsertBinaryStatement(OP_OR);
 }
 
+void CJitter::Rol(uint8 amount)
+{
+	InsertShiftCstStatement(OP_ROL, amount);
+}
+
 void CJitter::SignExt()
 {
 	Sra(31);
@@ -774,6 +779,11 @@ void CJitter::Or64()
 void CJitter::Sub64()
 {
 	InsertBinary64Statement(OP_SUB64);
+}
+
+void CJitter::Xor64()
+{
+	InsertBinary64Statement(OP_XOR64);
 }
 
 void CJitter::Srl64()

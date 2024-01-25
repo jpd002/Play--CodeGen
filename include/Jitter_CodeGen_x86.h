@@ -85,6 +85,12 @@ namespace Jitter
 			static OpVarType OpVar() { return &CX86Assembler::ShlEd; }
 		};
 
+		struct SHIFTOP_ROL : public SHIFTOP_BASE
+		{
+			static OpCstType OpCst() { return &CX86Assembler::RolEd; }
+			static OpVarType OpVar() { return &CX86Assembler::RolEd; }
+		};
+
 		//FP32OP -----------------------------------------------------------
 		struct FP32OP_BASE
 		{

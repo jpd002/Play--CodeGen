@@ -832,6 +832,17 @@ void CX86Assembler::RclEd(const CAddress& address, uint8 amount)
 	WriteByte(amount);
 }
 
+void CX86Assembler::RolEd(const CAddress& address)
+{
+	WriteEvOp(0xD3, 0x00, false, address);
+}
+
+void CX86Assembler::RolEd(const CAddress& address, uint8 amount)
+{
+	WriteEvOp(0xC1, 0x00, false, address);
+	WriteByte(amount);
+}
+
 void CX86Assembler::RepMovsb()
 {
 	WriteByte(0xF3);
@@ -1037,6 +1048,16 @@ void CX86Assembler::XorEd(REGISTER registerId, const CAddress& address)
 void CX86Assembler::XorId(const CAddress& address, uint32 constant)
 {
 	WriteEvId(0x06, address, constant);
+}
+
+void CX86Assembler::XorEq(REGISTER registerId, const CAddress& address)
+{
+	WriteEvGvOp(0x33, true, address, registerId);
+}
+
+void CX86Assembler::XorIq(const CAddress& address, uint64 constant)
+{
+	assert(0);
 }
 
 void CX86Assembler::XorGd(const CAddress& Address, REGISTER nRegister)

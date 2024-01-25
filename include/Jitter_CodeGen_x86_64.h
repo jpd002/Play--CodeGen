@@ -56,6 +56,12 @@ namespace Jitter
 			static OpEqType OpEq() { return &CX86Assembler::OrEq; }
 		};
 
+		struct ALUOP64_XOR : public ALUOP64_BASE
+		{
+			static OpIqType OpIq() { return &CX86Assembler::XorIq; }
+			static OpEqType OpEq() { return &CX86Assembler::XorEq; }
+		};
+
 		//SHIFTOP64 ----------------------------------------------------------
 		struct SHIFTOP64_BASE
 		{

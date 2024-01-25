@@ -298,6 +298,7 @@ namespace Jitter
 
 		void							InsertUnaryStatement(Jitter::OPERATION);
 		void							InsertBinaryStatement(Jitter::OPERATION);
+		void							InsertShiftCstStatement(Jitter::OPERATION, uint8);
 		void							InsertLoadFromRefIdxStatement(Jitter::OPERATION, size_t);
 		void							InsertStoreAtRefIdxStatement(Jitter::OPERATION, size_t);
 		void							InsertBinary64Statement(Jitter::OPERATION);

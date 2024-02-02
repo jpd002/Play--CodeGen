@@ -124,14 +124,8 @@ namespace Jitter
 		void								Emit_Cmp_VarVarCst(const STATEMENT&);
 
 		//CMP64
-		void								Cmp64_RelRel(CX86Assembler::REGISTER, const STATEMENT&);
-		void								Cmp64_RelCst(CX86Assembler::REGISTER, const STATEMENT&);
-
-		void								Emit_Cmp64_RegRelRel(const STATEMENT&);
-		void								Emit_Cmp64_RegRelCst(const STATEMENT&);
-
-		void								Emit_Cmp64_MemRelRel(const STATEMENT&);
-		void								Emit_Cmp64_MemRelCst(const STATEMENT&);
+		void								Emit_Cmp64_VarMemMem(const STATEMENT&);
+		void								Emit_Cmp64_VarMemCst(const STATEMENT&);
 
 		//RELTOREF
 		void								Emit_RelToRef_VarCst(const STATEMENT&);

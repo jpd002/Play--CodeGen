@@ -157,6 +157,7 @@ static const TestFactoryFunction s_factories[] =
 	[] () { return new CCmp64Test(false, false, 0xFFFFFFFFF6543210ULL, 0xFFFFFFFFF567CDEFULL); },
 	[] () { return new CCmp64Test(false, true,  0xFFFFFFFFF6543210ULL, 0xFFFFFFFFF567CDEFULL); },
 	[] () { return new CCmp64Test(true,  true,  0xFFFFFFFFF6543210ULL, 0xFFFFFFFFF567CDEFULL); },
+	[] () { return new CCmp64Test(false, true,  0xFFFFFFFFF6543210ULL, 0); },
 	[] () { return new CCmp64Test(false, false, 0x100000000, 0x100000000); },
 	[] () { return new CCmp64Test(false, true,  0x100000000, 0x100000000); },
 	[] () { return new CCmp64Test(true , true,  0x100000000, 0x100000000); },

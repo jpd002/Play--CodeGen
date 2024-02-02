@@ -207,6 +207,8 @@ set(CodeGenTest_SRC
 	../tests/Merge64Test.h
 	../tests/MultTest.cpp
 	../tests/MultTest.h
+	../tests/Mult64Test.cpp
+	../tests/Mult64Test.h
 	../tests/NestedIfTest.cpp
 	../tests/NestedIfTest.h
 	../tests/RandomAluTest2.cpp

@@ -1655,6 +1655,9 @@ void CJitter::NormalizeStatements(BASIC_BLOCK& basicBlock)
 			case CONDITION_BL:
 				statement.jmpCondition = CONDITION_AB;
 				break;
+			case CONDITION_AB:
+				statement.jmpCondition = CONDITION_BL;
+				break;
 			case CONDITION_LT:
 				statement.jmpCondition = CONDITION_GT;
 				break;

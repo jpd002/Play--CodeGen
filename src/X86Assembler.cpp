@@ -766,6 +766,11 @@ void CX86Assembler::MulEd(const CAddress& address)
 	WriteEvOp(0xF7, 0x04, false, address);
 }
 
+void CX86Assembler::MulEq(const CAddress& address)
+{
+	WriteEvOp(0xF7, 0x04, true, address);
+}
+
 void CX86Assembler::NegEd(const CAddress& address)
 {
 	WriteEvOp(0xF7, 0x03, false, address);

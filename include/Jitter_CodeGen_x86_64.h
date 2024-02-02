@@ -168,6 +168,10 @@ namespace Jitter
 		//CONDJMP
 		void								Emit_CondJmp_Ref_VarCst(const STATEMENT&);
 
+		//MUL64
+		void								Emit_Mul64_MemMemMem(const STATEMENT&);
+		void								Emit_Mul64_MemMemCst(const STATEMENT&);
+
 	private:
 		typedef void (CCodeGen_x86_64::*ConstCodeEmitterType)(const STATEMENT&);
 

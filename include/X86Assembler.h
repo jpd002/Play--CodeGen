@@ -199,6 +199,7 @@ public:
 	void									MovzxEb(REGISTER, const CAddress&);
 	void									MovzxEw(REGISTER, const CAddress&);
 	void									MulEd(const CAddress&);
+	void									MulEq(const CAddress&);
 	void									NegEd(const CAddress&);
 	void									Nop();
 	void									NotEd(const CAddress&);

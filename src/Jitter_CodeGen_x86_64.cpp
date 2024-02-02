@@ -264,6 +264,9 @@ CCodeGen_x86_64::CONSTMATCHER CCodeGen_x86_64::g_constMatchers[] =
 
 	{ OP_CONDJMP, MATCH_NIL, MATCH_VAR_REF, MATCH_CONSTANT, MATCH_NIL, &CCodeGen_x86_64::Emit_CondJmp_Ref_VarCst },
 
+	{ OP_MUL, MATCH_MEMORY64, MATCH_MEMORY64, MATCH_MEMORY64, MATCH_NIL, &CCodeGen_x86_64::Emit_Mul64_MemMemMem },
+	{ OP_MUL, MATCH_MEMORY64, MATCH_MEMORY64, MATCH_CONSTANT64, MATCH_NIL, &CCodeGen_x86_64::Emit_Mul64_MemMemCst },
+
 	{ OP_MOV, MATCH_NIL, MATCH_NIL, MATCH_NIL, MATCH_NIL, nullptr },
 };
 
@@ -943,6 +946,28 @@ void CCodeGen_x86_64::Emit_CondJmp_Ref_VarCst(const STATEMENT& statement)
 	m_assembler.TestEq(addressReg, CX86Assembler::MakeRegisterAddress(addressReg));
 
 	CondJmp_JumpTo(GetLabel(statement.jmpBlock), statement.jmpCondition);
+}
+
+void CCodeGen_x86_64::Emit_Mul64_MemMemMem(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	m_assembler.MovEq(CX86Assembler::rAX, MakeMemory64SymbolAddress(src2));
+	m_assembler.MulEq(MakeMemory64SymbolAddress(src1));
+	m_assembler.MovGq(MakeMemory64SymbolAddress(dst), CX86Assembler::rAX);
+}
+
+void CCodeGen_x86_64::Emit_Mul64_MemMemCst(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	m_assembler.MovIq(CX86Assembler::rAX, CombineConstant64(src2->m_valueLow, src2->m_valueHigh));
+	m_assembler.MulEq(MakeMemory64SymbolAddress(src1));
+	m_assembler.MovGq(MakeMemory64SymbolAddress(dst), CX86Assembler::rAX);
 }
 
 CX86Assembler::REGISTER CCodeGen_x86_64::PrepareRefSymbolRegisterDef(CSymbol* symbol, CX86Assembler::REGISTER preferedRegister)

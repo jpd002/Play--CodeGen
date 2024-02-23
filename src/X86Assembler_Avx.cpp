@@ -389,6 +389,11 @@ void CX86Assembler::VpmovmskbVo(REGISTER dst, XMMREGISTER src)
 	WriteVexVoOp(VEX_OPCODE_MAP_66, 0xD7, static_cast<XMMREGISTER>(dst), CX86Assembler::xMM0, CX86Assembler::MakeXmmRegisterAddress(src));
 }
 
+void CX86Assembler::VpbroadcastdVo(XMMREGISTER dst, const CAddress& src)
+{
+	WriteVexVoOp(VEX_OPCODE_MAP_66_38, 0x58, dst, CX86Assembler::xMM0, src);
+}
+
 void CX86Assembler::VaddpsVo(XMMREGISTER dst, XMMREGISTER src1, const CAddress& src2)
 {
 	WriteVexVoOp(VEX_OPCODE_MAP_NONE, 0x58, dst, src1, src2);

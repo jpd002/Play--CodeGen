@@ -161,6 +161,15 @@ CCodeGen_x86::CCodeGen_x86()
 	{
 		InsertMatchers(g_fpuAvxConstMatchers);
 		InsertMatchers(g_mdAvxConstMatchers);
+
+		if(m_hasAvx2)
+		{
+			InsertMatchers(g_mdAvx2ExpandConstMatchers);
+		}
+		else
+		{
+			InsertMatchers(g_mdAvxExpandConstMatchers);
+		}
 	}
 	else
 	{
@@ -271,10 +280,13 @@ void CCodeGen_x86::SetGenerationFlags()
 	static const uint32 CPUID_FLAG_SSSE3 = 0x000200;
 	static const uint32 CPUID_FLAG_SSE41 = 0x080000;
 	static const uint32 CPUID_FLAG_AVX = 0x10000000;
+	static const uint32 CPUID_FLAG_AVX2 = 0x20;
 
 #ifdef HAS_CPUID_MSVC
-	std::array<int, 4> cpuInfo;
-	__cpuid(cpuInfo.data(), 1);
+	std::array<int, 4> cpuInfo1;
+	std::array<int, 4> cpuInfo7;
+	__cpuid(cpuInfo1.data(), 1);
+	__cpuid(cpuInfo7.data(), 7);
 #endif //HAS_CPUID_MSVC
 
 #ifdef HAS_CPUID_GCC
@@ -282,9 +294,10 @@ void CCodeGen_x86::SetGenerationFlags()
 	__get_cpuid(1, &cpuInfo[0], &cpuInfo[1], &cpuInfo[2], &cpuInfo[3]);
 #endif //HAS_CPUID_GCC
 
-	m_hasSsse3 = (cpuInfo[2] & CPUID_FLAG_SSSE3) != 0;
-	m_hasSse41 = (cpuInfo[2] & CPUID_FLAG_SSE41) != 0;
-	m_hasAvx = (cpuInfo[2] & CPUID_FLAG_AVX) != 0;
+	m_hasSsse3 = (cpuInfo1[2] & CPUID_FLAG_SSSE3) != 0;
+	m_hasSse41 = (cpuInfo1[2] & CPUID_FLAG_SSE41) != 0;
+	m_hasAvx = (cpuInfo1[2] & CPUID_FLAG_AVX) != 0;
+	m_hasAvx2 = (cpuInfo7[1] & CPUID_FLAG_AVX2) != 0;
 
 #endif //HAS_CPUID
 

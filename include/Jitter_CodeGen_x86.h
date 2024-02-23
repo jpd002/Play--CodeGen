@@ -764,6 +764,10 @@ namespace Jitter
 		void						Emit_Md_Avx_Expand_VarVar(const STATEMENT&);
 		void						Emit_Md_Avx_Expand_VarCst(const STATEMENT&);
 
+		void						Emit_Md_Avx2_Expand_VarReg(const STATEMENT&);
+		void						Emit_Md_Avx2_Expand_VarMem(const STATEMENT&);
+		void						Emit_Md_Avx2_Expand_VarCst(const STATEMENT&);
+
 		void						Emit_Avx_MergeTo256_MemVarVar(const STATEMENT&);
 
 		void						Emit_Md_Avx_Srl256_VarMemVar(const STATEMENT&);
@@ -805,6 +809,7 @@ namespace Jitter
 		bool						m_hasSsse3 = false;
 		bool						m_hasSse41 = false;
 		bool						m_hasAvx = false;
+		bool						m_hasAvx2 = false;
 
 	private:
 		typedef void (CCodeGen_x86::*ConstCodeEmitterType)(const STATEMENT&);
@@ -839,5 +844,7 @@ namespace Jitter
 		static CONSTMATCHER			g_mdFpFlagSsse3ConstMatchers[];
 
 		static CONSTMATCHER			g_mdAvxConstMatchers[];
+		static CONSTMATCHER			g_mdAvxExpandConstMatchers[];
+		static CONSTMATCHER			g_mdAvx2ExpandConstMatchers[];
 	};
 }

@@ -8,7 +8,7 @@ namespace Jitter
 	class CCodeGen_x86_32 : public CCodeGen_x86
 	{
 	public:
-											CCodeGen_x86_32();
+											CCodeGen_x86_32(CX86CpuFeatures = CX86CpuFeatures::AutoDetect());
 		virtual								~CCodeGen_x86_32() = default;
 
 		void								SetImplicitRetValueParamFixUpRequired(bool);

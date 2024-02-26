@@ -81,6 +81,7 @@ add_library(CodeGen
 	../src/X86Assembler_Avx.cpp
 	../src/X86Assembler_Fpu.cpp
 	../src/X86Assembler_Sse.cpp
+	../src/X86CpuFeatures.cpp
 
 	../include/AArch32Assembler.h
 	../include/AArch64Assembler.h
@@ -109,6 +110,7 @@ add_library(CodeGen
 	../include/WasmDefs.h
 	../include/WasmModuleBuilder.h
 	../include/X86Assembler.h
+	../include/X86CpuFeatures.h
 )
 
 target_link_libraries(CodeGen PUBLIC Framework ${PROJECT_LIBS})

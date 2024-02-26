@@ -14,7 +14,7 @@ namespace Jitter
 			PLATFORM_ABI_WIN32
 		};
 		
-											CCodeGen_x86_64();
+											CCodeGen_x86_64(CX86CpuFeatures = CX86CpuFeatures::AutoDetect());
 		virtual								~CCodeGen_x86_64() = default;
 
 		void								SetPlatformAbi(PLATFORM_ABI);

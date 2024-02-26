@@ -265,7 +265,8 @@ CCodeGen_x86_64::CONSTMATCHER CCodeGen_x86_64::g_constMatchers[] =
 	{ OP_MOV, MATCH_NIL, MATCH_NIL, MATCH_NIL, MATCH_NIL, nullptr },
 };
 
-CCodeGen_x86_64::CCodeGen_x86_64()
+CCodeGen_x86_64::CCodeGen_x86_64(CX86CpuFeatures features)
+    : CCodeGen_x86(features)
 {
 	SetPlatformAbi(PLATFORM_ABI_SYSTEMV);
 	CCodeGen_x86::m_mdRegisters = g_mdRegisters;

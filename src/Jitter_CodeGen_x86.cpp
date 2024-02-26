@@ -1,32 +1,7 @@
 #include <functional>
-#include <array>
 #include <assert.h>
 #include <stdexcept>
 #include "Jitter_CodeGen_x86.h"
-
-//Check if CPUID is available
-#ifdef _WIN32
-#define HAS_CPUID
-#define HAS_CPUID_MSVC
-#include <intrin.h>
-#endif
-
-#if defined(__linux__)
-#if defined(__i386__) || defined(__x86_64__)
-#define HAS_CPUID
-#define HAS_CPUID_GCC
-#include <cpuid.h>
-#endif
-#endif
-
-#if defined(__APPLE__)
-#include <TargetConditionals.h>
-#if TARGET_CPU_X86 || TARGET_CPU_X86_64
-#define HAS_CPUID
-#define HAS_CPUID_GCC
-#include <cpuid.h>
-#endif
-#endif
 
 using namespace Jitter;
 
@@ -150,19 +125,18 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_constMatchers[] =
 	{ OP_MOV, MATCH_NIL, MATCH_NIL, MATCH_NIL, MATCH_NIL, nullptr },
 };
 
-CCodeGen_x86::CCodeGen_x86()
+CCodeGen_x86::CCodeGen_x86(CX86CpuFeatures cpuFeatures)
+    : m_cpuFeatures(cpuFeatures)
 {
-	SetGenerationFlags();
-
 	InsertMatchers(g_constMatchers);
 	InsertMatchers(g_fpuConstMatchers);
 
-	if(m_hasAvx)
+	if(cpuFeatures.hasAvx)
 	{
 		InsertMatchers(g_fpuAvxConstMatchers);
 		InsertMatchers(g_mdAvxConstMatchers);
 
-		if(m_hasAvx2)
+		if(cpuFeatures.hasAvx2)
 		{
 			InsertMatchers(g_mdAvx2ExpandConstMatchers);
 		}
@@ -176,7 +150,7 @@ CCodeGen_x86::CCodeGen_x86()
 		InsertMatchers(g_fpuSseConstMatchers);
 		InsertMatchers(g_mdConstMatchers);
 
-		if(m_hasSsse3)
+		if(cpuFeatures.hasSsse3)
 		{
 			InsertMatchers(g_mdFpFlagSsse3ConstMatchers);
 		}
@@ -185,7 +159,7 @@ CCodeGen_x86::CCodeGen_x86()
 			InsertMatchers(g_mdFpFlagConstMatchers);
 		}
 
-		if(m_hasSse41)
+		if(cpuFeatures.hasSse41)
 		{
 			InsertMatchers(g_mdMinMaxWSse41ConstMatchers);
 			InsertMatchers(g_mdMovMaskedSse41ConstMatchers);
@@ -272,35 +246,6 @@ void CCodeGen_x86::InsertMatchers(const CONSTMATCHER* constMatchers)
 		matcher.emitter  = std::bind(constMatcher->emitter, this, std::placeholders::_1);
 		m_matchers.insert(MatcherMapType::value_type(matcher.op, matcher));
 	}
-}
-
-void CCodeGen_x86::SetGenerationFlags()
-{
-#ifdef HAS_CPUID
-	static const uint32 CPUID_FLAG_SSSE3 = 0x000200;
-	static const uint32 CPUID_FLAG_SSE41 = 0x080000;
-	static const uint32 CPUID_FLAG_AVX = 0x10000000;
-	static const uint32 CPUID_FLAG_AVX2 = 0x20;
-
-#ifdef HAS_CPUID_MSVC
-	std::array<int, 4> cpuInfo1;
-	std::array<int, 4> cpuInfo7;
-	__cpuid(cpuInfo1.data(), 1);
-	__cpuid(cpuInfo7.data(), 7);
-#endif //HAS_CPUID_MSVC
-
-#ifdef HAS_CPUID_GCC
-	std::array<unsigned int, 4> cpuInfo;
-	__get_cpuid(1, &cpuInfo[0], &cpuInfo[1], &cpuInfo[2], &cpuInfo[3]);
-#endif //HAS_CPUID_GCC
-
-	m_hasSsse3 = (cpuInfo1[2] & CPUID_FLAG_SSSE3) != 0;
-	m_hasSse41 = (cpuInfo1[2] & CPUID_FLAG_SSE41) != 0;
-	m_hasAvx = (cpuInfo1[2] & CPUID_FLAG_AVX) != 0;
-	m_hasAvx2 = (cpuInfo7[1] & CPUID_FLAG_AVX2) != 0;
-
-#endif //HAS_CPUID
-
 }
 
 void CCodeGen_x86::SetStream(Framework::CStream* stream)

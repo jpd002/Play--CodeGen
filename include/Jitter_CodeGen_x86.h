@@ -2,6 +2,7 @@
 
 #include "Jitter_CodeGen.h"
 #include "X86Assembler.h"
+#include "X86CpuFeatures.h"
 #include "Literal128.h"
 
 namespace Jitter
@@ -9,7 +10,7 @@ namespace Jitter
 	class CCodeGen_x86 : public CCodeGen
 	{
 	public:
-						CCodeGen_x86();
+						CCodeGen_x86(CX86CpuFeatures);
 		virtual			~CCodeGen_x86() = default;
 
 		void			GenerateCode(const StatementList&, unsigned int) override;
@@ -806,10 +807,7 @@ namespace Jitter
 		uint32						m_stackLevel = 0;
 		uint32						m_registerUsage = 0;
 		
-		bool						m_hasSsse3 = false;
-		bool						m_hasSse41 = false;
-		bool						m_hasAvx = false;
-		bool						m_hasAvx2 = false;
+		CX86CpuFeatures				m_cpuFeatures;
 
 	private:
 		typedef void (CCodeGen_x86::*ConstCodeEmitterType)(const STATEMENT&);
@@ -825,7 +823,6 @@ namespace Jitter
 		};
 
 		void						InsertMatchers(const CONSTMATCHER*);
-		void						SetGenerationFlags();
 		
 		static CONSTMATCHER			g_constMatchers[];
 		static CONSTMATCHER			g_fpuConstMatchers[];

@@ -105,7 +105,8 @@ CCodeGen_x86_32::CONSTMATCHER CCodeGen_x86_32::g_constMatchers[] =
 	{ OP_MOV,           MATCH_NIL,          MATCH_NIL,         MATCH_NIL,        MATCH_NIL, nullptr },
 };
 
-CCodeGen_x86_32::CCodeGen_x86_32()
+CCodeGen_x86_32::CCodeGen_x86_32(CX86CpuFeatures features)
+    : CCodeGen_x86(features)
 {
 	CCodeGen_x86::m_registers = g_registers;
 	CCodeGen_x86::m_mdRegisters = g_mdRegisters;
@@ -181,7 +182,7 @@ void CCodeGen_x86_32::Emit_Prolog(const StatementList& statements, unsigned int 
 
 			//Literal Gathering
 			case OP_MD_MAKESZ:
-				if(m_hasSsse3 || m_hasAvx)
+				if(m_cpuFeatures.hasSsse3 || m_cpuFeatures.hasAvx)
 				{
 					m_literalOffsets.insert(std::make_pair(g_makeSzShufflePattern, -1));
 				}

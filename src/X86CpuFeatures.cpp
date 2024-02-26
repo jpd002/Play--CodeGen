@@ -47,7 +47,7 @@ CX86CpuFeatures CX86CpuFeatures::AutoDetect()
 	std::array<unsigned int, 4> cpuInfo1;
 	std::array<unsigned int, 4> cpuInfo7;
 	__get_cpuid(1, &cpuInfo1[0], &cpuInfo1[1], &cpuInfo1[2], &cpuInfo1[3]);
-	__get_cpuid(7, &cpuInfo7[0], &cpuInfo7[1], &cpuInfo7[2], &cpuInfo7[3]);
+	__get_cpuid_count(7, 0, &cpuInfo7[0], &cpuInfo7[1], &cpuInfo7[2], &cpuInfo7[3]);
 #endif //HAS_CPUID_GCC
 
 	features.hasSsse3 = (cpuInfo1[2] & CPUID_FLAG_SSSE3) != 0;

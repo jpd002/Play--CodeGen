@@ -2,8 +2,8 @@
 #include "MemStream.h"
 #include "BitManip.h"
 
-#define CONSTANT_1 (0x01234567ULL)
-#define CONSTANT_2 (0xFEDCBA98ULL)
+#define CONSTANT_1 (0x01234567U)
+#define CONSTANT_2 (0xFEDCBA98U)
 
 CRotateTest::CRotateTest(uint32 shiftAmount)
     : m_shiftAmount(shiftAmount)

@@ -1,8 +1,8 @@
 #include "ShiftTest.h"
 #include "MemStream.h"
 
-#define CONSTANT_1 (0x01234567ULL)
-#define CONSTANT_2 (0xFEDCBA98ULL)
+#define CONSTANT_1 (0x01234567U)
+#define CONSTANT_2 (0xFEDCBA98U)
 
 CShiftTest::CShiftTest(uint32 shiftAmount)
 : m_shiftAmount(shiftAmount)

@@ -471,7 +471,7 @@ void CX86Assembler::AndId(const CAddress& address, uint32 constant)
 
 void CX86Assembler::AndIq(const CAddress& address, uint64 constant)
 {
-	assert(0);
+	WriteEvIq(0x04, address, constant);
 }
 
 void CX86Assembler::BsrEd(REGISTER registerId, const CAddress& address)

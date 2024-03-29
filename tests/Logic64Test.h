@@ -15,6 +15,7 @@ private:
 		uint64			op2;
 
 		uint64			resultAnd;
+		uint64			resultAndCst3;
 		uint64			resultAndZero1;
 		uint64			resultAndZero2;
 		uint64			resultOr;

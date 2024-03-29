@@ -763,6 +763,11 @@ void CJitter::Or64()
 	InsertBinary64Statement(OP_OR64);
 }
 
+void CJitter::Rol64(uint8 amount)
+{
+	InsertShiftCst64Statement(OP_ROL64, amount);
+}
+
 void CJitter::Sub64()
 {
 	InsertBinary64Statement(OP_SUB64);
@@ -787,18 +792,9 @@ void CJitter::Srl64()
 	m_shadow.Push(tempSym);
 }
 
-void CJitter::Srl64(uint8 nAmount)
+void CJitter::Srl64(uint8 amount)
 {
-	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY64, m_nextTemporary++);
-
-	STATEMENT statement;
-	statement.op	= OP_SRL64;
-	statement.src2	= MakeSymbolRef(MakeSymbol(SYM_CONSTANT, nAmount));
-	statement.src1	= MakeSymbolRef(m_shadow.Pull());
-	statement.dst	= MakeSymbolRef(tempSym);
-	InsertStatement(statement);
-
-	m_shadow.Push(tempSym);
+	InsertShiftCst64Statement(OP_SRL64, amount);
 }
 
 void CJitter::Sra64()
@@ -815,18 +811,9 @@ void CJitter::Sra64()
 	m_shadow.Push(tempSym);
 }
 
-void CJitter::Sra64(uint8 nAmount)
+void CJitter::Sra64(uint8 amount)
 {
-	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY64, m_nextTemporary++);
-
-	STATEMENT statement;
-	statement.op	= OP_SRA64;
-	statement.src2	= MakeSymbolRef(MakeSymbol(SYM_CONSTANT, nAmount));
-	statement.src1	= MakeSymbolRef(m_shadow.Pull());
-	statement.dst	= MakeSymbolRef(tempSym);
-	InsertStatement(statement);
-
-	m_shadow.Push(tempSym);
+	InsertShiftCst64Statement(OP_SRA64, amount);
 }
 
 void CJitter::Shl64()
@@ -843,18 +830,9 @@ void CJitter::Shl64()
 	m_shadow.Push(tempSym);
 }
 
-void CJitter::Shl64(uint8 nAmount)
+void CJitter::Shl64(uint8 amount)
 {
-	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY64, m_nextTemporary++);
-
-	STATEMENT statement;
-	statement.op	= OP_SLL64;
-	statement.src2	= MakeSymbolRef(MakeSymbol(SYM_CONSTANT, nAmount));
-	statement.src1	= MakeSymbolRef(m_shadow.Pull());
-	statement.dst	= MakeSymbolRef(tempSym);
-	InsertStatement(statement);
-
-	m_shadow.Push(tempSym);
+	InsertShiftCst64Statement(OP_SLL64, amount);
 }
 
 //Floating-Point
@@ -1679,6 +1657,20 @@ void CJitter::InsertBinary64Statement(Jitter::OPERATION operation)
 	statement.src2 = MakeSymbolRef(m_shadow.Pull());
 	statement.src1 = MakeSymbolRef(m_shadow.Pull());
 	statement.dst  = MakeSymbolRef(tempSym);
+	InsertStatement(statement);
+
+	m_shadow.Push(tempSym);
+}
+
+void CJitter::InsertShiftCst64Statement(Jitter::OPERATION operation, uint8 amount)
+{
+	auto tempSym = MakeSymbol(SYM_TEMPORARY64, m_nextTemporary++);
+
+	STATEMENT statement;
+	statement.op = operation;
+	statement.src2 = MakeSymbolRef(MakeSymbol(SYM_CONSTANT, amount));
+	statement.src1 = MakeSymbolRef(m_shadow.Pull());
+	statement.dst = MakeSymbolRef(tempSym);
 	InsertStatement(statement);
 
 	m_shadow.Push(tempSym);

@@ -57,6 +57,9 @@ namespace Jitter
 		OP_SRL64,
 		OP_SLL64,
 
+		OP_ROL64,
+		OP_ROR64,
+
 		OP_MERGETO256,
 
 		OP_MD_MOV_MASKED,

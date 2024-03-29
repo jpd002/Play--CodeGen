@@ -48,6 +48,7 @@
 #include "ConditionTest.h"
 #include "Cmp64Test.h"
 #include "Shift64Test.h"
+#include "Rotate64Test.h"
 #include "Logic64Test.h"
 #include "Call64Test.h"
 #include "Merge64Test.h"
@@ -184,6 +185,13 @@ static const TestFactoryFunction s_factories[] =
 	[] () { return new CShift64Test(63); },
 	[] () { return new CShift64Test(64); },
 	[] () { return new CShift64Test(76); },
+	[] () { return new CRotate64Test(0); },
+	[] () { return new CRotate64Test(12); },
+	[] () { return new CRotate64Test(32); },
+	[] () { return new CRotate64Test(52); },
+	[] () { return new CRotate64Test(63); },
+	[] () { return new CRotate64Test(64); },
+	[] () { return new CRotate64Test(76); },
 	[] () { return new CMerge64Test(); },
 	[] () { return new CMemAccess64Test(false); },
 	[] () { return new CMemAccess64Test(true); },

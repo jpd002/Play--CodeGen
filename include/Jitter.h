@@ -141,6 +141,7 @@ namespace Jitter
 		void							And64();
 		void							Cmp64(CONDITION);
 		void							Or64();
+		void							Rol64(uint8);
 		void							Srl64();
 		void							Srl64(uint8);
 		void							Sra64();
@@ -321,6 +322,7 @@ namespace Jitter
 		void							InsertLoadFromRefIdxStatement(Jitter::OPERATION, size_t);
 		void							InsertStoreAtRefIdxStatement(Jitter::OPERATION, size_t);
 		void							InsertBinary64Statement(Jitter::OPERATION);
+		void							InsertShiftCst64Statement(Jitter::OPERATION, uint8);
 		void							InsertUnaryFp32Statement(Jitter::OPERATION);
 		void							InsertBinaryFp32Statement(Jitter::OPERATION);
 		void							InsertUnaryFp64Statement(Jitter::OPERATION);

@@ -234,11 +234,11 @@ int CJitter::GetSymbolSize(const SymbolRefPtr& symbolRef)
 
 bool CJitter::FoldConstantOperation(STATEMENT& statement)
 {
-	CSymbol* src1cst = dynamic_symbolref_cast(SYM_CONSTANT, statement.src1);
-	CSymbol* src2cst = dynamic_symbolref_cast(SYM_CONSTANT, statement.src2);
+	auto src1cst = dynamic_symbolref_cast(SYM_CONSTANT, statement.src1);
+	auto src2cst = dynamic_symbolref_cast(SYM_CONSTANT, statement.src2);
 
 	//Nothing we can do
-	if(src1cst == NULL && src2cst == NULL) return false;
+	if(!src1cst && !src2cst) return false;
 
 	bool changed = false;
 
@@ -609,11 +609,11 @@ bool CJitter::FoldConstantOperation(STATEMENT& statement)
 
 bool CJitter::FoldConstant64Operation(STATEMENT& statement)
 {
-	CSymbol* src1cst = dynamic_symbolref_cast(SYM_CONSTANT64, statement.src1);
-	CSymbol* src2cst = dynamic_symbolref_cast(SYM_CONSTANT64, statement.src2);
+	auto src1cst = dynamic_symbolref_cast(SYM_CONSTANT64, statement.src1);
+	auto src2cst = dynamic_symbolref_cast(SYM_CONSTANT64, statement.src2);
 
 	//Nothing we can do
-	if(src1cst == NULL && src2cst == NULL) return false;
+	if(!src1cst && !src2cst) return false;
 
 	bool changed = false;
 
@@ -737,18 +737,19 @@ bool CJitter::FoldConstant64Operation(STATEMENT& statement)
 
 bool CJitter::FoldConstant6432Operation(STATEMENT& statement)
 {
-	CSymbol* src1cst = dynamic_symbolref_cast(SYM_CONSTANT64, statement.src1);
-	CSymbol* src2cst = dynamic_symbolref_cast(SYM_CONSTANT, statement.src2);
+	auto src1cst = dynamic_symbolref_cast(SYM_CONSTANT64, statement.src1);
+	auto src2cst = dynamic_symbolref_cast(SYM_CONSTANT, statement.src2);
 
 	//Nothing we can do
-	if(src1cst == NULL && src2cst == NULL) return false;
+	if(!src1cst && !src2cst) return false;
 
 	bool changed = false;
 
 	if(
 		statement.op == OP_SLL64 ||
 		statement.op == OP_SRL64 ||
-		statement.op == OP_SRA64)
+		statement.op == OP_SRA64 ||
+		statement.op == OP_ROL64)
 	{
 		if(src2cst && ((src2cst->m_valueLow & 0x3F) == 0))
 		{
@@ -772,7 +773,7 @@ bool CJitter::FoldConstant12832Operation(STATEMENT& statement)
 	auto src2cst = dynamic_symbolref_cast(SYM_CONSTANT, statement.src2);
 
 	//Nothing we can do
-	if(src2cst == nullptr) return false;
+	if(!src2cst) return false;
 
 	bool changed = false;
 

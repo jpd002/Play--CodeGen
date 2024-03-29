@@ -848,6 +848,17 @@ void CX86Assembler::RolEd(const CAddress& address, uint8 amount)
 	WriteByte(amount);
 }
 
+void CX86Assembler::RolEq(const CAddress& address)
+{
+	WriteEvOp(0xD3, 0x00, true, address);
+}
+
+void CX86Assembler::RolEq(const CAddress& address, uint8 amount)
+{
+	WriteEvOp(0xC1, 0x00, true, address);
+	WriteByte(amount);
+}
+
 void CX86Assembler::RepMovsb()
 {
 	WriteByte(0xF3);

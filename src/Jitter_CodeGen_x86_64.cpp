@@ -133,66 +133,59 @@ void CCodeGen_x86_64::Emit_Alu64_MemCstMem(const STATEMENT& statement)
 //-------------------------------------------------------------------
 
 template <typename SHIFTOP>
-void CCodeGen_x86_64::Emit_Shift64_RelRelReg(const STATEMENT& statement)
+void CCodeGen_x86_64::Emit_Shift64_MemMemReg(const STATEMENT& statement)
 {
-	CSymbol* dst = statement.dst->GetSymbol().get();
-	CSymbol* src1 = statement.src1->GetSymbol().get();
-	CSymbol* src2 = statement.src2->GetSymbol().get();
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
 
-	assert(dst->m_type  == SYM_RELATIVE64);
-	assert(src1->m_type == SYM_RELATIVE64);
 	assert(src2->m_type == SYM_REGISTER);
 
-	CX86Assembler::REGISTER tmpReg = CX86Assembler::rAX;
-	CX86Assembler::REGISTER shiftReg = CX86Assembler::rCX;
+	auto tmpReg = CX86Assembler::rAX;
+	auto shiftReg = CX86Assembler::rCX;
 
-	m_assembler.MovEq(tmpReg, MakeRelative64SymbolAddress(src1));
+	m_assembler.MovEq(tmpReg, MakeMemory64SymbolAddress(src1));
 	m_assembler.MovEd(shiftReg, CX86Assembler::MakeRegisterAddress(m_registers[src2->m_valueLow]));
 	((m_assembler).*(SHIFTOP::OpVar()))(CX86Assembler::MakeRegisterAddress(tmpReg));
-	m_assembler.MovGq(MakeRelative64SymbolAddress(dst), tmpReg);
+	m_assembler.MovGq(MakeMemory64SymbolAddress(dst), tmpReg);
 }
 
 template <typename SHIFTOP>
-void CCodeGen_x86_64::Emit_Shift64_RelRelMem(const STATEMENT& statement)
+void CCodeGen_x86_64::Emit_Shift64_MemMemMem(const STATEMENT& statement)
 {
-	CSymbol* dst = statement.dst->GetSymbol().get();
-	CSymbol* src1 = statement.src1->GetSymbol().get();
-	CSymbol* src2 = statement.src2->GetSymbol().get();
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
 
-	assert(dst->m_type  == SYM_RELATIVE64);
-	assert(src1->m_type == SYM_RELATIVE64);
+	auto tmpReg = CX86Assembler::rAX;
+	auto shiftReg = CX86Assembler::rCX;
 
-	CX86Assembler::REGISTER tmpReg = CX86Assembler::rAX;
-	CX86Assembler::REGISTER shiftReg = CX86Assembler::rCX;
-
-	m_assembler.MovEq(tmpReg, MakeRelative64SymbolAddress(src1));
+	m_assembler.MovEq(tmpReg, MakeMemory64SymbolAddress(src1));
 	m_assembler.MovEd(shiftReg, MakeMemorySymbolAddress(src2));
 	((m_assembler).*(SHIFTOP::OpVar()))(CX86Assembler::MakeRegisterAddress(tmpReg));
-	m_assembler.MovGq(MakeRelative64SymbolAddress(dst), tmpReg);
+	m_assembler.MovGq(MakeMemory64SymbolAddress(dst), tmpReg);
 }
 
 template <typename SHIFTOP>
-void CCodeGen_x86_64::Emit_Shift64_RelRelCst(const STATEMENT& statement)
+void CCodeGen_x86_64::Emit_Shift64_MemMemCst(const STATEMENT& statement)
 {
-	CSymbol* dst = statement.dst->GetSymbol().get();
-	CSymbol* src1 = statement.src1->GetSymbol().get();
-	CSymbol* src2 = statement.src2->GetSymbol().get();
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
 
-	assert(dst->m_type  == SYM_RELATIVE64);
-	assert(src1->m_type == SYM_RELATIVE64);
 	assert(src2->m_type == SYM_CONSTANT);
 
-	CX86Assembler::REGISTER tmpReg = CX86Assembler::rAX;
+	auto tmpReg = CX86Assembler::rAX;
 
-	m_assembler.MovEq(tmpReg, MakeRelative64SymbolAddress(src1));
+	m_assembler.MovEq(tmpReg, MakeMemory64SymbolAddress(src1));
 	((m_assembler).*(SHIFTOP::OpCst()))(CX86Assembler::MakeRegisterAddress(tmpReg), static_cast<uint8>(src2->m_valueLow));
-	m_assembler.MovGq(MakeRelative64SymbolAddress(dst), tmpReg);
+	m_assembler.MovGq(MakeMemory64SymbolAddress(dst), tmpReg);
 }
 
 #define SHIFT64_CONST_MATCHERS(SHIFTOP_CST, SHIFTOP) \
-	{ SHIFTOP_CST, MATCH_RELATIVE64, MATCH_RELATIVE64, MATCH_REGISTER, MATCH_NIL, &CCodeGen_x86_64::Emit_Shift64_RelRelReg<SHIFTOP> }, \
-	{ SHIFTOP_CST, MATCH_RELATIVE64, MATCH_RELATIVE64, MATCH_MEMORY,   MATCH_NIL, &CCodeGen_x86_64::Emit_Shift64_RelRelMem<SHIFTOP> }, \
-	{ SHIFTOP_CST, MATCH_RELATIVE64, MATCH_RELATIVE64, MATCH_CONSTANT, MATCH_NIL, &CCodeGen_x86_64::Emit_Shift64_RelRelCst<SHIFTOP> },
+	{ SHIFTOP_CST, MATCH_MEMORY64, MATCH_MEMORY64, MATCH_REGISTER, MATCH_NIL, &CCodeGen_x86_64::Emit_Shift64_MemMemReg<SHIFTOP> }, \
+	{ SHIFTOP_CST, MATCH_MEMORY64, MATCH_MEMORY64, MATCH_MEMORY,   MATCH_NIL, &CCodeGen_x86_64::Emit_Shift64_MemMemMem<SHIFTOP> }, \
+	{ SHIFTOP_CST, MATCH_MEMORY64, MATCH_MEMORY64, MATCH_CONSTANT, MATCH_NIL, &CCodeGen_x86_64::Emit_Shift64_MemMemCst<SHIFTOP> },
 
 CCodeGen_x86_64::CONSTMATCHER CCodeGen_x86_64::g_constMatchers[] = 
 {
@@ -233,6 +226,7 @@ CCodeGen_x86_64::CONSTMATCHER CCodeGen_x86_64::g_constMatchers[] =
 	SHIFT64_CONST_MATCHERS(OP_SLL64, SHIFTOP64_SLL)
 	SHIFT64_CONST_MATCHERS(OP_SRL64, SHIFTOP64_SRL)
 	SHIFT64_CONST_MATCHERS(OP_SRA64, SHIFTOP64_SRA)
+	SHIFT64_CONST_MATCHERS(OP_ROL64, SHIFTOP64_ROL)
 
 	{ OP_CMP, MATCH_VARIABLE, MATCH_VARIABLE, MATCH_VARIABLE, MATCH_NIL, &CCodeGen_x86_64::Emit_Cmp_VarVarVar },
 	{ OP_CMP, MATCH_VARIABLE, MATCH_VARIABLE, MATCH_CONSTANT, MATCH_NIL, &CCodeGen_x86_64::Emit_Cmp_VarVarCst },

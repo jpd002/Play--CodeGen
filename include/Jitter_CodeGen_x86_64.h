@@ -87,6 +87,12 @@ namespace Jitter
 			static OpVarType OpVar() { return &CX86Assembler::SarEq; }
 		};
 
+		struct SHIFTOP64_ROL : public SHIFTOP64_BASE
+		{
+			static OpCstType OpCst() { return &CX86Assembler::RolEq; }
+			static OpVarType OpVar() { return &CX86Assembler::RolEq; }
+		};
+
 		void								Emit_Prolog(const StatementList&, unsigned int) override;
 		void								Emit_Epilog() override;
 
@@ -127,9 +133,9 @@ namespace Jitter
 		template <typename> void			Emit_Alu64_MemCstMem(const STATEMENT&);
 
 		//SHIFT64
-		template <typename> void			Emit_Shift64_RelRelReg(const STATEMENT&);
-		template <typename> void			Emit_Shift64_RelRelMem(const STATEMENT&);
-		template <typename> void			Emit_Shift64_RelRelCst(const STATEMENT&);
+		template <typename> void			Emit_Shift64_MemMemReg(const STATEMENT&);
+		template <typename> void			Emit_Shift64_MemMemMem(const STATEMENT&);
+		template <typename> void			Emit_Shift64_MemMemCst(const STATEMENT&);
 
 		//CMP
 		void								Emit_Cmp_VarVarVar(const STATEMENT&);

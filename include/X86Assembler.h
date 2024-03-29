@@ -214,6 +214,8 @@ public:
 	void									RclEd(const CAddress&, uint8);
 	void									RolEd(const CAddress&);
 	void									RolEd(const CAddress&, uint8);
+	void									RolEq(const CAddress&);
+	void									RolEq(const CAddress&, uint8);
 	void									RepMovsb();
 	void									Ret();
 	void									SarEd(const CAddress&);

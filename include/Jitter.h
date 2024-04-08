@@ -74,7 +74,6 @@ namespace Jitter
 		void							Add();
 		void							And();
 		void							Break();
-		void							Call(void*, unsigned int, bool);
 		void							Call(void*, unsigned int, RETURN_VALUE_TYPE);
 		void							Cmp(CONDITION);
 		void							Div();

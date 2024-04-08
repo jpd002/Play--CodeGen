@@ -250,11 +250,6 @@ void CJitter::Break()
 	InsertStatement(statement);
 }
 
-void CJitter::Call(void* func, unsigned int paramCount, bool keepRet)
-{
-	Call(func, paramCount, keepRet ? RETURN_VALUE_32 : RETURN_VALUE_NONE);
-}
-
 void CJitter::Call(void* func, unsigned int paramCount, RETURN_VALUE_TYPE returnValue)
 {
 	for(unsigned int i = 0; i < paramCount; i++)

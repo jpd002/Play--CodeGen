@@ -873,6 +873,22 @@ void CJitter::FP_PullRel32(size_t offset)
 	assert(GetSymbolSize(statement.src1) == GetSymbolSize(statement.dst));
 }
 
+void CJitter::FP_PushRel64(size_t offset)
+{
+	m_shadow.Push(MakeSymbol(SYM_FP_RELATIVE64, static_cast<uint32>(offset)));
+}
+
+void CJitter::FP_PullRel64(size_t offset)
+{
+	STATEMENT statement;
+	statement.op = OP_MOV;
+	statement.src1 = MakeSymbolRef(m_shadow.Pull());
+	statement.dst = MakeSymbolRef(MakeSymbol(SYM_FP_RELATIVE64, static_cast<uint32>(offset)));
+	InsertStatement(statement);
+
+	assert(GetSymbolSize(statement.src1) == GetSymbolSize(statement.dst));
+}
+
 void CJitter::FP_AddS()
 {
 	InsertBinaryFp32Statement(OP_FP_ADD_S);
@@ -969,6 +985,58 @@ void CJitter::FP_ToSingleI32()
 	statement.op   = OP_FP_TOSINGLE_I32;
 	statement.src1 = MakeSymbolRef(m_shadow.Pull());
 	statement.dst  = MakeSymbolRef(tempSym);
+	InsertStatement(statement);
+
+	m_shadow.Push(tempSym);
+}
+
+void CJitter::FP_ToDoubleS()
+{
+	auto tempSym = MakeSymbol(SYM_FP_TEMPORARY64, m_nextTemporary++);
+
+	STATEMENT statement;
+	statement.op = OP_FP_TODOUBLE_S;
+	statement.src1 = MakeSymbolRef(m_shadow.Pull());
+	statement.dst = MakeSymbolRef(tempSym);
+	InsertStatement(statement);
+
+	m_shadow.Push(tempSym);
+}
+
+void CJitter::FP_ToSingleD()
+{
+	auto tempSym = MakeSymbol(SYM_FP_TEMPORARY32, m_nextTemporary++);
+
+	STATEMENT statement;
+	statement.op = OP_FP_TOSINGLE_D;
+	statement.src1 = MakeSymbolRef(m_shadow.Pull());
+	statement.dst = MakeSymbolRef(tempSym);
+	InsertStatement(statement);
+
+	m_shadow.Push(tempSym);
+}
+
+void CJitter::FP_ToInt32TruncateD()
+{
+	auto tempSym = MakeSymbol(SYM_FP_TEMPORARY32, m_nextTemporary++);
+
+	STATEMENT statement;
+	statement.op = OP_FP_TOINT32_TRUNC_D;
+	statement.src1 = MakeSymbolRef(m_shadow.Pull());
+	statement.dst = MakeSymbolRef(tempSym);
+	InsertStatement(statement);
+
+	m_shadow.Push(tempSym);
+}
+
+void CJitter::FP_ToDoubleI64()
+{
+	auto tempSym = MakeSymbol(SYM_FP_TEMPORARY64, m_nextTemporary++);
+
+	STATEMENT statement;
+	statement.op = OP_FP_TODOUBLE_I64;
+	statement.src1 = MakeSymbolRef(m_shadow.Pull());
+	statement.dst = MakeSymbolRef(tempSym);
 	InsertStatement(statement);
 
 	m_shadow.Push(tempSym);

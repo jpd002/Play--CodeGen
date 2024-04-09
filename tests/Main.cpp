@@ -15,6 +15,7 @@
 #include "FpSingleTest.h"
 #include "FpIntMixTest.h"
 #include "FpClampTest.h"
+#include "FpConvTest.h"
 #include "SimpleMdTest.h"
 #include "MdLogicTest.h"
 #include "MdTest.h"
@@ -103,6 +104,7 @@ static const TestFactoryFunction s_factories[] =
 	[] () { return new CAliasTest2(); },
 	[] () { return new CFpSingleTest(); },
 	[] () { return new CFpIntMixTest(); },
+	[] () { return new CFpConvTest(); },
 	[] () { return new CSimpleMdTest(); },
 	[] () { return new CMdTest(); },
 	[] () { return new CMdLogicTest(); },

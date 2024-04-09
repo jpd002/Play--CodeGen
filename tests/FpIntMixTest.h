@@ -12,11 +12,15 @@ private:
 	struct CONTEXT
 	{
 		uint32 multiplier;
+		uint64 addend;
 		float number1;
 		float number2;
 		float number3;
+		double number4;
+		double number5;
 		uint32 result1;
 		uint32 result2;
+		uint32 result3;
 	};
 
 	CONTEXT				m_context;

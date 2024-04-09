@@ -150,6 +150,8 @@ namespace Jitter
 		virtual void					FP_PushRel32(size_t);
 		virtual void					FP_PullRel32(size_t);
 		virtual void					FP_PushCst32(float);
+		virtual void					FP_PushRel64(size_t);
+		virtual void					FP_PullRel64(size_t);
 
 		void							FP_AddS();
 		void							FP_AbsS();
@@ -168,6 +170,13 @@ namespace Jitter
 
 		void							FP_ToInt32TruncateS();
 		void							FP_ToSingleI32();
+
+		void							FP_ToDoubleS();
+
+		void							FP_ToSingleD();
+		void							FP_ToInt32TruncateD();
+
+		void							FP_ToDoubleI64();
 
 		//SIMD (128-bits only)
 		virtual void					MD_PushRel(size_t);

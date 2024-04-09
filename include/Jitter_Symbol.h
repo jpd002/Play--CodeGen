@@ -34,6 +34,9 @@ namespace Jitter
 
 		SYM_FP_RELATIVE32,
 		SYM_FP_TEMPORARY32,
+
+		SYM_FP_RELATIVE64,
+		SYM_FP_TEMPORARY64,
 	};
 
 	class CSymbol
@@ -137,6 +140,10 @@ namespace Jitter
 			case SYM_FP_TEMPORARY32:
 				return 4;
 				break;
+			case SYM_FP_RELATIVE64:
+			case SYM_FP_TEMPORARY64:
+				return 8;
+				break;
 			case SYM_REL_REFERENCE:
 			case SYM_TMP_REFERENCE:
 				return sizeof(void*);
@@ -179,7 +186,8 @@ namespace Jitter
 				(m_type == SYM_TEMPORARY128) || 
 				(m_type == SYM_TEMPORARY256) ||
 				(m_type == SYM_TMP_REFERENCE) ||
-				(m_type == SYM_FP_TEMPORARY32);
+				(m_type == SYM_FP_TEMPORARY32) ||
+				(m_type == SYM_FP_TEMPORARY64);
 		}
 
 		bool Equals(CSymbol* symbol) const

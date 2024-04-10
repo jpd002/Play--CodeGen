@@ -203,6 +203,7 @@ public:
 	void									NegEd(const CAddress&);
 	void									Nop();
 	void									NotEd(const CAddress&);
+	void									NotEq(const CAddress&);
 	void									OrEd(REGISTER, const CAddress&);
 	void									OrId(const CAddress&, uint32);
 	void									OrEq(REGISTER, const CAddress&);

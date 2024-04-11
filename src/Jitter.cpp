@@ -375,15 +375,7 @@ void CJitter::Lookup(uint32* table)
 
 void CJitter::Lzc()
 {
-	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY, m_nextTemporary++);
-
-	STATEMENT statement;
-	statement.op	= OP_LZC;
-	statement.src1	= MakeSymbolRef(m_shadow.Pull());
-	statement.dst	= MakeSymbolRef(tempSym);
-	InsertStatement(statement);
-
-	m_shadow.Push(tempSym);
+	InsertUnaryStatement(OP_LZC);
 }
 
 void CJitter::Mult()
@@ -748,7 +740,7 @@ void CJitter::And64()
 
 void CJitter::Cmp64(CONDITION condition)
 {
-	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY, m_nextTemporary++);
+	auto tempSym = MakeSymbol(SYM_TEMPORARY, m_nextTemporary++);
 
 	STATEMENT statement;
 	statement.op			= OP_CMP64;

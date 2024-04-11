@@ -254,11 +254,11 @@ public:
 	void									TestEd(REGISTER, const CAddress&);
 	void									TestEq(REGISTER, const CAddress&);
 	void									XorEd(REGISTER, const CAddress&);
-	void									XorId(const CAddress&, uint32);
 	void									XorEq(REGISTER, const CAddress&);
-	void									XorIq(const CAddress&, uint64);
 	void									XorGd(const CAddress&, REGISTER);
 	void									XorGq(const CAddress&, REGISTER);
+	void									XorId(const CAddress&, uint32);
+	void									XorIq(const CAddress&, uint64);
 
 	//FPU
 	void									FldEd(const CAddress&);

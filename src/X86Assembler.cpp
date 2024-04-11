@@ -1066,19 +1066,9 @@ void CX86Assembler::XorEd(REGISTER registerId, const CAddress& address)
 	WriteEvGvOp(0x33, false, address, registerId);
 }
 
-void CX86Assembler::XorId(const CAddress& address, uint32 constant)
-{
-	WriteEvId(0x06, address, constant);
-}
-
 void CX86Assembler::XorEq(REGISTER registerId, const CAddress& address)
 {
 	WriteEvGvOp(0x33, true, address, registerId);
-}
-
-void CX86Assembler::XorIq(const CAddress& address, uint64 constant)
-{
-	assert(0);
 }
 
 void CX86Assembler::XorGd(const CAddress& Address, REGISTER nRegister)
@@ -1089,6 +1079,16 @@ void CX86Assembler::XorGd(const CAddress& Address, REGISTER nRegister)
 void CX86Assembler::XorGq(const CAddress& Address, REGISTER nRegister)
 {
 	WriteEvGvOp(0x31, true, Address, nRegister);
+}
+
+void CX86Assembler::XorId(const CAddress& address, uint32 constant)
+{
+	WriteEvId(0x06, address, constant);
+}
+
+void CX86Assembler::XorIq(const CAddress& address, uint64 constant)
+{
+	WriteEvIq(0x06, address, constant);
 }
 
 void CX86Assembler::WriteRexByte(bool nIs64, const CAddress& Address)

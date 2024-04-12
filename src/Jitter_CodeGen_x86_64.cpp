@@ -224,6 +224,7 @@ CCodeGen_x86_64::CONSTMATCHER CCodeGen_x86_64::g_constMatchers[] =
 	ALU64_CONST_MATCHERS(OP_XOR64, ALUOP64_XOR)
 
 	{ OP_NOT64, MATCH_MEMORY64, MATCH_MEMORY64, MATCH_NIL, MATCH_NIL, &CCodeGen_x86_64::Emit_Not64_MemMem },
+	{ OP_CLZ64, MATCH_MEMORY64, MATCH_MEMORY64, MATCH_NIL, MATCH_NIL, &CCodeGen_x86_64::Emit_Clz64_MemMem },
 
 	SHIFT64_CONST_MATCHERS(OP_SLL64, SHIFTOP64_SLL)
 	SHIFT64_CONST_MATCHERS(OP_SRL64, SHIFTOP64_SRL)
@@ -669,6 +670,16 @@ void CCodeGen_x86_64::Emit_Not64_MemMem(const STATEMENT& statement)
 
 	m_assembler.MovEq(CX86Assembler::rAX, MakeMemory64SymbolAddress(src1));
 	m_assembler.NotEq(CX86Assembler::MakeRegisterAddress(CX86Assembler::rAX));
+	m_assembler.MovGq(MakeMemory64SymbolAddress(dst), CX86Assembler::rAX);
+}
+
+void CCodeGen_x86_64::Emit_Clz64_MemMem(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+
+	m_assembler.BsrEq(CX86Assembler::rAX, MakeMemory64SymbolAddress(src1));
+	m_assembler.XorIq(CX86Assembler::MakeRegisterAddress(CX86Assembler::rAX), 0x3F);
 	m_assembler.MovGq(MakeMemory64SymbolAddress(dst), CX86Assembler::rAX);
 }
 

@@ -479,6 +479,11 @@ void CX86Assembler::BsrEd(REGISTER registerId, const CAddress& address)
 	WriteEvGvOp0F(0xBD, false, address, registerId);
 }
 
+void CX86Assembler::BsrEq(REGISTER registerId, const CAddress& address)
+{
+	WriteEvGvOp0F(0xBD, true, address, registerId);
+}
+
 void CX86Assembler::CallEd(const CAddress& address)
 {
 	WriteEvOp(0xFF, 0x02, false, address);

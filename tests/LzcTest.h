@@ -16,11 +16,17 @@ private:
 		uint32			input2;
 		uint32			input3;
 
-		uint32			result0;
-		uint32			result1;
-		uint32			result2;
-		uint32			result3;
-		uint32			result4;
+		uint64			input64_0;
+		uint64			input64_1;
+
+		uint32			resultLzc0;
+		uint32			resultLzc1;
+		uint32			resultLzc2;
+		uint32			resultLzc3;
+		uint32			resultLzc4;
+
+		uint64			resultClz64_0;
+		uint64			resultClz64_1;
 	};
 
 	CONTEXT				m_context;

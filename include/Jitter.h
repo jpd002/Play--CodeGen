@@ -150,6 +150,7 @@ namespace Jitter
 		void							Shl64(uint8);
 		void							Xor64();
 		void							Not64();
+		void							Clz64();
 
 		//FPU
 		virtual void					FP_PushRel32(size_t);

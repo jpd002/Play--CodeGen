@@ -2,7 +2,7 @@
 
 #include "Test.h"
 
-class CFpuTest : public CTest
+class CFpSingleTest : public CTest
 {
 public:
 	void				Compile(Jitter::CJitter&) override;

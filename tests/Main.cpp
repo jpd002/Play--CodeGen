@@ -12,7 +12,7 @@
 #include "LoopTest.h"
 #include "AliasTest.h"
 #include "AliasTest2.h"
-#include "FpuTest.h"
+#include "FpSingleTest.h"
 #include "FpIntMixTest.h"
 #include "FpClampTest.h"
 #include "SimpleMdTest.h"
@@ -101,7 +101,7 @@ static const TestFactoryFunction s_factories[] =
 	[] () { return new CLzcTest(); },
 	[] () { return new CAliasTest(); },
 	[] () { return new CAliasTest2(); },
-	[] () { return new CFpuTest(); },
+	[] () { return new CFpSingleTest(); },
 	[] () { return new CFpIntMixTest(); },
 	[] () { return new CSimpleMdTest(); },
 	[] () { return new CMdTest(); },

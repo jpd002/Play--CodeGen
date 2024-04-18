@@ -1,7 +1,7 @@
-#include "FpuTest.h"
+#include "FpSingleTest.h"
 #include "MemStream.h"
 
-void CFpuTest::Compile(Jitter::CJitter& jitter)
+void CFpSingleTest::Compile(Jitter::CJitter& jitter)
 {
 	Framework::CMemStream codeStream;
 	jitter.SetStream(&codeStream);
@@ -82,7 +82,7 @@ void CFpuTest::Compile(Jitter::CJitter& jitter)
 	m_function = FunctionType(codeStream.GetBuffer(), codeStream.GetSize());
 }
 
-void CFpuTest::Run()
+void CFpSingleTest::Run()
 {
 	memset(&m_context, 0, sizeof(CONTEXT));
 	m_context.number1 = 1.0;

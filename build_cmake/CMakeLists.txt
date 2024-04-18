@@ -144,8 +144,8 @@ set(CodeGenTest_SRC
 	../tests/FpClampTest.h
 	../tests/FpIntMixTest.cpp
 	../tests/FpIntMixTest.h
-	../tests/FpuTest.cpp
-	../tests/FpuTest.h
+	../tests/FpSingleTest.cpp
+	../tests/FpSingleTest.h
 	../tests/GotoTest.cpp
 	../tests/GotoTest.h
 	../tests/HugeJumpTest.cpp

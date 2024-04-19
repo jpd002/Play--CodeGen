@@ -1003,6 +1003,21 @@ void CJitter::FP_ToDoubleS()
 	m_shadow.Push(tempSym);
 }
 
+void CJitter::FP_CmpD(Jitter::CONDITION condition)
+{
+	auto tempSym = MakeSymbol(SYM_TEMPORARY, m_nextTemporary++);
+
+	STATEMENT statement;
+	statement.op = OP_FP_CMP_D;
+	statement.src2 = MakeSymbolRef(m_shadow.Pull());
+	statement.src1 = MakeSymbolRef(m_shadow.Pull());
+	statement.dst = MakeSymbolRef(tempSym);
+	statement.jmpCondition = condition;
+	InsertStatement(statement);
+
+	m_shadow.Push(tempSym);
+}
+
 void CJitter::FP_ToSingleD()
 {
 	auto tempSym = MakeSymbol(SYM_FP_TEMPORARY32, m_nextTemporary++);

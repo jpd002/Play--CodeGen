@@ -173,6 +173,7 @@ namespace Jitter
 
 		void							FP_ToDoubleS();
 
+		void							FP_CmpD(CONDITION);
 		void							FP_ToSingleD();
 		void							FP_ToInt32TruncateD();
 

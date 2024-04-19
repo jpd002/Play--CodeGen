@@ -373,6 +373,7 @@ public:
 
 	void									VmovssEd(XMMREGISTER, const CAddress&);
 	void									VmovssEd(const CAddress&, XMMREGISTER);
+	void									VmovsdEq(XMMREGISTER, const CAddress&);
 	void									VmovsdEq(const CAddress&, XMMREGISTER);
 
 	void									VaddssEd(XMMREGISTER, XMMREGISTER, const CAddress&);
@@ -383,6 +384,7 @@ public:
 	void									VminssEd(XMMREGISTER, XMMREGISTER, const CAddress&);
 	
 	void									VcmpssEd(XMMREGISTER, XMMREGISTER, const CAddress&, SSE_CMP_TYPE);
+	void									VcmpsdEq(XMMREGISTER, XMMREGISTER, const CAddress&, SSE_CMP_TYPE);
 
 	void									VsqrtssEd(XMMREGISTER, XMMREGISTER, const CAddress&);
 

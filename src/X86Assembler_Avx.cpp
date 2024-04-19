@@ -99,6 +99,11 @@ void CX86Assembler::VmovssEd(const CAddress& dst, XMMREGISTER src)
 	WriteVexVoOp(VEX_OPCODE_MAP_F3, 0x11, src, CX86Assembler::xMM0, dst);
 }
 
+void CX86Assembler::VmovsdEq(XMMREGISTER dst, const CAddress& src)
+{
+	WriteVexVoOp(VEX_OPCODE_MAP_F2, 0x10, dst, CX86Assembler::xMM0, src);
+}
+
 void CX86Assembler::VmovsdEq(const CAddress& dst, XMMREGISTER src)
 {
 	WriteVexVoOp(VEX_OPCODE_MAP_F2, 0x11, src, CX86Assembler::xMM0, dst);
@@ -137,6 +142,12 @@ void CX86Assembler::VminssEd(XMMREGISTER dst, XMMREGISTER src1, const CAddress& 
 void CX86Assembler::VcmpssEd(XMMREGISTER dst, XMMREGISTER src1, const CAddress& src2, SSE_CMP_TYPE condition)
 {
 	WriteVexVoOp(VEX_OPCODE_MAP_F3, 0xC2, dst, src1, src2);
+	WriteByte(static_cast<uint8>(condition));
+}
+
+void CX86Assembler::VcmpsdEq(XMMREGISTER dst, XMMREGISTER src1, const CAddress& src2, SSE_CMP_TYPE condition)
+{
+	WriteVexVoOp(VEX_OPCODE_MAP_F2, 0xC2, dst, src1, src2);
 	WriteByte(static_cast<uint8>(condition));
 }
 

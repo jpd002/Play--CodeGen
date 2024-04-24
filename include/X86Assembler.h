@@ -382,6 +382,9 @@ public:
 	void									VdivssEd(XMMREGISTER, XMMREGISTER, const CAddress&);
 	void									VmaxssEd(XMMREGISTER, XMMREGISTER, const CAddress&);
 	void									VminssEd(XMMREGISTER, XMMREGISTER, const CAddress&);
+
+	void									VmulsdEq(XMMREGISTER, XMMREGISTER, const CAddress&);
+	void									VdivsdEq(XMMREGISTER, XMMREGISTER, const CAddress&);
 	
 	void									VcmpssEd(XMMREGISTER, XMMREGISTER, const CAddress&, SSE_CMP_TYPE);
 	void									VcmpsdEq(XMMREGISTER, XMMREGISTER, const CAddress&, SSE_CMP_TYPE);

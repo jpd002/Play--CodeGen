@@ -134,6 +134,22 @@ namespace Jitter
 			static OpEdAvxType OpEdAvx() { return &CX86Assembler::VsqrtssEd; }
 		};
 
+		//FP64OP ---------------------------------------------------------
+		struct FP64OP_BASE
+		{
+			typedef void (CX86Assembler::*OpEqAvxType)(CX86Assembler::XMMREGISTER, CX86Assembler::XMMREGISTER, const CX86Assembler::CAddress&);
+		};
+
+		struct FP64OP_MUL : public FP64OP_BASE
+		{
+			static OpEqAvxType OpEqAvx() { return &CX86Assembler::VmulsdEq; }
+		};
+
+		struct FP64OP_DIV : public FP64OP_BASE
+		{
+			static OpEqAvxType OpEqAvx() { return &CX86Assembler::VdivsdEq; }
+		};
+
 		//MDOP -----------------------------------------------------------
 		struct MDOP_BASE
 		{
@@ -718,6 +734,8 @@ namespace Jitter
 
 		void						Emit_Fp_Avx_ToDoubleS_MemMem(const STATEMENT&);
 		void						Emit_Fp_Avx_ToDoubleS_MemRegI(const STATEMENT&);
+
+		template <typename> void	Emit_Fp64_Avx_MemMemMem(const STATEMENT&);
 
 		void						Emit_Fp_Avx_Mov64_MemMem(const STATEMENT&);
 		void						Emit_Fp_Avx_CmpD_VarMemMem(const STATEMENT&);

@@ -16,6 +16,9 @@ private:
 		double number3;
 		double number4;
 		
+		double resMul;
+		double resDiv;
+
 		uint32 ltTest;
 		uint32 leTest;
 		uint32 eqTest;

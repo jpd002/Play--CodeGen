@@ -1003,6 +1003,16 @@ void CJitter::FP_ToDoubleS()
 	m_shadow.Push(tempSym);
 }
 
+void CJitter::FP_MulD()
+{
+	InsertBinaryFp64Statement(OP_FP_MUL_D);
+}
+
+void CJitter::FP_DivD()
+{
+	InsertBinaryFp64Statement(OP_FP_DIV_D);
+}
+
 void CJitter::FP_CmpD(Jitter::CONDITION condition)
 {
 	auto tempSym = MakeSymbol(SYM_TEMPORARY, m_nextTemporary++);
@@ -1661,6 +1671,20 @@ void CJitter::InsertBinaryFp32Statement(Jitter::OPERATION operation)
 	statement.src2 = MakeSymbolRef(m_shadow.Pull());
 	statement.src1 = MakeSymbolRef(m_shadow.Pull());
 	statement.dst  = MakeSymbolRef(tempSym);
+	InsertStatement(statement);
+
+	m_shadow.Push(tempSym);
+}
+
+void CJitter::InsertBinaryFp64Statement(Jitter::OPERATION operation)
+{
+	auto tempSym = MakeSymbol(SYM_FP_TEMPORARY64, m_nextTemporary++);
+
+	STATEMENT statement;
+	statement.op = operation;
+	statement.src2 = MakeSymbolRef(m_shadow.Pull());
+	statement.src1 = MakeSymbolRef(m_shadow.Pull());
+	statement.dst = MakeSymbolRef(tempSym);
 	InsertStatement(statement);
 
 	m_shadow.Push(tempSym);

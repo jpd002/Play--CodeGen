@@ -173,6 +173,8 @@ namespace Jitter
 
 		void							FP_ToDoubleS();
 
+		void							FP_MulD();
+		void							FP_DivD();
 		void							FP_CmpD(CONDITION);
 		void							FP_ToSingleD();
 		void							FP_ToInt32TruncateD();
@@ -314,6 +316,7 @@ namespace Jitter
 		void							InsertBinary64Statement(Jitter::OPERATION);
 		void							InsertUnaryFp32Statement(Jitter::OPERATION);
 		void							InsertBinaryFp32Statement(Jitter::OPERATION);
+		void							InsertBinaryFp64Statement(Jitter::OPERATION);
 		void							InsertUnaryMdStatement(Jitter::OPERATION);
 		void							InsertBinaryMdStatement(Jitter::OPERATION);
 

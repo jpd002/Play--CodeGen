@@ -160,6 +160,8 @@ namespace Jitter
 		OP_FP_MUL_D,
 		OP_FP_DIV_D,
 		OP_FP_CMP_D,
+		OP_FP_NEG_D,
+		OP_FP_ABS_D,
 		OP_FP_TOSINGLE_D,
 		OP_FP_TOINT32_TRUNC_D,
 

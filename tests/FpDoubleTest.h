@@ -18,6 +18,8 @@ private:
 		
 		double resMul;
 		double resDiv;
+		double resAbs;
+		double resNeg;
 
 		uint32 ltTest;
 		uint32 leTest;

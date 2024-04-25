@@ -169,6 +169,36 @@ void CCodeGen_x86::Emit_Fp_Avx_CmpD_VarMemMem(const STATEMENT& statement)
 	CommitSymbolRegister(dst, dstReg);
 }
 
+void CCodeGen_x86::Emit_Fp_Avx_NegD_MemMem(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+
+	auto tmpReg = CX86Assembler::xMM0;
+	auto bitReg = CX86Assembler::xMM1;
+
+	m_assembler.VmovsdEq(tmpReg, MakeMemoryFp64SymbolAddress(src1));
+	m_assembler.VpcmpeqwVo(bitReg, bitReg, CX86Assembler::MakeXmmRegisterAddress(bitReg));
+	m_assembler.VpsllqVo(bitReg, bitReg, 63);
+	m_assembler.VpxorVo(tmpReg, tmpReg, CX86Assembler::MakeXmmRegisterAddress(bitReg));
+	m_assembler.VmovsdEq(MakeMemoryFp64SymbolAddress(dst), tmpReg);
+}
+
+void CCodeGen_x86::Emit_Fp_Avx_AbsD_MemMem(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+
+	auto tmpReg = CX86Assembler::xMM0;
+	auto bitReg = CX86Assembler::xMM1;
+
+	m_assembler.VmovsdEq(tmpReg, MakeMemoryFp64SymbolAddress(src1));
+	m_assembler.VpcmpeqwVo(bitReg, bitReg, CX86Assembler::MakeXmmRegisterAddress(bitReg));
+	m_assembler.VpsrlqVo(bitReg, bitReg, 1);
+	m_assembler.VpandVo(tmpReg, tmpReg, CX86Assembler::MakeXmmRegisterAddress(bitReg));
+	m_assembler.VmovsdEq(MakeMemoryFp64SymbolAddress(dst), tmpReg);
+}
+
 void CCodeGen_x86::Emit_Fp_Avx_ToSingleD_MemMem(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
@@ -225,6 +255,9 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_fpuAvxConstMatchers[] =
 	{ OP_FP_DIV_D, MATCH_FP_MEMORY64, MATCH_FP_MEMORY64, MATCH_FP_MEMORY64, MATCH_NIL, &CCodeGen_x86::Emit_Fp64_Avx_MemMemMem<FP64OP_DIV> },
 
 	{ OP_FP_CMP_D, MATCH_VARIABLE, MATCH_FP_MEMORY64, MATCH_FP_MEMORY64, MATCH_NIL, &CCodeGen_x86::Emit_Fp_Avx_CmpD_VarMemMem },
+
+	{ OP_FP_NEG_D, MATCH_FP_MEMORY64, MATCH_FP_MEMORY64, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Fp_Avx_NegD_MemMem },
+	{ OP_FP_ABS_D, MATCH_FP_MEMORY64, MATCH_FP_MEMORY64, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Fp_Avx_AbsD_MemMem },
 
 	{ OP_FP_TOSINGLE_D,      MATCH_FP_MEMORY32, MATCH_FP_MEMORY64, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Fp_Avx_ToSingleD_MemMem     },
 	{ OP_FP_TOINT32_TRUNC_D, MATCH_FP_MEMORY32, MATCH_FP_MEMORY64, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Fp_Avx_ToInt32TruncD_MemMem },

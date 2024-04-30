@@ -157,6 +157,8 @@ namespace Jitter
 
 		OP_FP_TODOUBLE_S,
 
+		OP_FP_ADD_D,
+		OP_FP_SUB_D,
 		OP_FP_MUL_D,
 		OP_FP_DIV_D,
 		OP_FP_CMP_D,

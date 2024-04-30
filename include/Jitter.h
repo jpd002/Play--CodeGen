@@ -173,6 +173,8 @@ namespace Jitter
 
 		void							FP_ToDoubleS();
 
+		void							FP_AddD();
+		void							FP_SubD();
 		void							FP_MulD();
 		void							FP_DivD();
 		void							FP_CmpD(CONDITION);

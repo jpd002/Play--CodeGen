@@ -1003,6 +1003,16 @@ void CJitter::FP_ToDoubleS()
 	m_shadow.Push(tempSym);
 }
 
+void CJitter::FP_AddD()
+{
+	InsertBinaryFp64Statement(OP_FP_ADD_D);
+}
+
+void CJitter::FP_SubD()
+{
+	InsertBinaryFp64Statement(OP_FP_SUB_D);
+}
+
 void CJitter::FP_MulD()
 {
 	InsertBinaryFp64Statement(OP_FP_MUL_D);

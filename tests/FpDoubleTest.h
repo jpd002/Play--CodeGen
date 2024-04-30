@@ -16,6 +16,8 @@ private:
 		double number3;
 		double number4;
 		
+		double resAdd;
+		double resSub;
 		double resMul;
 		double resDiv;
 		double resAbs;

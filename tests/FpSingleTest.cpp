@@ -85,8 +85,8 @@ void CFpSingleTest::Compile(Jitter::CJitter& jitter)
 void CFpSingleTest::Run()
 {
 	memset(&m_context, 0, sizeof(CONTEXT));
-	m_context.number1 = 1.0;
-	m_context.number2 = 2.0;
+	m_context.number1 = 1.0f;
+	m_context.number2 = 2.0f;
 	m_context.number3 = -4.0f;
 	m_context.number4 = 16.0f;
 	m_function(&m_context);

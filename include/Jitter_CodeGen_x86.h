@@ -140,6 +140,16 @@ namespace Jitter
 			typedef void (CX86Assembler::*OpEqAvxType)(CX86Assembler::XMMREGISTER, CX86Assembler::XMMREGISTER, const CX86Assembler::CAddress&);
 		};
 
+		struct FP64OP_ADD : public FP64OP_BASE
+		{
+			static OpEqAvxType OpEqAvx() { return &CX86Assembler::VaddsdEq; }
+		};
+
+		struct FP64OP_SUB : public FP64OP_BASE
+		{
+			static OpEqAvxType OpEqAvx() { return &CX86Assembler::VsubsdEq; }
+		};
+
 		struct FP64OP_MUL : public FP64OP_BASE
 		{
 			static OpEqAvxType OpEqAvx() { return &CX86Assembler::VmulsdEq; }

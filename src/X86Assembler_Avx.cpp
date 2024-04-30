@@ -129,6 +129,16 @@ void CX86Assembler::VdivssEd(XMMREGISTER dst, XMMREGISTER src1, const CAddress& 
 	WriteVexVoOp(VEX_OPCODE_MAP_F3, 0x5E, dst, src1, src2);
 }
 
+void CX86Assembler::VaddsdEq(XMMREGISTER dst, XMMREGISTER src1, const CAddress& src2)
+{
+	WriteVexVoOp(VEX_OPCODE_MAP_F2, 0x58, dst, src1, src2);
+}
+
+void CX86Assembler::VsubsdEq(XMMREGISTER dst, XMMREGISTER src1, const CAddress& src2)
+{
+	WriteVexVoOp(VEX_OPCODE_MAP_F2, 0x5C, dst, src1, src2);
+}
+
 void CX86Assembler::VmulsdEq(XMMREGISTER dst, XMMREGISTER src1, const CAddress& src2)
 {
 	WriteVexVoOp(VEX_OPCODE_MAP_F2, 0x59, dst, src1, src2);

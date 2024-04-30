@@ -383,6 +383,8 @@ public:
 	void									VmaxssEd(XMMREGISTER, XMMREGISTER, const CAddress&);
 	void									VminssEd(XMMREGISTER, XMMREGISTER, const CAddress&);
 
+	void									VaddsdEq(XMMREGISTER, XMMREGISTER, const CAddress&);
+	void									VsubsdEq(XMMREGISTER, XMMREGISTER, const CAddress&);
 	void									VmulsdEq(XMMREGISTER, XMMREGISTER, const CAddress&);
 	void									VdivsdEq(XMMREGISTER, XMMREGISTER, const CAddress&);
 	

@@ -607,12 +607,10 @@ namespace Jitter
 		void						Emit_MergeTo64_Mem64CstMem(const STATEMENT&);
 
 		//EXTLOW64
-		void						Emit_ExtLow64RegTmp64(const STATEMENT&);
-		void						Emit_ExtLow64MemTmp64(const STATEMENT&);
+		void						Emit_ExtLow64VarMem64(const STATEMENT&);
 
 		//EXTHIGH64
-		void						Emit_ExtHigh64RegTmp64(const STATEMENT&);
-		void						Emit_ExtHigh64MemTmp64(const STATEMENT&);
+		void						Emit_ExtHigh64VarMem64(const STATEMENT&);
 
 		//LOADFROMREF
 		void						Emit_LoadFromRef_VarVar(const STATEMENT&);

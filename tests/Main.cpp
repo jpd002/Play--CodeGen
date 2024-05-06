@@ -31,6 +31,7 @@
 #include "MdMemAccessTest.h"
 #include "MdManipTest.h"
 #include "MdShiftTest.h"
+#include "MdShuffleTest.h"
 #include "CompareTest.h"
 #include "RegAllocTest.h"
 #include "RegAllocTempTest.h"
@@ -134,6 +135,7 @@ static const TestFactoryFunction s_factories[] =
 	[] () { return new CMdShiftTest(31); },
 	[] () { return new CMdShiftTest(32); },
 	[] () { return new CMdShiftTest(38); },
+	[] () { return new CMdShuffleTest(); },
 	[] () { return new CFpClampTest(); },
 	[] () { return new CAlu64Test(); },
 	//negative / positive

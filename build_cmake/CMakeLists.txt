@@ -183,6 +183,8 @@ set(CodeGenTest_SRC
 	../tests/MdMemAccessTest.h
 	../tests/MdMinMaxTest.cpp
 	../tests/MdMinMaxTest.h
+	../tests/MdShuffleTest.cpp
+	../tests/MdShuffleTest.h
 	../tests/MdShiftTest.cpp
 	../tests/MdShiftTest.h
 	../tests/MdSubTest.cpp

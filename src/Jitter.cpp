@@ -1165,9 +1165,22 @@ void CJitter::MD_PushRelExpand(size_t offset)
 	m_shadow.Push(tempSym);
 }
 
+void CJitter::MD_PushCst(const void* cstPtr)
+{
+	auto tempSym = MakeSymbol(SYM_TEMPORARY128, m_nextTemporary++);
+
+	STATEMENT statement;
+	statement.op = OP_MOV;
+	statement.src1 = MakeSymbolRef(MakeConstantPtr(reinterpret_cast<uintptr_t>(cstPtr)));
+	statement.dst = MakeSymbolRef(tempSym);
+	InsertStatement(statement);
+
+	m_shadow.Push(tempSym);
+}
+
 void CJitter::MD_PushCstExpand(uint32 constant)
 {
-	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY128, m_nextTemporary++);
+	auto tempSym = MakeSymbol(SYM_TEMPORARY128, m_nextTemporary++);
 
 	STATEMENT statement;
 	statement.op	= OP_MD_EXPAND;
@@ -1546,6 +1559,21 @@ void CJitter::MD_PackWH()
 	InsertBinaryMdStatement(OP_MD_PACK_WH);
 }
 
+void CJitter::MD_PermuteB()
+{
+	auto tempSym = MakeSymbol(SYM_TEMPORARY128, m_nextTemporary++);
+
+	STATEMENT statement;
+	statement.op = OP_MD_PERMUTE_B;
+	statement.src3 = MakeSymbolRef(m_shadow.Pull());
+	statement.src2 = MakeSymbolRef(m_shadow.Pull());
+	statement.src1 = MakeSymbolRef(m_shadow.Pull());
+	statement.dst = MakeSymbolRef(tempSym);
+	InsertStatement(statement);
+
+	m_shadow.Push(tempSym);
+}
+
 void CJitter::MD_AddS()
 {
 	InsertBinaryMdStatement(OP_MD_ADD_S);
@@ -1564,6 +1592,11 @@ void CJitter::MD_MulS()
 void CJitter::MD_DivS()
 {
 	InsertBinaryMdStatement(OP_MD_DIV_S);
+}
+
+void CJitter::MD_Expand()
+{
+	InsertUnaryMdStatement(OP_MD_EXPAND);
 }
 
 void CJitter::MD_AbsS()

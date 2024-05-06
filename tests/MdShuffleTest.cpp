@@ -1,0 +1,51 @@
+#include "MdShuffleTest.h"
+#include "MemStream.h"
+
+void CMdShuffleTest::Run()
+{
+	m_context = {};
+	m_context.op1 = {0xC0, 0xC1, 0xC2, 0xC3, 0xC4, 0xC5, 0xC6, 0xC7, 0xC8, 0xC9, 0xCA, 0xCB, 0xCC, 0xCD, 0xCE, 0xCF};
+	m_context.op2 = {0x05, 0x15, 0x25, 0x35, 0x45, 0x55, 0x65, 0x75, 0x85, 0x95, 0xA5, 0xB5, 0xC5, 0xD5, 0xE5, 0xF5};
+
+	m_context.permVec1 = {0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F};
+	m_context.permVec2 = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F};
+	m_context.permVec3 = {0x1F, 0x0E, 0x1D, 0x0C, 0x1B, 0x0A, 0x19, 0x08, 0x17, 0x06, 0x15, 0x04, 0x13, 0x02, 0x11, 0x00};
+
+	m_function(&m_context);
+
+	auto result3 = Vector{0xF5, 0xCE, 0xD5, 0xCC, 0xB5, 0xCA, 0x95, 0xC8, 0x75, 0xC6, 0x55, 0xC4, 0x35, 0xC2, 0x15, 0xC0};
+
+	TEST_VERIFY(m_context.result1 == m_context.op2);
+	TEST_VERIFY(m_context.result2 == m_context.op1);
+	TEST_VERIFY(m_context.result3 == result3);
+}
+
+void CMdShuffleTest::Compile(Jitter::CJitter& jitter)
+{
+	Framework::CMemStream codeStream;
+	jitter.SetStream(&codeStream);
+
+	jitter.Begin();
+	{
+		jitter.MD_PushRel(offsetof(CONTEXT, op1));
+		jitter.MD_PushRel(offsetof(CONTEXT, op2));
+		jitter.MD_PushRel(offsetof(CONTEXT, permVec1));
+		jitter.MD_PermuteB();
+		jitter.MD_PullRel(offsetof(CONTEXT, result1));
+
+		jitter.MD_PushRel(offsetof(CONTEXT, op1));
+		jitter.MD_PushRel(offsetof(CONTEXT, op2));
+		jitter.MD_PushRel(offsetof(CONTEXT, permVec2));
+		jitter.MD_PermuteB();
+		jitter.MD_PullRel(offsetof(CONTEXT, result2));
+
+		jitter.MD_PushRel(offsetof(CONTEXT, op1));
+		jitter.MD_PushRel(offsetof(CONTEXT, op2));
+		jitter.MD_PushRel(offsetof(CONTEXT, permVec3));
+		jitter.MD_PermuteB();
+		jitter.MD_PullRel(offsetof(CONTEXT, result3));
+	}
+	jitter.End();
+
+	m_function = FunctionType(codeStream.GetBuffer(), codeStream.GetSize());
+}

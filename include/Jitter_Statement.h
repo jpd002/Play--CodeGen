@@ -135,6 +135,8 @@ namespace Jitter
 		OP_MD_PACK_HB,
 		OP_MD_PACK_WH,
 
+		OP_MD_PERMUTE_B,
+
 		OP_MD_ADD_S,
 		OP_MD_SUB_S,
 		OP_MD_MUL_S,

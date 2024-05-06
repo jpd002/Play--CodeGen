@@ -123,6 +123,19 @@ void CCodeGen_x86::Emit_Md_Avx_Mov_MemMem(const STATEMENT& statement)
 	m_assembler.VmovapsVo(MakeMemory128SymbolAddress(dst), tmpRegister);
 }
 
+void CCodeGen_x86::Emit_Md_Avx_Mov_MemCst(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+
+	auto dstRegister = PrepareSymbolRegisterDefMd(dst, CX86Assembler::xMM0);
+	auto literal = reinterpret_cast<const LITERAL128*>(src1->GetConstantPtr());
+
+	m_assembler.VmovapsVo(dstRegister, MakeConstant128Address(*literal));
+
+	CommitSymbolRegisterMdAvx(dst, dstRegister);
+}
+
 void CCodeGen_x86::Emit_Md_Avx_MovMasked_VarVarVar(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
@@ -647,6 +660,40 @@ void CCodeGen_x86::Emit_Md_Avx_Srl256_VarMemCst(const STATEMENT& statement)
 	m_assembler.VmovdqaVo(MakeVariable128SymbolAddress(dst), resultRegister);
 }
 
+void CCodeGen_x86::Emit_Md_Avx_PermuteB_MemMemMemMem(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+	auto src3 = statement.src3->GetSymbol().get();
+
+	static const LITERAL128 shufMask = {0x0F0F0F0F, 0x0F0F0F0F, 0x0F0F0F0F, 0x0F0F0F0F};
+	static const LITERAL128 blendMask = {0x10101010, 0x10101010, 0x10101010, 0x10101010};
+	static const LITERAL128 blendMult = {0x00000008, 0x00000008, 0x00000008, 0x00000008};
+
+	auto src1ShufReg = CX86Assembler::xMM1;
+	auto src2ShufReg = CX86Assembler::xMM2;
+
+	{
+		auto shufReg = CX86Assembler::xMM0;
+		auto src1Reg = PrepareSymbolRegisterUseMdAvx(src1, src1ShufReg);
+		auto src2Reg = PrepareSymbolRegisterUseMdAvx(src2, src2ShufReg);
+		auto src3Reg = PrepareSymbolRegisterUseMdAvx(src3, shufReg);
+		m_assembler.VpandVo(shufReg, src3Reg, MakeConstant128Address(shufMask));
+		m_assembler.VpshufbVo(src1ShufReg, src1Reg, CX86Assembler::MakeXmmRegisterAddress(shufReg));
+		m_assembler.VpshufbVo(src2ShufReg, src2Reg, CX86Assembler::MakeXmmRegisterAddress(shufReg));
+	}
+
+	auto blendReg = CX86Assembler::xMM0;
+	auto src3Reg = PrepareSymbolRegisterUseMdAvx(src3, blendReg);
+	m_assembler.VpandVo(blendReg, src3Reg, MakeConstant128Address(blendMask));
+	m_assembler.VpmulldVo(blendReg, blendReg, MakeConstant128Address(blendMult));
+
+	auto dstReg = PrepareSymbolRegisterDefMd(dst, CX86Assembler::xMM3);
+	m_assembler.VpblendvbVo(dstReg, src1ShufReg, CX86Assembler::MakeXmmRegisterAddress(src2ShufReg), blendReg);
+	CommitSymbolRegisterMdAvx(dst, dstReg);
+}
+
 void CCodeGen_x86::Emit_Md_Avx_LoadFromRef_VarVar(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
@@ -782,15 +829,18 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdAvxConstMatchers[] =
 
 	{ OP_MD_MAKESZ, MATCH_VARIABLE, MATCH_VARIABLE128, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx_MakeSz_VarVar },
 
-	{ OP_MOV, MATCH_REGISTER128, MATCH_VARIABLE128, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx_Mov_RegVar, },
-	{ OP_MOV, MATCH_MEMORY128,   MATCH_REGISTER128, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx_Mov_MemReg, },
-	{ OP_MOV, MATCH_MEMORY128,   MATCH_MEMORY128,   MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx_Mov_MemMem, },
+	{ OP_MOV, MATCH_REGISTER128, MATCH_VARIABLE128, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx_Mov_RegVar },
+	{ OP_MOV, MATCH_MEMORY128,   MATCH_REGISTER128, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx_Mov_MemReg },
+	{ OP_MOV, MATCH_MEMORY128,   MATCH_MEMORY128,   MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx_Mov_MemMem },
+	{ OP_MOV, MATCH_VARIABLE128, MATCH_CONSTANTPTR, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx_Mov_MemCst },
 
 	{ OP_MD_MOV_MASKED, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx_MovMasked_VarVarVar },
 
 	{ OP_MERGETO256, MATCH_MEMORY256,   MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_NIL, &CCodeGen_x86::Emit_Avx_MergeTo256_MemVarVar },
 	{ OP_MD_SRL256,  MATCH_VARIABLE128, MATCH_MEMORY256,   MATCH_VARIABLE,    MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx_Srl256_VarMemVar  },
 	{ OP_MD_SRL256,  MATCH_VARIABLE128, MATCH_MEMORY256,   MATCH_CONSTANT,    MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx_Srl256_VarMemCst  },
+
+	{ OP_MD_PERMUTE_B, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_VARIABLE128, &CCodeGen_x86::Emit_Md_Avx_PermuteB_MemMemMemMem },
 
 	{ OP_LOADFROMREF, MATCH_VARIABLE128, MATCH_VAR_REF, MATCH_NIL,   MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx_LoadFromRef_VarVar },
 	{ OP_LOADFROMREF, MATCH_VARIABLE128, MATCH_VAR_REF, MATCH_ANY32, MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx_LoadFromRef_VarVarAny },

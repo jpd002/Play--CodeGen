@@ -301,9 +301,19 @@ void CX86Assembler::VpsubuswVo(XMMREGISTER dst, XMMREGISTER src1, const CAddress
 	WriteVexVoOp(VEX_OPCODE_MAP_66, 0xD9, dst, src1, src2);
 }
 
+void CX86Assembler::VpmulldVo(XMMREGISTER dst, XMMREGISTER src1, const CAddress& src2)
+{
+	WriteVexVoOp(VEX_OPCODE_MAP_66_38, 0x40, dst, src1, src2);
+}
+
 void CX86Assembler::VpandVo(XMMREGISTER dst, XMMREGISTER src1, const CAddress& src2)
 {
 	WriteVexVoOp(VEX_OPCODE_MAP_66, 0xDB, dst, src1, src2);
+}
+
+void CX86Assembler::VpandnVo(XMMREGISTER dst, XMMREGISTER src1, const CAddress& src2)
+{
+	WriteVexVoOp(VEX_OPCODE_MAP_66, 0xDF, dst, src1, src2);
 }
 
 void CX86Assembler::VporVo(XMMREGISTER dst, XMMREGISTER src1, const CAddress& src2)
@@ -532,4 +542,10 @@ void CX86Assembler::VshufpsVo(XMMREGISTER dst, XMMREGISTER src1, const CAddress&
 {
 	WriteVexVoOp(VEX_OPCODE_MAP_NONE, 0xC6, dst, src1, src2);
 	WriteByte(shuffleByte);
+}
+
+void CX86Assembler::VpblendvbVo(XMMREGISTER dst, XMMREGISTER src1, const CAddress& src2, XMMREGISTER src3)
+{
+	WriteVexVoOp(VEX_OPCODE_MAP_66_3A, 0x4C, dst, src1, src2);
+	WriteByte(src3 << 4);
 }

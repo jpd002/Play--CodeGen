@@ -771,6 +771,7 @@ namespace Jitter
 		void						Emit_Md_Avx_Mov_RegVar(const STATEMENT&);
 		void						Emit_Md_Avx_Mov_MemReg(const STATEMENT&);
 		void						Emit_Md_Avx_Mov_MemMem(const STATEMENT&);
+		void						Emit_Md_Avx_Mov_MemCst(const STATEMENT&);
 		void						Emit_Md_Avx_MovMasked_VarVarVar(const STATEMENT&);
 
 		void						Emit_Md_Avx_Not_VarVar(const STATEMENT&);
@@ -797,6 +798,8 @@ namespace Jitter
 
 		void						Emit_Md_Avx_Srl256_VarMemVar(const STATEMENT&);
 		void						Emit_Md_Avx_Srl256_VarMemCst(const STATEMENT&);
+
+		void						Emit_Md_Avx_PermuteB_MemMemMemMem(const STATEMENT&);
 
 		void						Emit_Md_Avx_LoadFromRef_VarVar(const STATEMENT&);
 		void						Emit_Md_Avx_LoadFromRef_VarVarAny(const STATEMENT&);

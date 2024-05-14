@@ -562,11 +562,8 @@ namespace Jitter
 		void						Cmp_GetFlag(const CX86Assembler::CAddress&, CONDITION);
 
 		//MUL/MULS
-		template<bool> void			Emit_MulTmp64RegReg(const STATEMENT&);
-		template<bool> void			Emit_MulTmp64RegMem(const STATEMENT&);
-		template<bool> void			Emit_MulTmp64RegCst(const STATEMENT&);
-		template<bool> void			Emit_MulTmp64MemMem(const STATEMENT&);
-		template<bool> void			Emit_MulTmp64MemCst(const STATEMENT&);
+		template<bool> void			Emit_MulMem64VarVar(const STATEMENT&);
+		template<bool> void			Emit_MulMem64VarCst(const STATEMENT&);
 
 		//DIV/DIVS
 		template <bool> void		Emit_DivMem64VarVar(const STATEMENT&);

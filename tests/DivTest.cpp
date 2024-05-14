@@ -23,19 +23,31 @@ void CDivTest::Run()
 
 	if(m_isSigned)
 	{
-		TEST_VERIFY(m_context.cstResultLo == static_cast<int32>(VALUE_CST0) / static_cast<int32>(VALUE_CST1));
-		TEST_VERIFY(m_context.cstResultHi == static_cast<int32>(VALUE_CST0) % static_cast<int32>(VALUE_CST1));
+		TEST_VERIFY(m_context.cstCstResultLo == static_cast<int32>(VALUE_CST0) / static_cast<int32>(VALUE_CST1));
+		TEST_VERIFY(m_context.cstCstResultHi == static_cast<int32>(VALUE_CST0) % static_cast<int32>(VALUE_CST1));
 
-		TEST_VERIFY(m_context.relResultLo == static_cast<int32>(VALUE_REL0) / static_cast<int32>(VALUE_REL1));
-		TEST_VERIFY(m_context.relResultHi == static_cast<int32>(VALUE_REL0) % static_cast<int32>(VALUE_REL1));
+		TEST_VERIFY(m_context.relRelResultLo == static_cast<int32>(VALUE_REL0) / static_cast<int32>(VALUE_REL1));
+		TEST_VERIFY(m_context.relRelResultHi == static_cast<int32>(VALUE_REL0) % static_cast<int32>(VALUE_REL1));
+
+		TEST_VERIFY(m_context.relCstResultLo == static_cast<int32>(VALUE_REL0) / static_cast<int32>(VALUE_CST1));
+		TEST_VERIFY(m_context.relCstResultHi == static_cast<int32>(VALUE_REL0) % static_cast<int32>(VALUE_CST1));
+
+		TEST_VERIFY(m_context.cstRelResultLo == static_cast<int32>(VALUE_CST0) / static_cast<int32>(VALUE_REL1));
+		TEST_VERIFY(m_context.cstRelResultHi == static_cast<int32>(VALUE_CST0) % static_cast<int32>(VALUE_REL1));
 	}
 	else
 	{
-		TEST_VERIFY(m_context.cstResultLo == static_cast<uint32>(VALUE_CST0) / static_cast<uint32>(VALUE_CST1));
-		TEST_VERIFY(m_context.cstResultHi == static_cast<uint32>(VALUE_CST0) % static_cast<uint32>(VALUE_CST1));
+		TEST_VERIFY(m_context.cstCstResultLo == static_cast<uint32>(VALUE_CST0) / static_cast<uint32>(VALUE_CST1));
+		TEST_VERIFY(m_context.cstCstResultHi == static_cast<uint32>(VALUE_CST0) % static_cast<uint32>(VALUE_CST1));
 
-		TEST_VERIFY(m_context.relResultLo == static_cast<uint32>(VALUE_REL0) / static_cast<uint32>(VALUE_REL1));
-		TEST_VERIFY(m_context.relResultHi == static_cast<uint32>(VALUE_REL0) % static_cast<uint32>(VALUE_REL1));
+		TEST_VERIFY(m_context.relRelResultLo == static_cast<uint32>(VALUE_REL0) / static_cast<uint32>(VALUE_REL1));
+		TEST_VERIFY(m_context.relRelResultHi == static_cast<uint32>(VALUE_REL0) % static_cast<uint32>(VALUE_REL1));
+
+		TEST_VERIFY(m_context.relCstResultLo == static_cast<uint32>(VALUE_REL0) / static_cast<uint32>(VALUE_CST1));
+		TEST_VERIFY(m_context.relCstResultHi == static_cast<uint32>(VALUE_REL0) % static_cast<uint32>(VALUE_CST1));
+
+		TEST_VERIFY(m_context.cstRelResultLo == static_cast<uint32>(VALUE_CST0) / static_cast<uint32>(VALUE_REL1));
+		TEST_VERIFY(m_context.cstRelResultHi == static_cast<uint32>(VALUE_CST0) % static_cast<uint32>(VALUE_REL1));
 	}
 }
 
@@ -46,47 +58,97 @@ void CDivTest::Compile(Jitter::CJitter& jitter)
 
 	jitter.Begin();
 	{
-		//Cst x Cst
-		jitter.PushCst(VALUE_CST0);
-		jitter.PushCst(VALUE_CST1);
-
-		if(m_isSigned)
+		//Cst / Cst
 		{
-			jitter.DivS();
-		}
-		else
-		{
-			jitter.Div();
-		}
+			jitter.PushCst(VALUE_CST0);
+			jitter.PushCst(VALUE_CST1);
 
-		jitter.PushTop();
+			if(m_isSigned)
+			{
+				jitter.DivS();
+			}
+			else
+			{
+				jitter.Div();
+			}
 
-		jitter.ExtLow64();
-		jitter.PullRel(offsetof(CONTEXT, cstResultLo));
+			jitter.PushTop();
 
-		jitter.ExtHigh64();
-		jitter.PullRel(offsetof(CONTEXT, cstResultHi));
+			jitter.ExtLow64();
+			jitter.PullRel(offsetof(CONTEXT, cstCstResultLo));
 
-		//Rel x Rel
-		jitter.PushRel(offsetof(CONTEXT, relArg0));
-		jitter.PushRel(offsetof(CONTEXT, relArg1));
-
-		if(m_isSigned)
-		{
-			jitter.DivS();
-		}
-		else
-		{
-			jitter.Div();
+			jitter.ExtHigh64();
+			jitter.PullRel(offsetof(CONTEXT, cstCstResultHi));
 		}
 
-		jitter.PushTop();
+		//Rel / Rel
+		{
+			jitter.PushRel(offsetof(CONTEXT, relArg0));
+			jitter.PushRel(offsetof(CONTEXT, relArg1));
 
-		jitter.ExtLow64();
-		jitter.PullRel(offsetof(CONTEXT, relResultLo));
+			if(m_isSigned)
+			{
+				jitter.DivS();
+			}
+			else
+			{
+				jitter.Div();
+			}
 
-		jitter.ExtHigh64();
-		jitter.PullRel(offsetof(CONTEXT, relResultHi));
+			jitter.PushTop();
+
+			jitter.ExtLow64();
+			jitter.PullRel(offsetof(CONTEXT, relRelResultLo));
+
+			jitter.ExtHigh64();
+			jitter.PullRel(offsetof(CONTEXT, relRelResultHi));
+		}
+
+		//Rel / Cst
+		{
+			jitter.PushRel(offsetof(CONTEXT, relArg0));
+			jitter.PushCst(VALUE_CST1);
+
+			if(m_isSigned)
+			{
+				jitter.DivS();
+			}
+			else
+			{
+				jitter.Div();
+			}
+
+			jitter.PushTop();
+
+			jitter.ExtLow64();
+			jitter.PullRel(offsetof(CONTEXT, relCstResultLo));
+
+			jitter.ExtHigh64();
+			jitter.PullRel(offsetof(CONTEXT, relCstResultHi));
+		}
+
+		//Cst / Rel
+		{
+			jitter.PushCst(VALUE_CST0);
+			jitter.PushRel(offsetof(CONTEXT, relArg1));
+
+			if(m_isSigned)
+			{
+				jitter.DivS();
+			}
+			else
+			{
+				jitter.Div();
+			}
+
+			jitter.PushTop();
+
+			jitter.ExtLow64();
+			jitter.PullRel(offsetof(CONTEXT, cstRelResultLo));
+
+			jitter.ExtHigh64();
+			jitter.PullRel(offsetof(CONTEXT, cstRelResultHi));
+		}
 	}
 	jitter.End();
 

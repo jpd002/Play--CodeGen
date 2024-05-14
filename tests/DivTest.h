@@ -13,14 +13,20 @@ public:
 private:
 	struct CONTEXT
 	{
-		uint32			cstResultLo;
-		uint32			cstResultHi;
-
 		uint32			relArg0;
 		uint32			relArg1;
 
-		uint32			relResultLo;
-		uint32			relResultHi;
+		uint32			cstCstResultLo;
+		uint32			cstCstResultHi;
+
+		uint32			relRelResultLo;
+		uint32			relRelResultHi;
+
+		uint32			relCstResultLo;
+		uint32			relCstResultHi;
+
+		uint32			cstRelResultLo;
+		uint32			cstRelResultHi;
 	};
 
 	bool				m_isSigned;

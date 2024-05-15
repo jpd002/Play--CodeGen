@@ -147,26 +147,27 @@ namespace Jitter
 		void							Shl64(uint8);
 
 		//FPU
-		virtual void					FP_PushWord(size_t);
-		virtual void					FP_PushSingle(size_t);
-		virtual void					FP_PullWordTruncate(size_t);
-		virtual void					FP_PullSingle(size_t);
-		virtual void					FP_PushCst(float);
+		virtual void					FP_PushRel32(size_t);
+		virtual void					FP_PullRel32(size_t);
+		virtual void					FP_PushCst32(float);
 
-		void							FP_Add();
-		void							FP_Abs();
-		void							FP_Sub();
-		void							FP_Max();
-		void							FP_Min();
-		void							FP_Mul();
-		void							FP_Div();
-		void							FP_Cmp(CONDITION);
-		void							FP_Neg();
-		void							FP_Rcpl();
-		void							FP_Sqrt();
-		void							FP_Rsqrt();
+		void							FP_AddS();
+		void							FP_AbsS();
+		void							FP_SubS();
+		void							FP_MaxS();
+		void							FP_MinS();
+		void							FP_MulS();
+		void							FP_DivS();
+		void							FP_CmpS(CONDITION);
+		void							FP_NegS();
+		void							FP_RcplS();
+		void							FP_SqrtS();
+		void							FP_RsqrtS();
 
-		void							FP_Clamp();
+		void							FP_ClampS();
+
+		void							FP_ToInt32TruncateS();
+		void							FP_ToSingleI32();
 
 		//SIMD (128-bits only)
 		virtual void					MD_PushRel(size_t);
@@ -301,6 +302,8 @@ namespace Jitter
 		void							InsertLoadFromRefIdxStatement(Jitter::OPERATION, size_t);
 		void							InsertStoreAtRefIdxStatement(Jitter::OPERATION, size_t);
 		void							InsertBinary64Statement(Jitter::OPERATION);
+		void							InsertUnaryFp32Statement(Jitter::OPERATION);
+		void							InsertBinaryFp32Statement(Jitter::OPERATION);
 		void							InsertUnaryMdStatement(Jitter::OPERATION);
 		void							InsertBinaryMdStatement(Jitter::OPERATION);
 

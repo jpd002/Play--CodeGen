@@ -52,15 +52,12 @@ bool CCodeGen::SymbolMatches(MATCHTYPE match, const SymbolRefPtr& symbolRef)
 	case MATCH_MEMORY64:
 		return (symbol->m_type == SYM_RELATIVE64) || (symbol->m_type == SYM_TEMPORARY64);
 
-	case MATCH_RELATIVE_FP_SINGLE:
-		return (symbol->m_type == SYM_FP_REL_SINGLE);
-	case MATCH_TEMPORARY_FP_SINGLE:
-		return (symbol->m_type == SYM_FP_TMP_SINGLE);
-	case MATCH_MEMORY_FP_SINGLE:
-		return (symbol->m_type == SYM_FP_REL_SINGLE) || (symbol->m_type == SYM_FP_TMP_SINGLE);
-
-	case MATCH_RELATIVE_FP_INT32:
-		return (symbol->m_type == SYM_FP_REL_INT32);
+	case MATCH_FP_RELATIVE32:
+		return (symbol->m_type == SYM_FP_RELATIVE32);
+	case MATCH_FP_TEMPORARY32:
+		return (symbol->m_type == SYM_FP_TEMPORARY32);
+	case MATCH_FP_MEMORY32:
+		return (symbol->m_type == SYM_FP_RELATIVE32) || (symbol->m_type == SYM_FP_TEMPORARY32);
 
 	case MATCH_REGISTER128:
 		return (symbol->m_type == SYM_REGISTER128);

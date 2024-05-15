@@ -844,9 +844,9 @@ void CJitter::Shl64(uint8 nAmount)
 
 //Floating-Point
 //------------------------------------------------
-void CJitter::FP_PushCst(float constant)
+void CJitter::FP_PushCst32(float constant)
 {
-	SymbolPtr tempSym = MakeSymbol(SYM_FP_TMP_SINGLE, m_nextTemporary++);
+	auto tempSym = MakeSymbol(SYM_FP_TEMPORARY32, m_nextTemporary++);
 
 	STATEMENT statement;
 	statement.op	= OP_FP_LDCST;
@@ -857,98 +857,48 @@ void CJitter::FP_PushCst(float constant)
 	m_shadow.Push(tempSym);
 }
 
-void CJitter::FP_PushSingle(size_t offset)
+void CJitter::FP_PushRel32(size_t offset)
 {
-	m_shadow.Push(MakeSymbol(SYM_FP_REL_SINGLE, static_cast<uint32>(offset)));
+	m_shadow.Push(MakeSymbol(SYM_FP_RELATIVE32, static_cast<uint32>(offset)));
 }
 
-void CJitter::FP_PushWord(size_t offset)
-{
-	m_shadow.Push(MakeSymbol(SYM_FP_REL_INT32, static_cast<uint32>(offset)));
-}
-
-void CJitter::FP_PullSingle(size_t offset)
+void CJitter::FP_PullRel32(size_t offset)
 {
 	STATEMENT statement;
 	statement.op		= OP_MOV;
 	statement.src1		= MakeSymbolRef(m_shadow.Pull());
-	statement.dst		= MakeSymbolRef(MakeSymbol(SYM_FP_REL_SINGLE, static_cast<uint32>(offset)));
+	statement.dst		= MakeSymbolRef(MakeSymbol(SYM_FP_RELATIVE32, static_cast<uint32>(offset)));
 	InsertStatement(statement);
 
 	assert(GetSymbolSize(statement.src1) == GetSymbolSize(statement.dst));
 }
 
-void CJitter::FP_PullWordTruncate(size_t offset)
+void CJitter::FP_AddS()
 {
-	STATEMENT statement;
-	statement.op		= OP_FP_TOINT_TRUNC;
-	statement.src1		= MakeSymbolRef(m_shadow.Pull());
-	statement.dst		= MakeSymbolRef(MakeSymbol(SYM_FP_REL_SINGLE, static_cast<uint32>(offset)));
-	InsertStatement(statement);
+	InsertBinaryFp32Statement(OP_FP_ADD_S);
 }
 
-void CJitter::FP_Add()
+void CJitter::FP_SubS()
 {
-	SymbolPtr tempSym = MakeSymbol(SYM_FP_TMP_SINGLE, m_nextTemporary++);
-
-	STATEMENT statement;
-	statement.op	= OP_FP_ADD;
-	statement.src2	= MakeSymbolRef(m_shadow.Pull());
-	statement.src1	= MakeSymbolRef(m_shadow.Pull());
-	statement.dst	= MakeSymbolRef(tempSym);
-	InsertStatement(statement);
-
-	m_shadow.Push(tempSym);
+	InsertBinaryFp32Statement(OP_FP_SUB_S);
 }
 
-void CJitter::FP_Sub()
+void CJitter::FP_MulS()
 {
-	SymbolPtr tempSym = MakeSymbol(SYM_FP_TMP_SINGLE, m_nextTemporary++);
-
-	STATEMENT statement;
-	statement.op	= OP_FP_SUB;
-	statement.src2	= MakeSymbolRef(m_shadow.Pull());
-	statement.src1	= MakeSymbolRef(m_shadow.Pull());
-	statement.dst	= MakeSymbolRef(tempSym);
-	InsertStatement(statement);
-
-	m_shadow.Push(tempSym);
+	InsertBinaryFp32Statement(OP_FP_MUL_S);
 }
 
-void CJitter::FP_Mul()
+void CJitter::FP_DivS()
 {
-	SymbolPtr tempSym = MakeSymbol(SYM_FP_TMP_SINGLE, m_nextTemporary++);
-
-	STATEMENT statement;
-	statement.op	= OP_FP_MUL;
-	statement.src2	= MakeSymbolRef(m_shadow.Pull());
-	statement.src1	= MakeSymbolRef(m_shadow.Pull());
-	statement.dst	= MakeSymbolRef(tempSym);
-	InsertStatement(statement);
-
-	m_shadow.Push(tempSym);
+	InsertBinaryFp32Statement(OP_FP_DIV_S);
 }
 
-void CJitter::FP_Div()
+void CJitter::FP_CmpS(Jitter::CONDITION condition)
 {
-	SymbolPtr tempSym = MakeSymbol(SYM_FP_TMP_SINGLE, m_nextTemporary++);
+	auto tempSym = MakeSymbol(SYM_TEMPORARY, m_nextTemporary++);
 
 	STATEMENT statement;
-	statement.op	= OP_FP_DIV;
-	statement.src2	= MakeSymbolRef(m_shadow.Pull());
-	statement.src1	= MakeSymbolRef(m_shadow.Pull());
-	statement.dst	= MakeSymbolRef(tempSym);
-	InsertStatement(statement);
-
-	m_shadow.Push(tempSym);
-}
-
-void CJitter::FP_Cmp(Jitter::CONDITION condition)
-{
-	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY, m_nextTemporary++);
-
-	STATEMENT statement;
-	statement.op			= OP_FP_CMP;
+	statement.op			= OP_FP_CMP_S;
 	statement.src2			= MakeSymbolRef(m_shadow.Pull());
 	statement.src1			= MakeSymbolRef(m_shadow.Pull());
 	statement.dst			= MakeSymbolRef(tempSym);
@@ -958,107 +908,67 @@ void CJitter::FP_Cmp(Jitter::CONDITION condition)
 	m_shadow.Push(tempSym);
 }
 
-void CJitter::FP_Sqrt()
+void CJitter::FP_SqrtS()
 {
-	SymbolPtr tempSym = MakeSymbol(SYM_FP_TMP_SINGLE, m_nextTemporary++);
-
-	STATEMENT statement;
-	statement.op	= OP_FP_SQRT;
-	statement.src1	= MakeSymbolRef(m_shadow.Pull());
-	statement.dst	= MakeSymbolRef(tempSym);
-	InsertStatement(statement);
-
-	m_shadow.Push(tempSym);
+	InsertUnaryFp32Statement(OP_FP_SQRT_S);
 }
 
-void CJitter::FP_Rsqrt()
+void CJitter::FP_RsqrtS()
 {
-	SymbolPtr tempSym = MakeSymbol(SYM_FP_TMP_SINGLE, m_nextTemporary++);
-
-	STATEMENT statement;
-	statement.op	= OP_FP_RSQRT;
-	statement.src1	= MakeSymbolRef(m_shadow.Pull());
-	statement.dst	= MakeSymbolRef(tempSym);
-	InsertStatement(statement);
-
-	m_shadow.Push(tempSym);
+	InsertUnaryFp32Statement(OP_FP_RSQRT_S);
 }
 
-void CJitter::FP_Rcpl()
+void CJitter::FP_RcplS()
 {
-	SymbolPtr tempSym = MakeSymbol(SYM_FP_TMP_SINGLE, m_nextTemporary++);
-
-	STATEMENT statement;
-	statement.op	= OP_FP_RCPL;
-	statement.src1	= MakeSymbolRef(m_shadow.Pull());
-	statement.dst	= MakeSymbolRef(tempSym);
-	InsertStatement(statement);
-
-	m_shadow.Push(tempSym);
+	InsertUnaryFp32Statement(OP_FP_RCPL_S);
 }
 
-void CJitter::FP_Abs()
+void CJitter::FP_AbsS()
 {
-	SymbolPtr tempSym = MakeSymbol(SYM_FP_TMP_SINGLE, m_nextTemporary++);
-
-	STATEMENT statement;
-	statement.op	= OP_FP_ABS;
-	statement.src1	= MakeSymbolRef(m_shadow.Pull());
-	statement.dst	= MakeSymbolRef(tempSym);
-	InsertStatement(statement);
-
-	m_shadow.Push(tempSym);
+	InsertUnaryFp32Statement(OP_FP_ABS_S);
 }
 
-void CJitter::FP_Neg()
+void CJitter::FP_NegS()
 {
-	SymbolPtr tempSym = MakeSymbol(SYM_FP_TMP_SINGLE, m_nextTemporary++);
-
-	STATEMENT statement;
-	statement.op	= OP_FP_NEG;
-	statement.src1	= MakeSymbolRef(m_shadow.Pull());
-	statement.dst	= MakeSymbolRef(tempSym);
-	InsertStatement(statement);
-
-	m_shadow.Push(tempSym);
+	InsertUnaryFp32Statement(OP_FP_NEG_S);
 }
 
-void CJitter::FP_Min()
+void CJitter::FP_MinS()
 {
-	SymbolPtr tempSym = MakeSymbol(SYM_FP_TMP_SINGLE, m_nextTemporary++);
-
-	STATEMENT statement;
-	statement.op	= OP_FP_MIN;
-	statement.src2	= MakeSymbolRef(m_shadow.Pull());
-	statement.src1	= MakeSymbolRef(m_shadow.Pull());
-	statement.dst	= MakeSymbolRef(tempSym);
-	InsertStatement(statement);
-
-	m_shadow.Push(tempSym);
+	InsertBinaryFp32Statement(OP_FP_MIN_S);
 }
 
-void CJitter::FP_Max()
+void CJitter::FP_MaxS()
 {
-	SymbolPtr tempSym = MakeSymbol(SYM_FP_TMP_SINGLE, m_nextTemporary++);
-
-	STATEMENT statement;
-	statement.op	= OP_FP_MAX;
-	statement.src2	= MakeSymbolRef(m_shadow.Pull());
-	statement.src1	= MakeSymbolRef(m_shadow.Pull());
-	statement.dst	= MakeSymbolRef(tempSym);
-	InsertStatement(statement);
-
-	m_shadow.Push(tempSym);
+	InsertBinaryFp32Statement(OP_FP_MAX_S);
 }
 
-void CJitter::FP_Clamp()
+void CJitter::FP_ClampS()
 {
-	auto tempSym = MakeSymbol(SYM_FP_TMP_SINGLE, m_nextTemporary++);
+	InsertUnaryFp32Statement(OP_FP_CLAMP_S);
+}
+
+void CJitter::FP_ToInt32TruncateS()
+{
+	auto tempSym = MakeSymbol(SYM_FP_TEMPORARY32, m_nextTemporary++);
 
 	STATEMENT statement;
-	statement.op = OP_FP_CLAMP;
+	statement.op   = OP_FP_TOINT32_TRUNC_S;
 	statement.src1 = MakeSymbolRef(m_shadow.Pull());
-	statement.dst = MakeSymbolRef(tempSym);
+	statement.dst  = MakeSymbolRef(tempSym);
+	InsertStatement(statement);
+
+	m_shadow.Push(tempSym);
+}
+
+void CJitter::FP_ToSingleI32()
+{
+	auto tempSym = MakeSymbol(SYM_FP_TEMPORARY32, m_nextTemporary++);
+
+	STATEMENT statement;
+	statement.op   = OP_FP_TOSINGLE_I32;
+	statement.src1 = MakeSymbolRef(m_shadow.Pull());
+	statement.dst  = MakeSymbolRef(tempSym);
 	InsertStatement(statement);
 
 	m_shadow.Push(tempSym);
@@ -1635,6 +1545,33 @@ void CJitter::InsertStoreAtRefIdxStatement(Jitter::OPERATION operation, size_t s
 void CJitter::InsertBinary64Statement(Jitter::OPERATION operation)
 {
 	auto tempSym = MakeSymbol(SYM_TEMPORARY64, m_nextTemporary++);
+
+	STATEMENT statement;
+	statement.op   = operation;
+	statement.src2 = MakeSymbolRef(m_shadow.Pull());
+	statement.src1 = MakeSymbolRef(m_shadow.Pull());
+	statement.dst  = MakeSymbolRef(tempSym);
+	InsertStatement(statement);
+
+	m_shadow.Push(tempSym);
+}
+
+void CJitter::InsertUnaryFp32Statement(Jitter::OPERATION operation)
+{
+	auto tempSym = MakeSymbol(SYM_FP_TEMPORARY32, m_nextTemporary++);
+
+	STATEMENT statement;
+	statement.op   = operation;
+	statement.src1 = MakeSymbolRef(m_shadow.Pull());
+	statement.dst  = MakeSymbolRef(tempSym);
+	InsertStatement(statement);
+
+	m_shadow.Push(tempSym);
+}
+
+void CJitter::InsertBinaryFp32Statement(Jitter::OPERATION operation)
+{
+	auto tempSym = MakeSymbol(SYM_FP_TEMPORARY32, m_nextTemporary++);
 
 	STATEMENT statement;
 	statement.op   = operation;

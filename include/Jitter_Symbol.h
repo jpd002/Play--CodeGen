@@ -32,10 +32,8 @@ namespace Jitter
 
 		SYM_TEMPORARY256,
 
-		SYM_FP_REL_SINGLE,
-		SYM_FP_TMP_SINGLE,
-
-		SYM_FP_REL_INT32,
+		SYM_FP_RELATIVE32,
+		SYM_FP_TEMPORARY32,
 	};
 
 	class CSymbol
@@ -89,14 +87,11 @@ namespace Jitter
 			case SYM_REGISTER:
 				return "REG[" + std::to_string(m_valueLow) + "]";
 				break;
-			case SYM_FP_REL_SINGLE:
-				return "REL(FP_S)[" + std::to_string(m_valueLow) + "]";
+			case SYM_FP_RELATIVE32:
+				return "FPREL32[" + std::to_string(m_valueLow) + "]";
 				break;
-			case SYM_FP_REL_INT32:
-				return "REL(FP_I32)[" + std::to_string(m_valueLow) + "]";
-				break;
-			case SYM_FP_TMP_SINGLE:
-				return "TMP(FP_S)[" + std::to_string(m_valueLow) + "]";
+			case SYM_FP_TEMPORARY32:
+				return "FPTMP32[" + std::to_string(m_valueLow) + "]";
 				break;
 			case SYM_RELATIVE128:
 				return "REL128[" + std::to_string(m_valueLow) + "]";
@@ -138,9 +133,8 @@ namespace Jitter
 			case SYM_TEMPORARY256:
 				return 32;
 				break;
-			case SYM_FP_REL_SINGLE:
-			case SYM_FP_TMP_SINGLE:
-			case SYM_FP_REL_INT32:
+			case SYM_FP_RELATIVE32:
+			case SYM_FP_TEMPORARY32:
 				return 4;
 				break;
 			case SYM_REL_REFERENCE:
@@ -169,8 +163,7 @@ namespace Jitter
 				(m_type == SYM_RELATIVE64) || 
 				(m_type == SYM_RELATIVE128) || 
 				(m_type == SYM_REL_REFERENCE) ||
-				(m_type == SYM_FP_REL_SINGLE) || 
-				(m_type == SYM_FP_REL_INT32);
+				(m_type == SYM_FP_RELATIVE32);
 		}
 
 		bool IsConstant() const
@@ -186,7 +179,7 @@ namespace Jitter
 				(m_type == SYM_TEMPORARY128) || 
 				(m_type == SYM_TEMPORARY256) ||
 				(m_type == SYM_TMP_REFERENCE) ||
-				(m_type == SYM_FP_TMP_SINGLE);
+				(m_type == SYM_FP_TEMPORARY32);
 		}
 
 		bool Equals(CSymbol* symbol) const

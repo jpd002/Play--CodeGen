@@ -67,11 +67,7 @@ CJitter::VERSIONED_STATEMENT_LIST CJitter::GenerateVersionedStatementList(const 
 			newStatement.dst = std::make_shared<CVersionedSymbolRef>(newStatement.dst->GetSymbol(), nextVersion);
 		}
 		//Increment relative versions to prevent some optimization problems
-		else if(CSymbol* dst = dynamic_symbolref_cast(SYM_FP_REL_SINGLE, newStatement.dst))
-		{
-			result.relativeVersions.IncrementRelativeVersion(dst->m_valueLow);
-		}
-		else if(CSymbol* dst = dynamic_symbolref_cast(SYM_FP_REL_INT32, newStatement.dst))
+		else if(CSymbol* dst = dynamic_symbolref_cast(SYM_FP_RELATIVE32, newStatement.dst))
 		{
 			result.relativeVersions.IncrementRelativeVersion(dst->m_valueLow);
 		}
@@ -1503,7 +1499,7 @@ unsigned int CJitter::AllocateStack(BASIC_BLOCK& basicBlock)
 	unsigned int stackAlloc = 0;
 	for(const auto& symbol : basicBlock.symbolTable.GetSymbols())
 	{
-		if(symbol->m_type == SYM_TEMPORARY || symbol->m_type == SYM_FP_TMP_SINGLE)
+		if((symbol->m_type == SYM_TEMPORARY) || (symbol->m_type == SYM_FP_TEMPORARY32))
 		{
 			symbol->m_stackLocation = stackAlloc;
 			stackAlloc += 4;

@@ -10,28 +10,28 @@ void CFpClampTest::Compile(Jitter::CJitter& jitter)
 	{
 		//0 - +NaN = 0x7F7FFFFF -- Scalar
 		{
-			jitter.FP_PushSingle(offsetof(CONTEXT, zero));
-			jitter.FP_Clamp();
+			jitter.FP_PushRel32(offsetof(CONTEXT, zero));
+			jitter.FP_ClampS();
 
-			jitter.FP_PushSingle(offsetof(CONTEXT, positiveNan));
-			jitter.FP_Clamp();
+			jitter.FP_PushRel32(offsetof(CONTEXT, positiveNan));
+			jitter.FP_ClampS();
 
-			jitter.FP_Add();
+			jitter.FP_AddS();
 
-			jitter.FP_PullSingle(offsetof(CONTEXT, result1));
+			jitter.FP_PullRel32(offsetof(CONTEXT, result1));
 		}
 
 		//0 + -NaN = 0xFF7FFFFF -- Scalar
 		{
-			jitter.FP_PushSingle(offsetof(CONTEXT, zero));
-			jitter.FP_Clamp();
+			jitter.FP_PushRel32(offsetof(CONTEXT, zero));
+			jitter.FP_ClampS();
 
-			jitter.FP_PushSingle(offsetof(CONTEXT, negativeNan));
-			jitter.FP_Clamp();
+			jitter.FP_PushRel32(offsetof(CONTEXT, negativeNan));
+			jitter.FP_ClampS();
 
-			jitter.FP_Add();
+			jitter.FP_AddS();
 
-			jitter.FP_PullSingle(offsetof(CONTEXT, result2));
+			jitter.FP_PullRel32(offsetof(CONTEXT, result2));
 		}
 
 		//0 - +NaN = 0x7F7FFFFF -- Vector

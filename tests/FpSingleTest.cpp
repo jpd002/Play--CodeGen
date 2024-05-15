@@ -8,73 +8,73 @@ void CFpSingleTest::Compile(Jitter::CJitter& jitter)
 
 	jitter.Begin();
 	{
-		jitter.FP_PushSingle(offsetof(CONTEXT, number1));
-		jitter.FP_PushSingle(offsetof(CONTEXT, number2));
-		jitter.FP_Add();
-		jitter.FP_PullSingle(offsetof(CONTEXT, resAdd));
+		jitter.FP_PushRel32(offsetof(CONTEXT, number1));
+		jitter.FP_PushRel32(offsetof(CONTEXT, number2));
+		jitter.FP_AddS();
+		jitter.FP_PullRel32(offsetof(CONTEXT, resAdd));
 
-		jitter.FP_PushSingle(offsetof(CONTEXT, number2));
-		jitter.FP_PushSingle(offsetof(CONTEXT, number4));
-		jitter.FP_Sub();
-		jitter.FP_PullSingle(offsetof(CONTEXT, resSub));
+		jitter.FP_PushRel32(offsetof(CONTEXT, number2));
+		jitter.FP_PushRel32(offsetof(CONTEXT, number4));
+		jitter.FP_SubS();
+		jitter.FP_PullRel32(offsetof(CONTEXT, resSub));
 
-		jitter.FP_PushSingle(offsetof(CONTEXT, number2));
-		jitter.FP_PushSingle(offsetof(CONTEXT, number2));
-		jitter.FP_Mul();
-		jitter.FP_PullSingle(offsetof(CONTEXT, resMul));
+		jitter.FP_PushRel32(offsetof(CONTEXT, number2));
+		jitter.FP_PushRel32(offsetof(CONTEXT, number2));
+		jitter.FP_MulS();
+		jitter.FP_PullRel32(offsetof(CONTEXT, resMul));
 
-		jitter.FP_PushSingle(offsetof(CONTEXT, number1));
-		jitter.FP_PushSingle(offsetof(CONTEXT, number2));
-		jitter.FP_Div();
-		jitter.FP_PullSingle(offsetof(CONTEXT, resDiv));
+		jitter.FP_PushRel32(offsetof(CONTEXT, number1));
+		jitter.FP_PushRel32(offsetof(CONTEXT, number2));
+		jitter.FP_DivS();
+		jitter.FP_PullRel32(offsetof(CONTEXT, resDiv));
 
-		jitter.FP_PushSingle(offsetof(CONTEXT, number3));
-		jitter.FP_Neg();
-		jitter.FP_PullSingle(offsetof(CONTEXT, resNeg));
+		jitter.FP_PushRel32(offsetof(CONTEXT, number3));
+		jitter.FP_NegS();
+		jitter.FP_PullRel32(offsetof(CONTEXT, resNeg));
 
-		jitter.FP_PushSingle(offsetof(CONTEXT, number3));
-		jitter.FP_Abs();
-		jitter.FP_PullSingle(offsetof(CONTEXT, resAbs));
+		jitter.FP_PushRel32(offsetof(CONTEXT, number3));
+		jitter.FP_AbsS();
+		jitter.FP_PullRel32(offsetof(CONTEXT, resAbs));
 
-		jitter.FP_PushSingle(offsetof(CONTEXT, number4));
-		jitter.FP_Sqrt();
-		jitter.FP_PullSingle(offsetof(CONTEXT, resSqrt));
+		jitter.FP_PushRel32(offsetof(CONTEXT, number4));
+		jitter.FP_SqrtS();
+		jitter.FP_PullRel32(offsetof(CONTEXT, resSqrt));
 
-		jitter.FP_PushCst(4);
-		jitter.FP_Sqrt();
-		jitter.FP_PullSingle(offsetof(CONTEXT, resSqrtCst));
+		jitter.FP_PushCst32(4);
+		jitter.FP_SqrtS();
+		jitter.FP_PullRel32(offsetof(CONTEXT, resSqrtCst));
 
-		jitter.FP_PushSingle(offsetof(CONTEXT, number3));
-		jitter.FP_Rcpl();
-		jitter.FP_PullSingle(offsetof(CONTEXT, resRcpl));
+		jitter.FP_PushRel32(offsetof(CONTEXT, number3));
+		jitter.FP_RcplS();
+		jitter.FP_PullRel32(offsetof(CONTEXT, resRcpl));
 
-		jitter.FP_PushSingle(offsetof(CONTEXT, number4));
-		jitter.FP_Rsqrt();
-		jitter.FP_PullSingle(offsetof(CONTEXT, resRsqrt));
+		jitter.FP_PushRel32(offsetof(CONTEXT, number4));
+		jitter.FP_RsqrtS();
+		jitter.FP_PullRel32(offsetof(CONTEXT, resRsqrt));
 
-		jitter.FP_PushSingle(offsetof(CONTEXT, number1));
-		jitter.FP_PushSingle(offsetof(CONTEXT, number3));
-		jitter.FP_Max();
-		jitter.FP_PullSingle(offsetof(CONTEXT, resMax));
+		jitter.FP_PushRel32(offsetof(CONTEXT, number1));
+		jitter.FP_PushRel32(offsetof(CONTEXT, number3));
+		jitter.FP_MaxS();
+		jitter.FP_PullRel32(offsetof(CONTEXT, resMax));
 
-		jitter.FP_PushSingle(offsetof(CONTEXT, number1));
-		jitter.FP_PushSingle(offsetof(CONTEXT, number3));
-		jitter.FP_Min();
-		jitter.FP_PullSingle(offsetof(CONTEXT, resMin));
+		jitter.FP_PushRel32(offsetof(CONTEXT, number1));
+		jitter.FP_PushRel32(offsetof(CONTEXT, number3));
+		jitter.FP_MinS();
+		jitter.FP_PullRel32(offsetof(CONTEXT, resMin));
 
-		jitter.FP_PushSingle(offsetof(CONTEXT, number1));
-		jitter.FP_PushSingle(offsetof(CONTEXT, number3));
-		jitter.FP_Cmp(Jitter::CONDITION_BL);
+		jitter.FP_PushRel32(offsetof(CONTEXT, number1));
+		jitter.FP_PushRel32(offsetof(CONTEXT, number3));
+		jitter.FP_CmpS(Jitter::CONDITION_BL);
 		jitter.PullRel(offsetof(CONTEXT, ltTest));
 
-		jitter.FP_PushSingle(offsetof(CONTEXT, number3));
-		jitter.FP_PushSingle(offsetof(CONTEXT, number1));
-		jitter.FP_Cmp(Jitter::CONDITION_BE);
+		jitter.FP_PushRel32(offsetof(CONTEXT, number3));
+		jitter.FP_PushRel32(offsetof(CONTEXT, number1));
+		jitter.FP_CmpS(Jitter::CONDITION_BE);
 		jitter.PullRel(offsetof(CONTEXT, leTest));
 
-		jitter.FP_PushSingle(offsetof(CONTEXT, number1));
-		jitter.FP_PushSingle(offsetof(CONTEXT, number1));
-		jitter.FP_Cmp(Jitter::CONDITION_EQ);
+		jitter.FP_PushRel32(offsetof(CONTEXT, number1));
+		jitter.FP_PushRel32(offsetof(CONTEXT, number1));
+		jitter.FP_CmpS(Jitter::CONDITION_EQ);
 		jitter.PullRel(offsetof(CONTEXT, eqTest));
 	}
 	jitter.End();

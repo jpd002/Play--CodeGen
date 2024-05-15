@@ -59,27 +59,27 @@ void Jitter::DumpStatementList(std::ostream& outputStream, const StatementList& 
 		case OP_ADD:
 		case OP_ADD64:
 		case OP_ADDREF:
-		case OP_FP_ADD:
+		case OP_FP_ADD_S:
 			outputStream << " + ";
 			break;
 		case OP_SUB:
 		case OP_SUB64:
-		case OP_FP_SUB:
+		case OP_FP_SUB_S:
 			outputStream << " - ";
 			break;
 		case OP_CMP:
 		case OP_CMP64:
-		case OP_FP_CMP:
+		case OP_FP_CMP_S:
 			outputStream << " CMP(" << ConditionToString(statement.jmpCondition) << ") ";
 			break;
 		case OP_MUL:
 		case OP_MULS:
-		case OP_FP_MUL:
+		case OP_FP_MUL_S:
 			outputStream << " * ";
 			break;
 		case OP_DIV:
 		case OP_DIVS:
-		case OP_FP_DIV:
+		case OP_FP_DIV_S:
 			outputStream << " / ";
 			break;
 		case OP_AND:
@@ -165,29 +165,29 @@ void Jitter::DumpStatementList(std::ostream& outputStream, const StatementList& 
 		case OP_MERGETO256:
 			outputStream << " MERGETO256 ";
 			break;
-		case OP_FP_ABS:
+		case OP_FP_ABS_S:
 			outputStream << " ABS";
 			break;
-		case OP_FP_NEG:
+		case OP_FP_NEG_S:
 			outputStream << " NEG";
 			break;
-		case OP_FP_MIN:
+		case OP_FP_MIN_S:
 			outputStream << " MIN ";
 			break;
-		case OP_FP_MAX:
+		case OP_FP_MAX_S:
 			outputStream << " MAX ";
 			break;
-		case OP_FP_SQRT:
+		case OP_FP_SQRT_S:
 			outputStream << " SQRT";
 			break;
-		case OP_FP_RSQRT:
+		case OP_FP_RSQRT_S:
 			outputStream << " RSQRT";
 			break;
-		case OP_FP_RCPL:
+		case OP_FP_RCPL_S:
 			outputStream << " RCPL";
 			break;
-		case OP_FP_TOINT_TRUNC:
-			outputStream << " INT(TRUNC)";
+		case OP_FP_TOINT32_TRUNC_S:
+			outputStream << " INT32(TRUNC)";
 			break;
 		case OP_FP_LDCST:
 			outputStream << " LOAD ";

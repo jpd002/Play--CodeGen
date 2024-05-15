@@ -13,26 +13,29 @@ void CFpIntMixTest::Compile(Jitter::CJitter& jitter)
 		jitter.PullRel(offsetof(CONTEXT, number1));
 
 		//number2 = toFloat(multiplier)
-		jitter.FP_PushWord(offsetof(CONTEXT, multiplier));
-		jitter.FP_PullSingle(offsetof(CONTEXT, number2));
+		jitter.FP_PushRel32(offsetof(CONTEXT, multiplier));
+		jitter.FP_ToSingleI32();
+		jitter.FP_PullRel32(offsetof(CONTEXT, number2));
 
 		//number1 = number1 * number2
-		jitter.FP_PushSingle(offsetof(CONTEXT, number1));
-		jitter.FP_PushSingle(offsetof(CONTEXT, number2));
-		jitter.FP_Mul();
-		jitter.FP_PullSingle(offsetof(CONTEXT, number1));
+		jitter.FP_PushRel32(offsetof(CONTEXT, number1));
+		jitter.FP_PushRel32(offsetof(CONTEXT, number2));
+		jitter.FP_MulS();
+		jitter.FP_PullRel32(offsetof(CONTEXT, number1));
 
 		//number1 = toInt(number1)
-		jitter.FP_PushSingle(offsetof(CONTEXT, number1));
-		jitter.FP_PullWordTruncate(offsetof(CONTEXT, number1));
+		jitter.FP_PushRel32(offsetof(CONTEXT, number1));
+		jitter.FP_ToInt32TruncateS();
+		jitter.FP_PullRel32(offsetof(CONTEXT, number1));
 
 		//result = number1
 		jitter.PushRel(offsetof(CONTEXT, number1));
 		jitter.PullRel(offsetof(CONTEXT, result1));
 
 		//result2 = toInt(number3)
-		jitter.FP_PushSingle(offsetof(CONTEXT, number3));
-		jitter.FP_PullWordTruncate(offsetof(CONTEXT, result2));
+		jitter.FP_PushRel32(offsetof(CONTEXT, number3));
+		jitter.FP_ToInt32TruncateS();
+		jitter.FP_PullRel32(offsetof(CONTEXT, result2));
 	}
 	jitter.End();
 

@@ -85,50 +85,50 @@ namespace Jitter
 			static OpVarType OpVar() { return &CX86Assembler::ShlEd; }
 		};
 
-		//FPUOP -----------------------------------------------------------
-		struct FPUOP_BASE
+		//FP32OP -----------------------------------------------------------
+		struct FP32OP_BASE
 		{
 			typedef void (CX86Assembler::*OpEdType)(CX86Assembler::XMMREGISTER, const CX86Assembler::CAddress&);
 			typedef void (CX86Assembler::*OpEdAvxType)(CX86Assembler::XMMREGISTER, CX86Assembler::XMMREGISTER, const CX86Assembler::CAddress&);
 		};
 
-		struct FPUOP_ADD : public FPUOP_BASE
+		struct FP32OP_ADD : public FP32OP_BASE
 		{
 			static OpEdType OpEd() { return &CX86Assembler::AddssEd; }
 			static OpEdAvxType OpEdAvx() { return &CX86Assembler::VaddssEd; }
 		};
 
-		struct FPUOP_SUB : public FPUOP_BASE
+		struct FP32OP_SUB : public FP32OP_BASE
 		{
 			static OpEdType OpEd() { return &CX86Assembler::SubssEd; }
 			static OpEdAvxType OpEdAvx() { return &CX86Assembler::VsubssEd; }
 		};
 
-		struct FPUOP_MUL : public FPUOP_BASE
+		struct FP32OP_MUL : public FP32OP_BASE
 		{
 			static OpEdType OpEd() { return &CX86Assembler::MulssEd; }
 			static OpEdAvxType OpEdAvx() { return &CX86Assembler::VmulssEd; }
 		};
 
-		struct FPUOP_DIV : public FPUOP_BASE
+		struct FP32OP_DIV : public FP32OP_BASE
 		{
 			static OpEdType OpEd() { return &CX86Assembler::DivssEd; }
 			static OpEdAvxType OpEdAvx() { return &CX86Assembler::VdivssEd; }
 		};
 		
-		struct FPUOP_MAX : public FPUOP_BASE
+		struct FP32OP_MAX : public FP32OP_BASE
 		{
 			static OpEdType OpEd() { return &CX86Assembler::MaxssEd; }
 			static OpEdAvxType OpEdAvx() { return &CX86Assembler::VmaxssEd; }
 		};
 
-		struct FPUOP_MIN : public FPUOP_BASE
+		struct FP32OP_MIN : public FP32OP_BASE
 		{
 			static OpEdType OpEd() { return &CX86Assembler::MinssEd; }
 			static OpEdAvxType OpEdAvx() { return &CX86Assembler::VminssEd; }
 		};
 
-		struct FPUOP_SQRT : public FPUOP_BASE
+		struct FP32OP_SQRT : public FP32OP_BASE
 		{
 			static OpEdType OpEd() { return &CX86Assembler::SqrtssEd; }
 			static OpEdAvxType OpEdAvx() { return &CX86Assembler::VsqrtssEd; }
@@ -487,9 +487,9 @@ namespace Jitter
 		CX86Assembler::CAddress		MakeMemory64SymbolLoAddress(CSymbol*);
 		CX86Assembler::CAddress		MakeMemory64SymbolHiAddress(CSymbol*);
 
-		CX86Assembler::CAddress		MakeRelativeFpSingleSymbolAddress(CSymbol*);
-		CX86Assembler::CAddress		MakeTemporaryFpSingleSymbolAddress(CSymbol*);
-		CX86Assembler::CAddress		MakeMemoryFpSingleSymbolAddress(CSymbol*);
+		CX86Assembler::CAddress		MakeRelativeFp32SymbolAddress(CSymbol*);
+		CX86Assembler::CAddress		MakeTemporaryFp32SymbolAddress(CSymbol*);
+		CX86Assembler::CAddress		MakeMemoryFp32SymbolAddress(CSymbol*);
 
 		CX86Assembler::CAddress		MakeRelative128SymbolElementAddress(CSymbol*, unsigned int);
 		CX86Assembler::CAddress		MakeTemporary128SymbolElementAddress(CSymbol*, unsigned int);
@@ -633,38 +633,22 @@ namespace Jitter
 		void						Emit_Store16AtRef_VarAnyCst(const STATEMENT&);
 
 		//FPUOP
-		template <typename> void	Emit_Fpu_MemMem(const STATEMENT&);
-		template <typename> void	Emit_Fpu_MemMemMem(const STATEMENT&);
+		CX86Assembler::SSE_CMP_TYPE GetSseConditionCode(Jitter::CONDITION);
 
-		//FPCMP
-		CX86Assembler::SSE_CMP_TYPE	GetSseConditionCode(Jitter::CONDITION);
-
-		void						Emit_Fp_Cmp_VarMemMem(const STATEMENT&);
-		void						Emit_Fp_Cmp_VarMemCst(const STATEMENT&);
-
-		//FPABS
-		void						Emit_Fp_Abs_MemMem(const STATEMENT&);
-
-		//FPNEG
-		void						Emit_Fp_Neg_MemMem(const STATEMENT&);
-
-		//FPRSQRT
-		void						Emit_Fp_Rsqrt_MemMem(const STATEMENT&);
-
-		//FPRCPL
-		void						Emit_Fp_Rcpl_MemMem(const STATEMENT&);
-
-		//FPCLAMP
-		void						Emit_Fp_Clamp_MemMem(const STATEMENT&);
-
-		//FP_MOV
-		void						Emit_Fp_Mov_RelSRelI32(const STATEMENT&);
-
-		//FP_TOINT_TRUNC
-		void						Emit_Fp_ToIntTrunc_RelRel(const STATEMENT&);
-
-		//FP_LDCST
+		void						Emit_Fp_AbsS_MemMem(const STATEMENT&);
+		void						Emit_Fp_NegS_MemMem(const STATEMENT&);
 		void						Emit_Fp_LdCst_MemCst(const STATEMENT&);
+
+		template <typename> void	Emit_Fp32_MemMem(const STATEMENT&);
+		template <typename> void	Emit_Fp32_MemMemMem(const STATEMENT&);
+
+		void						Emit_Fp_CmpS_VarMemMem(const STATEMENT&);
+		void						Emit_Fp_CmpS_VarMemCst(const STATEMENT&);
+		void						Emit_Fp_RsqrtS_MemMem(const STATEMENT&);
+		void						Emit_Fp_RcplS_MemMem(const STATEMENT&);
+		void						Emit_Fp_ClampS_MemMem(const STATEMENT&);
+		void						Emit_Fp_ToSingleI32_MemMem(const STATEMENT&);
+		void						Emit_Fp_ToInt32TruncS_MemMem(const STATEMENT&);
 
 		//MDOP
 		template <typename> void	Emit_Md_RegVar(const STATEMENT&);
@@ -718,15 +702,15 @@ namespace Jitter
 		void						Emit_Md_StoreAtRef_VarAnyVar(const STATEMENT&);
 
 		//FPUOP AVX
-		template <typename> void	Emit_Fpu_Avx_MemMem(const STATEMENT&);
-		template <typename> void	Emit_Fpu_Avx_MemMemMem(const STATEMENT&);
+		template <typename> void	Emit_Fp32_Avx_MemMem(const STATEMENT&);
+		template <typename> void	Emit_Fp32_Avx_MemMemMem(const STATEMENT&);
 
-		void						Emit_Fp_Avx_Cmp_VarMemMem(const STATEMENT&);
-		void						Emit_Fp_Avx_Rsqrt_MemMem(const STATEMENT&);
-		void						Emit_Fp_Avx_Rcpl_MemMem(const STATEMENT&);
-		void						Emit_Fp_Avx_Clamp_MemMem(const STATEMENT&);
-		void						Emit_Fp_Avx_Mov_RelSRelI32(const STATEMENT&);
-		void						Emit_Fp_Avx_ToIntTrunc_RelRel(const STATEMENT&);
+		void						Emit_Fp_Avx_CmpS_VarMemMem(const STATEMENT&);
+		void						Emit_Fp_Avx_RsqrtS_MemMem(const STATEMENT&);
+		void						Emit_Fp_Avx_RcplS_MemMem(const STATEMENT&);
+		void						Emit_Fp_Avx_ClampS_MemMem(const STATEMENT&);
+		void						Emit_Fp_Avx_ToSingleI32_MemMem(const STATEMENT&);
+		void						Emit_Fp_Avx_ToInt32TruncS_MemMem(const STATEMENT&);
 
 		//MDOP AVX
 		template <typename> void	Emit_Md_Avx_VarVar(const STATEMENT&);

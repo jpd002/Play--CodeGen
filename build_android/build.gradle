@@ -7,7 +7,7 @@ buildscript {
 	}
 	
 	dependencies {
-		classpath 'com.android.tools.build:gradle:8.1.2'
+		classpath 'com.android.tools.build:gradle:8.4.1'
 	}
 }
 
@@ -20,11 +20,11 @@ allprojects {
 android {
 	namespace 'com.virtualapplications.codegentestsuite'
 
-	compileSdkVersion 'android-32'
+	compileSdkVersion 'android-34'
 
 	defaultConfig {
 		minSdkVersion 19
-		targetSdkVersion 32
+		targetSdkVersion 34
 		externalNativeBuild {
 			cmake {
 				arguments "-DANDROID_ARM_NEON=TRUE", "-DANDROID_TOOLCHAIN=clang",

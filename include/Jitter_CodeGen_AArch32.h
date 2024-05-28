@@ -114,14 +114,14 @@ namespace Jitter
 		void									StoreRegisterInMemory64High(CSymbol*, CAArch32Assembler::REGISTER);
 		void									StoreRegistersInMemory64(CSymbol*, CAArch32Assembler::REGISTER, CAArch32Assembler::REGISTER);
 
-		void									LoadMemoryFpSingleInRegister(CTempRegisterContext&, CAArch32Assembler::SINGLE_REGISTER, CSymbol*);
-		void									StoreRegisterInMemoryFpSingle(CTempRegisterContext&, CSymbol*, CAArch32Assembler::SINGLE_REGISTER);
+		void									LoadMemoryFp32InRegister(CTempRegisterContext&, CAArch32Assembler::SINGLE_REGISTER, CSymbol*);
+		void									StoreRegisterInMemoryFp32(CTempRegisterContext&, CSymbol*, CAArch32Assembler::SINGLE_REGISTER);
 
-		void									LoadRelativeFpSingleInRegister(CTempRegisterContext&, CAArch32Assembler::SINGLE_REGISTER, CSymbol*);
-		void									StoreRelativeFpSingleInRegister(CTempRegisterContext&, CSymbol*, CAArch32Assembler::SINGLE_REGISTER);
+		void									LoadRelativeFp32InRegister(CTempRegisterContext&, CAArch32Assembler::SINGLE_REGISTER, CSymbol*);
+		void									StoreRegisterInRelativeFp32(CTempRegisterContext&, CSymbol*, CAArch32Assembler::SINGLE_REGISTER);
 
-		void									LoadTemporaryFpSingleInRegister(CTempRegisterContext&, CAArch32Assembler::SINGLE_REGISTER, CSymbol*);
-		void									StoreTemporaryFpSingleInRegister(CTempRegisterContext&, CSymbol*, CAArch32Assembler::SINGLE_REGISTER);
+		void									LoadTemporaryFp32InRegister(CTempRegisterContext&, CAArch32Assembler::SINGLE_REGISTER, CSymbol*);
+		void									StoreRegisterInTemporaryFp32(CTempRegisterContext&, CSymbol*, CAArch32Assembler::SINGLE_REGISTER);
 
 		void									LoadMemory128AddressInRegister(CAArch32Assembler::REGISTER, CSymbol*, uint32 = 0);
 		void									LoadRelative128AddressInRegister(CAArch32Assembler::REGISTER, CSymbol*, uint32);
@@ -678,8 +678,8 @@ namespace Jitter
 		void									Emit_Fp_Rsqrt_MemMem(const STATEMENT&);
 		void									Emit_Fp_Clamp_MemMem(const STATEMENT&);
 		void									Emit_Fp_Cmp_AnyMemMem(const STATEMENT&);
-		void									Emit_Fp_Mov_MemSRelI32(const STATEMENT&);
-		void									Emit_Fp_ToIntTrunc_MemMem(const STATEMENT&);
+		void									Emit_Fp_ToSingleI32_MemMem(const STATEMENT&);
+		void									Emit_Fp_ToInt32TruncS_MemMem(const STATEMENT&);
 		void									Emit_Fp_LdCst_TmpCst(const STATEMENT&);
 		
 		//MDOP

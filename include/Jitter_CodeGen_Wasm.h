@@ -96,10 +96,10 @@ namespace Jitter
 		void PushTemporary64(CSymbol*);
 		void PullTemporary64(CSymbol*);
 
-		void PushRelativeSingle(CSymbol*);
+		void PushRelativeFp32(CSymbol*);
 
-		void PushTemporarySingle(CSymbol*);
-		void PullTemporarySingle(CSymbol*);
+		void PushTemporaryFp32(CSymbol*);
+		void PullTemporaryFp32(CSymbol*);
 
 		void PushRelative128(CSymbol*);
 
@@ -195,8 +195,8 @@ namespace Jitter
 		void Emit_Fp_Rcpl_MemMem(const STATEMENT&);
 		void Emit_Fp_Rsqrt_MemMem(const STATEMENT&);
 		void Emit_Fp_Clamp_MemMem(const STATEMENT&);
-		void Emit_Fp_Mov_MemSRelI32(const STATEMENT&);
-		void Emit_Fp_ToIntTrunc_MemMem(const STATEMENT&);
+		void Emit_Fp_ToSingleI32_MemMem(const STATEMENT&);
+		void Emit_Fp_ToInt32TruncS_MemMem(const STATEMENT&);
 		void Emit_Fp_LdCst_TmpCst(const STATEMENT&);
 		
 		//MD

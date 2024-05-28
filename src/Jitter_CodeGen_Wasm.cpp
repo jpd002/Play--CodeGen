@@ -585,7 +585,7 @@ void CCodeGen_Wasm::PrepareLocalVars(const StatementList& statements)
 					m_temporaryLocations[temporaryInstance] = m_localI64Count;
 					m_localI64Count++;
 					break;
-				case SYM_FP_TMP_SINGLE:
+				case SYM_FP_TEMPORARY32:
 					m_temporaryLocations[temporaryInstance] = m_localF32Count;
 					m_localF32Count++;
 					break;
@@ -626,7 +626,7 @@ uint32 CCodeGen_Wasm::GetTemporaryLocation(CSymbol* symbol) const
 	case SYM_TEMPORARY64:
 		localIdx = temporaryLocation + m_localI32Count + 1;
 		break;
-	case SYM_FP_TMP_SINGLE:
+	case SYM_FP_TEMPORARY32:
 		localIdx = temporaryLocation + m_localI32Count + m_localI64Count + 1;
 		break;
 	case SYM_TEMPORARY128:
@@ -653,8 +653,7 @@ void CCodeGen_Wasm::PushRelativeAddress(CSymbol* symbol)
 	assert(
 		(symbol->m_type == SYM_RELATIVE) ||
 		(symbol->m_type == SYM_RELATIVE64) ||
-		(symbol->m_type == SYM_FP_REL_INT32) ||
-		(symbol->m_type == SYM_FP_REL_SINGLE) ||
+		(symbol->m_type == SYM_FP_RELATIVE32) ||
 		(symbol->m_type == SYM_RELATIVE128)
 	);
 
@@ -739,7 +738,6 @@ void CCodeGen_Wasm::PrepareSymbolUse(CSymbol* symbol)
 	switch(symbol->m_type)
 	{
 	case SYM_RELATIVE:
-	case SYM_FP_REL_INT32:
 		PushRelative(symbol);
 		break;
 	case SYM_REL_REFERENCE:
@@ -765,11 +763,11 @@ void CCodeGen_Wasm::PrepareSymbolUse(CSymbol* symbol)
 		m_functionStream.Write8(Wasm::INST_I64_CONST);
 		CWasmModuleBuilder::WriteSLeb128(m_functionStream, symbol->GetConstant64());
 		break;
-	case SYM_FP_REL_SINGLE:
-		PushRelativeSingle(symbol);
+	case SYM_FP_RELATIVE32:
+		PushRelativeFp32(symbol);
 		break;
-	case SYM_FP_TMP_SINGLE:
-		PushTemporarySingle(symbol);
+	case SYM_FP_TEMPORARY32:
+		PushTemporaryFp32(symbol);
 		break;
 	case SYM_RELATIVE128:
 		PushRelative128(symbol);
@@ -790,15 +788,14 @@ void CCodeGen_Wasm::PrepareSymbolDef(CSymbol* symbol)
 	case SYM_RELATIVE:
 	case SYM_RELATIVE64:
 	case SYM_RELATIVE128:
-	case SYM_FP_REL_SINGLE:
-	case SYM_FP_REL_INT32:
+	case SYM_FP_RELATIVE32:
 		PushRelativeAddress(symbol);
 		break;
 	case SYM_TEMPORARY:
 	case SYM_TEMPORARY64:
 	case SYM_TEMPORARY128:
 	case SYM_TMP_REFERENCE:
-	case SYM_FP_TMP_SINGLE:
+	case SYM_FP_TEMPORARY32:
 		break;
 	default:
 		assert(false);
@@ -829,13 +826,13 @@ void CCodeGen_Wasm::CommitSymbol(CSymbol* symbol)
 	case SYM_TEMPORARY64:
 		PullTemporary64(symbol);
 		break;
-	case SYM_FP_REL_SINGLE:
+	case SYM_FP_RELATIVE32:
 		m_functionStream.Write8(Wasm::INST_F32_STORE);
 		m_functionStream.Write8(0x02);
 		m_functionStream.Write8(0x00);
 		break;
-	case SYM_FP_TMP_SINGLE:
-		PullTemporarySingle(symbol);
+	case SYM_FP_TEMPORARY32:
+		PullTemporaryFp32(symbol);
 		break;
 	case SYM_RELATIVE128:
 		m_functionStream.Write8(Wasm::INST_PREFIX_SIMD);

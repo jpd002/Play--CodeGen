@@ -78,8 +78,8 @@ void CCodeGen_x86::Emit_Fp_NegS_MemMem(const STATEMENT& statement)
 
 void CCodeGen_x86::Emit_Fp_LdCst_MemCst(const STATEMENT& statement)
 {
-	CSymbol* dst = statement.dst->GetSymbol().get();
-	CSymbol* src1 = statement.src1->GetSymbol().get();
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
 
 	assert(src1->m_type == SYM_CONSTANT);
 

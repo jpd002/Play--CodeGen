@@ -113,8 +113,8 @@ namespace Jitter
 		void    LoadMemoryReferenceInRegister(CAArch64Assembler::REGISTER64, CSymbol*);
 		void    StoreRegisterInTemporaryReference(CSymbol*, CAArch64Assembler::REGISTER64);
 		
-		void    LoadMemoryFpSingleInRegister(CAArch64Assembler::REGISTERMD, CSymbol*);
-		void    StoreRegisterInMemoryFpSingle(CSymbol*, CAArch64Assembler::REGISTERMD);
+		void    LoadMemoryFp32InRegister(CAArch64Assembler::REGISTERMD, CSymbol*);
+		void    StoreRegisterInMemoryFp32(CSymbol*, CAArch64Assembler::REGISTERMD);
 		
 		void    LoadMemory128InRegister(CAArch64Assembler::REGISTERMD, CSymbol*);
 		void    StoreRegisterInMemory128(CSymbol*, CAArch64Assembler::REGISTERMD);
@@ -715,8 +715,8 @@ namespace Jitter
 		void    Emit_Fp_Rcpl_MemMem(const STATEMENT&);
 		void    Emit_Fp_Rsqrt_MemMem(const STATEMENT&);
 		void    Emit_Fp_Clamp_MemMem(const STATEMENT&);
-		void    Emit_Fp_Mov_MemSRelI32(const STATEMENT&);
-		void    Emit_Fp_ToIntTrunc_MemMem(const STATEMENT&);
+		void    Emit_Fp_ToSingleI32_MemMem(const STATEMENT&);
+		void    Emit_Fp_ToInt32TruncS_MemMem(const STATEMENT&);
 		void    Emit_Fp_LdCst_TmpCst(const STATEMENT&);
 
 		//MD

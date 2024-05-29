@@ -1516,7 +1516,7 @@ unsigned int CJitter::AllocateStack(BASIC_BLOCK& basicBlock)
 			symbol->m_stackLocation = stackAlloc;
 			stackAlloc += symbolSize;
 		}
-		else if(symbol->m_type == SYM_TEMPORARY64)
+		else if((symbol->m_type == SYM_TEMPORARY64) || (symbol->m_type == SYM_FP_TEMPORARY64))
 		{
 			if((stackAlloc & 7) != 0)
 			{

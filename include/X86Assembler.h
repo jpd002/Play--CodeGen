@@ -373,6 +373,7 @@ public:
 
 	void									VmovssEd(XMMREGISTER, const CAddress&);
 	void									VmovssEd(const CAddress&, XMMREGISTER);
+	void									VmovsdEq(const CAddress&, XMMREGISTER);
 
 	void									VaddssEd(XMMREGISTER, XMMREGISTER, const CAddress&);
 	void									VsubssEd(XMMREGISTER, XMMREGISTER, const CAddress&);
@@ -386,7 +387,12 @@ public:
 	void									VsqrtssEd(XMMREGISTER, XMMREGISTER, const CAddress&);
 
 	void									Vcvtsi2ssEd(XMMREGISTER, const CAddress&);
+	void									Vcvtsi2sdEq(XMMREGISTER, const CAddress&);
+	void									Vcvtss2sdEq(XMMREGISTER, const CAddress&);
 	void									Vcvttss2siEd(REGISTER, const CAddress&);
+	void									Vcvtsd2siEd(REGISTER, const CAddress&);
+	void									Vcvttsd2siEd(REGISTER, const CAddress&);
+	void									Vcvtsd2ssEd(XMMREGISTER, const CAddress&);
 
 	void									VmovdqaVo(XMMREGISTER, const CAddress&);
 	void									VmovdqaVo(const CAddress&, XMMREGISTER);
@@ -564,7 +570,7 @@ private:
 
 	void									WriteRexByte(bool, const CAddress&);
 	void									WriteRexByte(bool, const CAddress&, REGISTER&, bool = false);
-	void									WriteVex(VEX_OPCODE_MAP, XMMREGISTER&, XMMREGISTER, const CAddress&);
+	void									WriteVex(VEX_OPCODE_MAP, XMMREGISTER&, XMMREGISTER, const CAddress&, bool);
 	void									WriteEbOp_0F(uint8, uint8, const CAddress&);
 	void									WriteEbGbOp(uint8, bool, const CAddress&, REGISTER);
 	void									WriteEbGbOp(uint8, bool, const CAddress&, BYTEREGISTER);
@@ -583,7 +589,7 @@ private:
 	void									WriteEdVdOp_66_0F_3A(uint8, const CAddress&, XMMREGISTER);
 	void									WriteEdVdOp_F3_0F(uint8, const CAddress&, XMMREGISTER);
 	void									WriteVrOp_66_0F(uint8, uint8, XMMREGISTER);
-	void									WriteVexVoOp(VEX_OPCODE_MAP, uint8, XMMREGISTER, XMMREGISTER, const CAddress&);
+	void									WriteVexVoOp(VEX_OPCODE_MAP, uint8, XMMREGISTER, XMMREGISTER, const CAddress&, bool = false);
 	void									WriteVexShiftVoOp(uint8, uint8, XMMREGISTER, XMMREGISTER, uint8);
 	void									WriteStOp(uint8, uint8, uint8);
 

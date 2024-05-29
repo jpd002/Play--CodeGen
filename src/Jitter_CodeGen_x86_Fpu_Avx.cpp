@@ -106,6 +106,52 @@ void CCodeGen_x86::Emit_Fp_Avx_ToInt32TruncS_MemMem(const STATEMENT& statement)
 	m_assembler.MovGd(MakeMemoryFp32SymbolAddress(dst), CX86Assembler::rAX);
 }
 
+void CCodeGen_x86::Emit_Fp_Avx_ToDoubleS_MemMem(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+
+	m_assembler.Vcvtss2sdEq(CX86Assembler::xMM0, MakeMemoryFp32SymbolAddress(src1));
+	m_assembler.VmovsdEq(MakeMemoryFp64SymbolAddress(dst), CX86Assembler::xMM0);
+}
+
+void CCodeGen_x86::Emit_Fp_Avx_ToDoubleS_MemRegI(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+
+	m_assembler.VmovdVo(CX86Assembler::xMM1, CX86Assembler::MakeRegisterAddress(m_registers[src1->m_valueLow]));
+	m_assembler.Vcvtss2sdEq(CX86Assembler::xMM0, CX86Assembler::MakeXmmRegisterAddress(CX86Assembler::xMM1));
+	m_assembler.VmovsdEq(MakeMemoryFp64SymbolAddress(dst), CX86Assembler::xMM0);
+}
+
+void CCodeGen_x86::Emit_Fp_Avx_ToSingleD_MemMem(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+
+	m_assembler.Vcvtsd2ssEd(CX86Assembler::xMM0, MakeMemoryFp64SymbolAddress(src1));
+	m_assembler.VmovssEd(MakeMemoryFp32SymbolAddress(dst), CX86Assembler::xMM0);
+}
+
+void CCodeGen_x86::Emit_Fp_Avx_ToInt32TruncD_MemMem(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+
+	m_assembler.Vcvttsd2siEd(CX86Assembler::rAX, MakeMemoryFp64SymbolAddress(src1));
+	m_assembler.MovGd(MakeMemoryFp32SymbolAddress(dst), CX86Assembler::rAX);
+}
+
+void CCodeGen_x86::Emit_Fp_Avx_ToDoubleI64_MemMem(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+
+	m_assembler.Vcvtsi2sdEq(CX86Assembler::xMM0, MakeMemoryFp64SymbolAddress(src1));
+	m_assembler.VmovsdEq(MakeMemoryFp64SymbolAddress(dst), CX86Assembler::xMM0);
+}
+
 CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_fpuAvxConstMatchers[] = 
 {
 	{ OP_FP_ADD_S, MATCH_FP_MEMORY32, MATCH_FP_MEMORY32, MATCH_FP_MEMORY32, MATCH_NIL, &CCodeGen_x86::Emit_Fp32_Avx_MemMemMem<FP32OP_ADD> },
@@ -125,6 +171,14 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_fpuAvxConstMatchers[] =
 
 	{ OP_FP_TOSINGLE_I32,    MATCH_FP_MEMORY32, MATCH_FP_MEMORY32, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Fp_Avx_ToSingleI32_MemMem },
 	{ OP_FP_TOINT32_TRUNC_S, MATCH_FP_MEMORY32, MATCH_FP_MEMORY32, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Fp_Avx_ToInt32TruncS_MemMem },
+
+	{ OP_FP_TODOUBLE_S,   MATCH_FP_MEMORY64, MATCH_FP_MEMORY32, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Fp_Avx_ToDoubleS_MemMem   },
+	{ OP_FP_TODOUBLE_S,   MATCH_FP_MEMORY64, MATCH_REGISTER,    MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Fp_Avx_ToDoubleS_MemRegI  },
+
+	{ OP_FP_TOSINGLE_D,      MATCH_FP_MEMORY32, MATCH_FP_MEMORY64, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Fp_Avx_ToSingleD_MemMem     },
+	{ OP_FP_TOINT32_TRUNC_D, MATCH_FP_MEMORY32, MATCH_FP_MEMORY64, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Fp_Avx_ToInt32TruncD_MemMem },
+
+	{ OP_FP_TODOUBLE_I64, MATCH_FP_MEMORY64, MATCH_FP_MEMORY64,      MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Fp_Avx_ToDoubleI64_MemMem },
 
 	{ OP_MOV, MATCH_NIL, MATCH_NIL, MATCH_NIL, MATCH_NIL, nullptr },
 };

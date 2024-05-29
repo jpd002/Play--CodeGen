@@ -32,6 +32,36 @@ CX86Assembler::CAddress CCodeGen_x86::MakeMemoryFp32SymbolAddress(CSymbol* symbo
 	}
 }
 
+CX86Assembler::CAddress CCodeGen_x86::MakeRelativeFp64SymbolAddress(CSymbol* symbol)
+{
+	assert(symbol->m_type == SYM_FP_RELATIVE64);
+	assert((symbol->m_valueLow & 0x7) == 0);
+	return CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rBP, symbol->m_valueLow);
+}
+
+CX86Assembler::CAddress CCodeGen_x86::MakeTemporaryFp64SymbolAddress(CSymbol* symbol)
+{
+	assert(symbol->m_type == SYM_FP_TEMPORARY64);
+	assert(((symbol->m_stackLocation + m_stackLevel) & 0x7) == 0);
+	return CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rSP, symbol->m_stackLocation + m_stackLevel);
+}
+
+CX86Assembler::CAddress CCodeGen_x86::MakeMemoryFp64SymbolAddress(CSymbol* symbol)
+{
+	switch(symbol->m_type)
+	{
+	case SYM_FP_RELATIVE64:
+		return MakeRelativeFp64SymbolAddress(symbol);
+		break;
+	case SYM_FP_TEMPORARY64:
+		return MakeTemporaryFp64SymbolAddress(symbol);
+		break;
+	default:
+		throw std::exception();
+		break;
+	}
+}
+
 CX86Assembler::SSE_CMP_TYPE CCodeGen_x86::GetSseConditionCode(Jitter::CONDITION condition)
 {
 	CX86Assembler::SSE_CMP_TYPE conditionCode = CX86Assembler::SSE_CMP_EQ;

@@ -491,6 +491,10 @@ namespace Jitter
 		CX86Assembler::CAddress		MakeTemporaryFp32SymbolAddress(CSymbol*);
 		CX86Assembler::CAddress		MakeMemoryFp32SymbolAddress(CSymbol*);
 
+		CX86Assembler::CAddress		MakeRelativeFp64SymbolAddress(CSymbol*);
+		CX86Assembler::CAddress		MakeTemporaryFp64SymbolAddress(CSymbol*);
+		CX86Assembler::CAddress		MakeMemoryFp64SymbolAddress(CSymbol*);
+		
 		CX86Assembler::CAddress		MakeRelative128SymbolElementAddress(CSymbol*, unsigned int);
 		CX86Assembler::CAddress		MakeTemporary128SymbolElementAddress(CSymbol*, unsigned int);
 
@@ -711,6 +715,14 @@ namespace Jitter
 		void						Emit_Fp_Avx_ClampS_MemMem(const STATEMENT&);
 		void						Emit_Fp_Avx_ToSingleI32_MemMem(const STATEMENT&);
 		void						Emit_Fp_Avx_ToInt32TruncS_MemMem(const STATEMENT&);
+
+		void						Emit_Fp_Avx_ToDoubleS_MemMem(const STATEMENT&);
+		void						Emit_Fp_Avx_ToDoubleS_MemRegI(const STATEMENT&);
+
+		void						Emit_Fp_Avx_ToSingleD_MemMem(const STATEMENT&);
+		void						Emit_Fp_Avx_ToInt32TruncD_MemMem(const STATEMENT&);
+
+		void						Emit_Fp_Avx_ToDoubleI64_MemMem(const STATEMENT&);
 
 		//MDOP AVX
 		template <typename> void	Emit_Md_Avx_VarVar(const STATEMENT&);

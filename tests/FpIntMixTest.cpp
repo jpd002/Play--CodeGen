@@ -46,6 +46,11 @@ void CFpIntMixTest::Compile(Jitter::CJitter& jitter)
 		jitter.FP_PushRel64(offsetof(CONTEXT, number5));
 		jitter.FP_ToInt32TruncateD();
 		jitter.FP_PullRel32(offsetof(CONTEXT, result3));
+
+		//result4 = toInt64(number4)
+		jitter.FP_PushRel64(offsetof(CONTEXT, number4));
+		jitter.FP_ToInt64TruncateD();
+		jitter.FP_PullRel64(offsetof(CONTEXT, result4));
 	}
 	jitter.End();
 
@@ -69,4 +74,5 @@ void CFpIntMixTest::Run()
 	TEST_VERIFY(m_context.result2								==     -1);
 	TEST_VERIFY(m_context.number4								== static_cast<double>(addend));
 	TEST_VERIFY(m_context.result3								==   1024);
+	TEST_VERIFY(m_context.result4								== addend);
 }

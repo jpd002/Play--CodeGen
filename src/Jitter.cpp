@@ -1093,17 +1093,14 @@ void CJitter::FP_ToInt32TruncateD()
 	m_shadow.Push(tempSym);
 }
 
+void CJitter::FP_ToInt64TruncateD()
+{
+	InsertUnaryFp64Statement(OP_FP_TOINT64_TRUNC_D);
+}
+
 void CJitter::FP_ToDoubleI64()
 {
-	auto tempSym = MakeSymbol(SYM_FP_TEMPORARY64, m_nextTemporary++);
-
-	STATEMENT statement;
-	statement.op = OP_FP_TODOUBLE_I64;
-	statement.src1 = MakeSymbolRef(m_shadow.Pull());
-	statement.dst = MakeSymbolRef(tempSym);
-	InsertStatement(statement);
-
-	m_shadow.Push(tempSym);
+	InsertUnaryFp64Statement(OP_FP_TODOUBLE_I64);
 }
 
 //SIMD
@@ -1767,9 +1764,9 @@ void CJitter::InsertUnaryFp64Statement(Jitter::OPERATION operation)
 	auto tempSym = MakeSymbol(SYM_FP_TEMPORARY64, m_nextTemporary++);
 
 	STATEMENT statement;
-	statement.op = operation;
+	statement.op   = operation;
 	statement.src1 = MakeSymbolRef(m_shadow.Pull());
-	statement.dst = MakeSymbolRef(tempSym);
+	statement.dst  = MakeSymbolRef(tempSym);
 	InsertStatement(statement);
 
 	m_shadow.Push(tempSym);
@@ -1780,10 +1777,10 @@ void CJitter::InsertBinaryFp64Statement(Jitter::OPERATION operation)
 	auto tempSym = MakeSymbol(SYM_FP_TEMPORARY64, m_nextTemporary++);
 
 	STATEMENT statement;
-	statement.op = operation;
+	statement.op   = operation;
 	statement.src2 = MakeSymbolRef(m_shadow.Pull());
 	statement.src1 = MakeSymbolRef(m_shadow.Pull());
-	statement.dst = MakeSymbolRef(tempSym);
+	statement.dst  = MakeSymbolRef(tempSym);
 	InsertStatement(statement);
 
 	m_shadow.Push(tempSym);

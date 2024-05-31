@@ -21,6 +21,7 @@ private:
 		uint32 result1;
 		uint32 result2;
 		uint32 result3;
+		uint64 result4;
 	};
 
 	CONTEXT				m_context;

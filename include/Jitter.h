@@ -188,6 +188,7 @@ namespace Jitter
 		void							FP_AbsD();
 		void							FP_ToSingleD();
 		void							FP_ToInt32TruncateD();
+		void							FP_ToInt64TruncateD();
 
 		void							FP_ToDoubleI64();
 

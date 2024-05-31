@@ -206,6 +206,11 @@ void CX86Assembler::Vcvttsd2siEd(REGISTER dst, const CAddress& src)
 	WriteVexVoOp(VEX_OPCODE_MAP_F2, 0x2C, static_cast<XMMREGISTER>(dst), CX86Assembler::xMM0, src);
 }
 
+void CX86Assembler::Vcvttsd2siEq(REGISTER dst, const CAddress& src)
+{
+	WriteVexVoOp(VEX_OPCODE_MAP_F2, 0x2C, static_cast<XMMREGISTER>(dst), CX86Assembler::xMM0, src, true);
+}
+
 void CX86Assembler::Vcvtsd2ssEd(XMMREGISTER dst, const CAddress& src)
 {
 	WriteVexVoOp(VEX_OPCODE_MAP_F2, 0x5A, dst, CX86Assembler::xMM0, src);

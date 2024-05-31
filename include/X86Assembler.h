@@ -410,6 +410,7 @@ public:
 	void									Vcvttss2siEd(REGISTER, const CAddress&);
 	void									Vcvtsd2siEd(REGISTER, const CAddress&);
 	void									Vcvttsd2siEd(REGISTER, const CAddress&);
+	void									Vcvttsd2siEq(REGISTER, const CAddress&);
 	void									Vcvtsd2ssEd(XMMREGISTER, const CAddress&);
 
 	void									VmovdqaVo(XMMREGISTER, const CAddress&);

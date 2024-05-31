@@ -759,6 +759,7 @@ namespace Jitter
 		void						Emit_Fp_Avx_AbsD_MemMem(const STATEMENT&);
 		void						Emit_Fp_Avx_ToSingleD_MemMem(const STATEMENT&);
 		void						Emit_Fp_Avx_ToInt32TruncD_MemMem(const STATEMENT&);
+		void						Emit_Fp_Avx_ToInt64TruncD_MemMem(const STATEMENT&);
 
 		void						Emit_Fp_Avx_ToDoubleI64_MemMem(const STATEMENT&);
 

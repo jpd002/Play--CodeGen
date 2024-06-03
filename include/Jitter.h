@@ -196,6 +196,8 @@ namespace Jitter
 		virtual void					MD_PushRel(size_t);
 		virtual void					MD_PushRelExpand(size_t);
 		void							MD_PushCst(const void*);
+		void							MD_PushCstExpandB(uint8);
+		//TODO: Rename these
 		void							MD_PushCstExpand(uint32);
 		void							MD_PushCstExpand(float);
 		virtual void					MD_PullRel(size_t);

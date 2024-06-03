@@ -1175,6 +1175,19 @@ void CJitter::MD_PushCst(const void* cstPtr)
 	m_shadow.Push(tempSym);
 }
 
+void CJitter::MD_PushCstExpandB(uint8 constant)
+{
+	auto tempSym = MakeSymbol(SYM_TEMPORARY128, m_nextTemporary++);
+
+	STATEMENT statement;
+	statement.op = OP_MD_EXPAND_B;
+	statement.src1 = MakeSymbolRef(MakeSymbol(SYM_CONSTANT, constant));
+	statement.dst = MakeSymbolRef(tempSym);
+	InsertStatement(statement);
+
+	m_shadow.Push(tempSym);
+}
+
 void CJitter::MD_PushCstExpand(uint32 constant)
 {
 	auto tempSym = MakeSymbol(SYM_TEMPORARY128, m_nextTemporary++);

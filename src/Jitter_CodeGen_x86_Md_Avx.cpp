@@ -555,6 +555,28 @@ void CCodeGen_x86::Emit_Md_Avx_Expand_VarCst(const STATEMENT& statement)
 	CommitSymbolRegisterMdAvx(dst, dstRegister);
 }
 
+void CCodeGen_x86::Emit_Md_Avx2_ExpandB_VarCst(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+
+	auto dstRegister = PrepareSymbolRegisterDefMd(dst, CX86Assembler::xMM0);
+
+	if(src1->m_valueLow == 0)
+	{
+		m_assembler.VpxorVo(dstRegister, dstRegister, CX86Assembler::MakeXmmRegisterAddress(dstRegister));
+	}
+	else
+	{
+		auto cstRegister = CX86Assembler::rAX;
+		m_assembler.MovId(cstRegister, src1->m_valueLow);
+		m_assembler.VmovdVo(dstRegister, CX86Assembler::MakeRegisterAddress(cstRegister));
+		m_assembler.VpbroadcastbVo(dstRegister, CX86Assembler::MakeXmmRegisterAddress(dstRegister));
+	}
+
+	CommitSymbolRegisterMdAvx(dst, dstRegister);
+}
+
 void CCodeGen_x86::Emit_Md_Avx2_Expand_VarReg(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
@@ -861,6 +883,8 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdAvxExpandConstMatchers[] =
 
 CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdAvx2ExpandConstMatchers[] =
 {
+	{ OP_MD_EXPAND_B, MATCH_VARIABLE128, MATCH_CONSTANT, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx2_ExpandB_VarCst },
+
 	{ OP_MD_EXPAND, MATCH_VARIABLE128, MATCH_REGISTER, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx2_Expand_VarReg },
 	{ OP_MD_EXPAND, MATCH_VARIABLE128, MATCH_MEMORY,   MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx2_Expand_VarMem },
 	{ OP_MD_EXPAND, MATCH_VARIABLE128, MATCH_CONSTANT, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx2_Expand_VarCst },

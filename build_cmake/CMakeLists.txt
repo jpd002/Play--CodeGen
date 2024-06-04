@@ -138,6 +138,8 @@ set(CodeGenTest_SRC
 	../tests/CursorTest.h
 	../tests/DivTest.cpp
 	../tests/DivTest.h
+	../tests/Div64Test.cpp
+	../tests/Div64Test.h
 	../tests/ExternJumpTest.cpp
 	../tests/ExternJumpTest.h
 	../tests/FpClampTest.cpp

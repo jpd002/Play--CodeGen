@@ -530,14 +530,30 @@ void CX86Assembler::Cdq()
 	WriteByte(0x99);
 }
 
+void CX86Assembler::Cqo()
+{
+	WriteRexByte(true, CX86Assembler::MakeRegisterAddress(CX86Assembler::rAX));
+	WriteByte(0x99);
+}
+
 void CX86Assembler::DivEd(const CAddress& address)
 {
 	WriteEvOp(0xF7, 0x06, false, address);
 }
 
+void CX86Assembler::DivEq(const CAddress& address)
+{
+	WriteEvOp(0xF7, 0x06, true, address);
+}
+
 void CX86Assembler::IdivEd(const CAddress& address)
 {
 	WriteEvOp(0xF7, 0x07, false, address);
+}
+
+void CX86Assembler::IdivEq(const CAddress& address)
+{
+	WriteEvOp(0xF7, 0x07, true, address);
 }
 
 void CX86Assembler::ImulEw(const CAddress& address)

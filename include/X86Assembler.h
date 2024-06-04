@@ -160,8 +160,11 @@ public:
 	void									CmpId(const CAddress&, uint32);
 	void									CmpIq(const CAddress&, uint64);
 	void									Cdq();
+	void									Cqo();
 	void									DivEd(const CAddress&);
+	void									DivEq(const CAddress&);
 	void									IdivEd(const CAddress&);
+	void									IdivEq(const CAddress&);
 	void									ImulEw(const CAddress&);
 	void									ImulEd(const CAddress&);
 	void									Int3();

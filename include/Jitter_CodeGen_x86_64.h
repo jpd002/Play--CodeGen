@@ -184,6 +184,9 @@ namespace Jitter
 		void								Emit_Mul64_MemMemMem(const STATEMENT&);
 		void								Emit_Mul64_MemMemCst(const STATEMENT&);
 
+		//DIV64/DIVS64
+		template <bool> void				Emit_Div64_MemMemMem(const STATEMENT&);
+
 	private:
 		typedef void (CCodeGen_x86_64::*ConstCodeEmitterType)(const STATEMENT&);
 

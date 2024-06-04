@@ -187,6 +187,27 @@ void CCodeGen_x86_64::Emit_Shift64_MemMemCst(const STATEMENT& statement)
 	{ SHIFTOP_CST, MATCH_MEMORY64, MATCH_MEMORY64, MATCH_MEMORY,   MATCH_NIL, &CCodeGen_x86_64::Emit_Shift64_MemMemMem<SHIFTOP> }, \
 	{ SHIFTOP_CST, MATCH_MEMORY64, MATCH_MEMORY64, MATCH_CONSTANT, MATCH_NIL, &CCodeGen_x86_64::Emit_Shift64_MemMemCst<SHIFTOP> },
 
+template <bool isSigned>
+void CCodeGen_x86_64::Emit_Div64_MemMemMem(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	m_assembler.MovEq(CX86Assembler::rAX, MakeMemory64SymbolAddress(src1));
+	if(isSigned)
+	{
+		m_assembler.Cqo();
+		m_assembler.IdivEq(MakeMemory64SymbolAddress(src2));
+	}
+	else
+	{
+		m_assembler.XorEq(CX86Assembler::rDX, CX86Assembler::MakeRegisterAddress(CX86Assembler::rDX));
+		m_assembler.DivEq(MakeMemory64SymbolAddress(src2));
+	}
+	m_assembler.MovGq(MakeMemory64SymbolAddress(dst), CX86Assembler::rAX);
+}
+
 CCodeGen_x86_64::CONSTMATCHER CCodeGen_x86_64::g_constMatchers[] = 
 {
 	{ OP_PARAM, MATCH_NIL, MATCH_CONTEXT,     MATCH_NIL, MATCH_NIL, &CCodeGen_x86_64::Emit_Param_Ctx    },
@@ -261,8 +282,12 @@ CCodeGen_x86_64::CONSTMATCHER CCodeGen_x86_64::g_constMatchers[] =
 
 	{ OP_CONDJMP, MATCH_NIL, MATCH_VAR_REF, MATCH_CONSTANT, MATCH_NIL, &CCodeGen_x86_64::Emit_CondJmp_Ref_VarCst },
 
-	{ OP_MUL, MATCH_MEMORY64, MATCH_MEMORY64, MATCH_MEMORY64, MATCH_NIL, &CCodeGen_x86_64::Emit_Mul64_MemMemMem },
+	{ OP_MUL, MATCH_MEMORY64, MATCH_MEMORY64, MATCH_MEMORY64,   MATCH_NIL, &CCodeGen_x86_64::Emit_Mul64_MemMemMem },
 	{ OP_MUL, MATCH_MEMORY64, MATCH_MEMORY64, MATCH_CONSTANT64, MATCH_NIL, &CCodeGen_x86_64::Emit_Mul64_MemMemCst },
+
+	{ OP_DIV, MATCH_MEMORY64, MATCH_MEMORY64, MATCH_MEMORY64,   MATCH_NIL, &CCodeGen_x86_64::Emit_Div64_MemMemMem<false> },
+
+	{ OP_DIVS, MATCH_MEMORY64, MATCH_MEMORY64, MATCH_MEMORY64,   MATCH_NIL, &CCodeGen_x86_64::Emit_Div64_MemMemMem<true> },
 
 	{ OP_MOV, MATCH_NIL, MATCH_NIL, MATCH_NIL, MATCH_NIL, nullptr },
 };

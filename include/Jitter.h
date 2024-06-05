@@ -84,6 +84,8 @@ namespace Jitter
 		void							Lzc();
 		void							Mult();
 		void							MultS();
+		void							MultHigh();
+		void							MultHighS();
 		void							Not();
 		void							Or();
 		void							Rol(uint8);

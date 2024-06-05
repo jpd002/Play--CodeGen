@@ -380,30 +380,22 @@ void CJitter::Lzc()
 
 void CJitter::Mult()
 {
-	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY64, m_nextTemporary++);
-
-	STATEMENT statement;
-	statement.op	= OP_MUL;
-	statement.src2	= MakeSymbolRef(m_shadow.Pull());
-	statement.src1	= MakeSymbolRef(m_shadow.Pull());
-	statement.dst	= MakeSymbolRef(tempSym);
-	InsertStatement(statement);
-
-	m_shadow.Push(tempSym);
+	InsertBinary64Statement(OP_MUL);
 }
 
 void CJitter::MultS()
 {
-	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY64, m_nextTemporary++);
+	InsertBinary64Statement(OP_MULS);
+}
 
-	STATEMENT statement;
-	statement.op	= OP_MULS;
-	statement.src2	= MakeSymbolRef(m_shadow.Pull());
-	statement.src1	= MakeSymbolRef(m_shadow.Pull());
-	statement.dst	= MakeSymbolRef(tempSym);
-	InsertStatement(statement);
+void CJitter::MultHigh()
+{
+	InsertBinary64Statement(OP_MULH);
+}
 
-	m_shadow.Push(tempSym);
+void CJitter::MultHighS()
+{
+	InsertBinary64Statement(OP_MULHS);
 }
 
 void CJitter::Not()

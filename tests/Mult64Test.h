@@ -5,6 +5,8 @@
 class CMult64Test : public CTest
 {
 public:
+						CMult64Test(bool);
+
 	void				Run() override;
 	void				Compile(Jitter::CJitter&) override;
 
@@ -16,8 +18,11 @@ private:
 
 		uint64			relLoResult;
 		uint64			cstLoResult;
-	};
 
+		uint64			relHiResult;
+	};
+	
+	bool				m_isSigned;
 	CONTEXT				m_context;
 	FunctionType		m_function;
 };

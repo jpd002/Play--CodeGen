@@ -567,6 +567,11 @@ void CX86Assembler::ImulEd(const CAddress& address)
 	WriteEvOp(0xF7, 0x05, false, address);
 }
 
+void CX86Assembler::ImulEq(const CAddress& address)
+{
+	WriteEvOp(0xF7, 0x05, true, address);
+}
+
 void CX86Assembler::Int3()
 {
 	WriteByte(0xCC);

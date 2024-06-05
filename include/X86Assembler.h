@@ -167,6 +167,7 @@ public:
 	void									IdivEq(const CAddress&);
 	void									ImulEw(const CAddress&);
 	void									ImulEd(const CAddress&);
+	void									ImulEq(const CAddress&);
 	void									Int3();
 	void									JbJx(LABEL);
 	void									JbeJx(LABEL);

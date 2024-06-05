@@ -188,6 +188,25 @@ void CCodeGen_x86_64::Emit_Shift64_MemMemCst(const STATEMENT& statement)
 	{ SHIFTOP_CST, MATCH_MEMORY64, MATCH_MEMORY64, MATCH_CONSTANT, MATCH_NIL, &CCodeGen_x86_64::Emit_Shift64_MemMemCst<SHIFTOP> },
 
 template <bool isSigned>
+void CCodeGen_x86_64::Emit_MulH64_MemMemMem(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	m_assembler.MovEq(CX86Assembler::rAX, MakeMemory64SymbolAddress(src2));
+	if(isSigned)
+	{
+		m_assembler.ImulEq(MakeMemory64SymbolAddress(src1));
+	}
+	else
+	{
+		m_assembler.MulEq(MakeMemory64SymbolAddress(src1));
+	}
+	m_assembler.MovGq(MakeMemory64SymbolAddress(dst), CX86Assembler::rDX);
+}
+
+template <bool isSigned>
 void CCodeGen_x86_64::Emit_Div64_MemMemMem(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
@@ -284,6 +303,10 @@ CCodeGen_x86_64::CONSTMATCHER CCodeGen_x86_64::g_constMatchers[] =
 
 	{ OP_MUL, MATCH_MEMORY64, MATCH_MEMORY64, MATCH_MEMORY64,   MATCH_NIL, &CCodeGen_x86_64::Emit_Mul64_MemMemMem },
 	{ OP_MUL, MATCH_MEMORY64, MATCH_MEMORY64, MATCH_CONSTANT64, MATCH_NIL, &CCodeGen_x86_64::Emit_Mul64_MemMemCst },
+
+	{ OP_MULH, MATCH_MEMORY64, MATCH_MEMORY64, MATCH_MEMORY64, MATCH_NIL, &CCodeGen_x86_64::Emit_MulH64_MemMemMem<false> },
+
+	{ OP_MULHS, MATCH_MEMORY64, MATCH_MEMORY64, MATCH_MEMORY64, MATCH_NIL, &CCodeGen_x86_64::Emit_MulH64_MemMemMem<true> },
 
 	{ OP_DIV, MATCH_MEMORY64, MATCH_MEMORY64, MATCH_MEMORY64,   MATCH_NIL, &CCodeGen_x86_64::Emit_Div64_MemMemMem<false> },
 

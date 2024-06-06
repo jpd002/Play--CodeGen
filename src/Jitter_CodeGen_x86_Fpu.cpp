@@ -79,6 +79,9 @@ CX86Assembler::SSE_CMP_TYPE CCodeGen_x86::GetSseConditionCode(Jitter::CONDITION 
 	case CONDITION_AB:
 		conditionCode = CX86Assembler::SSE_CMP_NLE;
 		break;
+	case CONDITION_AE:
+		conditionCode = CX86Assembler::SSE_CMP_NLT;
+		break;
 	default:
 		assert(0);
 		break;
@@ -113,7 +116,7 @@ void CCodeGen_x86::Emit_Fp_LdCst_MemCst(const STATEMENT& statement)
 
 	assert(src1->m_type == SYM_CONSTANT);
 
-	CX86Assembler::REGISTER tmpRegister = CX86Assembler::rAX;
+	auto tmpRegister = CX86Assembler::rAX;
 
 	m_assembler.MovId(tmpRegister, src1->m_valueLow);
 	m_assembler.MovGd(MakeMemoryFp32SymbolAddress(dst), tmpRegister);

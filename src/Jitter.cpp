@@ -2,7 +2,6 @@
 #include "Jitter.h"
 #include "placeholder_def.h"
 
-using namespace std;
 using namespace Jitter;
 
 CJitter::CJitter(CCodeGen* codeGen)

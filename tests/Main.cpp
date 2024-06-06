@@ -2,6 +2,7 @@
 
 #include "Crc32Test.h"
 #include "CursorTest.h"
+#include "ByteSwapTest.h"
 #include "MultTest.h"
 #include "DivTest.h"
 #include "RandomAluTest.h"
@@ -97,6 +98,7 @@ static const TestFactoryFunction s_factories[] =
 	[] () { return new CMultTest(false); },
 	[] () { return new CDivTest(true); },
 	[] () { return new CDivTest(false); },
+	[] () { return new CByteSwapTest(); },
 	[] () { return new CMemAccessTest(); },
 	[] () { return new CMemAccessIdxTest(true); },
 	[] () { return new CMemAccessIdxTest(false); },

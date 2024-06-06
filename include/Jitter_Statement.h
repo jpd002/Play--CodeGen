@@ -35,6 +35,7 @@ namespace Jitter
 		OP_DIVS,
 
 		OP_LZC,
+		OP_BSWAP,
 
 		OP_RELTOREF,
 		OP_ADDREF,

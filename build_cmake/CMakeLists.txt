@@ -124,6 +124,8 @@ set(CodeGenTest_SRC
 	../tests/AliasTest2.h
 	../tests/Alu64Test.cpp
 	../tests/Alu64Test.h
+	../tests/ByteSwapTest.cpp
+	../tests/ByteSwapTest.h
 	../tests/Call64Test.cpp
 	../tests/Call64Test.h
 	../tests/Cmp64Test.cpp

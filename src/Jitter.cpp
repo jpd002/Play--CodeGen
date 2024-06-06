@@ -250,6 +250,11 @@ void CJitter::Break()
 	InsertStatement(statement);
 }
 
+void CJitter::ByteSwap()
+{
+	InsertUnaryStatement(OP_BSWAP);
+}
+
 void CJitter::Call(void* func, unsigned int paramCount, RETURN_VALUE_TYPE returnValue)
 {
 	for(unsigned int i = 0; i < paramCount; i++)

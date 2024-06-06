@@ -484,6 +484,14 @@ void CX86Assembler::BsrEq(REGISTER registerId, const CAddress& address)
 	WriteEvGvOp0F(0xBD, true, address, registerId);
 }
 
+void CX86Assembler::BswapEd(REGISTER registerId)
+{
+	auto address = MakeRegisterAddress(registerId);
+	WriteRexByte(false, address);
+	WriteByte(0x0F);
+	WriteByte(0xC8 | address.ModRm.nRM);
+}
+
 void CX86Assembler::CallEd(const CAddress& address)
 {
 	WriteEvOp(0xFF, 0x02, false, address);

@@ -37,6 +37,8 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_constMatchers[] =
 	{ OP_LZC, MATCH_REGISTER, MATCH_VARIABLE, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Lzc_RegVar },
 	{ OP_LZC, MATCH_MEMORY,   MATCH_VARIABLE, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Lzc_MemVar },
 
+	{ OP_BSWAP, MATCH_VARIABLE, MATCH_VARIABLE, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Bswap_VarVar },
+
 	SHIFT_CONST_MATCHERS(OP_SRL, SHIFTOP_SRL)
 	SHIFT_CONST_MATCHERS(OP_SRA, SHIFTOP_SRA)
 	SHIFT_CONST_MATCHERS(OP_SLL, SHIFTOP_SLL)
@@ -587,6 +589,22 @@ void CCodeGen_x86::Emit_Lzc_MemVar(const STATEMENT& statement)
 
 	Emit_Lzc(dstRegister, MakeVariableSymbolAddress(src1));
 	m_assembler.MovGd(MakeMemorySymbolAddress(dst), dstRegister);
+}
+
+void CCodeGen_x86::Emit_Bswap_VarVar(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+
+	auto dstReg = PrepareSymbolRegisterDef(dst, CX86Assembler::rAX);
+
+	if(!src1->IsRegister() || !dst->Equals(src1))
+	{
+		m_assembler.MovEd(dstReg, MakeVariableSymbolAddress(src1));
+	}
+
+	m_assembler.BswapEd(dstReg);
+	CommitSymbolRegister(dst, dstReg);
 }
 
 void CCodeGen_x86::Emit_Mov_RegReg(const STATEMENT& statement)

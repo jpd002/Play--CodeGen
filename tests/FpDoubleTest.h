@@ -22,6 +22,7 @@ private:
 		double resDiv;
 		double resAbs;
 		double resNeg;
+		double resSqrtCst;
 
 		uint32 ltTest;
 		uint32 leTest;

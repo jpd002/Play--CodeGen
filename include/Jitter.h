@@ -161,6 +161,7 @@ namespace Jitter
 		virtual void					FP_PushCst32(float);
 		virtual void					FP_PushRel64(size_t);
 		virtual void					FP_PullRel64(size_t);
+		virtual void					FP_PushCst64(double);
 
 		void							FP_AddS();
 		void							FP_AbsS();
@@ -189,6 +190,7 @@ namespace Jitter
 		void							FP_CmpD(CONDITION);
 		void							FP_NegD();
 		void							FP_AbsD();
+		void							FP_SqrtD();
 		void							FP_ToSingleD();
 		void							FP_ToInt32TruncateD();
 		void							FP_ToInt64TruncateD();

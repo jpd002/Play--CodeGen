@@ -904,6 +904,19 @@ void CJitter::FP_PullRel64(size_t offset)
 	assert(GetSymbolSize(statement.src1) == GetSymbolSize(statement.dst));
 }
 
+void CJitter::FP_PushCst64(double constant)
+{
+	auto tempSym = MakeSymbol(SYM_FP_TEMPORARY64, m_nextTemporary++);
+
+	STATEMENT statement;
+	statement.op = OP_FP_LDCST;
+	statement.src1 = MakeSymbolRef(MakeConstant64(*reinterpret_cast<uint64*>(&constant)));
+	statement.dst = MakeSymbolRef(tempSym);
+	InsertStatement(statement);
+
+	m_shadow.Push(tempSym);
+}
+
 void CJitter::FP_AddS()
 {
 	InsertBinaryFp32Statement(OP_FP_ADD_S);
@@ -1061,6 +1074,11 @@ void CJitter::FP_NegD()
 void CJitter::FP_AbsD()
 {
 	InsertUnaryFp64Statement(OP_FP_ABS_D);
+}
+
+void CJitter::FP_SqrtD()
+{
+	InsertUnaryFp64Statement(OP_FP_SQRT_D);
 }
 
 void CJitter::FP_ToSingleD()

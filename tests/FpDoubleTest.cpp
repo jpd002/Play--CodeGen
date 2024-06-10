@@ -36,6 +36,10 @@ void CFpDoubleTest::Compile(Jitter::CJitter& jitter)
 		jitter.FP_AbsD();
 		jitter.FP_PullRel64(offsetof(CONTEXT, resAbs));
 
+		jitter.FP_PushCst64(4.0);
+		jitter.FP_SqrtD();
+		jitter.FP_PullRel64(offsetof(CONTEXT, resSqrtCst));
+
 		jitter.FP_PushRel64(offsetof(CONTEXT, number1));
 		jitter.FP_PushRel64(offsetof(CONTEXT, number3));
 		jitter.FP_CmpD(Jitter::CONDITION_BL);
@@ -70,6 +74,7 @@ void CFpDoubleTest::Run()
 	TEST_VERIFY(m_context.resDiv == 0.5);
 	TEST_VERIFY(m_context.resAbs == 4.0);
 	TEST_VERIFY(m_context.resNeg == 4.0);
+	TEST_VERIFY(m_context.resSqrtCst == 2.0);
 	TEST_VERIFY(m_context.ltTest == 0);
 	TEST_VERIFY(m_context.leTest != 0);
 	TEST_VERIFY(m_context.eqTest != 0);

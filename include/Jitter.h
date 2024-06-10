@@ -76,6 +76,7 @@ namespace Jitter
 		void							Break();
 		void							ByteSwap();
 		void							Call(void*, unsigned int, RETURN_VALUE_TYPE);
+		void							Clz();
 		void							Cmp(CONDITION);
 		void							Div();
 		void							DivS();

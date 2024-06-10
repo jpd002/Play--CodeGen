@@ -20,6 +20,8 @@ void CLzcTest::Run()
 	TEST_VERIFY(m_context.resultLzc2 == 7);
 	TEST_VERIFY(m_context.resultLzc3 == 31); //Constant ~0
 	TEST_VERIFY(m_context.resultLzc4 == 30); //Constant 1
+	TEST_VERIFY(m_context.resultClz0 == 19);
+	TEST_VERIFY(m_context.resultClz1 == 0);
 	TEST_VERIFY(m_context.resultClz64_0 == 0);
 	TEST_VERIFY(m_context.resultClz64_1 == 56);
 }
@@ -50,6 +52,20 @@ void CLzcTest::Compile(Jitter::CJitter& jitter)
 		jitter.PushCst(1);
 		jitter.Lzc();
 		jitter.PullRel(offsetof(CONTEXT, resultLzc4));
+
+		//--------------------------------
+		//CLZ
+
+		jitter.PushRel(offsetof(CONTEXT, input0));
+		jitter.Clz();
+		jitter.PullRel(offsetof(CONTEXT, resultClz0));
+
+		jitter.PushRel(offsetof(CONTEXT, input2));
+		jitter.Clz();
+		jitter.PullRel(offsetof(CONTEXT, resultClz1));
+
+		//--------------------------------
+		//CLZ64
 
 		jitter.PushRel64(offsetof(CONTEXT, input64_0));
 		jitter.Clz64();

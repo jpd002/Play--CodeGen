@@ -25,6 +25,9 @@ private:
 		uint32			resultLzc3;
 		uint32			resultLzc4;
 
+		uint32			resultClz0;
+		uint32			resultClz1;
+
 		uint64			resultClz64_0;
 		uint64			resultClz64_1;
 	};

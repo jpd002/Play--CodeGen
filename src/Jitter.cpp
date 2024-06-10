@@ -313,6 +313,11 @@ void CJitter::Call(void* func, unsigned int paramCount, RETURN_VALUE_TYPE return
 	}
 }
 
+void CJitter::Clz()
+{
+	InsertUnaryStatement(OP_CLZ);
+}
+
 void CJitter::Cmp(CONDITION condition)
 {
 	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY, m_nextTemporary++);

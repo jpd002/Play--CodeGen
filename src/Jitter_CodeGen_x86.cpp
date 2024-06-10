@@ -37,6 +37,8 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_constMatchers[] =
 	{ OP_LZC, MATCH_REGISTER, MATCH_VARIABLE, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Lzc_RegVar },
 	{ OP_LZC, MATCH_MEMORY,   MATCH_VARIABLE, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Lzc_MemVar },
 
+	{ OP_CLZ, MATCH_VARIABLE, MATCH_VARIABLE, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Clz_VarVar },
+
 	{ OP_BSWAP, MATCH_VARIABLE, MATCH_VARIABLE, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Bswap_VarVar },
 
 	SHIFT_CONST_MATCHERS(OP_SRL, SHIFTOP_SRL)
@@ -589,6 +591,19 @@ void CCodeGen_x86::Emit_Lzc_MemVar(const STATEMENT& statement)
 
 	Emit_Lzc(dstRegister, MakeVariableSymbolAddress(src1));
 	m_assembler.MovGd(MakeMemorySymbolAddress(dst), dstRegister);
+}
+
+void CCodeGen_x86::Emit_Clz_VarVar(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+
+	auto dstReg = PrepareSymbolRegisterDef(dst, CX86Assembler::rAX);
+
+	m_assembler.BsrEd(dstReg, MakeVariableSymbolAddress(src1));
+	m_assembler.XorId(CX86Assembler::MakeRegisterAddress(dstReg), 0x1F);
+
+	CommitSymbolRegister(dst, dstReg);
 }
 
 void CCodeGen_x86::Emit_Bswap_VarVar(const STATEMENT& statement)

@@ -599,6 +599,9 @@ namespace Jitter
 		void						Emit_Lzc_RegVar(const STATEMENT&);
 		void						Emit_Lzc_MemVar(const STATEMENT&);
 
+		//CLZ
+		void						Emit_Clz_VarVar(const STATEMENT&);
+
 		//BSWAP
 		void						Emit_Bswap_VarVar(const STATEMENT&);
 

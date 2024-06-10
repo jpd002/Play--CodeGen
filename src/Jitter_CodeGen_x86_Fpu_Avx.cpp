@@ -27,6 +27,16 @@ void CCodeGen_x86::Emit_Fp32_Avx_MemMemMem(const STATEMENT& statement)
 	m_assembler.VmovssEd(MakeMemoryFp32SymbolAddress(dst), dstRegister);
 }
 
+template <typename FPUOP>
+void CCodeGen_x86::Emit_Fp64_Avx_MemMem(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+
+	((m_assembler).*(FPUOP::OpEqAvx()))(CX86Assembler::xMM0, CX86Assembler::xMM0, MakeMemoryFp64SymbolAddress(src1));
+	m_assembler.VmovsdEq(MakeMemoryFp64SymbolAddress(dst), CX86Assembler::xMM0);
+}
+
 template <typename FP64OP>
 void CCodeGen_x86::Emit_Fp64_Avx_MemMemMem(const STATEMENT& statement)
 {
@@ -235,6 +245,25 @@ void CCodeGen_x86::Emit_Fp_Avx_ToDoubleI64_MemMem(const STATEMENT& statement)
 	m_assembler.VmovsdEq(MakeMemoryFp64SymbolAddress(dst), CX86Assembler::xMM0);
 }
 
+void CCodeGen_x86::Emit_Fp_Avx_LdCst64_MemCst(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+
+	auto tmpRegister = CX86Assembler::rAX;
+
+	uint64 cstValue = src1->GetConstant64();
+	if(cstValue == 0)
+	{
+		m_assembler.XorEq(tmpRegister, CX86Assembler::MakeRegisterAddress(tmpRegister));
+	}
+	else
+	{
+		m_assembler.MovIq(tmpRegister, cstValue);
+	}
+	m_assembler.MovGq(MakeMemoryFp64SymbolAddress(dst), tmpRegister);
+}
+
 CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_fpuAvxConstMatchers[] = 
 {
 	{ OP_FP_ADD_S, MATCH_FP_MEMORY32, MATCH_FP_MEMORY32, MATCH_FP_MEMORY32, MATCH_NIL, &CCodeGen_x86::Emit_Fp32_Avx_MemMemMem<FP32OP_ADD> },
@@ -267,6 +296,8 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_fpuAvxConstMatchers[] =
 
 	{ OP_FP_CMP_D, MATCH_VARIABLE, MATCH_FP_MEMORY64, MATCH_FP_MEMORY64, MATCH_NIL, &CCodeGen_x86::Emit_Fp_Avx_CmpD_VarMemMem },
 
+	{ OP_FP_SQRT_D,  MATCH_FP_MEMORY64, MATCH_FP_MEMORY64, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Fp64_Avx_MemMem<FP64OP_SQRT> },
+
 	{ OP_FP_NEG_D, MATCH_FP_MEMORY64, MATCH_FP_MEMORY64, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Fp_Avx_NegD_MemMem },
 	{ OP_FP_ABS_D, MATCH_FP_MEMORY64, MATCH_FP_MEMORY64, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Fp_Avx_AbsD_MemMem },
 
@@ -275,6 +306,8 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_fpuAvxConstMatchers[] =
 	{ OP_FP_TOINT64_TRUNC_D, MATCH_FP_MEMORY64, MATCH_FP_MEMORY64, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Fp_Avx_ToInt64TruncD_MemMem },
 
 	{ OP_FP_TODOUBLE_I64, MATCH_FP_MEMORY64, MATCH_FP_MEMORY64,      MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Fp_Avx_ToDoubleI64_MemMem },
+
+	{ OP_FP_LDCST, MATCH_FP_MEMORY64, MATCH_CONSTANT64, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Fp_Avx_LdCst64_MemCst },
 
 	{ OP_MOV, MATCH_NIL, MATCH_NIL, MATCH_NIL, MATCH_NIL, nullptr },
 };

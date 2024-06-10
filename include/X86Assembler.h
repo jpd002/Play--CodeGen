@@ -408,6 +408,7 @@ public:
 	void									VcmpsdEq(XMMREGISTER, XMMREGISTER, const CAddress&, SSE_CMP_TYPE);
 
 	void									VsqrtssEd(XMMREGISTER, XMMREGISTER, const CAddress&);
+	void									VsqrtsdEq(XMMREGISTER, XMMREGISTER, const CAddress&);
 
 	void									Vcvtsi2ssEd(XMMREGISTER, const CAddress&);
 	void									Vcvtsi2sdEq(XMMREGISTER, const CAddress&);

@@ -49,6 +49,12 @@ void CMdFpTest::Compile(Jitter::CJitter& jitter)
 		jitter.MD_MaxS();
 		jitter.MD_PullRel(offsetof(CONTEXT, dstMax));
 
+		//Cmp Equal
+		jitter.MD_PushRel(offsetof(CONTEXT, src0));
+		jitter.MD_PushRel(offsetof(CONTEXT, src0));
+		jitter.MD_CmpEqS();
+		jitter.MD_PullRel(offsetof(CONTEXT, dstCmpEq));
+
 		//Cmp Less-Than
 		jitter.MD_PushRel(offsetof(CONTEXT, src0));
 		jitter.MD_PushRel(offsetof(CONTEXT, src1));
@@ -132,6 +138,11 @@ void CMdFpTest::Run()
 	TEST_VERIFY(context.dstMax[1] ==   600.f);
 	TEST_VERIFY(context.dstMax[2] ==   500.f);
 	TEST_VERIFY(context.dstMax[3] ==  5000.f);
+
+	TEST_VERIFY(context.dstCmpEq[0] != 0);
+	TEST_VERIFY(context.dstCmpEq[1] != 0);
+	TEST_VERIFY(context.dstCmpEq[2] != 0);
+	TEST_VERIFY(context.dstCmpEq[3] != 0);
 
 	TEST_VERIFY(context.dstCmpLt[0] != 0);
 	TEST_VERIFY(context.dstCmpLt[1] != 0);

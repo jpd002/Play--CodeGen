@@ -25,6 +25,7 @@ private:
 		float			dstAbs[4];
 		float			dstMax[4];
 		float			dstMin[4];
+		uint32			dstCmpEq[4];
 		uint32			dstCmpLt[4];
 		uint32			dstCmpGt[4];
 

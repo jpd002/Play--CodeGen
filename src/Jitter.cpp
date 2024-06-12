@@ -1538,6 +1538,11 @@ void CJitter::MD_CmpGtW()
 	InsertBinaryMdStatement(OP_MD_CMPGT_W);
 }
 
+void CJitter::MD_CmpEqS()
+{
+	InsertBinaryMdStatement(OP_MD_CMPEQ_S);
+}
+
 void CJitter::MD_CmpLtS()
 {
 	InsertBinaryMdStatement(OP_MD_CMPLT_S);

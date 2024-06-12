@@ -151,6 +151,7 @@ namespace Jitter
 		OP_MD_MIN_S,
 		OP_MD_MAX_S,
 
+		OP_MD_CMPEQ_S,
 		OP_MD_CMPLT_S,
 		OP_MD_CMPGT_S,
 

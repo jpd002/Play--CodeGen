@@ -822,6 +822,7 @@ namespace Jitter
 		void						Emit_Md_Avx_Srl256_VarMemVar(const STATEMENT&);
 		void						Emit_Md_Avx_Srl256_VarMemCst(const STATEMENT&);
 
+		void						Emit_Md_Avx_ShuffleB_VarVarVar(const STATEMENT&);
 		void						Emit_Md_Avx_PermuteB_MemMemMemMem(const STATEMENT&);
 
 		void						Emit_Md_Avx_LoadFromRef_VarVar(const STATEMENT&);

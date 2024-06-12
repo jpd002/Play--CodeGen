@@ -251,6 +251,7 @@ namespace Jitter
 		void							MD_PackHB();
 		void							MD_PackWH();
 		void							MD_PermuteB();
+		void							MD_ShuffleB();
 		void							MD_SllH(uint8);
 		void							MD_SllW(uint8);
 		void							MD_SraH(uint8);

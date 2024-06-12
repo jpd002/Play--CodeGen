@@ -13,37 +13,46 @@ void CMdShuffleTest::Run()
 
 	m_function(&m_context);
 
-	auto result3 = Vector{0xF5, 0xCE, 0xD5, 0xCC, 0xB5, 0xCA, 0x95, 0xC8, 0x75, 0xC6, 0x55, 0xC4, 0x35, 0xC2, 0x15, 0xC0};
+	auto shufResult1 = Vector{0xC3, 0xC2, 0xC1, 0xC0, 0xC7, 0xC6, 0xC5, 0xC4, 0xCB, 0xCA, 0xC9, 0xC8, 0xCF, 0xCE, 0xCD, 0xCC};
+	auto permResult3 = Vector{0xF5, 0xCE, 0xD5, 0xCC, 0xB5, 0xCA, 0x95, 0xC8, 0x75, 0xC6, 0x55, 0xC4, 0x35, 0xC2, 0x15, 0xC0};
 
-	TEST_VERIFY(m_context.result1 == m_context.op2);
-	TEST_VERIFY(m_context.result2 == m_context.op1);
-	TEST_VERIFY(m_context.result3 == result3);
+	TEST_VERIFY(m_context.shufResult1 == shufResult1);
+	TEST_VERIFY(m_context.permResult1 == m_context.op2);
+	TEST_VERIFY(m_context.permResult2 == m_context.op1);
+	TEST_VERIFY(m_context.permResult3 == permResult3);
 }
 
 void CMdShuffleTest::Compile(Jitter::CJitter& jitter)
 {
+	Vector shufVec1 = Vector{0x3, 0x2, 0x1, 0x0, 0x7, 0x6, 0x5, 0x4, 0xB, 0xA, 0x9, 0x8, 0xF, 0xE, 0xD, 0xC};
+
 	Framework::CMemStream codeStream;
 	jitter.SetStream(&codeStream);
 
 	jitter.Begin();
 	{
 		jitter.MD_PushRel(offsetof(CONTEXT, op1));
+		jitter.MD_PushCst(shufVec1.data());
+		jitter.MD_ShuffleB();
+		jitter.MD_PullRel(offsetof(CONTEXT, shufResult1));
+
+		jitter.MD_PushRel(offsetof(CONTEXT, op1));
 		jitter.MD_PushRel(offsetof(CONTEXT, op2));
 		jitter.MD_PushRel(offsetof(CONTEXT, permVec1));
 		jitter.MD_PermuteB();
-		jitter.MD_PullRel(offsetof(CONTEXT, result1));
+		jitter.MD_PullRel(offsetof(CONTEXT, permResult1));
 
 		jitter.MD_PushRel(offsetof(CONTEXT, op1));
 		jitter.MD_PushRel(offsetof(CONTEXT, op2));
 		jitter.MD_PushRel(offsetof(CONTEXT, permVec2));
 		jitter.MD_PermuteB();
-		jitter.MD_PullRel(offsetof(CONTEXT, result2));
+		jitter.MD_PullRel(offsetof(CONTEXT, permResult2));
 
 		jitter.MD_PushRel(offsetof(CONTEXT, op1));
 		jitter.MD_PushRel(offsetof(CONTEXT, op2));
 		jitter.MD_PushRel(offsetof(CONTEXT, permVec3));
 		jitter.MD_PermuteB();
-		jitter.MD_PullRel(offsetof(CONTEXT, result3));
+		jitter.MD_PullRel(offsetof(CONTEXT, permResult3));
 	}
 	jitter.End();
 

@@ -1608,6 +1608,11 @@ void CJitter::MD_PermuteB()
 	m_shadow.Push(tempSym);
 }
 
+void CJitter::MD_ShuffleB()
+{
+	InsertBinaryMdStatement(OP_MD_SHUFFLE_B);
+}
+
 void CJitter::MD_AddS()
 {
 	InsertBinaryMdStatement(OP_MD_ADD_S);

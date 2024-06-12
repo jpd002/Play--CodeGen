@@ -24,9 +24,12 @@ private:
 		Vector permVec2;
 		Vector permVec3;
 
-		Vector result1;
-		Vector result2;
-		Vector result3;
+		Vector shufResult1;
+		Vector shufResult2;
+
+		Vector permResult1;
+		Vector permResult2;
+		Vector permResult3;
 	};
 
 	CONTEXT m_context;

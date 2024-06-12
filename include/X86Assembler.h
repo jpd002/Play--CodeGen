@@ -367,6 +367,7 @@ public:
 	void									SqrtssEd(XMMREGISTER, const CAddress&);
 	void									CmpssEd(XMMREGISTER, const CAddress&, SSE_CMP_TYPE);
 	void									CmppsVo(XMMREGISTER, const CAddress&, SSE_CMP_TYPE);
+	void									CmpeqpsVo(XMMREGISTER, const CAddress&);
 	void									CmpltpsVo(XMMREGISTER, const CAddress&);
 	void									CmpgtpsVo(XMMREGISTER, const CAddress&);
 	void									Cvtsi2ssEd(XMMREGISTER, const CAddress&);
@@ -499,6 +500,7 @@ public:
 	void									VmulpsVo(XMMREGISTER, XMMREGISTER, const CAddress&);
 	void									VdivpsVo(XMMREGISTER, XMMREGISTER, const CAddress&);
 
+	void									VcmpeqpsVo(XMMREGISTER, XMMREGISTER, const CAddress&);
 	void									VcmpltpsVo(XMMREGISTER, XMMREGISTER, const CAddress&);
 	void									VcmpgtpsVo(XMMREGISTER, XMMREGISTER, const CAddress&);
 

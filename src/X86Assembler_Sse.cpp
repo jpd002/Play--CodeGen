@@ -72,6 +72,11 @@ void CX86Assembler::CmppsVo(XMMREGISTER registerId, const CAddress& address, SSE
 	WriteByte(static_cast<uint8>(condition));
 }
 
+void CX86Assembler::CmpeqpsVo(XMMREGISTER registerId, const CAddress& address)
+{
+	CmppsVo(registerId, address, SSE_CMP_EQ);
+}
+
 void CX86Assembler::CmpltpsVo(XMMREGISTER registerId, const CAddress& address)
 {
 	CmppsVo(registerId, address, SSE_CMP_LT);

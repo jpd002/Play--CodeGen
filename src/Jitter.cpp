@@ -1643,6 +1643,11 @@ void CJitter::MD_AbsS()
 	InsertUnaryMdStatement(OP_MD_ABS_S);
 }
 
+void CJitter::MD_NegS()
+{
+	InsertUnaryMdStatement(OP_MD_NEG_S);
+}
+
 void CJitter::MD_MinS()
 {
 	InsertBinaryMdStatement(OP_MD_MIN_S);
@@ -1651,6 +1656,11 @@ void CJitter::MD_MinS()
 void CJitter::MD_MaxS()
 {
 	InsertBinaryMdStatement(OP_MD_MAX_S);
+}
+
+void CJitter::MD_SqrtS()
+{
+	InsertUnaryMdStatement(OP_MD_SQRT_S);
 }
 
 void CJitter::MD_MakeSignZero()

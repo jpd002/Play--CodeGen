@@ -149,8 +149,10 @@ namespace Jitter
 		OP_MD_MUL_S,
 		OP_MD_DIV_S,
 		OP_MD_ABS_S,
+		OP_MD_NEG_S,
 		OP_MD_MIN_S,
 		OP_MD_MAX_S,
+		OP_MD_SQRT_S,
 
 		OP_MD_CMPEQ_S,
 		OP_MD_CMPLT_S,

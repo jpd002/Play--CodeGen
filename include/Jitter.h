@@ -246,6 +246,7 @@ namespace Jitter
 		void							MD_MinW();
 		void							MD_MinS();
 		void							MD_MulS();
+		void							MD_NegS();
 		void							MD_Not();
 		void							MD_Or();
 		void							MD_PackHB();
@@ -254,6 +255,7 @@ namespace Jitter
 		void							MD_ShuffleB();
 		void							MD_SllH(uint8);
 		void							MD_SllW(uint8);
+		void							MD_SqrtS();
 		void							MD_SraH(uint8);
 		void							MD_SraW(uint8);
 		void							MD_SrlH(uint8);

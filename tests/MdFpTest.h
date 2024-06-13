@@ -17,14 +17,17 @@ private:
 		float			src0[4];
 		float			src1[4];
 		float			src2[4];
+		float			src3[4];
 
 		float			dstAdd[4];
 		float			dstSub[4];
 		float			dstMul[4];
 		float			dstDiv[4];
 		float			dstAbs[4];
+		float			dstNeg[4];
 		float			dstMax[4];
 		float			dstMin[4];
+		float			dstSqrt[4];
 		uint32			dstCmpEq[4];
 		uint32			dstCmpLt[4];
 		uint32			dstCmpGt[4];

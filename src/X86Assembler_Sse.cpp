@@ -421,6 +421,11 @@ void CX86Assembler::MulpsVo(XMMREGISTER registerId, const CAddress& address)
 	WriteEdVdOp_0F(0x59, address, registerId);
 }
 
+void CX86Assembler::SqrtpsVo(XMMREGISTER registerId, const CAddress& address)
+{
+	WriteEdVdOp_0F(0x51, address, registerId);
+}
+
 void CX86Assembler::SubpsVo(XMMREGISTER registerId, const CAddress& address)
 {
 	WriteEdVdOp_0F(0x5C, address, registerId);

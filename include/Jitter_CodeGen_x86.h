@@ -424,6 +424,12 @@ namespace Jitter
 			static OpVoAvxType OpVoAvx() { return &CX86Assembler::VmaxpsVo; }
 		};
 
+		struct MDOP_SQRTS : public MDOP_BASE
+		{
+			static OpVoType OpVo() { return &CX86Assembler::SqrtpsVo; }
+			static OpVoType OpVoAvx() { return &CX86Assembler::VsqrtpsVo; }
+		};
+
 		struct MDOP_TOWORD_TRUNCATE : public MDOP_BASE
 		{
 			static OpVoType OpVo() { return &CX86Assembler::Cvttps2dqVo; }
@@ -797,6 +803,7 @@ namespace Jitter
 
 		void						Emit_Md_Avx_Not_VarVar(const STATEMENT&);
 		void						Emit_Md_Avx_Abs_VarVar(const STATEMENT&);
+		void						Emit_Md_Avx_Neg_VarVar(const STATEMENT&);
 		void						Emit_Md_Avx_AddSSW_VarVarVar(const STATEMENT&);
 		void						Emit_Md_Avx_AddUSW_VarVarVar(const STATEMENT&);
 		void						Emit_Md_Avx_SubSSW_VarVarVar(const STATEMENT&);

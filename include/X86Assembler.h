@@ -380,6 +380,7 @@ public:
 	void									DivpsVo(XMMREGISTER, const CAddress&);
 	void									MaxpsVo(XMMREGISTER, const CAddress&);
 	void									MinpsVo(XMMREGISTER, const CAddress&);
+	void									SqrtpsVo(XMMREGISTER, const CAddress&);
 	void									MulpsVo(XMMREGISTER, const CAddress&);
 	void									SubpsVo(XMMREGISTER, const CAddress&);
 	void									ShufpsVo(XMMREGISTER, const CAddress&, uint8);
@@ -506,6 +507,7 @@ public:
 
 	void									VminpsVo(XMMREGISTER, XMMREGISTER, const CAddress&);
 	void									VmaxpsVo(XMMREGISTER, XMMREGISTER, const CAddress&);
+	void									VsqrtpsVo(XMMREGISTER, const CAddress&);
 
 	void									Vcvtdq2psVo(XMMREGISTER, const CAddress&);
 	void									Vcvttps2dqVo(XMMREGISTER, const CAddress&);

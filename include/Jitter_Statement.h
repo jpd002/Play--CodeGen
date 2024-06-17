@@ -129,6 +129,7 @@ namespace Jitter
 
 		OP_MD_EXPAND_B,
 		OP_MD_EXPAND, //Rename this to OP_MD_EXPAND_W
+		OP_MD_EXTRACT_W,
 
 		OP_MD_UNPACK_LOWER_BH,
 		OP_MD_UNPACK_LOWER_HW,

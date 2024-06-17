@@ -203,7 +203,7 @@ namespace Jitter
 		virtual void					MD_PushRelExpand(size_t);
 		void							MD_PushCst(const void*);
 		void							MD_PushCstExpandB(uint8);
-		//TODO: Rename these
+		//TODO: Rename these (ie.: add size suffix)
 		void							MD_PushCstExpand(uint32);
 		void							MD_PushCstExpand(float);
 		virtual void					MD_PullRel(size_t);
@@ -238,6 +238,7 @@ namespace Jitter
 		void							MD_CmpGtS();
 		void							MD_DivS();
 		void							MD_Expand();
+		void							MD_ExtractW();
 		void							MD_MakeSignZero();
 		void							MD_MaxH();
 		void							MD_MaxW();

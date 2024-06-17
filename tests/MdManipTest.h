@@ -17,6 +17,7 @@ private:
 		float			src0[4];
 		float			src1[4];
 		float			src2[4];
+		uint32			extractIndex[4];
 
 		float			dstMasked[4];
 
@@ -24,6 +25,7 @@ private:
 		float			dstExpandCst[4];
 		uint32			dstExpandCstByte[4];
 		float			dstExpandCstZero[4];
+		float			dstExtract[4];
 	};
 
 	FunctionType		m_function;

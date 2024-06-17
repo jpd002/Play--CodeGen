@@ -27,6 +27,15 @@ void CMdManipTest::Compile(Jitter::CJitter& jitter)
 		//Push Cst Expand Zero
 		jitter.MD_PushCstExpand(0U);
 		jitter.MD_PullRel(offsetof(CONTEXT, dstExpandCstZero));
+
+		//Extract
+		for(int i = 0; i < 4; i++)
+		{
+			jitter.MD_PushRel(offsetof(CONTEXT, src0));
+			jitter.PushRel(offsetof(CONTEXT, extractIndex[i]));
+			jitter.MD_ExtractW();
+			jitter.PullRel(offsetof(CONTEXT, dstExtract[i]));
+		}
 	}
 	jitter.End();
 
@@ -58,6 +67,11 @@ void CMdManipTest::Run()
 	context.src2[2] = 7.5f;
 	context.src2[3] = 8.5f;
 
+	context.extractIndex[0] = 2;
+	context.extractIndex[1] = 3;
+	context.extractIndex[2] = 0;
+	context.extractIndex[3] = 1;
+
 	m_function(&context);
 
 	TEST_VERIFY(context.dstMasked[0] ==    5.0f);
@@ -84,4 +98,9 @@ void CMdManipTest::Run()
 	TEST_VERIFY(context.dstExpandCstZero[1] == 0);
 	TEST_VERIFY(context.dstExpandCstZero[2] == 0);
 	TEST_VERIFY(context.dstExpandCstZero[3] == 0);
+
+	TEST_VERIFY(context.dstExtract[0] == 500.0f);
+	TEST_VERIFY(context.dstExtract[1] == 5000.0f);
+	TEST_VERIFY(context.dstExtract[2] == 5.0f);
+	TEST_VERIFY(context.dstExtract[3] == 50.f);
 }

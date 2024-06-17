@@ -1638,6 +1638,11 @@ void CJitter::MD_Expand()
 	InsertUnaryMdStatement(OP_MD_EXPAND);
 }
 
+void CJitter::MD_ExtractW()
+{
+	InsertBinaryStatement(OP_MD_EXTRACT_W);
+}
+
 void CJitter::MD_AbsS()
 {
 	InsertUnaryMdStatement(OP_MD_ABS_S);

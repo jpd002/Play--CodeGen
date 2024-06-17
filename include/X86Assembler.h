@@ -493,6 +493,8 @@ public:
 	void									VpshufbVo(XMMREGISTER, XMMREGISTER, const CAddress&);
 	void									VpmovmskbVo(REGISTER, XMMREGISTER);
 
+	void									VpextrdEd(const CAddress&, XMMREGISTER, uint8);
+
 	void									VpbroadcastbVo(XMMREGISTER, const CAddress&);
 	void									VpbroadcastdVo(XMMREGISTER, const CAddress&);
 

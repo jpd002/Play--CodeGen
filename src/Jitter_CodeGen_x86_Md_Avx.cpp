@@ -699,6 +699,47 @@ void CCodeGen_x86::Emit_Md_Avx_Srl256_VarMemCst(const STATEMENT& statement)
 	m_assembler.VmovdqaVo(MakeVariable128SymbolAddress(dst), resultRegister);
 }
 
+void CCodeGen_x86::Emit_Md_Avx_ExtractW_VarVarVar(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	auto src1Reg = PrepareSymbolRegisterUseMdAvx(src1, CX86Assembler::xMM0);
+	auto idxReg = CX86Assembler::rAX;
+
+	CX86Assembler::LABEL labels[3];
+	CX86Assembler::LABEL doneLabel = m_assembler.CreateLabel();
+	for(int i = 0; i < 3; i++)
+	{
+		labels[i] = m_assembler.CreateLabel();
+	}
+
+	m_assembler.MovEd(idxReg, MakeVariableSymbolAddress(src2));
+	m_assembler.AndId(CX86Assembler::MakeRegisterAddress(idxReg), 3);
+
+	for(int i = 1; i < 4; i++)
+	{
+		m_assembler.CmpId(CX86Assembler::MakeRegisterAddress(idxReg), i);
+		m_assembler.JzJx(labels[i - 1]);
+	}
+
+	for(int i = 0; i < 4; i++)
+	{
+		if(i != 0)
+		{
+			m_assembler.MarkLabel(labels[i - 1]);
+		}
+		m_assembler.VpextrdEd(MakeVariableSymbolAddress(dst), src1Reg, i);
+		if(i != 3)
+		{
+			m_assembler.JmpJx(doneLabel);
+		}
+	}
+
+	m_assembler.MarkLabel(doneLabel);
+}
+
 void CCodeGen_x86::Emit_Md_Avx_ShuffleB_VarVarVar(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
@@ -896,6 +937,8 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdAvxConstMatchers[] =
 	{ OP_MERGETO256, MATCH_MEMORY256,   MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_NIL, &CCodeGen_x86::Emit_Avx_MergeTo256_MemVarVar },
 	{ OP_MD_SRL256,  MATCH_VARIABLE128, MATCH_MEMORY256,   MATCH_VARIABLE,    MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx_Srl256_VarMemVar  },
 	{ OP_MD_SRL256,  MATCH_VARIABLE128, MATCH_MEMORY256,   MATCH_CONSTANT,    MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx_Srl256_VarMemCst  },
+
+	{ OP_MD_EXTRACT_W, MATCH_VARIABLE, MATCH_VARIABLE128, MATCH_VARIABLE, MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx_ExtractW_VarVarVar },
 
 	{ OP_MD_SHUFFLE_B, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx_ShuffleB_VarVarVar },
 	{ OP_MD_PERMUTE_B, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_VARIABLE128, &CCodeGen_x86::Emit_Md_Avx_PermuteB_MemMemMemMem },

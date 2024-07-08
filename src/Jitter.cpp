@@ -417,6 +417,11 @@ void CJitter::Or()
 	InsertBinaryStatement(OP_OR);
 }
 
+void CJitter::Rol()
+{
+	InsertBinaryStatement(OP_ROL);
+}
+
 void CJitter::Rol(uint8 amount)
 {
 	InsertShiftCstStatement(OP_ROL, amount);

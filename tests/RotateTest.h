@@ -20,6 +20,8 @@ private:
 
 		uint32 resultRol0;
 		uint32 resultRol1;
+		uint32 resultRolVar0;
+		uint32 resultRolVar1;
 	};
 
 	CONTEXT m_context;

@@ -90,6 +90,7 @@ namespace Jitter
 		void							MultHighS();
 		void							Not();
 		void							Or();
+		void							Rol();
 		void							Rol(uint8);
 		void							SignExt();
 		void							SignExt8();

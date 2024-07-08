@@ -40,6 +40,18 @@ void CRotateTest::Compile(Jitter::CJitter& jitter)
 		jitter.PushRel(offsetof(CONTEXT, value1));
 		jitter.Rol(m_shiftAmount);
 		jitter.PullRel(offsetof(CONTEXT, resultRol1));
+
+		//------------------
+		//ROL Variable
+		jitter.PushRel(offsetof(CONTEXT, value0));
+		jitter.PushRel(offsetof(CONTEXT, shiftAmount));
+		jitter.Rol();
+		jitter.PullRel(offsetof(CONTEXT, resultRolVar0));
+
+		jitter.PushRel(offsetof(CONTEXT, value1));
+		jitter.PushRel(offsetof(CONTEXT, shiftAmount));
+		jitter.Rol();
+		jitter.PullRel(offsetof(CONTEXT, resultRolVar1));
 	}
 	jitter.End();
 

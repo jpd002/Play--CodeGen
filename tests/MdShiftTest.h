@@ -17,6 +17,7 @@ private:
 		ALIGN16
 
 		uint8			value[16];
+		uint32			shiftAmountW[4];
 
 		uint16			resultSllH[8];
 		uint16			resultSrlH[8];
@@ -24,6 +25,8 @@ private:
 		uint32			resultSrlW[4];
 		uint32			resultSraW[4];
 		uint32			resultSllW[4];
+
+		uint32			resultSllVW[4];
 	};
 
 	CONTEXT				m_context;

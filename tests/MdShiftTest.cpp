@@ -15,6 +15,10 @@ void CMdShiftTest::Run()
 	{
 		m_context.value[i] = (i << 4);
 	}
+	for(unsigned int i = 0; i < 4; i++)
+	{
+		m_context.shiftAmountW[i] = m_shiftAmount + (i * 16);
+	}
 
 	m_function(&m_context);
 
@@ -32,6 +36,12 @@ void CMdShiftTest::Run()
 		TEST_VERIFY(m_context.resultSllW[i] == static_cast<uint32>(static_cast<uint32>(value) << static_cast<uint32>(m_shiftAmount & 0x1F)));
 		TEST_VERIFY(m_context.resultSrlW[i] == static_cast<uint32>(static_cast<uint32>(value) >> static_cast<uint32>(m_shiftAmount & 0x1F)));
 		TEST_VERIFY(m_context.resultSraW[i] == static_cast<uint32>(static_cast<int32>(value) >> static_cast<int32>(m_shiftAmount & 0x1F)));
+	}
+
+	for(unsigned int i = 0; i < 4; i++)
+	{
+		uint32 value = *reinterpret_cast<const uint32*>(m_context.value + i * 4);
+		TEST_VERIFY(m_context.resultSllVW[i] == static_cast<uint32>(static_cast<uint32>(value) << static_cast<uint32>(m_context.shiftAmountW[i] & 0x1F)));
 	}
 }
 
@@ -65,6 +75,11 @@ void CMdShiftTest::Compile(Jitter::CJitter& jitter)
 		jitter.MD_PushRel(offsetof(CONTEXT, value));
 		jitter.MD_SraW(m_shiftAmount);
 		jitter.MD_PullRel(offsetof(CONTEXT, resultSraW));
+
+		jitter.MD_PushRel(offsetof(CONTEXT, value));
+		jitter.MD_PushRel(offsetof(CONTEXT, shiftAmountW));
+		jitter.MD_SllW();
+		jitter.MD_PullRel(offsetof(CONTEXT, resultSllVW));
 	}
 	jitter.End();
 

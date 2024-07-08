@@ -1398,6 +1398,11 @@ void CJitter::MD_SllW(uint8 amount)
 	m_shadow.Push(tempSym);
 }
 
+void CJitter::MD_SllW()
+{
+	InsertBinaryMdStatement(OP_MD_SLLW);
+}
+
 void CJitter::MD_SrlH(uint8 amount)
 {
 	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY128, m_nextTemporary++);

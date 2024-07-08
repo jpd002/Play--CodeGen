@@ -376,6 +376,11 @@ void CX86Assembler::VpsrlqVo(XMMREGISTER dst, XMMREGISTER src, uint8 amount)
 	WriteVexShiftVoOp(0x73, 0x02, dst, src, amount);
 }
 
+void CX86Assembler::VpsllvdVo(XMMREGISTER dst, XMMREGISTER src1, const CAddress& src2)
+{
+	WriteVexVoOp(VEX_OPCODE_MAP_66_38, 0x47, dst, src1, src2);
+}
+
 void CX86Assembler::VpcmpeqbVo(XMMREGISTER dst, XMMREGISTER src1, const CAddress& src2)
 {
 	WriteVexVoOp(VEX_OPCODE_MAP_66, 0x74, dst, src1, src2);

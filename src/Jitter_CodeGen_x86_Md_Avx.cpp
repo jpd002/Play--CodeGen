@@ -641,6 +641,25 @@ void CCodeGen_x86::Emit_Md_Avx2_Expand_VarCst(const STATEMENT& statement)
 	CommitSymbolRegisterMdAvx(dst, dstRegister);
 }
 
+void CCodeGen_x86::Emit_Md_Avx2_SllV_VarVarVar(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	auto shiftRegister = CX86Assembler::xMM0;
+	auto valueRegister = PrepareSymbolRegisterUseMdAvx(src1, CX86Assembler::xMM1);
+	auto dstRegister = PrepareSymbolRegisterDefMd(dst, CX86Assembler::xMM2);
+
+	m_assembler.MovId(CX86Assembler::rAX, 0x1F);
+	m_assembler.VmovdVo(shiftRegister, CX86Assembler::MakeRegisterAddress(CX86Assembler::rAX));
+	m_assembler.VpbroadcastdVo(shiftRegister, CX86Assembler::MakeXmmRegisterAddress(shiftRegister));
+	m_assembler.VpandVo(shiftRegister, shiftRegister, MakeVariable128SymbolAddress(src2));
+	m_assembler.VpsllvdVo(dstRegister, valueRegister, CX86Assembler::MakeXmmRegisterAddress(shiftRegister));
+
+	CommitSymbolRegisterMdAvx(dst, dstRegister);
+}
+
 void CCodeGen_x86::Emit_Avx_MergeTo256_MemVarVar(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
@@ -967,6 +986,8 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdAvx2ExpandConstMatchers[] =
 	{ OP_MD_EXPAND, MATCH_VARIABLE128, MATCH_REGISTER, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx2_Expand_VarReg },
 	{ OP_MD_EXPAND, MATCH_VARIABLE128, MATCH_MEMORY,   MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx2_Expand_VarMem },
 	{ OP_MD_EXPAND, MATCH_VARIABLE128, MATCH_CONSTANT, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx2_Expand_VarCst },
+
+	{ OP_MD_SLLW, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx2_SllV_VarVarVar },
 
 	{ OP_MOV, MATCH_NIL, MATCH_NIL, MATCH_NIL, MATCH_NIL, nullptr },
 };

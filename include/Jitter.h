@@ -313,6 +313,7 @@ namespace Jitter
 		bool							ConstantPropagation(StatementList&);
 		bool							CopyPropagation(StatementList&);
 		bool							ReorderAdd(StatementList&);
+		bool							CommonExpressionElimination(VERSIONED_STATEMENT_LIST&);
 		bool							DeadcodeElimination(VERSIONED_STATEMENT_LIST&);
 
 		void							FixFlowControl(StatementList&);

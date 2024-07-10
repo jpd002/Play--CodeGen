@@ -47,7 +47,22 @@ CJitter::VERSIONED_STATEMENT_LIST CJitter::GenerateVersionedStatementList(const 
 				unsigned int currentVersion = relativeVersions.GetRelativeVersion(symbol->m_valueLow);
 				symbolRef = std::make_shared<CVersionedSymbolRef>(symbolRef->GetSymbol(), currentVersion);
 			}
-			if(CSymbol* symbol = dynamic_symbolref_cast(SYM_RELATIVE64, symbolRef))
+			else if(CSymbol* symbol = dynamic_symbolref_cast(SYM_REL_REFERENCE, symbolRef))
+			{
+				unsigned int currentVersion = relativeVersions.GetRelativeVersion(symbol->m_valueLow);
+				symbolRef = std::make_shared<CVersionedSymbolRef>(symbolRef->GetSymbol(), currentVersion);
+			}
+			else if(CSymbol* symbol = dynamic_symbolref_cast(SYM_RELATIVE64, symbolRef))
+			{
+				unsigned int currentVersion = relativeVersions.GetRelativeVersion(symbol->m_valueLow);
+				symbolRef = std::make_shared<CVersionedSymbolRef>(symbolRef->GetSymbol(), currentVersion);
+			}
+			else if(CSymbol* symbol = dynamic_symbolref_cast(SYM_FP_RELATIVE32, symbolRef))
+			{
+				unsigned int currentVersion = relativeVersions.GetRelativeVersion(symbol->m_valueLow);
+				symbolRef = std::make_shared<CVersionedSymbolRef>(symbolRef->GetSymbol(), currentVersion);
+			}
+			else if(CSymbol* symbol = dynamic_symbolref_cast(SYM_RELATIVE128, symbolRef))
 			{
 				unsigned int currentVersion = relativeVersions.GetRelativeVersion(symbol->m_valueLow);
 				symbolRef = std::make_shared<CVersionedSymbolRef>(symbolRef->GetSymbol(), currentVersion);
@@ -67,6 +82,10 @@ CJitter::VERSIONED_STATEMENT_LIST CJitter::GenerateVersionedStatementList(const 
 			newStatement.dst = std::make_shared<CVersionedSymbolRef>(newStatement.dst->GetSymbol(), nextVersion);
 		}
 		//Increment relative versions to prevent some optimization problems
+		else if(CSymbol* dst = dynamic_symbolref_cast(SYM_REL_REFERENCE, newStatement.dst))
+		{
+			result.relativeVersions.IncrementRelativeVersion(dst->m_valueLow);
+		}
 		else if(CSymbol* dst = dynamic_symbolref_cast(SYM_FP_RELATIVE32, newStatement.dst))
 		{
 			result.relativeVersions.IncrementRelativeVersion(dst->m_valueLow);
@@ -84,7 +103,7 @@ CJitter::VERSIONED_STATEMENT_LIST CJitter::GenerateVersionedStatementList(const 
 				mask = static_cast<uint8>(newStatement.jmpCondition);
 			}
 
-			if(mask & 0x01) result.relativeVersions.IncrementRelativeVersion(dst->m_valueLow + 0);
+			result.relativeVersions.IncrementRelativeVersion(dst->m_valueLow + 0);
 			if(mask & 0x02) result.relativeVersions.IncrementRelativeVersion(dst->m_valueLow + 4);
 			if(mask & 0x04) result.relativeVersions.IncrementRelativeVersion(dst->m_valueLow + 8);
 			if(mask & 0x08) result.relativeVersions.IncrementRelativeVersion(dst->m_valueLow + 12);
@@ -138,6 +157,7 @@ void CJitter::Compile()
 					dirty |= ReorderAdd(versionedStatements.statements);
 					dirty |= CopyPropagation(versionedStatements.statements);
 					dirty |= DeadcodeElimination(versionedStatements);
+					dirty |= CommonExpressionElimination(versionedStatements);
 
 					if(!dirty) break;
 				}
@@ -1256,6 +1276,75 @@ bool CJitter::CopyPropagation(StatementList& statements)
 				innerStatement.src2 = MakeSymbolRef(MakeSymbol(SYM_CONSTANT, result));
 				changed = true;
 			}
+		}
+	}
+
+	return changed;
+}
+
+bool CJitter::CommonExpressionElimination(VERSIONED_STATEMENT_LIST& versionedStatementList)
+{
+	bool changed = false;
+
+	for(auto outerStatementIterator(versionedStatementList.statements.begin());
+	    versionedStatementList.statements.end() != outerStatementIterator; ++outerStatementIterator)
+	{
+		auto& outerStatement(*outerStatementIterator);
+
+		if(!outerStatement.dst) continue;
+		if(outerStatement.op == OP_RETVAL) continue;
+		if(!outerStatement.dst->GetSymbol()->IsTemporary())
+		{
+			continue;
+		}
+
+		for(auto innerStatementIterator(outerStatementIterator);
+		    versionedStatementList.statements.end() != innerStatementIterator; ++innerStatementIterator)
+		{
+			if(innerStatementIterator == outerStatementIterator) continue;
+
+			const auto& innerStatement(*innerStatementIterator);
+
+			if(outerStatement.op != innerStatement.op) continue;
+			if(outerStatement.jmpCondition != innerStatement.jmpCondition) continue;
+			if(outerStatement.src1 && !outerStatement.src1->Equals(innerStatement.src1.get())) continue;
+			if(outerStatement.src2 && !outerStatement.src2->Equals(innerStatement.src2.get())) continue;
+			if(outerStatement.src3 && !outerStatement.src3->Equals(innerStatement.src3.get())) continue;
+
+			auto targetSymbol = innerStatement.dst;
+
+			innerStatementIterator++;
+			while(innerStatementIterator != versionedStatementList.statements.end())
+			{
+				auto& replaceStatement(*innerStatementIterator);
+				if(replaceStatement.src1)
+				{
+					if(replaceStatement.src1->Equals(targetSymbol.get()))
+					{
+						replaceStatement.src1 = outerStatement.dst;
+						changed = true;
+					}
+				}
+				if(replaceStatement.src2)
+				{
+					if(replaceStatement.src2->Equals(targetSymbol.get()))
+					{
+						replaceStatement.src2 = outerStatement.dst;
+						changed = true;
+					}
+				}
+				if(replaceStatement.src3)
+				{
+					if(replaceStatement.src3->Equals(targetSymbol.get()))
+					{
+						replaceStatement.src3 = outerStatement.dst;
+						changed = true;
+					}
+				}
+				innerStatementIterator++;
+			}
+
+			break;
 		}
 	}
 

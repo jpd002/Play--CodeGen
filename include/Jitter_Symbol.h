@@ -34,6 +34,7 @@ namespace Jitter
 
 		SYM_FP_RELATIVE32,
 		SYM_FP_TEMPORARY32,
+		SYM_FP_REGISTER32,
 	};
 
 	class CSymbol

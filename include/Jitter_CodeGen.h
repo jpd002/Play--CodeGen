@@ -71,9 +71,11 @@ namespace Jitter
 
 			MATCH_MEMORY256,
 
+			MATCH_FP_REGISTER32,
 			MATCH_FP_RELATIVE32,
 			MATCH_FP_TEMPORARY32,
 			MATCH_FP_MEMORY32,
+			MATCH_FP_VARIABLE32,
 		};
 
 		typedef std::function<void (const STATEMENT&)> CodeEmitterType;

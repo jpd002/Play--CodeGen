@@ -207,6 +207,7 @@ void CJitter::AssociateSymbolsToRegisters(SymbolRegAllocInfo& symbolRegAllocs) c
 			return 
 				(symbolType == SYM_RELATIVE) || (symbolType == SYM_TEMPORARY) ||
 				(symbolType == SYM_REL_REFERENCE) || (symbolType == SYM_TMP_REFERENCE) ||
+				(symbolType == SYM_FP_RELATIVE32) || (symbolType == SYM_FP_TEMPORARY32) ||
 				(symbolType == SYM_RELATIVE128) || (symbolType == SYM_TEMPORARY128);
 		};
 
@@ -267,6 +268,12 @@ void CJitter::AssociateSymbolsToRegisters(SymbolRegAllocInfo& symbolRegAllocs) c
 			registerIterator = availableRegisters.lower_bound(SYM_REGISTER);
 			registerIteratorEnd = availableRegisters.upper_bound(SYM_REGISTER);
 			registerSymbolType = SYM_REG_REFERENCE;
+		}
+		else if((symbol->m_type == SYM_FP_RELATIVE32) || (symbol->m_type == SYM_FP_TEMPORARY32))
+		{
+			registerIterator = availableRegisters.lower_bound(SYM_REGISTER128);
+			registerIteratorEnd = availableRegisters.upper_bound(SYM_REGISTER128);
+			registerSymbolType = SYM_FP_REGISTER32;
 		}
 		else if((symbol->m_type == SYM_RELATIVE128) || (symbol->m_type == SYM_TEMPORARY128))
 		{

@@ -16,6 +16,25 @@ CX86Assembler::CAddress CCodeGen_x86::MakeTemporaryFp32SymbolAddress(CSymbol* sy
 	return CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rSP, symbol->m_stackLocation + m_stackLevel);
 }
 
+CX86Assembler::CAddress CCodeGen_x86::MakeVariableFp32SymbolAddress(CSymbol* symbol)
+{
+	switch(symbol->m_type)
+	{
+	case SYM_FP_REGISTER32:
+		return CX86Assembler::MakeXmmRegisterAddress(m_mdRegisters[symbol->m_valueLow]);
+		break;
+	case SYM_FP_RELATIVE32:
+		return MakeRelativeFp32SymbolAddress(symbol);
+		break;
+	case SYM_FP_TEMPORARY32:
+		return MakeTemporaryFp32SymbolAddress(symbol);
+		break;
+	default:
+		throw std::exception();
+		break;
+	}
+}
+
 CX86Assembler::CAddress CCodeGen_x86::MakeMemoryFp32SymbolAddress(CSymbol* symbol)
 {
 	switch(symbol->m_type)

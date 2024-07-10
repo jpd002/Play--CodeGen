@@ -1203,6 +1203,23 @@ void CCodeGen_x86::CommitSymbolRegister(CSymbol* symbol, CX86Assembler::REGISTER
 	}
 }
 
+CX86Assembler::XMMREGISTER CCodeGen_x86::PrepareSymbolRegisterDefFp32(CSymbol* symbol, CX86Assembler::XMMREGISTER preferedRegister)
+{
+	switch(symbol->m_type)
+	{
+	case SYM_FP_REGISTER32:
+		return m_mdRegisters[symbol->m_valueLow];
+		break;
+	case SYM_FP_TEMPORARY32:
+	case SYM_FP_RELATIVE32:
+		return preferedRegister;
+		break;
+	default:
+		throw std::runtime_error("Invalid symbol type.");
+		break;
+	}
+}
+
 CX86Assembler::XMMREGISTER CCodeGen_x86::PrepareSymbolRegisterDefMd(CSymbol* symbol, CX86Assembler::XMMREGISTER preferedRegister)
 {
 	switch(symbol->m_type)

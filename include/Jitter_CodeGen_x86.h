@@ -489,6 +489,8 @@ namespace Jitter
 
 		CX86Assembler::CAddress		MakeRelativeFp32SymbolAddress(CSymbol*);
 		CX86Assembler::CAddress		MakeTemporaryFp32SymbolAddress(CSymbol*);
+
+		CX86Assembler::CAddress		MakeVariableFp32SymbolAddress(CSymbol*);
 		CX86Assembler::CAddress		MakeMemoryFp32SymbolAddress(CSymbol*);
 
 		CX86Assembler::CAddress		MakeRelative128SymbolElementAddress(CSymbol*, unsigned int);
@@ -702,15 +704,25 @@ namespace Jitter
 		void						Emit_Md_StoreAtRef_VarAnyVar(const STATEMENT&);
 
 		//FPUOP AVX
-		template <typename> void	Emit_Fp32_Avx_MemMem(const STATEMENT&);
-		template <typename> void	Emit_Fp32_Avx_MemMemMem(const STATEMENT&);
+		template <typename> void	Emit_Fp32_Avx_VarVar(const STATEMENT&);
+		template <typename> void	Emit_Fp32_Avx_VarVarVar(const STATEMENT&);
 
-		void						Emit_Fp_Avx_CmpS_VarMemMem(const STATEMENT&);
-		void						Emit_Fp_Avx_RsqrtS_MemMem(const STATEMENT&);
-		void						Emit_Fp_Avx_RcplS_MemMem(const STATEMENT&);
-		void						Emit_Fp_Avx_ClampS_MemMem(const STATEMENT&);
-		void						Emit_Fp_Avx_ToSingleI32_MemMem(const STATEMENT&);
-		void						Emit_Fp_Avx_ToInt32TruncS_MemMem(const STATEMENT&);
+		void						Emit_Fp32_Avx_Mov_RegMem(const STATEMENT&);
+		void						Emit_Fp32_Avx_Mov_MemReg(const STATEMENT&);
+		void						Emit_Fp32_Avx_LdCst_RegCst(const STATEMENT&);
+
+		void						Emit_Fp_Avx_CmpS_VarVarVar(const STATEMENT&);
+		void						Emit_Fp_Avx_RsqrtS_VarVar(const STATEMENT&);
+		void						Emit_Fp_Avx_RcplS_VarVar(const STATEMENT&);
+		void						Emit_Fp_Avx_AbsS_RegMem(const STATEMENT&);
+		void						Emit_Fp_Avx_AbsS_VarReg(const STATEMENT&);
+		void						Emit_Fp_Avx_NegS_RegMem(const STATEMENT&);
+		void						Emit_Fp_Avx_NegS_VarReg(const STATEMENT&);
+		void						Emit_Fp_Avx_ClampS_VarVar(const STATEMENT&);
+		void						Emit_Fp_Avx_ToSingleI32_VarReg(const STATEMENT&);
+		void						Emit_Fp_Avx_ToSingleI32_VarMem(const STATEMENT&);
+		void						Emit_Fp_Avx_ToInt32TruncS_RegVar(const STATEMENT&);
+		void						Emit_Fp_Avx_ToInt32TruncS_MemVar(const STATEMENT&);
 
 		//MDOP AVX
 		template <typename> void	Emit_Md_Avx_VarVar(const STATEMENT&);
@@ -760,6 +772,10 @@ namespace Jitter
 		CX86Assembler::REGISTER		PrepareSymbolRegisterUse(CSymbol*, CX86Assembler::REGISTER);
 		CX86Assembler::BYTEREGISTER	PrepareSymbolByteRegisterUse(CSymbol*, CX86Assembler::REGISTER);
 		void						CommitSymbolRegister(CSymbol*, CX86Assembler::REGISTER);
+
+		CX86Assembler::XMMREGISTER	PrepareSymbolRegisterDefFp32(CSymbol*, CX86Assembler::XMMREGISTER);
+		CX86Assembler::XMMREGISTER	PrepareSymbolRegisterUseFp32Avx(CSymbol*, CX86Assembler::XMMREGISTER);
+		void						CommitSymbolRegisterFp32Avx(CSymbol*, CX86Assembler::XMMREGISTER);
 
 		CX86Assembler::XMMREGISTER	PrepareSymbolRegisterDefMd(CSymbol*, CX86Assembler::XMMREGISTER);
 		CX86Assembler::XMMREGISTER	PrepareSymbolRegisterUseMdSse(CSymbol*, CX86Assembler::XMMREGISTER);

@@ -133,6 +133,10 @@ namespace Jitter
 		CAArch64Assembler::REGISTER64    PrepareSymbolRegisterUseRef(CSymbol*, CAArch64Assembler::REGISTER64);
 		void                             CommitSymbolRegisterRef(CSymbol*, CAArch64Assembler::REGISTER64);
 		
+		CAArch64Assembler::REGISTERMD    PrepareSymbolRegisterDefFp(CSymbol*, CAArch64Assembler::REGISTERMD);
+		CAArch64Assembler::REGISTERMD    PrepareSymbolRegisterUseFp(CSymbol*, CAArch64Assembler::REGISTERMD);
+		void                             CommitSymbolRegisterFp(CSymbol*, CAArch64Assembler::REGISTERMD);
+
 		CAArch64Assembler::REGISTERMD    PrepareSymbolRegisterDefMd(CSymbol*, CAArch64Assembler::REGISTERMD);
 		CAArch64Assembler::REGISTERMD    PrepareSymbolRegisterUseMd(CSymbol*, CAArch64Assembler::REGISTERMD);
 		void                             CommitSymbolRegisterMd(CSymbol*, CAArch64Assembler::REGISTERMD);
@@ -708,16 +712,20 @@ namespace Jitter
 		template <typename> void    Emit_Shift64_MemMemCst(const STATEMENT&);
 		
 		//FPU
-		template <typename> void    Emit_Fpu_MemMem(const STATEMENT&);
-		template <typename> void    Emit_Fpu_MemMemMem(const STATEMENT&);
+		template <typename> void    Emit_Fpu_VarVar(const STATEMENT&);
+		template <typename> void    Emit_Fpu_VarVarVar(const STATEMENT&);
 
-		void    Emit_Fp_Cmp_AnyMemMem(const STATEMENT&);
-		void    Emit_Fp_Rcpl_MemMem(const STATEMENT&);
-		void    Emit_Fp_Rsqrt_MemMem(const STATEMENT&);
-		void    Emit_Fp_Clamp_MemMem(const STATEMENT&);
-		void    Emit_Fp_ToSingleI32_MemMem(const STATEMENT&);
-		void    Emit_Fp_ToInt32TruncS_MemMem(const STATEMENT&);
-		void    Emit_Fp_LdCst_TmpCst(const STATEMENT&);
+		void    Emit_Fp32_Mov_RegMem(const STATEMENT&);
+		void    Emit_Fp32_Mov_MemReg(const STATEMENT&);
+		void    Emit_Fp32_LdCst_RegCst(const STATEMENT&);
+		void    Emit_Fp32_LdCst_TmpCst(const STATEMENT&);
+
+		void    Emit_Fp_Cmp_AnyVarVar(const STATEMENT&);
+		void    Emit_Fp_Rcpl_VarVar(const STATEMENT&);
+		void    Emit_Fp_Rsqrt_VarVar(const STATEMENT&);
+		void    Emit_Fp_Clamp_VarVar(const STATEMENT&);
+		void    Emit_Fp_ToSingleI32_VarVar(const STATEMENT&);
+		void    Emit_Fp_ToInt32TruncS_VarVar(const STATEMENT&);
 
 		//MD
 		template <typename> void    Emit_Md_VarVar(const STATEMENT&);

@@ -639,7 +639,7 @@ namespace Jitter
 
 		void						Emit_Fp_AbsS_MemMem(const STATEMENT&);
 		void						Emit_Fp_NegS_MemMem(const STATEMENT&);
-		void						Emit_Fp_LdCst_MemCst(const STATEMENT&);
+		void						Emit_Fp32_LdCst_MemCst(const STATEMENT&);
 
 		template <typename> void	Emit_Fp32_MemMem(const STATEMENT&);
 		template <typename> void	Emit_Fp32_MemMemMem(const STATEMENT&);

@@ -95,7 +95,7 @@ void CCodeGen_x86::Emit_Fp_NegS_MemMem(const STATEMENT& statement)
 	m_assembler.MovGd(MakeMemoryFp32SymbolAddress(dst), CX86Assembler::rAX);
 }
 
-void CCodeGen_x86::Emit_Fp_LdCst_MemCst(const STATEMENT& statement)
+void CCodeGen_x86::Emit_Fp32_LdCst_MemCst(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
@@ -113,7 +113,7 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_fpuConstMatchers[] =
 	{ OP_FP_ABS_S, MATCH_FP_MEMORY32, MATCH_FP_MEMORY32, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Fp_AbsS_MemMem },
 	{ OP_FP_NEG_S, MATCH_FP_MEMORY32, MATCH_FP_MEMORY32, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Fp_NegS_MemMem },
 
-	{ OP_FP_LDCST, MATCH_FP_MEMORY32, MATCH_CONSTANT, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Fp_LdCst_MemCst },
+	{ OP_FP_LDCST, MATCH_FP_MEMORY32, MATCH_CONSTANT, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Fp32_LdCst_MemCst },
 
 	{ OP_MOV, MATCH_NIL, MATCH_NIL, MATCH_NIL, MATCH_NIL, nullptr },
 };

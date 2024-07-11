@@ -3,16 +3,6 @@
 
 using namespace Jitter;
 
-CSymbolTable::CSymbolTable()
-{
-
-}
-
-CSymbolTable::~CSymbolTable()
-{
-
-}
-
 CSymbolTable::SymbolSet& CSymbolTable::GetSymbols()
 {
 	return m_symbols;

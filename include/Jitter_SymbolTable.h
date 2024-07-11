@@ -1,12 +1,11 @@
-#ifndef _JITTER_SYMBOLTABLE_H_
-#define _JITTER_SYMBOLTABLE_H_
+#pragma once
 
 #include <unordered_set>
 #include "Jitter_Symbol.h"
 
 namespace Jitter
 {
-	class CSymbolTable
+	class CSymbolTable final
 	{
 	public:
 		struct SymbolNullDeleter
@@ -20,8 +19,7 @@ namespace Jitter
 		typedef std::unordered_set<SymbolPtr, SymbolHasher, SymbolComparator> SymbolSet;
 		typedef SymbolSet::iterator SymbolIterator;
 
-								CSymbolTable();
-		virtual					~CSymbolTable();
+								CSymbolTable() = default;
 
 		SymbolPtr				MakeSymbol(const SymbolPtr&);
 		SymbolPtr				MakeSymbol(SYM_TYPE, uint32, uint32 = 0);
@@ -33,5 +31,3 @@ namespace Jitter
 		SymbolSet				m_symbols;
 	};
 }
-
-#endif

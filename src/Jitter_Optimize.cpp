@@ -1285,67 +1285,53 @@ bool CJitter::CopyPropagation(StatementList& statements)
 bool CJitter::CommonExpressionElimination(VERSIONED_STATEMENT_LIST& versionedStatementList)
 {
 	bool changed = false;
+	std::vector<StatementList::const_iterator> tempDefs;
+	std::unordered_map<SymbolPtr, SymbolPtr> tempReplaceMap;
+	tempDefs.reserve(versionedStatementList.statements.size());
 
-	for(auto outerStatementIterator(versionedStatementList.statements.begin());
-	    versionedStatementList.statements.end() != outerStatementIterator; ++outerStatementIterator)
+	for(auto statementIterator(versionedStatementList.statements.begin());
+	    versionedStatementList.statements.end() != statementIterator; ++statementIterator)
 	{
-		auto& outerStatement(*outerStatementIterator);
+		auto& statement(*statementIterator);
 
-		if(!outerStatement.dst) continue;
-		if(outerStatement.op == OP_RETVAL) continue;
-		if(!outerStatement.dst->GetSymbol()->IsTemporary())
+		if(
+		    (statement.op != OP_RETVAL) &&
+		    (statement.dst) &&
+		    (statement.dst->GetSymbol()->IsTemporary()))
+		{
+			const auto& newTemp = statement.dst->GetSymbol();
+
+			//Check if our temporary already have a similar definition
+			for(const auto& tempDef : tempDefs)
+			{
+				const auto& tempDefStatement = *tempDef;
+				assert(tempDefStatement.dst);
+				const auto& temp = tempDefStatement.dst;
+				if(statement.op != tempDefStatement.op) continue;
+				if(statement.jmpCondition != tempDefStatement.jmpCondition) continue;
+				if(statement.src1 && !statement.src1->Equals(tempDefStatement.src1.get())) continue;
+				if(statement.src2 && !statement.src2->Equals(tempDefStatement.src2.get())) continue;
+				if(statement.src3 && !statement.src3->Equals(tempDefStatement.src3.get())) continue;
+				tempReplaceMap.insert(std::make_pair(newTemp, temp->GetSymbol()));
+			}
+
+			tempDefs.push_back(statementIterator);
+		}
+
+		if(tempReplaceMap.empty())
 		{
 			continue;
 		}
 
-		for(auto innerStatementIterator(outerStatementIterator);
-		    versionedStatementList.statements.end() != innerStatementIterator; ++innerStatementIterator)
-		{
-			if(innerStatementIterator == outerStatementIterator) continue;
-
-			const auto& innerStatement(*innerStatementIterator);
-
-			if(outerStatement.op != innerStatement.op) continue;
-			if(outerStatement.jmpCondition != innerStatement.jmpCondition) continue;
-			if(outerStatement.src1 && !outerStatement.src1->Equals(innerStatement.src1.get())) continue;
-			if(outerStatement.src2 && !outerStatement.src2->Equals(innerStatement.src2.get())) continue;
-			if(outerStatement.src3 && !outerStatement.src3->Equals(innerStatement.src3.get())) continue;
-
-			auto targetSymbol = innerStatement.dst;
-
-			innerStatementIterator++;
-			while(innerStatementIterator != versionedStatementList.statements.end())
-			{
-				auto& replaceStatement(*innerStatementIterator);
-				if(replaceStatement.src1)
-				{
-					if(replaceStatement.src1->Equals(targetSymbol.get()))
-					{
-						replaceStatement.src1 = outerStatement.dst;
-						changed = true;
-					}
-				}
-				if(replaceStatement.src2)
-				{
-					if(replaceStatement.src2->Equals(targetSymbol.get()))
-					{
-						replaceStatement.src2 = outerStatement.dst;
-						changed = true;
-					}
-				}
-				if(replaceStatement.src3)
-				{
-					if(replaceStatement.src3->Equals(targetSymbol.get()))
-					{
-						replaceStatement.src3 = outerStatement.dst;
-						changed = true;
-					}
-				}
-				innerStatementIterator++;
-			}
-
-			break;
-		}
+		statement.VisitSources(
+		    [&](SymbolRefPtr& innerSymbolRef, bool) {
+			    if(!innerSymbolRef->GetSymbol()->IsTemporary()) return;
+			    if(auto tempReplaceIterator = tempReplaceMap.find(innerSymbolRef->GetSymbol()); tempReplaceIterator != std::end(tempReplaceMap))
+			    {
+				    innerSymbolRef = MakeSymbolRef(tempReplaceIterator->second);
+				    changed = true;
+			    }
+		    });
 	}
 
 	return changed;

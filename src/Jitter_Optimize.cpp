@@ -45,27 +45,27 @@ CJitter::VERSIONED_STATEMENT_LIST CJitter::GenerateVersionedStatementList(const 
 			if(CSymbol* symbol = dynamic_symbolref_cast(SYM_RELATIVE, symbolRef))
 			{
 				unsigned int currentVersion = relativeVersions.GetRelativeVersion(symbol->m_valueLow);
-				symbolRef = std::make_shared<CVersionedSymbolRef>(symbolRef->GetSymbol(), currentVersion);
+				symbolRef = std::make_shared<CSymbolRef>(symbolRef->GetSymbol(), currentVersion);
 			}
 			else if(CSymbol* symbol = dynamic_symbolref_cast(SYM_REL_REFERENCE, symbolRef))
 			{
 				unsigned int currentVersion = relativeVersions.GetRelativeVersion(symbol->m_valueLow);
-				symbolRef = std::make_shared<CVersionedSymbolRef>(symbolRef->GetSymbol(), currentVersion);
+				symbolRef = std::make_shared<CSymbolRef>(symbolRef->GetSymbol(), currentVersion);
 			}
 			else if(CSymbol* symbol = dynamic_symbolref_cast(SYM_RELATIVE64, symbolRef))
 			{
 				unsigned int currentVersion = relativeVersions.GetRelativeVersion(symbol->m_valueLow);
-				symbolRef = std::make_shared<CVersionedSymbolRef>(symbolRef->GetSymbol(), currentVersion);
+				symbolRef = std::make_shared<CSymbolRef>(symbolRef->GetSymbol(), currentVersion);
 			}
 			else if(CSymbol* symbol = dynamic_symbolref_cast(SYM_FP_RELATIVE32, symbolRef))
 			{
 				unsigned int currentVersion = relativeVersions.GetRelativeVersion(symbol->m_valueLow);
-				symbolRef = std::make_shared<CVersionedSymbolRef>(symbolRef->GetSymbol(), currentVersion);
+				symbolRef = std::make_shared<CSymbolRef>(symbolRef->GetSymbol(), currentVersion);
 			}
 			else if(CSymbol* symbol = dynamic_symbolref_cast(SYM_RELATIVE128, symbolRef))
 			{
 				unsigned int currentVersion = relativeVersions.GetRelativeVersion(symbol->m_valueLow);
-				symbolRef = std::make_shared<CVersionedSymbolRef>(symbolRef->GetSymbol(), currentVersion);
+				symbolRef = std::make_shared<CSymbolRef>(symbolRef->GetSymbol(), currentVersion);
 			}
 		}
 	};
@@ -76,26 +76,26 @@ CJitter::VERSIONED_STATEMENT_LIST CJitter::GenerateVersionedStatementList(const 
 		ReplaceUse()(newStatement.src2, result.relativeVersions);
 		ReplaceUse()(newStatement.src3, result.relativeVersions);
 
-		if(CSymbol* dst = dynamic_symbolref_cast(SYM_RELATIVE, newStatement.dst))
+		if(auto dst = dynamic_symbolref_cast(SYM_RELATIVE, newStatement.dst))
 		{
 			unsigned int nextVersion = result.relativeVersions.IncrementRelativeVersion(dst->m_valueLow);
-			newStatement.dst = std::make_shared<CVersionedSymbolRef>(newStatement.dst->GetSymbol(), nextVersion);
+			newStatement.dst = std::make_shared<CSymbolRef>(newStatement.dst->GetSymbol(), nextVersion);
 		}
 		//Increment relative versions to prevent some optimization problems
-		else if(CSymbol* dst = dynamic_symbolref_cast(SYM_REL_REFERENCE, newStatement.dst))
+		else if(auto dst = dynamic_symbolref_cast(SYM_REL_REFERENCE, newStatement.dst))
 		{
 			result.relativeVersions.IncrementRelativeVersion(dst->m_valueLow);
 		}
-		else if(CSymbol* dst = dynamic_symbolref_cast(SYM_FP_RELATIVE32, newStatement.dst))
+		else if(auto dst = dynamic_symbolref_cast(SYM_FP_RELATIVE32, newStatement.dst))
 		{
 			result.relativeVersions.IncrementRelativeVersion(dst->m_valueLow);
 		}
-		else if(CSymbol* dst = dynamic_symbolref_cast(SYM_RELATIVE64, newStatement.dst))
+		else if(auto dst = dynamic_symbolref_cast(SYM_RELATIVE64, newStatement.dst))
 		{
 			result.relativeVersions.IncrementRelativeVersion(dst->m_valueLow + 0);
 			result.relativeVersions.IncrementRelativeVersion(dst->m_valueLow + 4);
 		}
-		else if(CSymbol* dst = dynamic_symbolref_cast(SYM_RELATIVE128, newStatement.dst))
+		else if(auto dst = dynamic_symbolref_cast(SYM_RELATIVE128, newStatement.dst))
 		{
 			uint8 mask = 0xF;
 			if(newStatement.op == OP_MD_MOV_MASKED)
@@ -123,7 +123,7 @@ StatementList CJitter::CollapseVersionedStatementList(const VERSIONED_STATEMENT_
 		newStatement.VisitOperands(
 			[](SymbolRefPtr& symbolRef, bool)
 			{
-				if(auto versionedSymbolRef = std::dynamic_pointer_cast<CVersionedSymbolRef>(symbolRef))
+				if(symbolRef->IsVersioned())
 				{
 					symbolRef = std::make_shared<CSymbolRef>(symbolRef->GetSymbol());
 				}
@@ -1344,32 +1344,31 @@ bool CJitter::DeadcodeElimination(VERSIONED_STATEMENT_LIST& versionedStatementLi
 	typedef std::list<StatementList::iterator> ToDeleteList;
 	ToDeleteList toDelete;
 
-	for(StatementList::iterator outerStatementIterator(versionedStatementList.statements.begin());
+	for(auto outerStatementIterator(versionedStatementList.statements.begin());
 		versionedStatementList.statements.end() != outerStatementIterator; ++outerStatementIterator)
 	{
-		STATEMENT& outerStatement(*outerStatementIterator);
+		auto& outerStatement(*outerStatementIterator);
+		const auto& symbolRef(outerStatement.dst);
 
-		CSymbol* candidate = NULL;
-		if(outerStatement.dst && outerStatement.dst->GetSymbol()->IsTemporary())
+		CSymbol* candidate = nullptr;
+		if(symbolRef && symbolRef->GetSymbol()->IsTemporary())
 		{
-			candidate = outerStatement.dst->GetSymbol().get();
+			candidate = symbolRef->GetSymbol().get();
 		}
-		else if(CSymbol* relativeSymbol = dynamic_symbolref_cast(SYM_RELATIVE, outerStatement.dst))
+		else if(auto relativeSymbol = dynamic_symbolref_cast(SYM_RELATIVE, symbolRef))
 		{
-			VersionedSymbolRefPtr versionedSymbolRef = std::dynamic_pointer_cast<CVersionedSymbolRef>(outerStatement.dst);
-			assert(versionedSymbolRef);
-			if(versionedSymbolRef->version != versionedStatementList.relativeVersions.GetRelativeVersion(relativeSymbol->m_valueLow))
+			assert(symbolRef->IsVersioned());
+			if(symbolRef->GetVersion() != versionedStatementList.relativeVersions.GetRelativeVersion(relativeSymbol->m_valueLow))
 			{
 				candidate = relativeSymbol;
 			}
 		}
 
-		if(candidate == NULL) continue;
-		const SymbolRefPtr& symbolRef(outerStatement.dst);
+		if(!candidate) continue;
 
 		//Look for any possible use of this symbol
 		bool used = false;
-		for(StatementList::iterator innerStatementIterator(outerStatementIterator);
+		for(auto innerStatementIterator(outerStatementIterator);
 			versionedStatementList.statements.end() != innerStatementIterator; ++innerStatementIterator)
 		{
 			if(outerStatementIterator == innerStatementIterator) continue;

@@ -89,9 +89,7 @@ void CX86Assembler::Cvtsi2ssEd(XMMREGISTER registerId, const CAddress& address)
 
 void CX86Assembler::Cvttss2siEd(REGISTER registerId, const CAddress& address)
 {
-	WriteByte(0xF3);
-	WriteByte(0x0F);
-	WriteEvGvOp(0x2C, false, address, registerId);
+	WriteEdVdOp_F3_0F(0x2C, address, static_cast<XMMREGISTER>(registerId));
 }
 
 //------------------------------------------------

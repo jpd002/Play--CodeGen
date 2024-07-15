@@ -776,6 +776,17 @@ void CCodeGen_x86::Emit_Md_Abs(CX86Assembler::XMMREGISTER dstRegister)
 	m_assembler.PandVo(dstRegister, CX86Assembler::MakeXmmRegisterAddress(maskRegister));
 }
 
+void CCodeGen_x86::Emit_Md_Neg(CX86Assembler::XMMREGISTER dstRegister)
+{
+	auto maskRegister = CX86Assembler::xMM1;
+
+	assert(dstRegister != maskRegister);
+
+	m_assembler.PcmpeqdVo(maskRegister, CX86Assembler::MakeXmmRegisterAddress(maskRegister));
+	m_assembler.PslldVo(maskRegister, 31);
+	m_assembler.PxorVo(dstRegister, CX86Assembler::MakeXmmRegisterAddress(maskRegister));
+}
+
 void CCodeGen_x86::Emit_Md_Not(CX86Assembler::XMMREGISTER dstRegister)
 {
 	auto cstRegister = CX86Assembler::xMM1;

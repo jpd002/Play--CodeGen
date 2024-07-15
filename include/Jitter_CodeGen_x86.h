@@ -447,6 +447,11 @@ namespace Jitter
 			static OpVrType OpVr() { return &CCodeGen_x86::Emit_Md_Abs; }
 		};
 
+		struct MDOP_NEG : public MDOP_SINGLEOP_BASE
+		{
+			static OpVrType OpVr() { return &CCodeGen_x86::Emit_Md_Neg; }
+		};
+
 		struct MDOP_NOT : public MDOP_SINGLEOP_BASE
 		{
 			static OpVrType OpVr() { return &CCodeGen_x86::Emit_Md_Not; }
@@ -634,23 +639,38 @@ namespace Jitter
 		void						Emit_Store16AtRef_VarAnyVar(const STATEMENT&);
 		void						Emit_Store16AtRef_VarAnyCst(const STATEMENT&);
 
-		//FPUOP
+		//FPUOP Generic
 		CX86Assembler::SSE_CMP_TYPE GetSseConditionCode(Jitter::CONDITION);
 
 		void						Emit_Fp_AbsS_MemMem(const STATEMENT&);
 		void						Emit_Fp_NegS_MemMem(const STATEMENT&);
 		void						Emit_Fp32_LdCst_MemCst(const STATEMENT&);
 
-		template <typename> void	Emit_Fp32_MemMem(const STATEMENT&);
-		template <typename> void	Emit_Fp32_MemMemMem(const STATEMENT&);
+		//FPUOP SSE
+		template <typename> void	Emit_Fp32_RegVar(const STATEMENT&);
+		template <typename> void	Emit_Fp32_MemVar(const STATEMENT&);
+		template <typename> void	Emit_Fp32_RegRegReg(const STATEMENT&);
+		template <typename> void	Emit_Fp32_RegMemReg(const STATEMENT&);
+		template <typename> void	Emit_Fp32_RegVarVar(const STATEMENT&);
+		template <typename> void	Emit_Fp32_MemVarVar(const STATEMENT&);
+		template <typename> void	Emit_Fp32_SingleOp_RegVar(const STATEMENT&);
+		template <typename> void	Emit_Fp32_SingleOp_MemVar(const STATEMENT&);
 
-		void						Emit_Fp_CmpS_VarMemMem(const STATEMENT&);
+		void						Emit_Fp32_Mov_RegMem(const STATEMENT&);
+		void						Emit_Fp32_Mov_MemReg(const STATEMENT&);
+		void						Emit_Fp32_LdCst_RegCst(const STATEMENT&);
+
+		void						Emit_Fp_CmpS_VarVarVar(const STATEMENT&);
 		void						Emit_Fp_CmpS_VarMemCst(const STATEMENT&);
-		void						Emit_Fp_RsqrtS_MemMem(const STATEMENT&);
-		void						Emit_Fp_RcplS_MemMem(const STATEMENT&);
-		void						Emit_Fp_ClampS_MemMem(const STATEMENT&);
-		void						Emit_Fp_ToSingleI32_MemMem(const STATEMENT&);
-		void						Emit_Fp_ToInt32TruncS_MemMem(const STATEMENT&);
+		void						Emit_Fp_RsqrtS_VarVar(const STATEMENT&);
+		void						Emit_Fp_RcplS_RegVar(const STATEMENT&);
+		void						Emit_Fp_RcplS_MemVar(const STATEMENT&);
+		void						Emit_Fp_ClampS_RegVar(const STATEMENT&);
+		void						Emit_Fp_ClampS_MemVar(const STATEMENT&);
+		void						Emit_Fp_ToSingleI32_VarReg(const STATEMENT&);
+		void						Emit_Fp_ToSingleI32_VarMem(const STATEMENT&);
+		void						Emit_Fp_ToInt32TruncS_RegVar(const STATEMENT&);
+		void						Emit_Fp_ToInt32TruncS_MemVar(const STATEMENT&);
 
 		//MDOP
 		template <typename> void	Emit_Md_RegVar(const STATEMENT&);
@@ -692,6 +712,7 @@ namespace Jitter
 		void						Emit_Md_Srl256_VarMemCst(const STATEMENT&);
 
 		void						Emit_Md_Abs(CX86Assembler::XMMREGISTER);
+		void						Emit_Md_Neg(CX86Assembler::XMMREGISTER);
 		void						Emit_Md_Not(CX86Assembler::XMMREGISTER);
 		void						Emit_Md_MakeSz(CX86Assembler::XMMREGISTER, const CX86Assembler::CAddress&);
 		void						Emit_Md_MakeSz_VarVar(const STATEMENT&);
@@ -775,6 +796,7 @@ namespace Jitter
 
 		CX86Assembler::XMMREGISTER	PrepareSymbolRegisterDefFp32(CSymbol*, CX86Assembler::XMMREGISTER);
 		CX86Assembler::XMMREGISTER	PrepareSymbolRegisterUseFp32Avx(CSymbol*, CX86Assembler::XMMREGISTER);
+		void						CommitSymbolRegisterFp32Sse(CSymbol*, CX86Assembler::XMMREGISTER);
 		void						CommitSymbolRegisterFp32Avx(CSymbol*, CX86Assembler::XMMREGISTER);
 
 		CX86Assembler::XMMREGISTER	PrepareSymbolRegisterDefMd(CSymbol*, CX86Assembler::XMMREGISTER);

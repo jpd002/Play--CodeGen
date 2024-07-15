@@ -154,6 +154,7 @@ namespace Jitter
 			return
 				(m_type == SYM_REGISTER) ||
 				(m_type == SYM_REG_REFERENCE) ||
+				(m_type == SYM_FP_REGISTER32) ||
 				(m_type == SYM_REGISTER128);
 		}
 

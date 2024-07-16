@@ -184,6 +184,10 @@ void CJitter::AllocateRegisters(BASIC_BLOCK& basicBlock)
 
 void CJitter::AssociateSymbolsToRegisters(SymbolRegAllocInfo& symbolRegAllocs) const
 {
+	//Some notes:
+	//- MD and FP registers are lumped together since MD registers are used for both
+	//  MD and FP operations on all of our target platforms.
+
 	std::multimap<SYM_TYPE, unsigned int> availableRegisters;
 	{
 		unsigned int regCount = m_codeGen->GetAvailableRegisterCount();

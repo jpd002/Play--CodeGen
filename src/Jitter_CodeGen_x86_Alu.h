@@ -175,16 +175,27 @@ void CCodeGen_x86::Emit_Alu_RegCstMem(const STATEMENT& statement)
 template <typename ALUOP>
 void CCodeGen_x86::Emit_Alu_MemRegReg(const STATEMENT& statement)
 {
-	CSymbol* dst = statement.dst->GetSymbol().get();
-	CSymbol* src1 = statement.src1->GetSymbol().get();
-	CSymbol* src2 = statement.src2->GetSymbol().get();
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
 
 	assert(src1->m_type == SYM_REGISTER);
 	assert(src2->m_type == SYM_REGISTER);
 
-	m_assembler.MovEd(CX86Assembler::rAX, CX86Assembler::MakeRegisterAddress(m_registers[src1->m_valueLow]));
-	((m_assembler).*(ALUOP::OpEd()))(CX86Assembler::rAX, CX86Assembler::MakeRegisterAddress(m_registers[src2->m_valueLow]));
-	m_assembler.MovGd(MakeMemorySymbolAddress(dst), CX86Assembler::rAX);
+	auto dstRegister = CX86Assembler::rAX;
+
+	if(statement.op == OP_ADD)
+	{
+		auto address = CX86Assembler::MakeBaseOffIndexScaleAddress(m_registers[src1->m_valueLow], 0, m_registers[src2->m_valueLow], 1);
+		m_assembler.LeaGd(dstRegister, address);
+	}
+	else
+	{
+		m_assembler.MovEd(dstRegister, CX86Assembler::MakeRegisterAddress(m_registers[src1->m_valueLow]));
+		((m_assembler).*(ALUOP::OpEd()))(dstRegister, CX86Assembler::MakeRegisterAddress(m_registers[src2->m_valueLow]));
+	}
+
+	m_assembler.MovGd(MakeMemorySymbolAddress(dst), dstRegister);
 }
 
 template <typename ALUOP>
@@ -204,16 +215,26 @@ void CCodeGen_x86::Emit_Alu_MemRegMem(const STATEMENT& statement)
 template <typename ALUOP>
 void CCodeGen_x86::Emit_Alu_MemRegCst(const STATEMENT& statement)
 {
-	CSymbol* dst = statement.dst->GetSymbol().get();
-	CSymbol* src1 = statement.src1->GetSymbol().get();
-	CSymbol* src2 = statement.src2->GetSymbol().get();
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
 
 	assert(src1->m_type == SYM_REGISTER);
 	assert(src2->m_type == SYM_CONSTANT);
 
-	m_assembler.MovEd(CX86Assembler::rAX, CX86Assembler::MakeRegisterAddress(m_registers[src1->m_valueLow]));
-	((m_assembler).*(ALUOP::OpId()))(CX86Assembler::MakeRegisterAddress(CX86Assembler::rAX), src2->m_valueLow);
-	m_assembler.MovGd(MakeMemorySymbolAddress(dst), CX86Assembler::rAX);
+	auto dstRegister = CX86Assembler::rAX;
+
+	if(statement.op == OP_ADD)
+	{
+		m_assembler.LeaGd(dstRegister, CX86Assembler::MakeIndRegOffAddress(m_registers[src1->m_valueLow], src2->m_valueLow));
+	}
+	else
+	{
+		m_assembler.MovEd(dstRegister, CX86Assembler::MakeRegisterAddress(m_registers[src1->m_valueLow]));
+		((m_assembler).*(ALUOP::OpId()))(CX86Assembler::MakeRegisterAddress(dstRegister), src2->m_valueLow);
+	}
+
+	m_assembler.MovGd(MakeMemorySymbolAddress(dst), dstRegister);
 }
 
 template <typename ALUOP>

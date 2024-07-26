@@ -14,16 +14,24 @@ void CCodeGen_x86::Emit_Alu_RegRegReg(const STATEMENT& statement)
 	}
 	else
 	{
-		CX86Assembler::REGISTER src2register = m_registers[src2->m_valueLow];
+		auto src2register = m_registers[src2->m_valueLow];
 
-		if(dst->Equals(src2))
+		if(statement.op == OP_ADD)
 		{
-			m_assembler.MovEd(CX86Assembler::rAX, CX86Assembler::MakeRegisterAddress(m_registers[src2->m_valueLow]));
-			src2register = CX86Assembler::rAX;
+			auto address = CX86Assembler::MakeBaseOffIndexScaleAddress(m_registers[src1->m_valueLow], 0, m_registers[src2->m_valueLow], 1);
+			m_assembler.LeaGd(m_registers[dst->m_valueLow], address);
 		}
+		else
+		{
+			if(dst->Equals(src2))
+			{
+				m_assembler.MovEd(CX86Assembler::rAX, CX86Assembler::MakeRegisterAddress(m_registers[src2->m_valueLow]));
+				src2register = CX86Assembler::rAX;
+			}
 
-		m_assembler.MovEd(m_registers[dst->m_valueLow], CX86Assembler::MakeRegisterAddress(m_registers[src1->m_valueLow]));
-		((m_assembler).*(ALUOP::OpEd()))(m_registers[dst->m_valueLow], CX86Assembler::MakeRegisterAddress(src2register));
+			m_assembler.MovEd(m_registers[dst->m_valueLow], CX86Assembler::MakeRegisterAddress(m_registers[src1->m_valueLow]));
+			((m_assembler).*(ALUOP::OpEd()))(m_registers[dst->m_valueLow], CX86Assembler::MakeRegisterAddress(src2register));
+		}
 	}
 }
 
@@ -55,12 +63,19 @@ void CCodeGen_x86::Emit_Alu_RegRegCst(const STATEMENT& statement)
 	//We can optimize here if it's equal to zero
 	assert(src2->m_valueLow != 0);
 
-	if(!dst->Equals(src1))
+	if((statement.op == OP_ADD) && !dst->Equals(src1))
 	{
-		m_assembler.MovEd(m_registers[dst->m_valueLow], CX86Assembler::MakeRegisterAddress(m_registers[src1->m_valueLow]));
+		m_assembler.LeaGd(m_registers[dst->m_valueLow], CX86Assembler::MakeIndRegOffAddress(m_registers[src1->m_valueLow], src2->m_valueLow));
 	}
+	else
+	{
+		if(!dst->Equals(src1))
+		{
+			m_assembler.MovEd(m_registers[dst->m_valueLow], CX86Assembler::MakeRegisterAddress(m_registers[src1->m_valueLow]));
+		}
 
-	((m_assembler).*(ALUOP::OpId()))(CX86Assembler::MakeRegisterAddress(m_registers[dst->m_valueLow]), src2->m_valueLow);
+		((m_assembler).*(ALUOP::OpId()))(CX86Assembler::MakeRegisterAddress(m_registers[dst->m_valueLow]), src2->m_valueLow);
+	}
 }
 
 template <typename ALUOP>

@@ -749,6 +749,11 @@ void CJitter::And64()
 	InsertBinary64Statement(OP_AND64);
 }
 
+void CJitter::ByteSwap64()
+{
+	InsertUnary64Statement(OP_BSWAP64);
+}
+
 void CJitter::Cmp64(CONDITION condition)
 {
 	auto tempSym = MakeSymbol(SYM_TEMPORARY, m_nextTemporary++);

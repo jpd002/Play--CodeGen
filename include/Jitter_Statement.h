@@ -55,6 +55,7 @@ namespace Jitter
 		OP_XOR64,
 		OP_NOT64,
 		OP_CLZ64,
+		OP_BSWAP64,
 		OP_CMP64,
 		OP_MERGETO64,
 		OP_EXTLOW64,

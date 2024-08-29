@@ -786,28 +786,12 @@ void CJitter::Xor64()
 
 void CJitter::Not64()
 {
-	auto tempSym = MakeSymbol(SYM_TEMPORARY64, m_nextTemporary++);
-
-	STATEMENT statement;
-	statement.op = OP_NOT64;
-	statement.src1 = MakeSymbolRef(m_shadow.Pull());
-	statement.dst = MakeSymbolRef(tempSym);
-	InsertStatement(statement);
-
-	m_shadow.Push(tempSym);
+	InsertUnary64Statement(OP_NOT64);
 }
 
 void CJitter::Clz64()
 {
-	auto tempSym = MakeSymbol(SYM_TEMPORARY64, m_nextTemporary++);
-
-	STATEMENT statement;
-	statement.op = OP_CLZ64;
-	statement.src1 = MakeSymbolRef(m_shadow.Pull());
-	statement.dst = MakeSymbolRef(tempSym);
-	InsertStatement(statement);
-
-	m_shadow.Push(tempSym);
+	InsertUnary64Statement(OP_CLZ64);
 }
 
 void CJitter::Srl64()
@@ -1769,6 +1753,19 @@ void CJitter::InsertStoreAtRefIdxStatement(Jitter::OPERATION operation, size_t s
 	statement.src2 = MakeSymbolRef(m_shadow.Pull());
 	statement.src1 = MakeSymbolRef(m_shadow.Pull());
 	InsertStatement(statement);
+}
+
+void CJitter::InsertUnary64Statement(Jitter::OPERATION operation)
+{
+	auto tempSym = MakeSymbol(SYM_TEMPORARY64, m_nextTemporary++);
+
+	STATEMENT statement;
+	statement.op = operation;
+	statement.src1 = MakeSymbolRef(m_shadow.Pull());
+	statement.dst = MakeSymbolRef(tempSym);
+	InsertStatement(statement);
+
+	m_shadow.Push(tempSym);
 }
 
 void CJitter::InsertBinary64Statement(Jitter::OPERATION operation)

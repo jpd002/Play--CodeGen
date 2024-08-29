@@ -170,7 +170,8 @@ namespace Jitter
 				(m_type == SYM_RELATIVE64) || 
 				(m_type == SYM_RELATIVE128) || 
 				(m_type == SYM_REL_REFERENCE) ||
-				(m_type == SYM_FP_RELATIVE32);
+				(m_type == SYM_FP_RELATIVE32) ||
+				(m_type == SYM_FP_RELATIVE64);
 		}
 
 		bool IsConstant() const

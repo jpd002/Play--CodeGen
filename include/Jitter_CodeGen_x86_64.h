@@ -138,6 +138,9 @@ namespace Jitter
 		//CLZ64
 		void								Emit_Clz64_MemMem(const STATEMENT&);
 
+		//BSWAP64
+		void								Emit_Bswap64_MemMem(const STATEMENT&);
+
 		//SHIFT64
 		template <typename> void			Emit_Shift64_MemMemReg(const STATEMENT&);
 		template <typename> void			Emit_Shift64_MemMemMem(const STATEMENT&);

@@ -10,9 +10,7 @@
 
 #ifdef _WIN32
 	#define MEMFUNC_USE_WIN32
-#endif
-
-#ifdef __APPLE__
+#elif defined(__APPLE__)
 	#include "TargetConditionals.h"
 	#include <libkern/OSCacheControl.h>
 
@@ -28,15 +26,11 @@
 			#define MEMFUNC_MACHVM_STRICT_PROTECTION
 		#endif
 	#endif
-#endif
-
-#if defined(__ANDROID__) || defined(__linux__) || defined(__FreeBSD__)
-	#define MEMFUNC_USE_MMAP
-#endif
-
-#if defined(__EMSCRIPTEN__)
+#elif defined(__EMSCRIPTEN__)
 	#include <emscripten.h>
 	#define MEMFUNC_USE_WASM
+#else
+	#define MEMFUNC_USE_MMAP
 #endif
 
 #if defined(MEMFUNC_USE_WIN32)
@@ -152,7 +146,7 @@ void CMemoryFunction::ClearCache()
 {
 #ifdef __APPLE__
 	sys_icache_invalidate(m_code, m_size);
-#elif defined(__ANDROID__) || defined(__linux__) || defined(__FreeBSD__)
+#elif defined(MEMFUNC_USE_MMAP)
 	#if defined(__arm__) || defined(__aarch64__)
 		__clear_cache(m_code, reinterpret_cast<uint8*>(m_code) + m_size);
 	#endif

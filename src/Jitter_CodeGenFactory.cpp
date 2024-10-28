@@ -23,7 +23,11 @@
 		#warning Architecture not supported
 	#endif
 
-#elif defined(__ANDROID__) || defined(__linux__) || defined(__FreeBSD__)
+#elif defined(__EMSCRIPTEN__)
+
+	#include "Jitter_CodeGen_Wasm.h"
+
+#else
 
 	#if defined(__arm__)
 		#include "Jitter_CodeGen_AArch32.h"
@@ -36,10 +40,6 @@
 	#else
 		#warning Architecture not supported
 	#endif
-
-#elif defined(__EMSCRIPTEN__)
-
-	#include "Jitter_CodeGen_Wasm.h"
 
 #endif
 
@@ -77,7 +77,11 @@ Jitter::CCodeGen* Jitter::CreateCodeGen()
 		throw std::runtime_error("Unsupported architecture.");
 	#endif
 
-#elif defined(__ANDROID__) || defined(__linux__) || defined(__FreeBSD__)
+#elif defined(__EMSCRIPTEN__)
+
+	return new Jitter::CCodeGen_Wasm();
+
+#else
 
 	#if defined(__arm__)
 		#if defined(__ARM_EABI__)
@@ -100,14 +104,5 @@ Jitter::CCodeGen* Jitter::CreateCodeGen()
 	#else
 		throw std::runtime_error("Unsupported architecture.");
 	#endif
-
-#elif defined(__EMSCRIPTEN__)
-
-	return new Jitter::CCodeGen_Wasm();
-
-#else
-
-	throw std::runtime_error("Unsupported platform.");
-
 #endif
 }

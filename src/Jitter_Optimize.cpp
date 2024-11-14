@@ -54,7 +54,11 @@ CJitter::VERSIONED_STATEMENT_LIST CJitter::GenerateVersionedStatementList(const 
 			}
 			else if(CSymbol* symbol = dynamic_symbolref_cast(SYM_RELATIVE64, symbolRef))
 			{
-				unsigned int currentVersion = relativeVersions.GetRelativeVersion(symbol->m_valueLow);
+				//Since this symbol can be aliased, use the sum of the versions of all
+				//of its parts.
+				unsigned int currentVersion =
+				    relativeVersions.GetRelativeVersion(symbol->m_valueLow + 0x0) +
+				    relativeVersions.GetRelativeVersion(symbol->m_valueLow + 0x4);
 				symbolRef = std::make_shared<CSymbolRef>(symbolRef->GetSymbol(), currentVersion);
 			}
 			else if(CSymbol* symbol = dynamic_symbolref_cast(SYM_FP_RELATIVE32, symbolRef))
@@ -64,7 +68,13 @@ CJitter::VERSIONED_STATEMENT_LIST CJitter::GenerateVersionedStatementList(const 
 			}
 			else if(CSymbol* symbol = dynamic_symbolref_cast(SYM_RELATIVE128, symbolRef))
 			{
-				unsigned int currentVersion = relativeVersions.GetRelativeVersion(symbol->m_valueLow);
+				//Since this symbol can be aliased, use the sum of the versions of all
+				//of its parts.
+				unsigned int currentVersion =
+				    relativeVersions.GetRelativeVersion(symbol->m_valueLow + 0x0) +
+				    relativeVersions.GetRelativeVersion(symbol->m_valueLow + 0x4) +
+				    relativeVersions.GetRelativeVersion(symbol->m_valueLow + 0x8) +
+				    relativeVersions.GetRelativeVersion(symbol->m_valueLow + 0xC);
 				symbolRef = std::make_shared<CSymbolRef>(symbolRef->GetSymbol(), currentVersion);
 			}
 		}

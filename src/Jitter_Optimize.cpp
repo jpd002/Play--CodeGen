@@ -1304,6 +1304,7 @@ bool CJitter::CommonExpressionElimination(VERSIONED_STATEMENT_LIST& versionedSta
 	{
 		auto& statement(*statementIterator);
 
+		//If this is a statement defining a temporary
 		if(
 		    (statement.op != OP_RETVAL) &&
 		    (statement.dst) &&
@@ -1311,7 +1312,8 @@ bool CJitter::CommonExpressionElimination(VERSIONED_STATEMENT_LIST& versionedSta
 		{
 			const auto& newTemp = statement.dst->GetSymbol();
 
-			//Check if our temporary already have a similar definition
+			bool found = false;
+			//Check if our temporary already has a similar definition
 			for(const auto& tempDef : tempDefs)
 			{
 				const auto& tempDefStatement = *tempDef;
@@ -1322,10 +1324,18 @@ bool CJitter::CommonExpressionElimination(VERSIONED_STATEMENT_LIST& versionedSta
 				if(statement.src1 && !statement.src1->Equals(tempDefStatement.src1.get())) continue;
 				if(statement.src2 && !statement.src2->Equals(tempDefStatement.src2.get())) continue;
 				if(statement.src3 && !statement.src3->Equals(tempDefStatement.src3.get())) continue;
-				tempReplaceMap.insert(std::make_pair(newTemp, temp->GetSymbol()));
+				auto [_, inserted] = tempReplaceMap.insert(std::make_pair(newTemp, temp->GetSymbol()));
+				assert(inserted);
+				found = true;
+				//We assume the first replacement we find is gonna be the best
+				break;
 			}
 
-			tempDefs.push_back(statementIterator);
+			//We haven't found a replacement for our definition, assume it's new
+			if(!found)
+			{
+				tempDefs.push_back(statementIterator);
+			}
 		}
 
 		if(tempReplaceMap.empty())

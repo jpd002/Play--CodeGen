@@ -162,6 +162,7 @@ void CJitter::Compile()
 				while(1)
 				{
 					bool dirty = false;
+					dirty |= VariableFolding(versionedStatements.statements);
 					dirty |= ConstantPropagation(versionedStatements.statements);
 					dirty |= ConstantFolding(versionedStatements.statements);
 					dirty |= ReorderAdd(versionedStatements.statements);
@@ -831,6 +832,83 @@ bool CJitter::FoldConstant12832Operation(STATEMENT& statement)
 		}
 	}
 
+	return changed;
+}
+
+bool CJitter::VariableFolding(StatementList& statements)
+{
+	auto changed = false;
+	for(auto& statement : statements)
+	{
+		if(!statement.src2) continue;
+
+		bool src1cst = statement.src1.get()->GetSymbol().get()->IsConstant();
+		bool src2cst = statement.src2.get()->GetSymbol().get()->IsConstant();
+
+		if(src1cst || src2cst || !statement.src1.get()->Equals(statement.src2.get())) continue;
+
+		switch(statement.op)
+		{
+			case OP_AND64:
+			case OP_MD_OR:
+			{
+				statement.op = OP_MOV;
+				statement.src2.reset();
+				changed = true;
+			}
+			break;
+			case OP_XOR:
+			{
+				statement.op = OP_MOV;
+				statement.src1 = MakeSymbolRef(MakeSymbol(SYM_CONSTANT, 0));
+				statement.src2.reset();
+				changed = true;
+			}
+			break;
+			case OP_FP_SUB:
+			{
+				float constant = 0;
+				statement.op = OP_FP_LDCST;
+				statement.src1	= MakeSymbolRef(MakeSymbol(SYM_CONSTANT, *reinterpret_cast<uint32*>(&constant)));
+				statement.src2.reset();
+				changed = true;
+			}
+			break;
+			case OP_CMP64:
+			case OP_FP_CMP:
+			{
+				SymbolPtr result;
+				switch(statement.jmpCondition)
+				{
+					case CONDITION_EQ:
+					case CONDITION_LE:
+					case CONDITION_GE:
+						result = MakeSymbol(SYM_CONSTANT, 1);
+					break;
+					default:
+						result = MakeSymbol(SYM_CONSTANT, 0);
+					break;
+
+				}
+				statement.op = OP_MOV;
+				statement.src1 = MakeSymbolRef(result);
+				statement.src2.reset();
+				changed = true;
+			}
+			break;
+			case OP_FP_DIV:
+			{
+				float constant = 1;
+				statement.op = OP_FP_LDCST;
+				statement.src1	= MakeSymbolRef(MakeSymbol(SYM_CONSTANT, *reinterpret_cast<uint32*>(&constant)));
+				statement.src2.reset();
+				changed = true;
+			};
+			break;
+			default:
+			break;
+		}
+	}
 	return changed;
 }
 

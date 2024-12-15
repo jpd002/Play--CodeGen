@@ -153,6 +153,7 @@ public:
 	void    Fsub_4s(REGISTERMD, REGISTERMD, REGISTERMD);
 	void    Ins_1s(REGISTERMD, uint8, REGISTERMD, uint8);
 	void    Ins_1d(REGISTERMD, uint8, REGISTER64);
+	void    Ins_1d(REGISTERMD, uint8, REGISTERMD, uint8);
 	void    Ld1_4s(REGISTERMD, REGISTER64);
 	void    Ldp_PostIdx(REGISTER64, REGISTER64, REGISTER64, int32);
 	void    Ldr(REGISTER32, REGISTER64, uint32);

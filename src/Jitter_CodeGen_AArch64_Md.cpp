@@ -365,7 +365,19 @@ void CCodeGen_AArch64::Emit_Md_MovMasked_VarVarVar(const STATEMENT& statement)
 
 	auto src1Reg = PrepareSymbolRegisterUseMd(src1, GetNextTempRegisterMd());
 	auto src2Reg = PrepareSymbolRegisterUseMd(src2, GetNextTempRegisterMd());
+		
+	//Try some aligned 64-bit inserts first
+	for(unsigned int i = 0; i < 3; i += 2)
+	{
+		uint8 maskBits = (0x03 << i);
+		if((mask & maskBits) == maskBits)
+		{
+			m_assembler.Ins_1d(src1Reg, i / 2, src2Reg, i / 2);
+			mask &= ~maskBits;
+		}
+	}
 	
+	//Do remaining inserts
 	for(unsigned int i = 0; i < 4; i++)
 	{
 		if(mask & (1 << i))

@@ -10,7 +10,10 @@ void CMdManipTest::Compile(Jitter::CJitter& jitter)
 	{
 		//Masked Mov
 		jitter.MD_PushRel(offsetof(CONTEXT, src0));
-		jitter.MD_PullRel(offsetof(CONTEXT, dstMasked), true, false, false, true);
+		jitter.MD_PullRel(offsetof(CONTEXT, dstMasked0), true, false, false, true);
+
+		jitter.MD_PushRel(offsetof(CONTEXT, src0));
+		jitter.MD_PullRel(offsetof(CONTEXT, dstMasked1), true, true, true, false);
 
 		//Push Rel Expand
 		jitter.MD_PushRelExpand(offsetof(CONTEXT, src1[1]));
@@ -34,10 +37,15 @@ void CMdManipTest::Run()
 	CONTEXT ALIGN16 context;
 	memset(&context, 0xFF, sizeof(CONTEXT));
 	
-	context.dstMasked[0] = 1.0f;
-	context.dstMasked[1] = 1.0f;
-	context.dstMasked[2] = 1.0f;
-	context.dstMasked[3] = 1.0f;
+	context.dstMasked0[0] = 1.0f;
+	context.dstMasked0[1] = 1.0f;
+	context.dstMasked0[2] = 1.0f;
+	context.dstMasked0[3] = 1.0f;
+
+	context.dstMasked1[0] = 4.0f;
+	context.dstMasked1[1] = 4.0f;
+	context.dstMasked1[2] = 4.0f;
+	context.dstMasked1[3] = 4.0f;
 
 	context.src0[0] = 5.f;
 	context.src0[1] = 50.f;
@@ -56,10 +64,15 @@ void CMdManipTest::Run()
 
 	m_function(&context);
 
-	TEST_VERIFY(context.dstMasked[0] ==    5.0f);
-	TEST_VERIFY(context.dstMasked[1] ==    1.0f);
-	TEST_VERIFY(context.dstMasked[2] ==    1.0f);
-	TEST_VERIFY(context.dstMasked[3] == 5000.0f);
+	TEST_VERIFY(context.dstMasked0[0] ==    5.0f);
+	TEST_VERIFY(context.dstMasked0[1] ==    1.0f);
+	TEST_VERIFY(context.dstMasked0[2] ==    1.0f);
+	TEST_VERIFY(context.dstMasked0[3] == 5000.0f);
+
+	TEST_VERIFY(context.dstMasked1[0] ==    5.0f);
+	TEST_VERIFY(context.dstMasked1[1] ==   50.0f);
+	TEST_VERIFY(context.dstMasked1[2] ==  500.0f);
+	TEST_VERIFY(context.dstMasked1[3] ==    4.0f);
 
 	TEST_VERIFY(context.dstExpandRel[0] == 600.0f);
 	TEST_VERIFY(context.dstExpandRel[1] == 600.0f);

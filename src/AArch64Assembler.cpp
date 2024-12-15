@@ -700,6 +700,20 @@ void CAArch64Assembler::Ins_1d(REGISTERMD rd, uint8 index, REGISTER64 rn)
 	WriteWord(opcode);
 }
 
+void CAArch64Assembler::Ins_1d(REGISTERMD rd, uint8 index1, REGISTERMD rn, uint8 index2)
+{
+	assert(index1 < 2);
+	assert(index2 < 2);
+	index1 &= 0x1;
+	index2 &= 0x1;
+	uint32 opcode = 0x6E080400;
+	opcode |= (rd <<  0);
+	opcode |= (rn <<  5);
+	opcode |= (index2 << 14);
+	opcode |= (index1 << 20);
+	WriteWord(opcode);
+}
+
 void CAArch64Assembler::Ld1_4s(REGISTERMD rt, REGISTER64 rn)
 {
 	uint32 opcode = 0x4C407800;

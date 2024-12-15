@@ -18,7 +18,8 @@ private:
 		float			src1[4];
 		float			src2[4];
 
-		float			dstMasked[4];
+		float			dstMasked0[4];
+		float			dstMasked1[4];
 
 		float			dstExpandRel[4];
 		float			dstExpandCst[4];

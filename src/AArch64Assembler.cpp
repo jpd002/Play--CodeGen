@@ -586,6 +586,19 @@ void CAArch64Assembler::Fmov_1s(REGISTERMD rd, uint8 imm)
 	WriteWord(opcode);
 }
 
+void CAArch64Assembler::Fmov_4s(REGISTERMD rd, uint8 imm)
+{
+	uint32 cmode = 0xF;
+	uint32 immHi = (imm >> 5);
+	uint32 immLo = (imm & 0x1F);
+	uint32 opcode = 0x4F000400;
+	opcode |= (rd << 0);
+	opcode |= (cmode << 12);
+	opcode |= (immHi << 16);
+	opcode |= (immLo << 5);
+	WriteWord(opcode);
+}
+
 void CAArch64Assembler::Fmul_1s(REGISTERMD rd, REGISTERMD rn, REGISTERMD rm)
 {
 	uint32 opcode = 0x1E200800;
@@ -927,6 +940,31 @@ void CAArch64Assembler::Mov_Sp(REGISTER64 rd, REGISTER64 rn)
 	uint32 opcode = 0x91000000;
 	opcode |= (rd << 0);
 	opcode |= (rn << 5);
+	WriteWord(opcode);
+}
+
+void CAArch64Assembler::Movi_4s(REGISTERMD rd, uint8 imm, MOVI_4S_IMM_SHIFT_TYPE shiftType)
+{
+	uint32 cmode = 0;
+	switch(shiftType)
+	{
+	case MOVI_4S_IMM_SHIFT_LSL0:
+		cmode = 0;
+		break;
+	case MOVI_4S_IMM_SHIFT_LSL24:
+		cmode = 6;
+		break;
+	default:
+		assert(false);
+		break;
+	}
+	uint32 immHi = (imm >> 5);
+	uint32 immLo = (imm & 0x1F);
+	uint32 opcode = 0x4F000400;
+	opcode |= (rd << 0);
+	opcode |= (cmode << 12);
+	opcode |= (immHi << 16);
+	opcode |= (immLo << 5);
 	WriteWord(opcode);
 }
 

@@ -425,14 +425,40 @@ void CCodeGen_AArch64::Emit_Md_Expand_VarCst(const STATEMENT& statement)
 	auto dstReg = PrepareSymbolRegisterDefMd(dst, GetNextTempRegisterMd());
 	auto src1Reg = GetNextTempRegister();
 
-	if(src1->m_valueLow == 0)
+	switch(src1->m_valueLow)
 	{
-		m_assembler.Eor_16b(dstReg, dstReg, dstReg);
-	}
-	else
-	{
-		LoadConstantInRegister(src1Reg, src1->m_valueLow);
-		m_assembler.Dup_4s(dstReg, src1Reg);
+	case 0:
+		m_assembler.Movi_4s(dstReg, 0, CAArch64Assembler::MOVI_4S_IMM_SHIFT_LSL0);
+		break;
+	case 0x3F800000:
+		//1.0f
+		m_assembler.Fmov_4s(dstReg, 0x70);
+		break;
+	case 0x41800000:
+		//16.0f
+		m_assembler.Fmov_4s(dstReg, 0x30);
+		break;
+	case 0xBF800000:
+		//-1.0f;
+		m_assembler.Fmov_4s(dstReg, 0xF0);
+		break;
+	default:
+		if((src1->m_valueLow & 0x000000FF) == src1->m_valueLow)
+		{
+			uint8 imm = static_cast<uint8>(src1->m_valueLow);
+			m_assembler.Movi_4s(dstReg, imm, CAArch64Assembler::MOVI_4S_IMM_SHIFT_LSL0);
+		}
+		else if((src1->m_valueLow & 0xFF000000) == src1->m_valueLow)
+		{
+			uint8 imm = static_cast<uint8>(src1->m_valueLow >> 24);
+			m_assembler.Movi_4s(dstReg, imm, CAArch64Assembler::MOVI_4S_IMM_SHIFT_LSL24);
+		}
+		else
+		{
+			LoadConstantInRegister(src1Reg, src1->m_valueLow);
+			m_assembler.Dup_4s(dstReg, src1Reg);
+		}
+		break;
 	}
 
 	CommitSymbolRegisterMd(dst, dstReg);

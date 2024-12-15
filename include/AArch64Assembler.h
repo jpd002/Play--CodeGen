@@ -70,6 +70,14 @@ public:
 		ADDSUB_IMM_SHIFT_LSL12,
 	};
 	
+	enum MOVI_4S_IMM_SHIFT_TYPE
+	{
+		MOVI_4S_IMM_SHIFT_LSL0,
+		MOVI_4S_IMM_SHIFT_LSL8,
+		MOVI_4S_IMM_SHIFT_LSL16,
+		MOVI_4S_IMM_SHIFT_LSL24,
+	};
+	
 	typedef unsigned int LABEL;
 	
 	virtual    ~CAArch64Assembler() = default;
@@ -141,6 +149,7 @@ public:
 	void    Fdiv_4s(REGISTERMD, REGISTERMD, REGISTERMD);
 	void    Fmov_1s(REGISTERMD, REGISTER32);
 	void    Fmov_1s(REGISTERMD, uint8);
+	void    Fmov_4s(REGISTERMD, uint8);
 	void    Fmul_1s(REGISTERMD, REGISTERMD, REGISTERMD);
 	void    Fmul_4s(REGISTERMD, REGISTERMD, REGISTERMD);
 	void    Fmax_1s(REGISTERMD, REGISTERMD, REGISTERMD);
@@ -181,6 +190,7 @@ public:
 	void    Mov(REGISTER64, REGISTER64);
 	void    Mov(REGISTERMD, REGISTERMD);
 	void    Mov_Sp(REGISTER64, REGISTER64);
+	void    Movi_4s(REGISTERMD, uint8, MOVI_4S_IMM_SHIFT_TYPE);
 	void    Movn(REGISTER32, uint16, uint8);
 	void    Movk(REGISTER32, uint16, uint8);
 	void    Movk(REGISTER64, uint16, uint8);

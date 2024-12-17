@@ -215,13 +215,12 @@ namespace Jitter
 		{
 			if(!IsRelative()) return false;
 			if(!symbol->IsRelative()) return false;
-			uint32 base1 = m_valueLow;
-			uint32 base2 = symbol->m_valueLow;
-//			uint32 end1 = base1 + GetSize();
-//			uint32 end2 = base2 + symbol->GetSize();
-			if(abs(static_cast<int32>(base2 - base1)) < GetSize()) return true;
-			if(abs(static_cast<int32>(base2 - base1)) < symbol->GetSize()) return true;
-			return false;
+			//Symbol alias each other if their memory ranges overlap
+			uint32 start1 = m_valueLow;
+			uint32 start2 = symbol->m_valueLow;
+			uint32 end1 = start1 + GetSize();
+			uint32 end2 = start2 + symbol->GetSize();
+			return (start1 < end2) && (start2 < end1);
 		}
 
 		SYM_TYPE				m_type;

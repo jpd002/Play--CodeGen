@@ -61,11 +61,6 @@ CX86Assembler::XMMREGISTER CCodeGen_x86_64::g_mdRegisters[MAX_MDREGISTERS] =
 };
 // clang-format on
 
-static uint64 CombineConstant64(uint32 cstLow, uint32 cstHigh)
-{
-	return (static_cast<uint64>(cstHigh) << 32) | static_cast<uint64>(cstLow);
-}
-
 //ALUOP
 //-------------------------------------------------------------------
 
@@ -93,7 +88,7 @@ void CCodeGen_x86_64::Emit_Alu64_MemMemCst(const STATEMENT& statement)
 	assert(src2->m_type == SYM_CONSTANT64);
 
 	CX86Assembler::REGISTER tmpReg = CX86Assembler::rAX;
-	uint64 constant = CombineConstant64(src2->m_valueLow, src2->m_valueHigh);
+	uint64 constant = src2->GetConstant64();
 
 	m_assembler.MovEq(tmpReg, MakeMemory64SymbolAddress(src1));
 	if(CX86Assembler::GetMinimumConstantSize64(constant) >= 4)
@@ -119,7 +114,7 @@ void CCodeGen_x86_64::Emit_Alu64_MemCstMem(const STATEMENT& statement)
 	assert(src1->m_type == SYM_CONSTANT64);
 
 	CX86Assembler::REGISTER tmpReg = CX86Assembler::rAX;
-	uint64 constant = CombineConstant64(src1->m_valueLow, src1->m_valueHigh);
+	uint64 constant = src1->GetConstant64();
 
 	m_assembler.MovIq(tmpReg, constant);
 	((m_assembler).*(ALUOP::OpEq()))(tmpReg, MakeMemory64SymbolAddress(src2));
@@ -505,7 +500,7 @@ void CCodeGen_x86_64::Emit_Param_Cst64(const STATEMENT& statement)
 
 	m_params.push_back(
 	    [this, src1](CX86Assembler::REGISTER paramReg, uint32) {
-		    m_assembler.MovIq(paramReg, CombineConstant64(src1->m_valueLow, src1->m_valueHigh));
+		    m_assembler.MovIq(paramReg, src1->GetConstant64());
 		    return 0;
 	    });
 }
@@ -553,7 +548,7 @@ void CCodeGen_x86_64::Emit_Call(const STATEMENT& statement)
 		paramSpillOffset += emitter(m_paramRegs[i], paramSpillOffset);
 	}
 
-	m_assembler.MovIq(CX86Assembler::rAX, CombineConstant64(src1->m_valueLow, src1->m_valueHigh));
+	m_assembler.MovIq(CX86Assembler::rAX, src1->GetConstantPtr());
 	auto symbolRefLabel = m_assembler.CreateLabel();
 	m_assembler.MarkLabel(symbolRefLabel, -8);
 	m_symbolReferenceLabels.push_back(std::make_pair(src1->GetConstantPtr(), symbolRefLabel));
@@ -604,7 +599,7 @@ void CCodeGen_x86_64::Emit_ExternJmp(const STATEMENT& statement)
 
 	m_assembler.MovEq(m_paramRegs[0], CX86Assembler::MakeRegisterAddress(g_baseRegister));
 	Emit_Epilog();
-	m_assembler.MovIq(CX86Assembler::rAX, CombineConstant64(src1->m_valueLow, src1->m_valueHigh));
+	m_assembler.MovIq(CX86Assembler::rAX, src1->GetConstantPtr());
 	auto symbolRefLabel = m_assembler.CreateLabel();
 	m_assembler.MarkLabel(symbolRefLabel, -8);
 	m_symbolReferenceLabels.push_back(std::make_pair(src1->GetConstantPtr(), symbolRefLabel));
@@ -706,7 +701,7 @@ void CCodeGen_x86_64::Emit_Cmp64_VarMemCst(const STATEMENT& statement)
 	assert(src2->m_type == SYM_CONSTANT64);
 
 	auto dstReg = PrepareSymbolRegisterDef(dst, CX86Assembler::rAX);
-	uint64 constant = CombineConstant64(src2->m_valueLow, src2->m_valueHigh);
+	uint64 constant = src2->GetConstant64();
 
 	m_assembler.XorEd(dstReg, CX86Assembler::MakeRegisterAddress(dstReg));
 

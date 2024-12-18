@@ -191,7 +191,7 @@ namespace Jitter
 		uint64 GetConstant64() const
 		{
 			assert(m_type == SYM_CONSTANT64);
-			return static_cast<uint64>(m_valueLow) | (static_cast<uint64>(m_valueHigh) << 32);
+			return m_value64;
 		}
 
 		uintptr_t GetConstantPtr() const
@@ -200,7 +200,7 @@ namespace Jitter
 #if(UINTPTR_MAX == UINT32_MAX)
 			return m_valueLow;
 #elif(UINTPTR_MAX == UINT64_MAX)
-			return static_cast<uint64>(m_valueLow) | (static_cast<uint64>(m_valueHigh) << 32);
+			return m_value64;
 #else
 			static_assert(false, "Unsupported pointer size.");
 #endif
@@ -219,8 +219,15 @@ namespace Jitter
 		}
 
 		SYM_TYPE m_type;
-		uint32 m_valueLow;
-		uint32 m_valueHigh;
+		union
+		{
+			struct
+			{
+				uint32 m_valueLow;
+				uint32 m_valueHigh;
+			};
+			uint64 m_value64;
+		};
 
 		unsigned int m_stackLocation = -1;
 	};

@@ -14,12 +14,6 @@
 
 using namespace Jitter;
 
-static uint64 MergeConstant64(uint32 lo, uint32 hi)
-{
-	uint64 result = static_cast<uint64>(lo) | (static_cast<uint64>(hi) >> 32);
-	return result;
-}
-
 unsigned int CJitter::CRelativeVersionManager::GetRelativeVersion(uint32 relativeId)
 {
 	RelativeVersionMap::const_iterator versionIterator(m_relativeVersions.find(relativeId));
@@ -480,7 +474,7 @@ bool CJitter::FoldConstantOperation(STATEMENT& statement)
 	{
 		if(src1cst && src2cst)
 		{
-			uint64 result = MergeConstant64(src1cst->m_valueLow, src2cst->m_valueLow);
+			uint64 result = static_cast<uint64>(src1cst->m_valueLow) | (static_cast<uint64>(src2cst->m_valueLow) << 32);
 			statement.op = OP_MOV;
 			statement.src1 = MakeSymbolRef(MakeConstant64(result));
 			statement.src2.reset();
@@ -666,8 +660,8 @@ bool CJitter::FoldConstant64Operation(STATEMENT& statement)
 	{
 		if(src1cst && src2cst)
 		{
-			uint64 cst1 = MergeConstant64(src1cst->m_valueLow, src1cst->m_valueHigh);
-			uint64 cst2 = MergeConstant64(src2cst->m_valueLow, src2cst->m_valueHigh);
+			uint64 cst1 = src1cst->GetConstant64();
+			uint64 cst2 = src2cst->GetConstant64();
 			uint64 result = cst1 + cst2;
 			statement.op = OP_MOV;
 			statement.src1 = MakeSymbolRef(MakeConstant64(result));
@@ -685,8 +679,8 @@ bool CJitter::FoldConstant64Operation(STATEMENT& statement)
 	{
 		if(src1cst && src2cst)
 		{
-			uint64 cst1 = MergeConstant64(src1cst->m_valueLow, src1cst->m_valueHigh);
-			uint64 cst2 = MergeConstant64(src2cst->m_valueLow, src2cst->m_valueHigh);
+			uint64 cst1 = src1cst->GetConstant64();
+			uint64 cst2 = src2cst->GetConstant64();
 			uint64 result = cst1 - cst2;
 			statement.op = OP_MOV;
 			statement.src1 = MakeSymbolRef(MakeConstant64(result));
@@ -698,8 +692,8 @@ bool CJitter::FoldConstant64Operation(STATEMENT& statement)
 	{
 		if(src1cst && src2cst)
 		{
-			uint64 cst1 = MergeConstant64(src1cst->m_valueLow, src1cst->m_valueHigh);
-			uint64 cst2 = MergeConstant64(src2cst->m_valueLow, src2cst->m_valueHigh);
+			uint64 cst1 = src1cst->GetConstant64();
+			uint64 cst2 = src2cst->GetConstant64();
 			uint64 result = cst1 & cst2;
 			statement.op = OP_MOV;
 			statement.src1 = MakeSymbolRef(MakeConstant64(result));

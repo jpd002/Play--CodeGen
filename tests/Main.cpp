@@ -53,8 +53,9 @@
 #include "NestedIfTest.h"
 #include "ExternJumpTest.h"
 
-typedef std::function<CTest* ()> TestFactoryFunction;
+typedef std::function<CTest*()> TestFactoryFunction;
 
+// clang-format off
 static const TestFactoryFunction s_factories[] =
 {
 	[] () { return new CCompareTest(); },
@@ -178,6 +179,7 @@ static const TestFactoryFunction s_factories[] =
 	[] () { return new CCall64Test(); },
 	[] () { return new CExternJumpTest(); }
 };
+// clang-format on
 
 void PrepareExternalFunctions()
 {

@@ -36,7 +36,7 @@ void CMdManipTest::Run()
 {
 	CONTEXT ALIGN16 context;
 	memset(&context, 0xFF, sizeof(CONTEXT));
-	
+
 	context.dstMasked0[0] = 1.0f;
 	context.dstMasked0[1] = 1.0f;
 	context.dstMasked0[2] = 1.0f;
@@ -64,15 +64,15 @@ void CMdManipTest::Run()
 
 	m_function(&context);
 
-	TEST_VERIFY(context.dstMasked0[0] ==    5.0f);
-	TEST_VERIFY(context.dstMasked0[1] ==    1.0f);
-	TEST_VERIFY(context.dstMasked0[2] ==    1.0f);
+	TEST_VERIFY(context.dstMasked0[0] == 5.0f);
+	TEST_VERIFY(context.dstMasked0[1] == 1.0f);
+	TEST_VERIFY(context.dstMasked0[2] == 1.0f);
 	TEST_VERIFY(context.dstMasked0[3] == 5000.0f);
 
-	TEST_VERIFY(context.dstMasked1[0] ==    5.0f);
-	TEST_VERIFY(context.dstMasked1[1] ==   50.0f);
-	TEST_VERIFY(context.dstMasked1[2] ==  500.0f);
-	TEST_VERIFY(context.dstMasked1[3] ==    4.0f);
+	TEST_VERIFY(context.dstMasked1[0] == 5.0f);
+	TEST_VERIFY(context.dstMasked1[1] == 50.0f);
+	TEST_VERIFY(context.dstMasked1[2] == 500.0f);
+	TEST_VERIFY(context.dstMasked1[3] == 4.0f);
 
 	TEST_VERIFY(context.dstExpandRel[0] == 600.0f);
 	TEST_VERIFY(context.dstExpandRel[1] == 600.0f);

@@ -5,8 +5,8 @@
 class CLoopTest : public CTest
 {
 public:
-	void				Run() override;
-	void				Compile(Jitter::CJitter&) override;
+	void Run() override;
+	void Compile(Jitter::CJitter&) override;
 
 private:
 	struct CONTEXT
@@ -20,6 +20,6 @@ private:
 		uint32 canLoop = 1;
 	};
 
-	CONTEXT				m_context;
-	FunctionType		m_function;
+	CONTEXT m_context;
+	FunctionType m_function;
 };

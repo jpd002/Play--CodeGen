@@ -5,10 +5,10 @@
 class CRandomAluTest3 : public CTest
 {
 public:
-						CRandomAluTest3(bool);
+	CRandomAluTest3(bool);
 
-	void				Compile(Jitter::CJitter&) override;
-	void				Run() override;
+	void Compile(Jitter::CJitter&) override;
+	void Run() override;
 
 private:
 	struct CONTEXT
@@ -17,7 +17,7 @@ private:
 		uint32 number2;
 	};
 
-	bool				m_useConstant;
-	CONTEXT				m_context;
-	FunctionType		m_function;
+	bool m_useConstant;
+	CONTEXT m_context;
+	FunctionType m_function;
 };

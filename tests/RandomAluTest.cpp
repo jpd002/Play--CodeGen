@@ -4,9 +4,8 @@
 #define TEST_NUMBER (23)
 
 CRandomAluTest::CRandomAluTest(bool useConstant)
-: m_useConstant(useConstant)
+    : m_useConstant(useConstant)
 {
-
 }
 
 void CRandomAluTest::Compile(Jitter::CJitter& jitter)

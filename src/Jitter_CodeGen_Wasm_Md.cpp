@@ -4,16 +4,16 @@
 
 using namespace Jitter;
 
-static const uint8 g_packHBShuffle[0x10] = { 0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30 };
-static const uint8 g_packWHShuffle[0x10] = { 0, 1, 4, 5, 8, 9, 12, 13, 16, 17, 20, 21, 24, 25, 28, 29 };
+static const uint8 g_packHBShuffle[0x10] = {0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30};
+static const uint8 g_packWHShuffle[0x10] = {0, 1, 4, 5, 8, 9, 12, 13, 16, 17, 20, 21, 24, 25, 28, 29};
 
-static const uint8 g_unpackLowerBHShuffle[0x10] = { 0, 16, 1, 17, 2, 18, 3, 19, 4, 20, 5, 21, 6, 22, 7, 23 };
-static const uint8 g_unpackLowerHWShuffle[0x10] = { 0, 1, 16, 17, 2, 3, 18, 19, 4, 5, 20, 21, 6, 7, 22, 23 };
-static const uint8 g_unpackLowerWDShuffle[0x10] = { 0, 1, 2, 3, 16, 17, 18, 19, 4, 5, 6, 7, 20, 21, 22, 23 };
+static const uint8 g_unpackLowerBHShuffle[0x10] = {0, 16, 1, 17, 2, 18, 3, 19, 4, 20, 5, 21, 6, 22, 7, 23};
+static const uint8 g_unpackLowerHWShuffle[0x10] = {0, 1, 16, 17, 2, 3, 18, 19, 4, 5, 20, 21, 6, 7, 22, 23};
+static const uint8 g_unpackLowerWDShuffle[0x10] = {0, 1, 2, 3, 16, 17, 18, 19, 4, 5, 6, 7, 20, 21, 22, 23};
 
-static const uint8 g_unpackUpperBHShuffle[0x10] = { 8, 24, 9, 25, 10, 26, 11, 27, 12, 28, 13, 29, 14, 30, 15, 31 };
-static const uint8 g_unpackUpperHWShuffle[0x10] = { 8, 9, 24, 25, 10, 11, 26, 27, 12, 13, 28, 29, 14, 15, 30, 31 };
-static const uint8 g_unpackUpperWDShuffle[0x10] = { 8, 9, 10, 11, 24, 25, 26, 27, 12, 13, 14, 15, 28, 29, 30, 31 };
+static const uint8 g_unpackUpperBHShuffle[0x10] = {8, 24, 9, 25, 10, 26, 11, 27, 12, 28, 13, 29, 14, 30, 15, 31};
+static const uint8 g_unpackUpperHWShuffle[0x10] = {8, 9, 24, 25, 10, 11, 26, 27, 12, 13, 28, 29, 14, 15, 30, 31};
+static const uint8 g_unpackUpperWDShuffle[0x10] = {8, 9, 10, 11, 24, 25, 26, 27, 12, 13, 14, 15, 28, 29, 30, 31};
 
 template <uint32 OP>
 void CCodeGen_Wasm::Emit_Md_MemMem(const STATEMENT& statement)
@@ -129,25 +129,24 @@ void CCodeGen_Wasm::Emit_Md_AddSSW_MemMemMem(const STATEMENT& statement)
 	auto src1 = statement.src1->GetSymbol().get();
 	auto src2 = statement.src2->GetSymbol().get();
 
-//	This is based on code from http://locklessinc.com/articles/sat_arithmetic/ modified to work without cmovns
-//	s32b sat_adds32b(s32b x, s32b y)
-//	{
-//		u32b ux = x;
-//		u32b uy = y;
-//		u32b res = ux + uy;
-//	
-//		/* Calculate overflowed result. (Don't change the sign bit of ux) */
-//		s32b ovf = (ux >> 31) + INT_MAX;
-//	
-//		s32b sign = (s32b) ((ovf ^ uy) | ~(uy ^ res))
-//		sign >>= 31;		/* Arithmetic shift, either 0 or ~0*/
-//		res = (res & sign) | (ovf & ~sign);
-//		
-//		return res;
-//	}
+	//	This is based on code from http://locklessinc.com/articles/sat_arithmetic/ modified to work without cmovns
+	//	s32b sat_adds32b(s32b x, s32b y)
+	//	{
+	//		u32b ux = x;
+	//		u32b uy = y;
+	//		u32b res = ux + uy;
+	//
+	//		/* Calculate overflowed result. (Don't change the sign bit of ux) */
+	//		s32b ovf = (ux >> 31) + INT_MAX;
+	//
+	//		s32b sign = (s32b) ((ovf ^ uy) | ~(uy ^ res))
+	//		sign >>= 31;		/* Arithmetic shift, either 0 or ~0*/
+	//		res = (res & sign) | (ovf & ~sign);
+	//
+	//		return res;
+	//	}
 
-	auto pushRes = [this, src1, src2]()
-	{
+	auto pushRes = [this, src1, src2]() {
 		PrepareSymbolUse(src1);
 		PrepareSymbolUse(src2);
 
@@ -155,15 +154,14 @@ void CCodeGen_Wasm::Emit_Md_AddSSW_MemMemMem(const STATEMENT& statement)
 		CWasmModuleBuilder::WriteULeb128(m_functionStream, Wasm::INST_I32x4_ADD);
 	};
 
-	auto pushOvf = [this, src1]()
-	{
+	auto pushOvf = [this, src1]() {
 		//Push INT_MAX vector
 		m_functionStream.Write8(Wasm::INST_I32_CONST);
 		CWasmModuleBuilder::WriteSLeb128(m_functionStream, 0x7FFFFFFF);
 
 		m_functionStream.Write8(Wasm::INST_PREFIX_SIMD);
 		m_functionStream.Write8(Wasm::INST_I32x4_SPLAT);
-		
+
 		//Compute (x >> 31)
 		PrepareSymbolUse(src1);
 
@@ -178,8 +176,7 @@ void CCodeGen_Wasm::Emit_Md_AddSSW_MemMemMem(const STATEMENT& statement)
 		CWasmModuleBuilder::WriteULeb128(m_functionStream, Wasm::INST_I32x4_ADD);
 	};
 
-	auto pushSign = [this, src2, pushRes, pushOvf]()
-	{
+	auto pushSign = [this, src2, pushRes, pushOvf]() {
 		//~(uy ^ res)
 		{
 			PrepareSymbolUse(src2);
@@ -247,17 +244,17 @@ void CCodeGen_Wasm::Emit_Md_AddUSW_MemMemMem(const STATEMENT& statement)
 	auto src1 = statement.src1->GetSymbol().get();
 	auto src2 = statement.src2->GetSymbol().get();
 
-//	This is based on code from http://locklessinc.com/articles/sat_arithmetic/
-//	u32b sat_addu32b(u32b x, u32b y)
-//	{
-//		u32b res = x + y;
-//		res |= -(res < x);
-//	
-//		return res;
-//	}
+	//	This is based on code from http://locklessinc.com/articles/sat_arithmetic/
+	//	u32b sat_addu32b(u32b x, u32b y)
+	//	{
+	//		u32b res = x + y;
+	//		res |= -(res < x);
+	//
+	//		return res;
+	//	}
 
 	PrepareSymbolDef(dst);
-	
+
 	//-(res < x) -> -((x + y) < x)
 	{
 		PrepareSymbolUse(src1);
@@ -294,24 +291,23 @@ void CCodeGen_Wasm::Emit_Md_SubSSW_MemMemMem(const STATEMENT& statement)
 	auto src1 = statement.src1->GetSymbol().get();
 	auto src2 = statement.src2->GetSymbol().get();
 
-//	This is based on code from http://locklessinc.com/articles/sat_arithmetic/ modified to work without cmovns
-//	s32b sat_subs32b(s32b x, s32b y)
-//	{
-//		u32b ux = x;
-//		u32b uy = y;
-//		u32b res = ux - uy;
-//		
-//		s32b ovf = (ux >> 31) + INT_MAX;
-//		
-//		s32b sign = (s32b) ((ovf ^ uy) & (ovf ^ res))
-//		sign >>= 31;		/* Arithmetic shift, either 0 or ~0*/
-//		res = (res & ~sign) | (ovf & sign);
-//		
-//		return res;
-//	}
+	//	This is based on code from http://locklessinc.com/articles/sat_arithmetic/ modified to work without cmovns
+	//	s32b sat_subs32b(s32b x, s32b y)
+	//	{
+	//		u32b ux = x;
+	//		u32b uy = y;
+	//		u32b res = ux - uy;
+	//
+	//		s32b ovf = (ux >> 31) + INT_MAX;
+	//
+	//		s32b sign = (s32b) ((ovf ^ uy) & (ovf ^ res))
+	//		sign >>= 31;		/* Arithmetic shift, either 0 or ~0*/
+	//		res = (res & ~sign) | (ovf & sign);
+	//
+	//		return res;
+	//	}
 
-	auto pushRes = [this, src1, src2]()
-	{
+	auto pushRes = [this, src1, src2]() {
 		PrepareSymbolUse(src1);
 		PrepareSymbolUse(src2);
 
@@ -319,15 +315,14 @@ void CCodeGen_Wasm::Emit_Md_SubSSW_MemMemMem(const STATEMENT& statement)
 		CWasmModuleBuilder::WriteULeb128(m_functionStream, Wasm::INST_I32x4_SUB);
 	};
 
-	auto pushOvf = [this, src1]()
-	{
+	auto pushOvf = [this, src1]() {
 		//Push INT_MAX vector
 		m_functionStream.Write8(Wasm::INST_I32_CONST);
 		CWasmModuleBuilder::WriteSLeb128(m_functionStream, 0x7FFFFFFF);
 
 		m_functionStream.Write8(Wasm::INST_PREFIX_SIMD);
 		m_functionStream.Write8(Wasm::INST_I32x4_SPLAT);
-		
+
 		//Compute (x >> 31)
 		PrepareSymbolUse(src1);
 
@@ -342,8 +337,7 @@ void CCodeGen_Wasm::Emit_Md_SubSSW_MemMemMem(const STATEMENT& statement)
 		CWasmModuleBuilder::WriteULeb128(m_functionStream, Wasm::INST_I32x4_ADD);
 	};
 
-	auto pushSign = [this, src2, pushRes, pushOvf]()
-	{
+	auto pushSign = [this, src2, pushRes, pushOvf]() {
 		//(ovf ^ res)
 		{
 			pushOvf();
@@ -408,17 +402,17 @@ void CCodeGen_Wasm::Emit_Md_SubUSW_MemMemMem(const STATEMENT& statement)
 	auto src1 = statement.src1->GetSymbol().get();
 	auto src2 = statement.src2->GetSymbol().get();
 
-//	This is based on code from http://locklessinc.com/articles/sat_arithmetic/
-//	u32b sat_subu32b(u32b x, u32b y)
-//	{
-//		u32b res = x - y;
-//		res &= -(res <= x);
-//	
-//		return res;
-//	}
+	//	This is based on code from http://locklessinc.com/articles/sat_arithmetic/
+	//	u32b sat_subu32b(u32b x, u32b y)
+	//	{
+	//		u32b res = x - y;
+	//		res &= -(res <= x);
+	//
+	//		return res;
+	//	}
 
 	PrepareSymbolDef(dst);
-	
+
 	//-(res <= x) -> -((x - y) <= x)
 	{
 		PrepareSymbolUse(src1);
@@ -445,7 +439,7 @@ void CCodeGen_Wasm::Emit_Md_SubUSW_MemMemMem(const STATEMENT& statement)
 	//Combine
 	m_functionStream.Write8(Wasm::INST_PREFIX_SIMD);
 	CWasmModuleBuilder::WriteULeb128(m_functionStream, Wasm::INST_V128_AND);
-	
+
 	CommitSymbol(dst);
 }
 
@@ -489,13 +483,15 @@ void CCodeGen_Wasm::Emit_Md_MakeSz_MemMem(const STATEMENT& statement)
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
 
-	static const uint8 zeroConst[0x10] = { 0 };
+	static const uint8 zeroConst[0x10] = {0};
 
+	// clang-format off
 	static const uint8 makeSzShufflePattern[0x10] =
 	{
 		0x1E, 0x1C, 0x1A, 0x18, 0x16, 0x14, 0x12, 0x10,
 		0x0E, 0x0C, 0x0A, 0x08, 0x06, 0x04, 0x02, 0x00,
 	};
+	// clang-format on
 
 	PrepareSymbolDef(dst);
 
@@ -764,6 +760,7 @@ void CCodeGen_Wasm::Emit_MergeTo256_MemMemMem(const STATEMENT& statement)
 	CWasmModuleBuilder::WriteULeb128(m_functionStream, localIdx + 0);
 }
 
+// clang-format off
 CCodeGen_Wasm::CONSTMATCHER CCodeGen_Wasm::g_mdConstMatchers[] =
 {
 	{ OP_MOV,            MATCH_MEMORY128,      MATCH_MEMORY128,      MATCH_NIL,           MATCH_NIL,      &CCodeGen_Wasm::Emit_Md_Mov_MemMem                            },
@@ -867,3 +864,4 @@ CCodeGen_Wasm::CONSTMATCHER CCodeGen_Wasm::g_mdConstMatchers[] =
 
 	{ OP_MOV,            MATCH_NIL,            MATCH_NIL,            MATCH_NIL,           MATCH_NIL,      nullptr                                                       },
 };
+// clang-format on

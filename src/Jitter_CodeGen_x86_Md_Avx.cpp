@@ -149,28 +149,28 @@ void CCodeGen_x86::Emit_Md_Avx_AddSSW_VarVarVar(const STATEMENT& statement)
 	auto resRegister = CX86Assembler::xMM2;
 	auto cstRegister = CX86Assembler::xMM3;
 
-//	This is based on code from http://locklessinc.com/articles/sat_arithmetic/ modified to work without cmovns
-//	s32b sat_adds32b(s32b x, s32b y)
-//	{
-//		u32b ux = x;
-//		u32b uy = y;
-//		u32b res = ux + uy;
-//	
-//		/* Calculate overflowed result. (Don't change the sign bit of ux) */
-//		ux = (ux >> 31) + INT_MAX;
-//	
-//		s32b sign = (s32b) ((ux ^ uy) | ~(uy ^ res))
-//		sign >>= 31;		/* Arithmetic shift, either 0 or ~0*/
-//		res = (res & sign) | (ux & ~sign);
-//		
-//		return res;
-//	}
+	//	This is based on code from http://locklessinc.com/articles/sat_arithmetic/ modified to work without cmovns
+	//	s32b sat_adds32b(s32b x, s32b y)
+	//	{
+	//		u32b ux = x;
+	//		u32b uy = y;
+	//		u32b res = ux + uy;
+	//
+	//		/* Calculate overflowed result. (Don't change the sign bit of ux) */
+	//		ux = (ux >> 31) + INT_MAX;
+	//
+	//		s32b sign = (s32b) ((ux ^ uy) | ~(uy ^ res))
+	//		sign >>= 31;		/* Arithmetic shift, either 0 or ~0*/
+	//		res = (res & sign) | (ux & ~sign);
+	//
+	//		return res;
+	//	}
 
 	//ux = src1
 	//uy = src2
 	m_assembler.VmovdqaVo(uxRegister, MakeVariable128SymbolAddress(src1));
 	m_assembler.VmovdqaVo(uyRegister, MakeVariable128SymbolAddress(src2));
-	
+
 	//res = ux + uy
 	m_assembler.VpadddVo(resRegister, uxRegister, CX86Assembler::MakeXmmRegisterAddress(uyRegister));
 
@@ -230,26 +230,26 @@ void CCodeGen_x86::Emit_Md_Avx_SubSSW_VarVarVar(const STATEMENT& statement)
 	auto resRegister = CX86Assembler::xMM2;
 	auto cstRegister = CX86Assembler::xMM3;
 
-//	This is based on code from http://locklessinc.com/articles/sat_arithmetic/ modified to work without cmovns
-//	s32b sat_subs32b(s32b x, s32b y)
-//	{
-//		u32b ux = x;
-//		u32b uy = y;
-//		u32b res = ux - uy;
-//		
-//		ux = (ux >> 31) + INT_MAX;
-//		
-//		s32b sign = (s32b) ((ux ^ uy) & (ux ^ res))
-//		sign >>= 31;		/* Arithmetic shift, either 0 or ~0*/
-//		res = (res & ~sign) | (ux & sign);
-//		
-//		return res;
-//	}
+	//	This is based on code from http://locklessinc.com/articles/sat_arithmetic/ modified to work without cmovns
+	//	s32b sat_subs32b(s32b x, s32b y)
+	//	{
+	//		u32b ux = x;
+	//		u32b uy = y;
+	//		u32b res = ux - uy;
+	//
+	//		ux = (ux >> 31) + INT_MAX;
+	//
+	//		s32b sign = (s32b) ((ux ^ uy) & (ux ^ res))
+	//		sign >>= 31;		/* Arithmetic shift, either 0 or ~0*/
+	//		res = (res & ~sign) | (ux & sign);
+	//
+	//		return res;
+	//	}
 
 	//ux = src1
 	//uy = src2
 	m_assembler.VmovdqaVo(uxRegister, MakeVariable128SymbolAddress(src1));
-	
+
 	//res = ux - uy
 	m_assembler.VpsubdVo(resRegister, uxRegister, MakeVariable128SymbolAddress(src2));
 
@@ -305,18 +305,18 @@ void CCodeGen_x86::Emit_Md_Avx_AddUSW_VarVarVar(const STATEMENT& statement)
 	auto tmpRegister = CX86Assembler::xMM2;
 	auto tmp2Register = CX86Assembler::xMM3;
 
-//	This is based on code from http://locklessinc.com/articles/sat_arithmetic/
-//	u32b sat_addu32b(u32b x, u32b y)
-//	{
-//		u32b res = x + y;
-//		res |= -(res < x);
-//	
-//		return res;
-//	}
+	//	This is based on code from http://locklessinc.com/articles/sat_arithmetic/
+	//	u32b sat_addu32b(u32b x, u32b y)
+	//	{
+	//		u32b res = x + y;
+	//		res |= -(res < x);
+	//
+	//		return res;
+	//	}
 
 	m_assembler.VmovdqaVo(xRegister, MakeVariable128SymbolAddress(src1));
 	m_assembler.VpadddVo(resRegister, xRegister, MakeVariable128SymbolAddress(src2));
-	
+
 	//-(res < x)
 	//PCMPGT will compare two signed integers, but we want unsigned comparison
 	//Thus, we add 0x80000000 to both values to "convert" them to signed
@@ -348,14 +348,14 @@ void CCodeGen_x86::Emit_Md_Avx_SubUSW_VarVarVar(const STATEMENT& statement)
 	auto tmpRegister = CX86Assembler::xMM2;
 	auto tmp2Register = CX86Assembler::xMM3;
 
-//	This is based on code from http://locklessinc.com/articles/sat_arithmetic/
-//	u32b sat_subu32b(u32b x, u32b y)
-//	{
-//		u32b res = x - y;
-//		res &= -(res <= x);
-//	
-//		return res;
-//	}
+	//	This is based on code from http://locklessinc.com/articles/sat_arithmetic/
+	//	u32b sat_subu32b(u32b x, u32b y)
+	//	{
+	//		u32b res = x - y;
+	//		res &= -(res <= x);
+	//
+	//		return res;
+	//	}
 
 	m_assembler.VmovdqaVo(xRegister, MakeVariable128SymbolAddress(src1));
 	m_assembler.VpsubdVo(resRegister, xRegister, MakeVariable128SymbolAddress(src2));
@@ -484,26 +484,26 @@ void CCodeGen_x86::Emit_Md_Avx_MakeSz_VarVar(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
-	
+
 	auto dstRegister = PrepareSymbolRegisterDef(dst, CX86Assembler::rDX);
 	auto src1Register = PrepareSymbolRegisterUseMdAvx(src1, CX86Assembler::xMM0);
 	auto szRegister = CX86Assembler::xMM1;
 	auto zeroRegister = CX86Assembler::xMM2;
-	
+
 	//Compute sign
 	m_assembler.VpsradVo(szRegister, src1Register, 31);
-	
+
 	//Compute zero
 	m_assembler.VpxorVo(zeroRegister, zeroRegister, CX86Assembler::MakeXmmRegisterAddress(zeroRegister));
 	m_assembler.VcmppsVo(zeroRegister, zeroRegister, CX86Assembler::MakeXmmRegisterAddress(src1Register), CX86Assembler::SSE_CMP_EQ);
-	
+
 	//Pack
 	m_assembler.VpackssdwVo(szRegister, szRegister, CX86Assembler::MakeXmmRegisterAddress(zeroRegister));
-	
+
 	//Extract bits
 	m_assembler.VpshufbVo(szRegister, szRegister, MakeConstant128Address(g_makeSzShufflePattern));
 	m_assembler.VpmovmskbVo(dstRegister, szRegister);
-	
+
 	CommitSymbolRegister(dst, dstRegister);
 }
 
@@ -698,6 +698,7 @@ void CCodeGen_x86::Emit_Md_Avx_StoreAtRef_VarAnyVar(const STATEMENT& statement)
 	m_assembler.VmovapsVo(MakeRefBaseScaleSymbolAddress(src1, CX86Assembler::rAX, src2, CX86Assembler::rCX, scale), valueReg);
 }
 
+// clang-format off
 CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdAvxConstMatchers[] = 
 {
 	{ OP_MD_ADD_B, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx_VarVarVar<MDOP_ADDB> },
@@ -817,3 +818,4 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdAvx2ExpandConstMatchers[] =
 
 	{ OP_MOV, MATCH_NIL, MATCH_NIL, MATCH_NIL, MATCH_NIL, nullptr },
 };
+// clang-format on

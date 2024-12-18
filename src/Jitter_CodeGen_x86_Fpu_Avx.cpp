@@ -278,6 +278,7 @@ void CCodeGen_x86::Emit_Fp_Avx_ToInt32TruncS_MemVar(const STATEMENT& statement)
 	m_assembler.MovGd(MakeMemoryFp32SymbolAddress(dst), tmpIntRegister);
 }
 
+// clang-format off
 CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_fpuAvxConstMatchers[] = 
 {
 	{ OP_FP_ADD_S, MATCH_FP_VARIABLE32, MATCH_FP_VARIABLE32, MATCH_FP_VARIABLE32, MATCH_NIL, &CCodeGen_x86::Emit_Fp32_Avx_VarVarVar<FP32OP_ADD> },
@@ -310,3 +311,4 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_fpuAvxConstMatchers[] =
 
 	{ OP_MOV, MATCH_NIL, MATCH_NIL, MATCH_NIL, MATCH_NIL, nullptr },
 };
+// clang-format on

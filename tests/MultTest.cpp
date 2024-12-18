@@ -7,13 +7,13 @@ static constexpr uint32 CONSTANT_VALUE_2 = 0x40408000;
 static constexpr uint32 RELATIVE_VALUE_1 = 0xFFFF8000;
 static constexpr uint32 RELATIVE_VALUE_2 = 0x8000FFFF;
 
-static constexpr int64 CSTCST_SIGNED_RESULT = 
-	static_cast<int64>(static_cast<int32>(CONSTANT_VALUE_1)) *
-	static_cast<int64>(static_cast<int32>(CONSTANT_VALUE_2));
+static constexpr int64 CSTCST_SIGNED_RESULT =
+    static_cast<int64>(static_cast<int32>(CONSTANT_VALUE_1)) *
+    static_cast<int64>(static_cast<int32>(CONSTANT_VALUE_2));
 
-static constexpr uint64 CSTCST_UNSIGNED_RESULT = 
-	static_cast<uint64>(CONSTANT_VALUE_1) *
-	static_cast<uint64>(CONSTANT_VALUE_2);
+static constexpr uint64 CSTCST_UNSIGNED_RESULT =
+    static_cast<uint64>(CONSTANT_VALUE_1) *
+    static_cast<uint64>(CONSTANT_VALUE_2);
 
 static constexpr int64 RELREL_SIGNED_RESULT =
     static_cast<int64>(static_cast<int32>(RELATIVE_VALUE_1)) *
@@ -32,9 +32,8 @@ static constexpr uint64 RELCST_UNSIGNED_RESULT =
     static_cast<uint64>(CONSTANT_VALUE_2);
 
 CMultTest::CMultTest(bool isSigned)
-: m_isSigned(isSigned)
+    : m_isSigned(isSigned)
 {
-
 }
 
 void CMultTest::Run()
@@ -61,7 +60,7 @@ void CMultTest::Run()
 	{
 		TEST_VERIFY(m_context.cstCstResultLo == static_cast<uint32>(CSTCST_SIGNED_RESULT));
 		TEST_VERIFY(m_context.cstCstResultHi == static_cast<uint32>(CSTCST_SIGNED_RESULT >> 32));
-		
+
 		TEST_VERIFY(m_context.relRelResultLo == static_cast<uint32>(RELREL_SIGNED_RESULT));
 		TEST_VERIFY(m_context.relRelResultHi == static_cast<uint32>(RELREL_SIGNED_RESULT >> 32));
 

@@ -6,8 +6,8 @@
 class CFpClampTest : public CTest
 {
 public:
-	void				Compile(Jitter::CJitter&) override;
-	void				Run() override;
+	void Compile(Jitter::CJitter&) override;
+	void Run() override;
 
 private:
 	struct CONTEXT
@@ -29,5 +29,5 @@ private:
 		float mdResult2[4];
 	};
 
-	FunctionType		m_function;
+	FunctionType m_function;
 };

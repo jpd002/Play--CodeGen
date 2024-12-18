@@ -2,9 +2,8 @@
 #include "MemStream.h"
 
 CMdShiftTest::CMdShiftTest(uint32 shiftAmount)
-: m_shiftAmount(shiftAmount)
+    : m_shiftAmount(shiftAmount)
 {
-
 }
 
 void CMdShiftTest::Run()

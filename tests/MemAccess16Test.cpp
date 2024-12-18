@@ -1,11 +1,11 @@
 #include "MemAccess16Test.h"
 #include "MemStream.h"
 
-#define CONSTANT_1	(0x0123)
-#define CONSTANT_2	(0xFF21)
-#define CONSTANT_3	(0x5588)
-#define CONSTANT_4	(0x4422)
-#define CONSTANT_5	(0x8786)
+#define CONSTANT_1 (0x0123)
+#define CONSTANT_2 (0xFF21)
+#define CONSTANT_3 (0x5588)
+#define CONSTANT_4 (0x4422)
+#define CONSTANT_5 (0x8786)
 
 #define STORE_IDX_0 (1)
 #define STORE_IDX_1 (2)
@@ -15,9 +15,8 @@
 #define LOAD_IDX_1 (6)
 
 CMemAccess16Test::CMemAccess16Test(bool useVariableIndices)
-	: m_useVariableIndices(useVariableIndices)
+    : m_useVariableIndices(useVariableIndices)
 {
-
 }
 
 void CMemAccess16Test::Run()
@@ -50,26 +49,26 @@ void CMemAccess16Test::Run()
 
 void CMemAccess16Test::Compile(Jitter::CJitter& jitter)
 {
-#define PUSH_LOAD_IDX(idx) \
-	if(m_useVariableIndices) \
-	{ \
-		jitter.PushRel(offsetof(CONTEXT, loadIdx##idx)); \
-	} \
-	else \
-	{ \
+#define PUSH_LOAD_IDX(idx)                                        \
+	if(m_useVariableIndices)                                      \
+	{                                                             \
+		jitter.PushRel(offsetof(CONTEXT, loadIdx##idx));          \
+	}                                                             \
+	else                                                          \
+	{                                                             \
 		jitter.PushCst(LOAD_IDX_##idx * sizeof(MemoryValueType)); \
 	}
 
-#define PUSH_STORE_IDX(idx) \
-	if(m_useVariableIndices) \
-	{ \
-		jitter.PushRel(offsetof(CONTEXT, storeIdx##idx)); \
-	} \
-	else \
-	{ \
+#define PUSH_STORE_IDX(idx)                                        \
+	if(m_useVariableIndices)                                       \
+	{                                                              \
+		jitter.PushRel(offsetof(CONTEXT, storeIdx##idx));          \
+	}                                                              \
+	else                                                           \
+	{                                                              \
 		jitter.PushCst(STORE_IDX_##idx * sizeof(MemoryValueType)); \
 	}
-	
+
 	Framework::CMemStream codeStream;
 	jitter.SetStream(&codeStream);
 

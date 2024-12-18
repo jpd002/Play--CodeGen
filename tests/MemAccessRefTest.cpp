@@ -115,7 +115,7 @@ void CMemAccessRefTest::EmitNotNullComparison(Jitter::CJitter& jitter, uint32 in
 	jitter.PushCst(index * sizeof(void*));
 	jitter.AddRef();
 	jitter.LoadRefFromRef();
-	
+
 	jitter.PushCst(0);
 	jitter.BeginIf(Jitter::CONDITION_NE);
 	{

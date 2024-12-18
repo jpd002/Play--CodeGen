@@ -3,41 +3,41 @@
 #include "Types.h"
 
 #if defined(__EMSCRIPTEN__)
-	#include <emscripten/bind.h>
+#include <emscripten/bind.h>
 #endif
 
 class CMemoryFunction
 {
 public:
-						CMemoryFunction();
-						CMemoryFunction(const void*, size_t);
-						CMemoryFunction(const CMemoryFunction&) = delete;
-						CMemoryFunction(CMemoryFunction&&);
+	CMemoryFunction();
+	CMemoryFunction(const void*, size_t);
+	CMemoryFunction(const CMemoryFunction&) = delete;
+	CMemoryFunction(CMemoryFunction&&);
 
-	virtual				~CMemoryFunction();
+	virtual ~CMemoryFunction();
 
-	bool				IsEmpty() const;
+	bool IsEmpty() const;
 
-	CMemoryFunction&	operator =(const CMemoryFunction&) = delete;
+	CMemoryFunction& operator=(const CMemoryFunction&) = delete;
 
-	CMemoryFunction&	operator =(CMemoryFunction&&);
-	void				operator()(void*);
+	CMemoryFunction& operator=(CMemoryFunction&&);
+	void operator()(void*);
 
-	void*				GetCode() const;
-	size_t				GetSize() const;
+	void* GetCode() const;
+	size_t GetSize() const;
 
-	void				BeginModify();
-	void				EndModify();
+	void BeginModify();
+	void EndModify();
 
-	CMemoryFunction		CreateInstance();
-	
+	CMemoryFunction CreateInstance();
+
 private:
-	void				ClearCache();
-	void				Reset();
+	void ClearCache();
+	void Reset();
 
-	void*				m_code;
-	size_t				m_size;
+	void* m_code;
+	size_t m_size;
 #if defined(__EMSCRIPTEN__)
-	emscripten::val		m_wasmModule;
+	emscripten::val m_wasmModule;
 #endif
 };

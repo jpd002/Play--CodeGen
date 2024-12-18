@@ -14,7 +14,6 @@ namespace Jitter
 		    : m_symbol(symbol)
 		    , m_version(version)
 		{
-			
 		}
 
 		SymbolPtr GetSymbol() const

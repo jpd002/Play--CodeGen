@@ -1,9 +1,9 @@
 #include "Merge64Test.h"
 #include "MemStream.h"
 
-#define CONSTANT_1		(0xEEEEFFFFULL)
-#define CONSTANT_2		(0x22221111ULL)
-#define MERGED_CONSTANT	((CONSTANT_2 << 32) | CONSTANT_1)
+#define CONSTANT_1 (0xEEEEFFFFULL)
+#define CONSTANT_2 (0x22221111ULL)
+#define MERGED_CONSTANT ((CONSTANT_2 << 32) | CONSTANT_1)
 
 void CMerge64Test::Run()
 {

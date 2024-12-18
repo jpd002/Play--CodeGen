@@ -6,24 +6,24 @@
 class CAliasTest : public CTest
 {
 public:
-	void				Run() override;
-	void				Compile(Jitter::CJitter&) override;
+	void Run() override;
+	void Compile(Jitter::CJitter&) override;
 
 private:
 	struct CONTEXT
 	{
 		ALIGN16
 
-		uint32		value0[2];
-		uint32		value1[2];
+		uint32 value0[2];
+		uint32 value1[2];
 
-		uint32		value2[4];
-		uint32		value3[4];
-		uint32		value4[4];
+		uint32 value2[4];
+		uint32 value3[4];
+		uint32 value4[4];
 
-		uint32		result;
+		uint32 result;
 	};
 
-	CONTEXT				m_context;
-	FunctionType		m_function;
+	CONTEXT m_context;
+	FunctionType m_function;
 };

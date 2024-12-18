@@ -1,9 +1,8 @@
 #include "LiteralPool.h"
 
 CLiteralPool::CLiteralPool(Framework::CStream* stream)
-: m_stream(stream)
+    : m_stream(stream)
 {
-
 }
 
 void CLiteralPool::AlignPool()

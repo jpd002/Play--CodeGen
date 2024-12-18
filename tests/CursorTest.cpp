@@ -23,24 +23,36 @@ void CCursorTest::Compile(Jitter::CJitter& jitter)
 
 	jitter.Begin();
 	{
-		jitter.PushCst(VALUE_1); uint32 value1Cursor = jitter.GetTopCursor();
-		jitter.PushCst(VALUE_2); uint32 value2Cursor = jitter.GetTopCursor();
-		jitter.PushCst(VALUE_3); uint32 value3Cursor = jitter.GetTopCursor();
-		jitter.PushCst(VALUE_4); uint32 value4Cursor = jitter.GetTopCursor();
-		jitter.PushCst(VALUE_5); uint32 value5Cursor = jitter.GetTopCursor();
-		jitter.PushCst(VALUE_6); uint32 value6Cursor = jitter.GetTopCursor();
+		jitter.PushCst(VALUE_1);
+		uint32 value1Cursor = jitter.GetTopCursor();
+		jitter.PushCst(VALUE_2);
+		uint32 value2Cursor = jitter.GetTopCursor();
+		jitter.PushCst(VALUE_3);
+		uint32 value3Cursor = jitter.GetTopCursor();
+		jitter.PushCst(VALUE_4);
+		uint32 value4Cursor = jitter.GetTopCursor();
+		jitter.PushCst(VALUE_5);
+		uint32 value5Cursor = jitter.GetTopCursor();
+		jitter.PushCst(VALUE_6);
+		uint32 value6Cursor = jitter.GetTopCursor();
 
 		jitter.PushCursor(value2Cursor);
 		jitter.PushCursor(value4Cursor);
 		jitter.Sub();
 		jitter.PullRel(offsetof(CONTEXT, result1));
 
-		assert(jitter.GetTopCursor() == value6Cursor); jitter.PullTop();
-		assert(jitter.GetTopCursor() == value5Cursor); jitter.PullTop();
-		assert(jitter.GetTopCursor() == value4Cursor); jitter.PullTop();
-		assert(jitter.GetTopCursor() == value3Cursor); jitter.PullTop();
-		assert(jitter.GetTopCursor() == value2Cursor); jitter.PullTop();
-		assert(jitter.GetTopCursor() == value1Cursor); jitter.PullTop();
+		assert(jitter.GetTopCursor() == value6Cursor);
+		jitter.PullTop();
+		assert(jitter.GetTopCursor() == value5Cursor);
+		jitter.PullTop();
+		assert(jitter.GetTopCursor() == value4Cursor);
+		jitter.PullTop();
+		assert(jitter.GetTopCursor() == value3Cursor);
+		jitter.PullTop();
+		assert(jitter.GetTopCursor() == value2Cursor);
+		jitter.PullTop();
+		assert(jitter.GetTopCursor() == value1Cursor);
+		jitter.PullTop();
 	}
 	jitter.End();
 

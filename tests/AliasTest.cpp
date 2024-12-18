@@ -2,9 +2,9 @@
 #include "MemStream.h"
 #include "offsetof_def.h"
 
-#define CONSTANT_1	(0x5400)
-#define CONSTANT_2	(0xFFFF)
-#define CONSTANT_3	(0x34002010)
+#define CONSTANT_1 (0x5400)
+#define CONSTANT_2 (0xFFFF)
+#define CONSTANT_3 (0x34002010)
 
 void CAliasTest::Run()
 {

@@ -5,8 +5,8 @@
 class CHugeJumpTest : public CTest
 {
 public:
-	void				Compile(Jitter::CJitter&) override;
-	void				Run() override;
+	void Compile(Jitter::CJitter&) override;
+	void Run() override;
 
 private:
 	enum MAX_VARS
@@ -16,10 +16,10 @@ private:
 
 	struct CONTEXT
 	{
-		uint32	condition;
-		uint32	number[MAX_VARS];
+		uint32 condition;
+		uint32 number[MAX_VARS];
 	};
 
-	CONTEXT				m_context;
-	FunctionType		m_function;
+	CONTEXT m_context;
+	FunctionType m_function;
 };

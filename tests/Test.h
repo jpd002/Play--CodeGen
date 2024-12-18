@@ -9,17 +9,22 @@
 #include "offsetof_def.h"
 #include "MemoryFunction.h"
 
-#define TEST_VERIFY(a) if(!(a)) { printf("Verification failed: '%s'. Aborting.\n", #a); std::abort(); }
+#define TEST_VERIFY(a)                                        \
+	if(!(a))                                                  \
+	{                                                         \
+		printf("Verification failed: '%s'. Aborting.\n", #a); \
+		std::abort();                                         \
+	}
 
 class CTest
 {
 public:
 	typedef CMemoryFunction FunctionType;
 
-	virtual			~CTest() = default;
+	virtual ~CTest() = default;
 
-	virtual void	Run()						= 0;
-	virtual void	Compile(Jitter::CJitter&)	= 0;
+	virtual void Run() = 0;
+	virtual void Compile(Jitter::CJitter&) = 0;
 
 	void* operator new(size_t allocSize)
 	{

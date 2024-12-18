@@ -19,21 +19,21 @@ namespace Jitter
 			ARMV8_PCRELATIVE,
 		};
 
-		typedef std::function<void (uintptr_t, uint32, SYMBOL_REF_TYPE)> ExternalSymbolReferencedHandler;
+		typedef std::function<void(uintptr_t, uint32, SYMBOL_REF_TYPE)> ExternalSymbolReferencedHandler;
 
-		virtual					~CCodeGen() {};
+		virtual ~CCodeGen(){};
 
-		virtual void			SetStream(Framework::CStream*) = 0;
-		void					SetExternalSymbolReferencedHandler(const ExternalSymbolReferencedHandler&);
+		virtual void SetStream(Framework::CStream*) = 0;
+		void SetExternalSymbolReferencedHandler(const ExternalSymbolReferencedHandler&);
 
-		virtual void			GenerateCode(const StatementList&, unsigned int) = 0;
-		virtual unsigned int	GetAvailableRegisterCount() const = 0;
-		virtual unsigned int	GetAvailableMdRegisterCount() const = 0;
-		virtual bool			Has128BitsCallOperands() const = 0;
-		virtual bool			CanHold128BitsReturnValueInRegisters() const = 0;
-		virtual bool			SupportsExternalJumps() const = 0;
-		virtual void			RegisterExternalSymbols(CObjectFile*) const = 0;
-		virtual uint32			GetPointerSize() const = 0;
+		virtual void GenerateCode(const StatementList&, unsigned int) = 0;
+		virtual unsigned int GetAvailableRegisterCount() const = 0;
+		virtual unsigned int GetAvailableMdRegisterCount() const = 0;
+		virtual bool Has128BitsCallOperands() const = 0;
+		virtual bool CanHold128BitsReturnValueInRegisters() const = 0;
+		virtual bool SupportsExternalJumps() const = 0;
+		virtual void RegisterExternalSymbols(CObjectFile*) const = 0;
+		virtual uint32 GetPointerSize() const = 0;
 
 	protected:
 		enum MATCHTYPE
@@ -48,9 +48,9 @@ namespace Jitter
 			MATCH_REGISTER,
 			MATCH_RELATIVE,
 			MATCH_TEMPORARY,
-			MATCH_MEMORY,			//Either relative or temporary
-			MATCH_VARIABLE,			//Either relative or temporary or register
-			MATCH_ANY32,			//Any of the 32-bit sized operands (variable or constant)
+			MATCH_MEMORY,   //Either relative or temporary
+			MATCH_VARIABLE, //Either relative or temporary or register
+			MATCH_ANY32,    //Any of the 32-bit sized operands (variable or constant)
 
 			MATCH_REG_REF,
 			MATCH_REL_REF,
@@ -78,7 +78,7 @@ namespace Jitter
 			MATCH_FP_VARIABLE32,
 		};
 
-		typedef std::function<void (const STATEMENT&)> CodeEmitterType;
+		typedef std::function<void(const STATEMENT&)> CodeEmitterType;
 
 		struct MATCHER
 		{
@@ -92,10 +92,10 @@ namespace Jitter
 
 		typedef std::multimap<OPERATION, MATCHER> MatcherMapType;
 
-		bool								SymbolMatches(MATCHTYPE, const SymbolRefPtr&);
-		static uint32						GetRegisterUsage(const StatementList&);
+		bool SymbolMatches(MATCHTYPE, const SymbolRefPtr&);
+		static uint32 GetRegisterUsage(const StatementList&);
 
-		MatcherMapType						m_matchers;
-		ExternalSymbolReferencedHandler		m_externalSymbolReferencedHandler;
+		MatcherMapType m_matchers;
+		ExternalSymbolReferencedHandler m_externalSymbolReferencedHandler;
 	};
 }

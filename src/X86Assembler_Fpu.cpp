@@ -48,7 +48,7 @@ void CX86Assembler::FmulpSt(uint8 stackId)
 
 void CX86Assembler::FdivpSt(uint8 stackId)
 {
-	WriteStOp(0xDE, 0x07, stackId); 
+	WriteStOp(0xDE, 0x07, stackId);
 }
 
 void CX86Assembler::Fwait()

@@ -6,6 +6,8 @@
 #include "AlignedAlloc.h"
 #include "MemoryFunction.h"
 
+// clang-format off
+
 #define BLOCK_ALIGN 0x10
 
 #ifdef _WIN32

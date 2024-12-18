@@ -23,7 +23,7 @@ void CX86Assembler::WriteVex(VEX_OPCODE_MAP opMap, XMMREGISTER& dst, XMMREGISTER
 		b1 |= (src2.nIsExtendedModRM ? 0 : 1) << 5;
 		b1 |= (src2.nIsExtendedSib ? 0 : 1) << 6;
 		b1 |= (isExtendedR ? 0 : 1) << 7;
-		
+
 		uint8 b2 = 0;
 		b2 |= prefix;
 		b2 |= (~static_cast<uint8>(src1) & 0xF) << 3;

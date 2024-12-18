@@ -13,15 +13,15 @@ private:
 
 	struct CONTEXT
 	{
-		void*    memory;
-		uint32   offset;
-		uint32   value;
-		uint32   result0;
-		uint32   result1;
+		void* memory;
+		uint32 offset;
+		uint32 value;
+		uint32 result0;
+		uint32 result1;
 		UnitType array0[0x10];
 	};
 
-	CONTEXT         m_context;
-	UnitType        m_memory[0x20];
-	FunctionType    m_function;
+	CONTEXT m_context;
+	UnitType m_memory[0x20];
+	FunctionType m_function;
 };

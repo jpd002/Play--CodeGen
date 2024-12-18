@@ -114,7 +114,7 @@ void CAArch32Assembler::ResolveLabelReferences()
 void CAArch32Assembler::ResolveLiteralReferences()
 {
 	if(m_literal128Refs.empty()) return;
-	
+
 	CLiteralPool literalPool(m_stream);
 	literalPool.AlignPool();
 
@@ -142,28 +142,28 @@ void CAArch32Assembler::ResolveLiteralReferences()
 void CAArch32Assembler::GenericAlu(ALU_OPCODE op, bool setFlags, REGISTER rd, REGISTER rn, REGISTER rm)
 {
 	InstructionAlu instruction;
-	instruction.operand		= rm;
-	instruction.rn			= rn;
-	instruction.rd			= rd;
-	instruction.setFlags	= setFlags ? 1 : 0;
-	instruction.opcode		= op;
-	instruction.immediate	= 0;
-	instruction.condition	= CONDITION_AL;
+	instruction.operand = rm;
+	instruction.rn = rn;
+	instruction.rd = rd;
+	instruction.setFlags = setFlags ? 1 : 0;
+	instruction.opcode = op;
+	instruction.immediate = 0;
+	instruction.condition = CONDITION_AL;
 	uint32 opcode = *reinterpret_cast<uint32*>(&instruction);
 	WriteWord(opcode);
 }
 
-void CAArch32Assembler::GenericAlu(ALU_OPCODE op, bool setFlags, REGISTER rd, REGISTER rn, 
-	const ImmediateAluOperand& operand, CONDITION conditionCode)
+void CAArch32Assembler::GenericAlu(ALU_OPCODE op, bool setFlags, REGISTER rd, REGISTER rn,
+                                   const ImmediateAluOperand& operand, CONDITION conditionCode)
 {
 	InstructionAlu instruction;
-	instruction.operand		= *reinterpret_cast<const unsigned int*>(&operand);
-	instruction.rd			= rd;
-	instruction.rn			= rn;
-	instruction.setFlags	= setFlags ? 1 : 0;
-	instruction.opcode		= op;
-	instruction.immediate	= 1;
-	instruction.condition	= conditionCode;
+	instruction.operand = *reinterpret_cast<const unsigned int*>(&operand);
+	instruction.rd = rd;
+	instruction.rn = rn;
+	instruction.setFlags = setFlags ? 1 : 0;
+	instruction.opcode = op;
+	instruction.immediate = 1;
+	instruction.condition = conditionCode;
 	uint32 opcode = *reinterpret_cast<uint32*>(&instruction);
 	WriteWord(opcode);
 }
@@ -339,8 +339,8 @@ void CAArch32Assembler::Ldrh(REGISTER rd, REGISTER rbase, const LdrAddress& addr
 {
 	assert(!address.isNegative);
 	assert(
-		(address.isImmediate && (address.immediate < 0x100)) || 
-		(!address.isImmediate && (address.immediate < 0x10)));
+	    (address.isImmediate && (address.immediate < 0x100)) ||
+	    (!address.isImmediate && (address.immediate < 0x10)));
 	uint32 imm4L = (address.immediate & 0x0F);
 	uint32 imm4H = (address.immediate & 0xF0) >> 4;
 	uint32 opcode = (CONDITION_AL << 28) | 0x019000B0;
@@ -362,7 +362,7 @@ void CAArch32Assembler::Ldr_Pc(REGISTER rt, int32 offset)
 	}
 	assert(absOffset < 0x1000);
 	uint32 opcode = (CONDITION_AL << 28) | 0x051F0000 | (add ? 0x00800000 : 0);
-	opcode |= (rt <<  12);
+	opcode |= (rt << 12);
 	opcode |= absOffset;
 	WriteWord(opcode);
 }
@@ -480,7 +480,7 @@ void CAArch32Assembler::Mvn(REGISTER rd, const ImmediateAluOperand& operand)
 	instruction.immediate = 1;
 	instruction.condition = CONDITION_AL;
 	uint32 opcode = *reinterpret_cast<uint32*>(&instruction);
-	WriteWord(opcode);	
+	WriteWord(opcode);
 }
 
 void CAArch32Assembler::Or(REGISTER rd, REGISTER rn, REGISTER rm)
@@ -513,8 +513,8 @@ void CAArch32Assembler::Sdiv(REGISTER rd, REGISTER rn, REGISTER rm)
 	uint32 opcode = 0x0710F010;
 	opcode |= (CONDITION_AL << 28);
 	opcode |= (rd << 16);
-	opcode |= (rm <<  8);
-	opcode |= (rn <<  0);
+	opcode |= (rm << 8);
+	opcode |= (rn << 0);
 	WriteWord(opcode);
 }
 
@@ -562,8 +562,8 @@ void CAArch32Assembler::Strh(REGISTER rd, REGISTER rbase, const LdrAddress& addr
 {
 	assert(!address.isNegative);
 	assert(
-		(address.isImmediate && (address.immediate < 0x100)) || 
-		(!address.isImmediate && (address.immediate < 0x10)));
+	    (address.isImmediate && (address.immediate < 0x100)) ||
+	    (!address.isImmediate && (address.immediate < 0x10)));
 	uint32 imm4L = (address.immediate & 0x0F);
 	uint32 imm4H = (address.immediate & 0xF0) >> 4;
 	uint32 opcode = (CONDITION_AL << 28) | 0x018000B0;
@@ -636,8 +636,8 @@ void CAArch32Assembler::Udiv(REGISTER rd, REGISTER rn, REGISTER rm)
 	uint32 opcode = 0x0730F010;
 	opcode |= (CONDITION_AL << 28);
 	opcode |= (rd << 16);
-	opcode |= (rm <<  8);
-	opcode |= (rn <<  0);
+	opcode |= (rm << 8);
+	opcode |= (rn << 0);
 	WriteWord(opcode);
 }
 
@@ -659,12 +659,12 @@ uint32 CAArch32Assembler::FPSIMD_EncodeSd(SINGLE_REGISTER sd)
 
 uint32 CAArch32Assembler::FPSIMD_EncodeSn(SINGLE_REGISTER sn)
 {
-	return ((sn >> 1) << 16) | ((sn & 1) <<  7);
+	return ((sn >> 1) << 16) | ((sn & 1) << 7);
 }
 
 uint32 CAArch32Assembler::FPSIMD_EncodeSm(SINGLE_REGISTER sm)
 {
-	return ((sm >> 1) <<  0) | ((sm & 1) <<  5);
+	return ((sm >> 1) << 0) | ((sm & 1) << 5);
 }
 
 uint32 CAArch32Assembler::FPSIMD_EncodeDd(DOUBLE_REGISTER dd)
@@ -674,12 +674,12 @@ uint32 CAArch32Assembler::FPSIMD_EncodeDd(DOUBLE_REGISTER dd)
 
 uint32 CAArch32Assembler::FPSIMD_EncodeDn(DOUBLE_REGISTER dn)
 {
-	return ((dn & 0xF) << 16) | ((dn >> 4) <<  7);
+	return ((dn & 0xF) << 16) | ((dn >> 4) << 7);
 }
 
 uint32 CAArch32Assembler::FPSIMD_EncodeDm(DOUBLE_REGISTER dm)
 {
-	return ((dm & 0x0F) <<  0) | ((dm >> 4) <<  5);
+	return ((dm & 0x0F) << 0) | ((dm >> 4) << 5);
 }
 
 uint32 CAArch32Assembler::FPSIMD_EncodeQd(QUAD_REGISTER qd)
@@ -691,13 +691,13 @@ uint32 CAArch32Assembler::FPSIMD_EncodeQd(QUAD_REGISTER qd)
 uint32 CAArch32Assembler::FPSIMD_EncodeQn(QUAD_REGISTER qn)
 {
 	assert((qn & 1) == 0);
-	return ((qn & 0xF) << 16) | ((qn >> 4) <<  7);
+	return ((qn & 0xF) << 16) | ((qn >> 4) << 7);
 }
 
 uint32 CAArch32Assembler::FPSIMD_EncodeQm(QUAD_REGISTER qm)
 {
 	assert((qm & 1) == 0);
-	return ((qm & 0x0F) <<  0) | ((qm >> 4) <<  5);
+	return ((qm & 0x0F) << 0) | ((qm >> 4) << 5);
 }
 
 void CAArch32Assembler::Vldr(SINGLE_REGISTER sd, REGISTER rbase, const LdrAddress& address)

@@ -2,8 +2,8 @@
 #include "MemStream.h"
 #include "Jitter_CodeGen_Wasm.h"
 
-bool		CCrc32Test::m_tableBuilt = false;
-uint32		CCrc32Test::m_table[0x100];
+bool CCrc32Test::m_tableBuilt = false;
+uint32 CCrc32Test::m_table[0x100];
 
 extern "C" uint32 CCrc32Test_GetNextByte(void* context)
 {
@@ -23,11 +23,10 @@ void CCrc32Test::PrepareExternalFunctions()
 }
 
 CCrc32Test::CCrc32Test(const char* input, uint32 result)
-: m_input(input)
-, m_inputPtr(0)
-, m_result(result)
+    : m_input(input)
+    , m_inputPtr(0)
+    , m_result(result)
 {
-
 }
 
 void CCrc32Test::Run()
@@ -35,9 +34,9 @@ void CCrc32Test::Run()
 	m_inputPtr = 0;
 
 	memset(&m_context, 0, sizeof(m_context));
-	m_context.state		= STATE_TEST;
-	m_context.testCase	= this;
-	
+	m_context.state = STATE_TEST;
+	m_context.testCase = this;
+
 	while(m_context.state != STATE_DONE)
 	{
 		FunctionType* function = nullptr;

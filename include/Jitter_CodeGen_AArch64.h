@@ -9,20 +9,20 @@ namespace Jitter
 	class CCodeGen_AArch64 : public CCodeGen
 	{
 	public:
-		           CCodeGen_AArch64();
-		virtual    ~CCodeGen_AArch64() = default;
+		CCodeGen_AArch64();
+		virtual ~CCodeGen_AArch64() = default;
 
-		void            SetGenerateRelocatableCalls(bool);
+		void SetGenerateRelocatableCalls(bool);
 
-		void            GenerateCode(const StatementList&, unsigned int) override;
-		void            SetStream(Framework::CStream*) override;
-		void            RegisterExternalSymbols(CObjectFile*) const override;
-		unsigned int    GetAvailableRegisterCount() const override;
-		unsigned int    GetAvailableMdRegisterCount() const override;
-		bool            Has128BitsCallOperands() const override;
-		bool            CanHold128BitsReturnValueInRegisters() const override;
-		bool            SupportsExternalJumps() const override;
-		uint32          GetPointerSize() const override;
+		void GenerateCode(const StatementList&, unsigned int) override;
+		void SetStream(Framework::CStream*) override;
+		void RegisterExternalSymbols(CObjectFile*) const override;
+		unsigned int GetAvailableRegisterCount() const override;
+		unsigned int GetAvailableMdRegisterCount() const override;
+		bool Has128BitsCallOperands() const override;
+		bool CanHold128BitsReturnValueInRegisters() const override;
+		bool SupportsExternalJumps() const override;
+		uint32 GetPointerSize() const override;
 
 	private:
 		typedef std::map<uint32, CAArch64Assembler::LABEL> LabelMapType;
@@ -30,10 +30,10 @@ namespace Jitter
 
 		struct ADDSUB_IMM_PARAMS
 		{
-			uint16                                      imm = 0;
-			CAArch64Assembler::ADDSUB_IMM_SHIFT_TYPE    shiftType = CAArch64Assembler::ADDSUB_IMM_SHIFT_LSL0;
+			uint16 imm = 0;
+			CAArch64Assembler::ADDSUB_IMM_SHIFT_TYPE shiftType = CAArch64Assembler::ADDSUB_IMM_SHIFT_LSL0;
 		};
-		
+
 		struct LOGICAL_IMM_PARAMS
 		{
 			uint8 n;
@@ -48,7 +48,7 @@ namespace Jitter
 			uint32 spillOffset = 0;
 		};
 
-		typedef std::function<void (PARAM_STATE&)> ParamEmitterFunction;
+		typedef std::function<void(PARAM_STATE&)> ParamEmitterFunction;
 		typedef std::deque<ParamEmitterFunction> ParamStack;
 
 		enum
@@ -60,7 +60,7 @@ namespace Jitter
 		{
 			MAX_MDREGISTERS = 20,
 		};
-		
+
 		enum MAX_PARAM_REGS
 		{
 			MAX_PARAM_REGS = 8,
@@ -75,81 +75,82 @@ namespace Jitter
 		{
 			MAX_TEMP_MD_REGS = 4,
 		};
-		
+
 		struct CONSTMATCHER
 		{
-			OPERATION               op;
-			MATCHTYPE               dstType;
-			MATCHTYPE               src1Type;
-			MATCHTYPE               src2Type;
-			MATCHTYPE               src3Type;
-			ConstCodeEmitterType    emitter;
+			OPERATION op;
+			MATCHTYPE dstType;
+			MATCHTYPE src1Type;
+			MATCHTYPE src2Type;
+			MATCHTYPE src3Type;
+			ConstCodeEmitterType emitter;
 		};
 
-		static uint32    GetMaxParamSpillSize(const StatementList&);
+		static uint32 GetMaxParamSpillSize(const StatementList&);
 
-		CAArch64Assembler::REGISTER32    GetNextTempRegister();
-		CAArch64Assembler::REGISTER64    GetNextTempRegister64();
-		CAArch64Assembler::REGISTERMD    GetNextTempRegisterMd();
-		
-		uint32    GetMemory64Offset(CSymbol*) const;
+		CAArch64Assembler::REGISTER32 GetNextTempRegister();
+		CAArch64Assembler::REGISTER64 GetNextTempRegister64();
+		CAArch64Assembler::REGISTERMD GetNextTempRegisterMd();
 
-		void    LoadMemoryInRegister(CAArch64Assembler::REGISTER32, CSymbol*);
-		void    StoreRegisterInMemory(CSymbol*, CAArch64Assembler::REGISTER32);
-		
-		void    LoadMemory64InRegister(CAArch64Assembler::REGISTER64, CSymbol*);
-		void    StoreRegisterInMemory64(CSymbol*, CAArch64Assembler::REGISTER64);
-		
-		void    LoadConstantInRegister(CAArch64Assembler::REGISTER32, uint32);
-		void    LoadConstant64InRegister(CAArch64Assembler::REGISTER64, uint64);
-		
-		void    LoadMemory64LowInRegister(CAArch64Assembler::REGISTER32, CSymbol*);
-		void    LoadMemory64HighInRegister(CAArch64Assembler::REGISTER32, CSymbol*);
-		
-		void    LoadSymbol64InRegister(CAArch64Assembler::REGISTER64, CSymbol*);
+		uint32 GetMemory64Offset(CSymbol*) const;
 
-		void    StoreRegistersInMemory64(CSymbol*, CAArch64Assembler::REGISTER32, CAArch64Assembler::REGISTER32);
-		
-		void    LoadMemoryReferenceInRegister(CAArch64Assembler::REGISTER64, CSymbol*);
-		void    StoreRegisterInTemporaryReference(CSymbol*, CAArch64Assembler::REGISTER64);
-		
-		void    LoadMemoryFp32InRegister(CAArch64Assembler::REGISTERMD, CSymbol*);
-		void    StoreRegisterInMemoryFp32(CSymbol*, CAArch64Assembler::REGISTERMD);
-		
-		void    LoadMemory128InRegister(CAArch64Assembler::REGISTERMD, CSymbol*);
-		void    StoreRegisterInMemory128(CSymbol*, CAArch64Assembler::REGISTERMD);
-		
-		void    LoadMemory128AddressInRegister(CAArch64Assembler::REGISTER64, CSymbol*, uint32 = 0);
-		void    LoadRelative128AddressInRegister(CAArch64Assembler::REGISTER64, CSymbol*, uint32);
-		void    LoadTemporary128AddressInRegister(CAArch64Assembler::REGISTER64, CSymbol*, uint32);
-		
-		void    LoadTemporary256ElementAddressInRegister(CAArch64Assembler::REGISTER64, CSymbol*, uint32);
+		void LoadMemoryInRegister(CAArch64Assembler::REGISTER32, CSymbol*);
+		void StoreRegisterInMemory(CSymbol*, CAArch64Assembler::REGISTER32);
 
-		CAArch64Assembler::REGISTER32    PrepareSymbolRegisterDef(CSymbol*, CAArch64Assembler::REGISTER32);
-		CAArch64Assembler::REGISTER32    PrepareSymbolRegisterUse(CSymbol*, CAArch64Assembler::REGISTER32);
-		void                             CommitSymbolRegister(CSymbol*, CAArch64Assembler::REGISTER32);
-		
-		CAArch64Assembler::REGISTER64    PrepareSymbolRegisterDefRef(CSymbol*, CAArch64Assembler::REGISTER64);
-		CAArch64Assembler::REGISTER64    PrepareSymbolRegisterUseRef(CSymbol*, CAArch64Assembler::REGISTER64);
-		void                             CommitSymbolRegisterRef(CSymbol*, CAArch64Assembler::REGISTER64);
-		
-		CAArch64Assembler::REGISTERMD    PrepareSymbolRegisterDefFp(CSymbol*, CAArch64Assembler::REGISTERMD);
-		CAArch64Assembler::REGISTERMD    PrepareSymbolRegisterUseFp(CSymbol*, CAArch64Assembler::REGISTERMD);
-		void                             CommitSymbolRegisterFp(CSymbol*, CAArch64Assembler::REGISTERMD);
+		void LoadMemory64InRegister(CAArch64Assembler::REGISTER64, CSymbol*);
+		void StoreRegisterInMemory64(CSymbol*, CAArch64Assembler::REGISTER64);
 
-		CAArch64Assembler::REGISTERMD    PrepareSymbolRegisterDefMd(CSymbol*, CAArch64Assembler::REGISTERMD);
-		CAArch64Assembler::REGISTERMD    PrepareSymbolRegisterUseMd(CSymbol*, CAArch64Assembler::REGISTERMD);
-		void                             CommitSymbolRegisterMd(CSymbol*, CAArch64Assembler::REGISTERMD);
-		
-		CAArch64Assembler::REGISTER32    PrepareParam(PARAM_STATE&);
-		CAArch64Assembler::REGISTER64    PrepareParam64(PARAM_STATE&);
-		void                             CommitParam(PARAM_STATE&);
-		void                             CommitParam64(PARAM_STATE&);
-		
+		void LoadConstantInRegister(CAArch64Assembler::REGISTER32, uint32);
+		void LoadConstant64InRegister(CAArch64Assembler::REGISTER64, uint64);
+
+		void LoadMemory64LowInRegister(CAArch64Assembler::REGISTER32, CSymbol*);
+		void LoadMemory64HighInRegister(CAArch64Assembler::REGISTER32, CSymbol*);
+
+		void LoadSymbol64InRegister(CAArch64Assembler::REGISTER64, CSymbol*);
+
+		void StoreRegistersInMemory64(CSymbol*, CAArch64Assembler::REGISTER32, CAArch64Assembler::REGISTER32);
+
+		void LoadMemoryReferenceInRegister(CAArch64Assembler::REGISTER64, CSymbol*);
+		void StoreRegisterInTemporaryReference(CSymbol*, CAArch64Assembler::REGISTER64);
+
+		void LoadMemoryFp32InRegister(CAArch64Assembler::REGISTERMD, CSymbol*);
+		void StoreRegisterInMemoryFp32(CSymbol*, CAArch64Assembler::REGISTERMD);
+
+		void LoadMemory128InRegister(CAArch64Assembler::REGISTERMD, CSymbol*);
+		void StoreRegisterInMemory128(CSymbol*, CAArch64Assembler::REGISTERMD);
+
+		void LoadMemory128AddressInRegister(CAArch64Assembler::REGISTER64, CSymbol*, uint32 = 0);
+		void LoadRelative128AddressInRegister(CAArch64Assembler::REGISTER64, CSymbol*, uint32);
+		void LoadTemporary128AddressInRegister(CAArch64Assembler::REGISTER64, CSymbol*, uint32);
+
+		void LoadTemporary256ElementAddressInRegister(CAArch64Assembler::REGISTER64, CSymbol*, uint32);
+
+		CAArch64Assembler::REGISTER32 PrepareSymbolRegisterDef(CSymbol*, CAArch64Assembler::REGISTER32);
+		CAArch64Assembler::REGISTER32 PrepareSymbolRegisterUse(CSymbol*, CAArch64Assembler::REGISTER32);
+		void CommitSymbolRegister(CSymbol*, CAArch64Assembler::REGISTER32);
+
+		CAArch64Assembler::REGISTER64 PrepareSymbolRegisterDefRef(CSymbol*, CAArch64Assembler::REGISTER64);
+		CAArch64Assembler::REGISTER64 PrepareSymbolRegisterUseRef(CSymbol*, CAArch64Assembler::REGISTER64);
+		void CommitSymbolRegisterRef(CSymbol*, CAArch64Assembler::REGISTER64);
+
+		CAArch64Assembler::REGISTERMD PrepareSymbolRegisterDefFp(CSymbol*, CAArch64Assembler::REGISTERMD);
+		CAArch64Assembler::REGISTERMD PrepareSymbolRegisterUseFp(CSymbol*, CAArch64Assembler::REGISTERMD);
+		void CommitSymbolRegisterFp(CSymbol*, CAArch64Assembler::REGISTERMD);
+
+		CAArch64Assembler::REGISTERMD PrepareSymbolRegisterDefMd(CSymbol*, CAArch64Assembler::REGISTERMD);
+		CAArch64Assembler::REGISTERMD PrepareSymbolRegisterUseMd(CSymbol*, CAArch64Assembler::REGISTERMD);
+		void CommitSymbolRegisterMd(CSymbol*, CAArch64Assembler::REGISTERMD);
+
+		CAArch64Assembler::REGISTER32 PrepareParam(PARAM_STATE&);
+		CAArch64Assembler::REGISTER64 PrepareParam64(PARAM_STATE&);
+		void CommitParam(PARAM_STATE&);
+		void CommitParam64(PARAM_STATE&);
+
 		bool TryGetAddSubImmParams(uint32, ADDSUB_IMM_PARAMS&);
 		bool TryGetAddSub64ImmParams(uint64, ADDSUB_IMM_PARAMS&);
 		bool TryGetLogicalImmParams(uint32, LOGICAL_IMM_PARAMS&);
-		
+
+		// clang-format off
 		//SHIFTOP ----------------------------------------------------------
 		struct SHIFTOP_BASE
 		{
@@ -592,198 +593,215 @@ namespace Jitter
 		{
 			static OpRegType OpReg() { return &CAArch64Assembler::Sshr_4s; }
 		};
-		
-		uint16    GetSavedRegisterList(uint32);
-		void      Emit_Prolog(const StatementList&, uint32);
-		void      Emit_Epilog();
-		
+		// clang-format on
+
+		uint16 GetSavedRegisterList(uint32);
+		void Emit_Prolog(const StatementList&, uint32);
+		void Emit_Epilog();
+
 		CAArch64Assembler::LABEL GetLabel(uint32);
-		void                     MarkLabel(const STATEMENT&);
-		
-		void    Emit_Nop(const STATEMENT&);
-		
-		void    Emit_Mov_RegReg(const STATEMENT&);
-		void    Emit_Mov_RegMem(const STATEMENT&);
-		void    Emit_Mov_RegCst(const STATEMENT&);
-		void    Emit_Mov_MemReg(const STATEMENT&);
-		void    Emit_Mov_MemMem(const STATEMENT&);
-		void    Emit_Mov_MemCst(const STATEMENT&);
-		
-		void    Emit_Mov_RegRefMemRef(const STATEMENT&);
-		void    Emit_Mov_MemRefRegRef(const STATEMENT&);
-		
-		void    Emit_Not_VarVar(const STATEMENT&);
-		void    Emit_Lzc_VarVar(const STATEMENT&);
-		
-		void    Emit_Mov_Mem64Mem64(const STATEMENT&);
-		void    Emit_Mov_Mem64Cst64(const STATEMENT&);
-		
-		void    Emit_ExtLow64VarMem64(const STATEMENT&);
-		void    Emit_ExtHigh64VarMem64(const STATEMENT&);
-		void    Emit_MergeTo64_Mem64AnyAny(const STATEMENT&);
-		
-		void    Emit_RelToRef_VarCst(const STATEMENT&);
-		void    Emit_AddRef_VarVarAny(const STATEMENT&);
-		void    Emit_IsRefNull_VarVar(const STATEMENT&);
-		void    Emit_LoadFromRef_VarVar(const STATEMENT&);
-		void    Emit_LoadFromRef_VarVarAny(const STATEMENT&);
-		void    Emit_LoadFromRef_Ref_VarVar(const STATEMENT&);
-		void    Emit_LoadFromRef_Ref_VarVarAny(const STATEMENT&);
-		void    Emit_StoreAtRef_VarAny(const STATEMENT&);
-		void    Emit_StoreAtRef_VarAnyAny(const STATEMENT&);
+		void MarkLabel(const STATEMENT&);
 
-		void    Emit_Load8FromRef_MemVar(const STATEMENT&);
-		void    Emit_Load8FromRef_MemVarAny(const STATEMENT&);
-		void    Emit_Store8AtRef_VarAny(const STATEMENT&);
-		void    Emit_Store8AtRef_VarAnyAny(const STATEMENT&);
+		void Emit_Nop(const STATEMENT&);
 
-		void    Emit_Load16FromRef_MemVar(const STATEMENT&);
-		void    Emit_Load16FromRef_MemVarAny(const STATEMENT&);
-		void    Emit_Store16AtRef_VarAny(const STATEMENT&);
-		void    Emit_Store16AtRef_VarAnyAny(const STATEMENT&);
+		void Emit_Mov_RegReg(const STATEMENT&);
+		void Emit_Mov_RegMem(const STATEMENT&);
+		void Emit_Mov_RegCst(const STATEMENT&);
+		void Emit_Mov_MemReg(const STATEMENT&);
+		void Emit_Mov_MemMem(const STATEMENT&);
+		void Emit_Mov_MemCst(const STATEMENT&);
 
-		void    Emit_LoadFromRef_64_MemVar(const STATEMENT&);
-		void    Emit_LoadFromRef_64_MemVarAny(const STATEMENT&);
-		void    Emit_StoreAtRef_64_VarAny(const STATEMENT&);
-		void    Emit_StoreAtRef_64_VarAnyAny(const STATEMENT&);
+		void Emit_Mov_RegRefMemRef(const STATEMENT&);
+		void Emit_Mov_MemRefRegRef(const STATEMENT&);
 
-		void    Emit_Param_Ctx(const STATEMENT&);
-		void    Emit_Param_Reg(const STATEMENT&);
-		void    Emit_Param_Mem(const STATEMENT&);
-		void    Emit_Param_Cst(const STATEMENT&);
-		void    Emit_Param_Mem64(const STATEMENT&);
-		void    Emit_Param_Cst64(const STATEMENT&);
-		void    Emit_Param_Reg128(const STATEMENT&);
-		void    Emit_Param_Mem128(const STATEMENT&);
-		
-		void    Emit_Call(const STATEMENT&);
-		void    Emit_RetVal_Reg(const STATEMENT&);
-		void    Emit_RetVal_Tmp(const STATEMENT&);
-		void    Emit_RetVal_Mem64(const STATEMENT&);
-		void    Emit_RetVal_Reg128(const STATEMENT&);
-		void    Emit_RetVal_Mem128(const STATEMENT&);
-		
-		void    Emit_ExternJmp(const STATEMENT&);
-		void    Emit_ExternJmpDynamic(const STATEMENT&);
+		void Emit_Not_VarVar(const STATEMENT&);
+		void Emit_Lzc_VarVar(const STATEMENT&);
 
-		void    Emit_Jmp(const STATEMENT&);
-		
-		void    Emit_CondJmp(const STATEMENT&);
-		void    Emit_CondJmp_AnyVar(const STATEMENT&);
-		void    Emit_CondJmp_VarCst(const STATEMENT&);
-		
-		void    Emit_CondJmp_Ref_VarCst(const STATEMENT&);
-		
-		void    Cmp_GetFlag(CAArch64Assembler::REGISTER32, Jitter::CONDITION);
-		void    Emit_Cmp_VarAnyVar(const STATEMENT&);
-		void    Emit_Cmp_VarVarCst(const STATEMENT&);
-		
-		void    Emit_Add64_MemMemMem(const STATEMENT&);
-		void    Emit_Add64_MemMemCst(const STATEMENT&);
-		
-		void    Emit_Sub64_MemAnyMem(const STATEMENT&);
-		void    Emit_Sub64_MemMemCst(const STATEMENT&);
-		
-		void    Emit_Cmp64_VarAnyMem(const STATEMENT&);
-		void    Emit_Cmp64_VarMemCst(const STATEMENT&);
-		
-		void    Emit_And64_MemMemMem(const STATEMENT&);
-		
+		void Emit_Mov_Mem64Mem64(const STATEMENT&);
+		void Emit_Mov_Mem64Cst64(const STATEMENT&);
+
+		void Emit_ExtLow64VarMem64(const STATEMENT&);
+		void Emit_ExtHigh64VarMem64(const STATEMENT&);
+		void Emit_MergeTo64_Mem64AnyAny(const STATEMENT&);
+
+		void Emit_RelToRef_VarCst(const STATEMENT&);
+		void Emit_AddRef_VarVarAny(const STATEMENT&);
+		void Emit_IsRefNull_VarVar(const STATEMENT&);
+		void Emit_LoadFromRef_VarVar(const STATEMENT&);
+		void Emit_LoadFromRef_VarVarAny(const STATEMENT&);
+		void Emit_LoadFromRef_Ref_VarVar(const STATEMENT&);
+		void Emit_LoadFromRef_Ref_VarVarAny(const STATEMENT&);
+		void Emit_StoreAtRef_VarAny(const STATEMENT&);
+		void Emit_StoreAtRef_VarAnyAny(const STATEMENT&);
+
+		void Emit_Load8FromRef_MemVar(const STATEMENT&);
+		void Emit_Load8FromRef_MemVarAny(const STATEMENT&);
+		void Emit_Store8AtRef_VarAny(const STATEMENT&);
+		void Emit_Store8AtRef_VarAnyAny(const STATEMENT&);
+
+		void Emit_Load16FromRef_MemVar(const STATEMENT&);
+		void Emit_Load16FromRef_MemVarAny(const STATEMENT&);
+		void Emit_Store16AtRef_VarAny(const STATEMENT&);
+		void Emit_Store16AtRef_VarAnyAny(const STATEMENT&);
+
+		void Emit_LoadFromRef_64_MemVar(const STATEMENT&);
+		void Emit_LoadFromRef_64_MemVarAny(const STATEMENT&);
+		void Emit_StoreAtRef_64_VarAny(const STATEMENT&);
+		void Emit_StoreAtRef_64_VarAnyAny(const STATEMENT&);
+
+		void Emit_Param_Ctx(const STATEMENT&);
+		void Emit_Param_Reg(const STATEMENT&);
+		void Emit_Param_Mem(const STATEMENT&);
+		void Emit_Param_Cst(const STATEMENT&);
+		void Emit_Param_Mem64(const STATEMENT&);
+		void Emit_Param_Cst64(const STATEMENT&);
+		void Emit_Param_Reg128(const STATEMENT&);
+		void Emit_Param_Mem128(const STATEMENT&);
+
+		void Emit_Call(const STATEMENT&);
+		void Emit_RetVal_Reg(const STATEMENT&);
+		void Emit_RetVal_Tmp(const STATEMENT&);
+		void Emit_RetVal_Mem64(const STATEMENT&);
+		void Emit_RetVal_Reg128(const STATEMENT&);
+		void Emit_RetVal_Mem128(const STATEMENT&);
+
+		void Emit_ExternJmp(const STATEMENT&);
+		void Emit_ExternJmpDynamic(const STATEMENT&);
+
+		void Emit_Jmp(const STATEMENT&);
+
+		void Emit_CondJmp(const STATEMENT&);
+		void Emit_CondJmp_AnyVar(const STATEMENT&);
+		void Emit_CondJmp_VarCst(const STATEMENT&);
+
+		void Emit_CondJmp_Ref_VarCst(const STATEMENT&);
+
+		void Cmp_GetFlag(CAArch64Assembler::REGISTER32, Jitter::CONDITION);
+		void Emit_Cmp_VarAnyVar(const STATEMENT&);
+		void Emit_Cmp_VarVarCst(const STATEMENT&);
+
+		void Emit_Add64_MemMemMem(const STATEMENT&);
+		void Emit_Add64_MemMemCst(const STATEMENT&);
+
+		void Emit_Sub64_MemAnyMem(const STATEMENT&);
+		void Emit_Sub64_MemMemCst(const STATEMENT&);
+
+		void Emit_Cmp64_VarAnyMem(const STATEMENT&);
+		void Emit_Cmp64_VarMemCst(const STATEMENT&);
+
+		void Emit_And64_MemMemMem(const STATEMENT&);
+
 		//ADDSUB
-		template <typename> void    Emit_AddSub_VarAnyVar(const STATEMENT&);
-		template <typename> void    Emit_AddSub_VarVarCst(const STATEMENT&);
-		
+		template <typename>
+		void Emit_AddSub_VarAnyVar(const STATEMENT&);
+		template <typename>
+		void Emit_AddSub_VarVarCst(const STATEMENT&);
+
 		//SHIFT
-		template <typename> void    Emit_Shift_VarAnyVar(const STATEMENT&);
-		template <typename> void    Emit_Shift_VarVarCst(const STATEMENT&);
+		template <typename>
+		void Emit_Shift_VarAnyVar(const STATEMENT&);
+		template <typename>
+		void Emit_Shift_VarVarCst(const STATEMENT&);
 
 		//LOGIC
-		template <typename> void    Emit_Logic_VarAnyVar(const STATEMENT&);
-		template <typename> void    Emit_Logic_VarVarCst(const STATEMENT&);
+		template <typename>
+		void Emit_Logic_VarAnyVar(const STATEMENT&);
+		template <typename>
+		void Emit_Logic_VarVarCst(const STATEMENT&);
 
 		//MUL
-		template <bool> void Emit_Mul_Tmp64AnyAny(const STATEMENT&);
-		
+		template <bool>
+		void Emit_Mul_Tmp64AnyAny(const STATEMENT&);
+
 		//DIV
-		template <bool> void Emit_Div_Tmp64AnyAny(const STATEMENT&);
-		
+		template <bool>
+		void Emit_Div_Tmp64AnyAny(const STATEMENT&);
+
 		//SHIFT64
-		template <typename> void    Emit_Shift64_MemMemVar(const STATEMENT&);
-		template <typename> void    Emit_Shift64_MemMemCst(const STATEMENT&);
-		
+		template <typename>
+		void Emit_Shift64_MemMemVar(const STATEMENT&);
+		template <typename>
+		void Emit_Shift64_MemMemCst(const STATEMENT&);
+
 		//FPU
-		template <typename> void    Emit_Fpu_VarVar(const STATEMENT&);
-		template <typename> void    Emit_Fpu_VarVarVar(const STATEMENT&);
+		template <typename>
+		void Emit_Fpu_VarVar(const STATEMENT&);
+		template <typename>
+		void Emit_Fpu_VarVarVar(const STATEMENT&);
 
-		void    Emit_Fp32_Mov_RegMem(const STATEMENT&);
-		void    Emit_Fp32_Mov_MemReg(const STATEMENT&);
-		void    Emit_Fp32_LdCst_RegCst(const STATEMENT&);
-		void    Emit_Fp32_LdCst_TmpCst(const STATEMENT&);
+		void Emit_Fp32_Mov_RegMem(const STATEMENT&);
+		void Emit_Fp32_Mov_MemReg(const STATEMENT&);
+		void Emit_Fp32_LdCst_RegCst(const STATEMENT&);
+		void Emit_Fp32_LdCst_TmpCst(const STATEMENT&);
 
-		void    Emit_Fp_Cmp_AnyVarVar(const STATEMENT&);
-		void    Emit_Fp_Rcpl_VarVar(const STATEMENT&);
-		void    Emit_Fp_Rsqrt_VarVar(const STATEMENT&);
-		void    Emit_Fp_Clamp_VarVar(const STATEMENT&);
-		void    Emit_Fp_ToSingleI32_VarVar(const STATEMENT&);
-		void    Emit_Fp_ToInt32TruncS_VarVar(const STATEMENT&);
+		void Emit_Fp_Cmp_AnyVarVar(const STATEMENT&);
+		void Emit_Fp_Rcpl_VarVar(const STATEMENT&);
+		void Emit_Fp_Rsqrt_VarVar(const STATEMENT&);
+		void Emit_Fp_Clamp_VarVar(const STATEMENT&);
+		void Emit_Fp_ToSingleI32_VarVar(const STATEMENT&);
+		void Emit_Fp_ToInt32TruncS_VarVar(const STATEMENT&);
 
 		//MD
-		template <typename> void    Emit_Md_VarVar(const STATEMENT&);
-		template <typename> void    Emit_Md_VarVarVar(const STATEMENT&);
-		template <typename> void    Emit_Md_VarVarVarRev(const STATEMENT&);
-		template <typename> void    Emit_Md_Shift_VarVarCst(const STATEMENT&);
-		
-		void    Emit_Md_ClampS_VarVar(const STATEMENT&);
-		void    Emit_Md_MakeSz_VarVar(const STATEMENT&);
+		template <typename>
+		void Emit_Md_VarVar(const STATEMENT&);
+		template <typename>
+		void Emit_Md_VarVarVar(const STATEMENT&);
+		template <typename>
+		void Emit_Md_VarVarVarRev(const STATEMENT&);
+		template <typename>
+		void Emit_Md_Shift_VarVarCst(const STATEMENT&);
 
-		void    Emit_Md_Mov_RegReg(const STATEMENT&);
-		void    Emit_Md_Mov_RegMem(const STATEMENT&);
-		void    Emit_Md_Mov_MemReg(const STATEMENT&);
-		void    Emit_Md_Mov_MemMem(const STATEMENT&);
+		void Emit_Md_ClampS_VarVar(const STATEMENT&);
+		void Emit_Md_MakeSz_VarVar(const STATEMENT&);
 
-		void    Emit_Md_LoadFromRef_VarVar(const STATEMENT&);
-		void    Emit_Md_LoadFromRef_VarVarAny(const STATEMENT&);
-		void    Emit_Md_StoreAtRef_VarVar(const STATEMENT&);
-		void    Emit_Md_StoreAtRef_VarAnyVar(const STATEMENT&);
-	
-		void    Emit_Md_MovMasked_VarVarVar(const STATEMENT&);
-		void    Emit_Md_Expand_VarReg(const STATEMENT&);
-		void    Emit_Md_Expand_VarMem(const STATEMENT&);
-		void    Emit_Md_Expand_VarCst(const STATEMENT&);
-		
-		void    Emit_Md_PackHB_VarVarVar(const STATEMENT&);
-		void    Emit_Md_PackWH_VarVarVar(const STATEMENT&);
-		
-		void    Emit_MergeTo256_MemVarVar(const STATEMENT&);
-		void    Emit_Md_Srl256_VarMemVar(const STATEMENT&);
-		void    Emit_Md_Srl256_VarMemCst(const STATEMENT&);
-		
-		static CONSTMATCHER    g_constMatchers[];
-		static CONSTMATCHER    g_64ConstMatchers[];
-		static CONSTMATCHER    g_fpuConstMatchers[];
-		static CONSTMATCHER    g_mdConstMatchers[];
-		
-		static CAArch64Assembler::REGISTER32    g_registers[MAX_REGISTERS];
-		static CAArch64Assembler::REGISTERMD    g_registersMd[MAX_MDREGISTERS];
-		static CAArch64Assembler::REGISTER32    g_tempRegisters[MAX_TEMP_REGS];
-		static CAArch64Assembler::REGISTER64    g_tempRegisters64[MAX_TEMP_REGS];
-		static CAArch64Assembler::REGISTERMD    g_tempRegistersMd[MAX_TEMP_MD_REGS];
-		static CAArch64Assembler::REGISTER32    g_paramRegisters[MAX_PARAM_REGS];
-		static CAArch64Assembler::REGISTER64    g_paramRegisters64[MAX_PARAM_REGS];
-		static CAArch64Assembler::REGISTER64    g_baseRegister;
+		void Emit_Md_Mov_RegReg(const STATEMENT&);
+		void Emit_Md_Mov_RegMem(const STATEMENT&);
+		void Emit_Md_Mov_MemReg(const STATEMENT&);
+		void Emit_Md_Mov_MemMem(const STATEMENT&);
 
-		static const LITERAL128    g_fpClampMask1;
-		static const LITERAL128    g_fpClampMask2;
+		void Emit_Md_LoadFromRef_VarVar(const STATEMENT&);
+		void Emit_Md_LoadFromRef_VarVarAny(const STATEMENT&);
+		void Emit_Md_StoreAtRef_VarVar(const STATEMENT&);
+		void Emit_Md_StoreAtRef_VarAnyVar(const STATEMENT&);
 
-		Framework::CStream*    m_stream = nullptr;
-		CAArch64Assembler      m_assembler;
-		LabelMapType           m_labels;
-		ParamStack             m_params;
-		uint32                 m_nextTempRegister = 0;
-		uint32                 m_nextTempRegisterMd = 0;
-		uint16                 m_registerSave = 0;
-		uint32                 m_paramSpillBase = 0;
+		void Emit_Md_MovMasked_VarVarVar(const STATEMENT&);
+		void Emit_Md_Expand_VarReg(const STATEMENT&);
+		void Emit_Md_Expand_VarMem(const STATEMENT&);
+		void Emit_Md_Expand_VarCst(const STATEMENT&);
 
-		bool    m_generateRelocatableCalls = false;
+		void Emit_Md_PackHB_VarVarVar(const STATEMENT&);
+		void Emit_Md_PackWH_VarVarVar(const STATEMENT&);
+
+		void Emit_MergeTo256_MemVarVar(const STATEMENT&);
+		void Emit_Md_Srl256_VarMemVar(const STATEMENT&);
+		void Emit_Md_Srl256_VarMemCst(const STATEMENT&);
+
+		static CONSTMATCHER g_constMatchers[];
+		static CONSTMATCHER g_64ConstMatchers[];
+		static CONSTMATCHER g_fpuConstMatchers[];
+		static CONSTMATCHER g_mdConstMatchers[];
+
+		static CAArch64Assembler::REGISTER32 g_registers[MAX_REGISTERS];
+		static CAArch64Assembler::REGISTERMD g_registersMd[MAX_MDREGISTERS];
+		static CAArch64Assembler::REGISTER32 g_tempRegisters[MAX_TEMP_REGS];
+		static CAArch64Assembler::REGISTER64 g_tempRegisters64[MAX_TEMP_REGS];
+		static CAArch64Assembler::REGISTERMD g_tempRegistersMd[MAX_TEMP_MD_REGS];
+		static CAArch64Assembler::REGISTER32 g_paramRegisters[MAX_PARAM_REGS];
+		static CAArch64Assembler::REGISTER64 g_paramRegisters64[MAX_PARAM_REGS];
+		static CAArch64Assembler::REGISTER64 g_baseRegister;
+
+		static const LITERAL128 g_fpClampMask1;
+		static const LITERAL128 g_fpClampMask2;
+
+		Framework::CStream* m_stream = nullptr;
+		CAArch64Assembler m_assembler;
+		LabelMapType m_labels;
+		ParamStack m_params;
+		uint32 m_nextTempRegister = 0;
+		uint32 m_nextTempRegisterMd = 0;
+		uint16 m_registerSave = 0;
+		uint32 m_paramSpillBase = 0;
+
+		bool m_generateRelocatableCalls = false;
 	};
 };

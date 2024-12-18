@@ -3,7 +3,8 @@
 
 #include <stdexcept>
 
-template <typename Type, unsigned int MAXSIZE = 0x100> class CArrayStack
+template <typename Type, unsigned int MAXSIZE = 0x100>
+class CArrayStack
 {
 public:
 	CArrayStack()
@@ -60,8 +61,8 @@ public:
 	}
 
 private:
-	Type			m_nStack[MAXSIZE];
-	unsigned int	m_nStackPointer;
+	Type m_nStack[MAXSIZE];
+	unsigned int m_nStackPointer;
 };
 
 #endif

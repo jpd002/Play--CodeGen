@@ -42,7 +42,7 @@ void CCodeGen_x86::Emit_Alu_RegRegMem(const STATEMENT& statement)
 	CSymbol* src1 = statement.src1->GetSymbol().get();
 	CSymbol* src2 = statement.src2->GetSymbol().get();
 
-	assert(dst->m_type  == SYM_REGISTER);
+	assert(dst->m_type == SYM_REGISTER);
 	assert(src1->m_type == SYM_REGISTER);
 
 	if(!dst->Equals(src1))
@@ -85,7 +85,7 @@ void CCodeGen_x86::Emit_Alu_RegMemReg(const STATEMENT& statement)
 	CSymbol* src1 = statement.src1->GetSymbol().get();
 	CSymbol* src2 = statement.src2->GetSymbol().get();
 
-	assert(dst->m_type  == SYM_REGISTER);
+	assert(dst->m_type == SYM_REGISTER);
 	assert(src2->m_type == SYM_REGISTER);
 
 	CX86Assembler::REGISTER src2register = m_registers[src2->m_valueLow];
@@ -107,7 +107,7 @@ void CCodeGen_x86::Emit_Alu_RegMemMem(const STATEMENT& statement)
 	CSymbol* src1 = statement.src1->GetSymbol().get();
 	CSymbol* src2 = statement.src2->GetSymbol().get();
 
-	assert(dst->m_type  == SYM_REGISTER);
+	assert(dst->m_type == SYM_REGISTER);
 
 	m_assembler.MovEd(m_registers[dst->m_valueLow], MakeMemorySymbolAddress(src1));
 	((m_assembler).*(ALUOP::OpEd()))(m_registers[dst->m_valueLow], MakeMemorySymbolAddress(src2));
@@ -120,7 +120,7 @@ void CCodeGen_x86::Emit_Alu_RegMemCst(const STATEMENT& statement)
 	CSymbol* src1 = statement.src1->GetSymbol().get();
 	CSymbol* src2 = statement.src2->GetSymbol().get();
 
-	assert(dst->m_type  == SYM_REGISTER);
+	assert(dst->m_type == SYM_REGISTER);
 	assert(src2->m_type == SYM_CONSTANT);
 
 	m_assembler.MovEd(m_registers[dst->m_valueLow], MakeMemorySymbolAddress(src1));
@@ -157,7 +157,7 @@ void CCodeGen_x86::Emit_Alu_RegCstMem(const STATEMENT& statement)
 	CSymbol* src2 = statement.src2->GetSymbol().get();
 
 	assert(statement.op == OP_SUB);
-	assert(dst->m_type  == SYM_REGISTER);
+	assert(dst->m_type == SYM_REGISTER);
 	assert(src1->m_type == SYM_CONSTANT);
 
 	if(src1->m_valueLow)
@@ -277,7 +277,7 @@ void CCodeGen_x86::Emit_Alu_MemMemMem(const STATEMENT& statement)
 	m_assembler.MovGd(MakeMemorySymbolAddress(dst), CX86Assembler::rAX);
 }
 
-template <typename ALUOP> 
+template <typename ALUOP>
 void CCodeGen_x86::Emit_Alu_MemCstReg(const STATEMENT& statement)
 {
 	CSymbol* dst = statement.dst->GetSymbol().get();
@@ -292,7 +292,7 @@ void CCodeGen_x86::Emit_Alu_MemCstReg(const STATEMENT& statement)
 	m_assembler.MovGd(MakeMemorySymbolAddress(dst), CX86Assembler::rAX);
 }
 
-template <typename ALUOP> 
+template <typename ALUOP>
 void CCodeGen_x86::Emit_Alu_MemCstMem(const STATEMENT& statement)
 {
 	CSymbol* dst = statement.dst->GetSymbol().get();
@@ -315,6 +315,7 @@ void CCodeGen_x86::Emit_Alu_MemCstMem(const STATEMENT& statement)
 	m_assembler.MovGd(MakeMemorySymbolAddress(dst), CX86Assembler::rAX);
 }
 
+// clang-format off
 #define ALU_CONST_MATCHERS(ALUOP_CST, ALUOP) \
 	{ ALUOP_CST, MATCH_REGISTER, MATCH_REGISTER, MATCH_REGISTER, MATCH_NIL, &CCodeGen_x86::Emit_Alu_RegRegReg<ALUOP> }, \
 	{ ALUOP_CST, MATCH_REGISTER, MATCH_REGISTER, MATCH_MEMORY,   MATCH_NIL, &CCodeGen_x86::Emit_Alu_RegRegMem<ALUOP> }, \
@@ -332,6 +333,7 @@ void CCodeGen_x86::Emit_Alu_MemCstMem(const STATEMENT& statement)
 	{ ALUOP_CST, MATCH_MEMORY, MATCH_MEMORY,   MATCH_MEMORY,     MATCH_NIL, &CCodeGen_x86::Emit_Alu_MemMemMem<ALUOP> }, \
 	{ ALUOP_CST, MATCH_MEMORY, MATCH_MEMORY,   MATCH_CONSTANT,   MATCH_NIL, &CCodeGen_x86::Emit_Alu_MemMemCst<ALUOP> }, \
 	{ ALUOP_CST, MATCH_MEMORY, MATCH_CONSTANT, MATCH_REGISTER,   MATCH_NIL, &CCodeGen_x86::Emit_Alu_MemCstReg<ALUOP> }, \
-	{ ALUOP_CST, MATCH_MEMORY, MATCH_CONSTANT, MATCH_MEMORY,     MATCH_NIL, &CCodeGen_x86::Emit_Alu_MemCstMem<ALUOP> }, \
+	{ ALUOP_CST, MATCH_MEMORY, MATCH_CONSTANT, MATCH_MEMORY,     MATCH_NIL, &CCodeGen_x86::Emit_Alu_MemCstMem<ALUOP> },
+//clang-format on
 
 #endif

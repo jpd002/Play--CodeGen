@@ -48,9 +48,9 @@ void CFpIntMixTest::Run()
 	m_context.multiplier = 2;
 	m_context.number3 = -1.75f;
 	m_function(&m_context);
-	TEST_VERIFY(m_context.multiplier							==    2);
-	TEST_VERIFY(*reinterpret_cast<uint32*>(&m_context.number1)	==  200);
-	TEST_VERIFY(m_context.number2								== 2.0f);
-	TEST_VERIFY(m_context.result1								==  200);
-	TEST_VERIFY(m_context.result2								==   -1);
+	TEST_VERIFY(m_context.multiplier == 2);
+	TEST_VERIFY(*reinterpret_cast<uint32*>(&m_context.number1) == 200);
+	TEST_VERIFY(m_context.number2 == 2.0f);
+	TEST_VERIFY(m_context.result1 == 200);
+	TEST_VERIFY(m_context.result2 == -1);
 }

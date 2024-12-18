@@ -54,10 +54,9 @@ void CCodeGen_AArch32::LoadMemory64HighInRegister(CAArch32Assembler::REGISTER re
 void CCodeGen_AArch32::LoadMemory64InRegisters(CAArch32Assembler::REGISTER regLo, CAArch32Assembler::REGISTER regHi, CSymbol* symbol)
 {
 	if(
-		((regLo & 1) == 0) && 
-		(regHi == (regLo + 1)) && 
-		(GetMemory64Offset(symbol) < 0x100)
-		)
+	    ((regLo & 1) == 0) &&
+	    (regHi == (regLo + 1)) &&
+	    (GetMemory64Offset(symbol) < 0x100))
 	{
 		switch(symbol->m_type)
 		{
@@ -100,10 +99,9 @@ void CCodeGen_AArch32::LoadSymbol64InRegisters(CAArch32Assembler::REGISTER regLo
 void CCodeGen_AArch32::StoreRegistersInMemory64(CSymbol* symbol, CAArch32Assembler::REGISTER regLo, CAArch32Assembler::REGISTER regHi)
 {
 	if(
-		((regLo & 1) == 0) && 
-		(regHi == (regLo + 1)) && 
-		(GetMemory64Offset(symbol) < 0x100)
-		)
+	    ((regLo & 1) == 0) &&
+	    (regHi == (regLo + 1)) &&
+	    (GetMemory64Offset(symbol) < 0x100))
 	{
 		switch(symbol->m_type)
 		{
@@ -925,6 +923,7 @@ void CCodeGen_AArch32::Emit_Cmp64_VarMemAny(const STATEMENT& statement)
 	}
 }
 
+// clang-format off
 CCodeGen_AArch32::CONSTMATCHER CCodeGen_AArch32::g_64ConstMatchers[] = 
 {
 	{ OP_EXTLOW64,  MATCH_VARIABLE, MATCH_MEMORY64, MATCH_NIL, MATCH_NIL, &CCodeGen_AArch32::Emit_ExtLow64VarMem64  },
@@ -966,3 +965,4 @@ CCodeGen_AArch32::CONSTMATCHER CCodeGen_AArch32::g_64ConstMatchers[] =
 
 	{ OP_MOV, MATCH_NIL, MATCH_NIL, MATCH_NIL, MATCH_NIL, nullptr },
 };
+// clang-format on

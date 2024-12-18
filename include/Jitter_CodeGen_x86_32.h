@@ -8,16 +8,16 @@ namespace Jitter
 	class CCodeGen_x86_32 : public CCodeGen_x86
 	{
 	public:
-											CCodeGen_x86_32(CX86CpuFeatures = CX86CpuFeatures::AutoDetect());
-		virtual								~CCodeGen_x86_32() = default;
+		CCodeGen_x86_32(CX86CpuFeatures = CX86CpuFeatures::AutoDetect());
+		virtual ~CCodeGen_x86_32() = default;
 
-		void								SetImplicitRetValueParamFixUpRequired(bool);
-		
-		unsigned int						GetAvailableRegisterCount() const override;
-		unsigned int						GetAvailableMdRegisterCount() const override;
-		bool								CanHold128BitsReturnValueInRegisters() const override;
-		uint32								GetPointerSize() const override;
-		
+		void SetImplicitRetValueParamFixUpRequired(bool);
+
+		unsigned int GetAvailableRegisterCount() const override;
+		unsigned int GetAvailableMdRegisterCount() const override;
+		bool CanHold128BitsReturnValueInRegisters() const override;
+		uint32 GetPointerSize() const override;
+
 	protected:
 		enum SHIFTRIGHT_TYPE
 		{
@@ -25,124 +25,125 @@ namespace Jitter
 			SHIFTRIGHT_ARITHMETIC
 		};
 
-		void								Emit_Prolog(const StatementList&, unsigned int) override;
-		void								Emit_Epilog() override;
-		
-		CX86Assembler::CAddress				MakeConstant128Address(const LITERAL128&) override;
+		void Emit_Prolog(const StatementList&, unsigned int) override;
+		void Emit_Epilog() override;
+
+		CX86Assembler::CAddress MakeConstant128Address(const LITERAL128&) override;
 
 		//PARAM
-		void								Emit_Param_Ctx(const STATEMENT&);
-		void								Emit_Param_Reg(const STATEMENT&);
-		void								Emit_Param_Mem(const STATEMENT&);
-		void								Emit_Param_Cst(const STATEMENT&);
-		void								Emit_Param_Mem64(const STATEMENT&);
-		void								Emit_Param_Cst64(const STATEMENT&);
-		void								Emit_Param_Reg128(const STATEMENT&);
-		void								Emit_Param_Mem128(const STATEMENT&);
-		
+		void Emit_Param_Ctx(const STATEMENT&);
+		void Emit_Param_Reg(const STATEMENT&);
+		void Emit_Param_Mem(const STATEMENT&);
+		void Emit_Param_Cst(const STATEMENT&);
+		void Emit_Param_Mem64(const STATEMENT&);
+		void Emit_Param_Cst64(const STATEMENT&);
+		void Emit_Param_Reg128(const STATEMENT&);
+		void Emit_Param_Mem128(const STATEMENT&);
+
 		//PARAM_RET
-		void								Emit_ParamRet_Mem128(const STATEMENT&);
+		void Emit_ParamRet_Mem128(const STATEMENT&);
 
 		//CALL
-		void								Emit_Call(const STATEMENT&);
+		void Emit_Call(const STATEMENT&);
 
 		//RETURNVALUE
-		void								Emit_RetVal_Tmp(const STATEMENT&);
-		void								Emit_RetVal_Reg(const STATEMENT&);
-		void								Emit_RetVal_Mem64(const STATEMENT&);
+		void Emit_RetVal_Tmp(const STATEMENT&);
+		void Emit_RetVal_Reg(const STATEMENT&);
+		void Emit_RetVal_Mem64(const STATEMENT&);
 
 		//EXTERNJMP
-		void								Emit_ExternJmp(const STATEMENT&);
+		void Emit_ExternJmp(const STATEMENT&);
 
 		//MOV
-		void								Emit_Mov_Mem64Mem64(const STATEMENT&);
-		void								Emit_Mov_Mem64Cst64(const STATEMENT&);
-		void								Emit_Mov_RegRefMemRef(const STATEMENT&);
-		void								Emit_Mov_MemRefRegRef(const STATEMENT&);
+		void Emit_Mov_Mem64Mem64(const STATEMENT&);
+		void Emit_Mov_Mem64Cst64(const STATEMENT&);
+		void Emit_Mov_RegRefMemRef(const STATEMENT&);
+		void Emit_Mov_MemRefRegRef(const STATEMENT&);
 
 		//ADD64
-		void								Emit_Add64_MemMemMem(const STATEMENT&);
-		void								Emit_Add64_MemMemCst(const STATEMENT&);
+		void Emit_Add64_MemMemMem(const STATEMENT&);
+		void Emit_Add64_MemMemCst(const STATEMENT&);
 
 		//SUB64
-		void								Emit_Sub64_MemMemMem(const STATEMENT&);
-		void								Emit_Sub64_MemMemCst(const STATEMENT&);
-		void								Emit_Sub64_MemCstMem(const STATEMENT&);
+		void Emit_Sub64_MemMemMem(const STATEMENT&);
+		void Emit_Sub64_MemMemCst(const STATEMENT&);
+		void Emit_Sub64_MemCstMem(const STATEMENT&);
 
 		//AND64
-		void								Emit_And64_MemMemMem(const STATEMENT&);
+		void Emit_And64_MemMemMem(const STATEMENT&);
 
 		//SR64
-		void								Emit_Sr64Var_MemMem(CSymbol*, CSymbol*, CX86Assembler::REGISTER, SHIFTRIGHT_TYPE);
-		void								Emit_Sr64Cst_MemMem(CSymbol*, CSymbol*, uint32, SHIFTRIGHT_TYPE);
+		void Emit_Sr64Var_MemMem(CSymbol*, CSymbol*, CX86Assembler::REGISTER, SHIFTRIGHT_TYPE);
+		void Emit_Sr64Cst_MemMem(CSymbol*, CSymbol*, uint32, SHIFTRIGHT_TYPE);
 
 		//SRL64
-		void								Emit_Srl64_MemMemReg(const STATEMENT&);
-		void								Emit_Srl64_MemMemMem(const STATEMENT&);
-		void								Emit_Srl64_MemMemCst(const STATEMENT&);
+		void Emit_Srl64_MemMemReg(const STATEMENT&);
+		void Emit_Srl64_MemMemMem(const STATEMENT&);
+		void Emit_Srl64_MemMemCst(const STATEMENT&);
 
 		//SRA64
-		void								Emit_Sra64_MemMemReg(const STATEMENT&);
-		void								Emit_Sra64_MemMemMem(const STATEMENT&);
-		void								Emit_Sra64_MemMemCst(const STATEMENT&);
+		void Emit_Sra64_MemMemReg(const STATEMENT&);
+		void Emit_Sra64_MemMemMem(const STATEMENT&);
+		void Emit_Sra64_MemMemCst(const STATEMENT&);
 
 		//SLL64
-		void								Emit_Sll64_MemMemVar(const STATEMENT&, CX86Assembler::REGISTER);
-		void								Emit_Sll64_MemMemReg(const STATEMENT&);
-		void								Emit_Sll64_MemMemMem(const STATEMENT&);
-		void								Emit_Sll64_MemMemCst(const STATEMENT&);
+		void Emit_Sll64_MemMemVar(const STATEMENT&, CX86Assembler::REGISTER);
+		void Emit_Sll64_MemMemReg(const STATEMENT&);
+		void Emit_Sll64_MemMemMem(const STATEMENT&);
+		void Emit_Sll64_MemMemCst(const STATEMENT&);
 
 		//CMP
-		void								Emit_Cmp_VarVarVar(const STATEMENT&);
-		void								Emit_Cmp_VarVarCst(const STATEMENT&);
+		void Emit_Cmp_VarVarVar(const STATEMENT&);
+		void Emit_Cmp_VarVarCst(const STATEMENT&);
 
 		//CMP64
-		void								Cmp64_Equal(const STATEMENT&);
-		template <typename> void			Cmp64_Order(const STATEMENT&);
-		void								Cmp64_GenericRel(const STATEMENT&);
-		void								Emit_Cmp64_RegRelRel(const STATEMENT&);
-		void								Emit_Cmp64_RelRelRel(const STATEMENT&);
-		void								Emit_Cmp64_RegRelCst(const STATEMENT&);
-		void								Emit_Cmp64_RelRelCst(const STATEMENT&);
-		void								Emit_Cmp64_TmpRelRoc(const STATEMENT&);
+		void Cmp64_Equal(const STATEMENT&);
+		template <typename>
+		void Cmp64_Order(const STATEMENT&);
+		void Cmp64_GenericRel(const STATEMENT&);
+		void Emit_Cmp64_RegRelRel(const STATEMENT&);
+		void Emit_Cmp64_RelRelRel(const STATEMENT&);
+		void Emit_Cmp64_RegRelCst(const STATEMENT&);
+		void Emit_Cmp64_RelRelCst(const STATEMENT&);
+		void Emit_Cmp64_TmpRelRoc(const STATEMENT&);
 
 		//RELTOREF
-		void								Emit_RelToRef_VarCst(const STATEMENT&);
+		void Emit_RelToRef_VarCst(const STATEMENT&);
 
 		//ADDREF
-		void								Emit_AddRef_VarVarVar(const STATEMENT&);
-		void								Emit_AddRef_VarVarCst(const STATEMENT&);
+		void Emit_AddRef_VarVarVar(const STATEMENT&);
+		void Emit_AddRef_VarVarCst(const STATEMENT&);
 
 		//ISREFNULL
-		void								Emit_IsRefNull_VarVar(const STATEMENT&);
+		void Emit_IsRefNull_VarVar(const STATEMENT&);
 
 		//LOADFROMREF
-		void								Emit_LoadFromRef_64_MemVar(const STATEMENT&);
-		void								Emit_LoadFromRef_64_MemVarAny(const STATEMENT&);
-		void								Emit_LoadFromRef_Ref_VarVar(const STATEMENT&);
-		void								Emit_LoadFromRef_Ref_VarVarAny(const STATEMENT&);
+		void Emit_LoadFromRef_64_MemVar(const STATEMENT&);
+		void Emit_LoadFromRef_64_MemVarAny(const STATEMENT&);
+		void Emit_LoadFromRef_Ref_VarVar(const STATEMENT&);
+		void Emit_LoadFromRef_Ref_VarVarAny(const STATEMENT&);
 
 		//STOREATREF
-		void								Emit_StoreAtRef_64_VarMem(const STATEMENT&);
-		void								Emit_StoreAtRef_64_VarCst(const STATEMENT&);
-		void								Emit_StoreAtRef_64_VarAnyMem(const STATEMENT&);
-		void								Emit_StoreAtRef_64_VarAnyCst(const STATEMENT&);
+		void Emit_StoreAtRef_64_VarMem(const STATEMENT&);
+		void Emit_StoreAtRef_64_VarCst(const STATEMENT&);
+		void Emit_StoreAtRef_64_VarAnyMem(const STATEMENT&);
+		void Emit_StoreAtRef_64_VarAnyCst(const STATEMENT&);
 
 		//STORE8ATREF
-		void								Emit_Store8AtRef_VarVar(const STATEMENT&);
-		void								Emit_Store8AtRef_VarAnyVar(const STATEMENT&);
+		void Emit_Store8AtRef_VarVar(const STATEMENT&);
+		void Emit_Store8AtRef_VarAnyVar(const STATEMENT&);
 
 		//CONDJMP
-		void								Emit_CondJmp_Ref_VarCst(const STATEMENT&);
+		void Emit_CondJmp_Ref_VarCst(const STATEMENT&);
 
 	private:
 		struct CALL_STATE
 		{
-			uint32	paramOffset = 0;
-			uint32	paramSpillOffset = 0;
+			uint32 paramOffset = 0;
+			uint32 paramSpillOffset = 0;
 		};
 
-		typedef std::function<void (CALL_STATE&)> ParamEmitterFunction;
+		typedef std::function<void(CALL_STATE&)> ParamEmitterFunction;
 		typedef std::deque<ParamEmitterFunction> ParamStack;
 		typedef std::map<LITERAL128, int32> LiteralOffsets;
 		typedef std::pair<CX86Assembler::CAddress, CX86Assembler::CAddress> AddressPair;
@@ -151,12 +152,12 @@ namespace Jitter
 
 		struct CONSTMATCHER
 		{
-			OPERATION				op;
-			MATCHTYPE				dstType;
-			MATCHTYPE				src1Type;
-			MATCHTYPE				src2Type;
-			MATCHTYPE				src3Type;
-			ConstCodeEmitterType	emitter;
+			OPERATION op;
+			MATCHTYPE dstType;
+			MATCHTYPE src1Type;
+			MATCHTYPE src2Type;
+			MATCHTYPE src3Type;
+			ConstCodeEmitterType emitter;
 		};
 
 		enum MAX_REGISTERS
@@ -165,23 +166,23 @@ namespace Jitter
 			MAX_MDREGISTERS = 4,
 		};
 
-		CX86Assembler::REGISTER				PrepareRefSymbolRegisterDef(CSymbol*, CX86Assembler::REGISTER);
-		CX86Assembler::REGISTER				PrepareRefSymbolRegisterUse(CSymbol*, CX86Assembler::REGISTER) override;
-		void								CommitRefSymbolRegister(CSymbol*, CX86Assembler::REGISTER);
+		CX86Assembler::REGISTER PrepareRefSymbolRegisterDef(CSymbol*, CX86Assembler::REGISTER);
+		CX86Assembler::REGISTER PrepareRefSymbolRegisterUse(CSymbol*, CX86Assembler::REGISTER) override;
+		void CommitRefSymbolRegister(CSymbol*, CX86Assembler::REGISTER);
 
-		AddressPair							MakeRefBaseScaleSymbolAddress64(CSymbol*, CX86Assembler::REGISTER, CSymbol*, CX86Assembler::REGISTER, uint8);
-		
-		static CONSTMATCHER					g_constMatchers[];
-		static CX86Assembler::REGISTER		g_registers[MAX_REGISTERS];
-		static CX86Assembler::XMMREGISTER	g_mdRegisters[MAX_MDREGISTERS];
-		
-		ParamStack							m_params;
-		uint32								m_paramSpillBase = 0;
-		uint32								m_totalStackAlloc = 0;
-		uint32								m_literalStackAlloc = 0;
-		uint32								m_literalBase = 0;
-		LiteralOffsets						m_literalOffsets;
-		bool								m_hasImplicitRetValueParam = false;
-		bool								m_implicitRetValueParamFixUpRequired = false;
+		AddressPair MakeRefBaseScaleSymbolAddress64(CSymbol*, CX86Assembler::REGISTER, CSymbol*, CX86Assembler::REGISTER, uint8);
+
+		static CONSTMATCHER g_constMatchers[];
+		static CX86Assembler::REGISTER g_registers[MAX_REGISTERS];
+		static CX86Assembler::XMMREGISTER g_mdRegisters[MAX_MDREGISTERS];
+
+		ParamStack m_params;
+		uint32 m_paramSpillBase = 0;
+		uint32 m_totalStackAlloc = 0;
+		uint32 m_literalStackAlloc = 0;
+		uint32 m_literalBase = 0;
+		LiteralOffsets m_literalOffsets;
+		bool m_hasImplicitRetValueParam = false;
+		bool m_implicitRetValueParamFixUpRequired = false;
 	};
 }

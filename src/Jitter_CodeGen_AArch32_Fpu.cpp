@@ -98,7 +98,7 @@ void CCodeGen_AArch32::StoreRegisterInTemporaryFp32(CTempRegisterContext& tempRe
 	{
 		auto offsetRegister = tempRegContext.Allocate();
 		LoadConstantInRegister(offsetRegister, offset);
-		m_assembler.Add(offsetRegister, offsetRegister,CAArch32Assembler::rSP);
+		m_assembler.Add(offsetRegister, offsetRegister, CAArch32Assembler::rSP);
 		m_assembler.Vstr(reg, offsetRegister, CAArch32Assembler::MakeImmediateLdrAddress(0));
 		tempRegContext.Release(offsetRegister);
 	}
@@ -213,7 +213,7 @@ void CCodeGen_AArch32::Emit_Fp_Cmp_AnyMemMem(const STATEMENT& statement)
 	LoadMemoryFp32InRegister(tempRegisterContext, CAArch32Assembler::s0, src1);
 	LoadMemoryFp32InRegister(tempRegisterContext, CAArch32Assembler::s1, src2);
 	m_assembler.Vcmp_F32(CAArch32Assembler::s0, CAArch32Assembler::s1);
-	m_assembler.Vmrs(CAArch32Assembler::rPC);	//Move to general purpose status register
+	m_assembler.Vmrs(CAArch32Assembler::rPC); //Move to general purpose status register
 	switch(statement.jmpCondition)
 	{
 	case Jitter::CONDITION_AB:
@@ -272,13 +272,14 @@ void CCodeGen_AArch32::Emit_Fp_LdCst_TmpCst(const STATEMENT& statement)
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
 
-	assert(dst->m_type  == SYM_FP_TEMPORARY32);
+	assert(dst->m_type == SYM_FP_TEMPORARY32);
 	assert(src1->m_type == SYM_CONSTANT);
 
 	LoadConstantInRegister(CAArch32Assembler::r0, src1->m_valueLow);
 	m_assembler.Str(CAArch32Assembler::r0, CAArch32Assembler::rSP, CAArch32Assembler::MakeImmediateLdrAddress(dst->m_stackLocation + m_stackLevel));
 }
 
+// clang-format off
 CCodeGen_AArch32::CONSTMATCHER CCodeGen_AArch32::g_fpuConstMatchers[] = 
 {
 	{ OP_FP_ADD_S, MATCH_FP_MEMORY32, MATCH_FP_MEMORY32, MATCH_FP_MEMORY32, MATCH_NIL, &CCodeGen_AArch32::Emit_Fpu_MemMemMem<FPUOP_ADD> },
@@ -307,3 +308,4 @@ CCodeGen_AArch32::CONSTMATCHER CCodeGen_AArch32::g_fpuConstMatchers[] =
 
 	{ OP_MOV, MATCH_NIL, MATCH_NIL, MATCH_NIL, MATCH_NIL, nullptr },
 };
+// clang-format on

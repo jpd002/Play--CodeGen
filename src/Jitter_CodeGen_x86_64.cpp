@@ -4,6 +4,7 @@
 
 using namespace Jitter;
 
+// clang-format off
 CX86Assembler::REGISTER CCodeGen_x86_64::g_systemVRegisters[SYSTEMV_MAX_REGISTERS] =
 {
 	CX86Assembler::rBX,
@@ -58,6 +59,7 @@ CX86Assembler::XMMREGISTER CCodeGen_x86_64::g_mdRegisters[MAX_MDREGISTERS] =
 	CX86Assembler::xMM14,
 	CX86Assembler::xMM15
 };
+// clang-format on
 
 static uint64 CombineConstant64(uint32 cstLow, uint32 cstHigh)
 {
@@ -124,10 +126,12 @@ void CCodeGen_x86_64::Emit_Alu64_MemCstMem(const STATEMENT& statement)
 	m_assembler.MovGq(MakeMemory64SymbolAddress(dst), tmpReg);
 }
 
+// clang-format off
 #define ALU64_CONST_MATCHERS(ALUOP_CST, ALUOP) \
 	{ ALUOP_CST, MATCH_MEMORY64, MATCH_MEMORY64,   MATCH_MEMORY64,   MATCH_NIL, &CCodeGen_x86_64::Emit_Alu64_MemMemMem<ALUOP> }, \
 	{ ALUOP_CST, MATCH_MEMORY64, MATCH_MEMORY64,   MATCH_CONSTANT64, MATCH_NIL, &CCodeGen_x86_64::Emit_Alu64_MemMemCst<ALUOP> }, \
 	{ ALUOP_CST, MATCH_MEMORY64, MATCH_CONSTANT64, MATCH_MEMORY64,   MATCH_NIL, &CCodeGen_x86_64::Emit_Alu64_MemCstMem<ALUOP> },
+// clang-format on
 
 //SHIFTOP
 //-------------------------------------------------------------------
@@ -139,7 +143,7 @@ void CCodeGen_x86_64::Emit_Shift64_RelRelReg(const STATEMENT& statement)
 	CSymbol* src1 = statement.src1->GetSymbol().get();
 	CSymbol* src2 = statement.src2->GetSymbol().get();
 
-	assert(dst->m_type  == SYM_RELATIVE64);
+	assert(dst->m_type == SYM_RELATIVE64);
 	assert(src1->m_type == SYM_RELATIVE64);
 	assert(src2->m_type == SYM_REGISTER);
 
@@ -159,7 +163,7 @@ void CCodeGen_x86_64::Emit_Shift64_RelRelMem(const STATEMENT& statement)
 	CSymbol* src1 = statement.src1->GetSymbol().get();
 	CSymbol* src2 = statement.src2->GetSymbol().get();
 
-	assert(dst->m_type  == SYM_RELATIVE64);
+	assert(dst->m_type == SYM_RELATIVE64);
 	assert(src1->m_type == SYM_RELATIVE64);
 
 	CX86Assembler::REGISTER tmpReg = CX86Assembler::rAX;
@@ -178,7 +182,7 @@ void CCodeGen_x86_64::Emit_Shift64_RelRelCst(const STATEMENT& statement)
 	CSymbol* src1 = statement.src1->GetSymbol().get();
 	CSymbol* src2 = statement.src2->GetSymbol().get();
 
-	assert(dst->m_type  == SYM_RELATIVE64);
+	assert(dst->m_type == SYM_RELATIVE64);
 	assert(src1->m_type == SYM_RELATIVE64);
 	assert(src2->m_type == SYM_CONSTANT);
 
@@ -189,6 +193,7 @@ void CCodeGen_x86_64::Emit_Shift64_RelRelCst(const STATEMENT& statement)
 	m_assembler.MovGq(MakeRelative64SymbolAddress(dst), tmpReg);
 }
 
+// clang-format off
 #define SHIFT64_CONST_MATCHERS(SHIFTOP_CST, SHIFTOP) \
 	{ SHIFTOP_CST, MATCH_RELATIVE64, MATCH_RELATIVE64, MATCH_REGISTER, MATCH_NIL, &CCodeGen_x86_64::Emit_Shift64_RelRelReg<SHIFTOP> }, \
 	{ SHIFTOP_CST, MATCH_RELATIVE64, MATCH_RELATIVE64, MATCH_MEMORY,   MATCH_NIL, &CCodeGen_x86_64::Emit_Shift64_RelRelMem<SHIFTOP> }, \
@@ -264,6 +269,7 @@ CCodeGen_x86_64::CONSTMATCHER CCodeGen_x86_64::g_constMatchers[] =
 
 	{ OP_MOV, MATCH_NIL, MATCH_NIL, MATCH_NIL, MATCH_NIL, nullptr },
 };
+// clang-format on
 
 CCodeGen_x86_64::CCodeGen_x86_64(CX86CpuFeatures features)
     : CCodeGen_x86(features)
@@ -274,12 +280,12 @@ CCodeGen_x86_64::CCodeGen_x86_64(CX86CpuFeatures features)
 	for(CONSTMATCHER* constMatcher = g_constMatchers; constMatcher->emitter != NULL; constMatcher++)
 	{
 		MATCHER matcher;
-		matcher.op       = constMatcher->op;
-		matcher.dstType  = constMatcher->dstType;
+		matcher.op = constMatcher->op;
+		matcher.dstType = constMatcher->dstType;
 		matcher.src1Type = constMatcher->src1Type;
 		matcher.src2Type = constMatcher->src2Type;
 		matcher.src3Type = constMatcher->src3Type;
-		matcher.emitter  = std::bind(constMatcher->emitter, this, std::placeholders::_1);
+		matcher.emitter = std::bind(constMatcher->emitter, this, std::placeholders::_1);
 		m_matchers.insert(MatcherMapType::value_type(matcher.op, matcher));
 	}
 }
@@ -290,18 +296,18 @@ void CCodeGen_x86_64::SetPlatformAbi(PLATFORM_ABI platformAbi)
 	switch(m_platformAbi)
 	{
 	case PLATFORM_ABI_SYSTEMV:
-		CCodeGen_x86::m_registers    = g_systemVRegisters;
-		m_paramRegs                  = g_systemVParamRegs;
-		m_maxRegisters               = SYSTEMV_MAX_REGISTERS;
-		m_maxParams                  = SYSTEMV_MAX_PARAMS;
-		m_hasMdRegRetValues          = true;
+		CCodeGen_x86::m_registers = g_systemVRegisters;
+		m_paramRegs = g_systemVParamRegs;
+		m_maxRegisters = SYSTEMV_MAX_REGISTERS;
+		m_maxParams = SYSTEMV_MAX_PARAMS;
+		m_hasMdRegRetValues = true;
 		break;
 	case PLATFORM_ABI_WIN32:
-		CCodeGen_x86::m_registers    = g_win32Registers;
-		m_paramRegs                  = g_win32ParamRegs;
-		m_maxRegisters               = WIN32_MAX_REGISTERS;
-		m_maxParams                  = WIN32_MAX_PARAMS;
-		m_hasMdRegRetValues          = false;
+		CCodeGen_x86::m_registers = g_win32Registers;
+		m_paramRegs = g_win32ParamRegs;
+		m_maxRegisters = WIN32_MAX_REGISTERS;
+		m_maxParams = WIN32_MAX_PARAMS;
+		m_hasMdRegRetValues = false;
 		break;
 	default:
 		throw std::runtime_error("Unsupported ABI.");
@@ -343,18 +349,18 @@ void CCodeGen_x86_64::Emit_Prolog(const StatementList& statements, unsigned int 
 			{
 			case OP_PARAM:
 			case OP_PARAM_RET:
+			{
+				CSymbol* src1 = statement.src1->GetSymbol().get();
+				switch(src1->m_type)
 				{
-					CSymbol* src1 = statement.src1->GetSymbol().get();
-					switch(src1->m_type)
-					{
-					case SYM_REGISTER128:
-						currParamSpillSize += 16;
-						break;
-					default:
-						break;
-					}
+				case SYM_REGISTER128:
+					currParamSpillSize += 16;
+					break;
+				default:
+					break;
 				}
-				break;
+			}
+			break;
 			case OP_CALL:
 				maxParamSpillSize = std::max<uint32>(currParamSpillSize, maxParamSpillSize);
 				currParamSpillSize = 0;
@@ -364,7 +370,7 @@ void CCodeGen_x86_64::Emit_Prolog(const StatementList& statements, unsigned int 
 			}
 		}
 	}
-	
+
 	assert((maxParamSpillSize & 0x0F) == 0);
 	assert((stackSize & 0x0F) == 0);
 
@@ -433,12 +439,10 @@ void CCodeGen_x86_64::Emit_Param_Ctx(const STATEMENT& statement)
 	assert(m_params.size() < m_maxParams);
 
 	m_params.push_back(
-		[this] (CX86Assembler::REGISTER paramReg, uint32)
-		{
-			m_assembler.MovEq(paramReg, CX86Assembler::MakeRegisterAddress(CX86Assembler::rBP));
-			return 0;
-		}
-	);
+	    [this](CX86Assembler::REGISTER paramReg, uint32) {
+		    m_assembler.MovEq(paramReg, CX86Assembler::MakeRegisterAddress(CX86Assembler::rBP));
+		    return 0;
+	    });
 }
 
 void CCodeGen_x86_64::Emit_Param_Reg(const STATEMENT& statement)
@@ -448,12 +452,10 @@ void CCodeGen_x86_64::Emit_Param_Reg(const STATEMENT& statement)
 	auto src1 = statement.src1->GetSymbol().get();
 
 	m_params.push_back(
-		[this, src1] (CX86Assembler::REGISTER paramReg, uint32)
-		{
-			m_assembler.MovEd(paramReg, CX86Assembler::MakeRegisterAddress(m_registers[src1->m_valueLow]));
-			return 0;
-		}
-	);
+	    [this, src1](CX86Assembler::REGISTER paramReg, uint32) {
+		    m_assembler.MovEd(paramReg, CX86Assembler::MakeRegisterAddress(m_registers[src1->m_valueLow]));
+		    return 0;
+	    });
 }
 
 void CCodeGen_x86_64::Emit_Param_Mem(const STATEMENT& statement)
@@ -463,12 +465,10 @@ void CCodeGen_x86_64::Emit_Param_Mem(const STATEMENT& statement)
 	auto src1 = statement.src1->GetSymbol().get();
 
 	m_params.push_back(
-		[this, src1] (CX86Assembler::REGISTER paramReg, uint32)
-		{
-			m_assembler.MovEd(paramReg, MakeMemorySymbolAddress(src1));
-			return 0;
-		}
-	);
+	    [this, src1](CX86Assembler::REGISTER paramReg, uint32) {
+		    m_assembler.MovEd(paramReg, MakeMemorySymbolAddress(src1));
+		    return 0;
+	    });
 }
 
 void CCodeGen_x86_64::Emit_Param_Cst(const STATEMENT& statement)
@@ -478,12 +478,10 @@ void CCodeGen_x86_64::Emit_Param_Cst(const STATEMENT& statement)
 	auto src1 = statement.src1->GetSymbol().get();
 
 	m_params.push_back(
-		[this, src1] (CX86Assembler::REGISTER paramReg, uint32)
-		{
-			m_assembler.MovId(paramReg, src1->m_valueLow);
-			return 0;
-		}
-	);
+	    [this, src1](CX86Assembler::REGISTER paramReg, uint32) {
+		    m_assembler.MovId(paramReg, src1->m_valueLow);
+		    return 0;
+	    });
 }
 
 void CCodeGen_x86_64::Emit_Param_Mem64(const STATEMENT& statement)
@@ -493,12 +491,10 @@ void CCodeGen_x86_64::Emit_Param_Mem64(const STATEMENT& statement)
 	auto src1 = statement.src1->GetSymbol().get();
 
 	m_params.push_back(
-		[this, src1] (CX86Assembler::REGISTER paramReg, uint32)
-		{
-			m_assembler.MovEq(paramReg, MakeMemory64SymbolAddress(src1));
-			return 0;
-		}
-	);
+	    [this, src1](CX86Assembler::REGISTER paramReg, uint32) {
+		    m_assembler.MovEq(paramReg, MakeMemory64SymbolAddress(src1));
+		    return 0;
+	    });
 }
 
 void CCodeGen_x86_64::Emit_Param_Cst64(const STATEMENT& statement)
@@ -508,12 +504,10 @@ void CCodeGen_x86_64::Emit_Param_Cst64(const STATEMENT& statement)
 	auto src1 = statement.src1->GetSymbol().get();
 
 	m_params.push_back(
-		[this, src1] (CX86Assembler::REGISTER paramReg, uint32)
-		{
-			m_assembler.MovIq(paramReg, CombineConstant64(src1->m_valueLow, src1->m_valueHigh));
-			return 0;
-		}
-	);
+	    [this, src1](CX86Assembler::REGISTER paramReg, uint32) {
+		    m_assembler.MovIq(paramReg, CombineConstant64(src1->m_valueLow, src1->m_valueHigh));
+		    return 0;
+	    });
 }
 
 void CCodeGen_x86_64::Emit_Param_Reg128(const STATEMENT& statement)
@@ -523,14 +517,12 @@ void CCodeGen_x86_64::Emit_Param_Reg128(const STATEMENT& statement)
 	auto src1 = statement.src1->GetSymbol().get();
 
 	m_params.push_back(
-		[this, src1] (CX86Assembler::REGISTER paramReg, uint32 paramSpillOffset)
-		{
-			auto paramTempAddr = CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rSP, m_paramSpillBase + paramSpillOffset);
-			m_assembler.MovapsVo(paramTempAddr, m_mdRegisters[src1->m_valueLow]);
-			m_assembler.LeaGq(paramReg, paramTempAddr);
-			return 0x10;
-		}
-	);
+	    [this, src1](CX86Assembler::REGISTER paramReg, uint32 paramSpillOffset) {
+		    auto paramTempAddr = CX86Assembler::MakeIndRegOffAddress(CX86Assembler::rSP, m_paramSpillBase + paramSpillOffset);
+		    m_assembler.MovapsVo(paramTempAddr, m_mdRegisters[src1->m_valueLow]);
+		    m_assembler.LeaGq(paramReg, paramTempAddr);
+		    return 0x10;
+	    });
 }
 
 void CCodeGen_x86_64::Emit_Param_Mem128(const STATEMENT& statement)
@@ -540,12 +532,10 @@ void CCodeGen_x86_64::Emit_Param_Mem128(const STATEMENT& statement)
 	auto src1 = statement.src1->GetSymbol().get();
 
 	m_params.push_back(
-		[this, src1] (CX86Assembler::REGISTER paramReg, uint32)
-		{
-			m_assembler.LeaGq(paramReg, MakeMemory128SymbolAddress(src1));
-			return 0;
-		}
-	);
+	    [this, src1](CX86Assembler::REGISTER paramReg, uint32) {
+		    m_assembler.LeaGq(paramReg, MakeMemory128SymbolAddress(src1));
+		    return 0;
+	    });
 }
 
 void CCodeGen_x86_64::Emit_Call(const STATEMENT& statement)
@@ -594,7 +584,7 @@ void CCodeGen_x86_64::Emit_RetVal_Mem64(const STATEMENT& statement)
 void CCodeGen_x86_64::Emit_RetVal_Reg128(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
-	
+
 	//TODO: Use only integer operations
 	m_assembler.MovqVo(m_mdRegisters[dst->m_valueLow], CX86Assembler::MakeRegisterAddress(CX86Assembler::rAX));
 	m_assembler.MovqVo(CX86Assembler::xMM0, CX86Assembler::MakeRegisterAddress(CX86Assembler::rDX));
@@ -611,7 +601,7 @@ void CCodeGen_x86_64::Emit_RetVal_Mem128(const STATEMENT& statement)
 void CCodeGen_x86_64::Emit_ExternJmp(const STATEMENT& statement)
 {
 	auto src1 = statement.src1->GetSymbol().get();
-	
+
 	m_assembler.MovEq(m_paramRegs[0], CX86Assembler::MakeRegisterAddress(g_baseRegister));
 	Emit_Epilog();
 	m_assembler.MovIq(CX86Assembler::rAX, CombineConstant64(src1->m_valueLow, src1->m_valueHigh));
@@ -903,8 +893,8 @@ void CCodeGen_x86_64::Emit_StoreAtRef_64_VarAnyCst(const STATEMENT& statement)
 
 	assert((scale == 1) || (scale == 8));
 
-	WriteConstant64ToAddress(MakeRefBaseScaleSymbolAddress(src1, CX86Assembler::rAX, src2, CX86Assembler::rCX, scale), 
-		CX86Assembler::rDX, src3->GetConstant64());
+	WriteConstant64ToAddress(MakeRefBaseScaleSymbolAddress(src1, CX86Assembler::rAX, src2, CX86Assembler::rCX, scale),
+	                         CX86Assembler::rDX, src3->GetConstant64());
 }
 
 void CCodeGen_x86_64::Emit_Store8AtRef_VarVar(const STATEMENT& statement)

@@ -5,16 +5,16 @@
 class CNestedIfTest : public CTest
 {
 public:
-	void				Run() override;
-	void				Compile(Jitter::CJitter&) override;
+	void Run() override;
+	void Compile(Jitter::CJitter&) override;
 
 private:
 	struct CONTEXT
 	{
-		uint32		input;
-		uint32		result;
+		uint32 input;
+		uint32 result;
 	};
 
-	CONTEXT				m_context;
-	FunctionType		m_function;
+	CONTEXT m_context;
+	FunctionType m_function;
 };

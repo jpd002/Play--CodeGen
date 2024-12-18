@@ -80,7 +80,7 @@ void CMdFpTest::Run()
 {
 	CONTEXT ALIGN16 context;
 	memset(&context, 0, sizeof(CONTEXT));
-	
+
 	context.src0[0] = 5.f;
 	context.src0[1] = 50.f;
 	context.src0[2] = 500.f;
@@ -98,15 +98,15 @@ void CMdFpTest::Run()
 
 	m_function(&context);
 
-	TEST_VERIFY(context.dstAdd[0] ==  6005.f);
-	TEST_VERIFY(context.dstAdd[1] ==   650.f);
-	TEST_VERIFY(context.dstAdd[2] ==   560.f);
-	TEST_VERIFY(context.dstAdd[3] ==  5006.f);
+	TEST_VERIFY(context.dstAdd[0] == 6005.f);
+	TEST_VERIFY(context.dstAdd[1] == 650.f);
+	TEST_VERIFY(context.dstAdd[2] == 560.f);
+	TEST_VERIFY(context.dstAdd[3] == 5006.f);
 
 	TEST_VERIFY(context.dstSub[0] == -5995.f);
-	TEST_VERIFY(context.dstSub[1] ==  -550.f);
-	TEST_VERIFY(context.dstSub[2] ==   440.f);
-	TEST_VERIFY(context.dstSub[3] ==  4994.f);
+	TEST_VERIFY(context.dstSub[1] == -550.f);
+	TEST_VERIFY(context.dstSub[2] == 440.f);
+	TEST_VERIFY(context.dstSub[3] == 4994.f);
 
 	TEST_VERIFY(context.dstMul[0] == 30000.f);
 	TEST_VERIFY(context.dstMul[1] == 30000.f);
@@ -115,23 +115,23 @@ void CMdFpTest::Run()
 
 	TEST_VERIFY(fabs(8.333e-4f - context.dstDiv[0]) < 0.001f);
 	TEST_VERIFY(fabs(8.333e-2f - context.dstDiv[1]) < 0.001f);
-	TEST_VERIFY(fabs(8.333f    - context.dstDiv[2]) < 0.001f);
-	TEST_VERIFY(fabs(833.3f    - context.dstDiv[3]) < 0.1f);
+	TEST_VERIFY(fabs(8.333f - context.dstDiv[2]) < 0.001f);
+	TEST_VERIFY(fabs(833.3f - context.dstDiv[3]) < 0.1f);
 
-	TEST_VERIFY(context.dstAbs[0] ==  5995.f);
-	TEST_VERIFY(context.dstAbs[1] ==   550.f);
-	TEST_VERIFY(context.dstAbs[2] ==   440.f);
-	TEST_VERIFY(context.dstAbs[3] ==  4994.f);
+	TEST_VERIFY(context.dstAbs[0] == 5995.f);
+	TEST_VERIFY(context.dstAbs[1] == 550.f);
+	TEST_VERIFY(context.dstAbs[2] == 440.f);
+	TEST_VERIFY(context.dstAbs[3] == 4994.f);
 
-	TEST_VERIFY(context.dstMin[0] ==     5.f);
-	TEST_VERIFY(context.dstMin[1] ==    50.f);
-	TEST_VERIFY(context.dstMin[2] ==    60.f);
-	TEST_VERIFY(context.dstMin[3] ==     6.f);
+	TEST_VERIFY(context.dstMin[0] == 5.f);
+	TEST_VERIFY(context.dstMin[1] == 50.f);
+	TEST_VERIFY(context.dstMin[2] == 60.f);
+	TEST_VERIFY(context.dstMin[3] == 6.f);
 
-	TEST_VERIFY(context.dstMax[0] ==  6000.f);
-	TEST_VERIFY(context.dstMax[1] ==   600.f);
-	TEST_VERIFY(context.dstMax[2] ==   500.f);
-	TEST_VERIFY(context.dstMax[3] ==  5000.f);
+	TEST_VERIFY(context.dstMax[0] == 6000.f);
+	TEST_VERIFY(context.dstMax[1] == 600.f);
+	TEST_VERIFY(context.dstMax[2] == 500.f);
+	TEST_VERIFY(context.dstMax[3] == 5000.f);
 
 	TEST_VERIFY(context.dstCmpLt[0] != 0);
 	TEST_VERIFY(context.dstCmpLt[1] != 0);

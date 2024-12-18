@@ -47,7 +47,7 @@ void CMdCmpTest::Run()
 {
 	CONTEXT ALIGN16 context;
 	memset(&context, 0, sizeof(CONTEXT));
-	
+
 	for(unsigned int i = 0; i < 16; i++)
 	{
 		context.src0[i] = i;
@@ -73,6 +73,7 @@ void CMdCmpTest::Run()
 
 	m_function(&context);
 
+	// clang-format off
 	static const uint8 dstCmpEqBRes[16] =
 	{
 		0x00, 0x00, 0x00, 0x00,
@@ -120,14 +121,15 @@ void CMdCmpTest::Run()
 		0xFF, 0xFF, 0xFF, 0xFF,
 		0xFF, 0xFF, 0xFF, 0xFF,
 	};
+	// clang-format on
 
 	for(unsigned int i = 0; i < 16; i++)
 	{
-		TEST_VERIFY(dstCmpEqBRes[i]			== context.dstCmpEqB[i]);
-		TEST_VERIFY(dstCmpEqHRes[i]			== context.dstCmpEqH[i]);
-		TEST_VERIFY(dstCmpEqWRes[i]			== context.dstCmpEqW[i]);
-		TEST_VERIFY(dstCmpGtBRes[i]			== context.dstCmpGtB[i]);
-		TEST_VERIFY(dstCmpGtHRes[i]			== context.dstCmpGtH[i]);
-		TEST_VERIFY(dstCmpGtWRes[i]			== context.dstCmpGtW[i]);
+		TEST_VERIFY(dstCmpEqBRes[i] == context.dstCmpEqB[i]);
+		TEST_VERIFY(dstCmpEqHRes[i] == context.dstCmpEqH[i]);
+		TEST_VERIFY(dstCmpEqWRes[i] == context.dstCmpEqW[i]);
+		TEST_VERIFY(dstCmpGtBRes[i] == context.dstCmpGtB[i]);
+		TEST_VERIFY(dstCmpGtHRes[i] == context.dstCmpGtH[i]);
+		TEST_VERIFY(dstCmpGtWRes[i] == context.dstCmpGtW[i]);
 	}
 }

@@ -62,7 +62,8 @@ void CMdSubTest::Run()
 {
 	CONTEXT ALIGN16 context;
 	memset(&context, 0, sizeof(CONTEXT));
-	
+
+	// clang-format off
 	static const uint8 srcSat0Value[16] =
 	{
 		0xFF, 0xFF, 0xFF, 0x7F,
@@ -78,6 +79,7 @@ void CMdSubTest::Run()
 		0x00, 0x00, 0x00, 0x80,
 		0xFF, 0xFF, 0xFF, 0x7F,
 	};
+	// clang-format on
 
 	for(unsigned int i = 0; i < 16; i++)
 	{
@@ -90,6 +92,7 @@ void CMdSubTest::Run()
 
 	m_function(&context);
 
+	// clang-format off
 	static const uint8 dstSubBRes[16] =
 	{
 		0xC0, 0xB0, 0xA0, 0x90,
@@ -174,17 +177,18 @@ void CMdSubTest::Run()
 		0x40, 0x30, 0x20, 0x10,
 		0x00, 0x00, 0x00, 0x00
 	};
+	// clang-format on
 
 	for(unsigned int i = 0; i < 16; i++)
 	{
-		TEST_VERIFY(dstSubBRes[i]			== context.dstSubB[i]);
-		TEST_VERIFY(dstSubBUSRes[i]			== context.dstSubBUS[i]);
-		TEST_VERIFY(dstSubHRes[i]			== context.dstSubH[i]);
-		TEST_VERIFY(dstSubHSSRes[i]			== context.dstSubHSS[i]);
-		TEST_VERIFY(dstSubHUSRes[i]			== context.dstSubHUS[i]);
-		TEST_VERIFY(dstSubWRes[i]			== context.dstSubW[i]);
-		TEST_VERIFY(dstSubWSSRes[i]			== context.dstSubWSS[i]);
-		TEST_VERIFY(dstSubWUSRes[i]			== context.dstSubWUS[i]);
-		TEST_VERIFY(srcSat0Value[i]			== context.dstSubWSSSat[i]);
+		TEST_VERIFY(dstSubBRes[i] == context.dstSubB[i]);
+		TEST_VERIFY(dstSubBUSRes[i] == context.dstSubBUS[i]);
+		TEST_VERIFY(dstSubHRes[i] == context.dstSubH[i]);
+		TEST_VERIFY(dstSubHSSRes[i] == context.dstSubHSS[i]);
+		TEST_VERIFY(dstSubHUSRes[i] == context.dstSubHUS[i]);
+		TEST_VERIFY(dstSubWRes[i] == context.dstSubW[i]);
+		TEST_VERIFY(dstSubWSSRes[i] == context.dstSubWSS[i]);
+		TEST_VERIFY(dstSubWUSRes[i] == context.dstSubWUS[i]);
+		TEST_VERIFY(srcSat0Value[i] == context.dstSubWSSSat[i]);
 	}
 }

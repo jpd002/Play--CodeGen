@@ -10,12 +10,13 @@ using namespace Jitter;
 #include "Jitter_CodeGen_x86_Mul.h"
 #include "Jitter_CodeGen_x86_Div.h"
 
-const LITERAL128 CCodeGen_x86::g_makeSzShufflePattern = { 0x00020406080A0C0E, 0x8080808080808080 };
-const LITERAL128 CCodeGen_x86::g_fpClampMask1 = { 0x7F7FFFFF, 0x7F7FFFFF, 0x7F7FFFFF, 0x7F7FFFFF };
-const LITERAL128 CCodeGen_x86::g_fpClampMask2 = { 0xFF7FFFFF, 0xFF7FFFFF, 0xFF7FFFFF, 0xFF7FFFFF };
+const LITERAL128 CCodeGen_x86::g_makeSzShufflePattern = {0x00020406080A0C0E, 0x8080808080808080};
+const LITERAL128 CCodeGen_x86::g_fpClampMask1 = {0x7F7FFFFF, 0x7F7FFFFF, 0x7F7FFFFF, 0x7F7FFFFF};
+const LITERAL128 CCodeGen_x86::g_fpClampMask2 = {0xFF7FFFFF, 0xFF7FFFFF, 0xFF7FFFFF, 0xFF7FFFFF};
 
 CX86Assembler::REGISTER CCodeGen_x86::g_baseRegister = CX86Assembler::rBP;
 
+// clang-format off
 CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_constMatchers[] = 
 { 
 	{ OP_LABEL, MATCH_NIL, MATCH_NIL, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::MarkLabel  },
@@ -105,6 +106,7 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_constMatchers[] =
 
 	{ OP_MOV, MATCH_NIL, MATCH_NIL, MATCH_NIL, MATCH_NIL, nullptr },
 };
+// clang-format on
 
 CCodeGen_x86::CCodeGen_x86(CX86CpuFeatures cpuFeatures)
     : m_cpuFeatures(cpuFeatures)
@@ -160,7 +162,7 @@ void CCodeGen_x86::GenerateCode(const StatementList& statements, unsigned int st
 	assert(m_labels.empty());
 
 	m_registerUsage = GetRegisterUsage(statements);
-	
+
 	//Align stacksize
 	stackSize = (stackSize + 0xF) & ~0xF;
 	m_stackLevel = 0;
@@ -219,12 +221,12 @@ void CCodeGen_x86::InsertMatchers(const CONSTMATCHER* constMatchers)
 	for(auto* constMatcher = constMatchers; constMatcher->emitter != nullptr; constMatcher++)
 	{
 		MATCHER matcher;
-		matcher.op       = constMatcher->op;
-		matcher.dstType  = constMatcher->dstType;
+		matcher.op = constMatcher->op;
+		matcher.dstType = constMatcher->dstType;
 		matcher.src1Type = constMatcher->src1Type;
 		matcher.src2Type = constMatcher->src2Type;
 		matcher.src3Type = constMatcher->src3Type;
-		matcher.emitter  = std::bind(constMatcher->emitter, this, std::placeholders::_1);
+		matcher.emitter = std::bind(constMatcher->emitter, this, std::placeholders::_1);
 		m_matchers.insert(MatcherMapType::value_type(matcher.op, matcher));
 	}
 }
@@ -366,7 +368,7 @@ CX86Assembler::CAddress CCodeGen_x86::MakeVariableReferenceSymbolAddress(CSymbol
 }
 
 CX86Assembler::CAddress CCodeGen_x86::MakeRefBaseScaleSymbolAddress(CSymbol* baseSymbol, CX86Assembler::REGISTER baseRegister,
-	CSymbol* indexSymbol, CX86Assembler::REGISTER indexRegister, uint8 scale)
+                                                                    CSymbol* indexSymbol, CX86Assembler::REGISTER indexRegister, uint8 scale)
 {
 	baseRegister = PrepareRefSymbolRegisterUse(baseSymbol, baseRegister);
 	if(indexSymbol->IsConstant())
@@ -479,7 +481,6 @@ void CCodeGen_x86::MarkLabel(const STATEMENT& statement)
 
 void CCodeGen_x86::Emit_Nop(const STATEMENT& statement)
 {
-	
 }
 
 void CCodeGen_x86::Emit_Break(const STATEMENT& statement)
@@ -698,11 +699,11 @@ void CCodeGen_x86::Emit_MergeTo64_Mem64MemReg(const STATEMENT& statement)
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
 	auto src2 = statement.src2->GetSymbol().get();
-	
+
 	assert(src2->m_type == SYM_REGISTER);
-	
+
 	m_assembler.MovEd(CX86Assembler::rAX, MakeMemorySymbolAddress(src1));
-	
+
 	m_assembler.MovGd(MakeMemory64SymbolLoAddress(dst), CX86Assembler::rAX);
 	m_assembler.MovGd(MakeMemory64SymbolHiAddress(dst), m_registers[src2->m_valueLow]);
 }
@@ -876,7 +877,7 @@ void CCodeGen_x86::Emit_StoreAtRef_VarAnyVar(const STATEMENT& statement)
 	auto src2 = statement.src2->GetSymbol().get();
 	auto src3 = statement.src3->GetSymbol().get();
 	uint8 scale = static_cast<uint8>(statement.jmpCondition);
-	
+
 	auto valueReg = PrepareSymbolRegisterUse(src3, CX86Assembler::rDX);
 	m_assembler.MovGd(MakeRefBaseScaleSymbolAddress(src1, CX86Assembler::rAX, src2, CX86Assembler::rCX, scale), valueReg);
 }
@@ -944,7 +945,7 @@ void CCodeGen_x86::Emit_Store16AtRef_VarAnyVar(const STATEMENT& statement)
 	auto src2 = statement.src2->GetSymbol().get();
 	auto src3 = statement.src3->GetSymbol().get();
 	FRAMEWORK_MAYBE_UNUSED uint8 scale = static_cast<uint8>(statement.jmpCondition);
-	
+
 	assert(scale == 1);
 
 	auto valueReg = PrepareSymbolRegisterUse(src3, CX86Assembler::rDX);
@@ -1099,7 +1100,7 @@ void CCodeGen_x86::Emit_CondJmp_MemCst(const STATEMENT& statement)
 	assert(src2->m_type == SYM_CONSTANT);
 
 	m_assembler.MovEd(CX86Assembler::rAX, MakeMemorySymbolAddress(src1));
-	
+
 	if((src2->m_valueLow == 0) && (statement.jmpCondition == CONDITION_NE || statement.jmpCondition == CONDITION_EQ))
 	{
 		m_assembler.TestEd(CX86Assembler::rAX, CX86Assembler::MakeRegisterAddress(CX86Assembler::rAX));
@@ -1158,19 +1159,19 @@ CX86Assembler::BYTEREGISTER CCodeGen_x86::PrepareSymbolByteRegisterUse(CSymbol* 
 	switch(symbol->m_type)
 	{
 	case SYM_REGISTER:
+	{
+		auto srcRegister = m_registers[symbol->m_valueLow];
+		if(CX86Assembler::HasByteRegister(srcRegister))
 		{
-			auto srcRegister = m_registers[symbol->m_valueLow];
-			if(CX86Assembler::HasByteRegister(srcRegister))
-			{
-				return CX86Assembler::GetByteRegister(srcRegister);
-			}
-			else
-			{
-				m_assembler.MovEd(preferedRegister, CX86Assembler::MakeRegisterAddress(srcRegister));
-				return preferedByteRegister;
-			}
+			return CX86Assembler::GetByteRegister(srcRegister);
 		}
-		break;
+		else
+		{
+			m_assembler.MovEd(preferedRegister, CX86Assembler::MakeRegisterAddress(srcRegister));
+			return preferedByteRegister;
+		}
+	}
+	break;
 	case SYM_TEMPORARY:
 	case SYM_RELATIVE:
 		m_assembler.MovEd(preferedRegister, MakeMemorySymbolAddress(symbol));

@@ -64,7 +64,7 @@ void CAlu64Test::Compile(Jitter::CJitter& jitter)
 		jitter.PushRel64(offsetof(CONTEXT, value0));
 		jitter.Sub64();
 		jitter.PullRel64(offsetof(CONTEXT, resultSubCst0));
-		
+
 		jitter.PushRel64(offsetof(CONTEXT, value1));
 		jitter.PushCst64(CONSTANT_3);
 		jitter.Sub64();

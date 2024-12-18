@@ -2,10 +2,10 @@
 #include "MemStream.h"
 #include "offsetof_def.h"
 
-#define CONSTANT_1 0x3F000000	//0.5
-#define CONSTANT_2 0x3F800000	//1.0
-#define CONSTANT_3 0x40000000	//2.0
-#define CONSTANT_4 0x40800000	//4.0
+#define CONSTANT_1 0x3F000000 //0.5
+#define CONSTANT_2 0x3F800000 //1.0
+#define CONSTANT_3 0x40000000 //2.0
+#define CONSTANT_4 0x40800000 //4.0
 
 void CAliasTest2::Run()
 {

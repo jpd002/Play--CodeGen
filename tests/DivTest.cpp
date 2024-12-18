@@ -1,15 +1,14 @@
 #include "DivTest.h"
 #include "MemStream.h"
 
-#define VALUE_REL0	(0xFFFF8000)
-#define VALUE_REL1	(0x8000FFFF)
-#define VALUE_CST0	(0x80004040)
-#define VALUE_CST1	(0x40408000)
+#define VALUE_REL0 (0xFFFF8000)
+#define VALUE_REL1 (0x8000FFFF)
+#define VALUE_CST0 (0x80004040)
+#define VALUE_CST1 (0x40408000)
 
 CDivTest::CDivTest(bool isSigned)
-: m_isSigned(isSigned)
+    : m_isSigned(isSigned)
 {
-
 }
 
 void CDivTest::Run()

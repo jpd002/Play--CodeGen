@@ -1,12 +1,12 @@
 #include "MdCallTest.h"
 #include "MemStream.h"
 
-#define FUNCTION_MASK	(0x0A)
+#define FUNCTION_MASK (0x0A)
 
 uint32 CMdCallTest::MdInputFunction(const uint128& value, uint32 mask)
 {
 	assert(mask == FUNCTION_MASK);
-	
+
 	uint32 result = 0;
 	for(unsigned int i = 0; i < 4; i++)
 	{
@@ -21,7 +21,7 @@ uint32 CMdCallTest::MdInputFunction(const uint128& value, uint32 mask)
 uint128 CMdCallTest::MdOutputFunction(uint32 mask)
 {
 	assert(mask == FUNCTION_MASK);
-	
+
 	uint128 result;
 	memset(&result, 0, sizeof(result));
 
@@ -88,7 +88,7 @@ void CMdCallTest::Run()
 
 	CONTEXT ALIGN16 context;
 	memset(&context, 0, sizeof(CONTEXT));
-	
+
 	context.value0.nV[0] = 8;
 	context.value0.nV[1] = 4;
 	context.value0.nV[2] = 2;

@@ -10,24 +10,23 @@ namespace Jitter
 	public:
 		struct SymbolNullDeleter
 		{
-			void operator()(void const *) const
+			void operator()(void const*) const
 			{
-
 			}
 		};
 
 		typedef std::unordered_set<SymbolPtr, SymbolHasher, SymbolComparator> SymbolSet;
 		typedef SymbolSet::iterator SymbolIterator;
 
-								CSymbolTable() = default;
+		CSymbolTable() = default;
 
-		SymbolPtr				MakeSymbol(const SymbolPtr&);
-		SymbolPtr				MakeSymbol(SYM_TYPE, uint32, uint32 = 0);
-		SymbolIterator			RemoveSymbol(const SymbolIterator&);
+		SymbolPtr MakeSymbol(const SymbolPtr&);
+		SymbolPtr MakeSymbol(SYM_TYPE, uint32, uint32 = 0);
+		SymbolIterator RemoveSymbol(const SymbolIterator&);
 
-		SymbolSet&				GetSymbols();
+		SymbolSet& GetSymbols();
 
 	private:
-		SymbolSet				m_symbols;
+		SymbolSet m_symbols;
 	};
 }

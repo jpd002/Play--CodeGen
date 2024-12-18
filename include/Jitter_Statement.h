@@ -10,7 +10,7 @@ namespace Jitter
 	{
 		OP_NOP = 0,
 		OP_MOV,
-		
+
 		OP_ADD,
 		OP_SUB,
 		OP_CMP,
@@ -188,20 +188,19 @@ namespace Jitter
 	{
 	public:
 		STATEMENT()
-			: op(OP_NOP)
-			, jmpBlock(-1)
-			, jmpCondition(CONDITION_NEVER)
+		    : op(OP_NOP)
+		    , jmpBlock(-1)
+		    , jmpCondition(CONDITION_NEVER)
 		{
-			
 		}
 
-		OPERATION		op;
-		SymbolRefPtr	src1;
-		SymbolRefPtr	src2;
-		SymbolRefPtr	src3;
-		SymbolRefPtr	dst;
-		uint32			jmpBlock;
-		CONDITION		jmpCondition;
+		OPERATION op;
+		SymbolRefPtr src1;
+		SymbolRefPtr src2;
+		SymbolRefPtr src3;
+		SymbolRefPtr dst;
+		uint32 jmpBlock;
+		CONDITION jmpCondition;
 
 		template <typename F>
 		void VisitOperands(const F& visitor)
@@ -234,7 +233,7 @@ namespace Jitter
 			if(src2) visitor(src2, false);
 			if(src3) visitor(src3, false);
 		}
-		
+
 		template <typename F>
 		void VisitSources(const F& visitor) const
 		{
@@ -246,11 +245,11 @@ namespace Jitter
 
 	typedef std::list<STATEMENT> StatementList;
 
-	std::string		ConditionToString(CONDITION);
-	void			DumpStatementList(const StatementList&);
-	void			DumpStatementList(std::ostream&, const StatementList&);
+	std::string ConditionToString(CONDITION);
+	void DumpStatementList(const StatementList&);
+	void DumpStatementList(std::ostream&, const StatementList&);
 
-	template<typename ListType, typename IteratorType, typename ValueType>
+	template <typename ListType, typename IteratorType, typename ValueType>
 	class IndexedStatementListBase
 	{
 	public:
@@ -260,9 +259,10 @@ namespace Jitter
 			struct VALUE
 			{
 				VALUE(const IteratorType& iterator, ValueType& statement, unsigned int index)
-					: iterator(iterator), statement(statement), index(index)
+				    : iterator(iterator)
+				    , statement(statement)
+				    , index(index)
 				{
-
 				}
 
 				IteratorType iterator;
@@ -271,13 +271,12 @@ namespace Jitter
 			};
 
 			ITERATOR(const IteratorType& iterator, unsigned int index)
-				: m_iterator(iterator)
-				, m_index(index)
+			    : m_iterator(iterator)
+			    , m_index(index)
 			{
-
 			}
 
-			const ITERATOR& operator ++()
+			const ITERATOR& operator++()
 			{
 				assert(m_index != -1);
 				m_iterator++;
@@ -285,12 +284,12 @@ namespace Jitter
 				return (*this);
 			}
 
-			bool operator !=(const ITERATOR& rhs) const
+			bool operator!=(const ITERATOR& rhs) const
 			{
 				return m_iterator != rhs.m_iterator;
 			}
 
-			VALUE operator *() const
+			VALUE operator*() const
 			{
 				return VALUE(m_iterator, *m_iterator, m_index);
 			}
@@ -301,7 +300,9 @@ namespace Jitter
 		};
 
 		IndexedStatementListBase(ListType& statements)
-			: m_statements(statements) { }
+		    : m_statements(statements)
+		{
+		}
 
 		ITERATOR begin() const
 		{

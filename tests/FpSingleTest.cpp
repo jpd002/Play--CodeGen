@@ -95,11 +95,11 @@ void CFpSingleTest::Run()
 	TEST_VERIFY(m_context.resMul == 4.0f);
 	TEST_VERIFY(m_context.resDiv == 0.5f);
 	TEST_VERIFY(m_context.resAbs == 4.0f);
-	TEST_VERIFY(m_context.resNeg =  4.0f);
+	TEST_VERIFY(m_context.resNeg == 4.0f);
 	TEST_VERIFY(m_context.resSqrt == 4.0f)
 	TEST_VERIFY(m_context.resSqrtCst == 2.0f);
-	TEST_VERIFY(fabs(-0.25f - m_context.resRcpl) < 0.0001f);		//Result not exact
-	TEST_VERIFY(fabs(0.25f - m_context.resRsqrt) < 0.0001f);		//Result not exact
+	TEST_VERIFY(fabs(-0.25f - m_context.resRcpl) < 0.0001f); //Result not exact
+	TEST_VERIFY(fabs(0.25f - m_context.resRsqrt) < 0.0001f); //Result not exact
 	TEST_VERIFY(m_context.resMax == 1.0f);
 	TEST_VERIFY(m_context.resMin == -4.0f);
 	TEST_VERIFY(m_context.ltTest == 0);

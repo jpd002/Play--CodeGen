@@ -137,7 +137,7 @@ void CCodeGen_AArch64::Emit_Md_VarVar(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
-	
+
 	auto dstReg = PrepareSymbolRegisterDefMd(dst, GetNextTempRegisterMd());
 	auto src1Reg = PrepareSymbolRegisterUseMd(src1, GetNextTempRegisterMd());
 
@@ -152,7 +152,7 @@ void CCodeGen_AArch64::Emit_Md_VarVarVar(const STATEMENT& statement)
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
 	auto src2 = statement.src2->GetSymbol().get();
-	
+
 	auto dstReg = PrepareSymbolRegisterDefMd(dst, GetNextTempRegisterMd());
 	auto src1Reg = PrepareSymbolRegisterUseMd(src1, GetNextTempRegisterMd());
 	auto src2Reg = PrepareSymbolRegisterUseMd(src2, GetNextTempRegisterMd());
@@ -168,7 +168,7 @@ void CCodeGen_AArch64::Emit_Md_VarVarVarRev(const STATEMENT& statement)
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
 	auto src2 = statement.src2->GetSymbol().get();
-	
+
 	auto dstReg = PrepareSymbolRegisterDefMd(dst, GetNextTempRegisterMd());
 	auto src1Reg = PrepareSymbolRegisterUseMd(src1, GetNextTempRegisterMd());
 	auto src2Reg = PrepareSymbolRegisterUseMd(src2, GetNextTempRegisterMd());
@@ -197,7 +197,7 @@ void CCodeGen_AArch64::Emit_Md_ClampS_VarVar(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
-	
+
 	auto dstReg = PrepareSymbolRegisterDefMd(dst, GetNextTempRegisterMd());
 	auto src1Reg = PrepareSymbolRegisterUseMd(src1, GetNextTempRegisterMd());
 	auto cst1Reg = GetNextTempRegisterMd();
@@ -208,7 +208,7 @@ void CCodeGen_AArch64::Emit_Md_ClampS_VarVar(const STATEMENT& statement)
 
 	m_assembler.Smin_4s(dstReg, src1Reg, cst1Reg);
 	m_assembler.Umin_4s(dstReg, dstReg, cst2Reg);
-	
+
 	CommitSymbolRegisterMd(dst, dstReg);
 }
 
@@ -216,21 +216,21 @@ void CCodeGen_AArch64::Emit_Md_MakeSz_VarVar(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
-	
+
 	m_nextTempRegisterMd = 0;
-	
+
 	auto dstReg = PrepareSymbolRegisterDef(dst, GetNextTempRegister());
 	auto src1Reg = PrepareSymbolRegisterUseMd(src1, GetNextTempRegisterMd());
 
 	auto signReg = GetNextTempRegisterMd();
 	auto zeroReg = GetNextTempRegisterMd();
 	auto cstReg = GetNextTempRegisterMd();
-	
+
 	assert(zeroReg == signReg + 1);
-	
+
 	m_assembler.Cmltz_4s(signReg, src1Reg);
 	m_assembler.Fcmeqz_4s(zeroReg, src1Reg);
-	
+
 	LITERAL128 lit1(0x0004080C1014181CUL, 0xFFFFFFFFFFFFFFFFUL);
 	LITERAL128 lit2(0x8040201008040201UL, 0x0000000000000000UL);
 
@@ -240,7 +240,7 @@ void CCodeGen_AArch64::Emit_Md_MakeSz_VarVar(const STATEMENT& statement)
 	m_assembler.And_16b(signReg, signReg, cstReg);
 	m_assembler.Uaddlv_16b(signReg, signReg);
 	m_assembler.Umov_1s(dstReg, signReg, 0);
-	
+
 	CommitSymbolRegister(dst, dstReg);
 }
 
@@ -248,9 +248,9 @@ void CCodeGen_AArch64::Emit_Md_Mov_RegReg(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
-	
+
 	assert(!dst->Equals(src1));
-	
+
 	m_assembler.Mov(g_registersMd[dst->m_valueLow], g_registersMd[src1->m_valueLow]);
 }
 
@@ -258,7 +258,7 @@ void CCodeGen_AArch64::Emit_Md_Mov_RegMem(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
-	
+
 	LoadMemory128InRegister(g_registersMd[dst->m_valueLow], src1);
 }
 
@@ -266,7 +266,7 @@ void CCodeGen_AArch64::Emit_Md_Mov_MemReg(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
-	
+
 	StoreRegisterInMemory128(dst, g_registersMd[src1->m_valueLow]);
 }
 
@@ -276,7 +276,7 @@ void CCodeGen_AArch64::Emit_Md_Mov_MemMem(const STATEMENT& statement)
 	auto src1 = statement.src1->GetSymbol().get();
 
 	auto tmpReg = GetNextTempRegisterMd();
-	
+
 	LoadMemory128InRegister(tmpReg, src1);
 	StoreRegisterInMemory128(dst, tmpReg);
 }
@@ -365,7 +365,7 @@ void CCodeGen_AArch64::Emit_Md_MovMasked_VarVarVar(const STATEMENT& statement)
 
 	auto src1Reg = PrepareSymbolRegisterUseMd(src1, GetNextTempRegisterMd());
 	auto src2Reg = PrepareSymbolRegisterUseMd(src2, GetNextTempRegisterMd());
-		
+
 	//Try some aligned 64-bit inserts first
 	for(unsigned int i = 0; i < 3; i += 2)
 	{
@@ -376,7 +376,7 @@ void CCodeGen_AArch64::Emit_Md_MovMasked_VarVarVar(const STATEMENT& statement)
 			mask &= ~maskBits;
 		}
 	}
-	
+
 	//Do remaining inserts
 	for(unsigned int i = 0; i < 4; i++)
 	{
@@ -473,7 +473,7 @@ void CCodeGen_AArch64::Emit_Md_PackHB_VarVarVar(const STATEMENT& statement)
 	auto dstReg = PrepareSymbolRegisterDefMd(dst, GetNextTempRegisterMd());
 	auto src1Reg = PrepareSymbolRegisterUseMd(src1, GetNextTempRegisterMd());
 	auto src2Reg = PrepareSymbolRegisterUseMd(src2, GetNextTempRegisterMd());
-	
+
 	if(dstReg == src1Reg)
 	{
 		auto tmpReg = GetNextTempRegisterMd();
@@ -486,7 +486,7 @@ void CCodeGen_AArch64::Emit_Md_PackHB_VarVarVar(const STATEMENT& statement)
 		m_assembler.Xtn1_8b(dstReg, src2Reg);
 		m_assembler.Xtn2_16b(dstReg, src1Reg);
 	}
-	
+
 	CommitSymbolRegisterMd(dst, dstReg);
 }
 
@@ -552,7 +552,7 @@ void CCodeGen_AArch64::Emit_Md_Srl256_VarMemCst(const STATEMENT& statement)
 	LoadTemporary256ElementAddressInRegister(src1AddrReg, src1, offset);
 
 	m_assembler.Ld1_4s(dstReg, src1AddrReg);
-	
+
 	CommitSymbolRegisterMd(dst, dstReg);
 }
 
@@ -581,10 +581,11 @@ void CCodeGen_AArch64::Emit_Md_Srl256_VarMemVar(const STATEMENT& statement)
 	m_assembler.Add(src1AddrReg, src1AddrReg, static_cast<CAArch64Assembler::REGISTER64>(offsetRegister));
 
 	m_assembler.Ld1_4s(dstReg, src1AddrReg);
-	
+
 	CommitSymbolRegisterMd(dst, dstReg);
 }
 
+// clang-format off
 CCodeGen_AArch64::CONSTMATCHER CCodeGen_AArch64::g_mdConstMatchers[] =
 {
 	{ OP_MD_ADD_B,              MATCH_VARIABLE128,    MATCH_VARIABLE128,    MATCH_VARIABLE128,      MATCH_NIL, &CCodeGen_AArch64::Emit_Md_VarVarVar<MDOP_ADDB>                  },
@@ -691,3 +692,4 @@ CCodeGen_AArch64::CONSTMATCHER CCodeGen_AArch64::g_mdConstMatchers[] =
 	
 	{ OP_MOV,                   MATCH_NIL,            MATCH_NIL,            MATCH_NIL,              MATCH_NIL, nullptr                                                          },
 };
+// clang-format on

@@ -108,6 +108,7 @@ void CCodeGen_x86::Emit_Fp32_LdCst_MemCst(const STATEMENT& statement)
 	m_assembler.MovGd(MakeMemoryFp32SymbolAddress(dst), tmpRegister);
 }
 
+// clang-format off
 CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_fpuConstMatchers[] = 
 { 
 	{ OP_FP_ABS_S, MATCH_FP_MEMORY32, MATCH_FP_MEMORY32, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Fp_AbsS_MemMem },
@@ -117,3 +118,4 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_fpuConstMatchers[] =
 
 	{ OP_MOV, MATCH_NIL, MATCH_NIL, MATCH_NIL, MATCH_NIL, nullptr },
 };
+// clang-format on

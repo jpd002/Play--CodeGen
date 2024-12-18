@@ -37,7 +37,7 @@ void CMdMinMaxTest::Run()
 {
 	CONTEXT ALIGN16 context;
 	memset(&context, 0, sizeof(CONTEXT));
-	
+
 	for(unsigned int i = 0; i < 16; i++)
 	{
 		context.src0[i] = i;
@@ -55,6 +55,7 @@ void CMdMinMaxTest::Run()
 
 	m_function(&context);
 
+	// clang-format off
 	static const uint8 dstMinHRes[16] =
 	{
 		0x00, 0x01,
@@ -102,12 +103,13 @@ void CMdMinMaxTest::Run()
 		0x0C, 0x0D,
 		0x0E, 0x0F,
 	};
+	// clang-format on
 
 	for(unsigned int i = 0; i < 16; i++)
 	{
-		TEST_VERIFY(dstMinHRes[i]			== context.dstMinH[i]);
-		TEST_VERIFY(dstMinWRes[i]			== context.dstMinW[i]);
-		TEST_VERIFY(dstMaxHRes[i]			== context.dstMaxH[i]);
-		TEST_VERIFY(dstMaxWRes[i]			== context.dstMaxW[i]);
+		TEST_VERIFY(dstMinHRes[i] == context.dstMinH[i]);
+		TEST_VERIFY(dstMinWRes[i] == context.dstMinW[i]);
+		TEST_VERIFY(dstMaxHRes[i] == context.dstMaxH[i]);
+		TEST_VERIFY(dstMaxWRes[i] == context.dstMaxW[i]);
 	}
 }

@@ -166,7 +166,8 @@ namespace Jitter
 		void Emit_Add_AnyAnyAny(const STATEMENT&);
 		void Emit_Sub_AnyAnyAny(const STATEMENT&);
 
-		template <uint32> void Emit_Shift64_MemAnyAny(const STATEMENT&);
+		template <uint32>
+		void Emit_Shift64_MemAnyAny(const STATEMENT&);
 
 		void Emit_Mov64_MemAny(const STATEMENT&);
 		void Emit_Add64_MemAnyAny(const STATEMENT&);
@@ -189,8 +190,10 @@ namespace Jitter
 		void Emit_MergeTo64_Mem64AnyAny(const STATEMENT&);
 
 		//FPU
-		template <uint32> void Emit_Fpu_MemMem(const STATEMENT&);
-		template <uint32> void Emit_Fpu_MemMemMem(const STATEMENT&);
+		template <uint32>
+		void Emit_Fpu_MemMem(const STATEMENT&);
+		template <uint32>
+		void Emit_Fpu_MemMemMem(const STATEMENT&);
 		void Emit_Fp_Cmp_AnyMemMem(const STATEMENT&);
 		void Emit_Fp_Rcpl_MemMem(const STATEMENT&);
 		void Emit_Fp_Rsqrt_MemMem(const STATEMENT&);
@@ -198,12 +201,16 @@ namespace Jitter
 		void Emit_Fp_ToSingleI32_MemMem(const STATEMENT&);
 		void Emit_Fp_ToInt32TruncS_MemMem(const STATEMENT&);
 		void Emit_Fp_LdCst_TmpCst(const STATEMENT&);
-		
+
 		//MD
-		template <uint32> void Emit_Md_MemMem(const STATEMENT&);
-		template <uint32> void Emit_Md_MemMemMem(const STATEMENT&);
-		template <uint32> void Emit_Md_Shift_MemMemCst(const STATEMENT&);
-		template <const uint8*> void Emit_Md_Unpack_MemMemMemRev(const STATEMENT&);
+		template <uint32>
+		void Emit_Md_MemMem(const STATEMENT&);
+		template <uint32>
+		void Emit_Md_MemMemMem(const STATEMENT&);
+		template <uint32>
+		void Emit_Md_Shift_MemMemCst(const STATEMENT&);
+		template <const uint8*>
+		void Emit_Md_Unpack_MemMemMemRev(const STATEMENT&);
 		void Emit_Md_Mov_MemMem(const STATEMENT&);
 		void Emit_Md_AddSSW_MemMemMem(const STATEMENT&);
 		void Emit_Md_AddUSW_MemMemMem(const STATEMENT&);

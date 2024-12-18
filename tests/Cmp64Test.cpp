@@ -2,12 +2,11 @@
 #include "MemStream.h"
 
 CCmp64Test::CCmp64Test(bool useConstant0, bool useConstant1, uint64 value0, uint64 value1)
-: m_useConstant0(useConstant0)
-, m_useConstant1(useConstant1)
-, m_value0(value0)
-, m_value1(value1)
+    : m_useConstant0(useConstant0)
+    , m_useConstant1(useConstant1)
+    , m_value0(value0)
+    , m_value1(value1)
 {
-
 }
 
 void CCmp64Test::Run()
@@ -41,14 +40,13 @@ void CCmp64Test::Compile(Jitter::CJitter& jitter)
 	Framework::CMemStream codeStream;
 	jitter.SetStream(&codeStream);
 
-	auto emitTest = 
-		[&](Jitter::CONDITION condition, size_t output)
-		{
-			m_useConstant0 ? jitter.PushCst64(m_value0) : jitter.PushRel64(offsetof(CONTEXT, value0));
-			m_useConstant1 ? jitter.PushCst64(m_value1) : jitter.PushRel64(offsetof(CONTEXT, value1));
-			jitter.Cmp64(condition);
-			jitter.PullRel(output);
-		};
+	auto emitTest =
+	    [&](Jitter::CONDITION condition, size_t output) {
+		    m_useConstant0 ? jitter.PushCst64(m_value0) : jitter.PushRel64(offsetof(CONTEXT, value0));
+		    m_useConstant1 ? jitter.PushCst64(m_value1) : jitter.PushRel64(offsetof(CONTEXT, value1));
+		    jitter.Cmp64(condition);
+		    jitter.PullRel(output);
+	    };
 
 	jitter.Begin();
 	{

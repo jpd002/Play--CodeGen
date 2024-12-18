@@ -1,5 +1,7 @@
 #include "Jitter_CodeGenFactory.h"
 
+// clang-format off
+
 #ifdef _WIN32
 
 	#ifdef _M_X64
@@ -106,3 +108,4 @@ Jitter::CCodeGen* Jitter::CreateCodeGen()
 	#endif
 #endif
 }
+// clang-format on

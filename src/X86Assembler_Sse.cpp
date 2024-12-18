@@ -469,7 +469,7 @@ void CX86Assembler::WriteEdVdOp_66_0F_64b(uint8 opcode, const CAddress& address,
 	WriteByte(0x66);
 	WriteRexByte(true, address, registerId);
 	WriteByte(0x0F);
-	
+
 	CAddress newAddress(address);
 	newAddress.ModRm.nFnReg = registerId;
 	WriteByte(opcode);

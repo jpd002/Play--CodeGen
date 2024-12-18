@@ -19,6 +19,6 @@ private:
 		float value3[4];
 	};
 
-	CONTEXT         m_context;
-	FunctionType    m_function;
+	CONTEXT m_context;
+	FunctionType m_function;
 };

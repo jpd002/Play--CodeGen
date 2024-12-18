@@ -47,7 +47,7 @@ void CMdUnpackTest::Run()
 {
 	CONTEXT ALIGN16 context;
 	memset(&context, 0, sizeof(CONTEXT));
-	
+
 	for(unsigned int i = 0; i < 16; i++)
 	{
 		context.src0[i] = i;
@@ -65,6 +65,7 @@ void CMdUnpackTest::Run()
 
 	m_function(&context);
 
+	// clang-format off
 	static const uint8 dstUnpackLowerBHRes[16] = 
 	{
 		0x00, 0x00, 
@@ -142,14 +143,15 @@ void CMdUnpackTest::Run()
 		0xC0, 0xD0, 0xE0, 0xF0,
 		0x0C, 0x0D, 0x0E, 0x0F,
 	};
+	// clang-format on
 
 	for(unsigned int i = 0; i < 16; i++)
 	{
-		TEST_VERIFY(dstUnpackLowerBHRes[i]	== context.dstUnpackLowerBH[i]);
-		TEST_VERIFY(dstUnpackLowerHWRes[i]	== context.dstUnpackLowerHW[i]);
-		TEST_VERIFY(dstUnpackLowerWDRes[i]	== context.dstUnpackLowerWD[i]);
-		TEST_VERIFY(dstUnpackUpperBHRes[i]	== context.dstUnpackUpperBH[i]);
-		TEST_VERIFY(dstUnpackUpperHWRes[i]	== context.dstUnpackUpperHW[i]);
-		TEST_VERIFY(dstUnpackUpperWDRes[i]	== context.dstUnpackUpperWD[i]);
+		TEST_VERIFY(dstUnpackLowerBHRes[i] == context.dstUnpackLowerBH[i]);
+		TEST_VERIFY(dstUnpackLowerHWRes[i] == context.dstUnpackLowerHW[i]);
+		TEST_VERIFY(dstUnpackLowerWDRes[i] == context.dstUnpackLowerWD[i]);
+		TEST_VERIFY(dstUnpackUpperBHRes[i] == context.dstUnpackUpperBH[i]);
+		TEST_VERIFY(dstUnpackUpperHWRes[i] == context.dstUnpackUpperHW[i]);
+		TEST_VERIFY(dstUnpackUpperWDRes[i] == context.dstUnpackUpperWD[i]);
 	}
 }

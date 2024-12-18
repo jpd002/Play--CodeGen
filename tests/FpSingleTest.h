@@ -5,8 +5,8 @@
 class CFpSingleTest : public CTest
 {
 public:
-	void				Compile(Jitter::CJitter&) override;
-	void				Run() override;
+	void Compile(Jitter::CJitter&) override;
+	void Run() override;
 
 private:
 	struct CONTEXT
@@ -15,7 +15,7 @@ private:
 		float number2;
 		float number3;
 		float number4;
-		
+
 		float resAdd;
 		float resSub;
 		float resMul;
@@ -35,6 +35,6 @@ private:
 		uint32 eqTest;
 	};
 
-	CONTEXT				m_context;
-	FunctionType		m_function;
+	CONTEXT m_context;
+	FunctionType m_function;
 };

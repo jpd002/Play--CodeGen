@@ -40,7 +40,7 @@ CJitter::VERSIONED_STATEMENT_LIST CJitter::GenerateVersionedStatementList(const 
 
 	struct ReplaceUse
 	{
-		void operator() (SymbolRefPtr& symbolRef, CRelativeVersionManager& relativeVersions) const
+		void operator()(SymbolRefPtr& symbolRef, CRelativeVersionManager& relativeVersions) const
 		{
 			if(CSymbol* symbol = dynamic_symbolref_cast(SYM_RELATIVE, symbolRef))
 			{
@@ -131,15 +131,13 @@ StatementList CJitter::CollapseVersionedStatementList(const VERSIONED_STATEMENT_
 	for(auto newStatement : statements.statements)
 	{
 		newStatement.VisitOperands(
-			[](SymbolRefPtr& symbolRef, bool)
-			{
-				if(symbolRef->IsVersioned())
-				{
-					symbolRef = std::make_shared<CSymbolRef>(symbolRef->GetSymbol());
-				}
-			}
-		);
-		
+		    [](SymbolRefPtr& symbolRef, bool) {
+			    if(symbolRef->IsVersioned())
+			    {
+				    symbolRef = std::make_shared<CSymbolRef>(symbolRef->GetSymbol());
+			    }
+		    });
+
 		result.push_back(newStatement);
 	}
 	return result;
@@ -227,10 +225,10 @@ SymbolPtr CJitter::MakeSymbol(SYM_TYPE type, uint32 value)
 
 SymbolPtr CJitter::MakeConstantPtr(uintptr_t value)
 {
-#if (UINTPTR_MAX == UINT32_MAX)
+#if(UINTPTR_MAX == UINT32_MAX)
 	uint32 valueLo = static_cast<uint32>(value);
 	return MakeSymbol(m_currentBlock, SYM_CONSTANTPTR, valueLo, 0);
-#elif (UINTPTR_MAX == UINT64_MAX)
+#elif(UINTPTR_MAX == UINT64_MAX)
 	uint32 valueLo = static_cast<uint32>(value);
 	uint32 valueHi = static_cast<uint32>(value >> 32);
 	return MakeSymbol(m_currentBlock, SYM_CONSTANTPTR, valueLo, valueHi);
@@ -327,9 +325,8 @@ bool CJitter::FoldConstantOperation(STATEMENT& statement)
 			changed = true;
 		}
 		else if(
-			(src1cst && src1cst->m_valueLow == 0) ||
-			(src2cst && src2cst->m_valueLow == 0)
-		)
+		    (src1cst && src1cst->m_valueLow == 0) ||
+		    (src2cst && src2cst->m_valueLow == 0))
 		{
 			//Anding with zero
 			statement.op = OP_MOV;
@@ -538,9 +535,9 @@ bool CJitter::FoldConstantOperation(STATEMENT& statement)
 		//	src2cst->m_valueLow = GetPowerOf2(src2cst->m_valueLow);
 		//}
 	}
-	else if (statement.op == OP_DIVS)
+	else if(statement.op == OP_DIVS)
 	{
-		if (src1cst && src2cst)
+		if(src1cst && src2cst)
 		{
 			uint64 result = 0;
 			if(src2cst->m_valueLow != 0)
@@ -710,9 +707,8 @@ bool CJitter::FoldConstant64Operation(STATEMENT& statement)
 			changed = true;
 		}
 		else if(
-			(src1cst && (src1cst->m_valueLow == 0) && (src1cst->m_valueHigh == 0)) ||
-			(src2cst && (src2cst->m_valueLow == 0) && (src2cst->m_valueHigh == 0))
-			)
+		    (src1cst && (src1cst->m_valueLow == 0) && (src1cst->m_valueHigh == 0)) ||
+		    (src2cst && (src2cst->m_valueLow == 0) && (src2cst->m_valueHigh == 0)))
 		{
 			//ANDing anything with 0 gives 0
 			statement.op = OP_MOV;
@@ -776,9 +772,9 @@ bool CJitter::FoldConstant6432Operation(STATEMENT& statement)
 	bool changed = false;
 
 	if(
-		statement.op == OP_SLL64 ||
-		statement.op == OP_SRL64 ||
-		statement.op == OP_SRA64)
+	    statement.op == OP_SLL64 ||
+	    statement.op == OP_SRL64 ||
+	    statement.op == OP_SRA64)
 	{
 		if(src2cst && ((src2cst->m_valueLow & 0x3F) == 0))
 		{
@@ -807,9 +803,9 @@ bool CJitter::FoldConstant12832Operation(STATEMENT& statement)
 	bool changed = false;
 
 	if(
-		statement.op == OP_MD_SLLH ||
-		statement.op == OP_MD_SRLH ||
-		statement.op == OP_MD_SRAH)
+	    statement.op == OP_MD_SLLH ||
+	    statement.op == OP_MD_SRLH ||
+	    statement.op == OP_MD_SRAH)
 	{
 		if(src2cst && ((src2cst->m_valueLow & 0xF) == 0))
 		{
@@ -819,9 +815,9 @@ bool CJitter::FoldConstant12832Operation(STATEMENT& statement)
 		}
 	}
 	else if(
-		statement.op == OP_MD_SLLW ||
-		statement.op == OP_MD_SRLW ||
-		statement.op == OP_MD_SRAW)
+	    statement.op == OP_MD_SLLW ||
+	    statement.op == OP_MD_SRLW ||
+	    statement.op == OP_MD_SRAW)
 	{
 		if(src2cst && ((src2cst->m_valueLow & 0x1F) == 0))
 		{
@@ -858,14 +854,14 @@ void CJitter::FixFlowControl(StatementList& statements)
 			assert(labelIterator != m_labels.end());
 			if(labelIterator == m_labels.end()) continue;
 
-			statement.op		= OP_JMP;
-			statement.jmpBlock	= labelIterator->second;
+			statement.op = OP_JMP;
+			statement.jmpBlock = labelIterator->second;
 		}
 	}
 
 	//Remove any excess flow control instructions
 	for(StatementList::iterator statementIterator(statements.begin());
-		statementIterator != statements.end(); ++statementIterator)
+	    statementIterator != statements.end(); ++statementIterator)
 	{
 		const STATEMENT& statement(*statementIterator);
 
@@ -885,12 +881,10 @@ void CJitter::MergeBasicBlocks(BASIC_BLOCK& dstBlock, const BASIC_BLOCK& srcBloc
 	for(auto statement : srcBlock.statements)
 	{
 		statement.VisitOperands(
-			[&dstSymbolTable](SymbolRefPtr& symbolRef, bool)
-			{
-				auto symbol = symbolRef->GetSymbol();
-				symbolRef = std::make_shared<CSymbolRef>(dstSymbolTable.MakeSymbol(symbol));
-			}
-		);
+		    [&dstSymbolTable](SymbolRefPtr& symbolRef, bool) {
+			    auto symbol = symbolRef->GetSymbol();
+			    symbolRef = std::make_shared<CSymbolRef>(dstSymbolTable.MakeSymbol(symbol));
+		    });
 		dstBlock.statements.push_back(statement);
 	}
 
@@ -904,8 +898,8 @@ CJitter::BASIC_BLOCK CJitter::ConcatBlocks(const BasicBlockList& blocks)
 	{
 		//First, add a mark label statement
 		STATEMENT labelStatement;
-		labelStatement.op		= OP_LABEL;
-		labelStatement.jmpBlock	= basicBlock.id;
+		labelStatement.op = OP_LABEL;
+		labelStatement.jmpBlock = basicBlock.id;
 		result.statements.push_back(labelStatement);
 
 		MergeBasicBlocks(result, basicBlock);
@@ -924,7 +918,7 @@ bool CJitter::PruneBlocks()
 
 		auto toDeleteIterator = m_basicBlocks.cend();
 		for(auto outerBlockIterator(m_basicBlocks.cbegin());
-			outerBlockIterator != m_basicBlocks.cend(); outerBlockIterator++)
+		    outerBlockIterator != m_basicBlocks.cend(); outerBlockIterator++)
 		{
 			//First block is always referenced
 			if(outerBlockIterator == m_basicBlocks.begin()) continue;
@@ -934,7 +928,7 @@ bool CJitter::PruneBlocks()
 
 			//Check if there's a reference to this block in here
 			for(auto innerBlockIterator(m_basicBlocks.cbegin());
-				innerBlockIterator != m_basicBlocks.cend(); innerBlockIterator++)
+			    innerBlockIterator != m_basicBlocks.cend(); innerBlockIterator++)
 			{
 				const auto& block(*innerBlockIterator);
 				bool referencesNext = false;
@@ -1004,7 +998,7 @@ void CJitter::HarmonizeBlocks()
 {
 	//Remove any jumps that jump to the next block
 	for(BasicBlockList::iterator blockIterator(m_basicBlocks.begin());
-		blockIterator != m_basicBlocks.end(); ++blockIterator)
+	    blockIterator != m_basicBlocks.end(); ++blockIterator)
 	{
 		BasicBlockList::iterator nextBlockIterator(blockIterator);
 		++nextBlockIterator;
@@ -1025,7 +1019,7 @@ void CJitter::HarmonizeBlocks()
 
 	//Flag any block that have a reference from a jump
 	for(BasicBlockList::iterator outerBlockIterator(m_basicBlocks.begin());
-		outerBlockIterator != m_basicBlocks.end(); ++outerBlockIterator)
+	    outerBlockIterator != m_basicBlocks.end(); ++outerBlockIterator)
 	{
 		auto& outerBlock(*outerBlockIterator);
 		outerBlock.hasJumpRef = false;
@@ -1060,7 +1054,7 @@ bool CJitter::MergeBlocks()
 	{
 		changed = false;
 		for(BasicBlockList::iterator blockIterator(m_basicBlocks.begin());
-			m_basicBlocks.end() != blockIterator; ++blockIterator)
+		    m_basicBlocks.end() != blockIterator; ++blockIterator)
 		{
 			BasicBlockList::iterator nextBlockIterator(blockIterator);
 			++nextBlockIterator;
@@ -1099,7 +1093,7 @@ bool CJitter::ConstantPropagation(StatementList& statements)
 	bool changed = false;
 
 	for(StatementList::iterator outerStatementIterator(statements.begin());
-		statements.end() != outerStatementIterator; ++outerStatementIterator)
+	    statements.end() != outerStatementIterator; ++outerStatementIterator)
 	{
 		STATEMENT& outerStatement(*outerStatementIterator);
 
@@ -1114,22 +1108,20 @@ bool CJitter::ConstantPropagation(StatementList& statements)
 
 		//Find anything that uses this operand and replace it with the constant
 		for(StatementList::iterator innerStatementIterator(outerStatementIterator);
-			statements.end() != innerStatementIterator; ++innerStatementIterator)
+		    statements.end() != innerStatementIterator; ++innerStatementIterator)
 		{
 			if(outerStatementIterator == innerStatementIterator) continue;
 
 			auto& innerStatement(*innerStatementIterator);
-			
+
 			innerStatement.VisitSources(
-				[&] (SymbolRefPtr& symbol, bool)
-				{
-					if(symbol->Equals(outerStatement.dst.get()))
-					{
-						symbol = outerStatement.src1;
-						changed = true;
-					}
-				}
-			);
+			    [&](SymbolRefPtr& symbol, bool) {
+				    if(symbol->Equals(outerStatement.dst.get()))
+				    {
+					    symbol = outerStatement.src1;
+					    changed = true;
+				    }
+			    });
 		}
 	}
 	return changed;
@@ -1140,7 +1132,7 @@ bool CJitter::ReorderAdd(StatementList& statements)
 	bool changed = false;
 
 	for(auto statementIterator(statements.begin());
-		statements.end() != statementIterator; ++statementIterator)
+	    statements.end() != statementIterator; ++statementIterator)
 	{
 		auto& statement(*statementIterator);
 
@@ -1273,9 +1265,8 @@ bool CJitter::CopyPropagation(StatementList& statements)
 		// - t1 = r0 + 30   //innerStatement
 		//After substitution, t0 will not be used anymore making outerStatement eligible for removal
 		else if(
-			(outerStatement.op == innerStatement.op) && 
-			((innerStatement.op == OP_ADD) || (innerStatement.op == OP_ADDREF))
-			)
+		    (outerStatement.op == innerStatement.op) &&
+		    ((innerStatement.op == OP_ADD) || (innerStatement.op == OP_ADDREF)))
 		{
 			auto innerSrc2cst = dynamic_symbolref_cast(SYM_CONSTANT, innerStatement.src2);
 			auto outerSrc2cst = dynamic_symbolref_cast(SYM_CONSTANT, outerStatement.src2);
@@ -1365,7 +1356,7 @@ bool CJitter::DeadcodeElimination(VERSIONED_STATEMENT_LIST& versionedStatementLi
 	ToDeleteList toDelete;
 
 	for(auto outerStatementIterator(versionedStatementList.statements.begin());
-		versionedStatementList.statements.end() != outerStatementIterator; ++outerStatementIterator)
+	    versionedStatementList.statements.end() != outerStatementIterator; ++outerStatementIterator)
 	{
 		auto& outerStatement(*outerStatementIterator);
 		const auto& symbolRef(outerStatement.dst);
@@ -1389,30 +1380,28 @@ bool CJitter::DeadcodeElimination(VERSIONED_STATEMENT_LIST& versionedStatementLi
 		//Look for any possible use of this symbol
 		bool used = false;
 		for(auto innerStatementIterator(outerStatementIterator);
-			versionedStatementList.statements.end() != innerStatementIterator; ++innerStatementIterator)
+		    versionedStatementList.statements.end() != innerStatementIterator; ++innerStatementIterator)
 		{
 			if(outerStatementIterator == innerStatementIterator) continue;
 
 			const auto& innerStatement(*innerStatementIterator);
-			
-			innerStatement.VisitSources(
-				[&](const SymbolRefPtr& innerSymbolRef, bool)
-				{
-					if(innerSymbolRef->Equals(symbolRef.get()))
-					{
-						used = true;
-						return;
-					}
 
-					auto symbol(innerSymbolRef->GetSymbol());
-					if(!symbol->Equals(candidate) && symbol->Aliases(candidate))
-					{
-						used = true;
-						return;
-					}
-				}
-			);
-			
+			innerStatement.VisitSources(
+			    [&](const SymbolRefPtr& innerSymbolRef, bool) {
+				    if(innerSymbolRef->Equals(symbolRef.get()))
+				    {
+					    used = true;
+					    return;
+				    }
+
+				    auto symbol(innerSymbolRef->GetSymbol());
+				    if(!symbol->Equals(candidate) && symbol->Aliases(candidate))
+				    {
+					    used = true;
+					    return;
+				    }
+			    });
+
 			if(used) break;
 		}
 
@@ -1424,7 +1413,7 @@ bool CJitter::DeadcodeElimination(VERSIONED_STATEMENT_LIST& versionedStatementLi
 	}
 
 	for(ToDeleteList::const_iterator deleteIterator(toDelete.begin());
-		toDelete.end() != deleteIterator; ++deleteIterator)
+	    toDelete.end() != deleteIterator; ++deleteIterator)
 	{
 		versionedStatementList.statements.erase(*deleteIterator);
 		changed = true;
@@ -1439,7 +1428,7 @@ void CJitter::CoalesceTemporaries(BASIC_BLOCK& basicBlock)
 	EncounteredTempList encounteredTemps;
 
 	for(auto outerStatementIterator(basicBlock.statements.begin());
-		basicBlock.statements.end() != outerStatementIterator; ++outerStatementIterator)
+	    basicBlock.statements.end() != outerStatementIterator; ++outerStatementIterator)
 	{
 		auto& outerStatement(*outerStatementIterator);
 
@@ -1458,22 +1447,20 @@ void CJitter::CoalesceTemporaries(BASIC_BLOCK& basicBlock)
 			bool used = false;
 
 			for(auto innerStatementIterator(outerStatementIterator);
-				basicBlock.statements.end() != innerStatementIterator; ++innerStatementIterator)
+			    basicBlock.statements.end() != innerStatementIterator; ++innerStatementIterator)
 			{
 				if(outerStatementIterator == innerStatementIterator) continue;
 
 				const auto& innerStatement(*innerStatementIterator);
 				innerStatement.VisitOperands(
-					[&](const SymbolRefPtr& symbolRef, bool)
-					{
-						auto symbol = symbolRef->GetSymbol();
-						if(symbol->Equals(encounteredTemp))
-						{
-							used = true;
-						}
-					}
-				);
-				
+				    [&](const SymbolRefPtr& symbolRef, bool) {
+					    auto symbol = symbolRef->GetSymbol();
+					    if(symbol->Equals(encounteredTemp))
+					    {
+						    used = true;
+					    }
+				    });
+
 				if(used) break;
 			}
 
@@ -1496,7 +1483,7 @@ void CJitter::CoalesceTemporaries(BASIC_BLOCK& basicBlock)
 
 			//Replace all occurences of this temp with the candidate
 			for(auto innerStatementIterator(outerStatementIterator);
-				basicBlock.statements.end() != innerStatementIterator; ++innerStatementIterator)
+			    basicBlock.statements.end() != innerStatementIterator; ++innerStatementIterator)
 			{
 				if(outerStatementIterator == innerStatementIterator) continue;
 
@@ -1542,7 +1529,7 @@ void CJitter::CoalesceTemporaries(BASIC_BLOCK& basicBlock)
 void CJitter::RemoveSelfAssignments(BASIC_BLOCK& basicBlock)
 {
 	for(StatementList::iterator outerStatementIterator(basicBlock.statements.begin());
-		basicBlock.statements.end() != outerStatementIterator; )
+	    basicBlock.statements.end() != outerStatementIterator;)
 	{
 		STATEMENT& outerStatement(*outerStatementIterator);
 
@@ -1565,16 +1552,14 @@ void CJitter::PruneSymbols(BASIC_BLOCK& basicBlock) const
 	for(const auto& statement : basicBlock.statements)
 	{
 		statement.VisitOperands(
-			[&] (const SymbolRefPtr& symbolRef, bool)
-			{
-				const auto& symbol = symbolRef->GetSymbol();
-				symbolUseCount[symbol.get()]++;
-			}
-		);
+		    [&](const SymbolRefPtr& symbolRef, bool) {
+			    const auto& symbol = symbolRef->GetSymbol();
+			    symbolUseCount[symbol.get()]++;
+		    });
 	}
 
 	for(auto symbolIterator(std::begin(symbolTable.GetSymbols()));
-		symbolIterator != std::end(symbolTable.GetSymbols());)
+	    symbolIterator != std::end(symbolTable.GetSymbols());)
 	{
 		const auto& symbol(*symbolIterator);
 		if(symbolUseCount.find(symbol.get()) == std::end(symbolUseCount))
@@ -1646,7 +1631,7 @@ unsigned int CJitter::AllocateStack(BASIC_BLOCK& basicBlock)
 
 void CJitter::NormalizeStatements(BASIC_BLOCK& basicBlock)
 {
-	//Reorganize the commutative statements 
+	//Reorganize the commutative statements
 	//1. Always have registers as the first operand
 	//2. Always have constants as the last operand
 
@@ -1657,46 +1642,46 @@ void CJitter::NormalizeStatements(BASIC_BLOCK& basicBlock)
 
 		switch(statement.op)
 		{
-			case OP_ADD:
-			case OP_ADD64:
-			case OP_AND:
-			case OP_AND64:
-			case OP_OR:
-			case OP_XOR:
-			case OP_MUL:
-			case OP_MULS:
-			case OP_MD_AND:
-			case OP_MD_OR:
-			case OP_MD_XOR:
-			case OP_MD_ADD_B:
-			case OP_MD_ADD_H:
-			case OP_MD_ADD_W:
-			case OP_MD_ADDSS_H:
-			case OP_MD_ADDSS_W:
-			case OP_MD_ADDUS_B:
-			case OP_MD_ADDUS_W:
-			case OP_MD_CMPEQ_B:
-			case OP_MD_CMPEQ_H:
-			case OP_MD_CMPEQ_W:
-			case OP_MD_MIN_H:
-			case OP_MD_MIN_W:
-			case OP_MD_MAX_H:
-			case OP_MD_MAX_W:
-			case OP_MD_ADD_S:
-			case OP_MD_MUL_S:
-			case OP_MD_MIN_S:
-			case OP_MD_MAX_S:
-				isCommutative = true;
-				break;
-			case OP_CMP:
-			case OP_CMP64:
-			case OP_CONDJMP:
-				isCommutative = true;
-				conditionSwapRequired = true;
-				break;
-			default:
-				isCommutative = false;
-				break;
+		case OP_ADD:
+		case OP_ADD64:
+		case OP_AND:
+		case OP_AND64:
+		case OP_OR:
+		case OP_XOR:
+		case OP_MUL:
+		case OP_MULS:
+		case OP_MD_AND:
+		case OP_MD_OR:
+		case OP_MD_XOR:
+		case OP_MD_ADD_B:
+		case OP_MD_ADD_H:
+		case OP_MD_ADD_W:
+		case OP_MD_ADDSS_H:
+		case OP_MD_ADDSS_W:
+		case OP_MD_ADDUS_B:
+		case OP_MD_ADDUS_W:
+		case OP_MD_CMPEQ_B:
+		case OP_MD_CMPEQ_H:
+		case OP_MD_CMPEQ_W:
+		case OP_MD_MIN_H:
+		case OP_MD_MIN_W:
+		case OP_MD_MAX_H:
+		case OP_MD_MAX_W:
+		case OP_MD_ADD_S:
+		case OP_MD_MUL_S:
+		case OP_MD_MIN_S:
+		case OP_MD_MAX_S:
+			isCommutative = true;
+			break;
+		case OP_CMP:
+		case OP_CMP64:
+		case OP_CONDJMP:
+			isCommutative = true;
+			conditionSwapRequired = true;
+			break;
+		default:
+			isCommutative = false;
+			break;
 		}
 
 		if(!isCommutative) continue;
@@ -1717,7 +1702,7 @@ void CJitter::NormalizeStatements(BASIC_BLOCK& basicBlock)
 
 		//Check if register operand is at the end and swap if it is the case
 		{
-			bool dstreg  = statement.dst && statement.dst->GetSymbol()->IsRegister();
+			bool dstreg = statement.dst && statement.dst->GetSymbol()->IsRegister();
 			bool src1reg = statement.src1->GetSymbol()->IsRegister();
 			bool src2reg = statement.src2->GetSymbol()->IsRegister();
 
@@ -1726,8 +1711,8 @@ void CJitter::NormalizeStatements(BASIC_BLOCK& basicBlock)
 				std::swap(statement.src1, statement.src2);
 				swapped = true;
 			}
-			else if(dstreg && src1reg && src2reg && 
-				statement.dst->GetSymbol()->Equals(statement.src2->GetSymbol().get()))
+			else if(dstreg && src1reg && src2reg &&
+			        statement.dst->GetSymbol()->Equals(statement.src2->GetSymbol().get()))
 			{
 				//If all operands are registers and dst is equal to src2, swap to make dst and src2 side by side
 				std::swap(statement.src1, statement.src2);

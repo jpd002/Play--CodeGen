@@ -1,16 +1,16 @@
 #include "MemAccessTest.h"
 #include "MemStream.h"
 
-#define CONSTANT_1	(0xFFCC8844)
-#define CONSTANT_2	(0xDEADBEEF)
-#define CONSTANT_3	(0x55555555)
+#define CONSTANT_1 (0xFFCC8844)
+#define CONSTANT_2 (0xDEADBEEF)
+#define CONSTANT_3 (0x55555555)
 
 #define MEMORY_IDX_0 (1)
 #define MEMORY_IDX_1 (8)
 
-#define ARRAY_IDX_0	(5)
-#define ARRAY_IDX_1	(6)
-#define ARRAY_IDX_2	(7)
+#define ARRAY_IDX_0 (5)
+#define ARRAY_IDX_1 (6)
+#define ARRAY_IDX_2 (7)
 
 void CMemAccessTest::Run()
 {

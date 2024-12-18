@@ -41,11 +41,10 @@ namespace Jitter
 	{
 	public:
 		CSymbol(SYM_TYPE type, uint32 valueLow, uint32 valueHigh)
-			: m_type(type)
-			, m_valueLow(valueLow)
-			, m_valueHigh(valueHigh)
+		    : m_type(type)
+		    , m_valueLow(valueLow)
+		    , m_valueHigh(valueHigh)
 		{
-
 		}
 
 		std::string ToString() const
@@ -151,21 +150,19 @@ namespace Jitter
 
 		bool IsRegister() const
 		{
-			return
-				(m_type == SYM_REGISTER) ||
-				(m_type == SYM_REG_REFERENCE) ||
-				(m_type == SYM_FP_REGISTER32) ||
-				(m_type == SYM_REGISTER128);
+			return (m_type == SYM_REGISTER) ||
+			       (m_type == SYM_REG_REFERENCE) ||
+			       (m_type == SYM_FP_REGISTER32) ||
+			       (m_type == SYM_REGISTER128);
 		}
 
 		bool IsRelative() const
 		{
-			return 
-				(m_type == SYM_RELATIVE) || 
-				(m_type == SYM_RELATIVE64) || 
-				(m_type == SYM_RELATIVE128) || 
-				(m_type == SYM_REL_REFERENCE) ||
-				(m_type == SYM_FP_RELATIVE32);
+			return (m_type == SYM_RELATIVE) ||
+			       (m_type == SYM_RELATIVE64) ||
+			       (m_type == SYM_RELATIVE128) ||
+			       (m_type == SYM_REL_REFERENCE) ||
+			       (m_type == SYM_FP_RELATIVE32);
 		}
 
 		bool IsConstant() const
@@ -175,22 +172,20 @@ namespace Jitter
 
 		bool IsTemporary() const
 		{
-			return 
-				(m_type == SYM_TEMPORARY) || 
-				(m_type == SYM_TEMPORARY64) || 
-				(m_type == SYM_TEMPORARY128) || 
-				(m_type == SYM_TEMPORARY256) ||
-				(m_type == SYM_TMP_REFERENCE) ||
-				(m_type == SYM_FP_TEMPORARY32);
+			return (m_type == SYM_TEMPORARY) ||
+			       (m_type == SYM_TEMPORARY64) ||
+			       (m_type == SYM_TEMPORARY128) ||
+			       (m_type == SYM_TEMPORARY256) ||
+			       (m_type == SYM_TMP_REFERENCE) ||
+			       (m_type == SYM_FP_TEMPORARY32);
 		}
 
 		bool Equals(CSymbol* symbol) const
 		{
-			return 
-				(symbol) &&
-				(symbol->m_type == m_type) &&
-				(symbol->m_valueLow == m_valueLow) &&
-				(symbol->m_valueHigh == m_valueHigh);
+			return (symbol) &&
+			       (symbol->m_type == m_type) &&
+			       (symbol->m_valueLow == m_valueLow) &&
+			       (symbol->m_valueHigh == m_valueHigh);
 		}
 
 		uint64 GetConstant64() const
@@ -198,13 +193,13 @@ namespace Jitter
 			assert(m_type == SYM_CONSTANT64);
 			return static_cast<uint64>(m_valueLow) | (static_cast<uint64>(m_valueHigh) << 32);
 		}
-		
+
 		uintptr_t GetConstantPtr() const
 		{
 			assert(m_type == SYM_CONSTANTPTR);
-#if (UINTPTR_MAX == UINT32_MAX)
+#if(UINTPTR_MAX == UINT32_MAX)
 			return m_valueLow;
-#elif (UINTPTR_MAX == UINT64_MAX)
+#elif(UINTPTR_MAX == UINT64_MAX)
 			return static_cast<uint64>(m_valueLow) | (static_cast<uint64>(m_valueHigh) << 32);
 #else
 			static_assert(false, "Unsupported pointer size.");
@@ -223,11 +218,11 @@ namespace Jitter
 			return (start1 < end2) && (start2 < end1);
 		}
 
-		SYM_TYPE				m_type;
-		uint32					m_valueLow;
-		uint32					m_valueHigh;
+		SYM_TYPE m_type;
+		uint32 m_valueLow;
+		uint32 m_valueHigh;
 
-		unsigned int			m_stackLocation = -1;
+		unsigned int m_stackLocation = -1;
 	};
 
 	typedef std::shared_ptr<CSymbol> SymbolPtr;

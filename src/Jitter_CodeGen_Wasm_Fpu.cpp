@@ -144,7 +144,7 @@ void CCodeGen_Wasm::Emit_Fp_Clamp_MemMem(const STATEMENT& statement)
 		m_functionStream.Write8(Wasm::INST_PREFIX_SIMD);
 		CWasmModuleBuilder::WriteULeb128(m_functionStream, Wasm::INST_F32x4_SPLAT);
 	}
-	
+
 	//Load first constant
 	{
 		m_functionStream.Write8(Wasm::INST_I32_CONST);
@@ -220,17 +220,18 @@ void CCodeGen_Wasm::Emit_Fp_LdCst_TmpCst(const STATEMENT& statement)
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
 
-	assert(dst->m_type  == SYM_FP_TEMPORARY32);
+	assert(dst->m_type == SYM_FP_TEMPORARY32);
 	assert(src1->m_type == SYM_CONSTANT);
 
 	PrepareSymbolDef(dst);
-	
+
 	m_functionStream.Write8(Wasm::INST_F32_CONST);
 	m_functionStream.Write32(src1->m_valueLow);
 
 	CommitSymbol(dst);
 }
 
+// clang-format off
 CCodeGen_Wasm::CONSTMATCHER CCodeGen_Wasm::g_fpuConstMatchers[] =
 {
 	{ OP_FP_ADD_S,           MATCH_FP_MEMORY32,      MATCH_FP_MEMORY32,   MATCH_FP_MEMORY32,  MATCH_NIL,      &CCodeGen_Wasm::Emit_Fpu_MemMemMem<Wasm::INST_F32_ADD>       },
@@ -259,3 +260,4 @@ CCodeGen_Wasm::CONSTMATCHER CCodeGen_Wasm::g_fpuConstMatchers[] =
 
 	{ OP_MOV,                MATCH_NIL,              MATCH_NIL,           MATCH_NIL,          MATCH_NIL,      nullptr                                                      },
 };
+// clang-format on

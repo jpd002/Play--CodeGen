@@ -12,10 +12,9 @@
 #define MEMORY_IDX_3_VALUE (0x01234567)
 
 CMemAccessIdxTest::CMemAccessIdxTest(bool useNaturalAccessScale)
-	: m_accessScale(useNaturalAccessScale ? sizeof(UnitType) : 1)
-	, m_indexScale(useNaturalAccessScale ? 1 : sizeof(UnitType))
+    : m_accessScale(useNaturalAccessScale ? sizeof(UnitType) : 1)
+    , m_indexScale(useNaturalAccessScale ? 1 : sizeof(UnitType))
 {
-
 }
 
 void CMemAccessIdxTest::Run()

@@ -5,8 +5,8 @@
 class CReorderAddTest : public CTest
 {
 public:
-	void				Compile(Jitter::CJitter&);
-	void				Run();
+	void Compile(Jitter::CJitter&);
+	void Run();
 
 private:
 	struct CONTEXT
@@ -16,6 +16,6 @@ private:
 		uint32 result2;
 	};
 
-	CONTEXT				m_context;
-	FunctionType		m_function;
+	CONTEXT m_context;
+	FunctionType m_function;
 };

@@ -8,7 +8,7 @@ void CHugeJumpTest::Compile(Jitter::CJitter& jitter)
 	jitter.SetStream(&codeStream);
 
 	jitter.Begin();
-	{		
+	{
 		jitter.PushRel(offsetof(CONTEXT, condition));
 		jitter.PushCst(0);
 

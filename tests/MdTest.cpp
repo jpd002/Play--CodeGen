@@ -55,7 +55,7 @@ void CMdTest::Run()
 {
 	CONTEXT ALIGN16 context;
 	memset(&context, 0, sizeof(CONTEXT));
-	
+
 	for(unsigned int i = 0; i < 16; i++)
 	{
 		context.src0[i] = i;
@@ -79,6 +79,7 @@ void CMdTest::Run()
 
 	m_function(&context);
 
+	// clang-format off
 	static const uint8 dstMovRes[16] =
 	{
 		0x00, 0x10, 0x20, 0x30,
@@ -128,15 +129,16 @@ void CMdTest::Run()
 		0x08, 0x09,
 		0x0C, 0x0D,
 	};
+	// clang-format on
 
 	for(unsigned int i = 0; i < 16; i++)
 	{
-		TEST_VERIFY(dstMovRes[i]			== context.dstMov[i]);
-		TEST_VERIFY(dstSrl256_1[i]			== context.dstSrl256_1[i]);
-		TEST_VERIFY(dstSrl256_2[i]			== context.dstSrl256_2[i]);
-		TEST_VERIFY(dstPackHBRes[i]			== context.dstPackHB[i]);
-		TEST_VERIFY(dstPackWHRes[i]			== context.dstPackWH[i]);
-		TEST_VERIFY(dstPackHBRes[i]			== context.dstPackHBAlias[i]);
-		TEST_VERIFY(dstPackWHRes[i]			== context.dstPackWHAlias[i]);
+		TEST_VERIFY(dstMovRes[i] == context.dstMov[i]);
+		TEST_VERIFY(dstSrl256_1[i] == context.dstSrl256_1[i]);
+		TEST_VERIFY(dstSrl256_2[i] == context.dstSrl256_2[i]);
+		TEST_VERIFY(dstPackHBRes[i] == context.dstPackHB[i]);
+		TEST_VERIFY(dstPackWHRes[i] == context.dstPackWH[i]);
+		TEST_VERIFY(dstPackHBRes[i] == context.dstPackHBAlias[i]);
+		TEST_VERIFY(dstPackWHRes[i] == context.dstPackWHAlias[i]);
 	}
 }

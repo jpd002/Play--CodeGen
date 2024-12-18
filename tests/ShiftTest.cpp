@@ -5,9 +5,8 @@
 #define CONSTANT_2 (0xFEDCBA98ULL)
 
 CShiftTest::CShiftTest(uint32 shiftAmount)
-: m_shiftAmount(shiftAmount)
+    : m_shiftAmount(shiftAmount)
 {
-
 }
 
 void CShiftTest::Run()

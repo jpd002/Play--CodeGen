@@ -60,7 +60,7 @@ void CCodeGen_Wasm::Emit_Div_Tmp64AnyAny(const STATEMENT& statement)
 
 	m_functionStream.Write8(Wasm::INST_I64_CONST);
 	CWasmModuleBuilder::WriteSLeb128(m_functionStream, 32);
-	
+
 	m_functionStream.Write8(Wasm::INST_I64_SHL);
 
 	//Combine
@@ -285,7 +285,7 @@ void CCodeGen_Wasm::GenerateCode(const StatementList& statements, unsigned int s
 	//Terminate current block
 	assert(m_isInsideBlock);
 	m_functionStream.Write8(Wasm::INST_END);
-	
+
 	//Terminate loop
 	if(m_isInsideLoop)
 	{
@@ -568,42 +568,40 @@ void CCodeGen_Wasm::PrepareLocalVars(const StatementList& statements)
 	for(const auto& statement : statements)
 	{
 		statement.VisitOperands(
-			[this](const SymbolRefPtr& symbolRef, bool isDef)
-			{
-				auto symbol = symbolRef->GetSymbol();
-				if(!symbol->IsTemporary()) return;
-				auto temporaryInstance = std::make_pair(symbol->m_type, symbol->m_stackLocation);
-				if(m_temporaryLocations.find(temporaryInstance) != std::end(m_temporaryLocations)) return;
-				switch(symbol->m_type)
-				{
-				case SYM_TEMPORARY:
-				case SYM_TMP_REFERENCE:
-					m_temporaryLocations[temporaryInstance] = m_localI32Count;
-					m_localI32Count++;
-					break;
-				case SYM_TEMPORARY64:
-					m_temporaryLocations[temporaryInstance] = m_localI64Count;
-					m_localI64Count++;
-					break;
-				case SYM_FP_TEMPORARY32:
-					m_temporaryLocations[temporaryInstance] = m_localF32Count;
-					m_localF32Count++;
-					break;
-				case SYM_TEMPORARY128:
-					m_temporaryLocations[temporaryInstance] = m_localV128Count;
-					m_localV128Count++;
-					break;
-				case SYM_TEMPORARY256:
-					//Allocate 2 v128 for a 256-bit temp
-					m_temporaryLocations[temporaryInstance] = m_localV128Count;
-					m_localV128Count += 2;
-					break;
-				default:
-					assert(false);
-					break;
-				}
-			}
-		);
+		    [this](const SymbolRefPtr& symbolRef, bool isDef) {
+			    auto symbol = symbolRef->GetSymbol();
+			    if(!symbol->IsTemporary()) return;
+			    auto temporaryInstance = std::make_pair(symbol->m_type, symbol->m_stackLocation);
+			    if(m_temporaryLocations.find(temporaryInstance) != std::end(m_temporaryLocations)) return;
+			    switch(symbol->m_type)
+			    {
+			    case SYM_TEMPORARY:
+			    case SYM_TMP_REFERENCE:
+				    m_temporaryLocations[temporaryInstance] = m_localI32Count;
+				    m_localI32Count++;
+				    break;
+			    case SYM_TEMPORARY64:
+				    m_temporaryLocations[temporaryInstance] = m_localI64Count;
+				    m_localI64Count++;
+				    break;
+			    case SYM_FP_TEMPORARY32:
+				    m_temporaryLocations[temporaryInstance] = m_localF32Count;
+				    m_localF32Count++;
+				    break;
+			    case SYM_TEMPORARY128:
+				    m_temporaryLocations[temporaryInstance] = m_localV128Count;
+				    m_localV128Count++;
+				    break;
+			    case SYM_TEMPORARY256:
+				    //Allocate 2 v128 for a 256-bit temp
+				    m_temporaryLocations[temporaryInstance] = m_localV128Count;
+				    m_localV128Count += 2;
+				    break;
+			    default:
+				    assert(false);
+				    break;
+			    }
+		    });
 	}
 }
 
@@ -651,11 +649,10 @@ void CCodeGen_Wasm::PushContext()
 void CCodeGen_Wasm::PushRelativeAddress(CSymbol* symbol)
 {
 	assert(
-		(symbol->m_type == SYM_RELATIVE) ||
-		(symbol->m_type == SYM_RELATIVE64) ||
-		(symbol->m_type == SYM_FP_RELATIVE32) ||
-		(symbol->m_type == SYM_RELATIVE128)
-	);
+	    (symbol->m_type == SYM_RELATIVE) ||
+	    (symbol->m_type == SYM_RELATIVE64) ||
+	    (symbol->m_type == SYM_FP_RELATIVE32) ||
+	    (symbol->m_type == SYM_RELATIVE128));
 
 	PushContext();
 
@@ -1323,7 +1320,7 @@ void CCodeGen_Wasm::Emit_Lzc_AnyAny(const STATEMENT& statement)
 
 	//Check if MSB is 0 or 1
 	PrepareSymbolUse(src1);
-	
+
 	m_functionStream.Write8(Wasm::INST_I32_CONST);
 	CWasmModuleBuilder::WriteSLeb128(m_functionStream, 0);
 
@@ -1338,7 +1335,7 @@ void CCodeGen_Wasm::Emit_Lzc_AnyAny(const STATEMENT& statement)
 		CWasmModuleBuilder::WriteSLeb128(m_functionStream, -1);
 
 		m_functionStream.Write8(Wasm::INST_I32_XOR);
-		
+
 		m_functionStream.Write8(Wasm::INST_I32_CLZ);
 
 		m_functionStream.Write8(Wasm::INST_I32_CONST);
@@ -1358,7 +1355,7 @@ void CCodeGen_Wasm::Emit_Lzc_AnyAny(const STATEMENT& statement)
 		m_functionStream.Write8(Wasm::INST_I32_SUB);
 	}
 	m_functionStream.Write8(Wasm::INST_END);
-	
+
 	CommitSymbol(dst);
 }
 

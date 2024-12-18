@@ -83,7 +83,7 @@ void CCodeGen_Wasm::Emit_MergeTo64_Mem64AnyAny(const STATEMENT& statement)
 
 	m_functionStream.Write8(Wasm::INST_I64_CONST);
 	CWasmModuleBuilder::WriteSLeb128(m_functionStream, 32);
-	
+
 	m_functionStream.Write8(Wasm::INST_I64_SHL);
 
 	//Combine
@@ -184,6 +184,7 @@ void CCodeGen_Wasm::Emit_RetVal_Tmp64(const STATEMENT& statement)
 	PullTemporary64(dst);
 }
 
+// clang-format off
 CCodeGen_Wasm::CONSTMATCHER CCodeGen_Wasm::g_64ConstMatchers[] =
 {
 	{ OP_MOV,            MATCH_MEMORY64,       MATCH_MEMORY64,       MATCH_NIL,           MATCH_NIL, &CCodeGen_Wasm::Emit_Mov64_MemAny                        },
@@ -221,3 +222,4 @@ CCodeGen_Wasm::CONSTMATCHER CCodeGen_Wasm::g_64ConstMatchers[] =
 
 	{ OP_MOV,            MATCH_NIL,            MATCH_NIL,            MATCH_NIL,           MATCH_NIL, nullptr                                                  },
 };
+// clang-format on

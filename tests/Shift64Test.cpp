@@ -5,9 +5,8 @@
 #define CONSTANT_2 (0x0123456789ABCDEFULL)
 
 CShift64Test::CShift64Test(uint32 shiftAmount)
-: m_shiftAmount(shiftAmount)
+    : m_shiftAmount(shiftAmount)
 {
-
 }
 
 void CShift64Test::Run()

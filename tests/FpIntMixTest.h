@@ -5,8 +5,8 @@
 class CFpIntMixTest : public CTest
 {
 public:
-	void				Compile(Jitter::CJitter&) override;
-	void				Run() override;
+	void Compile(Jitter::CJitter&) override;
+	void Run() override;
 
 private:
 	struct CONTEXT
@@ -19,6 +19,6 @@ private:
 		uint32 result2;
 	};
 
-	CONTEXT				m_context;
-	FunctionType		m_function;
+	CONTEXT m_context;
+	FunctionType m_function;
 };

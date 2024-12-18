@@ -90,7 +90,7 @@ void CMdAddTest::Run()
 {
 	CONTEXT ALIGN16 context;
 	memset(&context, 0, sizeof(CONTEXT));
-	
+
 	for(unsigned int i = 0; i < 16; i++)
 	{
 		context.src0[i] = i;
@@ -111,6 +111,7 @@ void CMdAddTest::Run()
 
 	m_function(&context);
 
+	// clang-format off
 	static const uint8 dstAddBRes[16] =
 	{
 		0x00, 0x20, 0x40, 0x60,
@@ -187,16 +188,17 @@ void CMdAddTest::Run()
 		0x00, 0x21, 0x41, 0x61,
 		0x80, 0xA1, 0xC1, 0xE1
 	};
+	// clang-format on
 
 	for(unsigned int i = 0; i < 16; i++)
 	{
-		TEST_VERIFY(dstAddBRes[i]			== context.dstAddB[i]);
-		TEST_VERIFY(dstAddBUSRes[i]			== context.dstAddBUS[i]);
-		TEST_VERIFY(dstAddBSSRes[i]			== context.dstAddBSS[i]);
-		TEST_VERIFY(dstAddHRes[i]			== context.dstAddH[i]);
-		TEST_VERIFY(dstAddHUSRes[i]			== context.dstAddHUS[i]);
-		TEST_VERIFY(dstAddHSSRes[i]			== context.dstAddHSS[i]);
-		TEST_VERIFY(dstAddWRes[i]			== context.dstAddW[i]);
+		TEST_VERIFY(dstAddBRes[i] == context.dstAddB[i]);
+		TEST_VERIFY(dstAddBUSRes[i] == context.dstAddBUS[i]);
+		TEST_VERIFY(dstAddBSSRes[i] == context.dstAddBSS[i]);
+		TEST_VERIFY(dstAddHRes[i] == context.dstAddH[i]);
+		TEST_VERIFY(dstAddHUSRes[i] == context.dstAddHUS[i]);
+		TEST_VERIFY(dstAddHSSRes[i] == context.dstAddHSS[i]);
+		TEST_VERIFY(dstAddWRes[i] == context.dstAddW[i]);
 	}
 
 	for(unsigned int i = 0; i < 4; i++)

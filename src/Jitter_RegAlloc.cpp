@@ -53,21 +53,19 @@ void CJitter::AllocateRegisters(BASIC_BLOCK& basicBlock)
 			if(statementIdx > allocRange.second) break;
 
 			statement.VisitOperands(
-				[&] (SymbolRefPtr& symbolRef, bool)
-				{
-					auto symbol = symbolRef->GetSymbol();
-					auto symbolRegAllocIterator = symbolRegAllocs.find(symbol);
-					if(symbolRegAllocIterator != std::end(symbolRegAllocs))
-					{
-						const auto& symbolRegAlloc = symbolRegAllocIterator->second;
-						if(symbolRegAlloc.registerId != -1)
-						{
-							symbolRef = MakeSymbolRef(
-								symbolTable.MakeSymbol(symbolRegAlloc.registerType, symbolRegAlloc.registerId));
-						}
-					}
-				}
-			);
+			    [&](SymbolRefPtr& symbolRef, bool) {
+				    auto symbol = symbolRef->GetSymbol();
+				    auto symbolRegAllocIterator = symbolRegAllocs.find(symbol);
+				    if(symbolRegAllocIterator != std::end(symbolRegAllocs))
+				    {
+					    const auto& symbolRegAlloc = symbolRegAllocIterator->second;
+					    if(symbolRegAlloc.registerId != -1)
+					    {
+						    symbolRef = MakeSymbolRef(
+						        symbolTable.MakeSymbol(symbolRegAlloc.registerType, symbolRegAlloc.registerId));
+					    }
+				    }
+			    });
 		}
 
 		//Prepare load and spills
@@ -86,10 +84,10 @@ void CJitter::AllocateRegisters(BASIC_BLOCK& basicBlock)
 			if((symbolRegAlloc.firstUse != -1) && (symbolRegAlloc.firstUse <= symbolRegAlloc.firstDef))
 			{
 				STATEMENT statement;
-				statement.op	= OP_MOV;
-				statement.dst	= std::make_shared<CSymbolRef>(
-					symbolTable.MakeSymbol(symbolRegAlloc.registerType, symbolRegAlloc.registerId));
-				statement.src1	= std::make_shared<CSymbolRef>(symbol);
+				statement.op = OP_MOV;
+				statement.dst = std::make_shared<CSymbolRef>(
+				    symbolTable.MakeSymbol(symbolRegAlloc.registerType, symbolRegAlloc.registerId));
+				statement.src1 = std::make_shared<CSymbolRef>(symbol);
 
 				loadStatements.insert(std::make_pair(allocRange.first, statement));
 			}
@@ -100,10 +98,10 @@ void CJitter::AllocateRegisters(BASIC_BLOCK& basicBlock)
 			if(!deadTemporary && (symbolRegAlloc.firstDef != -1))
 			{
 				STATEMENT statement;
-				statement.op	= OP_MOV;
-				statement.dst	= std::make_shared<CSymbolRef>(symbol);
-				statement.src1	= std::make_shared<CSymbolRef>(
-					symbolTable.MakeSymbol(symbolRegAlloc.registerType, symbolRegAlloc.registerId));
+				statement.op = OP_MOV;
+				statement.dst = std::make_shared<CSymbolRef>(symbol);
+				statement.src1 = std::make_shared<CSymbolRef>(
+				    symbolTable.MakeSymbol(symbolRegAlloc.registerType, symbolRegAlloc.registerId));
 
 				spillStatements.insert(std::make_pair(allocRange.second, statement));
 			}
@@ -137,12 +135,11 @@ void CJitter::AllocateRegisters(BASIC_BLOCK& basicBlock)
 			const auto& statement = statementInfo.statement;
 			auto statementIterator = statementInfo.iterator;
 			if(
-				(statement.op != OP_CONDJMP) &&
-				(statement.op != OP_JMP) &&
-				(statement.op != OP_CALL) &&
-				(statement.op != OP_EXTERNJMP) &&
-				(statement.op != OP_EXTERNJMP_DYN)
-				)
+			    (statement.op != OP_CONDJMP) &&
+			    (statement.op != OP_JMP) &&
+			    (statement.op != OP_CALL) &&
+			    (statement.op != OP_EXTERNJMP) &&
+			    (statement.op != OP_EXTERNJMP_DYN))
 			{
 				statementIterator++;
 			}
@@ -155,8 +152,8 @@ void CJitter::AllocateRegisters(BASIC_BLOCK& basicBlock)
 	{
 		unsigned int statementIndex = loadPoint.first;
 		for(auto statementIterator = loadStatements.lower_bound(statementIndex);
-			statementIterator != loadStatements.upper_bound(statementIndex);
-			statementIterator++)
+		    statementIterator != loadStatements.upper_bound(statementIndex);
+		    statementIterator++)
 		{
 			const auto& statement(statementIterator->second);
 			basicBlock.statements.insert(loadPoint.second, statement);
@@ -168,8 +165,8 @@ void CJitter::AllocateRegisters(BASIC_BLOCK& basicBlock)
 	{
 		unsigned int statementIndex = spillPoint.first;
 		for(auto statementIterator = spillStatements.lower_bound(statementIndex);
-			statementIterator != spillStatements.upper_bound(statementIndex);
-			statementIterator++)
+		    statementIterator != spillStatements.upper_bound(statementIndex);
+		    statementIterator++)
 		{
 			const auto& statement(statementIterator->second);
 			basicBlock.statements.insert(spillPoint.second, statement);
@@ -206,14 +203,12 @@ void CJitter::AssociateSymbolsToRegisters(SymbolRegAllocInfo& symbolRegAllocs) c
 	}
 
 	auto isRegisterAllocatable =
-		[] (SYM_TYPE symbolType)
-		{
-			return 
-				(symbolType == SYM_RELATIVE) || (symbolType == SYM_TEMPORARY) ||
-				(symbolType == SYM_REL_REFERENCE) || (symbolType == SYM_TMP_REFERENCE) ||
-				(symbolType == SYM_FP_RELATIVE32) || (symbolType == SYM_FP_TEMPORARY32) ||
-				(symbolType == SYM_RELATIVE128) || (symbolType == SYM_TEMPORARY128);
-		};
+	    [](SYM_TYPE symbolType) {
+		    return (symbolType == SYM_RELATIVE) || (symbolType == SYM_TEMPORARY) ||
+		           (symbolType == SYM_REL_REFERENCE) || (symbolType == SYM_TMP_REFERENCE) ||
+		           (symbolType == SYM_FP_RELATIVE32) || (symbolType == SYM_FP_TEMPORARY32) ||
+		           (symbolType == SYM_RELATIVE128) || (symbolType == SYM_TEMPORARY128);
+	    };
 
 	//Sort symbols by usage count
 	std::list<SymbolRegAllocInfo::value_type*> sortedSymbols;
@@ -226,29 +221,27 @@ void CJitter::AssociateSymbolsToRegisters(SymbolRegAllocInfo& symbolRegAllocs) c
 		sortedSymbols.push_back(&symbolRegAllocPair);
 	}
 	sortedSymbols.sort(
-		[] (SymbolRegAllocInfo::value_type* symbolRegAllocPair1, SymbolRegAllocInfo::value_type* symbolRegAllocPair2)
-		{
-			const auto& symbol1(symbolRegAllocPair1->first);
-			const auto& symbol2(symbolRegAllocPair2->first);
-			const auto& symbolRegAlloc1(symbolRegAllocPair1->second);
-			const auto& symbolRegAlloc2(symbolRegAllocPair2->second);
-			if(symbolRegAlloc1.useCount == symbolRegAlloc2.useCount)
-			{
-				if(symbol1->m_type == symbol2->m_type)
-				{
-					return symbol1->m_valueLow > symbol2->m_valueLow;
-				}
-				else
-				{
-					return symbol1->m_type > symbol2->m_type;
-				}
-			}
-			else
-			{
-				return symbolRegAlloc1.useCount > symbolRegAlloc2.useCount;
-			}
-		}
-	);
+	    [](SymbolRegAllocInfo::value_type* symbolRegAllocPair1, SymbolRegAllocInfo::value_type* symbolRegAllocPair2) {
+		    const auto& symbol1(symbolRegAllocPair1->first);
+		    const auto& symbol2(symbolRegAllocPair2->first);
+		    const auto& symbolRegAlloc1(symbolRegAllocPair1->second);
+		    const auto& symbolRegAlloc2(symbolRegAllocPair2->second);
+		    if(symbolRegAlloc1.useCount == symbolRegAlloc2.useCount)
+		    {
+			    if(symbol1->m_type == symbol2->m_type)
+			    {
+				    return symbol1->m_valueLow > symbol2->m_valueLow;
+			    }
+			    else
+			    {
+				    return symbol1->m_type > symbol2->m_type;
+			    }
+		    }
+		    else
+		    {
+			    return symbolRegAlloc1.useCount > symbolRegAlloc2.useCount;
+		    }
+	    });
 
 	for(auto& symbolRegAllocPair : sortedSymbols)
 	{
@@ -323,38 +316,34 @@ void CJitter::ComputeLivenessForRange(const BASIC_BLOCK& basicBlock, const Alloc
 		if(statementIdx > allocRange.second) continue;
 
 		statement.VisitDestination(
-			[&] (const SymbolRefPtr& symbolRef, bool)
-			{
-				auto symbol(symbolRef->GetSymbol());
-				auto& symbolRegAlloc = symbolRegAllocs[symbol];
-				symbolRegAlloc.useCount++;
-				if(symbolRegAlloc.firstDef == -1)
-				{
-					symbolRegAlloc.firstDef = statementIdx;
-				}
-				if((symbolRegAlloc.lastDef == -1) || (statementIdx > symbolRegAlloc.lastDef))
-				{
-					symbolRegAlloc.lastDef = statementIdx;
-				}
-			}
-		);
+		    [&](const SymbolRefPtr& symbolRef, bool) {
+			    auto symbol(symbolRef->GetSymbol());
+			    auto& symbolRegAlloc = symbolRegAllocs[symbol];
+			    symbolRegAlloc.useCount++;
+			    if(symbolRegAlloc.firstDef == -1)
+			    {
+				    symbolRegAlloc.firstDef = statementIdx;
+			    }
+			    if((symbolRegAlloc.lastDef == -1) || (statementIdx > symbolRegAlloc.lastDef))
+			    {
+				    symbolRegAlloc.lastDef = statementIdx;
+			    }
+		    });
 
 		statement.VisitSources(
-			[&] (const SymbolRefPtr& symbolRef, bool)
-			{
-				auto symbol(symbolRef->GetSymbol());
-				auto& symbolRegAlloc = symbolRegAllocs[symbol];
-				symbolRegAlloc.useCount++;
-				if(symbolRegAlloc.firstUse == -1)
-				{
-					symbolRegAlloc.firstUse = statementIdx;
-				}
-				if((symbolRegAlloc.lastUse == -1) || (statementIdx > symbolRegAlloc.lastUse))
-				{
-					symbolRegAlloc.lastUse = statementIdx;
-				}
-			}
-		);
+		    [&](const SymbolRefPtr& symbolRef, bool) {
+			    auto symbol(symbolRef->GetSymbol());
+			    auto& symbolRegAlloc = symbolRegAllocs[symbol];
+			    symbolRegAlloc.useCount++;
+			    if(symbolRegAlloc.firstUse == -1)
+			    {
+				    symbolRegAlloc.firstUse = statementIdx;
+			    }
+			    if((symbolRegAlloc.lastUse == -1) || (statementIdx > symbolRegAlloc.lastUse))
+			    {
+				    symbolRegAlloc.lastUse = statementIdx;
+			    }
+		    });
 	}
 }
 
@@ -377,16 +366,14 @@ void CJitter::MarkAliasedSymbols(const BASIC_BLOCK& basicBlock, const Allocation
 			if(symbolRegAlloc.second.aliased) continue;
 			auto testedSymbol = symbolRegAlloc.first;
 			statement.VisitOperands(
-				[&](const SymbolRefPtr& symbolRef, bool)
-				{
-					auto symbol = symbolRef->GetSymbol();
-					if(symbol->Equals(testedSymbol.get())) return;
-					if(symbol->Aliases(testedSymbol.get()))
-					{
-						symbolRegAlloc.second.aliased = true;
-					}
-				}
-			);
+			    [&](const SymbolRefPtr& symbolRef, bool) {
+				    auto symbol = symbolRef->GetSymbol();
+				    if(symbol->Equals(testedSymbol.get())) return;
+				    if(symbol->Aliases(testedSymbol.get()))
+				    {
+					    symbolRegAlloc.second.aliased = true;
+				    }
+			    });
 		}
 	}
 }

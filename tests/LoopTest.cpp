@@ -8,7 +8,7 @@ void CLoopTest::Run()
 {
 	m_context = {};
 	m_context.counter = COUNTER_INIT;
-	
+
 	m_function(&m_context);
 
 	TEST_VERIFY(m_context.counter == 0);
@@ -29,7 +29,7 @@ void CLoopTest::Compile(Jitter::CJitter& jitter)
 		auto finalLabel = jitter.CreateLabel();
 
 		jitter.MarkLabel(loopLabel);
-		
+
 		jitter.PushRel(offsetof(CONTEXT, total));
 		jitter.PushCst(ADD_AMOUNT);
 		jitter.Add();
@@ -39,7 +39,7 @@ void CLoopTest::Compile(Jitter::CJitter& jitter)
 		jitter.PushCst(1);
 		jitter.Sub();
 		jitter.PullRel(offsetof(CONTEXT, counter));
-		
+
 		jitter.PushRel(offsetof(CONTEXT, counter));
 		jitter.PushCst(0);
 		jitter.BeginIf(Jitter::CONDITION_NE);

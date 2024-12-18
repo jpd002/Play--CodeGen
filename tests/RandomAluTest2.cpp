@@ -5,9 +5,8 @@
 #define TEST_NUMBER2 (0x8888FFFF)
 
 CRandomAluTest2::CRandomAluTest2(bool useConstant)
-: m_useConstant(useConstant)
+    : m_useConstant(useConstant)
 {
-
 }
 
 void CRandomAluTest2::Compile(Jitter::CJitter& jitter)

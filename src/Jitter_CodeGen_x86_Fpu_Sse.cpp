@@ -371,6 +371,7 @@ void CCodeGen_x86::Emit_Fp_ToInt32TruncS_MemVar(const STATEMENT& statement)
 	m_assembler.MovGd(MakeMemoryFp32SymbolAddress(dst), tmpIntRegister);
 }
 
+// clang-format off
 #define FP_CONST_MATCHERS_3OPS(FPOP_CST, FPOP) \
 	{ FPOP_CST, MATCH_FP_REGISTER32, MATCH_FP_REGISTER32, MATCH_FP_REGISTER32, MATCH_NIL, &CCodeGen_x86::Emit_Fp32_RegRegReg<FPOP> }, \
 	{ FPOP_CST, MATCH_FP_REGISTER32, MATCH_FP_MEMORY32,   MATCH_FP_REGISTER32, MATCH_NIL, &CCodeGen_x86::Emit_Fp32_RegMemReg<FPOP> }, \
@@ -416,3 +417,4 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_fpuSseConstMatchers[] =
 
 	{ OP_MOV, MATCH_NIL, MATCH_NIL, MATCH_NIL, MATCH_NIL, nullptr },
 };
+// clang-format on

@@ -10,7 +10,6 @@
 
 extern "C" void RegAllocTempTest_DummyFunction(uint32 value1, uint32 value2, uint32 value3)
 {
-
 }
 
 void CRegAllocTempTest::PrepareExternalFunctions()

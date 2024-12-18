@@ -5,9 +5,9 @@ void CLzcTest::Run()
 {
 	memset(&m_context, 0, sizeof(m_context));
 
-	m_context.input0 = 0x00001FFF;	//19 leading zeroes
-	m_context.input1 = 0x00000000;	//32 leading zeroes
-	m_context.input2 = 0xFF0000FF;	//8 leading ones
+	m_context.input0 = 0x00001FFF; //19 leading zeroes
+	m_context.input1 = 0x00000000; //32 leading zeroes
+	m_context.input2 = 0xFF0000FF; //8 leading ones
 
 	m_function(&m_context);
 
@@ -15,8 +15,8 @@ void CLzcTest::Run()
 	TEST_VERIFY(m_context.result0 == 18);
 	TEST_VERIFY(m_context.result1 == 31);
 	TEST_VERIFY(m_context.result2 == 7);
-	TEST_VERIFY(m_context.result3 == 31);		//Constant ~0
-	TEST_VERIFY(m_context.result4 == 30);		//Constant 1
+	TEST_VERIFY(m_context.result3 == 31); //Constant ~0
+	TEST_VERIFY(m_context.result4 == 30); //Constant 1
 }
 
 void CLzcTest::Compile(Jitter::CJitter& jitter)

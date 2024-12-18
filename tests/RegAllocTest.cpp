@@ -11,7 +11,7 @@ void CRegAllocTest::Compile(Jitter::CJitter& jitter)
 	jitter.SetStream(&codeStream);
 
 	jitter.Begin();
-	{		
+	{
 		for(unsigned int i = 2; i < MAX_VARS; i++)
 		{
 			jitter.PushRel(offsetof(CONTEXT, number[i - 2]));

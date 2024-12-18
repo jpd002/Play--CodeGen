@@ -10,8 +10,8 @@ public:
 
 	CMemAccess64Test(bool);
 
-	void    Run() override;
-	void    Compile(Jitter::CJitter&) override;
+	void Run() override;
+	void Compile(Jitter::CJitter&) override;
 
 private:
 	enum
@@ -21,21 +21,21 @@ private:
 
 	struct CONTEXT
 	{
-		void*             memory;
+		void* memory;
 		VariableValueType writeValue;
 		VariableValueType readValue;
 		VariableValueType readValueIdx;
 
-		uint32    storeIdx0;
-		uint32    storeIdx1;
-		uint32    storeIdx2;
-		uint32    storeIdx3;
-		uint32    loadIdx0;
-		uint32    loadIdx1;
+		uint32 storeIdx0;
+		uint32 storeIdx1;
+		uint32 storeIdx2;
+		uint32 storeIdx3;
+		uint32 loadIdx0;
+		uint32 loadIdx1;
 	};
 
-	CONTEXT            m_context;
-	MemoryValueType    m_memory[MEMORY_SIZE];
-	FunctionType       m_function;
-	bool               m_useVariableIndices;
+	CONTEXT m_context;
+	MemoryValueType m_memory[MEMORY_SIZE];
+	FunctionType m_function;
+	bool m_useVariableIndices;
 };

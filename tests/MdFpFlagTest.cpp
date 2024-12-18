@@ -37,10 +37,10 @@ void CMdFpFlagTest::Run()
 
 	CONTEXT ALIGN16 context;
 	memset(&context, 0, sizeof(CONTEXT));
-	
-	context.src0[0] =  0.123412f;
+
+	context.src0[0] = 0.123412f;
 	context.src0[1] = -0.2324f;
-	context.src0[2] =  0.f;
+	context.src0[2] = 0.f;
 	context.src0[3] = -0.f;
 
 	context.src1[0] = 60.f;
@@ -59,9 +59,9 @@ void CMdFpFlagTest::Run()
 	context.src3[1] = 0xFFFFFFFF; //NaN (negative)
 	context.src3[2] = 0x7F800000; //INF
 	context.src3[3] = 0xFF800000; //INF (negative)
-	
+
 	m_function(&context);
-	
+
 	TEST_VERIFY(context.dstSzStatus0 == 0x53);
 	TEST_VERIFY(context.dstSzStatus1 == 0x20);
 	TEST_VERIFY(context.dstSzStatus2 == 0xB4);

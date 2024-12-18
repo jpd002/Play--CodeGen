@@ -6,20 +6,20 @@
 class CSimpleMdTest : public CTest
 {
 public:
-	void				Run() override;
-	void				Compile(Jitter::CJitter&) override;
+	void Run() override;
+	void Compile(Jitter::CJitter&) override;
 
 private:
 	struct CONTEXT
 	{
 		ALIGN16
 
-		uint32			op1[4];
-		uint32			op2[4];
+		uint32 op1[4];
+		uint32 op2[4];
 
-		uint32			result[4];
+		uint32 result[4];
 	};
 
-	CONTEXT				m_context;
-	FunctionType		m_function;
+	CONTEXT m_context;
+	FunctionType m_function;
 };

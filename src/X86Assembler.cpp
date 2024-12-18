@@ -35,50 +35,50 @@ void CX86Assembler::End()
 		bool changed = false;
 
 		for(LabelArray::const_iterator labelIterator(m_labelOrder.begin());
-			labelIterator != m_labelOrder.end(); ++labelIterator)
+		    labelIterator != m_labelOrder.end(); ++labelIterator)
 		{
 			auto& label = m_labels[*labelIterator];
 
 			for(LabelRefArray::iterator labelRefIterator(label.labelRefs.begin());
-				labelRefIterator != label.labelRefs.end(); ++labelRefIterator)
+			    labelRefIterator != label.labelRefs.end(); ++labelRefIterator)
 			{
 				auto& labelRef(*labelRefIterator);
 				switch(labelRef.length)
 				{
-					case JMP_NOTSET:
-						{
-							//Assume a short jump first.
-							unsigned int jumpSize = GetJumpSize(labelRef.type, JMP_NEAR);
-							labelRef.length = JMP_NEAR;
-							IncrementJumpOffsetsLocal(label, labelRefIterator + 1, jumpSize);
-							IncrementJumpOffsets(labelIterator + 1, jumpSize);
-							changed = true;
-						}
-						break;
-					case JMP_NEAR:
-						{
-							//We need to verify if the jump is still good for us, since sizes might have changed
-							LABELINFO& referencedLabel(m_labels[labelRef.label]);
-							unsigned int smallJumpSize = GetJumpSize(labelRef.type, JMP_NEAR);
-							uint32 offset = referencedLabel.projectedStart - (labelRef.offset + smallJumpSize);
-							uint32 offsetSize = GetMinimumConstantSize(offset);
-							if(offsetSize != 1)
-							{
-								//Doesn't fit, recompute offsets
-								labelRef.length = JMP_FAR;
-								unsigned int longJumpSize = GetJumpSize(labelRef.type, JMP_FAR);
-								unsigned int incrementAmount = longJumpSize - smallJumpSize;
-								IncrementJumpOffsetsLocal(label, labelRefIterator + 1, incrementAmount);
-								IncrementJumpOffsets(labelIterator + 1, incrementAmount);
-								changed = true;
-							}
-						}
-						break;
-					case JMP_FAR:
-						break;
-					default:
-						assert(false);
-						break;
+				case JMP_NOTSET:
+				{
+					//Assume a short jump first.
+					unsigned int jumpSize = GetJumpSize(labelRef.type, JMP_NEAR);
+					labelRef.length = JMP_NEAR;
+					IncrementJumpOffsetsLocal(label, labelRefIterator + 1, jumpSize);
+					IncrementJumpOffsets(labelIterator + 1, jumpSize);
+					changed = true;
+				}
+				break;
+				case JMP_NEAR:
+				{
+					//We need to verify if the jump is still good for us, since sizes might have changed
+					LABELINFO& referencedLabel(m_labels[labelRef.label]);
+					unsigned int smallJumpSize = GetJumpSize(labelRef.type, JMP_NEAR);
+					uint32 offset = referencedLabel.projectedStart - (labelRef.offset + smallJumpSize);
+					uint32 offsetSize = GetMinimumConstantSize(offset);
+					if(offsetSize != 1)
+					{
+						//Doesn't fit, recompute offsets
+						labelRef.length = JMP_FAR;
+						unsigned int longJumpSize = GetJumpSize(labelRef.type, JMP_FAR);
+						unsigned int incrementAmount = longJumpSize - smallJumpSize;
+						IncrementJumpOffsetsLocal(label, labelRefIterator + 1, incrementAmount);
+						IncrementJumpOffsets(labelIterator + 1, incrementAmount);
+						changed = true;
+					}
+				}
+				break;
+				case JMP_FAR:
+					break;
+				default:
+					assert(false);
+					break;
 				}
 			}
 		}
@@ -133,7 +133,7 @@ void CX86Assembler::End()
 void CX86Assembler::IncrementJumpOffsets(LabelArray::const_iterator startLabel, unsigned int amount)
 {
 	for(LabelArray::const_iterator labelIterator(startLabel);
-		labelIterator != m_labelOrder.end(); ++labelIterator)
+	    labelIterator != m_labelOrder.end(); ++labelIterator)
 	{
 		LABELINFO& label = m_labels[*labelIterator];
 		label.projectedStart += amount;
@@ -144,7 +144,7 @@ void CX86Assembler::IncrementJumpOffsets(LabelArray::const_iterator startLabel, 
 void CX86Assembler::IncrementJumpOffsetsLocal(LABELINFO& label, LabelRefArray::iterator startJump, unsigned int amount)
 {
 	for(LabelRefArray::iterator labelRefIterator(startJump);
-		labelRefIterator != label.labelRefs.end(); ++labelRefIterator)
+	    labelRefIterator != label.labelRefs.end(); ++labelRefIterator)
 	{
 		auto& labelRef(*labelRefIterator);
 
@@ -233,14 +233,13 @@ CX86Assembler::CAddress CX86Assembler::MakeIndRegAddress(REGISTER registerId)
 CX86Assembler::CAddress CX86Assembler::MakeIndRegOffAddress(REGISTER nRegister, uint32 nOffset)
 {
 	if(
-		(nOffset == 0) &&
-		(nRegister != CX86Assembler::rBP) &&
-		(nRegister != CX86Assembler::r13)
-		)
+	    (nOffset == 0) &&
+	    (nRegister != CX86Assembler::rBP) &&
+	    (nRegister != CX86Assembler::r13))
 	{
 		return MakeIndRegAddress(nRegister);
 	}
-	
+
 	CAddress Address;
 
 	if(nRegister == rSP)
@@ -1144,7 +1143,7 @@ void CX86Assembler::WriteEvId(uint8 nOp, const CAddress& Address, uint32 nConsta
 {
 	//0x81 -> Id
 	//0x83 -> Ib
- 
+
 	WriteRexByte(false, Address);
 	CAddress NewAddress(Address);
 	NewAddress.ModRm.nFnReg = nOp;
@@ -1191,10 +1190,10 @@ void CX86Assembler::CreateLabelReference(LABEL label, JMP_TYPE type)
 	assert(m_currentLabel != NULL);
 
 	LABELREF reference;
-	reference.label			= label;
-	reference.offset		= static_cast<uint32>(m_tmpStream.Tell());
-	reference.type			= type;
-	
+	reference.label = label;
+	reference.offset = static_cast<uint32>(m_tmpStream.Tell());
+	reference.type = type;
+
 	m_currentLabel->labelRefs.push_back(reference);
 }
 

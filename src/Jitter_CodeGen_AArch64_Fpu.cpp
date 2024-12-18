@@ -97,7 +97,7 @@ void CCodeGen_AArch64::Emit_Fpu_VarVar(const STATEMENT& statement)
 
 	auto dstReg = PrepareSymbolRegisterDefFp(dst, GetNextTempRegisterMd());
 	auto src1Reg = PrepareSymbolRegisterUseFp(src1, GetNextTempRegisterMd());
-	
+
 	((m_assembler).*(FPUOP::OpReg()))(dstReg, src1Reg);
 
 	CommitSymbolRegisterFp(dst, dstReg);
@@ -113,7 +113,7 @@ void CCodeGen_AArch64::Emit_Fpu_VarVarVar(const STATEMENT& statement)
 	auto dstReg = PrepareSymbolRegisterDefFp(dst, GetNextTempRegisterMd());
 	auto src1Reg = PrepareSymbolRegisterUseFp(src1, GetNextTempRegisterMd());
 	auto src2Reg = PrepareSymbolRegisterUseFp(src2, GetNextTempRegisterMd());
-	
+
 	((m_assembler).*(FPUOP::OpReg()))(dstReg, src1Reg, src2Reg);
 
 	CommitSymbolRegisterFp(dst, dstReg);
@@ -190,12 +190,12 @@ void CCodeGen_AArch64::Emit_Fp_Rcpl_VarVar(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
-	
+
 	auto dstReg = PrepareSymbolRegisterDefFp(dst, GetNextTempRegisterMd());
 	auto src1Reg = PrepareSymbolRegisterUseFp(src1, GetNextTempRegisterMd());
 	auto oneReg = GetNextTempRegisterMd();
-	
-	m_assembler.Fmov_1s(oneReg, 0x70);	//Loads 1.0f
+
+	m_assembler.Fmov_1s(oneReg, 0x70); //Loads 1.0f
 	m_assembler.Fdiv_1s(dstReg, oneReg, src1Reg);
 
 	CommitSymbolRegisterFp(dst, dstReg);
@@ -205,13 +205,13 @@ void CCodeGen_AArch64::Emit_Fp_Rsqrt_VarVar(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
-	
+
 	auto dstReg = PrepareSymbolRegisterDefFp(dst, GetNextTempRegisterMd());
 	auto src1Reg = PrepareSymbolRegisterUseFp(src1, GetNextTempRegisterMd());
 	auto oneReg = GetNextTempRegisterMd();
 	auto tmpReg = GetNextTempRegisterMd();
 
-	m_assembler.Fmov_1s(oneReg, 0x70);	//Loads 1.0f
+	m_assembler.Fmov_1s(oneReg, 0x70); //Loads 1.0f
 	m_assembler.Fsqrt_1s(tmpReg, src1Reg);
 	m_assembler.Fdiv_1s(dstReg, oneReg, tmpReg);
 
@@ -263,6 +263,7 @@ void CCodeGen_AArch64::Emit_Fp_ToInt32TruncS_VarVar(const STATEMENT& statement)
 	CommitSymbolRegisterFp(dst, dstReg);
 }
 
+// clang-format off
 CCodeGen_AArch64::CONSTMATCHER CCodeGen_AArch64::g_fpuConstMatchers[] =
 {
 	{ OP_FP_ADD_S,           MATCH_FP_VARIABLE32,     MATCH_FP_VARIABLE32,   MATCH_FP_VARIABLE32,  MATCH_NIL, &CCodeGen_AArch64::Emit_Fpu_VarVarVar<FPUOP_ADD>    },
@@ -294,3 +295,4 @@ CCodeGen_AArch64::CONSTMATCHER CCodeGen_AArch64::g_fpuConstMatchers[] =
 
 	{ OP_MOV,                MATCH_NIL,               MATCH_NIL,             MATCH_NIL,            MATCH_NIL, nullptr                                             },
 };
+// clang-format on

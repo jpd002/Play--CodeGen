@@ -2,11 +2,10 @@
 #include "MemStream.h"
 
 CConditionTest::CConditionTest(bool useConstant, uint32 value0, uint32 value1)
-: m_useConstant(useConstant)
-, m_value0(value0)
-, m_value1(value1)
+    : m_useConstant(useConstant)
+    , m_value0(value0)
+    , m_value1(value1)
 {
-
 }
 
 void CConditionTest::Run()

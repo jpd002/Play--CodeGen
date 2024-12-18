@@ -8,7 +8,7 @@ void CCodeGen_x86::Emit_Shift_RegRegReg(const STATEMENT& statement)
 	CSymbol* src1 = statement.src1->GetSymbol().get();
 	CSymbol* src2 = statement.src2->GetSymbol().get();
 
-	assert(dst->m_type  == SYM_REGISTER);
+	assert(dst->m_type == SYM_REGISTER);
 	assert(src1->m_type == SYM_REGISTER);
 	assert(src2->m_type == SYM_REGISTER);
 
@@ -29,7 +29,7 @@ void CCodeGen_x86::Emit_Shift_RegRegMem(const STATEMENT& statement)
 	CSymbol* src1 = statement.src1->GetSymbol().get();
 	CSymbol* src2 = statement.src2->GetSymbol().get();
 
-	assert(dst->m_type  == SYM_REGISTER);
+	assert(dst->m_type == SYM_REGISTER);
 	assert(src1->m_type == SYM_REGISTER);
 
 	m_assembler.MovEd(CX86Assembler::rCX, MakeMemorySymbolAddress(src2));
@@ -49,7 +49,7 @@ void CCodeGen_x86::Emit_Shift_RegRegCst(const STATEMENT& statement)
 	CSymbol* src1 = statement.src1->GetSymbol().get();
 	CSymbol* src2 = statement.src2->GetSymbol().get();
 
-	assert(dst->m_type  == SYM_REGISTER);
+	assert(dst->m_type == SYM_REGISTER);
 	assert(src1->m_type == SYM_REGISTER);
 
 	if(!dst->Equals(src1))
@@ -67,7 +67,7 @@ void CCodeGen_x86::Emit_Shift_RegMemReg(const STATEMENT& statement)
 	CSymbol* src1 = statement.src1->GetSymbol().get();
 	CSymbol* src2 = statement.src2->GetSymbol().get();
 
-	assert(dst->m_type  == SYM_REGISTER);
+	assert(dst->m_type == SYM_REGISTER);
 	assert(src2->m_type == SYM_REGISTER);
 
 	m_assembler.MovEd(CX86Assembler::rCX, CX86Assembler::MakeRegisterAddress(m_registers[src2->m_valueLow]));
@@ -82,7 +82,7 @@ void CCodeGen_x86::Emit_Shift_RegMemMem(const STATEMENT& statement)
 	CSymbol* src1 = statement.src1->GetSymbol().get();
 	CSymbol* src2 = statement.src2->GetSymbol().get();
 
-	assert(dst->m_type  == SYM_REGISTER);
+	assert(dst->m_type == SYM_REGISTER);
 
 	m_assembler.MovEd(CX86Assembler::rCX, MakeMemorySymbolAddress(src2));
 	m_assembler.MovEd(m_registers[dst->m_valueLow], MakeMemorySymbolAddress(src1));
@@ -96,7 +96,7 @@ void CCodeGen_x86::Emit_Shift_RegMemCst(const STATEMENT& statement)
 	CSymbol* src1 = statement.src1->GetSymbol().get();
 	CSymbol* src2 = statement.src2->GetSymbol().get();
 
-	assert(dst->m_type  == SYM_REGISTER);
+	assert(dst->m_type == SYM_REGISTER);
 	assert(src2->m_type == SYM_CONSTANT);
 
 	m_assembler.MovEd(m_registers[dst->m_valueLow], MakeMemorySymbolAddress(src1));
@@ -110,7 +110,7 @@ void CCodeGen_x86::Emit_Shift_RegCstReg(const STATEMENT& statement)
 	CSymbol* src1 = statement.src1->GetSymbol().get();
 	CSymbol* src2 = statement.src2->GetSymbol().get();
 
-	assert(dst->m_type  == SYM_REGISTER);
+	assert(dst->m_type == SYM_REGISTER);
 	assert(src1->m_type == SYM_CONSTANT);
 	assert(src2->m_type == SYM_REGISTER);
 
@@ -126,7 +126,7 @@ void CCodeGen_x86::Emit_Shift_RegCstMem(const STATEMENT& statement)
 	CSymbol* src1 = statement.src1->GetSymbol().get();
 	CSymbol* src2 = statement.src2->GetSymbol().get();
 
-	assert(dst->m_type  == SYM_REGISTER);
+	assert(dst->m_type == SYM_REGISTER);
 	assert(src1->m_type == SYM_CONSTANT);
 
 	m_assembler.MovEd(CX86Assembler::rCX, MakeMemorySymbolAddress(src2));
@@ -276,6 +276,7 @@ void CCodeGen_x86::Emit_Shift_MemCstMem(const STATEMENT& statement)
 	m_assembler.MovGd(MakeMemorySymbolAddress(dst), CX86Assembler::rAX);
 }
 
+// clang-format off
 #define SHIFT_CONST_MATCHERS(SHIFTOP_CST, SHIFTOP) \
 	{ SHIFTOP_CST, MATCH_REGISTER, MATCH_REGISTER, MATCH_REGISTER, MATCH_NIL, &CCodeGen_x86::Emit_Shift_RegRegReg<SHIFTOP> }, \
 	{ SHIFTOP_CST, MATCH_REGISTER, MATCH_REGISTER, MATCH_MEMORY,   MATCH_NIL, &CCodeGen_x86::Emit_Shift_RegRegMem<SHIFTOP> }, \
@@ -293,6 +294,7 @@ void CCodeGen_x86::Emit_Shift_MemCstMem(const STATEMENT& statement)
 	{ SHIFTOP_CST, MATCH_MEMORY, MATCH_MEMORY,   MATCH_MEMORY,   MATCH_NIL, &CCodeGen_x86::Emit_Shift_MemMemMem<SHIFTOP>	}, \
 	{ SHIFTOP_CST, MATCH_MEMORY, MATCH_MEMORY,   MATCH_CONSTANT, MATCH_NIL, &CCodeGen_x86::Emit_Shift_MemMemCst<SHIFTOP>	}, \
 	{ SHIFTOP_CST, MATCH_MEMORY, MATCH_CONSTANT, MATCH_REGISTER, MATCH_NIL, &CCodeGen_x86::Emit_Shift_MemCstReg<SHIFTOP>	}, \
-	{ SHIFTOP_CST, MATCH_MEMORY, MATCH_CONSTANT, MATCH_MEMORY,   MATCH_NIL, &CCodeGen_x86::Emit_Shift_MemCstMem<SHIFTOP>	}, \
+	{ SHIFTOP_CST, MATCH_MEMORY, MATCH_CONSTANT, MATCH_MEMORY,   MATCH_NIL, &CCodeGen_x86::Emit_Shift_MemCstMem<SHIFTOP>	},
+// clang-format on
 
 #endif

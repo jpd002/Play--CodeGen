@@ -10,19 +10,20 @@ namespace Jitter
 	class CCodeGen_x86 : public CCodeGen
 	{
 	public:
-						CCodeGen_x86(CX86CpuFeatures);
-		virtual			~CCodeGen_x86() = default;
+		CCodeGen_x86(CX86CpuFeatures);
+		virtual ~CCodeGen_x86() = default;
 
-		void			GenerateCode(const StatementList&, unsigned int) override;
-		void			SetStream(Framework::CStream*) override;
-		void			RegisterExternalSymbols(CObjectFile*) const override;
-		bool			Has128BitsCallOperands() const override;
-		bool			SupportsExternalJumps() const override;
+		void GenerateCode(const StatementList&, unsigned int) override;
+		void SetStream(Framework::CStream*) override;
+		void RegisterExternalSymbols(CObjectFile*) const override;
+		bool Has128BitsCallOperands() const override;
+		bool SupportsExternalJumps() const override;
 
 	protected:
 		typedef std::map<uint32, CX86Assembler::LABEL> LabelMapType;
 		typedef std::vector<std::pair<uintptr_t, CX86Assembler::LABEL>> SymbolReferenceLabelArray;
 
+		// clang-format off
 		//ALUOP ----------------------------------------------------------
 		struct ALUOP_BASE
 		{
@@ -462,364 +463,427 @@ namespace Jitter
 		{
 			typedef void (CCodeGen_x86::*OpEdType)(CX86Assembler::REGISTER, const CX86Assembler::CAddress&);
 		};
+		// clang-format on
 
-		virtual void				Emit_Prolog(const StatementList&, unsigned int) = 0;
-		virtual void				Emit_Epilog() = 0;
+		virtual void Emit_Prolog(const StatementList&, unsigned int) = 0;
+		virtual void Emit_Epilog() = 0;
 
 		virtual CX86Assembler::CAddress MakeConstant128Address(const LITERAL128&) = 0;
 
-		CX86Assembler::LABEL		GetLabel(uint32);
+		CX86Assembler::LABEL GetLabel(uint32);
 
-		CX86Assembler::CAddress		MakeRelativeSymbolAddress(CSymbol*);
-		CX86Assembler::CAddress		MakeTemporarySymbolAddress(CSymbol*);
-		CX86Assembler::CAddress		MakeMemorySymbolAddress(CSymbol*);
-		CX86Assembler::CAddress		MakeVariableSymbolAddress(CSymbol*);
+		CX86Assembler::CAddress MakeRelativeSymbolAddress(CSymbol*);
+		CX86Assembler::CAddress MakeTemporarySymbolAddress(CSymbol*);
+		CX86Assembler::CAddress MakeMemorySymbolAddress(CSymbol*);
+		CX86Assembler::CAddress MakeVariableSymbolAddress(CSymbol*);
 
-		CX86Assembler::CAddress		MakeRelativeReferenceSymbolAddress(CSymbol*);
-		CX86Assembler::CAddress		MakeTemporaryReferenceSymbolAddress(CSymbol*);
-		CX86Assembler::CAddress		MakeMemoryReferenceSymbolAddress(CSymbol*);
-		CX86Assembler::CAddress		MakeVariableReferenceSymbolAddress(CSymbol*);
+		CX86Assembler::CAddress MakeRelativeReferenceSymbolAddress(CSymbol*);
+		CX86Assembler::CAddress MakeTemporaryReferenceSymbolAddress(CSymbol*);
+		CX86Assembler::CAddress MakeMemoryReferenceSymbolAddress(CSymbol*);
+		CX86Assembler::CAddress MakeVariableReferenceSymbolAddress(CSymbol*);
 
-		CX86Assembler::CAddress		MakeRefBaseScaleSymbolAddress(CSymbol*, CX86Assembler::REGISTER, CSymbol*, CX86Assembler::REGISTER, uint8);
+		CX86Assembler::CAddress MakeRefBaseScaleSymbolAddress(CSymbol*, CX86Assembler::REGISTER, CSymbol*, CX86Assembler::REGISTER, uint8);
 
-		CX86Assembler::CAddress		MakeRelative64SymbolAddress(CSymbol*);
-		CX86Assembler::CAddress		MakeRelative64SymbolLoAddress(CSymbol*);
-		CX86Assembler::CAddress		MakeRelative64SymbolHiAddress(CSymbol*);
-		CX86Assembler::CAddress		MakeTemporary64SymbolAddress(CSymbol*);
-		CX86Assembler::CAddress		MakeTemporary64SymbolLoAddress(CSymbol*);
-		CX86Assembler::CAddress		MakeTemporary64SymbolHiAddress(CSymbol*);
-		CX86Assembler::CAddress		MakeMemory64SymbolAddress(CSymbol*);
-		CX86Assembler::CAddress		MakeMemory64SymbolLoAddress(CSymbol*);
-		CX86Assembler::CAddress		MakeMemory64SymbolHiAddress(CSymbol*);
+		CX86Assembler::CAddress MakeRelative64SymbolAddress(CSymbol*);
+		CX86Assembler::CAddress MakeRelative64SymbolLoAddress(CSymbol*);
+		CX86Assembler::CAddress MakeRelative64SymbolHiAddress(CSymbol*);
+		CX86Assembler::CAddress MakeTemporary64SymbolAddress(CSymbol*);
+		CX86Assembler::CAddress MakeTemporary64SymbolLoAddress(CSymbol*);
+		CX86Assembler::CAddress MakeTemporary64SymbolHiAddress(CSymbol*);
+		CX86Assembler::CAddress MakeMemory64SymbolAddress(CSymbol*);
+		CX86Assembler::CAddress MakeMemory64SymbolLoAddress(CSymbol*);
+		CX86Assembler::CAddress MakeMemory64SymbolHiAddress(CSymbol*);
 
-		CX86Assembler::CAddress		MakeRelativeFp32SymbolAddress(CSymbol*);
-		CX86Assembler::CAddress		MakeTemporaryFp32SymbolAddress(CSymbol*);
+		CX86Assembler::CAddress MakeRelativeFp32SymbolAddress(CSymbol*);
+		CX86Assembler::CAddress MakeTemporaryFp32SymbolAddress(CSymbol*);
 
-		CX86Assembler::CAddress		MakeVariableFp32SymbolAddress(CSymbol*);
-		CX86Assembler::CAddress		MakeMemoryFp32SymbolAddress(CSymbol*);
+		CX86Assembler::CAddress MakeVariableFp32SymbolAddress(CSymbol*);
+		CX86Assembler::CAddress MakeMemoryFp32SymbolAddress(CSymbol*);
 
-		CX86Assembler::CAddress		MakeRelative128SymbolElementAddress(CSymbol*, unsigned int);
-		CX86Assembler::CAddress		MakeTemporary128SymbolElementAddress(CSymbol*, unsigned int);
+		CX86Assembler::CAddress MakeRelative128SymbolElementAddress(CSymbol*, unsigned int);
+		CX86Assembler::CAddress MakeTemporary128SymbolElementAddress(CSymbol*, unsigned int);
 
-		CX86Assembler::CAddress		MakeVariable128SymbolAddress(CSymbol*);
-		CX86Assembler::CAddress		MakeMemory128SymbolAddress(CSymbol*);
-		CX86Assembler::CAddress		MakeMemory128SymbolElementAddress(CSymbol*, unsigned int);
+		CX86Assembler::CAddress MakeVariable128SymbolAddress(CSymbol*);
+		CX86Assembler::CAddress MakeMemory128SymbolAddress(CSymbol*);
+		CX86Assembler::CAddress MakeMemory128SymbolElementAddress(CSymbol*, unsigned int);
 
-		CX86Assembler::CAddress		MakeTemporary256SymbolElementAddress(CSymbol*, unsigned int);
+		CX86Assembler::CAddress MakeTemporary256SymbolElementAddress(CSymbol*, unsigned int);
 
 		//LABEL
-		void						MarkLabel(const STATEMENT&);
+		void MarkLabel(const STATEMENT&);
 
 		//NOP
-		void						Emit_Nop(const STATEMENT&);
+		void Emit_Nop(const STATEMENT&);
 
 		//BREAK
-		void						Emit_Break(const STATEMENT&);
+		void Emit_Break(const STATEMENT&);
 
 		//ALU
-		template <typename> void	Emit_Alu_RegRegReg(const STATEMENT&);
-		template <typename> void	Emit_Alu_RegRegMem(const STATEMENT&);
-		template <typename> void	Emit_Alu_RegRegCst(const STATEMENT&);
-		template <typename> void	Emit_Alu_RegMemReg(const STATEMENT&);
-		template <typename> void	Emit_Alu_RegMemMem(const STATEMENT&);
-		template <typename> void	Emit_Alu_RegMemCst(const STATEMENT&);
-		template <typename> void	Emit_Alu_RegCstReg(const STATEMENT&);
-		template <typename> void	Emit_Alu_RegCstMem(const STATEMENT&);
+		template <typename>
+		void Emit_Alu_RegRegReg(const STATEMENT&);
+		template <typename>
+		void Emit_Alu_RegRegMem(const STATEMENT&);
+		template <typename>
+		void Emit_Alu_RegRegCst(const STATEMENT&);
+		template <typename>
+		void Emit_Alu_RegMemReg(const STATEMENT&);
+		template <typename>
+		void Emit_Alu_RegMemMem(const STATEMENT&);
+		template <typename>
+		void Emit_Alu_RegMemCst(const STATEMENT&);
+		template <typename>
+		void Emit_Alu_RegCstReg(const STATEMENT&);
+		template <typename>
+		void Emit_Alu_RegCstMem(const STATEMENT&);
 
-		template <typename> void	Emit_Alu_MemRegReg(const STATEMENT&);
-		template <typename> void	Emit_Alu_MemRegMem(const STATEMENT&);
-		template <typename> void	Emit_Alu_MemRegCst(const STATEMENT&);
-		template <typename> void	Emit_Alu_MemMemReg(const STATEMENT&);
-		template <typename> void	Emit_Alu_MemMemCst(const STATEMENT&);
-		template <typename> void	Emit_Alu_MemMemMem(const STATEMENT&);
-		template <typename> void	Emit_Alu_MemCstReg(const STATEMENT&);
-		template <typename> void	Emit_Alu_MemCstMem(const STATEMENT&);
+		template <typename>
+		void Emit_Alu_MemRegReg(const STATEMENT&);
+		template <typename>
+		void Emit_Alu_MemRegMem(const STATEMENT&);
+		template <typename>
+		void Emit_Alu_MemRegCst(const STATEMENT&);
+		template <typename>
+		void Emit_Alu_MemMemReg(const STATEMENT&);
+		template <typename>
+		void Emit_Alu_MemMemCst(const STATEMENT&);
+		template <typename>
+		void Emit_Alu_MemMemMem(const STATEMENT&);
+		template <typename>
+		void Emit_Alu_MemCstReg(const STATEMENT&);
+		template <typename>
+		void Emit_Alu_MemCstMem(const STATEMENT&);
 
 		//SHIFT
-		template <typename> void	Emit_Shift_RegRegReg(const STATEMENT&);
-		template <typename> void	Emit_Shift_RegRegMem(const STATEMENT&);
-		template <typename> void	Emit_Shift_RegRegCst(const STATEMENT&);
-		template <typename> void	Emit_Shift_RegMemReg(const STATEMENT&);
-		template <typename> void	Emit_Shift_RegMemMem(const STATEMENT&);
-		template <typename> void	Emit_Shift_RegMemCst(const STATEMENT&);
-		template <typename> void	Emit_Shift_RegCstReg(const STATEMENT&);
-		template <typename> void	Emit_Shift_RegCstMem(const STATEMENT&);
+		template <typename>
+		void Emit_Shift_RegRegReg(const STATEMENT&);
+		template <typename>
+		void Emit_Shift_RegRegMem(const STATEMENT&);
+		template <typename>
+		void Emit_Shift_RegRegCst(const STATEMENT&);
+		template <typename>
+		void Emit_Shift_RegMemReg(const STATEMENT&);
+		template <typename>
+		void Emit_Shift_RegMemMem(const STATEMENT&);
+		template <typename>
+		void Emit_Shift_RegMemCst(const STATEMENT&);
+		template <typename>
+		void Emit_Shift_RegCstReg(const STATEMENT&);
+		template <typename>
+		void Emit_Shift_RegCstMem(const STATEMENT&);
 
-		template <typename> void	Emit_Shift_MemRegReg(const STATEMENT&);
-		template <typename> void	Emit_Shift_MemRegMem(const STATEMENT&);
-		template <typename> void	Emit_Shift_MemRegCst(const STATEMENT&);
-		template <typename> void	Emit_Shift_MemMemReg(const STATEMENT&);
-		template <typename> void	Emit_Shift_MemMemMem(const STATEMENT&);
-		template <typename> void	Emit_Shift_MemMemCst(const STATEMENT&);
-		template <typename> void	Emit_Shift_MemCstReg(const STATEMENT&);
-		template <typename> void	Emit_Shift_MemCstMem(const STATEMENT&);
+		template <typename>
+		void Emit_Shift_MemRegReg(const STATEMENT&);
+		template <typename>
+		void Emit_Shift_MemRegMem(const STATEMENT&);
+		template <typename>
+		void Emit_Shift_MemRegCst(const STATEMENT&);
+		template <typename>
+		void Emit_Shift_MemMemReg(const STATEMENT&);
+		template <typename>
+		void Emit_Shift_MemMemMem(const STATEMENT&);
+		template <typename>
+		void Emit_Shift_MemMemCst(const STATEMENT&);
+		template <typename>
+		void Emit_Shift_MemCstReg(const STATEMENT&);
+		template <typename>
+		void Emit_Shift_MemCstMem(const STATEMENT&);
 
 		//NOT
-		void						Emit_Not_RegReg(const STATEMENT&);
-		void						Emit_Not_RegMem(const STATEMENT&);
-		void						Emit_Not_MemReg(const STATEMENT&);
-		void						Emit_Not_MemMem(const STATEMENT&);
+		void Emit_Not_RegReg(const STATEMENT&);
+		void Emit_Not_RegMem(const STATEMENT&);
+		void Emit_Not_MemReg(const STATEMENT&);
+		void Emit_Not_MemMem(const STATEMENT&);
 
 		//LZC
-		void						Emit_Lzc(CX86Assembler::REGISTER, const CX86Assembler::CAddress&);
-		void						Emit_Lzc_RegVar(const STATEMENT&);
-		void						Emit_Lzc_MemVar(const STATEMENT&);
+		void Emit_Lzc(CX86Assembler::REGISTER, const CX86Assembler::CAddress&);
+		void Emit_Lzc_RegVar(const STATEMENT&);
+		void Emit_Lzc_MemVar(const STATEMENT&);
 
 		//CMP
-		void						Cmp_GetFlag(const CX86Assembler::CAddress&, CONDITION);
+		void Cmp_GetFlag(const CX86Assembler::CAddress&, CONDITION);
 
 		//MUL/MULS
-		template<bool> void			Emit_MulMem64VarVar(const STATEMENT&);
-		template<bool> void			Emit_MulMem64VarCst(const STATEMENT&);
+		template <bool>
+		void Emit_MulMem64VarVar(const STATEMENT&);
+		template <bool>
+		void Emit_MulMem64VarCst(const STATEMENT&);
 
 		//DIV/DIVS
-		template <bool> void		Emit_DivMem64VarVar(const STATEMENT&);
-		template <bool> void		Emit_DivMem64VarCst(const STATEMENT&);
-		template <bool> void		Emit_DivMem64CstVar(const STATEMENT&);
+		template <bool>
+		void Emit_DivMem64VarVar(const STATEMENT&);
+		template <bool>
+		void Emit_DivMem64VarCst(const STATEMENT&);
+		template <bool>
+		void Emit_DivMem64CstVar(const STATEMENT&);
 
 		//MOV
-		void						Emit_Mov_RegReg(const STATEMENT&);
-		void						Emit_Mov_RegMem(const STATEMENT&);
-		void						Emit_Mov_RegCst(const STATEMENT&);
-		void						Emit_Mov_MemReg(const STATEMENT&);
-		void						Emit_Mov_MemMem(const STATEMENT&);
-		void						Emit_Mov_MemCst(const STATEMENT&);
+		void Emit_Mov_RegReg(const STATEMENT&);
+		void Emit_Mov_RegMem(const STATEMENT&);
+		void Emit_Mov_RegCst(const STATEMENT&);
+		void Emit_Mov_MemReg(const STATEMENT&);
+		void Emit_Mov_MemMem(const STATEMENT&);
+		void Emit_Mov_MemCst(const STATEMENT&);
 
 		//JMP
-		void						Emit_Jmp(const STATEMENT&);
+		void Emit_Jmp(const STATEMENT&);
 
 		//CONDJMP
-		void						CondJmp_JumpTo(CX86Assembler::LABEL, Jitter::CONDITION);
-		void						Emit_CondJmp_RegReg(const STATEMENT&);
-		void						Emit_CondJmp_RegMem(const STATEMENT&);
-		void						Emit_CondJmp_RegCst(const STATEMENT&);
-		void						Emit_CondJmp_MemMem(const STATEMENT&);
-		void						Emit_CondJmp_MemCst(const STATEMENT&);
+		void CondJmp_JumpTo(CX86Assembler::LABEL, Jitter::CONDITION);
+		void Emit_CondJmp_RegReg(const STATEMENT&);
+		void Emit_CondJmp_RegMem(const STATEMENT&);
+		void Emit_CondJmp_RegCst(const STATEMENT&);
+		void Emit_CondJmp_MemMem(const STATEMENT&);
+		void Emit_CondJmp_MemCst(const STATEMENT&);
 
 		//MERGETO64
-		void						Emit_MergeTo64_Mem64RegReg(const STATEMENT&);
-		void						Emit_MergeTo64_Mem64RegMem(const STATEMENT&);
-		void						Emit_MergeTo64_Mem64RegCst(const STATEMENT&);
-		void						Emit_MergeTo64_Mem64MemReg(const STATEMENT&);
-		void						Emit_MergeTo64_Mem64MemMem(const STATEMENT&);
-		void						Emit_MergeTo64_Mem64CstReg(const STATEMENT&);
-		void						Emit_MergeTo64_Mem64CstMem(const STATEMENT&);
+		void Emit_MergeTo64_Mem64RegReg(const STATEMENT&);
+		void Emit_MergeTo64_Mem64RegMem(const STATEMENT&);
+		void Emit_MergeTo64_Mem64RegCst(const STATEMENT&);
+		void Emit_MergeTo64_Mem64MemReg(const STATEMENT&);
+		void Emit_MergeTo64_Mem64MemMem(const STATEMENT&);
+		void Emit_MergeTo64_Mem64CstReg(const STATEMENT&);
+		void Emit_MergeTo64_Mem64CstMem(const STATEMENT&);
 
 		//EXTLOW64
-		void						Emit_ExtLow64VarMem64(const STATEMENT&);
+		void Emit_ExtLow64VarMem64(const STATEMENT&);
 
 		//EXTHIGH64
-		void						Emit_ExtHigh64VarMem64(const STATEMENT&);
+		void Emit_ExtHigh64VarMem64(const STATEMENT&);
 
 		//LOADFROMREF
-		void						Emit_LoadFromRef_VarVar(const STATEMENT&);
-		void						Emit_LoadFromRef_VarVarAny(const STATEMENT&);
+		void Emit_LoadFromRef_VarVar(const STATEMENT&);
+		void Emit_LoadFromRef_VarVarAny(const STATEMENT&);
 
 		//LOAD8FROMREF
-		void						Emit_Load8FromRef_VarVar(const STATEMENT&);
-		void						Emit_Load8FromRef_VarVarAny(const STATEMENT&);
+		void Emit_Load8FromRef_VarVar(const STATEMENT&);
+		void Emit_Load8FromRef_VarVarAny(const STATEMENT&);
 
 		//LOAD16FROMREF
-		void						Emit_Load16FromRef_VarVar(const STATEMENT&);
-		void						Emit_Load16FromRef_VarVarAny(const STATEMENT&);
+		void Emit_Load16FromRef_VarVar(const STATEMENT&);
+		void Emit_Load16FromRef_VarVarAny(const STATEMENT&);
 
 		//STOREATREF
-		void						Emit_StoreAtRef_VarVar(const STATEMENT&);
-		void						Emit_StoreAtRef_VarCst(const STATEMENT&);
-		void						Emit_StoreAtRef_VarAnyVar(const STATEMENT&);
-		void						Emit_StoreAtRef_VarAnyCst(const STATEMENT&);
+		void Emit_StoreAtRef_VarVar(const STATEMENT&);
+		void Emit_StoreAtRef_VarCst(const STATEMENT&);
+		void Emit_StoreAtRef_VarAnyVar(const STATEMENT&);
+		void Emit_StoreAtRef_VarAnyCst(const STATEMENT&);
 
 		//STORE8ATREF
-		void						Emit_Store8AtRef_VarCst(const STATEMENT&);
-		void						Emit_Store8AtRef_VarAnyCst(const STATEMENT&);
+		void Emit_Store8AtRef_VarCst(const STATEMENT&);
+		void Emit_Store8AtRef_VarAnyCst(const STATEMENT&);
 
 		//STORE16ATREF
-		void						Emit_Store16AtRef_VarVar(const STATEMENT&);
-		void						Emit_Store16AtRef_VarCst(const STATEMENT&);
-		void						Emit_Store16AtRef_VarAnyVar(const STATEMENT&);
-		void						Emit_Store16AtRef_VarAnyCst(const STATEMENT&);
+		void Emit_Store16AtRef_VarVar(const STATEMENT&);
+		void Emit_Store16AtRef_VarCst(const STATEMENT&);
+		void Emit_Store16AtRef_VarAnyVar(const STATEMENT&);
+		void Emit_Store16AtRef_VarAnyCst(const STATEMENT&);
 
 		//FPUOP Generic
 		CX86Assembler::SSE_CMP_TYPE GetSseConditionCode(Jitter::CONDITION);
 
-		void						Emit_Fp_AbsS_MemMem(const STATEMENT&);
-		void						Emit_Fp_NegS_MemMem(const STATEMENT&);
-		void						Emit_Fp32_LdCst_MemCst(const STATEMENT&);
+		void Emit_Fp_AbsS_MemMem(const STATEMENT&);
+		void Emit_Fp_NegS_MemMem(const STATEMENT&);
+		void Emit_Fp32_LdCst_MemCst(const STATEMENT&);
 
 		//FPUOP SSE
-		template <typename> void	Emit_Fp32_RegVar(const STATEMENT&);
-		template <typename> void	Emit_Fp32_MemVar(const STATEMENT&);
-		template <typename> void	Emit_Fp32_RegRegReg(const STATEMENT&);
-		template <typename> void	Emit_Fp32_RegMemReg(const STATEMENT&);
-		template <typename> void	Emit_Fp32_RegVarVar(const STATEMENT&);
-		template <typename> void	Emit_Fp32_MemVarVar(const STATEMENT&);
-		template <typename> void	Emit_Fp32_SingleOp_RegVar(const STATEMENT&);
-		template <typename> void	Emit_Fp32_SingleOp_MemVar(const STATEMENT&);
+		template <typename>
+		void Emit_Fp32_RegVar(const STATEMENT&);
+		template <typename>
+		void Emit_Fp32_MemVar(const STATEMENT&);
+		template <typename>
+		void Emit_Fp32_RegRegReg(const STATEMENT&);
+		template <typename>
+		void Emit_Fp32_RegMemReg(const STATEMENT&);
+		template <typename>
+		void Emit_Fp32_RegVarVar(const STATEMENT&);
+		template <typename>
+		void Emit_Fp32_MemVarVar(const STATEMENT&);
+		template <typename>
+		void Emit_Fp32_SingleOp_RegVar(const STATEMENT&);
+		template <typename>
+		void Emit_Fp32_SingleOp_MemVar(const STATEMENT&);
 
-		void						Emit_Fp32_Mov_RegMem(const STATEMENT&);
-		void						Emit_Fp32_Mov_MemReg(const STATEMENT&);
-		void						Emit_Fp32_LdCst_RegCst(const STATEMENT&);
+		void Emit_Fp32_Mov_RegMem(const STATEMENT&);
+		void Emit_Fp32_Mov_MemReg(const STATEMENT&);
+		void Emit_Fp32_LdCst_RegCst(const STATEMENT&);
 
-		void						Emit_Fp_CmpS_VarVarVar(const STATEMENT&);
-		void						Emit_Fp_CmpS_VarMemCst(const STATEMENT&);
-		void						Emit_Fp_RsqrtS_VarVar(const STATEMENT&);
-		void						Emit_Fp_RcplS_RegVar(const STATEMENT&);
-		void						Emit_Fp_RcplS_MemVar(const STATEMENT&);
-		void						Emit_Fp_ClampS_RegVar(const STATEMENT&);
-		void						Emit_Fp_ClampS_MemVar(const STATEMENT&);
-		void						Emit_Fp_ToSingleI32_VarReg(const STATEMENT&);
-		void						Emit_Fp_ToSingleI32_VarMem(const STATEMENT&);
-		void						Emit_Fp_ToInt32TruncS_RegVar(const STATEMENT&);
-		void						Emit_Fp_ToInt32TruncS_MemVar(const STATEMENT&);
+		void Emit_Fp_CmpS_VarVarVar(const STATEMENT&);
+		void Emit_Fp_CmpS_VarMemCst(const STATEMENT&);
+		void Emit_Fp_RsqrtS_VarVar(const STATEMENT&);
+		void Emit_Fp_RcplS_RegVar(const STATEMENT&);
+		void Emit_Fp_RcplS_MemVar(const STATEMENT&);
+		void Emit_Fp_ClampS_RegVar(const STATEMENT&);
+		void Emit_Fp_ClampS_MemVar(const STATEMENT&);
+		void Emit_Fp_ToSingleI32_VarReg(const STATEMENT&);
+		void Emit_Fp_ToSingleI32_VarMem(const STATEMENT&);
+		void Emit_Fp_ToInt32TruncS_RegVar(const STATEMENT&);
+		void Emit_Fp_ToInt32TruncS_MemVar(const STATEMENT&);
 
 		//MDOP
-		template <typename> void	Emit_Md_RegVar(const STATEMENT&);
-		template <typename> void	Emit_Md_MemVar(const STATEMENT&);
-		template <typename> void	Emit_Md_RegRegReg(const STATEMENT&);
-		template <typename> void	Emit_Md_RegMemReg(const STATEMENT&);
-		template <typename> void	Emit_Md_RegVarVar(const STATEMENT&);
-		template <typename> void	Emit_Md_MemVarVar(const STATEMENT&);
-		template <typename> void	Emit_Md_VarVarVarRev(const STATEMENT&);
-		template <typename, uint8> void
-									Emit_Md_Shift_RegVarCst(const STATEMENT&);
-		template <typename, uint8> void
-									Emit_Md_Shift_MemVarCst(const STATEMENT&);
-		template <typename> void	Emit_Md_SingleOp_RegVar(const STATEMENT&);
-		template <typename> void	Emit_Md_SingleOp_MemVar(const STATEMENT&);
-		void						Emit_Md_AddSSW_VarVarVar(const STATEMENT&);
-		void						Emit_Md_AddUSW_VarVarVar(const STATEMENT&);
-		void						Emit_Md_SubSSW_VarVarVar(const STATEMENT&);
-		void						Emit_Md_SubUSW_VarVarVar(const STATEMENT&);
-		void						Emit_Md_MinW_VarVarVar(const STATEMENT&);
-		void						Emit_Md_MaxW_VarVarVar(const STATEMENT&);
-		void						Emit_Md_ClampS_RegVar(const STATEMENT&);
-		void						Emit_Md_ClampS_MemVar(const STATEMENT&);
-		void						Emit_Md_PackHB_VarVarVar(const STATEMENT&);
-		void						Emit_Md_PackWH_VarVarVar(const STATEMENT&);
-		void						Emit_Md_Mov_RegVar(const STATEMENT&);
-		void						Emit_Md_Mov_MemReg(const STATEMENT&);
-		void						Emit_Md_Mov_MemMem(const STATEMENT&);
-		void						Emit_Md_MovMasked_VarVarVar(const STATEMENT&);
-		void						Emit_Md_MovMasked_Sse41_VarVarVar(const STATEMENT&);
-		void						Emit_Md_Expand_VarReg(const STATEMENT&);
-		void						Emit_Md_Expand_VarMem(const STATEMENT&);
-		void						Emit_Md_Expand_VarCst(const STATEMENT&);
+		template <typename>
+		void Emit_Md_RegVar(const STATEMENT&);
+		template <typename>
+		void Emit_Md_MemVar(const STATEMENT&);
+		template <typename>
+		void Emit_Md_RegRegReg(const STATEMENT&);
+		template <typename>
+		void Emit_Md_RegMemReg(const STATEMENT&);
+		template <typename>
+		void Emit_Md_RegVarVar(const STATEMENT&);
+		template <typename>
+		void Emit_Md_MemVarVar(const STATEMENT&);
+		template <typename>
+		void Emit_Md_VarVarVarRev(const STATEMENT&);
+		template <typename, uint8>
+		void
+		Emit_Md_Shift_RegVarCst(const STATEMENT&);
+		template <typename, uint8>
+		void
+		Emit_Md_Shift_MemVarCst(const STATEMENT&);
+		template <typename>
+		void Emit_Md_SingleOp_RegVar(const STATEMENT&);
+		template <typename>
+		void Emit_Md_SingleOp_MemVar(const STATEMENT&);
+		void Emit_Md_AddSSW_VarVarVar(const STATEMENT&);
+		void Emit_Md_AddUSW_VarVarVar(const STATEMENT&);
+		void Emit_Md_SubSSW_VarVarVar(const STATEMENT&);
+		void Emit_Md_SubUSW_VarVarVar(const STATEMENT&);
+		void Emit_Md_MinW_VarVarVar(const STATEMENT&);
+		void Emit_Md_MaxW_VarVarVar(const STATEMENT&);
+		void Emit_Md_ClampS_RegVar(const STATEMENT&);
+		void Emit_Md_ClampS_MemVar(const STATEMENT&);
+		void Emit_Md_PackHB_VarVarVar(const STATEMENT&);
+		void Emit_Md_PackWH_VarVarVar(const STATEMENT&);
+		void Emit_Md_Mov_RegVar(const STATEMENT&);
+		void Emit_Md_Mov_MemReg(const STATEMENT&);
+		void Emit_Md_Mov_MemMem(const STATEMENT&);
+		void Emit_Md_MovMasked_VarVarVar(const STATEMENT&);
+		void Emit_Md_MovMasked_Sse41_VarVarVar(const STATEMENT&);
+		void Emit_Md_Expand_VarReg(const STATEMENT&);
+		void Emit_Md_Expand_VarMem(const STATEMENT&);
+		void Emit_Md_Expand_VarCst(const STATEMENT&);
 
-		void						Emit_MergeTo256_MemVarVar(const STATEMENT&);
+		void Emit_MergeTo256_MemVarVar(const STATEMENT&);
 
-		void						Emit_Md_Srl256_VarMem(CSymbol*, CSymbol*, const CX86Assembler::CAddress&);
-		void						Emit_Md_Srl256_VarMemVar(const STATEMENT&);
-		void						Emit_Md_Srl256_VarMemCst(const STATEMENT&);
+		void Emit_Md_Srl256_VarMem(CSymbol*, CSymbol*, const CX86Assembler::CAddress&);
+		void Emit_Md_Srl256_VarMemVar(const STATEMENT&);
+		void Emit_Md_Srl256_VarMemCst(const STATEMENT&);
 
-		void						Emit_Md_Abs(CX86Assembler::XMMREGISTER);
-		void						Emit_Md_Neg(CX86Assembler::XMMREGISTER);
-		void						Emit_Md_Not(CX86Assembler::XMMREGISTER);
-		void						Emit_Md_MakeSz(CX86Assembler::XMMREGISTER, const CX86Assembler::CAddress&);
-		void						Emit_Md_MakeSz_VarVar(const STATEMENT&);
-		void						Emit_Md_MakeSz_Ssse3_VarVar(const STATEMENT&);
+		void Emit_Md_Abs(CX86Assembler::XMMREGISTER);
+		void Emit_Md_Neg(CX86Assembler::XMMREGISTER);
+		void Emit_Md_Not(CX86Assembler::XMMREGISTER);
+		void Emit_Md_MakeSz(CX86Assembler::XMMREGISTER, const CX86Assembler::CAddress&);
+		void Emit_Md_MakeSz_VarVar(const STATEMENT&);
+		void Emit_Md_MakeSz_Ssse3_VarVar(const STATEMENT&);
 
-		void						Emit_Md_LoadFromRef_VarVar(const STATEMENT&);
-		void						Emit_Md_LoadFromRef_VarVarAny(const STATEMENT&);
+		void Emit_Md_LoadFromRef_VarVar(const STATEMENT&);
+		void Emit_Md_LoadFromRef_VarVarAny(const STATEMENT&);
 
-		void						Emit_Md_StoreAtRef_VarVar(const STATEMENT&);
-		void						Emit_Md_StoreAtRef_VarAnyVar(const STATEMENT&);
+		void Emit_Md_StoreAtRef_VarVar(const STATEMENT&);
+		void Emit_Md_StoreAtRef_VarAnyVar(const STATEMENT&);
 
 		//FPUOP AVX
-		template <typename> void	Emit_Fp32_Avx_VarVar(const STATEMENT&);
-		template <typename> void	Emit_Fp32_Avx_VarVarVar(const STATEMENT&);
+		template <typename>
+		void Emit_Fp32_Avx_VarVar(const STATEMENT&);
+		template <typename>
+		void Emit_Fp32_Avx_VarVarVar(const STATEMENT&);
 
-		void						Emit_Fp32_Avx_Mov_RegMem(const STATEMENT&);
-		void						Emit_Fp32_Avx_Mov_MemReg(const STATEMENT&);
-		void						Emit_Fp32_Avx_LdCst_RegCst(const STATEMENT&);
+		void Emit_Fp32_Avx_Mov_RegMem(const STATEMENT&);
+		void Emit_Fp32_Avx_Mov_MemReg(const STATEMENT&);
+		void Emit_Fp32_Avx_LdCst_RegCst(const STATEMENT&);
 
-		void						Emit_Fp_Avx_CmpS_VarVarVar(const STATEMENT&);
-		void						Emit_Fp_Avx_RsqrtS_VarVar(const STATEMENT&);
-		void						Emit_Fp_Avx_RcplS_VarVar(const STATEMENT&);
-		void						Emit_Fp_Avx_AbsS_RegMem(const STATEMENT&);
-		void						Emit_Fp_Avx_AbsS_VarReg(const STATEMENT&);
-		void						Emit_Fp_Avx_NegS_RegMem(const STATEMENT&);
-		void						Emit_Fp_Avx_NegS_VarReg(const STATEMENT&);
-		void						Emit_Fp_Avx_ClampS_VarVar(const STATEMENT&);
-		void						Emit_Fp_Avx_ToSingleI32_VarReg(const STATEMENT&);
-		void						Emit_Fp_Avx_ToSingleI32_VarMem(const STATEMENT&);
-		void						Emit_Fp_Avx_ToInt32TruncS_RegVar(const STATEMENT&);
-		void						Emit_Fp_Avx_ToInt32TruncS_MemVar(const STATEMENT&);
+		void Emit_Fp_Avx_CmpS_VarVarVar(const STATEMENT&);
+		void Emit_Fp_Avx_RsqrtS_VarVar(const STATEMENT&);
+		void Emit_Fp_Avx_RcplS_VarVar(const STATEMENT&);
+		void Emit_Fp_Avx_AbsS_RegMem(const STATEMENT&);
+		void Emit_Fp_Avx_AbsS_VarReg(const STATEMENT&);
+		void Emit_Fp_Avx_NegS_RegMem(const STATEMENT&);
+		void Emit_Fp_Avx_NegS_VarReg(const STATEMENT&);
+		void Emit_Fp_Avx_ClampS_VarVar(const STATEMENT&);
+		void Emit_Fp_Avx_ToSingleI32_VarReg(const STATEMENT&);
+		void Emit_Fp_Avx_ToSingleI32_VarMem(const STATEMENT&);
+		void Emit_Fp_Avx_ToInt32TruncS_RegVar(const STATEMENT&);
+		void Emit_Fp_Avx_ToInt32TruncS_MemVar(const STATEMENT&);
 
 		//MDOP AVX
-		template <typename> void	Emit_Md_Avx_VarVar(const STATEMENT&);
-		template <typename> void	Emit_Md_Avx_VarVarVar(const STATEMENT&);
-		template <typename> void	Emit_Md_Avx_VarVarVarRev(const STATEMENT&);
-		template <typename, uint8> void
-									Emit_Md_Avx_Shift_VarVarCst(const STATEMENT&);
-		void						Emit_Md_Avx_Mov_RegVar(const STATEMENT&);
-		void						Emit_Md_Avx_Mov_MemReg(const STATEMENT&);
-		void						Emit_Md_Avx_Mov_MemMem(const STATEMENT&);
-		void						Emit_Md_Avx_MovMasked_VarVarVar(const STATEMENT&);
+		template <typename>
+		void Emit_Md_Avx_VarVar(const STATEMENT&);
+		template <typename>
+		void Emit_Md_Avx_VarVarVar(const STATEMENT&);
+		template <typename>
+		void Emit_Md_Avx_VarVarVarRev(const STATEMENT&);
+		template <typename, uint8>
+		void
+		Emit_Md_Avx_Shift_VarVarCst(const STATEMENT&);
+		void Emit_Md_Avx_Mov_RegVar(const STATEMENT&);
+		void Emit_Md_Avx_Mov_MemReg(const STATEMENT&);
+		void Emit_Md_Avx_Mov_MemMem(const STATEMENT&);
+		void Emit_Md_Avx_MovMasked_VarVarVar(const STATEMENT&);
 
-		void						Emit_Md_Avx_Not_VarVar(const STATEMENT&);
-		void						Emit_Md_Avx_Abs_VarVar(const STATEMENT&);
-		void						Emit_Md_Avx_AddSSW_VarVarVar(const STATEMENT&);
-		void						Emit_Md_Avx_AddUSW_VarVarVar(const STATEMENT&);
-		void						Emit_Md_Avx_SubSSW_VarVarVar(const STATEMENT&);
-		void						Emit_Md_Avx_SubUSW_VarVarVar(const STATEMENT&);
-		void						Emit_Md_Avx_ClampS_VarVar(const STATEMENT&);
+		void Emit_Md_Avx_Not_VarVar(const STATEMENT&);
+		void Emit_Md_Avx_Abs_VarVar(const STATEMENT&);
+		void Emit_Md_Avx_AddSSW_VarVarVar(const STATEMENT&);
+		void Emit_Md_Avx_AddUSW_VarVarVar(const STATEMENT&);
+		void Emit_Md_Avx_SubSSW_VarVarVar(const STATEMENT&);
+		void Emit_Md_Avx_SubUSW_VarVarVar(const STATEMENT&);
+		void Emit_Md_Avx_ClampS_VarVar(const STATEMENT&);
 
-		void						Emit_Md_Avx_PackHB_VarVarVar(const STATEMENT&);
-		void						Emit_Md_Avx_PackWH_VarVarVar(const STATEMENT&);
+		void Emit_Md_Avx_PackHB_VarVarVar(const STATEMENT&);
+		void Emit_Md_Avx_PackWH_VarVarVar(const STATEMENT&);
 
-		void						Emit_Md_Avx_MakeSz_VarVar(const STATEMENT&);
+		void Emit_Md_Avx_MakeSz_VarVar(const STATEMENT&);
 
-		void						Emit_Md_Avx_Expand_VarVar(const STATEMENT&);
-		void						Emit_Md_Avx_Expand_VarCst(const STATEMENT&);
+		void Emit_Md_Avx_Expand_VarVar(const STATEMENT&);
+		void Emit_Md_Avx_Expand_VarCst(const STATEMENT&);
 
-		void						Emit_Md_Avx2_Expand_VarReg(const STATEMENT&);
-		void						Emit_Md_Avx2_Expand_VarMem(const STATEMENT&);
-		void						Emit_Md_Avx2_Expand_VarCst(const STATEMENT&);
+		void Emit_Md_Avx2_Expand_VarReg(const STATEMENT&);
+		void Emit_Md_Avx2_Expand_VarMem(const STATEMENT&);
+		void Emit_Md_Avx2_Expand_VarCst(const STATEMENT&);
 
-		void						Emit_Avx_MergeTo256_MemVarVar(const STATEMENT&);
+		void Emit_Avx_MergeTo256_MemVarVar(const STATEMENT&);
 
-		void						Emit_Md_Avx_Srl256_VarMemVar(const STATEMENT&);
-		void						Emit_Md_Avx_Srl256_VarMemCst(const STATEMENT&);
+		void Emit_Md_Avx_Srl256_VarMemVar(const STATEMENT&);
+		void Emit_Md_Avx_Srl256_VarMemCst(const STATEMENT&);
 
-		void						Emit_Md_Avx_LoadFromRef_VarVar(const STATEMENT&);
-		void						Emit_Md_Avx_LoadFromRef_VarVarAny(const STATEMENT&);
+		void Emit_Md_Avx_LoadFromRef_VarVar(const STATEMENT&);
+		void Emit_Md_Avx_LoadFromRef_VarVarAny(const STATEMENT&);
 
-		void						Emit_Md_Avx_StoreAtRef_VarVar(const STATEMENT&);
-		void						Emit_Md_Avx_StoreAtRef_VarAnyVar(const STATEMENT&);
+		void Emit_Md_Avx_StoreAtRef_VarVar(const STATEMENT&);
+		void Emit_Md_Avx_StoreAtRef_VarAnyVar(const STATEMENT&);
 
 		static CX86Assembler::REGISTER g_baseRegister;
 
-		CX86Assembler::REGISTER		PrepareSymbolRegisterDef(CSymbol*, CX86Assembler::REGISTER);
-		CX86Assembler::REGISTER		PrepareSymbolRegisterUse(CSymbol*, CX86Assembler::REGISTER);
-		CX86Assembler::BYTEREGISTER	PrepareSymbolByteRegisterUse(CSymbol*, CX86Assembler::REGISTER);
-		void						CommitSymbolRegister(CSymbol*, CX86Assembler::REGISTER);
+		CX86Assembler::REGISTER PrepareSymbolRegisterDef(CSymbol*, CX86Assembler::REGISTER);
+		CX86Assembler::REGISTER PrepareSymbolRegisterUse(CSymbol*, CX86Assembler::REGISTER);
+		CX86Assembler::BYTEREGISTER PrepareSymbolByteRegisterUse(CSymbol*, CX86Assembler::REGISTER);
+		void CommitSymbolRegister(CSymbol*, CX86Assembler::REGISTER);
 
-		CX86Assembler::XMMREGISTER	PrepareSymbolRegisterDefFp32(CSymbol*, CX86Assembler::XMMREGISTER);
-		CX86Assembler::XMMREGISTER	PrepareSymbolRegisterUseFp32Avx(CSymbol*, CX86Assembler::XMMREGISTER);
-		void						CommitSymbolRegisterFp32Sse(CSymbol*, CX86Assembler::XMMREGISTER);
-		void						CommitSymbolRegisterFp32Avx(CSymbol*, CX86Assembler::XMMREGISTER);
+		CX86Assembler::XMMREGISTER PrepareSymbolRegisterDefFp32(CSymbol*, CX86Assembler::XMMREGISTER);
+		CX86Assembler::XMMREGISTER PrepareSymbolRegisterUseFp32Avx(CSymbol*, CX86Assembler::XMMREGISTER);
+		void CommitSymbolRegisterFp32Sse(CSymbol*, CX86Assembler::XMMREGISTER);
+		void CommitSymbolRegisterFp32Avx(CSymbol*, CX86Assembler::XMMREGISTER);
 
-		CX86Assembler::XMMREGISTER	PrepareSymbolRegisterDefMd(CSymbol*, CX86Assembler::XMMREGISTER);
-		CX86Assembler::XMMREGISTER	PrepareSymbolRegisterUseMdSse(CSymbol*, CX86Assembler::XMMREGISTER);
-		CX86Assembler::XMMREGISTER	PrepareSymbolRegisterUseMdAvx(CSymbol*, CX86Assembler::XMMREGISTER);
-		void						CommitSymbolRegisterMdSse(CSymbol*, CX86Assembler::XMMREGISTER);
-		void						CommitSymbolRegisterMdAvx(CSymbol*, CX86Assembler::XMMREGISTER);
+		CX86Assembler::XMMREGISTER PrepareSymbolRegisterDefMd(CSymbol*, CX86Assembler::XMMREGISTER);
+		CX86Assembler::XMMREGISTER PrepareSymbolRegisterUseMdSse(CSymbol*, CX86Assembler::XMMREGISTER);
+		CX86Assembler::XMMREGISTER PrepareSymbolRegisterUseMdAvx(CSymbol*, CX86Assembler::XMMREGISTER);
+		void CommitSymbolRegisterMdSse(CSymbol*, CX86Assembler::XMMREGISTER);
+		void CommitSymbolRegisterMdAvx(CSymbol*, CX86Assembler::XMMREGISTER);
 
 		virtual CX86Assembler::REGISTER PrepareRefSymbolRegisterUse(CSymbol*, CX86Assembler::REGISTER) = 0;
 
-		static const LITERAL128		g_makeSzShufflePattern;
-		static const LITERAL128		g_fpClampMask1;
-		static const LITERAL128		g_fpClampMask2;
+		static const LITERAL128 g_makeSzShufflePattern;
+		static const LITERAL128 g_fpClampMask1;
+		static const LITERAL128 g_fpClampMask2;
 
-		CX86Assembler				m_assembler;
-		CX86Assembler::REGISTER*	m_registers = nullptr;
-		CX86Assembler::XMMREGISTER*	m_mdRegisters = nullptr;
-		LabelMapType				m_labels;
-		SymbolReferenceLabelArray	m_symbolReferenceLabels;
-		uint32						m_stackLevel = 0;
-		uint32						m_registerUsage = 0;
-		
-		CX86CpuFeatures				m_cpuFeatures;
+		CX86Assembler m_assembler;
+		CX86Assembler::REGISTER* m_registers = nullptr;
+		CX86Assembler::XMMREGISTER* m_mdRegisters = nullptr;
+		LabelMapType m_labels;
+		SymbolReferenceLabelArray m_symbolReferenceLabels;
+		uint32 m_stackLevel = 0;
+		uint32 m_registerUsage = 0;
+
+		CX86CpuFeatures m_cpuFeatures;
 
 	private:
 		typedef void (CCodeGen_x86::*ConstCodeEmitterType)(const STATEMENT&);
@@ -834,26 +898,26 @@ namespace Jitter
 			ConstCodeEmitterType emitter;
 		};
 
-		void						InsertMatchers(const CONSTMATCHER*);
-		
-		static CONSTMATCHER			g_constMatchers[];
-		static CONSTMATCHER			g_fpuConstMatchers[];
-		static CONSTMATCHER			g_fpuSseConstMatchers[];
-		static CONSTMATCHER			g_fpuAvxConstMatchers[];
+		void InsertMatchers(const CONSTMATCHER*);
 
-		static CONSTMATCHER			g_mdConstMatchers[];
+		static CONSTMATCHER g_constMatchers[];
+		static CONSTMATCHER g_fpuConstMatchers[];
+		static CONSTMATCHER g_fpuSseConstMatchers[];
+		static CONSTMATCHER g_fpuAvxConstMatchers[];
 
-		static CONSTMATCHER			g_mdMinMaxWConstMatchers[];
-		static CONSTMATCHER			g_mdMinMaxWSse41ConstMatchers[];
+		static CONSTMATCHER g_mdConstMatchers[];
 
-		static CONSTMATCHER			g_mdMovMaskedConstMatchers[];
-		static CONSTMATCHER			g_mdMovMaskedSse41ConstMatchers[];
+		static CONSTMATCHER g_mdMinMaxWConstMatchers[];
+		static CONSTMATCHER g_mdMinMaxWSse41ConstMatchers[];
 
-		static CONSTMATCHER			g_mdFpFlagConstMatchers[];
-		static CONSTMATCHER			g_mdFpFlagSsse3ConstMatchers[];
+		static CONSTMATCHER g_mdMovMaskedConstMatchers[];
+		static CONSTMATCHER g_mdMovMaskedSse41ConstMatchers[];
 
-		static CONSTMATCHER			g_mdAvxConstMatchers[];
-		static CONSTMATCHER			g_mdAvxExpandConstMatchers[];
-		static CONSTMATCHER			g_mdAvx2ExpandConstMatchers[];
+		static CONSTMATCHER g_mdFpFlagConstMatchers[];
+		static CONSTMATCHER g_mdFpFlagSsse3ConstMatchers[];
+
+		static CONSTMATCHER g_mdAvxConstMatchers[];
+		static CONSTMATCHER g_mdAvxExpandConstMatchers[];
+		static CONSTMATCHER g_mdAvx2ExpandConstMatchers[];
 	};
 }

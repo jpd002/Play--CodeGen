@@ -1,0 +1,37 @@
+# Settings tested with clang-format 16
+
+AccessModifierOffset: -4
+AllowShortBlocksOnASingleLine: Always
+AllowShortFunctionsOnASingleLine: None
+AllowShortIfStatementsOnASingleLine: true
+BreakBeforeBraces: Custom
+BraceWrapping:
+  AfterEnum: true
+  AfterClass: true
+  AfterCaseLabel: true
+  AfterStruct: true
+  AfterUnion: true
+  AfterExternBlock: true
+  AfterObjCDeclaration: true
+  AfterFunction: true
+  AfterNamespace: true
+  AfterControlStatement: Always
+  BeforeCatch: true
+  BeforeElse: true
+  BeforeWhile: false
+  SplitEmptyFunction: true
+  BeforeLambdaBody: false
+BreakConstructorInitializers: BeforeComma
+ColumnLimit: 0
+FixNamespaceComments: false
+IndentWidth: 4
+NamespaceIndentation: All
+PointerBindsToType: true
+SortIncludes: false
+SpaceBeforeParens: Never
+Standard: c++17
+SpacesInLineCommentPrefix:
+  Minimum: 0
+  Maximum: -1
+TabWidth: 4
+UseTab: ForIndentation

@@ -578,6 +578,10 @@ void CCodeGen_x86::Emit_Md_Avx2_Expand_VarCst(const STATEMENT& statement)
 	{
 		m_assembler.VpxorVo(dstRegister, dstRegister, CX86Assembler::MakeXmmRegisterAddress(dstRegister));
 	}
+	else if(src1->m_valueLow == 0x3F800000)
+	{
+		m_assembler.VmovapsVo(dstRegister, MakeConstant128Address(g_fpCstOne));
+	}
 	else
 	{
 		auto cstRegister = CX86Assembler::rAX;

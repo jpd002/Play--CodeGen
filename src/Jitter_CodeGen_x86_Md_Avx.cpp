@@ -593,6 +593,55 @@ void CCodeGen_x86::Emit_Md_Avx2_Expand_VarCst(const STATEMENT& statement)
 	CommitSymbolRegisterMdAvx(dst, dstRegister);
 }
 
+void CCodeGen_x86::Emit_Md_Avx2_Expand_VarRegCst(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	auto dstRegister = PrepareSymbolRegisterDefMd(dst, CX86Assembler::xMM0);
+	auto srcRegister = m_mdRegisters[src1->m_valueLow];
+
+	uint8 shufImm = [&] {
+		switch(src2->m_valueLow)
+		{
+		default:
+			assert(false);
+			[[fallthrough]];
+		case 0:
+			return 0x00;
+		case 1:
+			return 0x55;
+		case 2:
+			return 0xAA;
+		case 3:
+			return 0xFF;
+		}
+	}();
+
+	if(src2->m_valueLow == 0)
+	{
+		m_assembler.VpbroadcastdVo(dstRegister, CX86Assembler::MakeXmmRegisterAddress(srcRegister));
+	}
+	else
+	{
+		m_assembler.VshufpsVo(dstRegister, srcRegister, CX86Assembler::MakeXmmRegisterAddress(srcRegister), shufImm);
+	}
+
+	CommitSymbolRegisterMdAvx(dst, dstRegister);
+}
+
+void CCodeGen_x86::Emit_Md_Avx2_Expand_VarMemCst(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	auto dstRegister = PrepareSymbolRegisterDefMd(dst, CX86Assembler::xMM0);
+	m_assembler.VpbroadcastdVo(dstRegister, MakeMemory128SymbolElementAddress(src1, src2->m_valueLow));
+	CommitSymbolRegisterMdAvx(dst, dstRegister);
+}
+
 void CCodeGen_x86::Emit_Avx_MergeTo256_MemVarVar(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
@@ -819,6 +868,9 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdAvx2ExpandConstMatchers[] =
 	{ OP_MD_EXPAND, MATCH_VARIABLE128, MATCH_REGISTER, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx2_Expand_VarReg },
 	{ OP_MD_EXPAND, MATCH_VARIABLE128, MATCH_MEMORY,   MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx2_Expand_VarMem },
 	{ OP_MD_EXPAND, MATCH_VARIABLE128, MATCH_CONSTANT, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx2_Expand_VarCst },
+
+	{ OP_MD_EXPAND, MATCH_VARIABLE128, MATCH_REGISTER128, MATCH_CONSTANT, MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx2_Expand_VarRegCst },
+	{ OP_MD_EXPAND, MATCH_VARIABLE128, MATCH_MEMORY128,   MATCH_CONSTANT, MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx2_Expand_VarMemCst },
 
 	{ OP_MOV, MATCH_NIL, MATCH_NIL, MATCH_NIL, MATCH_NIL, nullptr },
 };

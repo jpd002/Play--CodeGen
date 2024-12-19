@@ -1023,7 +1023,7 @@ void CJitter::MD_PushRel(size_t offset)
 
 void CJitter::MD_PushRelExpand(size_t offset)
 {
-	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY128, m_nextTemporary++);
+	auto tempSym = MakeSymbol(SYM_TEMPORARY128, m_nextTemporary++);
 
 	STATEMENT statement;
 	statement.op = OP_MD_EXPAND;
@@ -1036,7 +1036,7 @@ void CJitter::MD_PushRelExpand(size_t offset)
 
 void CJitter::MD_PushCstExpand(uint32 constant)
 {
-	SymbolPtr tempSym = MakeSymbol(SYM_TEMPORARY128, m_nextTemporary++);
+	auto tempSym = MakeSymbol(SYM_TEMPORARY128, m_nextTemporary++);
 
 	STATEMENT statement;
 	statement.op = OP_MD_EXPAND;

@@ -19,6 +19,10 @@ void CMdManipTest::Compile(Jitter::CJitter& jitter)
 		jitter.MD_PushRelExpand(offsetof(CONTEXT, src1[1]));
 		jitter.MD_PullRel(offsetof(CONTEXT, dstExpandRel));
 
+		//Push Rel Element Expand
+		jitter.MD_PushRelElementExpand(offsetof(CONTEXT, src0), 1);
+		jitter.MD_PullRel(offsetof(CONTEXT, dstExpandRelElem));
+
 		//Push Cst Expand
 		jitter.MD_PushCstExpand(31415.f);
 		jitter.MD_PullRel(offsetof(CONTEXT, dstExpandCst));
@@ -78,6 +82,11 @@ void CMdManipTest::Run()
 	TEST_VERIFY(context.dstExpandRel[1] == 600.0f);
 	TEST_VERIFY(context.dstExpandRel[2] == 600.0f);
 	TEST_VERIFY(context.dstExpandRel[3] == 600.0f);
+
+	TEST_VERIFY(context.dstExpandRelElem[0] == 50.0f);
+	TEST_VERIFY(context.dstExpandRelElem[1] == 50.0f);
+	TEST_VERIFY(context.dstExpandRelElem[2] == 50.0f);
+	TEST_VERIFY(context.dstExpandRelElem[3] == 50.0f);
 
 	TEST_VERIFY(context.dstExpandCst[0] == 31415.0f);
 	TEST_VERIFY(context.dstExpandCst[1] == 31415.0f);

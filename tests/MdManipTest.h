@@ -22,6 +22,7 @@ private:
 		float dstMasked1[4];
 
 		float dstExpandRel[4];
+		float dstExpandRelElem[4];
 		float dstExpandCst[4];
 		float dstExpandCstZero[4];
 	};

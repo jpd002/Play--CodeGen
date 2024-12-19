@@ -149,6 +149,9 @@ void CJitter::Compile()
 
 				//DumpStatementList(m_currentBlock->statements);
 
+				//This doesn't need to be run more than once
+				ClampingElimination(basicBlock.statements);
+
 				auto versionedStatements = GenerateVersionedStatementList(basicBlock.statements);
 
 				while(1)
@@ -1337,6 +1340,53 @@ bool CJitter::CommonExpressionElimination(VERSIONED_STATEMENT_LIST& versionedSta
 				    changed = true;
 			    }
 		    });
+	}
+
+	return changed;
+}
+
+bool CJitter::ClampingElimination(StatementList& statements)
+{
+	bool changed = false;
+
+	std::map<uint32, uint32> temporaryValues;
+
+	for(auto statementIterator(statements.begin());
+	    statements.end() != statementIterator; ++statementIterator)
+	{
+		auto& statement = *statementIterator;
+
+		auto dstSymbol = dynamic_symbolref_cast(SYM_TEMPORARY128, statement.dst);
+
+		if((statement.op == OP_MD_EXPAND) &&
+		   dstSymbol &&
+		   statement.src1->GetSymbol()->IsConstant())
+		{
+			auto src1Symbol = dynamic_symbolref_cast(SYM_CONSTANT, statement.src1);
+			temporaryValues.insert(
+			    std::make_pair(dstSymbol->m_valueLow, src1Symbol->m_valueLow));
+		}
+		else if(dstSymbol)
+		{
+			//Make sure that our temporary value doesn't get modified
+			assert(temporaryValues.find(dstSymbol->m_valueLow) == std::end(temporaryValues));
+		}
+
+		if((statement.op == OP_MD_CLAMP_S) &&
+		   statement.src1->GetSymbol()->IsTemporary())
+		{
+			auto src1Symbol = dynamic_symbolref_cast(SYM_TEMPORARY128, statement.src1);
+			auto tempCstValue = temporaryValues.find(src1Symbol->m_valueLow);
+			if(tempCstValue != std::end(temporaryValues))
+			{
+				if((tempCstValue->second & 0x7F800000) != 0x7F800000)
+				{
+					//No clamping needed here
+					statement.op = OP_MOV;
+					changed = true;
+				}
+			}
+		}
 	}
 
 	return changed;

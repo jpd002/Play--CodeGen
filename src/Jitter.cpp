@@ -1034,6 +1034,22 @@ void CJitter::MD_PushRelExpand(size_t offset)
 	m_shadow.Push(tempSym);
 }
 
+void CJitter::MD_PushRelElementExpand(size_t offset, uint32 elementIdx)
+{
+	assert(elementIdx < 4);
+
+	auto tempSym = MakeSymbol(SYM_TEMPORARY128, m_nextTemporary++);
+
+	STATEMENT statement;
+	statement.op = OP_MD_EXPAND;
+	statement.src1 = MakeSymbolRef(MakeSymbol(SYM_RELATIVE128, static_cast<uint32>(offset)));
+	statement.src2 = MakeSymbolRef(MakeSymbol(SYM_CONSTANT, elementIdx));
+	statement.dst = MakeSymbolRef(tempSym);
+	InsertStatement(statement);
+
+	m_shadow.Push(tempSym);
+}
+
 void CJitter::MD_PushCstExpand(uint32 constant)
 {
 	auto tempSym = MakeSymbol(SYM_TEMPORARY128, m_nextTemporary++);

@@ -148,7 +148,7 @@ void CCodeGen_x86_32::Emit_Prolog(const StatementList& statements, unsigned int 
 			case OP_PARAM:
 			case OP_PARAM_RET:
 			{
-				CSymbol* src1 = statement.src1->GetSymbol().get();
+				auto src1 = statement.src1->GetSymbol().get();
 				switch(src1->m_type)
 				{
 				case SYM_CONTEXT:
@@ -193,6 +193,16 @@ void CCodeGen_x86_32::Emit_Prolog(const StatementList& statements, unsigned int 
 			case OP_MD_CLAMP_S:
 				m_literalOffsets.insert(std::make_pair(g_fpClampMask1, -1));
 				m_literalOffsets.insert(std::make_pair(g_fpClampMask2, -1));
+				break;
+			case OP_MD_EXPAND:
+				if(m_cpuFeatures.hasAvx || m_cpuFeatures.hasAvx2)
+				{
+					auto src1 = statement.src1->GetSymbol().get();
+					if((src1->m_type == SYM_CONSTANT) && (src1->m_valueLow == 0x3F800000))
+					{
+						m_literalOffsets.insert(std::make_pair(g_fpCstOne, -1));
+					}
+				}
 				break;
 
 			default:

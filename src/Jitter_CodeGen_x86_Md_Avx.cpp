@@ -1,7 +1,10 @@
 #include "Jitter_CodeGen_x86.h"
 #include <stdexcept>
+#include <array>
 
 using namespace Jitter;
+
+static const std::array<uint8, 4> g_mdExpandShufPatterns = {0x00, 0x55, 0xAA, 0xFF};
 
 CX86Assembler::XMMREGISTER CCodeGen_x86::PrepareSymbolRegisterUseMdAvx(CSymbol* symbol, CX86Assembler::XMMREGISTER preferedRegister)
 {
@@ -542,6 +545,21 @@ void CCodeGen_x86::Emit_Md_Avx_Expand_VarCst(const STATEMENT& statement)
 	CommitSymbolRegisterMdAvx(dst, dstRegister);
 }
 
+void CCodeGen_x86::Emit_Md_Avx_Expand_VarVarCst(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	auto dstRegister = PrepareSymbolRegisterDefMd(dst, CX86Assembler::xMM0);
+	auto srcRegister = PrepareSymbolRegisterUseMdAvx(src1, CX86Assembler::xMM1);
+	uint8 shufImm = g_mdExpandShufPatterns[src2->m_valueLow];
+
+	m_assembler.VshufpsVo(dstRegister, srcRegister, CX86Assembler::MakeXmmRegisterAddress(srcRegister), shufImm);
+
+	CommitSymbolRegisterMdAvx(dst, dstRegister);
+}
+
 void CCodeGen_x86::Emit_Md_Avx2_Expand_VarReg(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
@@ -602,29 +620,13 @@ void CCodeGen_x86::Emit_Md_Avx2_Expand_VarRegCst(const STATEMENT& statement)
 	auto dstRegister = PrepareSymbolRegisterDefMd(dst, CX86Assembler::xMM0);
 	auto srcRegister = m_mdRegisters[src1->m_valueLow];
 
-	uint8 shufImm = [&] {
-		switch(src2->m_valueLow)
-		{
-		default:
-			assert(false);
-			[[fallthrough]];
-		case 0:
-			return 0x00;
-		case 1:
-			return 0x55;
-		case 2:
-			return 0xAA;
-		case 3:
-			return 0xFF;
-		}
-	}();
-
 	if(src2->m_valueLow == 0)
 	{
 		m_assembler.VpbroadcastdVo(dstRegister, CX86Assembler::MakeXmmRegisterAddress(srcRegister));
 	}
 	else
 	{
+		uint8 shufImm = g_mdExpandShufPatterns[src2->m_valueLow];
 		m_assembler.VshufpsVo(dstRegister, srcRegister, CX86Assembler::MakeXmmRegisterAddress(srcRegister), shufImm);
 	}
 
@@ -859,6 +861,8 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdAvxExpandConstMatchers[] =
 {
 	{ OP_MD_EXPAND, MATCH_VARIABLE128, MATCH_VARIABLE, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx_Expand_VarVar },
 	{ OP_MD_EXPAND, MATCH_VARIABLE128, MATCH_CONSTANT, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx_Expand_VarCst },
+
+	{ OP_MD_EXPAND, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_CONSTANT, MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx_Expand_VarVarCst },
 
 	{ OP_MOV, MATCH_NIL,         MATCH_NIL,         MATCH_NIL, MATCH_NIL, nullptr },
 };

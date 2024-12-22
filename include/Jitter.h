@@ -183,6 +183,9 @@ namespace Jitter
 		void MD_StoreAtRef();
 		void MD_StoreAtRefIdx(size_t = 0x10);
 
+		void MD_LoadFromRefIdxMasked(bool, bool, bool, bool);
+		void MD_StoreAtRefIdxMasked(bool, bool, bool, bool);
+
 		void MD_AbsS();
 		void MD_AddB();
 		void MD_AddBSS();

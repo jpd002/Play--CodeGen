@@ -1091,6 +1091,66 @@ void CJitter::MD_LoadFromRefIdx(size_t scale)
 	m_shadow.Push(tempSym);
 }
 
+void CJitter::MD_LoadFromRefIdxMasked(bool save0, bool save1, bool save2, bool save3)
+{
+	if(save0 && save1 && save2 && save3)
+	{
+		//Discard value to blend with (since we're just keeping everything from mem access)
+		m_shadow.Pull();
+		MD_LoadFromRefIdx(1);
+	}
+	else
+	{
+		auto tempSym = MakeSymbol(SYM_TEMPORARY128, m_nextTemporary++);
+
+		uint8 mask =
+		    ((save0 ? 1 : 0) << 0) |
+		    ((save1 ? 1 : 0) << 1) |
+		    ((save2 ? 1 : 0) << 2) |
+		    ((save3 ? 1 : 0) << 3);
+
+		assert(mask != 0);
+
+		STATEMENT statement;
+		statement.op = OP_MD_LOADFROMREF_MASKED;
+		statement.src3 = MakeSymbolRef(m_shadow.Pull());
+		statement.src2 = MakeSymbolRef(m_shadow.Pull());
+		statement.src1 = MakeSymbolRef(m_shadow.Pull());
+		statement.dst = MakeSymbolRef(tempSym);
+		statement.jmpCondition = static_cast<Jitter::CONDITION>(mask);
+
+		InsertStatement(statement);
+
+		m_shadow.Push(tempSym);
+	}
+}
+
+void CJitter::MD_StoreAtRefIdxMasked(bool save0, bool save1, bool save2, bool save3)
+{
+	if(save0 && save1 && save2 && save3)
+	{
+		MD_LoadFromRefIdx(1);
+	}
+	else
+	{
+		uint8 mask =
+		    ((save0 ? 1 : 0) << 0) |
+		    ((save1 ? 1 : 0) << 1) |
+		    ((save2 ? 1 : 0) << 2) |
+		    ((save3 ? 1 : 0) << 3);
+
+		assert(mask != 0);
+
+		STATEMENT statement;
+		statement.op = OP_MD_STOREATREF_MASKED;
+		statement.jmpCondition = static_cast<CONDITION>(mask);
+		statement.src3 = MakeSymbolRef(m_shadow.Pull());
+		statement.src2 = MakeSymbolRef(m_shadow.Pull());
+		statement.src1 = MakeSymbolRef(m_shadow.Pull());
+		InsertStatement(statement);
+	}
+}
+
 void CJitter::MD_StoreAtRef()
 {
 	StoreAtRef();

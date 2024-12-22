@@ -754,6 +754,36 @@ void CCodeGen_x86::Emit_Md_Avx_StoreAtRef_VarAnyVar(const STATEMENT& statement)
 	m_assembler.VmovapsVo(MakeRefBaseScaleSymbolAddress(src1, CX86Assembler::rAX, src2, CX86Assembler::rCX, scale), valueReg);
 }
 
+void CCodeGen_x86::Emit_Md_Avx_LoadFromRefMasked_VarVarAnyVar(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+	auto src3 = statement.src3->GetSymbol().get();
+	uint8 mask = static_cast<uint8>(statement.jmpCondition);
+
+	auto dstReg = PrepareSymbolRegisterDefMd(dst, CX86Assembler::xMM0);
+	auto src3Reg = PrepareSymbolRegisterUseMdAvx(src3, CX86Assembler::xMM1);
+
+	m_assembler.VblendpsVo(dstReg, src3Reg, MakeRefBaseScaleSymbolAddress(src1, CX86Assembler::rAX, src2, CX86Assembler::rCX, 1), mask);
+	CommitSymbolRegisterMdAvx(dst, dstReg);
+}
+
+void CCodeGen_x86::Emit_Md_Avx_StoreAtRefMasked_VarAnyVar(const STATEMENT& statement)
+{
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+	auto src3 = statement.src3->GetSymbol().get();
+	uint8 mask = static_cast<uint8>(statement.jmpCondition);
+
+	auto valueReg = PrepareSymbolRegisterUseMdAvx(src3, CX86Assembler::xMM0);
+	auto tmpReg = CX86Assembler::xMM1;
+	auto dstAddress = MakeRefBaseScaleSymbolAddress(src1, CX86Assembler::rAX, src2, CX86Assembler::rCX, 1);
+
+	m_assembler.VblendpsVo(tmpReg, valueReg, dstAddress, ~mask & 0x0F);
+	m_assembler.VmovapsVo(dstAddress, tmpReg);
+}
+
 // clang-format off
 CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdAvxConstMatchers[] = 
 {
@@ -854,6 +884,9 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdAvxConstMatchers[] =
 
 	{ OP_STOREATREF, MATCH_NIL, MATCH_VAR_REF, MATCH_VARIABLE128, MATCH_NIL,         &CCodeGen_x86::Emit_Md_Avx_StoreAtRef_VarVar },
 	{ OP_STOREATREF, MATCH_NIL, MATCH_VAR_REF, MATCH_ANY32,       MATCH_VARIABLE128, &CCodeGen_x86::Emit_Md_Avx_StoreAtRef_VarAnyVar },
+
+	{ OP_MD_LOADFROMREF_MASKED, MATCH_VARIABLE128, MATCH_VAR_REF, MATCH_ANY32, MATCH_VARIABLE128, &CCodeGen_x86::Emit_Md_Avx_LoadFromRefMasked_VarVarAnyVar },
+	{ OP_MD_STOREATREF_MASKED,  MATCH_NIL,         MATCH_VAR_REF, MATCH_ANY32, MATCH_VARIABLE128, &CCodeGen_x86::Emit_Md_Avx_StoreAtRefMasked_VarAnyVar     },
 
 	{ OP_MOV, MATCH_NIL,         MATCH_NIL,         MATCH_NIL, MATCH_NIL, nullptr },
 };

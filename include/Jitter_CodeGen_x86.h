@@ -856,6 +856,9 @@ namespace Jitter
 		void Emit_Md_Avx_StoreAtRef_VarVar(const STATEMENT&);
 		void Emit_Md_Avx_StoreAtRef_VarAnyVar(const STATEMENT&);
 
+		void Emit_Md_Avx_LoadFromRefMasked_VarVarAnyVar(const STATEMENT&);
+		void Emit_Md_Avx_StoreAtRefMasked_VarAnyVar(const STATEMENT&);
+
 		static CX86Assembler::REGISTER g_baseRegister;
 
 		CX86Assembler::REGISTER PrepareSymbolRegisterDef(CSymbol*, CX86Assembler::REGISTER);

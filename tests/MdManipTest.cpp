@@ -20,8 +20,17 @@ void CMdManipTest::Compile(Jitter::CJitter& jitter)
 		jitter.MD_PullRel(offsetof(CONTEXT, dstExpandRel));
 
 		//Push Rel Element Expand
+		jitter.MD_PushRelElementExpand(offsetof(CONTEXT, src0), 0);
+		jitter.MD_PullRel(offsetof(CONTEXT, dstExpandRelElem0));
+
 		jitter.MD_PushRelElementExpand(offsetof(CONTEXT, src0), 1);
-		jitter.MD_PullRel(offsetof(CONTEXT, dstExpandRelElem));
+		jitter.MD_PullRel(offsetof(CONTEXT, dstExpandRelElem1));
+
+		jitter.MD_PushRelElementExpand(offsetof(CONTEXT, src0), 2);
+		jitter.MD_PullRel(offsetof(CONTEXT, dstExpandRelElem2));
+
+		jitter.MD_PushRelElementExpand(offsetof(CONTEXT, src0), 3);
+		jitter.MD_PullRel(offsetof(CONTEXT, dstExpandRelElem3));
 
 		//Push Cst Expand
 		jitter.MD_PushCstExpand(31415.f);
@@ -83,10 +92,13 @@ void CMdManipTest::Run()
 	TEST_VERIFY(context.dstExpandRel[2] == 600.0f);
 	TEST_VERIFY(context.dstExpandRel[3] == 600.0f);
 
-	TEST_VERIFY(context.dstExpandRelElem[0] == 50.0f);
-	TEST_VERIFY(context.dstExpandRelElem[1] == 50.0f);
-	TEST_VERIFY(context.dstExpandRelElem[2] == 50.0f);
-	TEST_VERIFY(context.dstExpandRelElem[3] == 50.0f);
+	for(int i = 0; i < 4; i++)
+	{
+		TEST_VERIFY(context.dstExpandRelElem0[i] == 5.0f);
+		TEST_VERIFY(context.dstExpandRelElem1[i] == 50.0f);
+		TEST_VERIFY(context.dstExpandRelElem2[i] == 500.0f);
+		TEST_VERIFY(context.dstExpandRelElem3[i] == 5000.0f);
+	}
 
 	TEST_VERIFY(context.dstExpandCst[0] == 31415.0f);
 	TEST_VERIFY(context.dstExpandCst[1] == 31415.0f);

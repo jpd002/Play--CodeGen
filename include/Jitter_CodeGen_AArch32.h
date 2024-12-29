@@ -719,6 +719,7 @@ namespace Jitter
 		void Emit_Md_Expand_MemReg(const STATEMENT&);
 		void Emit_Md_Expand_MemMem(const STATEMENT&);
 		void Emit_Md_Expand_MemCst(const STATEMENT&);
+		void Emit_Md_Expand_VarVarCst(const STATEMENT&);
 
 		void Emit_Md_ClampS_MemMem(const STATEMENT&);
 		void Emit_Md_MakeSz_VarMem(const STATEMENT&);

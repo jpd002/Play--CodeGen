@@ -806,6 +806,16 @@ void CAArch32Assembler::Vdup(QUAD_REGISTER qd, REGISTER rt)
 	WriteWord(opcode);
 }
 
+void CAArch32Assembler::Vdup_32(QUAD_REGISTER qd, DOUBLE_REGISTER dm, uint8 index)
+{
+	assert(index < 2);
+	uint32 opcode = 0xF3B40C40;
+	opcode |= FPSIMD_EncodeQd(qd);
+	opcode |= FPSIMD_EncodeDm(dm);
+	opcode |= (index & 1) << 19;
+	WriteWord(opcode);
+}
+
 void CAArch32Assembler::Vzip_I8(DOUBLE_REGISTER dd, DOUBLE_REGISTER dm)
 {
 	uint32 opcode = 0xF3B20180;

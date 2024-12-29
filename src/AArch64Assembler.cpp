@@ -436,6 +436,16 @@ void CAArch64Assembler::Dup_4s(REGISTERMD rd, REGISTER32 rn)
 	WriteWord(opcode);
 }
 
+void CAArch64Assembler::Dup_4s(REGISTERMD rd, REGISTERMD rn, uint8 index)
+{
+	assert(index < 4);
+	uint32 opcode = 0x4E040400;
+	opcode |= (rd << 0);
+	opcode |= (rn << 5);
+	opcode |= (index << 19);
+	WriteWord(opcode);
+}
+
 void CAArch64Assembler::Eor(REGISTER32 rd, REGISTER32 rn, REGISTER32 rm)
 {
 	uint32 opcode = 0x4A000000;

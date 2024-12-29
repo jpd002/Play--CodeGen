@@ -768,6 +768,7 @@ namespace Jitter
 		void Emit_Md_Expand_VarReg(const STATEMENT&);
 		void Emit_Md_Expand_VarMem(const STATEMENT&);
 		void Emit_Md_Expand_VarCst(const STATEMENT&);
+		void Emit_Md_Expand_VarVarCst(const STATEMENT&);
 
 		void Emit_Md_PackHB_VarVarVar(const STATEMENT&);
 		void Emit_Md_PackWH_VarVarVar(const STATEMENT&);

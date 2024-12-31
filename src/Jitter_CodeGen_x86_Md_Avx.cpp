@@ -861,7 +861,7 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdAvxConstMatchers[] =
 	{ OP_MOV, MATCH_NIL,         MATCH_NIL,         MATCH_NIL, MATCH_NIL, nullptr },
 };
 
-CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdAvxExpandConstMatchers[] =
+CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdNoAvx2ConstMatchers[] =
 {
 	{ OP_MD_EXPAND, MATCH_VARIABLE128, MATCH_VARIABLE, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx_Expand_VarVar },
 	{ OP_MD_EXPAND, MATCH_VARIABLE128, MATCH_CONSTANT, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx_Expand_VarCst },
@@ -871,7 +871,7 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdAvxExpandConstMatchers[] =
 	{ OP_MOV, MATCH_NIL,         MATCH_NIL,         MATCH_NIL, MATCH_NIL, nullptr },
 };
 
-CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdAvx2ExpandConstMatchers[] =
+CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdAvx2ConstMatchers[] =
 {
 	{ OP_MD_EXPAND, MATCH_VARIABLE128, MATCH_REGISTER, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx2_Expand_VarReg },
 	{ OP_MD_EXPAND, MATCH_VARIABLE128, MATCH_MEMORY,   MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx2_Expand_VarMem },

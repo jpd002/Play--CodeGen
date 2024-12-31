@@ -910,19 +910,19 @@ namespace Jitter
 		static CONSTMATCHER g_fpuSseConstMatchers[];
 		static CONSTMATCHER g_fpuAvxConstMatchers[];
 
+		//SSE SIMD matchers
 		static CONSTMATCHER g_mdSseConstMatchers[];
 
-		static CONSTMATCHER g_mdSseMinMaxWConstMatchers[];
-		static CONSTMATCHER g_mdSse41MinMaxWConstMatchers[];
+		static CONSTMATCHER g_mdNoSse41ConstMatchers[];
+		static CONSTMATCHER g_mdSse41ConstMatchers[];
 
-		static CONSTMATCHER g_mdSseMovMaskedConstMatchers[];
-		static CONSTMATCHER g_mdSse41MovMaskedConstMatchers[];
+		static CONSTMATCHER g_mdNoSsse3ConstMatchers[];
+		static CONSTMATCHER g_mdSsse3ConstMatchers[];
 
-		static CONSTMATCHER g_mdSseFpFlagConstMatchers[];
-		static CONSTMATCHER g_mdSsse3FpFlagConstMatchers[];
-
+		//AVX SIMD matchers
 		static CONSTMATCHER g_mdAvxConstMatchers[];
-		static CONSTMATCHER g_mdAvxExpandConstMatchers[];
-		static CONSTMATCHER g_mdAvx2ExpandConstMatchers[];
+
+		static CONSTMATCHER g_mdNoAvx2ConstMatchers[];
+		static CONSTMATCHER g_mdAvx2ConstMatchers[];
 	};
 }

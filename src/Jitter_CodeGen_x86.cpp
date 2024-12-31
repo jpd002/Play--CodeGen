@@ -122,11 +122,11 @@ CCodeGen_x86::CCodeGen_x86(CX86CpuFeatures cpuFeatures)
 
 		if(cpuFeatures.hasAvx2)
 		{
-			InsertMatchers(g_mdAvx2ExpandConstMatchers);
+			InsertMatchers(g_mdAvx2ConstMatchers);
 		}
 		else
 		{
-			InsertMatchers(g_mdAvxExpandConstMatchers);
+			InsertMatchers(g_mdNoAvx2ConstMatchers);
 		}
 	}
 	else
@@ -136,22 +136,20 @@ CCodeGen_x86::CCodeGen_x86(CX86CpuFeatures cpuFeatures)
 
 		if(cpuFeatures.hasSsse3)
 		{
-			InsertMatchers(g_mdSsse3FpFlagConstMatchers);
+			InsertMatchers(g_mdSsse3ConstMatchers);
 		}
 		else
 		{
-			InsertMatchers(g_mdSseFpFlagConstMatchers);
+			InsertMatchers(g_mdNoSsse3ConstMatchers);
 		}
 
 		if(cpuFeatures.hasSse41)
 		{
-			InsertMatchers(g_mdSse41MinMaxWConstMatchers);
-			InsertMatchers(g_mdSse41MovMaskedConstMatchers);
+			InsertMatchers(g_mdSse41ConstMatchers);
 		}
 		else
 		{
-			InsertMatchers(g_mdSseMinMaxWConstMatchers);
-			InsertMatchers(g_mdSseMovMaskedConstMatchers);
+			InsertMatchers(g_mdNoSse41ConstMatchers);
 		}
 	}
 }

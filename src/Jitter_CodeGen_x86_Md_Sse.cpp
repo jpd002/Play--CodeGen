@@ -1065,44 +1065,34 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdSseConstMatchers[] =
 	{ OP_MOV, MATCH_NIL, MATCH_NIL, MATCH_NIL, MATCH_NIL, nullptr },
 };
 
-CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdSseMinMaxWConstMatchers[] =
+CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdNoSse41ConstMatchers[] =
 {
 	{ OP_MD_MIN_W, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_NIL, &CCodeGen_x86::Emit_Md_MinW_VarVarVar },
 	{ OP_MD_MAX_W, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_NIL, &CCodeGen_x86::Emit_Md_MaxW_VarVarVar },
 
-	{ OP_MOV, MATCH_NIL, MATCH_NIL, MATCH_NIL, MATCH_NIL, nullptr },
-};
-
-CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdSse41MinMaxWConstMatchers[] = 
-{
-	MD_CONST_MATCHERS_3OPS(OP_MD_MIN_W, MDOP_MINW)
-	MD_CONST_MATCHERS_3OPS(OP_MD_MAX_W, MDOP_MAXW)
-
-	{ OP_MOV, MATCH_NIL, MATCH_NIL, MATCH_NIL, MATCH_NIL, nullptr },
-};
-
-CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdSseMovMaskedConstMatchers[] =
-{
 	{ OP_MD_MOV_MASKED, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_NIL, &CCodeGen_x86::Emit_Md_MovMasked_VarVarVar },
 
 	{ OP_MOV, MATCH_NIL, MATCH_NIL, MATCH_NIL, MATCH_NIL, nullptr },
 };
 
-CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdSse41MovMaskedConstMatchers[] =
+CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdSse41ConstMatchers[] = 
 {
+	MD_CONST_MATCHERS_3OPS(OP_MD_MIN_W, MDOP_MINW)
+	MD_CONST_MATCHERS_3OPS(OP_MD_MAX_W, MDOP_MAXW)
+
 	{ OP_MD_MOV_MASKED, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_NIL, &CCodeGen_x86::Emit_Md_MovMasked_Sse41_VarVarVar },
 
 	{ OP_MOV, MATCH_NIL, MATCH_NIL, MATCH_NIL, MATCH_NIL, nullptr },
 };
 
-CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdSseFpFlagConstMatchers[] =
+CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdNoSsse3ConstMatchers[] =
 {
 	{ OP_MD_MAKESZ,     MATCH_VARIABLE, MATCH_VARIABLE128, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Md_MakeSz_VarVar },
 
 	{ OP_MOV, MATCH_NIL, MATCH_NIL, MATCH_NIL, MATCH_NIL, nullptr },
 };
 
-CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdSsse3FpFlagConstMatchers[] =
+CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdSsse3ConstMatchers[] =
 {
 	{ OP_MD_MAKESZ,     MATCH_VARIABLE, MATCH_VARIABLE128, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Md_MakeSz_Ssse3_VarVar },
 	

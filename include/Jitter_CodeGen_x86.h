@@ -905,20 +905,21 @@ namespace Jitter
 		void InsertMatchers(const CONSTMATCHER*);
 
 		static CONSTMATCHER g_constMatchers[];
+
 		static CONSTMATCHER g_fpuConstMatchers[];
 		static CONSTMATCHER g_fpuSseConstMatchers[];
 		static CONSTMATCHER g_fpuAvxConstMatchers[];
 
-		static CONSTMATCHER g_mdConstMatchers[];
+		static CONSTMATCHER g_mdSseConstMatchers[];
 
-		static CONSTMATCHER g_mdMinMaxWConstMatchers[];
-		static CONSTMATCHER g_mdMinMaxWSse41ConstMatchers[];
+		static CONSTMATCHER g_mdSseMinMaxWConstMatchers[];
+		static CONSTMATCHER g_mdSse41MinMaxWConstMatchers[];
 
-		static CONSTMATCHER g_mdMovMaskedConstMatchers[];
-		static CONSTMATCHER g_mdMovMaskedSse41ConstMatchers[];
+		static CONSTMATCHER g_mdSseMovMaskedConstMatchers[];
+		static CONSTMATCHER g_mdSse41MovMaskedConstMatchers[];
 
-		static CONSTMATCHER g_mdFpFlagConstMatchers[];
-		static CONSTMATCHER g_mdFpFlagSsse3ConstMatchers[];
+		static CONSTMATCHER g_mdSseFpFlagConstMatchers[];
+		static CONSTMATCHER g_mdSsse3FpFlagConstMatchers[];
 
 		static CONSTMATCHER g_mdAvxConstMatchers[];
 		static CONSTMATCHER g_mdAvxExpandConstMatchers[];

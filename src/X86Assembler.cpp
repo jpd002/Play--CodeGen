@@ -419,6 +419,22 @@ void CX86Assembler::ResolveLiteralReferences()
 	m_outputStream->Seek(0, Framework::STREAM_SEEK_END);
 }
 
+void CX86Assembler::WriteLiteralPlaceholder(const CAddress& address)
+{
+	//Check for rIP relative addressing
+	if(address.ModRm.nByte == 0x05)
+	{
+		assert(m_currentLabel);
+		auto literalIterator = m_currentLabel->literal128Refs.find(address.literal128Id);
+		assert(literalIterator != std::end(m_currentLabel->literal128Refs));
+		auto& literal = literalIterator->second;
+		assert(literal.offset == 0);
+		literal.offset = static_cast<uint32>(m_tmpStream.Tell());
+		//Write placeholder
+		m_tmpStream.Write32(0);
+	}
+}
+
 void CX86Assembler::AdcEd(REGISTER registerId, const CAddress& address)
 {
 	WriteEvGvOp(0x13, false, address, registerId);

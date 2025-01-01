@@ -593,6 +593,8 @@ private:
 	static unsigned int GetJumpSize(JMP_TYPE, JMP_LENGTH);
 	static void WriteJump(Framework::CStream*, JMP_TYPE, JMP_LENGTH, uint32);
 
+	void WriteLiteralPlaceholder(const CAddress&);
+
 	void WriteByte(uint8);
 	void WriteWord(uint16);
 	void WriteDWord(uint32);

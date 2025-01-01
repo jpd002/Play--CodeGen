@@ -52,18 +52,7 @@ void CX86Assembler::WriteVexVoOp(VEX_OPCODE_MAP opMap, uint8 op, XMMREGISTER dst
 	CAddress newAddress(src2);
 	newAddress.ModRm.nFnReg = dst;
 	newAddress.Write(&m_tmpStream);
-	//Check for rIP relative addressing
-	if(src2.ModRm.nByte == 0x05)
-	{
-		assert(m_currentLabel);
-		auto literalIterator = m_currentLabel->literal128Refs.find(src2.literal128Id);
-		assert(literalIterator != std::end(m_currentLabel->literal128Refs));
-		auto& literal = literalIterator->second;
-		assert(literal.offset == 0);
-		literal.offset = static_cast<uint32>(m_tmpStream.Tell());
-		//Write placeholder
-		m_tmpStream.Write32(0);
-	}
+	WriteLiteralPlaceholder(src2);
 }
 
 void CX86Assembler::WriteVexShiftVoOp(uint8 op, uint8 subOp, XMMREGISTER dst, XMMREGISTER src, uint8 amount)

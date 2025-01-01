@@ -819,6 +819,10 @@ void CCodeGen_x86::Emit_Md_Expand_VarCst(const STATEMENT& statement)
 	{
 		m_assembler.PxorVo(resultRegister, CX86Assembler::MakeXmmRegisterAddress(resultRegister));
 	}
+	else if(src1->m_valueLow == 0x3F800000)
+	{
+		m_assembler.MovapsVo(resultRegister, MakeConstant128Address(g_fpCstOne));
+	}
 	else
 	{
 		m_assembler.MovId(cstRegister, src1->m_valueLow);

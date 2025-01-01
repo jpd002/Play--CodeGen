@@ -28,6 +28,7 @@ private:
 		float dstExpandRelElem3[4];
 		float dstExpandCst[4];
 		float dstExpandCstZero[4];
+		float dstExpandCstOne[4];
 	};
 
 	FunctionType m_function;

@@ -3,6 +3,8 @@
 
 using namespace Jitter;
 
+const std::array<uint8, 4> CCodeGen_x86::g_mdExpandShufPatterns = {0x00, 0x55, 0xAA, 0xFF};
+
 CX86Assembler::CAddress CCodeGen_x86::MakeRelative128SymbolElementAddress(CSymbol* symbol, unsigned int elementIdx)
 {
 	assert(symbol->m_type == SYM_RELATIVE128);

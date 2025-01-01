@@ -829,6 +829,24 @@ void CCodeGen_x86::Emit_Md_Expand_VarCst(const STATEMENT& statement)
 	CommitSymbolRegisterMdSse(dst, resultRegister);
 }
 
+void CCodeGen_x86::Emit_Md_Expand_VarVarCst(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	auto dstRegister = PrepareSymbolRegisterDefMd(dst, CX86Assembler::xMM0);
+	uint8 shufImm = g_mdExpandShufPatterns[src2->m_valueLow];
+
+	if(!dst->Equals(src1))
+	{
+		m_assembler.MovapsVo(dstRegister, MakeVariable128SymbolAddress(src1));
+	}
+	m_assembler.ShufpsVo(dstRegister, CX86Assembler::MakeXmmRegisterAddress(dstRegister), shufImm);
+
+	CommitSymbolRegisterMdSse(dst, dstRegister);
+}
+
 void CCodeGen_x86::Emit_Md_Srl256_VarMem(CSymbol* dst, CSymbol* src1, const CX86Assembler::CAddress& offsetAddress)
 {
 	auto offsetRegister = CX86Assembler::rAX;
@@ -1022,6 +1040,8 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdSseConstMatchers[] =
 	{ OP_MD_EXPAND, MATCH_VARIABLE128, MATCH_REGISTER, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Md_Expand_VarReg },
 	{ OP_MD_EXPAND, MATCH_VARIABLE128, MATCH_MEMORY,   MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Md_Expand_VarMem },
 	{ OP_MD_EXPAND, MATCH_VARIABLE128, MATCH_CONSTANT, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Md_Expand_VarCst },
+
+	{ OP_MD_EXPAND, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_CONSTANT, MATCH_NIL, &CCodeGen_x86::Emit_Md_Expand_VarVarCst },
 
 	{ OP_MD_PACK_HB, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_NIL, &CCodeGen_x86::Emit_Md_PackHB_VarVarVar },
 	{ OP_MD_PACK_WH, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_NIL, &CCodeGen_x86::Emit_Md_PackWH_VarVarVar },

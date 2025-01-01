@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include "Jitter_CodeGen.h"
 #include "X86Assembler.h"
 #include "X86CpuFeatures.h"
@@ -762,6 +763,7 @@ namespace Jitter
 		void Emit_Md_Expand_VarReg(const STATEMENT&);
 		void Emit_Md_Expand_VarMem(const STATEMENT&);
 		void Emit_Md_Expand_VarCst(const STATEMENT&);
+		void Emit_Md_Expand_VarVarCst(const STATEMENT&);
 
 		void Emit_MergeTo256_MemVarVar(const STATEMENT&);
 
@@ -878,6 +880,7 @@ namespace Jitter
 		static const LITERAL128 g_fpCstOne;
 		static const LITERAL128 g_fpClampMask1;
 		static const LITERAL128 g_fpClampMask2;
+		static const std::array<uint8, 4> g_mdExpandShufPatterns;
 
 		CX86Assembler m_assembler;
 		CX86Assembler::REGISTER* m_registers = nullptr;

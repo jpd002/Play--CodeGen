@@ -1,10 +1,7 @@
 #include "Jitter_CodeGen_x86.h"
 #include <stdexcept>
-#include <array>
 
 using namespace Jitter;
-
-static const std::array<uint8, 4> g_mdExpandShufPatterns = {0x00, 0x55, 0xAA, 0xFF};
 
 CX86Assembler::XMMREGISTER CCodeGen_x86::PrepareSymbolRegisterUseMdAvx(CSymbol* symbol, CX86Assembler::XMMREGISTER preferedRegister)
 {

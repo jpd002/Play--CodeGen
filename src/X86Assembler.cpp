@@ -406,6 +406,8 @@ void CX86Assembler::ResolveLiteralReferences()
 		{
 			const auto& literal = literalRefPair.second;
 			auto literalPos = static_cast<uint32>(literalPool.GetLiteralPosition(literal.value));
+			//offset == 0 is most likely a missing assignation
+			assert(literal.offset != 0);
 			uint32 projectedOffset = literal.offset + projectedDiff;
 			m_outputStream->Seek(projectedOffset, Framework::STREAM_SEEK_SET);
 			static const uint32 opcodeSize = 4;

@@ -286,7 +286,7 @@ void CCodeGen_x86::Emit_Fp_RcplS_MemVar(const STATEMENT& statement)
 
 	m_assembler.MovId(tmpIntRegister, 0x3F800000);
 	m_assembler.MovdVo(dstRegister, CX86Assembler::MakeRegisterAddress(tmpIntRegister));
-	m_assembler.DivssEd(dstRegister, MakeMemoryFp32SymbolAddress(src1));
+	m_assembler.DivssEd(dstRegister, MakeVariableFp32SymbolAddress(src1));
 	m_assembler.MovssEd(MakeMemoryFp32SymbolAddress(dst), dstRegister);
 }
 

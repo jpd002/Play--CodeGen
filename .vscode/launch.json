@@ -9,6 +9,7 @@
                 "<node_internals>/**"
             ],
             "program": "${workspaceFolder}/js/index.ts",
+            "cwd": "${workspaceFolder}/build_cmake/build_wasm",
             "preLaunchTask": "tsc: build - tsconfig.json",
             "internalConsoleOptions": "openOnSessionStart",
             "outputCapture": "std",

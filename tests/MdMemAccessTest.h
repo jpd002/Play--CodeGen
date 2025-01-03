@@ -11,8 +11,9 @@ public:
 	void Compile(Jitter::CJitter&) override;
 
 private:
-	static constexpr size_t ITEM_COUNT = 0x10;
-
+	static constexpr size_t ITEM_COUNT = 0x20;
+	static constexpr size_t MASK_COUNT = 0x10;
+	
 	struct CONTEXT
 	{
 		ALIGN16
@@ -20,6 +21,7 @@ private:
 		uint128 op;
 		uint128 loadResult0;
 		uint128 loadResult1;
+		uint128 loadMaskedResult[MASK_COUNT];
 
 		uint32 loadFromIdx1;
 		uint32 storeAtIdx1;

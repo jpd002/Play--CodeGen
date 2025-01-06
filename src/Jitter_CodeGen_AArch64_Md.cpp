@@ -132,6 +132,29 @@ void CCodeGen_AArch64::CommitSymbolRegisterMd(CSymbol* symbol, CAArch64Assembler
 	}
 }
 
+void CCodeGen_AArch64::MdBlendRegisters(CAArch64Assembler::REGISTERMD dstReg, CAArch64Assembler::REGISTERMD srcReg, uint8 mask)
+{
+	//Try some aligned 64-bit inserts first
+	for(unsigned int i = 0; i < 3; i += 2)
+	{
+		uint8 maskBits = (0x03 << i);
+		if((mask & maskBits) == maskBits)
+		{
+			m_assembler.Ins_1d(dstReg, i / 2, srcReg, i / 2);
+			mask &= ~maskBits;
+		}
+	}
+
+	//Do remaining inserts
+	for(unsigned int i = 0; i < 4; i++)
+	{
+		if(mask & (1 << i))
+		{
+			m_assembler.Ins_1s(dstReg, i, srcReg, i);
+		}
+	}
+}
+
 template <typename MDOP>
 void CCodeGen_AArch64::Emit_Md_VarVar(const STATEMENT& statement)
 {
@@ -353,6 +376,72 @@ void CCodeGen_AArch64::Emit_Md_StoreAtRef_VarAnyVar(const STATEMENT& statement)
 	}
 }
 
+void CCodeGen_AArch64::Emit_Md_LoadFromRefMasked_VarVarAnyVar(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+	auto src3 = statement.src3->GetSymbol().get();
+	auto mask = static_cast<uint8>(statement.jmpCondition);
+	uint8 scale = 1;
+
+	assert(dst->Equals(src3));
+
+	auto addressReg = PrepareSymbolRegisterUseRef(src1, GetNextTempRegister64());
+	auto src3Reg = PrepareSymbolRegisterUseMd(src3, GetNextTempRegisterMd());
+	auto tmpReg = GetNextTempRegisterMd();
+
+	if(uint32 scaledIndex = (src2->m_valueLow * scale); src2->IsConstant() && (scaledIndex < 0x10000))
+	{
+		m_assembler.Ldr_1q(tmpReg, addressReg, scaledIndex);
+	}
+	else
+	{
+		auto indexReg = PrepareSymbolRegisterUse(src2, GetNextTempRegister());
+		m_assembler.Ldr_1q(tmpReg, addressReg, static_cast<CAArch64Assembler::REGISTER64>(indexReg), (scale == 0x10));
+	}
+	
+	MdBlendRegisters(src3Reg, tmpReg, mask);
+
+	//This is only valid if dst == src3
+	CommitSymbolRegisterMd(dst, src3Reg);
+}
+
+void CCodeGen_AArch64::Emit_Md_StoreAtRefMasked_VarAnyVar(const STATEMENT& statement)
+{
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+	auto src3 = statement.src3->GetSymbol().get();
+	uint8 mask = static_cast<uint8>(statement.jmpCondition);
+	uint8 scale = 1;
+	
+	auto addressReg = PrepareSymbolRegisterUseRef(src1, GetNextTempRegister64());
+	auto valueReg = PrepareSymbolRegisterUseMd(src3, GetNextTempRegisterMd());
+	auto tmpReg = GetNextTempRegisterMd();
+	auto indexReg = GetNextTempRegister();
+
+	if(uint32 scaledIndex = (src2->m_valueLow * scale); src2->IsConstant() && (scaledIndex < 0x10000))
+	{
+		m_assembler.Ldr_1q(tmpReg, addressReg, scaledIndex);
+	}
+	else
+	{
+		indexReg = PrepareSymbolRegisterUse(src2, GetNextTempRegister());
+		m_assembler.Ldr_1q(tmpReg, addressReg, static_cast<CAArch64Assembler::REGISTER64>(indexReg), (scale == 0x10));
+	}
+	
+	MdBlendRegisters(tmpReg, valueReg, mask);
+	
+	if(uint32 scaledIndex = (src2->m_valueLow * scale); src2->IsConstant() && (scaledIndex < 0x10000))
+	{
+		m_assembler.Str_1q(tmpReg, addressReg, scaledIndex);
+	}
+	else
+	{
+		m_assembler.Str_1q(tmpReg, addressReg, static_cast<CAArch64Assembler::REGISTER64>(indexReg), (scale == 0x10));
+	}
+}
+
 void CCodeGen_AArch64::Emit_Md_MovMasked_VarVarVar(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
@@ -366,25 +455,7 @@ void CCodeGen_AArch64::Emit_Md_MovMasked_VarVarVar(const STATEMENT& statement)
 	auto src1Reg = PrepareSymbolRegisterUseMd(src1, GetNextTempRegisterMd());
 	auto src2Reg = PrepareSymbolRegisterUseMd(src2, GetNextTempRegisterMd());
 
-	//Try some aligned 64-bit inserts first
-	for(unsigned int i = 0; i < 3; i += 2)
-	{
-		uint8 maskBits = (0x03 << i);
-		if((mask & maskBits) == maskBits)
-		{
-			m_assembler.Ins_1d(src1Reg, i / 2, src2Reg, i / 2);
-			mask &= ~maskBits;
-		}
-	}
-
-	//Do remaining inserts
-	for(unsigned int i = 0; i < 4; i++)
-	{
-		if(mask & (1 << i))
-		{
-			m_assembler.Ins_1s(src1Reg, i, src2Reg, i);
-		}
-	}
+	MdBlendRegisters(src1Reg, src2Reg, mask);
 
 	//This is only valid if dst == src1
 	CommitSymbolRegisterMd(dst, src1Reg);
@@ -683,6 +754,9 @@ CCodeGen_AArch64::CONSTMATCHER CCodeGen_AArch64::g_mdConstMatchers[] =
 	{ OP_STOREATREF,            MATCH_NIL,            MATCH_VAR_REF,        MATCH_VARIABLE128,      MATCH_NIL,         &CCodeGen_AArch64::Emit_Md_StoreAtRef_VarVar             },
 	{ OP_STOREATREF,            MATCH_NIL,            MATCH_VAR_REF,        MATCH_ANY32,            MATCH_VARIABLE128, &CCodeGen_AArch64::Emit_Md_StoreAtRef_VarAnyVar          },
 
+	{ OP_MD_LOADFROMREF_MASKED, MATCH_VARIABLE128,    MATCH_VAR_REF,        MATCH_ANY32,            MATCH_VARIABLE128, &CCodeGen_AArch64::Emit_Md_LoadFromRefMasked_VarVarAnyVar },
+	{ OP_MD_STOREATREF_MASKED,  MATCH_NIL,            MATCH_VAR_REF,        MATCH_ANY32,            MATCH_VARIABLE128, &CCodeGen_AArch64::Emit_Md_StoreAtRefMasked_VarAnyVar     },
+	
 	{ OP_MD_MOV_MASKED,         MATCH_VARIABLE128,    MATCH_VARIABLE128,    MATCH_VARIABLE128,      MATCH_NIL, &CCodeGen_AArch64::Emit_Md_MovMasked_VarVarVar                   },
 
 	{ OP_MD_EXPAND,             MATCH_VARIABLE128,    MATCH_REGISTER,       MATCH_NIL,              MATCH_NIL, &CCodeGen_AArch64::Emit_Md_Expand_VarReg                         },

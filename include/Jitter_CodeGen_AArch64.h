@@ -150,6 +150,8 @@ namespace Jitter
 		bool TryGetAddSub64ImmParams(uint64, ADDSUB_IMM_PARAMS&);
 		bool TryGetLogicalImmParams(uint32, LOGICAL_IMM_PARAMS&);
 
+		void MdBlendRegisters(CAArch64Assembler::REGISTERMD, CAArch64Assembler::REGISTERMD, uint8);
+
 		// clang-format off
 		//SHIFTOP ----------------------------------------------------------
 		struct SHIFTOP_BASE
@@ -764,6 +766,9 @@ namespace Jitter
 		void Emit_Md_StoreAtRef_VarVar(const STATEMENT&);
 		void Emit_Md_StoreAtRef_VarAnyVar(const STATEMENT&);
 
+		void Emit_Md_LoadFromRefMasked_VarVarAnyVar(const STATEMENT&);
+		void Emit_Md_StoreAtRefMasked_VarAnyVar(const STATEMENT&);
+		
 		void Emit_Md_MovMasked_VarVarVar(const STATEMENT&);
 		void Emit_Md_Expand_VarReg(const STATEMENT&);
 		void Emit_Md_Expand_VarMem(const STATEMENT&);

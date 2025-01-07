@@ -110,6 +110,8 @@ namespace Jitter
 		void PrepareSymbolDef(CSymbol*);
 		void CommitSymbol(CSymbol*);
 
+		void MdBlendRegisters(uint8);
+
 		void MarkLabel(const STATEMENT&);
 
 		void Emit_Nop(const STATEMENT&);
@@ -222,6 +224,8 @@ namespace Jitter
 		void Emit_Md_LoadFromRef_MemMemAny(const STATEMENT&);
 		void Emit_Md_StoreAtRef_MemMem(const STATEMENT&);
 		void Emit_Md_StoreAtRef_MemAnyMem(const STATEMENT&);
+		void Emit_Md_LoadFromRefMasked_MemMemAnyMem(const STATEMENT&);
+		void Emit_Md_StoreAtRefMasked_MemAnyMem(const STATEMENT&);
 		void Emit_Md_MovMasked_MemMemMem(const STATEMENT&);
 		void Emit_Md_Expand_MemAny(const STATEMENT&);
 		void Emit_Md_Expand_MemMemCst(const STATEMENT&);

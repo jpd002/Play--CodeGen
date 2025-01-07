@@ -15,6 +15,21 @@ static const uint8 g_unpackUpperBHShuffle[0x10] = {8, 24, 9, 25, 10, 26, 11, 27,
 static const uint8 g_unpackUpperHWShuffle[0x10] = {8, 9, 24, 25, 10, 11, 26, 27, 12, 13, 28, 29, 14, 15, 30, 31};
 static const uint8 g_unpackUpperWDShuffle[0x10] = {8, 9, 10, 11, 24, 25, 26, 27, 12, 13, 14, 15, 28, 29, 30, 31};
 
+void CCodeGen_Wasm::MdBlendRegisters(uint8 mask)
+{
+	m_functionStream.Write8(Wasm::INST_PREFIX_SIMD);
+	m_functionStream.Write8(Wasm::INST_I8x16_SHUFFLE);
+
+	for(uint32 i = 0; i < 16; i++)
+	{
+		uint32 wordIndex = (i / 4);
+		uint32 select = mask & (1 << wordIndex);
+		uint32 byteIndex = i + (select ? 16 : 0);
+		assert(byteIndex < 32);
+		m_functionStream.Write8(static_cast<uint8>(byteIndex));
+	}
+}
+
 template <uint32 OP>
 void CCodeGen_Wasm::Emit_Md_MemMem(const STATEMENT& statement)
 {
@@ -605,6 +620,72 @@ void CCodeGen_Wasm::Emit_Md_StoreAtRef_MemAnyMem(const STATEMENT& statement)
 	m_functionStream.Write8(0x00);
 }
 
+void CCodeGen_Wasm::Emit_Md_LoadFromRefMasked_MemMemAnyMem(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+	auto src3 = statement.src3->GetSymbol().get();
+	auto mask = static_cast<uint8>(statement.jmpCondition);
+
+	PrepareSymbolDef(dst);
+	PrepareSymbolUse(src3);
+	PrepareSymbolUse(src1);
+	PrepareSymbolUse(src2);
+
+	m_functionStream.Write8(Wasm::INST_I32_ADD);
+
+	m_functionStream.Write8(Wasm::INST_PREFIX_SIMD);
+	m_functionStream.Write8(Wasm::INST_V128_LOAD);
+	m_functionStream.Write8(0x04);
+	m_functionStream.Write8(0x00);
+
+	MdBlendRegisters(mask);
+
+	CommitSymbol(dst);
+}
+
+void CCodeGen_Wasm::Emit_Md_StoreAtRefMasked_MemAnyMem(const STATEMENT& statement)
+{
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+	auto src3 = statement.src3->GetSymbol().get();
+	auto mask = static_cast<uint8>(statement.jmpCondition);
+
+	//Compute store address (for later)
+	{
+		PrepareSymbolUse(src1);
+		PrepareSymbolUse(src2);
+
+		m_functionStream.Write8(Wasm::INST_I32_ADD);
+	}
+
+	//Load
+	{
+		PrepareSymbolUse(src1);
+		PrepareSymbolUse(src2);
+
+		m_functionStream.Write8(Wasm::INST_I32_ADD);
+
+		m_functionStream.Write8(Wasm::INST_PREFIX_SIMD);
+		m_functionStream.Write8(Wasm::INST_V128_LOAD);
+		m_functionStream.Write8(0x04);
+		m_functionStream.Write8(0x00);
+	}
+
+	//Blend
+	PrepareSymbolUse(src3);
+	MdBlendRegisters(mask);
+
+	//Store
+	{
+		m_functionStream.Write8(Wasm::INST_PREFIX_SIMD);
+		m_functionStream.Write8(Wasm::INST_V128_STORE);
+		m_functionStream.Write8(0x04);
+		m_functionStream.Write8(0x00);
+	}
+}
+
 void CCodeGen_Wasm::Emit_Md_MovMasked_MemMemMem(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
@@ -617,17 +698,7 @@ void CCodeGen_Wasm::Emit_Md_MovMasked_MemMemMem(const STATEMENT& statement)
 	PrepareSymbolUse(src1);
 	PrepareSymbolUse(src2);
 
-	m_functionStream.Write8(Wasm::INST_PREFIX_SIMD);
-	m_functionStream.Write8(Wasm::INST_I8x16_SHUFFLE);
-
-	for(uint32 i = 0; i < 16; i++)
-	{
-		uint32 wordIndex = (i / 4);
-		uint32 select = mask & (1 << wordIndex);
-		uint32 byteIndex = i + (select ? 16 : 0);
-		assert(byteIndex < 32);
-		m_functionStream.Write8(static_cast<uint8>(byteIndex));
-	}
+	MdBlendRegisters(mask);
 
 	CommitSymbol(dst);
 }
@@ -862,6 +933,9 @@ CCodeGen_Wasm::CONSTMATCHER CCodeGen_Wasm::g_mdConstMatchers[] =
 
 	{ OP_STOREATREF,     MATCH_NIL,            MATCH_MEM_REF,        MATCH_MEMORY128,     MATCH_NIL,      &CCodeGen_Wasm::Emit_Md_StoreAtRef_MemMem                     },
 	{ OP_STOREATREF,     MATCH_NIL,            MATCH_MEM_REF,        MATCH_ANY32,         MATCH_MEMORY128,&CCodeGen_Wasm::Emit_Md_StoreAtRef_MemAnyMem                  },
+
+	{ OP_MD_LOADFROMREF_MASKED, MATCH_VARIABLE128,    MATCH_VAR_REF,    MATCH_ANY32,      MATCH_VARIABLE128, &CCodeGen_Wasm::Emit_Md_LoadFromRefMasked_MemMemAnyMem     },
+	{ OP_MD_STOREATREF_MASKED,  MATCH_NIL,            MATCH_VAR_REF,    MATCH_ANY32,      MATCH_VARIABLE128, &CCodeGen_Wasm::Emit_Md_StoreAtRefMasked_MemAnyMem         },
 
 	{ OP_MD_MOV_MASKED,  MATCH_MEMORY128,      MATCH_MEMORY128,      MATCH_MEMORY128,     MATCH_NIL,      &CCodeGen_Wasm::Emit_Md_MovMasked_MemMemMem                   },
 

@@ -15,7 +15,7 @@ static const uint8 g_unpackUpperBHShuffle[0x10] = {8, 24, 9, 25, 10, 26, 11, 27,
 static const uint8 g_unpackUpperHWShuffle[0x10] = {8, 9, 24, 25, 10, 11, 26, 27, 12, 13, 28, 29, 14, 15, 30, 31};
 static const uint8 g_unpackUpperWDShuffle[0x10] = {8, 9, 10, 11, 24, 25, 26, 27, 12, 13, 14, 15, 28, 29, 30, 31};
 
-void CCodeGen_Wasm::MdBlendRegisters(uint8 mask)
+void CCodeGen_Wasm::MdBlendValues(uint8 mask)
 {
 	m_functionStream.Write8(Wasm::INST_PREFIX_SIMD);
 	m_functionStream.Write8(Wasm::INST_I8x16_SHUFFLE);
@@ -640,7 +640,7 @@ void CCodeGen_Wasm::Emit_Md_LoadFromRefMasked_MemMemAnyMem(const STATEMENT& stat
 	m_functionStream.Write8(0x04);
 	m_functionStream.Write8(0x00);
 
-	MdBlendRegisters(mask);
+	MdBlendValues(mask);
 
 	CommitSymbol(dst);
 }
@@ -675,7 +675,7 @@ void CCodeGen_Wasm::Emit_Md_StoreAtRefMasked_MemAnyMem(const STATEMENT& statemen
 
 	//Blend
 	PrepareSymbolUse(src3);
-	MdBlendRegisters(mask);
+	MdBlendValues(mask);
 
 	//Store
 	{
@@ -698,7 +698,7 @@ void CCodeGen_Wasm::Emit_Md_MovMasked_MemMemMem(const STATEMENT& statement)
 	PrepareSymbolUse(src1);
 	PrepareSymbolUse(src2);
 
-	MdBlendRegisters(mask);
+	MdBlendValues(mask);
 
 	CommitSymbol(dst);
 }

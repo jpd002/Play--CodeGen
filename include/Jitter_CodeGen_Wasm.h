@@ -110,7 +110,7 @@ namespace Jitter
 		void PrepareSymbolDef(CSymbol*);
 		void CommitSymbol(CSymbol*);
 
-		void MdBlendRegisters(uint8);
+		void MdBlendValues(uint8);
 
 		void MarkLabel(const STATEMENT&);
 

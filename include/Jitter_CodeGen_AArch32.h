@@ -147,8 +147,6 @@ namespace Jitter
 		CAArch32Assembler::AluLdrShift GetAluShiftFromSymbol(CAArch32Assembler::SHIFT shiftType, CSymbol* symbol, CAArch32Assembler::REGISTER preferedRegister);
 		CAArch32Assembler::LdrAddress MakeScaledLdrAddress(CAArch32Assembler::REGISTER, uint8);
 
-		static uint32 RotateRight(uint32);
-		static uint32 RotateLeft(uint32);
 		bool TryGetAluImmediateParams(uint32, uint8&, uint8&);
 		void LoadConstantInRegister(CAArch32Assembler::REGISTER, uint32);
 		void LoadConstantPtrInRegister(CAArch32Assembler::REGISTER, uintptr_t);

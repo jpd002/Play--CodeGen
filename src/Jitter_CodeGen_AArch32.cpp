@@ -438,22 +438,6 @@ void CCodeGen_AArch32::Emit_Epilog()
 	m_assembler.Ldmia(CAArch32Assembler::rSP, m_registerSave);
 }
 
-uint32 CCodeGen_AArch32::RotateRight(uint32 value)
-{
-	uint32 carry = value & 1;
-	value >>= 1;
-	value |= carry << 31;
-	return value;
-}
-
-uint32 CCodeGen_AArch32::RotateLeft(uint32 value)
-{
-	uint32 carry = value >> 31;
-	value <<= 1;
-	value |= carry;
-	return value;
-}
-
 bool CCodeGen_AArch32::TryGetAluImmediateParams(uint32 constant, uint8& immediate, uint8& shiftAmount)
 {
 	uint32 shadowConstant = constant;
@@ -466,8 +450,7 @@ bool CCodeGen_AArch32::TryGetAluImmediateParams(uint32 constant, uint8& immediat
 			shiftAmount = i;
 			break;
 		}
-		shadowConstant = RotateLeft(shadowConstant);
-		shadowConstant = RotateLeft(shadowConstant);
+		shadowConstant = __builtin_rotateleft32(shadowConstant, 2);
 	}
 
 	if(shiftAmount != 0xFF)

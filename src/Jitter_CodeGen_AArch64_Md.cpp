@@ -400,7 +400,7 @@ void CCodeGen_AArch64::Emit_Md_LoadFromRefMasked_VarVarAnyVar(const STATEMENT& s
 		auto indexReg = PrepareSymbolRegisterUse(src2, GetNextTempRegister());
 		m_assembler.Ldr_1q(tmpReg, addressReg, static_cast<CAArch64Assembler::REGISTER64>(indexReg), (scale == 0x10));
 	}
-	
+
 	MdBlendRegisters(src3Reg, tmpReg, mask);
 
 	//This is only valid if dst == src3
@@ -414,7 +414,7 @@ void CCodeGen_AArch64::Emit_Md_StoreAtRefMasked_VarAnyVar(const STATEMENT& state
 	auto src3 = statement.src3->GetSymbol().get();
 	uint8 mask = static_cast<uint8>(statement.jmpCondition);
 	uint8 scale = 1;
-	
+
 	auto addressReg = PrepareSymbolRegisterUseRef(src1, GetNextTempRegister64());
 	auto valueReg = PrepareSymbolRegisterUseMd(src3, GetNextTempRegisterMd());
 	auto tmpReg = GetNextTempRegisterMd();
@@ -429,9 +429,9 @@ void CCodeGen_AArch64::Emit_Md_StoreAtRefMasked_VarAnyVar(const STATEMENT& state
 		indexReg = PrepareSymbolRegisterUse(src2, GetNextTempRegister());
 		m_assembler.Ldr_1q(tmpReg, addressReg, static_cast<CAArch64Assembler::REGISTER64>(indexReg), (scale == 0x10));
 	}
-	
+
 	MdBlendRegisters(tmpReg, valueReg, mask);
-	
+
 	if(uint32 scaledIndex = (src2->m_valueLow * scale); src2->IsConstant() && (scaledIndex < 0x10000))
 	{
 		m_assembler.Str_1q(tmpReg, addressReg, scaledIndex);

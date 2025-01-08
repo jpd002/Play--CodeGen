@@ -75,6 +75,27 @@ void CCodeGen_AArch32::LoadTemporary256ElementAddressInRegister(CAArch32Assemble
 	}
 }
 
+void CCodeGen_AArch32::MdBlendRegisters(
+    CAArch32Assembler::QUAD_REGISTER dstReg, CAArch32Assembler::QUAD_REGISTER srcReg,
+    CAArch32Assembler::REGISTER tmpReg, uint8 mask)
+{
+	auto dstRegLo = static_cast<CAArch32Assembler::DOUBLE_REGISTER>(dstReg + 0);
+	auto dstRegHi = static_cast<CAArch32Assembler::DOUBLE_REGISTER>(dstReg + 1);
+	auto srcRegLo = static_cast<CAArch32Assembler::DOUBLE_REGISTER>(srcReg + 0);
+	auto srcRegHi = static_cast<CAArch32Assembler::DOUBLE_REGISTER>(srcReg + 1);
+
+	//AArch32 NEON doesn't have an instruction to assign between two NEON register elements.
+	//We can use VEXT to do some better things for some masks, but others are quite complicated.
+	for(unsigned int i = 0; i < 4; i++)
+	{
+		if(mask & (1 << i))
+		{
+			m_assembler.Vmov(tmpReg, (i & 2) ? srcRegHi : srcRegLo, (i & 1));
+			m_assembler.Vmov((i & 2) ? dstRegHi : dstRegLo, tmpReg, (i & 1));
+		}
+	}
+}
+
 template <typename MDOP>
 void CCodeGen_AArch32::Emit_Md_MemMem(const STATEMENT& statement)
 {
@@ -331,6 +352,53 @@ void CCodeGen_AArch32::Emit_Md_StoreAtRef_VarAnyMem(const STATEMENT& statement)
 	m_assembler.Vst1_32x4(valueReg, src1AddrIdxReg);
 }
 
+void CCodeGen_AArch32::Emit_Md_LoadFromRefMasked_MemMemAnyMem(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+	auto src3 = statement.src3->GetSymbol().get();
+	auto mask = static_cast<uint8>(statement.jmpCondition);
+	uint8 scale = 1;
+
+	assert(dst->Equals(src3));
+
+	auto src1AddrIdxReg = CAArch32Assembler::r1;
+	auto dstAddrReg = CAArch32Assembler::r2;
+	auto dstReg = CAArch32Assembler::q0;
+	auto memReg = CAArch32Assembler::q1;
+
+	LoadRefIndexAddress(src1AddrIdxReg, src1, CAArch32Assembler::r0, src2, CAArch32Assembler::r3, scale);
+	LoadMemory128AddressInRegister(dstAddrReg, dst);
+
+	m_assembler.Vld1_32x4(memReg, src1AddrIdxReg);
+	m_assembler.Vld1_32x4(dstReg, dstAddrReg);
+	MdBlendRegisters(dstReg, memReg, CAArch32Assembler::r3, mask);
+	m_assembler.Vst1_32x4(dstReg, dstAddrReg);
+}
+
+void CCodeGen_AArch32::Emit_Md_StoreAtRefMasked_MemAnyMem(const STATEMENT& statement)
+{
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+	auto src3 = statement.src3->GetSymbol().get();
+	uint8 mask = static_cast<uint8>(statement.jmpCondition);
+	uint8 scale = 1;
+
+	auto src1AddrIdxReg = CAArch32Assembler::r1;
+	auto src3AddrReg = CAArch32Assembler::r2;
+	auto src3Reg = CAArch32Assembler::q0;
+	auto memReg = CAArch32Assembler::q1;
+
+	LoadRefIndexAddress(src1AddrIdxReg, src1, CAArch32Assembler::r0, src2, CAArch32Assembler::r3, scale);
+	LoadMemory128AddressInRegister(src3AddrReg, src3);
+
+	m_assembler.Vld1_32x4(memReg, src1AddrIdxReg);
+	m_assembler.Vld1_32x4(src3Reg, src3AddrReg);
+	MdBlendRegisters(memReg, src3Reg, CAArch32Assembler::r3, mask);
+	m_assembler.Vst1_32x4(memReg, src1AddrIdxReg);
+}
+
 void CCodeGen_AArch32::Emit_Md_MovMasked_MemMemMem(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
@@ -346,25 +414,13 @@ void CCodeGen_AArch32::Emit_Md_MovMasked_MemMemMem(const STATEMENT& statement)
 	auto tmpReg = CAArch32Assembler::r3;
 	auto dstReg = CAArch32Assembler::q0;
 	auto src2Reg = CAArch32Assembler::q2;
-	auto dstRegLo = static_cast<CAArch32Assembler::DOUBLE_REGISTER>(dstReg + 0);
-	auto dstRegHi = static_cast<CAArch32Assembler::DOUBLE_REGISTER>(dstReg + 1);
-	auto src2RegLo = static_cast<CAArch32Assembler::DOUBLE_REGISTER>(src2Reg + 0);
-	auto src2RegHi = static_cast<CAArch32Assembler::DOUBLE_REGISTER>(src2Reg + 1);
 
 	LoadMemory128AddressInRegister(dstAddrReg, dst);
 	LoadMemory128AddressInRegister(src2AddrReg, src2);
 
 	m_assembler.Vld1_32x4(dstReg, dstAddrReg);
 	m_assembler.Vld1_32x4(src2Reg, src2AddrReg);
-	for(unsigned int i = 0; i < 4; i++)
-	{
-		if(mask & (1 << i))
-		{
-			m_assembler.Vmov(tmpReg, (i & 2) ? src2RegHi : src2RegLo, (i & 1));
-			m_assembler.Vmov((i & 2) ? dstRegHi : dstRegLo, tmpReg, (i & 1));
-		}
-	}
-
+	MdBlendRegisters(dstReg, src2Reg, tmpReg, mask);
 	m_assembler.Vst1_32x4(dstReg, dstAddrReg);
 }
 
@@ -738,6 +794,9 @@ CCodeGen_AArch32::CONSTMATCHER CCodeGen_AArch32::g_mdConstMatchers[] =
 	{ OP_LOADFROMREF, MATCH_MEMORY128, MATCH_VAR_REF, MATCH_ANY32,     MATCH_NIL,       &CCodeGen_AArch32::Emit_Md_LoadFromRef_MemVarAny },
 	{ OP_STOREATREF,  MATCH_NIL,       MATCH_VAR_REF, MATCH_MEMORY128, MATCH_NIL,       &CCodeGen_AArch32::Emit_Md_StoreAtRef_VarMem     },
 	{ OP_STOREATREF,  MATCH_NIL,       MATCH_VAR_REF, MATCH_ANY32,     MATCH_MEMORY128, &CCodeGen_AArch32::Emit_Md_StoreAtRef_VarAnyMem  },
+
+	{ OP_MD_LOADFROMREF_MASKED, MATCH_MEMORY128, MATCH_VAR_REF, MATCH_ANY32, MATCH_MEMORY128, &CCodeGen_AArch32::Emit_Md_LoadFromRefMasked_MemMemAnyMem },
+	{ OP_MD_STOREATREF_MASKED,  MATCH_NIL,       MATCH_VAR_REF, MATCH_ANY32, MATCH_MEMORY128, &CCodeGen_AArch32::Emit_Md_StoreAtRefMasked_MemAnyMem     },
 
 	{ OP_MD_MOV_MASKED, MATCH_MEMORY128, MATCH_MEMORY128, MATCH_MEMORY128, MATCH_NIL, &CCodeGen_AArch32::Emit_Md_MovMasked_MemMemMem },
 

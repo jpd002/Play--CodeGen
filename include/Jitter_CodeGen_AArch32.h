@@ -152,6 +152,8 @@ namespace Jitter
 		void LoadConstantPtrInRegister(CAArch32Assembler::REGISTER, uintptr_t);
 		void LoadRefIndexAddress(CAArch32Assembler::REGISTER, CSymbol*, CAArch32Assembler::REGISTER, CSymbol*, CAArch32Assembler::REGISTER, uint8);
 
+		void MdBlendRegisters(CAArch32Assembler::QUAD_REGISTER, CAArch32Assembler::QUAD_REGISTER, CAArch32Assembler::REGISTER, uint8);
+
 		// clang-format off
 		//ALUOP ----------------------------------------------------------
 		struct ALUOP_BASE
@@ -712,6 +714,8 @@ namespace Jitter
 		void Emit_Md_LoadFromRef_MemVarAny(const STATEMENT&);
 		void Emit_Md_StoreAtRef_VarMem(const STATEMENT&);
 		void Emit_Md_StoreAtRef_VarAnyMem(const STATEMENT&);
+		void Emit_Md_LoadFromRefMasked_MemMemAnyMem(const STATEMENT&);
+		void Emit_Md_StoreAtRefMasked_MemAnyMem(const STATEMENT&);
 
 		void Emit_Md_MovMasked_MemMemMem(const STATEMENT&);
 		void Emit_Md_Expand_MemReg(const STATEMENT&);

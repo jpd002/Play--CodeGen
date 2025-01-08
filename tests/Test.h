@@ -9,11 +9,21 @@
 #include "offsetof_def.h"
 #include "MemoryFunction.h"
 
-#define TEST_VERIFY(a)                                        \
-	if(!(a))                                                  \
-	{                                                         \
-		printf("Verification failed: '%s'. Aborting.\n", #a); \
-		std::abort();                                         \
+#ifdef __ANDROID__
+#include <android/log.h>
+#endif
+
+#ifdef __ANDROID__
+#define PRINT_ERROR(...) __android_log_print(ANDROID_LOG_ERROR, "CodeGenTestSuite", __VA_ARGS__)
+#else
+#define PRINT_ERROR(...) printf(__VA_ARGS__)
+#endif
+
+#define TEST_VERIFY(a)                                             \
+	if(!(a))                                                       \
+	{                                                              \
+		PRINT_ERROR("Verification failed: '%s'. Aborting.\n", #a); \
+		std::abort();                                              \
 	}
 
 class CTest

@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.5)
 project(CodeGen)
 
-set(PROJECT_LIBS)
+set(CODEGEN_LIBS)
 
 set(CMAKE_MODULE_PATH
 	${CMAKE_CURRENT_SOURCE_DIR}/../../Dependencies/cmake-modules
@@ -32,7 +32,7 @@ if(ANDROID)
 		add_library(cpufeatures STATIC ${ANDROID_NDK}/sources/android/cpufeatures/cpu-features.c)
 	endif()
 	include_directories("${ANDROID_NDK}/sources/android/cpufeatures")
-	list(APPEND PROJECT_LIBS cpufeatures)
+	list(APPEND CODEGEN_LIBS cpufeatures)
 endif()
 
 add_library(CodeGen 
@@ -114,7 +114,7 @@ add_library(CodeGen
 	../include/X86CpuFeatures.h
 )
 
-target_link_libraries(CodeGen PUBLIC Framework ${PROJECT_LIBS})
+target_link_libraries(CodeGen PUBLIC Framework ${CODEGEN_LIBS})
 target_include_directories(CodeGen PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../include)
 enable_testing()
 
@@ -228,14 +228,16 @@ set(CodeGenTest_SRC
 	../tests/uint128.h
 )
 
+set(TESTSUITE_LIBS)
 if(ANDROID)
 	add_library(CodeGenTestSuite SHARED ${CodeGenTest_SRC})
+	list(APPEND TESTSUITE_LIBS log)
 else()
 	add_executable(CodeGenTestSuite ${CodeGenTest_SRC})
 	add_test(CodeGenTestSuite CodeGenTestSuite)
 endif()
 
-target_link_libraries(CodeGenTestSuite CodeGen Framework ${PROJECT_LIBS})
+target_link_libraries(CodeGenTestSuite CodeGen Framework ${TESTSUITE_LIBS})
 
 if(EMSCRIPTEN)
 	target_link_options(CodeGenTestSuite PRIVATE "--bind")

@@ -38,6 +38,44 @@ void CCodeGen_x86::CommitSymbolRegisterMdSse(CSymbol* symbol, CX86Assembler::XMM
 	}
 }
 
+void CCodeGen_x86::MdSseBlendVariables(
+    const CX86Assembler::CAddress& dstAddr,
+    const CX86Assembler::CAddress& src1Addr,
+    const CX86Assembler::CAddress& src2Addr,
+    uint8 mask)
+{
+	auto mask0Register = CX86Assembler::xMM0;
+	auto mask1Register = CX86Assembler::xMM1;
+
+	m_assembler.MovId(CX86Assembler::rAX, ~0);
+	m_assembler.MovdVo(mask0Register, CX86Assembler::MakeRegisterAddress(CX86Assembler::rAX));
+
+	//Generate shuffle selector
+	//0x00 -> gives us 0x00000000
+	//0x02 -> gives us 0xFFFFFFFF
+	uint8 shuffleSelector = 0;
+	for(unsigned int i = 0; i < 4; i++)
+	{
+		if(mask & (1 << i))
+		{
+			shuffleSelector |= (0x02) << (i * 2);
+		}
+	}
+
+	//mask0 -> proper mask
+	m_assembler.PshufdVo(mask0Register, CX86Assembler::MakeXmmRegisterAddress(mask0Register), shuffleSelector);
+
+	//mask1 -> duplicate mask, for pandn usage
+	m_assembler.MovdqaVo(mask1Register, CX86Assembler::MakeXmmRegisterAddress(mask0Register));
+
+	//Generate result
+	m_assembler.PandVo(mask0Register, src1Addr);
+	m_assembler.PandnVo(mask1Register, src2Addr);
+	m_assembler.PorVo(mask0Register, CX86Assembler::MakeXmmRegisterAddress(mask1Register));
+
+	m_assembler.MovdqaVo(dstAddr, mask0Register);
+}
+
 template <typename MDOP>
 void CCodeGen_x86::Emit_Md_RegVar(const STATEMENT& statement)
 {
@@ -610,37 +648,86 @@ void CCodeGen_x86::Emit_Md_MovMasked_VarVarVar(const STATEMENT& statement)
 	auto src2 = statement.src2->GetSymbol().get();
 	uint8 mask = static_cast<uint8>(statement.jmpCondition);
 
-	auto mask0Register = CX86Assembler::xMM0;
-	auto mask1Register = CX86Assembler::xMM1;
+	MdSseBlendVariables(
+	    MakeVariable128SymbolAddress(dst),
+	    MakeVariable128SymbolAddress(src1),
+	    MakeVariable128SymbolAddress(src2),
+	    mask);
+}
 
-	m_assembler.MovId(CX86Assembler::rAX, ~0);
-	m_assembler.MovdVo(mask0Register, CX86Assembler::MakeRegisterAddress(CX86Assembler::rAX));
+void CCodeGen_x86::Emit_Md_LoadFromRefMasked_VarVarAnyVar(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+	auto src3 = statement.src3->GetSymbol().get();
+	uint8 mask = static_cast<uint8>(statement.jmpCondition);
 
-	//Generate shuffle selector
-	//0x00 -> gives us 0x00000000
-	//0x02 -> gives us 0xFFFFFFFF
-	uint8 shuffleSelector = 0;
-	for(unsigned int i = 0; i < 4; i++)
+	//MdSseBlendVariables uses rAX, we can't use it here.
+	auto memAddress = MakeRefBaseScaleSymbolAddress(src1, CX86Assembler::rCX, src2, CX86Assembler::rDX, 1);
+
+	MdSseBlendVariables(
+	    MakeVariable128SymbolAddress(dst),
+	    MakeVariable128SymbolAddress(src3),
+	    memAddress,
+	    mask);
+}
+
+void CCodeGen_x86::Emit_Md_StoreAtRefMasked_VarAnyVar(const STATEMENT& statement)
+{
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+	auto src3 = statement.src3->GetSymbol().get();
+	uint8 mask = static_cast<uint8>(statement.jmpCondition);
+
+	//MdSseBlendVariables uses rAX, we can't use it here.
+	auto memAddress = MakeRefBaseScaleSymbolAddress(src1, CX86Assembler::rCX, src2, CX86Assembler::rDX, 1);
+
+	MdSseBlendVariables(
+	    memAddress,
+	    memAddress,
+	    MakeVariable128SymbolAddress(src3),
+	    mask);
+}
+
+void CCodeGen_x86::Emit_Md_LoadFromRefMasked_Sse41_VarVarAnyVar(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+	auto src3 = statement.src3->GetSymbol().get();
+	uint8 mask = static_cast<uint8>(statement.jmpCondition);
+
+	assert(dst->Equals(src3));
+
+	auto srcAddress = MakeRefBaseScaleSymbolAddress(src1, CX86Assembler::rAX, src2, CX86Assembler::rCX, 1);
+
+	if(dst->IsRegister() && dst->Equals(src3))
 	{
-		if(mask & (1 << i))
-		{
-			shuffleSelector |= (0x02) << (i * 2);
-		}
+		m_assembler.BlendpsVo(m_mdRegisters[dst->m_valueLow], srcAddress, mask);
 	}
+	else
+	{
+		auto tempRegister = CX86Assembler::xMM0;
+		m_assembler.MovapsVo(tempRegister, MakeVariable128SymbolAddress(src3));
+		m_assembler.BlendpsVo(tempRegister, srcAddress, mask);
+		m_assembler.MovapsVo(MakeVariable128SymbolAddress(dst), tempRegister);
+	}
+}
 
-	//mask0 -> proper mask
-	m_assembler.PshufdVo(mask0Register, CX86Assembler::MakeXmmRegisterAddress(mask0Register), shuffleSelector);
+void CCodeGen_x86::Emit_Md_StoreAtRefMasked_Sse41_VarAnyVar(const STATEMENT& statement)
+{
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+	auto src3 = statement.src3->GetSymbol().get();
+	uint8 mask = static_cast<uint8>(statement.jmpCondition);
 
-	//mask1 -> mask inverse
-	m_assembler.PcmpeqdVo(mask1Register, CX86Assembler::MakeXmmRegisterAddress(mask1Register));
-	m_assembler.PxorVo(mask1Register, CX86Assembler::MakeXmmRegisterAddress(mask0Register));
+	auto tmpReg = CX86Assembler::xMM1;
+	auto dstAddress = MakeRefBaseScaleSymbolAddress(src1, CX86Assembler::rAX, src2, CX86Assembler::rCX, 1);
 
-	//Generate result
-	m_assembler.PandVo(mask0Register, MakeVariable128SymbolAddress(src1));
-	m_assembler.PandVo(mask1Register, MakeVariable128SymbolAddress(src2));
-	m_assembler.PorVo(mask0Register, CX86Assembler::MakeXmmRegisterAddress(mask1Register));
-
-	m_assembler.MovdqaVo(MakeVariable128SymbolAddress(dst), mask0Register);
+	m_assembler.MovapsVo(tmpReg, MakeVariable128SymbolAddress(src3));
+	m_assembler.BlendpsVo(tmpReg, dstAddress, ~mask & 0x0F);
+	m_assembler.MovapsVo(dstAddress, tmpReg);
 }
 
 void CCodeGen_x86::Emit_Md_MovMasked_Sse41_VarVarVar(const STATEMENT& statement)
@@ -1094,6 +1181,9 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdNoSse41ConstMatchers[] =
 	{ OP_MD_MIN_W, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_NIL, &CCodeGen_x86::Emit_Md_MinW_VarVarVar },
 	{ OP_MD_MAX_W, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_NIL, &CCodeGen_x86::Emit_Md_MaxW_VarVarVar },
 
+	{ OP_MD_LOADFROMREF_MASKED, MATCH_VARIABLE128, MATCH_VAR_REF, MATCH_ANY32, MATCH_VARIABLE128, &CCodeGen_x86::Emit_Md_LoadFromRefMasked_VarVarAnyVar },
+	{ OP_MD_STOREATREF_MASKED,  MATCH_NIL,         MATCH_VAR_REF, MATCH_ANY32, MATCH_VARIABLE128, &CCodeGen_x86::Emit_Md_StoreAtRefMasked_VarAnyVar     },
+
 	{ OP_MD_MOV_MASKED, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_NIL, &CCodeGen_x86::Emit_Md_MovMasked_VarVarVar },
 
 	{ OP_MOV, MATCH_NIL, MATCH_NIL, MATCH_NIL, MATCH_NIL, nullptr },
@@ -1103,6 +1193,9 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdSse41ConstMatchers[] =
 {
 	MD_CONST_MATCHERS_3OPS(OP_MD_MIN_W, MDOP_MINW)
 	MD_CONST_MATCHERS_3OPS(OP_MD_MAX_W, MDOP_MAXW)
+
+	{ OP_MD_LOADFROMREF_MASKED, MATCH_VARIABLE128, MATCH_VAR_REF, MATCH_ANY32, MATCH_VARIABLE128, &CCodeGen_x86::Emit_Md_LoadFromRefMasked_Sse41_VarVarAnyVar },
+	{ OP_MD_STOREATREF_MASKED,  MATCH_NIL,         MATCH_VAR_REF, MATCH_ANY32, MATCH_VARIABLE128, &CCodeGen_x86::Emit_Md_StoreAtRefMasked_Sse41_VarAnyVar     },
 
 	{ OP_MD_MOV_MASKED, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_NIL, &CCodeGen_x86::Emit_Md_MovMasked_Sse41_VarVarVar },
 

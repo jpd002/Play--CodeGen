@@ -510,6 +510,8 @@ namespace Jitter
 
 		CX86Assembler::CAddress MakeTemporary256SymbolElementAddress(CSymbol*, unsigned int);
 
+		void MdSseBlendVariables(const CX86Assembler::CAddress&, const CX86Assembler::CAddress&, const CX86Assembler::CAddress&, uint8);
+
 		//LABEL
 		void MarkLabel(const STATEMENT&);
 
@@ -758,6 +760,10 @@ namespace Jitter
 		void Emit_Md_Mov_RegVar(const STATEMENT&);
 		void Emit_Md_Mov_MemReg(const STATEMENT&);
 		void Emit_Md_Mov_MemMem(const STATEMENT&);
+		void Emit_Md_LoadFromRefMasked_VarVarAnyVar(const STATEMENT&);
+		void Emit_Md_StoreAtRefMasked_VarAnyVar(const STATEMENT&);
+		void Emit_Md_LoadFromRefMasked_Sse41_VarVarAnyVar(const STATEMENT&);
+		void Emit_Md_StoreAtRefMasked_Sse41_VarAnyVar(const STATEMENT&);
 		void Emit_Md_MovMasked_VarVarVar(const STATEMENT&);
 		void Emit_Md_MovMasked_Sse41_VarVarVar(const STATEMENT&);
 		void Emit_Md_Expand_VarReg(const STATEMENT&);

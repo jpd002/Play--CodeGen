@@ -288,6 +288,10 @@ public:
 	void MovdquVo(const CAddress&, XMMREGISTER);
 	void MovapsVo(const CAddress&, XMMREGISTER);
 	void MovapsVo(XMMREGISTER, const CAddress&);
+
+	void LdmxcsrGd(const CAddress&);
+	void StmxcsrGd(const CAddress&);
+
 	void PackssdwVo(XMMREGISTER, const CAddress&);
 	void PackuswbVo(XMMREGISTER, const CAddress&);
 

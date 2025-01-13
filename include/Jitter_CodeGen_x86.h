@@ -799,6 +799,7 @@ namespace Jitter
 		void Emit_Fp32_Avx_Mov_RegMem(const STATEMENT&);
 		void Emit_Fp32_Avx_Mov_MemReg(const STATEMENT&);
 		void Emit_Fp32_Avx_LdCst_RegCst(const STATEMENT&);
+		void Emit_Fp_Avx_SetRoundingMode_Cst(const STATEMENT&);
 
 		void Emit_Fp_Avx_CmpS_VarVarVar(const STATEMENT&);
 		void Emit_Fp_Avx_RsqrtS_VarVar(const STATEMENT&);

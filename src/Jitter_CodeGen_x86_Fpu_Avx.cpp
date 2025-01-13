@@ -1,4 +1,5 @@
 #include "Jitter_CodeGen_x86.h"
+#include "Jitter.h"
 #include <stdexcept>
 
 using namespace Jitter;
@@ -278,6 +279,50 @@ void CCodeGen_x86::Emit_Fp_Avx_ToInt32TruncS_MemVar(const STATEMENT& statement)
 	m_assembler.MovGd(MakeMemoryFp32SymbolAddress(dst), tmpIntRegister);
 }
 
+void CCodeGen_x86::Emit_Fp_Avx_SetRoundingMode_Cst(const STATEMENT& statement)
+{
+	auto src1 = statement.src1->GetSymbol().get();
+
+	//stmxcsr
+	//ldmxcsr
+
+	constexpr uint32 MXCSR_ROUND_MASK = 0x6000;
+	uint32 mxcsrRoundBits = 0;
+	switch(src1->m_valueLow)
+	{
+	case Jitter::CJitter::ROUND_NEAREST:
+		mxcsrRoundBits = 0x0000;
+		break;
+	case Jitter::CJitter::ROUND_MINUSINFINITY:
+		mxcsrRoundBits = 0x2000;
+		break;
+	case Jitter::CJitter::ROUND_PLUSINFINITY:
+		mxcsrRoundBits = 0x4000;
+		break;
+	case Jitter::CJitter::ROUND_TRUNCATE:
+		mxcsrRoundBits = 0x6000;
+		break;
+	default:
+		assert(false);
+		break;
+	}
+
+	auto tempValueAddress = CX86Assembler::MakeIndRegAddress(CX86Assembler::rSP);
+
+	//We push/pop eax to allocate stack space since size of rSP is dependent on
+	//target bitness and we don't have the info here.
+
+	m_assembler.Push(CX86Assembler::rAX);
+	m_assembler.StmxcsrGd(tempValueAddress);
+	m_assembler.AndId(tempValueAddress, ~MXCSR_ROUND_MASK);
+	if(mxcsrRoundBits != 0)
+	{
+		m_assembler.OrId(tempValueAddress, mxcsrRoundBits);
+	}
+	m_assembler.LdmxcsrGd(tempValueAddress);
+	m_assembler.Pop(CX86Assembler::rAX);
+}
+
 // clang-format off
 CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_fpuAvxConstMatchers[] = 
 {
@@ -308,6 +353,8 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_fpuAvxConstMatchers[] =
 	{ OP_MOV,      MATCH_FP_REGISTER32, MATCH_FP_MEMORY32,   MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Fp32_Avx_Mov_RegMem },
 	{ OP_MOV,      MATCH_FP_MEMORY32,   MATCH_FP_REGISTER32, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Fp32_Avx_Mov_MemReg },
 	{ OP_FP_LDCST, MATCH_FP_REGISTER32, MATCH_CONSTANT,      MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Fp32_Avx_LdCst_RegCst },
+
+	{ OP_FP_SETROUNDINGMODE, MATCH_NIL, MATCH_CONSTANT, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Fp_Avx_SetRoundingMode_Cst },
 
 	{ OP_MOV, MATCH_NIL, MATCH_NIL, MATCH_NIL, MATCH_NIL, nullptr },
 };

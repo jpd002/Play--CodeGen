@@ -975,6 +975,14 @@ void CJitter::FP_ToSingleI32()
 	m_shadow.Push(tempSym);
 }
 
+void CJitter::FP_SetRoundingMode(ROUNDINGMODE roundingMode)
+{
+	STATEMENT statement;
+	statement.op = OP_FP_SETROUNDINGMODE;
+	statement.src1 = MakeSymbolRef(MakeSymbol(SYM_CONSTANT, roundingMode));
+	InsertStatement(statement);
+}
+
 //SIMD
 //------------------------------------------------
 void CJitter::MD_PullRel(size_t offset)

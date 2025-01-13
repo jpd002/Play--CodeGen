@@ -155,6 +155,8 @@ namespace Jitter
 		OP_FP_TOINT32_TRUNC_S,
 		OP_FP_TOSINGLE_I32,
 
+		OP_FP_SETROUNDINGMODE,
+
 		OP_FP_LDCST, //This is needed to avoid propagation of constants to fp operations.
 
 		OP_PARAM,

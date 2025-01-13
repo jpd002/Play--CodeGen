@@ -24,7 +24,7 @@ namespace Jitter
 	class CJitter
 	{
 	public:
-		enum ROUNDMODE
+		enum ROUNDINGMODE
 		{
 			ROUND_NEAREST = 0,
 			ROUND_PLUSINFINITY = 1,
@@ -168,6 +168,8 @@ namespace Jitter
 
 		void FP_ToInt32TruncateS();
 		void FP_ToSingleI32();
+
+		void FP_SetRoundingMode(ROUNDINGMODE);
 
 		//SIMD (128-bits only)
 		void MD_PushRel(size_t);

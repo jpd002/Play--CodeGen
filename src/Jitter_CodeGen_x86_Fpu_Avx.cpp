@@ -283,9 +283,6 @@ void CCodeGen_x86::Emit_Fp_Avx_SetRoundingMode_Cst(const STATEMENT& statement)
 {
 	auto src1 = statement.src1->GetSymbol().get();
 
-	//stmxcsr
-	//ldmxcsr
-
 	constexpr uint32 MXCSR_ROUND_MASK = 0x6000;
 	uint32 mxcsrRoundBits = 0;
 	switch(src1->m_valueLow)
@@ -313,13 +310,13 @@ void CCodeGen_x86::Emit_Fp_Avx_SetRoundingMode_Cst(const STATEMENT& statement)
 	//target bitness and we don't have the info here.
 
 	m_assembler.Push(CX86Assembler::rAX);
-	m_assembler.StmxcsrGd(tempValueAddress);
+	m_assembler.VstmxcsrGd(tempValueAddress);
 	m_assembler.AndId(tempValueAddress, ~MXCSR_ROUND_MASK);
 	if(mxcsrRoundBits != 0)
 	{
 		m_assembler.OrId(tempValueAddress, mxcsrRoundBits);
 	}
-	m_assembler.LdmxcsrGd(tempValueAddress);
+	m_assembler.VldmxcsrGd(tempValueAddress);
 	m_assembler.Pop(CX86Assembler::rAX);
 }
 

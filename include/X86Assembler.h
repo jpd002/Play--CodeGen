@@ -378,6 +378,9 @@ public:
 	void VmovssEd(XMMREGISTER, const CAddress&);
 	void VmovssEd(const CAddress&, XMMREGISTER);
 
+	void VldmxcsrGd(const CAddress&);
+	void VstmxcsrGd(const CAddress&);
+
 	void VaddssEd(XMMREGISTER, XMMREGISTER, const CAddress&);
 	void VsubssEd(XMMREGISTER, XMMREGISTER, const CAddress&);
 	void VmulssEd(XMMREGISTER, XMMREGISTER, const CAddress&);

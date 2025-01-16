@@ -709,6 +709,7 @@ namespace Jitter
 		void Emit_Fp32_Mov_RegMem(const STATEMENT&);
 		void Emit_Fp32_Mov_MemReg(const STATEMENT&);
 		void Emit_Fp32_LdCst_RegCst(const STATEMENT&);
+		void Emit_Fp_Sse_SetRoundingMode_Cst(const STATEMENT&);
 
 		void Emit_Fp_CmpS_VarVarVar(const STATEMENT&);
 		void Emit_Fp_CmpS_VarMemCst(const STATEMENT&);
@@ -891,6 +892,8 @@ namespace Jitter
 		static const LITERAL128 g_fpClampMask1;
 		static const LITERAL128 g_fpClampMask2;
 		static const std::array<uint8, 4> g_mdExpandShufPatterns;
+		static const std::array<uint32, 4> g_fpMxcsrRoundBits;
+		static constexpr uint32 MXCSR_ROUND_MASK = 0x6000;
 
 		CX86Assembler m_assembler;
 		CX86Assembler::REGISTER* m_registers = nullptr;

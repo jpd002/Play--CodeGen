@@ -371,6 +371,28 @@ void CCodeGen_x86::Emit_Fp_ToInt32TruncS_MemVar(const STATEMENT& statement)
 	m_assembler.MovGd(MakeMemoryFp32SymbolAddress(dst), tmpIntRegister);
 }
 
+void CCodeGen_x86::Emit_Fp_Sse_SetRoundingMode_Cst(const STATEMENT& statement)
+{
+	auto src1 = statement.src1->GetSymbol().get();
+
+	uint32 mxcsrRoundBits = g_fpMxcsrRoundBits[src1->m_valueLow];
+
+	auto tempValueAddress = CX86Assembler::MakeIndRegAddress(CX86Assembler::rSP);
+
+	//We push/pop eax to allocate stack space since size of rSP is dependent on
+	//target bitness and we don't have the info here.
+
+	m_assembler.Push(CX86Assembler::rAX);
+	m_assembler.StmxcsrGd(tempValueAddress);
+	m_assembler.AndId(tempValueAddress, ~MXCSR_ROUND_MASK);
+	if(mxcsrRoundBits != 0)
+	{
+		m_assembler.OrId(tempValueAddress, mxcsrRoundBits);
+	}
+	m_assembler.LdmxcsrGd(tempValueAddress);
+	m_assembler.Pop(CX86Assembler::rAX);
+}
+
 // clang-format off
 #define FP_CONST_MATCHERS_3OPS(FPOP_CST, FPOP) \
 	{ FPOP_CST, MATCH_FP_REGISTER32, MATCH_FP_REGISTER32, MATCH_FP_REGISTER32, MATCH_NIL, &CCodeGen_x86::Emit_Fp32_RegRegReg<FPOP> }, \
@@ -414,6 +436,8 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_fpuSseConstMatchers[] =
 	{ OP_MOV,      MATCH_FP_REGISTER32, MATCH_FP_MEMORY32,   MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Fp32_Mov_RegMem   },
 	{ OP_MOV,      MATCH_FP_MEMORY32,   MATCH_FP_REGISTER32, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Fp32_Mov_MemReg   },
 	{ OP_FP_LDCST, MATCH_FP_REGISTER32, MATCH_CONSTANT,      MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Fp32_LdCst_RegCst },
+
+	{ OP_FP_SETROUNDINGMODE, MATCH_NIL, MATCH_CONSTANT, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Fp_Sse_SetRoundingMode_Cst },
 
 	{ OP_MOV, MATCH_NIL, MATCH_NIL, MATCH_NIL, MATCH_NIL, nullptr },
 };

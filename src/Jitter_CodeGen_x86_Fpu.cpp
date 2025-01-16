@@ -2,6 +2,8 @@
 
 using namespace Jitter;
 
+const std::array<uint32, 4> CCodeGen_x86::g_fpMxcsrRoundBits = {0x0000, 0x4000, 0x2000, 0x6000};
+
 CX86Assembler::CAddress CCodeGen_x86::MakeRelativeFp32SymbolAddress(CSymbol* symbol)
 {
 	assert(symbol->m_type == SYM_FP_RELATIVE32);

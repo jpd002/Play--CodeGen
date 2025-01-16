@@ -283,26 +283,7 @@ void CCodeGen_x86::Emit_Fp_Avx_SetRoundingMode_Cst(const STATEMENT& statement)
 {
 	auto src1 = statement.src1->GetSymbol().get();
 
-	constexpr uint32 MXCSR_ROUND_MASK = 0x6000;
-	uint32 mxcsrRoundBits = 0;
-	switch(src1->m_valueLow)
-	{
-	case Jitter::CJitter::ROUND_NEAREST:
-		mxcsrRoundBits = 0x0000;
-		break;
-	case Jitter::CJitter::ROUND_MINUSINFINITY:
-		mxcsrRoundBits = 0x2000;
-		break;
-	case Jitter::CJitter::ROUND_PLUSINFINITY:
-		mxcsrRoundBits = 0x4000;
-		break;
-	case Jitter::CJitter::ROUND_TRUNCATE:
-		mxcsrRoundBits = 0x6000;
-		break;
-	default:
-		assert(false);
-		break;
-	}
+	uint32 mxcsrRoundBits = g_fpMxcsrRoundBits[src1->m_valueLow];
 
 	auto tempValueAddress = CX86Assembler::MakeIndRegAddress(CX86Assembler::rSP);
 

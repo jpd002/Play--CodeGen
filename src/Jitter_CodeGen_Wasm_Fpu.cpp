@@ -231,6 +231,11 @@ void CCodeGen_Wasm::Emit_Fp_LdCst_TmpCst(const STATEMENT& statement)
 	CommitSymbol(dst);
 }
 
+void CCodeGen_Wasm::Emit_Fp_SetRoundingMode_Cst(const STATEMENT& statement)
+{
+	//Not supported
+}
+
 // clang-format off
 CCodeGen_Wasm::CONSTMATCHER CCodeGen_Wasm::g_fpuConstMatchers[] =
 {
@@ -257,6 +262,8 @@ CCodeGen_Wasm::CONSTMATCHER CCodeGen_Wasm::g_fpuConstMatchers[] =
 	{ OP_FP_TOINT32_TRUNC_S, MATCH_FP_RELATIVE32,    MATCH_FP_MEMORY32,   MATCH_NIL,          MATCH_NIL,      &CCodeGen_Wasm::Emit_Fp_ToInt32TruncS_MemMem                 },
 
 	{ OP_FP_LDCST,           MATCH_FP_TEMPORARY32,   MATCH_CONSTANT,      MATCH_NIL,          MATCH_NIL,      &CCodeGen_Wasm::Emit_Fp_LdCst_TmpCst                         },
+
+	{ OP_FP_SETROUNDINGMODE, MATCH_NIL,              MATCH_CONSTANT,      MATCH_NIL,          MATCH_NIL,      &CCodeGen_Wasm::Emit_Fp_SetRoundingMode_Cst                  },
 
 	{ OP_MOV,                MATCH_NIL,              MATCH_NIL,           MATCH_NIL,          MATCH_NIL,      nullptr                                                      },
 };

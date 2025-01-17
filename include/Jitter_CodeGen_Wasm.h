@@ -203,6 +203,7 @@ namespace Jitter
 		void Emit_Fp_ToSingleI32_MemMem(const STATEMENT&);
 		void Emit_Fp_ToInt32TruncS_MemMem(const STATEMENT&);
 		void Emit_Fp_LdCst_TmpCst(const STATEMENT&);
+		void Emit_Fp_SetRoundingMode_Cst(const STATEMENT&);
 
 		//MD
 		template <uint32>

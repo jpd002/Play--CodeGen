@@ -279,6 +279,11 @@ void CCodeGen_AArch32::Emit_Fp_LdCst_TmpCst(const STATEMENT& statement)
 	m_assembler.Str(CAArch32Assembler::r0, CAArch32Assembler::rSP, CAArch32Assembler::MakeImmediateLdrAddress(dst->m_stackLocation + m_stackLevel));
 }
 
+void CCodeGen_AArch32::Emit_Fp_SetRoundingMode_Cst(const STATEMENT& statement)
+{
+	//TODO: Implement
+}
+
 // clang-format off
 CCodeGen_AArch32::CONSTMATCHER CCodeGen_AArch32::g_fpuConstMatchers[] = 
 {
@@ -305,6 +310,8 @@ CCodeGen_AArch32::CONSTMATCHER CCodeGen_AArch32::g_fpuConstMatchers[] =
 	{ OP_FP_TOINT32_TRUNC_S, MATCH_FP_MEMORY32, MATCH_FP_MEMORY32, MATCH_NIL, MATCH_NIL, &CCodeGen_AArch32::Emit_Fp_ToInt32TruncS_MemMem },
 
 	{ OP_FP_LDCST, MATCH_FP_TEMPORARY32, MATCH_CONSTANT, MATCH_NIL, MATCH_NIL, &CCodeGen_AArch32::Emit_Fp_LdCst_TmpCst },
+
+	{ OP_FP_SETROUNDINGMODE, MATCH_NIL, MATCH_CONSTANT, MATCH_NIL, MATCH_NIL, &CCodeGen_AArch32::Emit_Fp_SetRoundingMode_Cst },
 
 	{ OP_MOV, MATCH_NIL, MATCH_NIL, MATCH_NIL, MATCH_NIL, nullptr },
 };

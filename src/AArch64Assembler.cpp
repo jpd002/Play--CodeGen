@@ -1007,6 +1007,24 @@ void CAArch64Assembler::Movz(REGISTER64 rd, uint16 imm, uint8 pos)
 	WriteMoveWideOpImm(0xD2800000, pos, imm, rd);
 }
 
+void CAArch64Assembler::Mrs_Fpcr(REGISTER64 rt)
+{
+	uint32 opcode = 0xD5300000;
+	uint32 fpcrOp = 0xDA20;
+	opcode |= (rt << 0);
+	opcode |= (fpcrOp << 5);
+	WriteWord(opcode);
+}
+
+void CAArch64Assembler::Msr_Fpcr(REGISTER64 rt)
+{
+	uint32 opcode = 0xD5100000;
+	uint32 fpcrOp = 0xDA20;
+	opcode |= (rt << 0);
+	opcode |= (fpcrOp << 5);
+	WriteWord(opcode);
+}
+
 void CAArch64Assembler::Msub(REGISTER32 rd, REGISTER32 rn, REGISTER32 rm, REGISTER32 ra)
 {
 	uint32 opcode = 0x1B008000;

@@ -1,4 +1,5 @@
 #include "Jitter_CodeGen_AArch64.h"
+#include "Jitter.h"
 #include <stdexcept>
 
 using namespace Jitter;
@@ -263,6 +264,53 @@ void CCodeGen_AArch64::Emit_Fp_ToInt32TruncS_VarVar(const STATEMENT& statement)
 	CommitSymbolRegisterFp(dst, dstReg);
 }
 
+void CCodeGen_AArch64::Emit_Fp_SetRoundingMode_Cst(const STATEMENT& statement)
+{
+	auto src1 = statement.src1->GetSymbol().get();
+
+	auto tmpReg = GetNextTempRegister();
+
+	static constexpr uint32 FPCR_RMODE_MASK = (3 << 22);
+	uint32 fpcrRmode = 0;
+	switch(src1->m_valueLow)
+	{
+	case Jitter::CJitter::ROUND_NEAREST:
+		fpcrRmode = (0 << 22);
+		break;
+	case Jitter::CJitter::ROUND_MINUSINFINITY:
+		fpcrRmode = (2 << 22);
+		break;
+	case Jitter::CJitter::ROUND_PLUSINFINITY:
+		fpcrRmode = (1 << 22);
+		break;
+	case Jitter::CJitter::ROUND_TRUNCATE:
+		fpcrRmode = (3 << 22);
+		break;
+	default:
+		assert(false);
+		break;
+	}
+	
+	m_assembler.Mrs_Fpcr(static_cast<CAArch64Assembler::REGISTER64>(tmpReg));
+
+	{
+		LOGICAL_IMM_PARAMS maskImm;
+		bool maskImmSuccess = TryGetLogicalImmParams(~FPCR_RMODE_MASK, maskImm);
+		assert(maskImmSuccess);
+		m_assembler.And(tmpReg, tmpReg, maskImm.n, maskImm.immr, maskImm.imms);
+	}
+
+	if(fpcrRmode != 0)
+	{
+		LOGICAL_IMM_PARAMS rmodeImm;
+		bool rmodeImmSuccess = TryGetLogicalImmParams(fpcrRmode, rmodeImm);
+		assert(rmodeImmSuccess);
+		m_assembler.Orr(tmpReg, tmpReg, rmodeImm.n, rmodeImm.immr, rmodeImm.imms);
+	}
+
+	m_assembler.Msr_Fpcr(static_cast<CAArch64Assembler::REGISTER64>(tmpReg));
+}
+
 // clang-format off
 CCodeGen_AArch64::CONSTMATCHER CCodeGen_AArch64::g_fpuConstMatchers[] =
 {
@@ -292,6 +340,8 @@ CCodeGen_AArch64::CONSTMATCHER CCodeGen_AArch64::g_fpuConstMatchers[] =
 	{ OP_MOV,                MATCH_FP_MEMORY32,       MATCH_FP_REGISTER32,   MATCH_NIL,            MATCH_NIL, &CCodeGen_AArch64::Emit_Fp32_Mov_MemReg             },
 	{ OP_FP_LDCST,           MATCH_FP_REGISTER32,     MATCH_CONSTANT,        MATCH_NIL,            MATCH_NIL, &CCodeGen_AArch64::Emit_Fp32_LdCst_RegCst           },
 	{ OP_FP_LDCST,           MATCH_FP_TEMPORARY32,    MATCH_CONSTANT,        MATCH_NIL,            MATCH_NIL, &CCodeGen_AArch64::Emit_Fp32_LdCst_TmpCst           },
+
+	{ OP_FP_SETROUNDINGMODE, MATCH_NIL,               MATCH_CONSTANT,        MATCH_NIL,            MATCH_NIL, &CCodeGen_AArch64::Emit_Fp_SetRoundingMode_Cst      },
 
 	{ OP_MOV,                MATCH_NIL,               MATCH_NIL,             MATCH_NIL,            MATCH_NIL, nullptr                                             },
 };

@@ -735,6 +735,7 @@ namespace Jitter
 		void Emit_Fp32_Mov_MemReg(const STATEMENT&);
 		void Emit_Fp32_LdCst_RegCst(const STATEMENT&);
 		void Emit_Fp32_LdCst_TmpCst(const STATEMENT&);
+		void Emit_Fp_SetRoundingMode_Cst(const STATEMENT&);
 
 		void Emit_Fp_Cmp_AnyVarVar(const STATEMENT&);
 		void Emit_Fp_Rcpl_VarVar(const STATEMENT&);

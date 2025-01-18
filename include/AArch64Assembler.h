@@ -199,6 +199,8 @@ public:
 	void Movk(REGISTER64, uint16, uint8);
 	void Movz(REGISTER32, uint16, uint8);
 	void Movz(REGISTER64, uint16, uint8);
+	void Mrs_Fpcr(REGISTER64);
+	void Msr_Fpcr(REGISTER64);
 	void Msub(REGISTER32, REGISTER32, REGISTER32, REGISTER32);
 	void Mvn(REGISTER32, REGISTER32);
 	void Mvn_16b(REGISTERMD, REGISTERMD);

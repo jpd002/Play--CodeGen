@@ -1460,6 +1460,14 @@ void CAArch64Assembler::Tst(REGISTER64 rn, REGISTER64 rm)
 	WriteWord(opcode);
 }
 
+void CAArch64Assembler::Uaddlv_8h(REGISTERMD rd, REGISTERMD rn)
+{
+	uint32 opcode = 0x6E703800;
+	opcode |= (rd << 0);
+	opcode |= (rn << 5);
+	WriteWord(opcode);
+}
+
 void CAArch64Assembler::Uaddlv_16b(REGISTERMD rd, REGISTERMD rn)
 {
 	uint32 opcode = 0x6E303800;

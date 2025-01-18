@@ -254,14 +254,14 @@ void CCodeGen_AArch64::Emit_Md_MakeSz_VarVar(const STATEMENT& statement)
 	m_assembler.Cmltz_4s(signReg, src1Reg);
 	m_assembler.Fcmeqz_4s(zeroReg, src1Reg);
 
-	LITERAL128 lit1(0x0004080C1014181CUL, 0xFFFFFFFFFFFFFFFFUL);
-	LITERAL128 lit2(0x8040201008040201UL, 0x0000000000000000UL);
+	LITERAL128 lit1(0xFF00FF04FF08FF0CUL, 0xFF10FF14FF18FF1CUL);
+	LITERAL128 lit2(0x0080004000200010UL, 0x0008000400020001UL);
 
 	m_assembler.Ldr_Pc(cstReg, lit1);
 	m_assembler.Tbl(signReg, signReg, cstReg);
 	m_assembler.Ldr_Pc(cstReg, lit2);
 	m_assembler.And_16b(signReg, signReg, cstReg);
-	m_assembler.Uaddlv_16b(signReg, signReg);
+	m_assembler.Uaddlv_8h(signReg, signReg);
 	m_assembler.Umov_1s(dstReg, signReg, 0);
 
 	CommitSymbolRegister(dst, dstReg);

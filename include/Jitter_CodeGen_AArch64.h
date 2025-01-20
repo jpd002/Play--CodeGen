@@ -133,14 +133,16 @@ namespace Jitter
 		CAArch64Assembler::REGISTER64 PrepareSymbolRegisterUseRef(CSymbol*, CAArch64Assembler::REGISTER64);
 		void CommitSymbolRegisterRef(CSymbol*, CAArch64Assembler::REGISTER64);
 
-		CAArch64Assembler::REGISTERMD PrepareSymbolRegisterDefFp(CSymbol*, CAArch64Assembler::REGISTERMD);
-		CAArch64Assembler::REGISTERMD PrepareSymbolRegisterUseFp(CSymbol*, CAArch64Assembler::REGISTERMD);
+		CAArch64Assembler::REGISTERMD PrepareSymbolRegisterDefFp(CSymbol*);
+		CAArch64Assembler::REGISTERMD PrepareSymbolRegisterUseFp(CSymbol*);
 		void CommitSymbolRegisterFp(CSymbol*, CAArch64Assembler::REGISTERMD);
 
-		CAArch64Assembler::REGISTERMD PrepareSymbolRegisterDefMd(CSymbol*, CAArch64Assembler::REGISTERMD);
-		CAArch64Assembler::REGISTERMD PrepareSymbolRegisterUseMd(CSymbol*, CAArch64Assembler::REGISTERMD);
+		CAArch64Assembler::REGISTERMD PrepareSymbolRegisterDefMd(CSymbol*);
+		CAArch64Assembler::REGISTERMD PrepareSymbolRegisterUseMd(CSymbol*);
 		void CommitSymbolRegisterMd(CSymbol*, CAArch64Assembler::REGISTERMD);
 
+		CAArch64Assembler::REGISTERMD PrepareLiteralRegisterMd(const LITERAL128*);
+		
 		CAArch64Assembler::REGISTER32 PrepareParam(PARAM_STATE&);
 		CAArch64Assembler::REGISTER64 PrepareParam64(PARAM_STATE&);
 		void CommitParam(PARAM_STATE&);
@@ -597,6 +599,7 @@ namespace Jitter
 		};
 		// clang-format on
 
+		void ResetTempRegisterMdState();
 		uint16 GetSavedRegisterList(uint32);
 		void Emit_Prolog(const StatementList&, uint32);
 		void Emit_Epilog();
@@ -806,6 +809,7 @@ namespace Jitter
 		ParamStack m_params;
 		uint32 m_nextTempRegister = 0;
 		uint32 m_nextTempRegisterMd = 0;
+		std::array<const LITERAL128*, MAX_TEMP_MD_REGS> m_tempRegisterMdLiteral = {};
 		uint16 m_registerSave = 0;
 		uint32 m_paramSpillBase = 0;
 

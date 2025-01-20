@@ -446,7 +446,7 @@ void CCodeGen_AArch64::RegisterExternalSymbols(CObjectFile* objectFile) const
 void CCodeGen_AArch64::GenerateCode(const StatementList& statements, unsigned int stackSize)
 {
 	m_nextTempRegister = 0;
-	m_nextTempRegisterMd = 0;
+	ResetTempRegisterMdState();
 
 	//Align stack size (must be aligned on 16 bytes boundary)
 	stackSize = (stackSize + 0xF) & ~0xF;
@@ -540,6 +540,7 @@ CAArch64Assembler::REGISTER64 CCodeGen_AArch64::GetNextTempRegister64()
 CAArch64Assembler::REGISTERMD CCodeGen_AArch64::GetNextTempRegisterMd()
 {
 	auto result = g_tempRegistersMd[m_nextTempRegisterMd];
+	m_tempRegisterMdLiteral[m_nextTempRegisterMd] = nullptr;
 	m_nextTempRegisterMd++;
 	m_nextTempRegisterMd %= MAX_TEMP_MD_REGS;
 	return result;
@@ -886,6 +887,12 @@ bool CCodeGen_AArch64::TryGetLogicalImmParams(uint32 imm, LOGICAL_IMM_PARAMS& pa
 	params.imms = nimms & 0x3F;
 
 	return true;
+}
+
+void CCodeGen_AArch64::ResetTempRegisterMdState()
+{
+	m_nextTempRegisterMd = 0;
+	m_tempRegisterMdLiteral.fill(nullptr);
 }
 
 uint16 CCodeGen_AArch64::GetSavedRegisterList(uint32 registerUsage)

@@ -78,7 +78,7 @@ void CCodeGen_AArch64::LoadTemporary256ElementAddressInRegister(CAArch64Assemble
 	m_assembler.Add(dstReg, CAArch64Assembler::xSP, totalOffset, CAArch64Assembler::ADDSUB_IMM_SHIFT_LSL0);
 }
 
-CAArch64Assembler::REGISTERMD CCodeGen_AArch64::PrepareSymbolRegisterDefMd(CSymbol* symbol, CAArch64Assembler::REGISTERMD preferedRegister)
+CAArch64Assembler::REGISTERMD CCodeGen_AArch64::PrepareSymbolRegisterDefMd(CSymbol* symbol)
 {
 	switch(symbol->m_type)
 	{
@@ -88,7 +88,7 @@ CAArch64Assembler::REGISTERMD CCodeGen_AArch64::PrepareSymbolRegisterDefMd(CSymb
 		break;
 	case SYM_TEMPORARY128:
 	case SYM_RELATIVE128:
-		return preferedRegister;
+		return GetNextTempRegisterMd();
 		break;
 	default:
 		throw std::runtime_error("Invalid symbol type.");
@@ -96,7 +96,7 @@ CAArch64Assembler::REGISTERMD CCodeGen_AArch64::PrepareSymbolRegisterDefMd(CSymb
 	}
 }
 
-CAArch64Assembler::REGISTERMD CCodeGen_AArch64::PrepareSymbolRegisterUseMd(CSymbol* symbol, CAArch64Assembler::REGISTERMD preferedRegister)
+CAArch64Assembler::REGISTERMD CCodeGen_AArch64::PrepareSymbolRegisterUseMd(CSymbol* symbol)
 {
 	switch(symbol->m_type)
 	{
@@ -106,8 +106,11 @@ CAArch64Assembler::REGISTERMD CCodeGen_AArch64::PrepareSymbolRegisterUseMd(CSymb
 		break;
 	case SYM_TEMPORARY128:
 	case SYM_RELATIVE128:
-		LoadMemory128InRegister(preferedRegister, symbol);
-		return preferedRegister;
+		{
+			auto tempRegister = GetNextTempRegisterMd();
+			LoadMemory128InRegister(tempRegister, symbol);
+			return tempRegister;
+		}
 		break;
 	default:
 		throw std::runtime_error("Invalid symbol type.");
@@ -130,6 +133,23 @@ void CCodeGen_AArch64::CommitSymbolRegisterMd(CSymbol* symbol, CAArch64Assembler
 		throw std::runtime_error("Invalid symbol type.");
 		break;
 	}
+}
+
+CAArch64Assembler::REGISTERMD CCodeGen_AArch64::PrepareLiteralRegisterMd(const LITERAL128* literalPtr)
+{
+	for(int i = 0; i < MAX_TEMP_MD_REGS; i++)
+	{
+		if(m_tempRegisterMdLiteral[i] == literalPtr)
+		{
+			return g_tempRegistersMd[i];
+		}
+	}
+	auto result = g_tempRegistersMd[m_nextTempRegisterMd];
+	m_tempRegisterMdLiteral[m_nextTempRegisterMd] = literalPtr;
+	m_assembler.Ldr_Pc(result, *literalPtr);
+	m_nextTempRegisterMd++;
+	m_nextTempRegisterMd %= MAX_TEMP_MD_REGS;
+	return result;
 }
 
 void CCodeGen_AArch64::MdBlendRegisters(CAArch64Assembler::REGISTERMD dstReg, CAArch64Assembler::REGISTERMD srcReg, uint8 mask)
@@ -161,8 +181,8 @@ void CCodeGen_AArch64::Emit_Md_VarVar(const STATEMENT& statement)
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
 
-	auto dstReg = PrepareSymbolRegisterDefMd(dst, GetNextTempRegisterMd());
-	auto src1Reg = PrepareSymbolRegisterUseMd(src1, GetNextTempRegisterMd());
+	auto dstReg = PrepareSymbolRegisterDefMd(dst);
+	auto src1Reg = PrepareSymbolRegisterUseMd(src1);
 
 	((m_assembler).*(MDOP::OpReg()))(dstReg, src1Reg);
 
@@ -176,9 +196,9 @@ void CCodeGen_AArch64::Emit_Md_VarVarVar(const STATEMENT& statement)
 	auto src1 = statement.src1->GetSymbol().get();
 	auto src2 = statement.src2->GetSymbol().get();
 
-	auto dstReg = PrepareSymbolRegisterDefMd(dst, GetNextTempRegisterMd());
-	auto src1Reg = PrepareSymbolRegisterUseMd(src1, GetNextTempRegisterMd());
-	auto src2Reg = PrepareSymbolRegisterUseMd(src2, GetNextTempRegisterMd());
+	auto dstReg = PrepareSymbolRegisterDefMd(dst);
+	auto src1Reg = PrepareSymbolRegisterUseMd(src1);
+	auto src2Reg = PrepareSymbolRegisterUseMd(src2);
 
 	((m_assembler).*(MDOP::OpReg()))(dstReg, src1Reg, src2Reg);
 
@@ -192,9 +212,9 @@ void CCodeGen_AArch64::Emit_Md_VarVarVarRev(const STATEMENT& statement)
 	auto src1 = statement.src1->GetSymbol().get();
 	auto src2 = statement.src2->GetSymbol().get();
 
-	auto dstReg = PrepareSymbolRegisterDefMd(dst, GetNextTempRegisterMd());
-	auto src1Reg = PrepareSymbolRegisterUseMd(src1, GetNextTempRegisterMd());
-	auto src2Reg = PrepareSymbolRegisterUseMd(src2, GetNextTempRegisterMd());
+	auto dstReg = PrepareSymbolRegisterDefMd(dst);
+	auto src1Reg = PrepareSymbolRegisterUseMd(src1);
+	auto src2Reg = PrepareSymbolRegisterUseMd(src2);
 
 	((m_assembler).*(MDOP::OpReg()))(dstReg, src2Reg, src1Reg);
 
@@ -208,8 +228,8 @@ void CCodeGen_AArch64::Emit_Md_Shift_VarVarCst(const STATEMENT& statement)
 	auto src1 = statement.src1->GetSymbol().get();
 	auto src2 = statement.src2->GetSymbol().get();
 
-	auto dstReg = PrepareSymbolRegisterDefMd(dst, GetNextTempRegisterMd());
-	auto src1Reg = PrepareSymbolRegisterUseMd(src1, GetNextTempRegisterMd());
+	auto dstReg = PrepareSymbolRegisterDefMd(dst);
+	auto src1Reg = PrepareSymbolRegisterUseMd(src1);
 
 	((m_assembler).*(MDSHIFTOP::OpReg()))(dstReg, src1Reg, src2->m_valueLow);
 
@@ -221,14 +241,11 @@ void CCodeGen_AArch64::Emit_Md_ClampS_VarVar(const STATEMENT& statement)
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
 
-	auto dstReg = PrepareSymbolRegisterDefMd(dst, GetNextTempRegisterMd());
-	auto src1Reg = PrepareSymbolRegisterUseMd(src1, GetNextTempRegisterMd());
-	auto cst1Reg = GetNextTempRegisterMd();
-	auto cst2Reg = GetNextTempRegisterMd();
-
-	m_assembler.Ldr_Pc(cst1Reg, g_fpClampMask1);
-	m_assembler.Ldr_Pc(cst2Reg, g_fpClampMask2);
-
+	auto dstReg = PrepareSymbolRegisterDefMd(dst);
+	auto src1Reg = PrepareSymbolRegisterUseMd(src1);
+	auto cst1Reg = PrepareLiteralRegisterMd(&g_fpClampMask1);
+	auto cst2Reg = PrepareLiteralRegisterMd(&g_fpClampMask2);
+	
 	m_assembler.Smin_4s(dstReg, src1Reg, cst1Reg);
 	m_assembler.Umin_4s(dstReg, dstReg, cst2Reg);
 
@@ -240,16 +257,16 @@ void CCodeGen_AArch64::Emit_Md_MakeSz_VarVar(const STATEMENT& statement)
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
 
-	m_nextTempRegisterMd = 0;
-
+	ResetTempRegisterMdState();
+	
 	auto dstReg = PrepareSymbolRegisterDef(dst, GetNextTempRegister());
-	auto src1Reg = PrepareSymbolRegisterUseMd(src1, GetNextTempRegisterMd());
+	auto src1Reg = PrepareSymbolRegisterUseMd(src1);
 
 	auto signReg = GetNextTempRegisterMd();
 	auto zeroReg = GetNextTempRegisterMd();
 	auto cstReg = GetNextTempRegisterMd();
 
-	assert(zeroReg == signReg + 1);
+	assert(zeroReg == (signReg + 1));
 
 	m_assembler.Cmltz_4s(signReg, src1Reg);
 	m_assembler.Fcmeqz_4s(zeroReg, src1Reg);
@@ -310,7 +327,7 @@ void CCodeGen_AArch64::Emit_Md_LoadFromRef_VarVar(const STATEMENT& statement)
 	auto src1 = statement.src1->GetSymbol().get();
 
 	auto addressReg = PrepareSymbolRegisterUseRef(src1, GetNextTempRegister64());
-	auto dstReg = PrepareSymbolRegisterDefMd(dst, GetNextTempRegisterMd());
+	auto dstReg = PrepareSymbolRegisterDefMd(dst);
 
 	m_assembler.Ldr_1q(dstReg, addressReg, 0);
 
@@ -327,7 +344,7 @@ void CCodeGen_AArch64::Emit_Md_LoadFromRef_VarVarAny(const STATEMENT& statement)
 	assert(scale == 1);
 
 	auto addressReg = PrepareSymbolRegisterUseRef(src1, GetNextTempRegister64());
-	auto dstReg = PrepareSymbolRegisterDefMd(dst, GetNextTempRegisterMd());
+	auto dstReg = PrepareSymbolRegisterDefMd(dst);
 
 	if(uint32 scaledIndex = (src2->m_valueLow * scale); src2->IsConstant() && (scaledIndex < 0x10000))
 	{
@@ -348,7 +365,7 @@ void CCodeGen_AArch64::Emit_Md_StoreAtRef_VarVar(const STATEMENT& statement)
 	auto src2 = statement.src2->GetSymbol().get();
 
 	auto addressReg = PrepareSymbolRegisterUseRef(src1, GetNextTempRegister64());
-	auto valueReg = PrepareSymbolRegisterUseMd(src2, GetNextTempRegisterMd());
+	auto valueReg = PrepareSymbolRegisterUseMd(src2);
 
 	m_assembler.Str_1q(valueReg, addressReg, 0);
 }
@@ -363,7 +380,7 @@ void CCodeGen_AArch64::Emit_Md_StoreAtRef_VarAnyVar(const STATEMENT& statement)
 	assert(scale == 1);
 
 	auto addressReg = PrepareSymbolRegisterUseRef(src1, GetNextTempRegister64());
-	auto valueReg = PrepareSymbolRegisterUseMd(src3, GetNextTempRegisterMd());
+	auto valueReg = PrepareSymbolRegisterUseMd(src3);
 
 	if(uint32 scaledIndex = (src2->m_valueLow * scale); src2->IsConstant() && (scaledIndex < 0x10000))
 	{
@@ -388,7 +405,7 @@ void CCodeGen_AArch64::Emit_Md_LoadFromRefMasked_VarVarAnyVar(const STATEMENT& s
 	assert(dst->Equals(src3));
 
 	auto addressReg = PrepareSymbolRegisterUseRef(src1, GetNextTempRegister64());
-	auto src3Reg = PrepareSymbolRegisterUseMd(src3, GetNextTempRegisterMd());
+	auto src3Reg = PrepareSymbolRegisterUseMd(src3);
 	auto tmpReg = GetNextTempRegisterMd();
 
 	if(uint32 scaledIndex = (src2->m_valueLow * scale); src2->IsConstant() && (scaledIndex < 0x10000))
@@ -416,7 +433,7 @@ void CCodeGen_AArch64::Emit_Md_StoreAtRefMasked_VarAnyVar(const STATEMENT& state
 	uint8 scale = 1;
 
 	auto addressReg = PrepareSymbolRegisterUseRef(src1, GetNextTempRegister64());
-	auto valueReg = PrepareSymbolRegisterUseMd(src3, GetNextTempRegisterMd());
+	auto valueReg = PrepareSymbolRegisterUseMd(src3);
 	auto tmpReg = GetNextTempRegisterMd();
 	auto indexReg = GetNextTempRegister();
 
@@ -452,8 +469,8 @@ void CCodeGen_AArch64::Emit_Md_MovMasked_VarVarVar(const STATEMENT& statement)
 
 	auto mask = static_cast<uint8>(statement.jmpCondition);
 
-	auto src1Reg = PrepareSymbolRegisterUseMd(src1, GetNextTempRegisterMd());
-	auto src2Reg = PrepareSymbolRegisterUseMd(src2, GetNextTempRegisterMd());
+	auto src1Reg = PrepareSymbolRegisterUseMd(src1);
+	auto src2Reg = PrepareSymbolRegisterUseMd(src2);
 
 	MdBlendRegisters(src1Reg, src2Reg, mask);
 
@@ -466,7 +483,7 @@ void CCodeGen_AArch64::Emit_Md_Expand_VarReg(const STATEMENT& statement)
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
 
-	auto dstReg = PrepareSymbolRegisterDefMd(dst, GetNextTempRegisterMd());
+	auto dstReg = PrepareSymbolRegisterDefMd(dst);
 
 	m_assembler.Dup_4s(dstReg, g_registers[src1->m_valueLow]);
 
@@ -478,7 +495,7 @@ void CCodeGen_AArch64::Emit_Md_Expand_VarMem(const STATEMENT& statement)
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
 
-	auto dstReg = PrepareSymbolRegisterDefMd(dst, GetNextTempRegisterMd());
+	auto dstReg = PrepareSymbolRegisterDefMd(dst);
 	auto src1Reg = GetNextTempRegister();
 
 	LoadMemoryInRegister(src1Reg, src1);
@@ -493,7 +510,7 @@ void CCodeGen_AArch64::Emit_Md_Expand_VarCst(const STATEMENT& statement)
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
 
-	auto dstReg = PrepareSymbolRegisterDefMd(dst, GetNextTempRegisterMd());
+	auto dstReg = PrepareSymbolRegisterDefMd(dst);
 	auto src1Reg = GetNextTempRegister();
 
 	switch(src1->m_valueLow)
@@ -544,8 +561,8 @@ void CCodeGen_AArch64::Emit_Md_Expand_VarVarCst(const STATEMENT& statement)
 	assert(src2->m_type == SYM_CONSTANT);
 	assert(src2->m_valueLow < 4);
 
-	auto dstReg = PrepareSymbolRegisterDefMd(dst, GetNextTempRegisterMd());
-	auto src1Reg = PrepareSymbolRegisterUseMd(src1, GetNextTempRegisterMd());
+	auto dstReg = PrepareSymbolRegisterDefMd(dst);
+	auto src1Reg = PrepareSymbolRegisterUseMd(src1);
 
 	m_assembler.Dup_4s(dstReg, src1Reg, src2->m_valueLow);
 
@@ -558,9 +575,9 @@ void CCodeGen_AArch64::Emit_Md_PackHB_VarVarVar(const STATEMENT& statement)
 	auto src1 = statement.src1->GetSymbol().get();
 	auto src2 = statement.src2->GetSymbol().get();
 
-	auto dstReg = PrepareSymbolRegisterDefMd(dst, GetNextTempRegisterMd());
-	auto src1Reg = PrepareSymbolRegisterUseMd(src1, GetNextTempRegisterMd());
-	auto src2Reg = PrepareSymbolRegisterUseMd(src2, GetNextTempRegisterMd());
+	auto dstReg = PrepareSymbolRegisterDefMd(dst);
+	auto src1Reg = PrepareSymbolRegisterUseMd(src1);
+	auto src2Reg = PrepareSymbolRegisterUseMd(src2);
 
 	if(dstReg == src1Reg)
 	{
@@ -584,9 +601,9 @@ void CCodeGen_AArch64::Emit_Md_PackWH_VarVarVar(const STATEMENT& statement)
 	auto src1 = statement.src1->GetSymbol().get();
 	auto src2 = statement.src2->GetSymbol().get();
 
-	auto dstReg = PrepareSymbolRegisterDefMd(dst, GetNextTempRegisterMd());
-	auto src1Reg = PrepareSymbolRegisterUseMd(src1, GetNextTempRegisterMd());
-	auto src2Reg = PrepareSymbolRegisterUseMd(src2, GetNextTempRegisterMd());
+	auto dstReg = PrepareSymbolRegisterDefMd(dst);
+	auto src1Reg = PrepareSymbolRegisterUseMd(src1);
+	auto src2Reg = PrepareSymbolRegisterUseMd(src2);
 
 	if(dstReg == src1Reg)
 	{
@@ -614,8 +631,8 @@ void CCodeGen_AArch64::Emit_MergeTo256_MemVarVar(const STATEMENT& statement)
 
 	auto dstLoAddrReg = GetNextTempRegister64();
 	auto dstHiAddrReg = GetNextTempRegister64();
-	auto src1Reg = PrepareSymbolRegisterUseMd(src1, GetNextTempRegisterMd());
-	auto src2Reg = PrepareSymbolRegisterUseMd(src2, GetNextTempRegisterMd());
+	auto src1Reg = PrepareSymbolRegisterUseMd(src1);
+	auto src2Reg = PrepareSymbolRegisterUseMd(src2);
 
 	LoadTemporary256ElementAddressInRegister(dstLoAddrReg, dst, 0x00);
 	LoadTemporary256ElementAddressInRegister(dstHiAddrReg, dst, 0x10);
@@ -634,7 +651,7 @@ void CCodeGen_AArch64::Emit_Md_Srl256_VarMemCst(const STATEMENT& statement)
 	assert(src2->m_type == SYM_CONSTANT);
 
 	auto src1AddrReg = GetNextTempRegister64();
-	auto dstReg = PrepareSymbolRegisterDefMd(dst, GetNextTempRegisterMd());
+	auto dstReg = PrepareSymbolRegisterDefMd(dst);
 
 	uint32 offset = (src2->m_valueLow & 0x7F) / 8;
 	LoadTemporary256ElementAddressInRegister(src1AddrReg, src1, offset);
@@ -656,7 +673,7 @@ void CCodeGen_AArch64::Emit_Md_Srl256_VarMemVar(const STATEMENT& statement)
 	auto src1AddrReg = GetNextTempRegister64();
 	auto src2Register = PrepareSymbolRegisterUse(src2, GetNextTempRegister());
 
-	auto dstReg = PrepareSymbolRegisterDefMd(dst, GetNextTempRegisterMd());
+	auto dstReg = PrepareSymbolRegisterDefMd(dst);
 
 	LoadTemporary256ElementAddressInRegister(src1AddrReg, src1, 0);
 

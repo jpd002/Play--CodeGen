@@ -1,6 +1,7 @@
 #pragma once
 
 #include <deque>
+#include <array>
 #include "Jitter_CodeGen.h"
 #include "AArch64Assembler.h"
 

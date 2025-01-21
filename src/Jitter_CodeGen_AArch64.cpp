@@ -967,6 +967,7 @@ CAArch64Assembler::LABEL CCodeGen_AArch64::GetLabel(uint32 blockId)
 
 void CCodeGen_AArch64::MarkLabel(const STATEMENT& statement)
 {
+	ResetTempRegisterMdState();
 	auto label = GetLabel(statement.jmpBlock);
 	m_assembler.MarkLabel(label);
 }
@@ -1513,6 +1514,8 @@ void CCodeGen_AArch64::Emit_Param_Mem128(const STATEMENT& statement)
 
 void CCodeGen_AArch64::Emit_Call(const STATEMENT& statement)
 {
+	ResetTempRegisterMdState();
+
 	auto src1 = statement.src1->GetSymbol().get();
 	auto src2 = statement.src2->GetSymbol().get();
 
@@ -1634,6 +1637,7 @@ void CCodeGen_AArch64::Emit_ExternJmpDynamic(const STATEMENT& statement)
 
 void CCodeGen_AArch64::Emit_Jmp(const STATEMENT& statement)
 {
+	ResetTempRegisterMdState();
 	m_assembler.B(GetLabel(statement.jmpBlock));
 }
 
@@ -1681,6 +1685,8 @@ void CCodeGen_AArch64::Emit_CondJmp(const STATEMENT& statement)
 
 void CCodeGen_AArch64::Emit_CondJmp_AnyVar(const STATEMENT& statement)
 {
+	ResetTempRegisterMdState();
+
 	auto src1 = statement.src1->GetSymbol().get();
 	auto src2 = statement.src2->GetSymbol().get();
 
@@ -1692,6 +1698,8 @@ void CCodeGen_AArch64::Emit_CondJmp_AnyVar(const STATEMENT& statement)
 
 void CCodeGen_AArch64::Emit_CondJmp_VarCst(const STATEMENT& statement)
 {
+	ResetTempRegisterMdState();
+
 	auto src1 = statement.src1->GetSymbol().get();
 	auto src2 = statement.src2->GetSymbol().get();
 
@@ -1738,6 +1746,8 @@ void CCodeGen_AArch64::Emit_CondJmp_VarCst(const STATEMENT& statement)
 
 void CCodeGen_AArch64::Emit_CondJmp_Ref_VarCst(const STATEMENT& statement)
 {
+	ResetTempRegisterMdState();
+
 	auto src1 = statement.src1->GetSymbol().get();
 	FRAMEWORK_MAYBE_UNUSED auto src2 = statement.src2->GetSymbol().get();
 

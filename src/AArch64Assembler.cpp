@@ -1052,6 +1052,34 @@ void CAArch64Assembler::Mvn_16b(REGISTERMD rd, REGISTERMD rn)
 	WriteWord(opcode);
 }
 
+void CAArch64Assembler::Mvni_4s(REGISTERMD rd, uint8 imm, MOVI_4S_IMM_SHIFT_TYPE shiftType)
+{
+	uint32 cmode = 0;
+	switch(shiftType)
+	{
+	case MOVI_4S_IMM_SHIFT_LSL0:
+		cmode = 0;
+		break;
+	case MOVI_4S_IMM_SHIFT_LSL16:
+		cmode = 4;
+		break;
+	case MOVI_4S_IMM_SHIFT_LSL24:
+		cmode = 6;
+		break;
+	default:
+		assert(false);
+		break;
+	}
+	uint32 immHi = (imm >> 5);
+	uint32 immLo = (imm & 0x1F);
+	uint32 opcode = 0x6F000400;
+	opcode |= (rd << 0);
+	opcode |= (cmode << 12);
+	opcode |= (immHi << 16);
+	opcode |= (immLo << 5);
+	WriteWord(opcode);
+}
+
 void CAArch64Assembler::Orn_16b(REGISTERMD rd, REGISTERMD rn, REGISTERMD rm)
 {
 	uint32 opcode = 0x4EE01C00;

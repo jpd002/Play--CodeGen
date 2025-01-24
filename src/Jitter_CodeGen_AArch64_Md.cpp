@@ -146,7 +146,14 @@ CAArch64Assembler::REGISTERMD CCodeGen_AArch64::PrepareLiteralRegisterMd(const L
 	}
 	auto result = g_tempRegistersMd[m_nextTempRegisterMd];
 	m_tempRegisterMdLiteral[m_nextTempRegisterMd] = literalPtr;
-	m_assembler.Ldr_Pc(result, *literalPtr);
+	if(literalPtr == &g_fpClampMask2)
+	{
+		m_assembler.Mvni_4s(result, 0x80, CAArch64Assembler::MOVI_4S_IMM_SHIFT_LSL16);
+	}
+	else
+	{
+		m_assembler.Ldr_Pc(result, *literalPtr);
+	}
 	m_nextTempRegisterMd++;
 	m_nextTempRegisterMd %= MAX_TEMP_MD_REGS;
 	return result;

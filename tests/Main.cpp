@@ -9,6 +9,7 @@
 #include "RandomAluTest3.h"
 #include "ShiftTest.h"
 #include "LogicTest.h"
+#include "SelectTest.h"
 #include "LoopTest.h"
 #include "AliasTest.h"
 #include "AliasTest2.h"
@@ -99,6 +100,7 @@ static const TestFactoryFunction s_factories[] =
 	[] () { return new CLogicTest(0x01234567, false,  0x8000, true); },
 	[] () { return new CLogicTest(0x01234567, false, ~0x8000, true); },
 	[] () { return new CLogicTest(0x89ABCDEF, false, 0x01234567, true); },
+	[] () { return new CSelectTest(); },
 	[] () { return new CMultTest(true); },
 	[] () { return new CMultTest(false); },
 	[] () { return new CDivTest(true); },

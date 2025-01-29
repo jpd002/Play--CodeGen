@@ -86,6 +86,7 @@ namespace Jitter
 		void MultS();
 		void Not();
 		void Or();
+		void Select();
 		void SignExt();
 		void SignExt8();
 		void SignExt16();

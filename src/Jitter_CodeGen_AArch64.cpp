@@ -346,6 +346,8 @@ CCodeGen_AArch64::CONSTMATCHER CCodeGen_AArch64::g_constMatchers[] =
 	{ OP_CMP,            MATCH_VARIABLE,       MATCH_ANY,            MATCH_VARIABLE,      MATCH_NIL,      &CCodeGen_AArch64::Emit_Cmp_VarAnyVar                       },
 	{ OP_CMP,            MATCH_VARIABLE,       MATCH_VARIABLE,       MATCH_CONSTANT,      MATCH_NIL,      &CCodeGen_AArch64::Emit_Cmp_VarVarCst                       },
 	
+	{ OP_SELECT,         MATCH_VARIABLE,       MATCH_VARIABLE,       MATCH_ANY,           MATCH_ANY,      &CCodeGen_AArch64::Emit_Select_VarVarAnyAny                 },
+
 	{ OP_SLL,            MATCH_VARIABLE,       MATCH_ANY,            MATCH_VARIABLE,      MATCH_NIL,      &CCodeGen_AArch64::Emit_Shift_VarAnyVar<SHIFTOP_LSL>        },
 	{ OP_SRL,            MATCH_VARIABLE,       MATCH_ANY,            MATCH_VARIABLE,      MATCH_NIL,      &CCodeGen_AArch64::Emit_Shift_VarAnyVar<SHIFTOP_LSR>        },
 	{ OP_SRA,            MATCH_VARIABLE,       MATCH_ANY,            MATCH_VARIABLE,      MATCH_NIL,      &CCodeGen_AArch64::Emit_Shift_VarAnyVar<SHIFTOP_ASR>        },
@@ -1853,5 +1855,23 @@ void CCodeGen_AArch64::Emit_Cmp_VarVarCst(const STATEMENT& statement)
 	}
 
 	Cmp_GetFlag(dstReg, statement.jmpCondition);
+	CommitSymbolRegister(dst, dstReg);
+}
+
+void CCodeGen_AArch64::Emit_Select_VarVarAnyAny(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+	auto src3 = statement.src3->GetSymbol().get();
+	
+	auto dstReg = PrepareSymbolRegisterDef(dst, GetNextTempRegister());
+	auto src1Reg = PrepareSymbolRegisterUse(src1, GetNextTempRegister());
+	auto src2Reg = PrepareSymbolRegisterUse(src2, GetNextTempRegister());
+	auto src3Reg = PrepareSymbolRegisterUse(src3, GetNextTempRegister());
+	
+	m_assembler.Tst(src1Reg, src1Reg);
+	m_assembler.Csel(dstReg, src2Reg, src3Reg, CAArch64Assembler::CONDITION_NE);
+	
 	CommitSymbolRegister(dst, dstReg);
 }

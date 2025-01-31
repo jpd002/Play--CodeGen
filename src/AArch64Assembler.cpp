@@ -418,6 +418,16 @@ void CAArch64Assembler::Cmp(REGISTER64 rn, uint16 imm, ADDSUB_IMM_SHIFT_TYPE shi
 	WriteAddSubOpImm(0xF1000000, shift, imm, rn, wZR);
 }
 
+void CAArch64Assembler::Csel(REGISTER32 rd, REGISTER32 rn, REGISTER32 rm, CONDITION condition)
+{
+	uint32 opcode = 0x1A800000;
+	opcode |= (rd << 0);
+	opcode |= (rn << 5);
+	opcode |= (condition << 12);
+	opcode |= (rm << 16);
+	WriteWord(opcode);
+}
+
 void CAArch64Assembler::Cset(REGISTER32 rd, CONDITION condition)
 {
 	uint32 opcode = 0x1A800400;

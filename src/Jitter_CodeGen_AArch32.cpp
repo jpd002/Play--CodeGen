@@ -199,6 +199,8 @@ CCodeGen_AArch32::CONSTMATCHER CCodeGen_AArch32::g_constMatchers[] =
 	{ OP_CMP, MATCH_ANY, MATCH_ANY, MATCH_CONSTANT, MATCH_NIL, &CCodeGen_AArch32::Emit_Cmp_AnyAnyCst },
 	{ OP_CMP, MATCH_ANY, MATCH_ANY, MATCH_ANY,      MATCH_NIL, &CCodeGen_AArch32::Emit_Cmp_AnyAnyAny },
 
+	{ OP_SELECT, MATCH_VARIABLE, MATCH_VARIABLE, MATCH_ANY, MATCH_ANY, &CCodeGen_AArch32::Emit_Select_VarVarAnyAny },
+	
 	{ OP_NOT, MATCH_REGISTER, MATCH_REGISTER, MATCH_NIL, MATCH_NIL, &CCodeGen_AArch32::Emit_Not_RegReg },
 	{ OP_NOT, MATCH_MEMORY,   MATCH_REGISTER, MATCH_NIL, MATCH_NIL, &CCodeGen_AArch32::Emit_Not_MemReg },
 	{ OP_NOT, MATCH_MEMORY,   MATCH_MEMORY,   MATCH_NIL, MATCH_NIL, &CCodeGen_AArch32::Emit_Not_MemMem },
@@ -1368,6 +1370,27 @@ void CCodeGen_AArch32::Emit_Cmp_AnyAnyCst(const STATEMENT& statement)
 
 	Cmp_GenericRegCst(src1Reg, cst, CAArch32Assembler::r2);
 	Cmp_GetFlag(dstReg, statement.jmpCondition);
+	CommitSymbolRegister(dst, dstReg);
+}
+
+void CCodeGen_AArch32::Emit_Select_VarVarAnyAny(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+	auto src3 = statement.src3->GetSymbol().get();
+	
+	//TODO: This could be slightly improved if we have immediate operands
+
+	auto dstReg = PrepareSymbolRegisterDef(dst, CAArch32Assembler::r0);
+	auto src1Reg = PrepareSymbolRegisterUse(src1, CAArch32Assembler::r1);
+	auto src2Reg = PrepareSymbolRegisterUse(src2, CAArch32Assembler::r2);
+	auto src3Reg = PrepareSymbolRegisterUse(src3, CAArch32Assembler::r3);
+	
+	m_assembler.Tst(src1Reg, src1Reg);
+	m_assembler.MovCc(CAArch32Assembler::CONDITION_NE, dstReg, src2Reg);
+	m_assembler.MovCc(CAArch32Assembler::CONDITION_EQ, dstReg, src3Reg);
+
 	CommitSymbolRegister(dst, dstReg);
 }
 

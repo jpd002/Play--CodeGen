@@ -393,15 +393,7 @@ void CAArch32Assembler::Ldrd(REGISTER rt, REGISTER rn, const LdrAddress& address
 
 void CAArch32Assembler::Mov(REGISTER rd, REGISTER rm)
 {
-	InstructionAlu instruction;
-	instruction.operand = rm;
-	instruction.rd = rd;
-	instruction.setFlags = 0;
-	instruction.opcode = ALU_OPCODE_MOV;
-	instruction.immediate = 0;
-	instruction.condition = CONDITION_AL;
-	uint32 opcode = *reinterpret_cast<uint32*>(&instruction);
-	WriteWord(opcode);
+	MovCc(CONDITION_AL, rd, rm);
 }
 
 void CAArch32Assembler::Mov(REGISTER rd, const RegisterAluOperand& operand)
@@ -420,6 +412,19 @@ void CAArch32Assembler::Mov(REGISTER rd, const RegisterAluOperand& operand)
 void CAArch32Assembler::Mov(REGISTER rd, const ImmediateAluOperand& operand)
 {
 	MovCc(CONDITION_AL, rd, operand);
+}
+
+void CAArch32Assembler::MovCc(CONDITION condition, REGISTER rd, REGISTER rm)
+{
+	InstructionAlu instruction;
+	instruction.operand = rm;
+	instruction.rd = rd;
+	instruction.setFlags = 0;
+	instruction.opcode = ALU_OPCODE_MOV;
+	instruction.immediate = 0;
+	instruction.condition = condition;
+	uint32 opcode = *reinterpret_cast<uint32*>(&instruction);
+	WriteWord(opcode);
 }
 
 void CAArch32Assembler::MovCc(CONDITION condition, REGISTER rd, const ImmediateAluOperand& operand)

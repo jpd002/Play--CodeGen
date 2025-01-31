@@ -228,6 +228,7 @@ public:
 	void Mov(REGISTER, REGISTER);
 	void Mov(REGISTER, const RegisterAluOperand&);
 	void Mov(REGISTER, const ImmediateAluOperand&);
+	void MovCc(CONDITION, REGISTER, REGISTER);
 	void MovCc(CONDITION, REGISTER, const ImmediateAluOperand&);
 	void Movw(REGISTER, uint16);
 	void Movt(REGISTER, uint16);

@@ -155,6 +155,8 @@ namespace Jitter
 
 		void Emit_Cmp_AnyAnyAny(const STATEMENT&);
 
+		void Emit_Select_VarVarAnyAny(const STATEMENT&);
+
 		void Emit_Sll_AnyAnyAny(const STATEMENT&);
 		void Emit_Srl_AnyAnyAny(const STATEMENT&);
 		void Emit_Sra_AnyAnyAny(const STATEMENT&);

@@ -118,6 +118,8 @@ CCodeGen_Wasm::CONSTMATCHER CCodeGen_Wasm::g_constMatchers[] =
 
 	{ OP_CMP,            MATCH_ANY,            MATCH_ANY,            MATCH_ANY,           MATCH_NIL,      &CCodeGen_Wasm::Emit_Cmp_AnyAnyAny                          },
 
+	{ OP_SELECT,         MATCH_VARIABLE,       MATCH_VARIABLE,       MATCH_ANY,           MATCH_ANY,      &CCodeGen_Wasm::Emit_Select_VarVarAnyAny                    },
+
 	{ OP_SLL,            MATCH_ANY,            MATCH_ANY,            MATCH_ANY,           MATCH_NIL,      &CCodeGen_Wasm::Emit_Sll_AnyAnyAny                          },
 	{ OP_SRL,            MATCH_ANY,            MATCH_ANY,            MATCH_ANY,           MATCH_NIL,      &CCodeGen_Wasm::Emit_Srl_AnyAnyAny                          },
 	{ OP_SRA,            MATCH_ANY,            MATCH_ANY,            MATCH_ANY,           MATCH_NIL,      &CCodeGen_Wasm::Emit_Sra_AnyAnyAny                          },
@@ -1246,6 +1248,23 @@ void CCodeGen_Wasm::Emit_Cmp_AnyAnyAny(const STATEMENT& statement)
 		assert(false);
 		break;
 	}
+
+	CommitSymbol(dst);
+}
+
+void CCodeGen_Wasm::Emit_Select_VarVarAnyAny(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+	auto src3 = statement.src3->GetSymbol().get();
+
+	PrepareSymbolDef(dst);
+	PrepareSymbolUse(src2);
+	PrepareSymbolUse(src3);
+	PrepareSymbolUse(src1);
+
+	m_functionStream.Write8(Wasm::INST_SELECT);
 
 	CommitSymbol(dst);
 }

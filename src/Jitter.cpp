@@ -483,7 +483,7 @@ void CJitter::PushRelRef(size_t offset)
 
 void CJitter::PushRelAddrRef(size_t offset)
 {
-	SymbolPtr tempSym = MakeSymbol(SYM_TMP_REFERENCE, m_nextTemporary++);
+	auto tempSym = MakeSymbol(SYM_TMP_REFERENCE, m_nextTemporary++);
 
 	STATEMENT statement;
 	statement.op = OP_RELTOREF;
@@ -496,7 +496,7 @@ void CJitter::PushRelAddrRef(size_t offset)
 
 void CJitter::AddRef()
 {
-	SymbolPtr tempSym = MakeSymbol(SYM_TMP_REFERENCE, m_nextTemporary++);
+	auto tempSym = MakeSymbol(SYM_TMP_REFERENCE, m_nextTemporary++);
 
 	STATEMENT statement;
 	statement.op = OP_ADDREF;

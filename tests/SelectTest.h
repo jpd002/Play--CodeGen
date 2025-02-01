@@ -5,6 +5,8 @@
 class CSelectTest : public CTest
 {
 public:
+	CSelectTest(bool, bool);
+
 	void Run() override;
 	void Compile(Jitter::CJitter&) override;
 	
@@ -20,6 +22,9 @@ private:
 		uint32 result;
 	};
 	
-	CONTEXT m_context;
+	bool m_valueTrueCst = false;
+	bool m_valueFalseCst = false;
+
+	CONTEXT m_context = {};
 	FunctionType m_function;
 };

@@ -1364,7 +1364,7 @@ void CCodeGen_x86_32::Emit_AddRef_VarVarVar(const STATEMENT& statement)
 	auto offsetReg = PrepareSymbolRegisterUse(src2, CX86Assembler::rCX);
 	auto dstReg = PrepareRefSymbolRegisterDef(dst, CX86Assembler::rAX);
 
-	if(!dst->Equals(src1))
+	if(!(dst->IsRegister() && dst->Equals(src1)))
 	{
 		m_assembler.MovEd(dstReg, MakeVariableReferenceSymbolAddress(src1));
 	}
@@ -1383,7 +1383,7 @@ void CCodeGen_x86_32::Emit_AddRef_VarVarCst(const STATEMENT& statement)
 
 	auto dstReg = PrepareRefSymbolRegisterDef(dst, CX86Assembler::rAX);
 
-	if(!dst->Equals(src1))
+	if(!(dst->IsRegister() && dst->Equals(src1)))
 	{
 		m_assembler.MovEd(dstReg, MakeVariableReferenceSymbolAddress(src1));
 	}

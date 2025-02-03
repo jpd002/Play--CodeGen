@@ -1379,14 +1379,14 @@ void CCodeGen_AArch32::Emit_Select_VarVarAnyAny(const STATEMENT& statement)
 	auto src1 = statement.src1->GetSymbol().get();
 	auto src2 = statement.src2->GetSymbol().get();
 	auto src3 = statement.src3->GetSymbol().get();
-	
+
 	//TODO: This could be slightly improved if we have immediate operands
 
 	auto dstReg = PrepareSymbolRegisterDef(dst, CAArch32Assembler::r0);
 	auto src1Reg = PrepareSymbolRegisterUse(src1, CAArch32Assembler::r1);
 	auto src2Reg = PrepareSymbolRegisterUse(src2, CAArch32Assembler::r2);
 	auto src3Reg = PrepareSymbolRegisterUse(src3, CAArch32Assembler::r3);
-	
+
 	m_assembler.Tst(src1Reg, src1Reg);
 	m_assembler.MovCc(CAArch32Assembler::CONDITION_NE, dstReg, src2Reg);
 	m_assembler.MovCc(CAArch32Assembler::CONDITION_EQ, dstReg, src3Reg);

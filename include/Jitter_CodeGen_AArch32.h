@@ -587,7 +587,7 @@ namespace Jitter
 		void Emit_Cmp_AnyAnyCst(const STATEMENT&);
 
 		void Emit_Select_VarVarAnyAny(const STATEMENT&);
-		
+
 		//JMP
 		void Emit_Jmp(const STATEMENT&);
 

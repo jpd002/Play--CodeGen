@@ -143,7 +143,7 @@ namespace Jitter
 		void CommitSymbolRegisterMd(CSymbol*, CAArch64Assembler::REGISTERMD);
 
 		CAArch64Assembler::REGISTERMD PrepareLiteralRegisterMd(const LITERAL128*);
-		
+
 		CAArch64Assembler::REGISTER32 PrepareParam(PARAM_STATE&);
 		CAArch64Assembler::REGISTER64 PrepareParam64(PARAM_STATE&);
 		void CommitParam(PARAM_STATE&);
@@ -685,7 +685,7 @@ namespace Jitter
 		void Cmp_GetFlag(CAArch64Assembler::REGISTER32, Jitter::CONDITION);
 		void Emit_Cmp_VarAnyVar(const STATEMENT&);
 		void Emit_Cmp_VarVarCst(const STATEMENT&);
-		
+
 		void Emit_Select_VarVarAnyAny(const STATEMENT&);
 
 		void Emit_Add64_MemMemMem(const STATEMENT&);

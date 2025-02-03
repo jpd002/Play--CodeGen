@@ -1864,14 +1864,14 @@ void CCodeGen_AArch64::Emit_Select_VarVarAnyAny(const STATEMENT& statement)
 	auto src1 = statement.src1->GetSymbol().get();
 	auto src2 = statement.src2->GetSymbol().get();
 	auto src3 = statement.src3->GetSymbol().get();
-	
+
 	auto dstReg = PrepareSymbolRegisterDef(dst, GetNextTempRegister());
 	auto src1Reg = PrepareSymbolRegisterUse(src1, GetNextTempRegister());
 	auto src2Reg = PrepareSymbolRegisterUse(src2, GetNextTempRegister());
 	auto src3Reg = PrepareSymbolRegisterUse(src3, GetNextTempRegister());
-	
+
 	m_assembler.Tst(src1Reg, src1Reg);
 	m_assembler.Csel(dstReg, src2Reg, src3Reg, CAArch64Assembler::CONDITION_NE);
-	
+
 	CommitSymbolRegister(dst, dstReg);
 }

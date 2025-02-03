@@ -31,6 +31,7 @@
 #include "MdManipTest.h"
 #include "MdShiftTest.h"
 #include "CompareTest.h"
+#include "CompareTest2.h"
 #include "RegAllocTest.h"
 #include "RegAllocTempTest.h"
 #include "ReorderAddTest.h"
@@ -60,6 +61,21 @@ typedef std::function<CTest*()> TestFactoryFunction;
 static const TestFactoryFunction s_factories[] =
 {
 	[] () { return new CCompareTest(); },
+	[] () { return new CCompareTest2(false, false, 0xFEDCBA98U, 0x012389ABULL); },
+	[] () { return new CCompareTest2(false, true,  0xFEDCBA98U, 0x012389ABULL); },
+	[] () { return new CCompareTest2(true,  false, 0xFEDCBA98U, 0x012389ABULL); },
+	[] () { return new CCompareTest2(true,  true,  0xFEDCBA98U, 0x012389ABULL); },
+	[] () { return new CCompareTest2(false, false, 0xF6543210U, 0xF567CDEFU); },
+	[] () { return new CCompareTest2(false, true,  0xF6543210U, 0xF567CDEFU); },
+	[] () { return new CCompareTest2(true,  true,  0xF6543210U, 0xF567CDEFU); },
+	[] () { return new CCompareTest2(false, true,  0xF6543210U, 0); },
+	[] () { return new CCompareTest2(false, false, 0x10000, 0x10000); },
+	[] () { return new CCompareTest2(false, true,  0x10000, 0x10000); },
+	[] () { return new CCompareTest2(true , false, 0x10000, 0x10000); },
+	[] () { return new CCompareTest2(true , true,  0x10000, 0x10000); },
+	[] () { return new CCompareTest2(false, true,  0, 0x80U); },
+	[] () { return new CCompareTest2(false, true,  0, 0xFFFFFF80U); },
+	[] () { return new CCompareTest2(true,  true,  0, 0xFFFFFF80U); },
 	[] () { return new CRegAllocTest(); },
 	[] () { return new CRegAllocTempTest(); },
 	[] () { return new CRandomAluTest(true); },

@@ -560,8 +560,23 @@ bool CJitter::FoldConstantOperation(STATEMENT& statement)
 			bool result = false;
 			switch(statement.jmpCondition)
 			{
+			case CONDITION_EQ:
+				result = static_cast<int32>(src1cst->m_valueLow) == static_cast<int32>(src2cst->m_valueLow);
+				break;
+			case CONDITION_NE:
+				result = static_cast<int32>(src1cst->m_valueLow) != static_cast<int32>(src2cst->m_valueLow);
+				break;
 			case CONDITION_BL:
 				result = src1cst->m_valueLow < src2cst->m_valueLow;
+				break;
+			case CONDITION_BE:
+				result = src1cst->m_valueLow <= src2cst->m_valueLow;
+				break;
+			case CONDITION_AB:
+				result = src1cst->m_valueLow > src2cst->m_valueLow;
+				break;
+			case CONDITION_AE:
+				result = src1cst->m_valueLow >= src2cst->m_valueLow;
 				break;
 			case CONDITION_LT:
 				result = static_cast<int32>(src1cst->m_valueLow) < static_cast<int32>(src2cst->m_valueLow);
@@ -572,8 +587,8 @@ bool CJitter::FoldConstantOperation(STATEMENT& statement)
 			case CONDITION_GT:
 				result = static_cast<int32>(src1cst->m_valueLow) > static_cast<int32>(src2cst->m_valueLow);
 				break;
-			case CONDITION_EQ:
-				result = static_cast<int32>(src1cst->m_valueLow) == static_cast<int32>(src2cst->m_valueLow);
+			case CONDITION_GE:
+				result = static_cast<int32>(src1cst->m_valueLow) >= static_cast<int32>(src2cst->m_valueLow);
 				break;
 			default:
 				assert(0);
@@ -1774,14 +1789,26 @@ void CJitter::NormalizeStatements(BASIC_BLOCK& basicBlock)
 			case CONDITION_BL:
 				statement.jmpCondition = CONDITION_AB;
 				break;
+			case CONDITION_BE:
+				statement.jmpCondition = CONDITION_AE;
+				break;
 			case CONDITION_AB:
 				statement.jmpCondition = CONDITION_BL;
+				break;
+			case CONDITION_AE:
+				statement.jmpCondition = CONDITION_BE;
 				break;
 			case CONDITION_LT:
 				statement.jmpCondition = CONDITION_GT;
 				break;
+			case CONDITION_LE:
+				statement.jmpCondition = CONDITION_GE;
+				break;
 			case CONDITION_GT:
 				statement.jmpCondition = CONDITION_LT;
+				break;
+			case CONDITION_GE:
+				statement.jmpCondition = CONDITION_LE;
 				break;
 			default:
 				assert(0);

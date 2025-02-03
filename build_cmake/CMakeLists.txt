@@ -133,6 +133,8 @@ set(CodeGenTest_SRC
 	../tests/ConditionTest.h
 	../tests/CompareTest.cpp
 	../tests/CompareTest.h
+	../tests/CompareTest2.cpp
+	../tests/CompareTest2.h
 	../tests/Crc32Test.cpp
 	../tests/Crc32Test.h
 	../tests/CursorTest.cpp

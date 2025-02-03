@@ -1782,6 +1782,18 @@ void CCodeGen_AArch64::Cmp_GetFlag(CAArch64Assembler::REGISTER32 registerId, Jit
 	case CONDITION_NE:
 		m_assembler.Cset(registerId, CAArch64Assembler::CONDITION_NE);
 		break;
+	case CONDITION_BL:
+		m_assembler.Cset(registerId, CAArch64Assembler::CONDITION_CC);
+		break;
+	case CONDITION_BE:
+		m_assembler.Cset(registerId, CAArch64Assembler::CONDITION_LS);
+		break;
+	case CONDITION_AB:
+		m_assembler.Cset(registerId, CAArch64Assembler::CONDITION_HI);
+		break;
+	case CONDITION_AE:
+		m_assembler.Cset(registerId, CAArch64Assembler::CONDITION_CS);
+		break;
 	case CONDITION_LT:
 		m_assembler.Cset(registerId, CAArch64Assembler::CONDITION_LT);
 		break;
@@ -1791,14 +1803,8 @@ void CCodeGen_AArch64::Cmp_GetFlag(CAArch64Assembler::REGISTER32 registerId, Jit
 	case CONDITION_GT:
 		m_assembler.Cset(registerId, CAArch64Assembler::CONDITION_GT);
 		break;
-	case CONDITION_BL:
-		m_assembler.Cset(registerId, CAArch64Assembler::CONDITION_CC);
-		break;
-	case CONDITION_BE:
-		m_assembler.Cset(registerId, CAArch64Assembler::CONDITION_LS);
-		break;
-	case CONDITION_AB:
-		m_assembler.Cset(registerId, CAArch64Assembler::CONDITION_HI);
+	case CONDITION_GE:
+		m_assembler.Cset(registerId, CAArch64Assembler::CONDITION_GE);
 		break;
 	default:
 		assert(0);

@@ -151,6 +151,8 @@ public:
 	void AndIq(const CAddress&, uint64);
 	void BsrEd(REGISTER, const CAddress&);
 	void CallEd(const CAddress&);
+	void CmoveEd(REGISTER, const CAddress&);
+	void CmovneEd(REGISTER, const CAddress&);
 	void CmovsEd(REGISTER, const CAddress&);
 	void CmovnsEd(REGISTER, const CAddress&);
 	void CmpEd(REGISTER, const CAddress&);

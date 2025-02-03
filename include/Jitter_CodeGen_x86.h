@@ -638,6 +638,9 @@ namespace Jitter
 		void Emit_CondJmp_MemMem(const STATEMENT&);
 		void Emit_CondJmp_MemCst(const STATEMENT&);
 
+		//SELECT
+		void Emit_Select_VarVarAnyAny(const STATEMENT&);
+
 		//MERGETO64
 		void Emit_MergeTo64_Mem64RegReg(const STATEMENT&);
 		void Emit_MergeTo64_Mem64RegMem(const STATEMENT&);

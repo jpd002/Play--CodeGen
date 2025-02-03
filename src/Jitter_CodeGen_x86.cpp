@@ -58,6 +58,8 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_constMatchers[] =
 	{ OP_CONDJMP, MATCH_NIL, MATCH_MEMORY,   MATCH_MEMORY,   MATCH_NIL, &CCodeGen_x86::Emit_CondJmp_MemMem },
 	{ OP_CONDJMP, MATCH_NIL, MATCH_MEMORY,   MATCH_CONSTANT, MATCH_NIL, &CCodeGen_x86::Emit_CondJmp_MemCst },
 
+	{ OP_SELECT, MATCH_VARIABLE, MATCH_VARIABLE, MATCH_ANY, MATCH_ANY, &CCodeGen_x86::Emit_Select_VarVarAnyAny },
+
 	{ OP_DIV, MATCH_MEMORY64, MATCH_VARIABLE, MATCH_VARIABLE, MATCH_NIL, &CCodeGen_x86::Emit_DivMem64VarVar<false> },
 	{ OP_DIV, MATCH_MEMORY64, MATCH_VARIABLE, MATCH_CONSTANT, MATCH_NIL, &CCodeGen_x86::Emit_DivMem64VarCst<false> },
 	{ OP_DIV, MATCH_MEMORY64, MATCH_CONSTANT, MATCH_VARIABLE, MATCH_NIL, &CCodeGen_x86::Emit_DivMem64CstVar<false> },
@@ -1119,6 +1121,55 @@ void CCodeGen_x86::Emit_CondJmp_MemCst(const STATEMENT& statement)
 	}
 
 	CondJmp_JumpTo(GetLabel(statement.jmpBlock), statement.jmpCondition);
+}
+
+void CCodeGen_x86::Emit_Select_VarVarAnyAny(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+	auto src3 = statement.src3->GetSymbol().get();
+
+	auto dstReg = PrepareSymbolRegisterDef(dst, CX86Assembler::rAX);
+
+	if(dst->IsRegister() && dst->Equals(src2))
+	{
+		m_assembler.CmpId(MakeVariableSymbolAddress(src1), 0);
+		m_assembler.CmoveEd(dstReg, MakeVariableSymbolAddress(src3));
+	}
+	else if(dst->IsRegister() && dst->Equals(src3))
+	{
+		m_assembler.CmpId(MakeVariableSymbolAddress(src1), 0);
+		m_assembler.CmovneEd(dstReg, MakeVariableSymbolAddress(src2));
+	}
+	else if(src2->IsConstant() && src3->IsConstant())
+	{
+		auto tmpReg = CX86Assembler::rCX;
+		m_assembler.CmpId(MakeVariableSymbolAddress(src1), 0);
+		m_assembler.MovId(dstReg, src2->m_valueLow);
+		m_assembler.MovId(tmpReg, src3->m_valueLow);
+		m_assembler.CmoveEd(dstReg, CX86Assembler::MakeRegisterAddress(tmpReg));
+	}
+	else if(src2->IsConstant())
+	{
+		m_assembler.CmpId(MakeVariableSymbolAddress(src1), 0);
+		m_assembler.MovId(dstReg, src2->m_valueLow);
+		m_assembler.CmoveEd(dstReg, MakeVariableSymbolAddress(src3));
+	}
+	else if(src3->IsConstant())
+	{
+		m_assembler.CmpId(MakeVariableSymbolAddress(src1), 0);
+		m_assembler.MovId(dstReg, src3->m_valueLow);
+		m_assembler.CmovneEd(dstReg, MakeVariableSymbolAddress(src2));
+	}
+	else
+	{
+		m_assembler.CmpId(MakeVariableSymbolAddress(src1), 0);
+		m_assembler.MovEd(dstReg, MakeVariableSymbolAddress(src2));
+		m_assembler.CmoveEd(dstReg, MakeVariableSymbolAddress(src3));
+	}
+
+	CommitSymbolRegister(dst, dstReg);
 }
 
 CX86Assembler::REGISTER CCodeGen_x86::PrepareSymbolRegisterDef(CSymbol* symbol, CX86Assembler::REGISTER preferedRegister)

@@ -501,6 +501,16 @@ void CX86Assembler::CallEd(const CAddress& address)
 	WriteEvOp(0xFF, 0x02, false, address);
 }
 
+void CX86Assembler::CmoveEd(REGISTER registerId, const CAddress& address)
+{
+	WriteEvGvOp0F(0x44, false, address, registerId);
+}
+
+void CX86Assembler::CmovneEd(REGISTER registerId, const CAddress& address)
+{
+	WriteEvGvOp0F(0x45, false, address, registerId);
+}
+
 void CX86Assembler::CmovsEd(REGISTER registerId, const CAddress& address)
 {
 	WriteEvGvOp0F(0x48, false, address, registerId);

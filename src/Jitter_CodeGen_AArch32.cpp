@@ -1281,6 +1281,22 @@ void CCodeGen_AArch32::Cmp_GetFlag(CAArch32Assembler::REGISTER registerId, Jitte
 		m_assembler.MovCc(CAArch32Assembler::CONDITION_EQ, registerId, falseOperand);
 		m_assembler.MovCc(CAArch32Assembler::CONDITION_NE, registerId, trueOperand);
 		break;
+	case CONDITION_BL:
+		m_assembler.MovCc(CAArch32Assembler::CONDITION_CS, registerId, falseOperand);
+		m_assembler.MovCc(CAArch32Assembler::CONDITION_CC, registerId, trueOperand);
+		break;
+	case CONDITION_BE:
+		m_assembler.MovCc(CAArch32Assembler::CONDITION_HI, registerId, falseOperand);
+		m_assembler.MovCc(CAArch32Assembler::CONDITION_LS, registerId, trueOperand);
+		break;
+	case CONDITION_AB:
+		m_assembler.MovCc(CAArch32Assembler::CONDITION_LS, registerId, falseOperand);
+		m_assembler.MovCc(CAArch32Assembler::CONDITION_HI, registerId, trueOperand);
+		break;
+	case CONDITION_AE:
+		m_assembler.MovCc(CAArch32Assembler::CONDITION_CC, registerId, falseOperand);
+		m_assembler.MovCc(CAArch32Assembler::CONDITION_CS, registerId, trueOperand);
+		break;
 	case CONDITION_LT:
 		m_assembler.MovCc(CAArch32Assembler::CONDITION_GE, registerId, falseOperand);
 		m_assembler.MovCc(CAArch32Assembler::CONDITION_LT, registerId, trueOperand);
@@ -1293,17 +1309,9 @@ void CCodeGen_AArch32::Cmp_GetFlag(CAArch32Assembler::REGISTER registerId, Jitte
 		m_assembler.MovCc(CAArch32Assembler::CONDITION_LE, registerId, falseOperand);
 		m_assembler.MovCc(CAArch32Assembler::CONDITION_GT, registerId, trueOperand);
 		break;
-	case CONDITION_BL:
-		m_assembler.MovCc(CAArch32Assembler::CONDITION_CS, registerId, falseOperand);
-		m_assembler.MovCc(CAArch32Assembler::CONDITION_CC, registerId, trueOperand);
-		break;
-	case CONDITION_BE:
-		m_assembler.MovCc(CAArch32Assembler::CONDITION_HI, registerId, falseOperand);
-		m_assembler.MovCc(CAArch32Assembler::CONDITION_LS, registerId, trueOperand);
-		break;
-	case CONDITION_AB:
-		m_assembler.MovCc(CAArch32Assembler::CONDITION_LS, registerId, falseOperand);
-		m_assembler.MovCc(CAArch32Assembler::CONDITION_HI, registerId, trueOperand);
+	case CONDITION_GE:
+		m_assembler.MovCc(CAArch32Assembler::CONDITION_LT, registerId, falseOperand);
+		m_assembler.MovCc(CAArch32Assembler::CONDITION_GE, registerId, trueOperand);
 		break;
 	default:
 		assert(0);

@@ -29,6 +29,6 @@ private:
 	bool m_useConstant1 = false;
 	uint64 m_value0 = 0;
 	uint64 m_value1 = 0;
-	CONTEXT m_context;
+	CONTEXT m_context = {};
 	FunctionType m_function;
 };

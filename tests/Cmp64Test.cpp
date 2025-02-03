@@ -11,8 +11,7 @@ CCmp64Test::CCmp64Test(bool useConstant0, bool useConstant1, uint64 value0, uint
 
 void CCmp64Test::Run()
 {
-	memset(&m_context, 0, sizeof(m_context));
-
+	m_context = {};
 	m_context.value0 = m_value0;
 	m_context.value1 = m_value1;
 

@@ -20,6 +20,9 @@ private:
 		uint32 valueTrue;
 		
 		uint32 result;
+
+		uint32 overwriteSrc2;
+		uint32 overwriteSrc3;
 	};
 	
 	bool m_valueTrueCst = false;

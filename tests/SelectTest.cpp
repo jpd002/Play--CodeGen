@@ -20,19 +20,27 @@ void CSelectTest::Run()
 	{
 		m_context.cmp0 = 1;
 		m_context.cmp1 = 2;
+		m_context.overwriteSrc2 = ~0U;
+		m_context.overwriteSrc3 = ~0U;
 
 		m_function(&m_context);
 
 		TEST_VERIFY(m_context.result == ((m_context.cmp0 <= m_context.cmp1) ? VALUE_TRUE : VALUE_FALSE));
+		TEST_VERIFY(m_context.overwriteSrc2 == ((m_context.cmp0 <= m_context.cmp1) ? ~0U : VALUE_FALSE))
+		TEST_VERIFY(m_context.overwriteSrc3 == ((m_context.cmp0 <= m_context.cmp1) ? VALUE_TRUE : ~0U));
 	}
 
 	{
 		m_context.cmp0 = 2;
 		m_context.cmp1 = 1;
+		m_context.overwriteSrc2 = ~0U;
+		m_context.overwriteSrc3 = ~0U;
 
 		m_function(&m_context);
 
 		TEST_VERIFY(m_context.result == ((m_context.cmp0 <= m_context.cmp1) ? VALUE_TRUE : VALUE_FALSE));
+		TEST_VERIFY(m_context.overwriteSrc2 == ((m_context.cmp0 <= m_context.cmp1) ? ~0U : VALUE_FALSE))
+		TEST_VERIFY(m_context.overwriteSrc3 == ((m_context.cmp0 <= m_context.cmp1) ? VALUE_TRUE : ~0U));
 	}
 }
 
@@ -66,6 +74,28 @@ void CSelectTest::Compile(Jitter::CJitter& jitter)
 		jitter.Select();
 
 		jitter.PullRel(offsetof(CONTEXT, result));
+
+		{
+			jitter.PushRel(offsetof(CONTEXT, cmp0));
+			jitter.PushRel(offsetof(CONTEXT, cmp1));
+			jitter.Cmp(Jitter::CONDITION_LE);
+
+			jitter.PushRel(offsetof(CONTEXT, overwriteSrc2));
+			jitter.PushRel(offsetof(CONTEXT, valueFalse));
+			jitter.Select();
+			jitter.PullRel(offsetof(CONTEXT, overwriteSrc2));
+		}
+
+		{
+			jitter.PushRel(offsetof(CONTEXT, cmp0));
+			jitter.PushRel(offsetof(CONTEXT, cmp1));
+			jitter.Cmp(Jitter::CONDITION_LE);
+
+			jitter.PushRel(offsetof(CONTEXT, valueTrue));
+			jitter.PushRel(offsetof(CONTEXT, overwriteSrc3));
+			jitter.Select();
+			jitter.PullRel(offsetof(CONTEXT, overwriteSrc3));
+		}
 	}
 	jitter.End();
 

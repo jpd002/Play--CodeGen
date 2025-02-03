@@ -889,7 +889,7 @@ void CX86Assembler::SetaEb(const CAddress& address)
 
 void CX86Assembler::SetaeEb(const CAddress& address)
 {
-	throw std::exception();
+	WriteEbOp_0F(0x93, 0x00, address);
 }
 
 void CX86Assembler::SetbEb(const CAddress& address)
@@ -925,6 +925,11 @@ void CX86Assembler::SetleEb(const CAddress& address)
 void CX86Assembler::SetgEb(const CAddress& address)
 {
 	WriteEbOp_0F(0x9F, 0x00, address);
+}
+
+void CX86Assembler::SetgeEb(const CAddress& address)
+{
+	WriteEbOp_0F(0x9D, 0x00, address);
 }
 
 void CX86Assembler::ShlEd(const CAddress& address)

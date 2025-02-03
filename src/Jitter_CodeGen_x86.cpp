@@ -977,6 +977,9 @@ void CCodeGen_x86::Cmp_GetFlag(const CX86Assembler::CAddress& dst, CONDITION fla
 	case CONDITION_GT:
 		m_assembler.SetgEb(dst);
 		break;
+	case CONDITION_GE:
+		m_assembler.SetgeEb(dst);
+		break;
 	case CONDITION_EQ:
 		m_assembler.SeteEb(dst);
 		break;
@@ -986,8 +989,14 @@ void CCodeGen_x86::Cmp_GetFlag(const CX86Assembler::CAddress& dst, CONDITION fla
 	case CONDITION_BL:
 		m_assembler.SetbEb(dst);
 		break;
+	case CONDITION_BE:
+		m_assembler.SetbeEb(dst);
+		break;
 	case CONDITION_AB:
 		m_assembler.SetaEb(dst);
+		break;
+	case CONDITION_AE:
+		m_assembler.SetaeEb(dst);
 		break;
 	default:
 		assert(0);

@@ -226,6 +226,7 @@ public:
 	void SetlEb(const CAddress&);
 	void SetleEb(const CAddress&);
 	void SetgEb(const CAddress&);
+	void SetgeEb(const CAddress&);
 	void ShrEd(const CAddress&);
 	void ShrEd(const CAddress&, uint8);
 	void ShrEq(const CAddress&);

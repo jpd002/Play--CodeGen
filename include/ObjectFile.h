@@ -27,9 +27,9 @@ namespace Jitter
 
 		struct SYMBOL_REFERENCE
 		{
-			SYMBOL_TYPE type;
-			unsigned int symbolIndex;
-			unsigned int offset;
+			SYMBOL_TYPE type = SYMBOL_TYPE_INTERNAL;
+			unsigned int symbolIndex = 0;
+			unsigned int offset = 0;
 		};
 		typedef std::vector<SYMBOL_REFERENCE> SymbolReferenceArray;
 
@@ -42,7 +42,7 @@ namespace Jitter
 		struct INTERNAL_SYMBOL
 		{
 			std::string name;
-			INTERNAL_SYMBOL_LOCATION location;
+			INTERNAL_SYMBOL_LOCATION location = INTERNAL_SYMBOL_LOCATION_TEXT;
 			std::vector<uint8> data;
 			SymbolReferenceArray symbolReferences;
 		};
@@ -50,11 +50,11 @@ namespace Jitter
 		struct EXTERNAL_SYMBOL
 		{
 			std::string name;
-			uintptr_t value;
+			uintptr_t value = 0;
 		};
 
 		CObjectFile(CPU_ARCH);
-		virtual ~CObjectFile();
+		virtual ~CObjectFile() = default;
 
 		unsigned int AddInternalSymbol(const INTERNAL_SYMBOL&);
 

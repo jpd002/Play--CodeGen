@@ -11,10 +11,6 @@ CCoffObjectFile::CCoffObjectFile(CPU_ARCH cpuArch)
 {
 }
 
-CCoffObjectFile::~CCoffObjectFile()
-{
-}
-
 void CCoffObjectFile::Write(Framework::CStream& stream)
 {
 	struct OffsetKeeper

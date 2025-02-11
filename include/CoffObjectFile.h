@@ -11,7 +11,7 @@ namespace Jitter
 	{
 	public:
 		CCoffObjectFile(CPU_ARCH);
-		virtual ~CCoffObjectFile();
+		virtual ~CCoffObjectFile() = default;
 
 		void Write(Framework::CStream&) override;
 

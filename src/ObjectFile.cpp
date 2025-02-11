@@ -10,10 +10,6 @@ CObjectFile::CObjectFile(CPU_ARCH cpuArch)
 {
 }
 
-CObjectFile::~CObjectFile()
-{
-}
-
 unsigned int CObjectFile::AddInternalSymbol(const INTERNAL_SYMBOL& internalSymbol)
 {
 	{

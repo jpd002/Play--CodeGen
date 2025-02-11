@@ -7,6 +7,22 @@ using namespace Jitter;
 #include "Jitter_CodeGen_Wasm_LoadStore.h"
 
 template <uint32 OP>
+void CCodeGen_Wasm::Emit_Alu64_MemAnyAny(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	PrepareSymbolDef(dst);
+	PrepareSymbolUse(src1);
+	PrepareSymbolUse(src2);
+
+	m_functionStream.Write8(OP);
+
+	CommitSymbol(dst);
+}
+
+template <uint32 OP>
 void CCodeGen_Wasm::Emit_Shift64_MemAnyAny(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
@@ -92,51 +108,6 @@ void CCodeGen_Wasm::Emit_MergeTo64_Mem64AnyAny(const STATEMENT& statement)
 	CommitSymbol(dst);
 }
 
-void CCodeGen_Wasm::Emit_Add64_MemAnyAny(const STATEMENT& statement)
-{
-	auto dst = statement.dst->GetSymbol().get();
-	auto src1 = statement.src1->GetSymbol().get();
-	auto src2 = statement.src2->GetSymbol().get();
-
-	PrepareSymbolDef(dst);
-	PrepareSymbolUse(src1);
-	PrepareSymbolUse(src2);
-
-	m_functionStream.Write8(Wasm::INST_I64_ADD);
-
-	CommitSymbol(dst);
-}
-
-void CCodeGen_Wasm::Emit_Sub64_MemAnyAny(const STATEMENT& statement)
-{
-	auto dst = statement.dst->GetSymbol().get();
-	auto src1 = statement.src1->GetSymbol().get();
-	auto src2 = statement.src2->GetSymbol().get();
-
-	PrepareSymbolDef(dst);
-	PrepareSymbolUse(src1);
-	PrepareSymbolUse(src2);
-
-	m_functionStream.Write8(Wasm::INST_I64_SUB);
-
-	CommitSymbol(dst);
-}
-
-void CCodeGen_Wasm::Emit_And64_MemAnyAny(const STATEMENT& statement)
-{
-	auto dst = statement.dst->GetSymbol().get();
-	auto src1 = statement.src1->GetSymbol().get();
-	auto src2 = statement.src2->GetSymbol().get();
-
-	PrepareSymbolDef(dst);
-	PrepareSymbolUse(src1);
-	PrepareSymbolUse(src2);
-
-	m_functionStream.Write8(Wasm::INST_I64_AND);
-
-	CommitSymbol(dst);
-}
-
 void CCodeGen_Wasm::Emit_Cmp64_MemAnyAny(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
@@ -192,14 +163,14 @@ CCodeGen_Wasm::CONSTMATCHER CCodeGen_Wasm::g_64ConstMatchers[] =
 
 	{ OP_MERGETO64,      MATCH_MEMORY64,       MATCH_ANY,            MATCH_ANY,           MATCH_NIL, &CCodeGen_Wasm::Emit_MergeTo64_Mem64AnyAny               },
 
-	{ OP_ADD64,          MATCH_MEMORY64,       MATCH_MEMORY64,       MATCH_MEMORY64,      MATCH_NIL, &CCodeGen_Wasm::Emit_Add64_MemAnyAny                     },
-	{ OP_ADD64,          MATCH_MEMORY64,       MATCH_MEMORY64,       MATCH_CONSTANT64,    MATCH_NIL, &CCodeGen_Wasm::Emit_Add64_MemAnyAny                     },
+	{ OP_ADD64,          MATCH_MEMORY64,       MATCH_MEMORY64,       MATCH_MEMORY64,      MATCH_NIL, &CCodeGen_Wasm::Emit_Alu64_MemAnyAny<Wasm::INST_I64_ADD> },
+	{ OP_ADD64,          MATCH_MEMORY64,       MATCH_MEMORY64,       MATCH_CONSTANT64,    MATCH_NIL, &CCodeGen_Wasm::Emit_Alu64_MemAnyAny<Wasm::INST_I64_ADD> },
 
-	{ OP_SUB64,          MATCH_MEMORY64,       MATCH_MEMORY64,       MATCH_MEMORY64,      MATCH_NIL, &CCodeGen_Wasm::Emit_Sub64_MemAnyAny                     },
-	{ OP_SUB64,          MATCH_MEMORY64,       MATCH_MEMORY64,       MATCH_CONSTANT64,    MATCH_NIL, &CCodeGen_Wasm::Emit_Sub64_MemAnyAny                     },
-	{ OP_SUB64,          MATCH_MEMORY64,       MATCH_CONSTANT64,     MATCH_MEMORY64,      MATCH_NIL, &CCodeGen_Wasm::Emit_Sub64_MemAnyAny                     },
+	{ OP_SUB64,          MATCH_MEMORY64,       MATCH_MEMORY64,       MATCH_MEMORY64,      MATCH_NIL, &CCodeGen_Wasm::Emit_Alu64_MemAnyAny<Wasm::INST_I64_SUB> },
+	{ OP_SUB64,          MATCH_MEMORY64,       MATCH_MEMORY64,       MATCH_CONSTANT64,    MATCH_NIL, &CCodeGen_Wasm::Emit_Alu64_MemAnyAny<Wasm::INST_I64_SUB> },
+	{ OP_SUB64,          MATCH_MEMORY64,       MATCH_CONSTANT64,     MATCH_MEMORY64,      MATCH_NIL, &CCodeGen_Wasm::Emit_Alu64_MemAnyAny<Wasm::INST_I64_SUB> },
 
-	{ OP_AND64,          MATCH_MEMORY64,       MATCH_MEMORY64,       MATCH_MEMORY64,      MATCH_NIL, &CCodeGen_Wasm::Emit_And64_MemAnyAny                     },
+	{ OP_AND64,          MATCH_MEMORY64,       MATCH_MEMORY64,       MATCH_MEMORY64,      MATCH_NIL, &CCodeGen_Wasm::Emit_Alu64_MemAnyAny<Wasm::INST_I64_AND> },
 
 	{ OP_SLL64,          MATCH_MEMORY64,       MATCH_MEMORY64,       MATCH_ANY,           MATCH_NIL, &CCodeGen_Wasm::Emit_Shift64_MemAnyAny<Wasm::INST_I64_SHL>     },
 

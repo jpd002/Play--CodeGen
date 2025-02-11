@@ -10,6 +10,22 @@ using namespace Jitter;
 
 #include "Jitter_CodeGen_Wasm_LoadStore.h"
 
+template <uint32 op>
+void CCodeGen_Wasm::Emit_Generic_Binary_MemAnyAny(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	PrepareSymbolDef(dst);
+	PrepareSymbolUse(src1);
+	PrepareSymbolUse(src2);
+
+	m_functionStream.Write8(op);
+
+	CommitSymbol(dst);
+}
+
 template <bool isSigned>
 void CCodeGen_Wasm::Emit_Mul_Tmp64AnyAny(const STATEMENT& statement)
 {
@@ -120,18 +136,19 @@ CCodeGen_Wasm::CONSTMATCHER CCodeGen_Wasm::g_constMatchers[] =
 
 	{ OP_SELECT,         MATCH_VARIABLE,       MATCH_VARIABLE,       MATCH_ANY,           MATCH_ANY,      &CCodeGen_Wasm::Emit_Select_VarVarAnyAny                    },
 
-	{ OP_SLL,            MATCH_ANY,            MATCH_ANY,            MATCH_ANY,           MATCH_NIL,      &CCodeGen_Wasm::Emit_Sll_AnyAnyAny                          },
-	{ OP_SRL,            MATCH_ANY,            MATCH_ANY,            MATCH_ANY,           MATCH_NIL,      &CCodeGen_Wasm::Emit_Srl_AnyAnyAny                          },
-	{ OP_SRA,            MATCH_ANY,            MATCH_ANY,            MATCH_ANY,           MATCH_NIL,      &CCodeGen_Wasm::Emit_Sra_AnyAnyAny                          },
+	{ OP_SLL,            MATCH_ANY,            MATCH_ANY,            MATCH_ANY,           MATCH_NIL,      &CCodeGen_Wasm::Emit_Generic_Binary_MemAnyAny<Wasm::INST_I32_SHL>   },
+	{ OP_SRL,            MATCH_ANY,            MATCH_ANY,            MATCH_ANY,           MATCH_NIL,      &CCodeGen_Wasm::Emit_Generic_Binary_MemAnyAny<Wasm::INST_I32_SHR_U> },
+	{ OP_SRA,            MATCH_ANY,            MATCH_ANY,            MATCH_ANY,           MATCH_NIL,      &CCodeGen_Wasm::Emit_Generic_Binary_MemAnyAny<Wasm::INST_I32_SHR_S> },
 
 	{ OP_NOT,            MATCH_ANY,            MATCH_ANY,            MATCH_NIL,           MATCH_NIL,      &CCodeGen_Wasm::Emit_Not_AnyAny                             },
 	{ OP_LZC,            MATCH_ANY,            MATCH_ANY,            MATCH_NIL,           MATCH_NIL,      &CCodeGen_Wasm::Emit_Lzc_AnyAny                             },
-	{ OP_AND,            MATCH_ANY,            MATCH_ANY,            MATCH_ANY,           MATCH_NIL,      &CCodeGen_Wasm::Emit_And_AnyAnyAny                          },
-	{ OP_OR,             MATCH_ANY,            MATCH_ANY,            MATCH_ANY,           MATCH_NIL,      &CCodeGen_Wasm::Emit_Or_AnyAnyAny                           },
-	{ OP_XOR,            MATCH_ANY,            MATCH_ANY,            MATCH_ANY,           MATCH_NIL,      &CCodeGen_Wasm::Emit_Xor_AnyAnyAny                          },
 
-	{ OP_ADD,            MATCH_ANY,            MATCH_ANY,            MATCH_ANY,           MATCH_NIL,      &CCodeGen_Wasm::Emit_Add_AnyAnyAny                          },
-	{ OP_SUB,            MATCH_ANY,            MATCH_ANY,            MATCH_ANY,           MATCH_NIL,      &CCodeGen_Wasm::Emit_Sub_AnyAnyAny                          },
+	{ OP_AND,            MATCH_ANY,            MATCH_ANY,            MATCH_ANY,           MATCH_NIL,      &CCodeGen_Wasm::Emit_Generic_Binary_MemAnyAny<Wasm::INST_I32_AND> },
+	{ OP_OR,             MATCH_ANY,            MATCH_ANY,            MATCH_ANY,           MATCH_NIL,      &CCodeGen_Wasm::Emit_Generic_Binary_MemAnyAny<Wasm::INST_I32_OR>  },
+	{ OP_XOR,            MATCH_ANY,            MATCH_ANY,            MATCH_ANY,           MATCH_NIL,      &CCodeGen_Wasm::Emit_Generic_Binary_MemAnyAny<Wasm::INST_I32_XOR> },
+
+	{ OP_ADD,            MATCH_ANY,            MATCH_ANY,            MATCH_ANY,           MATCH_NIL,      &CCodeGen_Wasm::Emit_Generic_Binary_MemAnyAny<Wasm::INST_I32_ADD> },
+	{ OP_SUB,            MATCH_ANY,            MATCH_ANY,            MATCH_ANY,           MATCH_NIL,      &CCodeGen_Wasm::Emit_Generic_Binary_MemAnyAny<Wasm::INST_I32_SUB> },
 
 	{ OP_DIV,            MATCH_TEMPORARY64,    MATCH_ANY,            MATCH_ANY,           MATCH_NIL,      &CCodeGen_Wasm::Emit_Div_Tmp64AnyAny<false>                 },
 	{ OP_DIVS,           MATCH_TEMPORARY64,    MATCH_ANY,            MATCH_ANY,           MATCH_NIL,      &CCodeGen_Wasm::Emit_Div_Tmp64AnyAny<true>                  },
@@ -1269,51 +1286,6 @@ void CCodeGen_Wasm::Emit_Select_VarVarAnyAny(const STATEMENT& statement)
 	CommitSymbol(dst);
 }
 
-void CCodeGen_Wasm::Emit_Sll_AnyAnyAny(const STATEMENT& statement)
-{
-	auto dst = statement.dst->GetSymbol().get();
-	auto src1 = statement.src1->GetSymbol().get();
-	auto src2 = statement.src2->GetSymbol().get();
-
-	PrepareSymbolDef(dst);
-	PrepareSymbolUse(src1);
-	PrepareSymbolUse(src2);
-
-	m_functionStream.Write8(Wasm::INST_I32_SHL);
-
-	CommitSymbol(dst);
-}
-
-void CCodeGen_Wasm::Emit_Srl_AnyAnyAny(const STATEMENT& statement)
-{
-	auto dst = statement.dst->GetSymbol().get();
-	auto src1 = statement.src1->GetSymbol().get();
-	auto src2 = statement.src2->GetSymbol().get();
-
-	PrepareSymbolDef(dst);
-	PrepareSymbolUse(src1);
-	PrepareSymbolUse(src2);
-
-	m_functionStream.Write8(Wasm::INST_I32_SHR_U);
-
-	CommitSymbol(dst);
-}
-
-void CCodeGen_Wasm::Emit_Sra_AnyAnyAny(const STATEMENT& statement)
-{
-	auto dst = statement.dst->GetSymbol().get();
-	auto src1 = statement.src1->GetSymbol().get();
-	auto src2 = statement.src2->GetSymbol().get();
-
-	PrepareSymbolDef(dst);
-	PrepareSymbolUse(src1);
-	PrepareSymbolUse(src2);
-
-	m_functionStream.Write8(Wasm::INST_I32_SHR_S);
-
-	CommitSymbol(dst);
-}
-
 void CCodeGen_Wasm::Emit_Not_AnyAny(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
@@ -1374,81 +1346,6 @@ void CCodeGen_Wasm::Emit_Lzc_AnyAny(const STATEMENT& statement)
 		m_functionStream.Write8(Wasm::INST_I32_SUB);
 	}
 	m_functionStream.Write8(Wasm::INST_END);
-
-	CommitSymbol(dst);
-}
-
-void CCodeGen_Wasm::Emit_And_AnyAnyAny(const STATEMENT& statement)
-{
-	auto dst = statement.dst->GetSymbol().get();
-	auto src1 = statement.src1->GetSymbol().get();
-	auto src2 = statement.src2->GetSymbol().get();
-
-	PrepareSymbolDef(dst);
-	PrepareSymbolUse(src1);
-	PrepareSymbolUse(src2);
-
-	m_functionStream.Write8(Wasm::INST_I32_AND);
-
-	CommitSymbol(dst);
-}
-
-void CCodeGen_Wasm::Emit_Or_AnyAnyAny(const STATEMENT& statement)
-{
-	auto dst = statement.dst->GetSymbol().get();
-	auto src1 = statement.src1->GetSymbol().get();
-	auto src2 = statement.src2->GetSymbol().get();
-
-	PrepareSymbolDef(dst);
-	PrepareSymbolUse(src1);
-	PrepareSymbolUse(src2);
-
-	m_functionStream.Write8(Wasm::INST_I32_OR);
-
-	CommitSymbol(dst);
-}
-
-void CCodeGen_Wasm::Emit_Xor_AnyAnyAny(const STATEMENT& statement)
-{
-	auto dst = statement.dst->GetSymbol().get();
-	auto src1 = statement.src1->GetSymbol().get();
-	auto src2 = statement.src2->GetSymbol().get();
-
-	PrepareSymbolDef(dst);
-	PrepareSymbolUse(src1);
-	PrepareSymbolUse(src2);
-
-	m_functionStream.Write8(Wasm::INST_I32_XOR);
-
-	CommitSymbol(dst);
-}
-
-void CCodeGen_Wasm::Emit_Add_AnyAnyAny(const STATEMENT& statement)
-{
-	auto dst = statement.dst->GetSymbol().get();
-	auto src1 = statement.src1->GetSymbol().get();
-	auto src2 = statement.src2->GetSymbol().get();
-
-	PrepareSymbolDef(dst);
-	PrepareSymbolUse(src1);
-	PrepareSymbolUse(src2);
-
-	m_functionStream.Write8(Wasm::INST_I32_ADD);
-
-	CommitSymbol(dst);
-}
-
-void CCodeGen_Wasm::Emit_Sub_AnyAnyAny(const STATEMENT& statement)
-{
-	auto dst = statement.dst->GetSymbol().get();
-	auto src1 = statement.src1->GetSymbol().get();
-	auto src2 = statement.src2->GetSymbol().get();
-
-	PrepareSymbolDef(dst);
-	PrepareSymbolUse(src1);
-	PrepareSymbolUse(src2);
-
-	m_functionStream.Write8(Wasm::INST_I32_SUB);
 
 	CommitSymbol(dst);
 }

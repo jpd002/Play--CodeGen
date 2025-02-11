@@ -124,6 +124,9 @@ namespace Jitter
 		void Emit_AddRef_AnyAnyAny(const STATEMENT&);
 		void Emit_IsRefNull_VarVar(const STATEMENT&);
 
+		template <uint32>
+		void Emit_Generic_Binary_MemAnyAny(const STATEMENT&);
+
 		template <uint8, uint8>
 		void Emit_Generic_LoadFromRef_MemVar(const STATEMENT&);
 
@@ -157,26 +160,15 @@ namespace Jitter
 
 		void Emit_Select_VarVarAnyAny(const STATEMENT&);
 
-		void Emit_Sll_AnyAnyAny(const STATEMENT&);
-		void Emit_Srl_AnyAnyAny(const STATEMENT&);
-		void Emit_Sra_AnyAnyAny(const STATEMENT&);
-
 		void Emit_Not_AnyAny(const STATEMENT&);
 		void Emit_Lzc_AnyAny(const STATEMENT&);
-		void Emit_And_AnyAnyAny(const STATEMENT&);
-		void Emit_Or_AnyAnyAny(const STATEMENT&);
-		void Emit_Xor_AnyAnyAny(const STATEMENT&);
 
-		void Emit_Add_AnyAnyAny(const STATEMENT&);
-		void Emit_Sub_AnyAnyAny(const STATEMENT&);
-
+		template <uint32>
+		void Emit_Alu64_MemAnyAny(const STATEMENT&);
 		template <uint32>
 		void Emit_Shift64_MemAnyAny(const STATEMENT&);
 
 		void Emit_Mov64_MemAny(const STATEMENT&);
-		void Emit_Add64_MemAnyAny(const STATEMENT&);
-		void Emit_Sub64_MemAnyAny(const STATEMENT&);
-		void Emit_And64_MemAnyAny(const STATEMENT&);
 		void Emit_Cmp64_MemAnyAny(const STATEMENT&);
 
 		void Emit_RetVal_Tmp64(const STATEMENT&);

@@ -119,6 +119,9 @@ void Jitter::DumpStatementList(std::ostream& outputStream, const StatementList& 
 			break;
 		case OP_MOV:
 			break;
+		case OP_SELECT:
+			outputStream << " SEL ";
+			break;
 		case OP_STOREATREF:
 			outputStream << " <- ";
 			break;

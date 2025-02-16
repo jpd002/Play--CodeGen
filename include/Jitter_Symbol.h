@@ -93,6 +93,9 @@ namespace Jitter
 			case SYM_FP_TEMPORARY32:
 				return "FPTMP32[" + std::to_string(m_valueLow) + "]";
 				break;
+			case SYM_FP_REGISTER32:
+				return "FPREG32[" + std::to_string(m_valueLow) + "]";
+				break;
 			case SYM_RELATIVE128:
 				return "REL128[" + std::to_string(m_valueLow) + "]";
 				break;

@@ -689,6 +689,9 @@ namespace Jitter
 
 		void Emit_Select_VarVarAnyAny(const STATEMENT&);
 
+		void Emit_CmpSelectP1_AnyVar(const STATEMENT&);
+		void Emit_CmpSelectP2_VarAnyAny(const STATEMENT&);
+
 		void Emit_Add64_MemMemMem(const STATEMENT&);
 		void Emit_Add64_MemMemCst(const STATEMENT&);
 

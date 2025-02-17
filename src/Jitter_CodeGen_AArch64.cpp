@@ -348,6 +348,9 @@ CCodeGen_AArch64::CONSTMATCHER CCodeGen_AArch64::g_constMatchers[] =
 	
 	{ OP_SELECT,         MATCH_VARIABLE,       MATCH_VARIABLE,       MATCH_ANY,           MATCH_ANY,      &CCodeGen_AArch64::Emit_Select_VarVarAnyAny                 },
 
+	{ OP_CMPSELECT_P1,   MATCH_NIL,            MATCH_ANY,            MATCH_VARIABLE,      MATCH_NIL,      &CCodeGen_AArch64::Emit_CmpSelectP1_AnyVar                  },
+	{ OP_CMPSELECT_P2,   MATCH_VARIABLE,       MATCH_ANY,            MATCH_ANY,           MATCH_NIL,      &CCodeGen_AArch64::Emit_CmpSelectP2_VarAnyAny               },
+	
 	{ OP_SLL,            MATCH_VARIABLE,       MATCH_ANY,            MATCH_VARIABLE,      MATCH_NIL,      &CCodeGen_AArch64::Emit_Shift_VarAnyVar<SHIFTOP_LSL>        },
 	{ OP_SRL,            MATCH_VARIABLE,       MATCH_ANY,            MATCH_VARIABLE,      MATCH_NIL,      &CCodeGen_AArch64::Emit_Shift_VarAnyVar<SHIFTOP_LSR>        },
 	{ OP_SRA,            MATCH_VARIABLE,       MATCH_ANY,            MATCH_VARIABLE,      MATCH_NIL,      &CCodeGen_AArch64::Emit_Shift_VarAnyVar<SHIFTOP_ASR>        },
@@ -1877,6 +1880,40 @@ void CCodeGen_AArch64::Emit_Select_VarVarAnyAny(const STATEMENT& statement)
 
 	m_assembler.Tst(src1Reg, src1Reg);
 	m_assembler.Csel(dstReg, src2Reg, src3Reg, CAArch64Assembler::CONDITION_NE);
+
+	CommitSymbolRegister(dst, dstReg);
+}
+
+void CCodeGen_AArch64::Emit_CmpSelectP1_AnyVar(const STATEMENT& statement)
+{
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	auto src1Reg = PrepareSymbolRegisterUse(src1, GetNextTempRegister());
+	auto src2Reg = PrepareSymbolRegisterUse(src2, GetNextTempRegister());
+
+	m_assembler.Cmp(src1Reg, src2Reg);
+}
+
+void CCodeGen_AArch64::Emit_CmpSelectP2_VarAnyAny(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	auto dstReg = PrepareSymbolRegisterDef(dst, GetNextTempRegister());
+	auto src1Reg = PrepareSymbolRegisterUse(src1, GetNextTempRegister());
+	auto src2Reg = PrepareSymbolRegisterUse(src2, GetNextTempRegister());
+
+	switch(statement.jmpCondition)
+	{
+	case CONDITION_LE:
+		m_assembler.Csel(dstReg, src1Reg, src2Reg, CAArch64Assembler::CONDITION_LE);
+		break;
+	default:
+		assert(false);
+		break;
+	};
 
 	CommitSymbolRegister(dst, dstReg);
 }

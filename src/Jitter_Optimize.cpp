@@ -1410,6 +1410,8 @@ bool CJitter::ClampingElimination(StatementList& statements)
 
 bool CJitter::MergeCmpSelectOps(StatementList& statements)
 {
+	bool changed = false;
+
 	for(auto statementIterator(statements.begin());
 	    statements.end() != statementIterator; ++statementIterator)
 	{
@@ -1450,7 +1452,11 @@ bool CJitter::MergeCmpSelectOps(StatementList& statements)
 		statement.op = OP_CMPSELECT_P1;
 		statement.jmpCondition = Jitter::CONDITION_NEVER;
 		statement.dst.reset();
+
+		changed = true;
 	}
+
+	return changed;
 }
 
 bool CJitter::DeadcodeElimination(VERSIONED_STATEMENT_LIST& versionedStatementList)

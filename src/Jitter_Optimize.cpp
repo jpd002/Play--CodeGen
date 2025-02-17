@@ -151,6 +151,7 @@ void CJitter::Compile()
 
 				//This doesn't need to be run more than once
 				ClampingElimination(basicBlock.statements);
+				MergeCmpSelectOps(basicBlock.statements);
 
 				auto versionedStatements = GenerateVersionedStatementList(basicBlock.statements);
 
@@ -1405,6 +1406,51 @@ bool CJitter::ClampingElimination(StatementList& statements)
 	}
 
 	return changed;
+}
+
+bool CJitter::MergeCmpSelectOps(StatementList& statements)
+{
+	for(auto statementIterator(statements.begin());
+	    statements.end() != statementIterator; ++statementIterator)
+	{
+		auto& statement = *statementIterator;
+		auto nextStatementIterator = statementIterator;
+		nextStatementIterator++;
+
+		if(nextStatementIterator == std::end(statements)) continue;
+		auto& nextStatement = *nextStatementIterator;
+
+		if(nextStatement.op != OP_SELECT) continue;
+		if(statement.op != OP_CMP) continue;
+
+		auto predicateSymbol = statement.dst;
+
+		if(!nextStatement.src1->Equals(predicateSymbol.get())) continue;
+
+		auto innerStatementIterator = nextStatementIterator;
+		innerStatementIterator++;
+
+		//Make sure predicate isn't used later
+		bool used = false;
+		for(; innerStatementIterator != statements.end(); ++innerStatementIterator)
+		{
+			const auto& innerStatement = *innerStatementIterator;
+			innerStatement.VisitSources([&](const SymbolRefPtr& src, bool isDst) { used |= src->Equals(predicateSymbol.get()); });
+			if(used) break;
+		}
+
+		if(used) continue;
+
+		nextStatement.op = OP_CMPSELECT_P2;
+		nextStatement.jmpCondition = statement.jmpCondition;
+		nextStatement.src1 = nextStatement.src2;
+		nextStatement.src2 = nextStatement.src3;
+		nextStatement.src3.reset();
+
+		statement.op = OP_CMPSELECT_P1;
+		statement.jmpCondition = Jitter::CONDITION_NEVER;
+		statement.dst.reset();
+	}
 }
 
 bool CJitter::DeadcodeElimination(VERSIONED_STATEMENT_LIST& versionedStatementList)

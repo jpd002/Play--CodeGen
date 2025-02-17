@@ -122,6 +122,12 @@ void Jitter::DumpStatementList(std::ostream& outputStream, const StatementList& 
 		case OP_SELECT:
 			outputStream << " SEL ";
 			break;
+		case OP_CMPSELECT_P1:
+			outputStream << " CMPSELECT_P1 ";
+			break;
+		case OP_CMPSELECT_P2:
+			outputStream << " CMPSELECT_P2(" << ConditionToString(statement.jmpCondition) << ") ";
+			break;
 		case OP_STOREATREF:
 			outputStream << " <- ";
 			break;

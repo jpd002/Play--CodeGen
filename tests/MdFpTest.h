@@ -23,6 +23,7 @@ private:
 		float dstMul[4];
 		float dstDiv[4];
 		float dstAbs[4];
+		float dstNeg[4];
 		float dstMax[4];
 		float dstMin[4];
 		uint32 dstCmpLt[4];

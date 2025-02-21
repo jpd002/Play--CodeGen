@@ -211,6 +211,7 @@ namespace Jitter
 		void MD_CmpLtS();
 		void MD_CmpGtS();
 		void MD_DivS();
+		void MD_MakeClip();
 		void MD_MakeSignZero();
 		void MD_MaxH();
 		void MD_MaxW();

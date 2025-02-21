@@ -23,6 +23,19 @@ void CMdFpFlagTest::Compile(Jitter::CJitter& jitter)
 		jitter.MD_PushRel(offsetof(CONTEXT, src3));
 		jitter.MD_MakeSignZero();
 		jitter.PullRel(offsetof(CONTEXT, dstSzStatus3));
+		
+		// Clip flag generation
+		jitter.MD_PushRel(offsetof(CONTEXT, src1));
+		jitter.MD_PushRel(offsetof(CONTEXT, src2));
+		jitter.MD_PushRel(offsetof(CONTEXT, src2));
+		jitter.MD_MakeClip();
+		jitter.PullRel(offsetof(CONTEXT, dstClipStatus0));
+
+		jitter.MD_PushRel(offsetof(CONTEXT, src0));
+		jitter.MD_PushCstExpand(1.0f);
+		jitter.MD_PushCstExpand(-1.0f);
+		jitter.MD_MakeClip();
+		jitter.PullRel(offsetof(CONTEXT, dstClipStatus1));
 	}
 	jitter.End();
 
@@ -66,4 +79,7 @@ void CMdFpFlagTest::Run()
 	TEST_VERIFY(context.dstSzStatus1 == 0x20);
 	TEST_VERIFY(context.dstSzStatus2 == 0xB4);
 	TEST_VERIFY(context.dstSzStatus3 == 0x50);
+	
+	TEST_VERIFY(context.dstClipStatus0 == 0x25);
+	TEST_VERIFY(context.dstClipStatus1 == 0x00);
 }

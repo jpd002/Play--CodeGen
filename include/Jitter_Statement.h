@@ -114,6 +114,7 @@ namespace Jitter
 
 		OP_MD_SRL256,
 
+		OP_MD_MAKECLIP,
 		OP_MD_MAKESZ,
 
 		OP_MD_TOWORD_TRUNCATE,

@@ -1514,6 +1514,21 @@ void CJitter::MD_MaxS()
 	InsertBinaryMdStatement(OP_MD_MAX_S);
 }
 
+void CJitter::MD_MakeClip()
+{
+	auto tempSym = MakeSymbol(SYM_TEMPORARY, m_nextTemporary++);
+
+	STATEMENT statement;
+	statement.op = OP_MD_MAKECLIP;
+	statement.src3 = MakeSymbolRef(m_shadow.Pull());
+	statement.src2 = MakeSymbolRef(m_shadow.Pull());
+	statement.src1 = MakeSymbolRef(m_shadow.Pull());
+	statement.dst = MakeSymbolRef(tempSym);
+	InsertStatement(statement);
+
+	m_shadow.Push(tempSym);
+}
+
 void CJitter::MD_MakeSignZero()
 {
 	auto tempSym = MakeSymbol(SYM_TEMPORARY, m_nextTemporary++);

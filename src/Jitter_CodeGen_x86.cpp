@@ -58,6 +58,9 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_constMatchers[] =
 	{ OP_CONDJMP, MATCH_NIL, MATCH_MEMORY,   MATCH_MEMORY,   MATCH_NIL, &CCodeGen_x86::Emit_CondJmp_MemMem },
 	{ OP_CONDJMP, MATCH_NIL, MATCH_MEMORY,   MATCH_CONSTANT, MATCH_NIL, &CCodeGen_x86::Emit_CondJmp_MemCst },
 
+	{ OP_CMPSELECT_P1, MATCH_NIL,      MATCH_ANY, MATCH_VARIABLE, MATCH_NIL, &CCodeGen_x86::Emit_CmpSelectP1_AnyVar    },
+	{ OP_CMPSELECT_P2, MATCH_VARIABLE, MATCH_ANY, MATCH_ANY,      MATCH_NIL, &CCodeGen_x86::Emit_CmpSelectP2_VarAnyAny },
+
 	{ OP_SELECT, MATCH_VARIABLE, MATCH_VARIABLE, MATCH_ANY, MATCH_ANY, &CCodeGen_x86::Emit_Select_VarVarAnyAny },
 
 	{ OP_DIV, MATCH_MEMORY64, MATCH_VARIABLE, MATCH_VARIABLE, MATCH_NIL, &CCodeGen_x86::Emit_DivMem64VarVar<false> },
@@ -1128,6 +1131,66 @@ void CCodeGen_x86::Emit_CondJmp_MemCst(const STATEMENT& statement)
 	CondJmp_JumpTo(GetLabel(statement.jmpBlock), statement.jmpCondition);
 }
 
+void CCodeGen_x86::Select_Generic(Jitter::CONDITION cond, CSymbol* dstSymbol, CSymbol* trueSymbol, CSymbol* falseSymbol)
+{
+	auto dstReg = PrepareSymbolRegisterDef(dstSymbol, CX86Assembler::rAX);
+
+	auto emitMovCc = [&](CONDITION cond, CX86Assembler::REGISTER dstReg, const CX86Assembler::CAddress& srcAddress) {
+		switch(cond)
+		{
+		case CONDITION_EQ:
+			m_assembler.CmoveEd(dstReg, srcAddress);
+			break;
+		case CONDITION_NE:
+			m_assembler.CmovneEd(dstReg, srcAddress);
+			break;
+		case CONDITION_LE:
+			m_assembler.CmovleEd(dstReg, srcAddress);
+			break;
+		case CONDITION_GT:
+			m_assembler.CmovgEd(dstReg, srcAddress);
+			break;
+		default:
+			assert(false);
+			break;
+		}
+	};
+
+	//Check constant cases first since we use MakeVariableSymbolAddress when we know we don't have constants
+	if(trueSymbol->IsConstant() && falseSymbol->IsConstant())
+	{
+		auto tmpReg = CX86Assembler::rCX;
+		m_assembler.MovId(dstReg, trueSymbol->m_valueLow);
+		m_assembler.MovId(tmpReg, falseSymbol->m_valueLow);
+		emitMovCc(NegateCondition(cond), dstReg, CX86Assembler::MakeRegisterAddress(tmpReg));
+	}
+	else if(trueSymbol->IsConstant())
+	{
+		m_assembler.MovId(dstReg, trueSymbol->m_valueLow);
+		emitMovCc(NegateCondition(cond), dstReg, MakeVariableSymbolAddress(falseSymbol));
+	}
+	else if(falseSymbol->IsConstant())
+	{
+		m_assembler.MovId(dstReg, falseSymbol->m_valueLow);
+		emitMovCc(cond, dstReg, MakeVariableSymbolAddress(trueSymbol));
+	}
+	else if(dstSymbol->IsRegister() && dstSymbol->Equals(trueSymbol))
+	{
+		emitMovCc(NegateCondition(cond), dstReg, MakeVariableSymbolAddress(falseSymbol));
+	}
+	else if(dstSymbol->IsRegister() && dstSymbol->Equals(falseSymbol))
+	{
+		emitMovCc(cond, dstReg, MakeVariableSymbolAddress(trueSymbol));
+	}
+	else
+	{
+		m_assembler.MovEd(dstReg, MakeVariableSymbolAddress(trueSymbol));
+		emitMovCc(NegateCondition(cond), dstReg, MakeVariableSymbolAddress(falseSymbol));
+	}
+
+	CommitSymbolRegister(dstSymbol, dstReg);
+}
+
 void CCodeGen_x86::Emit_Select_VarVarAnyAny(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
@@ -1135,46 +1198,27 @@ void CCodeGen_x86::Emit_Select_VarVarAnyAny(const STATEMENT& statement)
 	auto src2 = statement.src2->GetSymbol().get();
 	auto src3 = statement.src3->GetSymbol().get();
 
-	auto dstReg = PrepareSymbolRegisterDef(dst, CX86Assembler::rAX);
+	m_assembler.CmpId(MakeVariableSymbolAddress(src1), 0);
+	Select_Generic(CONDITION_NE, dst, src2, src3);
+}
 
-	if(dst->IsRegister() && dst->Equals(src2))
-	{
-		m_assembler.CmpId(MakeVariableSymbolAddress(src1), 0);
-		m_assembler.CmoveEd(dstReg, MakeVariableSymbolAddress(src3));
-	}
-	else if(dst->IsRegister() && dst->Equals(src3))
-	{
-		m_assembler.CmpId(MakeVariableSymbolAddress(src1), 0);
-		m_assembler.CmovneEd(dstReg, MakeVariableSymbolAddress(src2));
-	}
-	else if(src2->IsConstant() && src3->IsConstant())
-	{
-		auto tmpReg = CX86Assembler::rCX;
-		m_assembler.CmpId(MakeVariableSymbolAddress(src1), 0);
-		m_assembler.MovId(dstReg, src2->m_valueLow);
-		m_assembler.MovId(tmpReg, src3->m_valueLow);
-		m_assembler.CmoveEd(dstReg, CX86Assembler::MakeRegisterAddress(tmpReg));
-	}
-	else if(src2->IsConstant())
-	{
-		m_assembler.CmpId(MakeVariableSymbolAddress(src1), 0);
-		m_assembler.MovId(dstReg, src2->m_valueLow);
-		m_assembler.CmoveEd(dstReg, MakeVariableSymbolAddress(src3));
-	}
-	else if(src3->IsConstant())
-	{
-		m_assembler.CmpId(MakeVariableSymbolAddress(src1), 0);
-		m_assembler.MovId(dstReg, src3->m_valueLow);
-		m_assembler.CmovneEd(dstReg, MakeVariableSymbolAddress(src2));
-	}
-	else
-	{
-		m_assembler.CmpId(MakeVariableSymbolAddress(src1), 0);
-		m_assembler.MovEd(dstReg, MakeVariableSymbolAddress(src2));
-		m_assembler.CmoveEd(dstReg, MakeVariableSymbolAddress(src3));
-	}
+void CCodeGen_x86::Emit_CmpSelectP1_AnyVar(const STATEMENT& statement)
+{
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
 
-	CommitSymbolRegister(dst, dstReg);
+	auto src1Reg = PrepareSymbolRegisterUse(src1, CX86Assembler::rDX);
+
+	m_assembler.CmpEd(src1Reg, MakeVariableSymbolAddress(src2));
+}
+
+void CCodeGen_x86::Emit_CmpSelectP2_VarAnyAny(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	Select_Generic(statement.jmpCondition, dst, src1, src2);
 }
 
 CX86Assembler::REGISTER CCodeGen_x86::PrepareSymbolRegisterDef(CSymbol* symbol, CX86Assembler::REGISTER preferedRegister)

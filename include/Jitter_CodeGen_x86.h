@@ -640,7 +640,12 @@ namespace Jitter
 		void Emit_CondJmp_MemCst(const STATEMENT&);
 
 		//SELECT
+		void Select_Generic(Jitter::CONDITION, CSymbol*, CSymbol*, CSymbol*);
 		void Emit_Select_VarVarAnyAny(const STATEMENT&);
+
+		//CMPSELECT
+		void Emit_CmpSelectP1_AnyVar(const STATEMENT&);
+		void Emit_CmpSelectP2_VarAnyAny(const STATEMENT&);
 
 		//MERGETO64
 		void Emit_MergeTo64_Mem64RegReg(const STATEMENT&);

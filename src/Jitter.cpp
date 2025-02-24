@@ -79,47 +79,6 @@ void CJitter::Goto(LABEL label)
 	InsertStatement(statement);
 }
 
-CONDITION CJitter::GetReverseCondition(CONDITION condition)
-{
-	switch(condition)
-	{
-	case CONDITION_EQ:
-		return CONDITION_NE;
-		break;
-	case CONDITION_NE:
-		return CONDITION_EQ;
-		break;
-	case CONDITION_LT:
-		return CONDITION_GE;
-		break;
-	case CONDITION_LE:
-		return CONDITION_GT;
-		break;
-	case CONDITION_GT:
-		return CONDITION_LE;
-		break;
-	case CONDITION_GE:
-		return CONDITION_LT;
-		break;
-	case CONDITION_BL:
-		return CONDITION_AE;
-		break;
-	case CONDITION_BE:
-		return CONDITION_AB;
-		break;
-	case CONDITION_AB:
-		return CONDITION_BE;
-		break;
-	case CONDITION_AE:
-		return CONDITION_BL;
-		break;
-	default:
-		assert(0);
-		break;
-	}
-	throw std::exception();
-}
-
 void CJitter::BeginIf(CONDITION condition)
 {
 	uint32 jumpBlockId = m_nextBlockId++;
@@ -129,7 +88,7 @@ void CJitter::BeginIf(CONDITION condition)
 	statement.op = OP_CONDJMP;
 	statement.src2 = MakeSymbolRef(m_shadow.Pull());
 	statement.src1 = MakeSymbolRef(m_shadow.Pull());
-	statement.jmpCondition = GetReverseCondition(condition);
+	statement.jmpCondition = NegateCondition(condition);
 	statement.jmpBlock = jumpBlockId;
 	InsertStatement(statement);
 

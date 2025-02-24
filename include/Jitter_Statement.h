@@ -254,6 +254,8 @@ namespace Jitter
 	typedef std::list<STATEMENT> StatementList;
 
 	std::string ConditionToString(CONDITION);
+	CONDITION NegateCondition(CONDITION);
+
 	void DumpStatementList(const StatementList&);
 	void DumpStatementList(std::ostream&, const StatementList&);
 

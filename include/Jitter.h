@@ -349,8 +349,6 @@ namespace Jitter
 		SymbolRefPtr MakeSymbolRef(const SymbolPtr&);
 		int GetSymbolSize(const SymbolRefPtr&);
 
-		static CONDITION GetReverseCondition(CONDITION);
-
 		VERSIONED_STATEMENT_LIST GenerateVersionedStatementList(const StatementList&);
 		StatementList CollapseVersionedStatementList(const VERSIONED_STATEMENT_LIST&);
 		void CoalesceTemporaries(BASIC_BLOCK&);

@@ -34,6 +34,37 @@ std::string Jitter::ConditionToString(CONDITION condition)
 	}
 }
 
+CONDITION Jitter::NegateCondition(CONDITION condition)
+{
+	switch(condition)
+	{
+	case CONDITION_EQ:
+		return CONDITION_NE;
+	case CONDITION_NE:
+		return CONDITION_EQ;
+	case CONDITION_LT:
+		return CONDITION_GE;
+	case CONDITION_LE:
+		return CONDITION_GT;
+	case CONDITION_GT:
+		return CONDITION_LE;
+	case CONDITION_GE:
+		return CONDITION_LT;
+	case CONDITION_BL:
+		return CONDITION_AE;
+	case CONDITION_BE:
+		return CONDITION_AB;
+	case CONDITION_AB:
+		return CONDITION_BE;
+	case CONDITION_AE:
+		return CONDITION_BL;
+	default:
+		assert(false);
+		throw std::exception();
+		break;
+	}
+}
+
 void Jitter::DumpStatementList(const StatementList& statements)
 {
 	DumpStatementList(std::cout, statements);

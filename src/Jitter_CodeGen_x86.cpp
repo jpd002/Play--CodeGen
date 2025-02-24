@@ -252,6 +252,11 @@ bool CCodeGen_x86::SupportsExternalJumps() const
 	return true;
 }
 
+bool CCodeGen_x86::SupportsCmpSelect() const
+{
+	return true;
+}
+
 CX86Assembler::LABEL CCodeGen_x86::GetLabel(uint32 blockId)
 {
 	CX86Assembler::LABEL result;

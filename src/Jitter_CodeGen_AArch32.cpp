@@ -288,6 +288,11 @@ bool CCodeGen_AArch32::SupportsExternalJumps() const
 	return true;
 }
 
+bool CCodeGen_AArch32::SupportsCmpSelect() const
+{
+	return true;
+}
+
 uint32 CCodeGen_AArch32::GetPointerSize() const
 {
 	return 4;

@@ -360,6 +360,11 @@ bool CCodeGen_Wasm::SupportsExternalJumps() const
 	return false;
 }
 
+bool CCodeGen_Wasm::SupportsCmpSelect() const
+{
+	return false;
+}
+
 uint32 CCodeGen_Wasm::GetPointerSize() const
 {
 	return 4;

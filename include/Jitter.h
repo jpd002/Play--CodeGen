@@ -378,6 +378,8 @@ namespace Jitter
 
 		unsigned int m_nextLabelId = 1;
 		LabelMapType m_labels;
+
+		bool m_codeGenSupportsCmpSelect = false;
 	};
 
 }

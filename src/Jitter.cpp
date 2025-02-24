@@ -7,6 +7,7 @@ using namespace Jitter;
 
 CJitter::CJitter(CCodeGen* codeGen)
     : m_codeGen(codeGen)
+    , m_codeGenSupportsCmpSelect(codeGen->SupportsCmpSelect())
 {
 }
 

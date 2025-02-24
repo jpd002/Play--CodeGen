@@ -149,9 +149,12 @@ void CJitter::Compile()
 
 				//DumpStatementList(m_currentBlock->statements);
 
-				//This doesn't need to be run more than once
+				//These don't need to be run more than once
 				ClampingElimination(basicBlock.statements);
-				MergeCmpSelectOps(basicBlock.statements);
+				if(m_codeGenSupportsCmpSelect)
+				{
+					MergeCmpSelectOps(basicBlock.statements);
+				}
 
 				auto versionedStatements = GenerateVersionedStatementList(basicBlock.statements);
 

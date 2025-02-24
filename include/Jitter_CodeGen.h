@@ -32,6 +32,7 @@ namespace Jitter
 		virtual bool Has128BitsCallOperands() const = 0;
 		virtual bool CanHold128BitsReturnValueInRegisters() const = 0;
 		virtual bool SupportsExternalJumps() const = 0;
+		virtual bool SupportsCmpSelect() const = 0;
 		virtual void RegisterExternalSymbols(CObjectFile*) const = 0;
 		virtual uint32 GetPointerSize() const = 0;
 

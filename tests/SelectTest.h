@@ -19,7 +19,10 @@ private:
 		uint32 valueFalse;
 		uint32 valueTrue;
 
+		uint32 externCmp;
+
 		uint32 result;
+		uint32 resultExtern;
 
 		uint32 overwriteSrc2;
 		uint32 overwriteSrc3;

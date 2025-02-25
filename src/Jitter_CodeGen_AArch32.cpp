@@ -37,6 +37,36 @@ CAArch32Assembler::REGISTER CCodeGen_AArch32::g_paramRegs[MAX_PARAM_REGS] =
 };
 // clang-format on
 
+static CAArch32Assembler::CONDITION GetConditionCode(Jitter::CONDITION cond)
+{
+	switch(cond)
+	{
+	case CONDITION_EQ:
+		return CAArch32Assembler::CONDITION_EQ;
+	case CONDITION_NE:
+		return CAArch32Assembler::CONDITION_NE;
+	case CONDITION_BL:
+		return CAArch32Assembler::CONDITION_CC;
+	case CONDITION_BE:
+		return CAArch32Assembler::CONDITION_LS;
+	case CONDITION_AB:
+		return CAArch32Assembler::CONDITION_HI;
+	case CONDITION_AE:
+		return CAArch32Assembler::CONDITION_CS;
+	case CONDITION_LT:
+		return CAArch32Assembler::CONDITION_LT;
+	case CONDITION_LE:
+		return CAArch32Assembler::CONDITION_LE;
+	case CONDITION_GT:
+		return CAArch32Assembler::CONDITION_GT;
+	case CONDITION_GE:
+		return CAArch32Assembler::CONDITION_GE;
+	default:
+		assert(false);
+		return CAArch32Assembler::CONDITION_AL;
+	}
+}
+
 template <typename ALUOP>
 void CCodeGen_AArch32::Emit_Alu_GenericAnyAny(const STATEMENT& statement)
 {
@@ -201,6 +231,9 @@ CCodeGen_AArch32::CONSTMATCHER CCodeGen_AArch32::g_constMatchers[] =
 
 	{ OP_SELECT, MATCH_VARIABLE, MATCH_VARIABLE, MATCH_ANY, MATCH_ANY, &CCodeGen_AArch32::Emit_Select_VarVarAnyAny },
 	
+	{ OP_CMPSELECT_P1, MATCH_NIL,      MATCH_ANY, MATCH_VARIABLE, MATCH_NIL, &CCodeGen_AArch32::Emit_CmpSelectP1_AnyVar    },
+	{ OP_CMPSELECT_P2, MATCH_VARIABLE, MATCH_ANY, MATCH_ANY,      MATCH_NIL, &CCodeGen_AArch32::Emit_CmpSelectP2_VarAnyAny },
+
 	{ OP_NOT, MATCH_REGISTER, MATCH_REGISTER, MATCH_NIL, MATCH_NIL, &CCodeGen_AArch32::Emit_Not_RegReg },
 	{ OP_NOT, MATCH_MEMORY,   MATCH_REGISTER, MATCH_NIL, MATCH_NIL, &CCodeGen_AArch32::Emit_Not_MemReg },
 	{ OP_NOT, MATCH_MEMORY,   MATCH_MEMORY,   MATCH_NIL, MATCH_NIL, &CCodeGen_AArch32::Emit_Not_MemMem },
@@ -1181,44 +1214,9 @@ void CCodeGen_AArch32::Emit_Jmp(const STATEMENT& statement)
 
 void CCodeGen_AArch32::Emit_CondJmp(const STATEMENT& statement)
 {
-	auto label(GetLabel(statement.jmpBlock));
-
-	switch(statement.jmpCondition)
-	{
-	case CONDITION_EQ:
-		m_assembler.BCc(CAArch32Assembler::CONDITION_EQ, label);
-		break;
-	case CONDITION_NE:
-		m_assembler.BCc(CAArch32Assembler::CONDITION_NE, label);
-		break;
-	case CONDITION_BL:
-		m_assembler.BCc(CAArch32Assembler::CONDITION_CC, label);
-		break;
-	case CONDITION_BE:
-		m_assembler.BCc(CAArch32Assembler::CONDITION_LS, label);
-		break;
-	case CONDITION_AB:
-		m_assembler.BCc(CAArch32Assembler::CONDITION_HI, label);
-		break;
-	case CONDITION_AE:
-		m_assembler.BCc(CAArch32Assembler::CONDITION_CS, label);
-		break;
-	case CONDITION_LT:
-		m_assembler.BCc(CAArch32Assembler::CONDITION_LT, label);
-		break;
-	case CONDITION_LE:
-		m_assembler.BCc(CAArch32Assembler::CONDITION_LE, label);
-		break;
-	case CONDITION_GT:
-		m_assembler.BCc(CAArch32Assembler::CONDITION_GT, label);
-		break;
-	case CONDITION_GE:
-		m_assembler.BCc(CAArch32Assembler::CONDITION_GE, label);
-		break;
-	default:
-		assert(0);
-		break;
-	}
+	auto label = GetLabel(statement.jmpBlock);
+	auto cond = GetConditionCode(statement.jmpCondition);
+	m_assembler.BCc(cond, label);
 }
 
 void CCodeGen_AArch32::Emit_CondJmp_VarVar(const STATEMENT& statement)
@@ -1276,54 +1274,14 @@ void CCodeGen_AArch32::Emit_CondJmp_Ref_VarCst(const STATEMENT& statement)
 
 void CCodeGen_AArch32::Cmp_GetFlag(CAArch32Assembler::REGISTER registerId, Jitter::CONDITION condition)
 {
-	CAArch32Assembler::ImmediateAluOperand falseOperand(CAArch32Assembler::MakeImmediateAluOperand(0, 0));
 	CAArch32Assembler::ImmediateAluOperand trueOperand(CAArch32Assembler::MakeImmediateAluOperand(1, 0));
-	switch(condition)
-	{
-	case CONDITION_EQ:
-		m_assembler.MovCc(CAArch32Assembler::CONDITION_NE, registerId, falseOperand);
-		m_assembler.MovCc(CAArch32Assembler::CONDITION_EQ, registerId, trueOperand);
-		break;
-	case CONDITION_NE:
-		m_assembler.MovCc(CAArch32Assembler::CONDITION_EQ, registerId, falseOperand);
-		m_assembler.MovCc(CAArch32Assembler::CONDITION_NE, registerId, trueOperand);
-		break;
-	case CONDITION_BL:
-		m_assembler.MovCc(CAArch32Assembler::CONDITION_CS, registerId, falseOperand);
-		m_assembler.MovCc(CAArch32Assembler::CONDITION_CC, registerId, trueOperand);
-		break;
-	case CONDITION_BE:
-		m_assembler.MovCc(CAArch32Assembler::CONDITION_HI, registerId, falseOperand);
-		m_assembler.MovCc(CAArch32Assembler::CONDITION_LS, registerId, trueOperand);
-		break;
-	case CONDITION_AB:
-		m_assembler.MovCc(CAArch32Assembler::CONDITION_LS, registerId, falseOperand);
-		m_assembler.MovCc(CAArch32Assembler::CONDITION_HI, registerId, trueOperand);
-		break;
-	case CONDITION_AE:
-		m_assembler.MovCc(CAArch32Assembler::CONDITION_CC, registerId, falseOperand);
-		m_assembler.MovCc(CAArch32Assembler::CONDITION_CS, registerId, trueOperand);
-		break;
-	case CONDITION_LT:
-		m_assembler.MovCc(CAArch32Assembler::CONDITION_GE, registerId, falseOperand);
-		m_assembler.MovCc(CAArch32Assembler::CONDITION_LT, registerId, trueOperand);
-		break;
-	case CONDITION_LE:
-		m_assembler.MovCc(CAArch32Assembler::CONDITION_GT, registerId, falseOperand);
-		m_assembler.MovCc(CAArch32Assembler::CONDITION_LE, registerId, trueOperand);
-		break;
-	case CONDITION_GT:
-		m_assembler.MovCc(CAArch32Assembler::CONDITION_LE, registerId, falseOperand);
-		m_assembler.MovCc(CAArch32Assembler::CONDITION_GT, registerId, trueOperand);
-		break;
-	case CONDITION_GE:
-		m_assembler.MovCc(CAArch32Assembler::CONDITION_LT, registerId, falseOperand);
-		m_assembler.MovCc(CAArch32Assembler::CONDITION_GE, registerId, trueOperand);
-		break;
-	default:
-		assert(0);
-		break;
-	}
+	CAArch32Assembler::ImmediateAluOperand falseOperand(CAArch32Assembler::MakeImmediateAluOperand(0, 0));
+
+	auto trueCondition = GetConditionCode(condition);
+	auto falseCondition = GetConditionCode(NegateCondition(condition));
+
+	m_assembler.MovCc(trueCondition, registerId, trueOperand);
+	m_assembler.MovCc(falseCondition, registerId, falseOperand);
 }
 
 void CCodeGen_AArch32::Cmp_GenericRegCst(CAArch32Assembler::REGISTER src1Reg, uint32 src2, CAArch32Assembler::REGISTER src2Reg)
@@ -1395,6 +1353,36 @@ void CCodeGen_AArch32::Emit_Select_VarVarAnyAny(const STATEMENT& statement)
 	m_assembler.Tst(src1Reg, src1Reg);
 	m_assembler.MovCc(CAArch32Assembler::CONDITION_NE, dstReg, src2Reg);
 	m_assembler.MovCc(CAArch32Assembler::CONDITION_EQ, dstReg, src3Reg);
+
+	CommitSymbolRegister(dst, dstReg);
+}
+
+void CCodeGen_AArch32::Emit_CmpSelectP1_AnyVar(const STATEMENT& statement)
+{
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	auto src1Reg = PrepareSymbolRegisterUse(src1, CAArch32Assembler::r1);
+	auto src2Reg = PrepareSymbolRegisterUse(src2, CAArch32Assembler::r2);
+
+	m_assembler.Cmp(src1Reg, src2Reg);
+}
+
+void CCodeGen_AArch32::Emit_CmpSelectP2_VarAnyAny(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+
+	auto dstReg = PrepareSymbolRegisterDef(dst, CAArch32Assembler::r0);
+	auto src1Reg = PrepareSymbolRegisterUse(src1, CAArch32Assembler::r1);
+	auto src2Reg = PrepareSymbolRegisterUse(src2, CAArch32Assembler::r2);
+
+	auto trueCondition = GetConditionCode(statement.jmpCondition);
+	auto falseCondition = GetConditionCode(NegateCondition(statement.jmpCondition));
+
+	m_assembler.MovCc(trueCondition, dstReg, src1Reg);
+	m_assembler.MovCc(falseCondition, dstReg, src2Reg);
 
 	CommitSymbolRegister(dst, dstReg);
 }

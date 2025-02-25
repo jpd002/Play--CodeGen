@@ -263,11 +263,12 @@ int CJitter::GetSymbolSize(const SymbolRefPtr& symbolRef)
 
 bool CJitter::FoldConstantOperation(STATEMENT& statement)
 {
-	CSymbol* src1cst = dynamic_symbolref_cast(SYM_CONSTANT, statement.src1);
-	CSymbol* src2cst = dynamic_symbolref_cast(SYM_CONSTANT, statement.src2);
+	auto src1cst = dynamic_symbolref_cast(SYM_CONSTANT, statement.src1);
+	auto src2cst = dynamic_symbolref_cast(SYM_CONSTANT, statement.src2);
+	auto src3cst = dynamic_symbolref_cast(SYM_CONSTANT, statement.src3);
 
 	//Nothing we can do
-	if(src1cst == NULL && src2cst == NULL) return false;
+	if(!src1cst && !src2cst && !src3cst) return false;
 
 	bool changed = false;
 
@@ -602,6 +603,19 @@ bool CJitter::FoldConstantOperation(STATEMENT& statement)
 			statement.op = OP_MOV;
 			statement.src1 = MakeSymbolRef(MakeSymbol(SYM_CONSTANT, result ? 1 : 0));
 			statement.src2.reset();
+		}
+	}
+	else if(statement.op == OP_SELECT)
+	{
+		//If true and false values are the same, we don't care about the test
+		if(src2cst && src3cst && (src2cst->m_valueLow == src3cst->m_valueLow))
+		{
+			uint32 value = src2cst->m_valueLow;
+			statement.op = OP_MOV;
+			statement.src1 = MakeSymbolRef(MakeSymbol(SYM_CONSTANT, value));
+			statement.src2.reset();
+			statement.src3.reset();
+			changed = true;
 		}
 	}
 	else if(statement.op == OP_CONDJMP)

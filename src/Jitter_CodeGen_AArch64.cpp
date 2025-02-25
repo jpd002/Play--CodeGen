@@ -99,6 +99,36 @@ static bool isShiftedMask(uint32 value)
 	return value && isMask((value - 1) | value);
 }
 
+static CAArch64Assembler::CONDITION GetConditionCode(Jitter::CONDITION cond)
+{
+	switch(cond)
+	{
+	case CONDITION_EQ:
+		return CAArch64Assembler::CONDITION_EQ;
+	case CONDITION_NE:
+		return CAArch64Assembler::CONDITION_NE;
+	case CONDITION_BL:
+		return CAArch64Assembler::CONDITION_CC;
+	case CONDITION_BE:
+		return CAArch64Assembler::CONDITION_LS;
+	case CONDITION_AB:
+		return CAArch64Assembler::CONDITION_HI;
+	case CONDITION_AE:
+		return CAArch64Assembler::CONDITION_CS;
+	case CONDITION_LT:
+		return CAArch64Assembler::CONDITION_LT;
+	case CONDITION_LE:
+		return CAArch64Assembler::CONDITION_LE;
+	case CONDITION_GT:
+		return CAArch64Assembler::CONDITION_GT;
+	case CONDITION_GE:
+		return CAArch64Assembler::CONDITION_GE;
+	default:
+		assert(false);
+		return CAArch64Assembler::CONDITION_AL;
+	}
+}
+
 template <typename AddSubOp>
 void CCodeGen_AArch64::Emit_AddSub_VarAnyVar(const STATEMENT& statement)
 {
@@ -1654,43 +1684,8 @@ void CCodeGen_AArch64::Emit_Jmp(const STATEMENT& statement)
 void CCodeGen_AArch64::Emit_CondJmp(const STATEMENT& statement)
 {
 	auto label = GetLabel(statement.jmpBlock);
-
-	switch(statement.jmpCondition)
-	{
-	case CONDITION_EQ:
-		m_assembler.BCc(CAArch64Assembler::CONDITION_EQ, label);
-		break;
-	case CONDITION_NE:
-		m_assembler.BCc(CAArch64Assembler::CONDITION_NE, label);
-		break;
-	case CONDITION_BL:
-		m_assembler.BCc(CAArch64Assembler::CONDITION_CC, label);
-		break;
-	case CONDITION_BE:
-		m_assembler.BCc(CAArch64Assembler::CONDITION_LS, label);
-		break;
-	case CONDITION_AB:
-		m_assembler.BCc(CAArch64Assembler::CONDITION_HI, label);
-		break;
-	case CONDITION_AE:
-		m_assembler.BCc(CAArch64Assembler::CONDITION_CS, label);
-		break;
-	case CONDITION_LT:
-		m_assembler.BCc(CAArch64Assembler::CONDITION_LT, label);
-		break;
-	case CONDITION_LE:
-		m_assembler.BCc(CAArch64Assembler::CONDITION_LE, label);
-		break;
-	case CONDITION_GT:
-		m_assembler.BCc(CAArch64Assembler::CONDITION_GT, label);
-		break;
-	case CONDITION_GE:
-		m_assembler.BCc(CAArch64Assembler::CONDITION_GE, label);
-		break;
-	default:
-		assert(0);
-		break;
-	}
+	auto conditionCode = GetConditionCode(statement.jmpCondition);
+	m_assembler.BCc(conditionCode, label);
 }
 
 void CCodeGen_AArch64::Emit_CondJmp_AnyVar(const STATEMENT& statement)
@@ -1784,42 +1779,8 @@ void CCodeGen_AArch64::Emit_CondJmp_Ref_VarCst(const STATEMENT& statement)
 
 void CCodeGen_AArch64::Cmp_GetFlag(CAArch64Assembler::REGISTER32 registerId, Jitter::CONDITION condition)
 {
-	switch(condition)
-	{
-	case CONDITION_EQ:
-		m_assembler.Cset(registerId, CAArch64Assembler::CONDITION_EQ);
-		break;
-	case CONDITION_NE:
-		m_assembler.Cset(registerId, CAArch64Assembler::CONDITION_NE);
-		break;
-	case CONDITION_BL:
-		m_assembler.Cset(registerId, CAArch64Assembler::CONDITION_CC);
-		break;
-	case CONDITION_BE:
-		m_assembler.Cset(registerId, CAArch64Assembler::CONDITION_LS);
-		break;
-	case CONDITION_AB:
-		m_assembler.Cset(registerId, CAArch64Assembler::CONDITION_HI);
-		break;
-	case CONDITION_AE:
-		m_assembler.Cset(registerId, CAArch64Assembler::CONDITION_CS);
-		break;
-	case CONDITION_LT:
-		m_assembler.Cset(registerId, CAArch64Assembler::CONDITION_LT);
-		break;
-	case CONDITION_LE:
-		m_assembler.Cset(registerId, CAArch64Assembler::CONDITION_LE);
-		break;
-	case CONDITION_GT:
-		m_assembler.Cset(registerId, CAArch64Assembler::CONDITION_GT);
-		break;
-	case CONDITION_GE:
-		m_assembler.Cset(registerId, CAArch64Assembler::CONDITION_GE);
-		break;
-	default:
-		assert(0);
-		break;
-	}
+	auto conditionCode = GetConditionCode(condition);
+	m_assembler.Cset(registerId, conditionCode);
 }
 
 void CCodeGen_AArch64::Emit_Cmp_VarAnyVar(const STATEMENT& statement)
@@ -1904,16 +1865,9 @@ void CCodeGen_AArch64::Emit_CmpSelectP2_VarAnyAny(const STATEMENT& statement)
 	auto dstReg = PrepareSymbolRegisterDef(dst, GetNextTempRegister());
 	auto src1Reg = PrepareSymbolRegisterUse(src1, GetNextTempRegister());
 	auto src2Reg = PrepareSymbolRegisterUse(src2, GetNextTempRegister());
+	auto conditionCode = GetConditionCode(statement.jmpCondition);
 
-	switch(statement.jmpCondition)
-	{
-	case CONDITION_LE:
-		m_assembler.Csel(dstReg, src1Reg, src2Reg, CAArch64Assembler::CONDITION_LE);
-		break;
-	default:
-		assert(false);
-		break;
-	};
+	m_assembler.Csel(dstReg, src1Reg, src2Reg, conditionCode);
 
 	CommitSymbolRegister(dst, dstReg);
 }

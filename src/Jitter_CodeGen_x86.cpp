@@ -1156,13 +1156,38 @@ void CCodeGen_x86::Select_Generic(Jitter::CONDITION cond, CSymbol* dstSymbol, CS
 		}
 	};
 
-	//Check constant cases first since we use MakeVariableSymbolAddress when we know we don't have constants
+	auto makeValueSymbolAddress =
+	    [&](CSymbol* valueSymbol) {
+		    if(valueSymbol->IsConstant())
+		    {
+			    auto tmpReg = CX86Assembler::rCX;
+			    m_assembler.MovId(tmpReg, valueSymbol->m_valueLow);
+			    return CX86Assembler::MakeRegisterAddress(tmpReg);
+		    }
+		    else
+		    {
+			    return MakeVariableSymbolAddress(valueSymbol);
+		    }
+	    };
+
+	//The order of tests here is important
 	if(trueSymbol->IsConstant() && falseSymbol->IsConstant())
 	{
+		assert(trueSymbol->m_valueLow != falseSymbol->m_valueLow);
 		auto tmpReg = CX86Assembler::rCX;
 		m_assembler.MovId(dstReg, trueSymbol->m_valueLow);
 		m_assembler.MovId(tmpReg, falseSymbol->m_valueLow);
 		emitMovCc(NegateCondition(cond), dstReg, CX86Assembler::MakeRegisterAddress(tmpReg));
+	}
+	else if(dstSymbol->IsRegister() && dstSymbol->Equals(trueSymbol))
+	{
+		//dst is already true, move false if !cond
+		emitMovCc(NegateCondition(cond), dstReg, makeValueSymbolAddress(falseSymbol));
+	}
+	else if(dstSymbol->IsRegister() && dstSymbol->Equals(falseSymbol))
+	{
+		//dst is already false, move true if cond
+		emitMovCc(cond, dstReg, makeValueSymbolAddress(trueSymbol));
 	}
 	else if(trueSymbol->IsConstant())
 	{
@@ -1172,14 +1197,6 @@ void CCodeGen_x86::Select_Generic(Jitter::CONDITION cond, CSymbol* dstSymbol, CS
 	else if(falseSymbol->IsConstant())
 	{
 		m_assembler.MovId(dstReg, falseSymbol->m_valueLow);
-		emitMovCc(cond, dstReg, MakeVariableSymbolAddress(trueSymbol));
-	}
-	else if(dstSymbol->IsRegister() && dstSymbol->Equals(trueSymbol))
-	{
-		emitMovCc(NegateCondition(cond), dstReg, MakeVariableSymbolAddress(falseSymbol));
-	}
-	else if(dstSymbol->IsRegister() && dstSymbol->Equals(falseSymbol))
-	{
 		emitMovCc(cond, dstReg, MakeVariableSymbolAddress(trueSymbol));
 	}
 	else

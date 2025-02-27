@@ -853,7 +853,7 @@ namespace Jitter
 		void Emit_Md_Avx_PackHB_VarVarVar(const STATEMENT&);
 		void Emit_Md_Avx_PackWH_VarVarVar(const STATEMENT&);
 
-		void Emit_Md_Avx_MakeClip_VarVarVar(const STATEMENT&);
+		void Emit_Md_Avx_MakeClip_VarVarVarVar(const STATEMENT&);
 		void Emit_Md_Avx_MakeSz_VarVar(const STATEMENT&);
 
 		void Emit_Md_Avx_Expand_VarVar(const STATEMENT&);

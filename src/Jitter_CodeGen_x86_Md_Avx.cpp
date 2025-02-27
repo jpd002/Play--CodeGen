@@ -497,7 +497,7 @@ void CCodeGen_x86::Emit_Md_Avx_Neg_VarVar(const STATEMENT& statement)
 	CommitSymbolRegisterMdAvx(dst, dstRegister);
 }
 
-void CCodeGen_x86::Emit_Md_Avx_MakeClip_VarVarVar(const STATEMENT& statement)
+void CCodeGen_x86::Emit_Md_Avx_MakeClip_VarVarVarVar(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
@@ -913,7 +913,7 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdAvxConstMatchers[] =
 	{ OP_MD_PACK_HB, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx_PackHB_VarVarVar, },
 	{ OP_MD_PACK_WH, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx_PackWH_VarVarVar, },
 
-	{ OP_MD_MAKECLIP, MATCH_VARIABLE, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_VARIABLE128, &CCodeGen_x86::Emit_Md_Avx_MakeClip_VarVarVar },
+	{ OP_MD_MAKECLIP, MATCH_VARIABLE, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_VARIABLE128, &CCodeGen_x86::Emit_Md_Avx_MakeClip_VarVarVarVar },
 	{ OP_MD_MAKESZ,   MATCH_VARIABLE, MATCH_VARIABLE128, MATCH_NIL,         MATCH_NIL,         &CCodeGen_x86::Emit_Md_Avx_MakeSz_VarVar },
 
 	{ OP_MOV, MATCH_REGISTER128, MATCH_VARIABLE128, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx_Mov_RegVar, },

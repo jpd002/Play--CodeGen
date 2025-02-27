@@ -480,6 +480,23 @@ void CCodeGen_x86::Emit_Md_Avx_Abs_VarVar(const STATEMENT& statement)
 	CommitSymbolRegisterMdAvx(dst, dstRegister);
 }
 
+void CCodeGen_x86::Emit_Md_Avx_Neg_VarVar(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+
+	auto dstRegister = PrepareSymbolRegisterDefMd(dst, CX86Assembler::xMM0);
+	auto bitRegister = CX86Assembler::xMM1;
+
+	assert(dstRegister != bitRegister);
+
+	m_assembler.VpcmpeqdVo(bitRegister, bitRegister, CX86Assembler::MakeXmmRegisterAddress(bitRegister));
+	m_assembler.VpslldVo(bitRegister, bitRegister, 31);
+	m_assembler.VpxorVo(dstRegister, bitRegister, MakeVariable128SymbolAddress(src1));
+
+	CommitSymbolRegisterMdAvx(dst, dstRegister);
+}
+
 void CCodeGen_x86::Emit_Md_Avx_MakeSz_VarVar(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
@@ -854,6 +871,7 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdAvxConstMatchers[] =
 	{ OP_MD_DIV_S, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx_VarVarVar<MDOP_DIVS> },
 
 	{ OP_MD_ABS_S, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx_Abs_VarVar },
+	{ OP_MD_NEG_S, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx_Neg_VarVar },
 
 	{ OP_MD_CMPLT_S, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx_VarVarVar<MDOP_CMPLTS> },
 	{ OP_MD_CMPGT_S, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx_VarVarVar<MDOP_CMPGTS> },

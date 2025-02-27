@@ -851,6 +851,7 @@ namespace Jitter
 		void Emit_Md_Avx_PackHB_VarVarVar(const STATEMENT&);
 		void Emit_Md_Avx_PackWH_VarVarVar(const STATEMENT&);
 
+		void Emit_Md_Avx_MakeClip_VarVarVar(const STATEMENT&);
 		void Emit_Md_Avx_MakeSz_VarVar(const STATEMENT&);
 
 		void Emit_Md_Avx_Expand_VarVar(const STATEMENT&);
@@ -897,6 +898,7 @@ namespace Jitter
 
 		virtual CX86Assembler::REGISTER PrepareRefSymbolRegisterUse(CSymbol*, CX86Assembler::REGISTER) = 0;
 
+		static const LITERAL128 g_makeClipShufflePattern;
 		static const LITERAL128 g_makeSzShufflePattern;
 		static const LITERAL128 g_fpCstOne;
 		static const LITERAL128 g_fpClampMask1;

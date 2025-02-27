@@ -10,6 +10,7 @@ using namespace Jitter;
 #include "Jitter_CodeGen_x86_Mul.h"
 #include "Jitter_CodeGen_x86_Div.h"
 
+const LITERAL128 CCodeGen_x86::g_makeClipShufflePattern = {0x80800C040A020800, 0x8080808080808080};
 const LITERAL128 CCodeGen_x86::g_makeSzShufflePattern = {0x00020406080A0C0E, 0x8080808080808080};
 const LITERAL128 CCodeGen_x86::g_fpCstOne = {0x3F800000, 0x3F800000, 0x3F800000, 0x3F800000};
 const LITERAL128 CCodeGen_x86::g_fpClampMask1 = {0x7F7FFFFF, 0x7F7FFFFF, 0x7F7FFFFF, 0x7F7FFFFF};

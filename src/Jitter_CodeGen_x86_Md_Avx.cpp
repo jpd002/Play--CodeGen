@@ -497,6 +497,34 @@ void CCodeGen_x86::Emit_Md_Avx_Neg_VarVar(const STATEMENT& statement)
 	CommitSymbolRegisterMdAvx(dst, dstRegister);
 }
 
+void CCodeGen_x86::Emit_Md_Avx_MakeClip_VarVarVar(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+	auto src3 = statement.src3->GetSymbol().get();
+
+	auto dstRegister = PrepareSymbolRegisterDef(dst, CX86Assembler::rDX);
+	auto valueReg = PrepareSymbolRegisterUseMdAvx(src1, CX86Assembler::xMM0);
+
+	auto gtReg = CX86Assembler::xMM1;
+	auto ltReg = CX86Assembler::xMM2;
+	auto tmpReg = CX86Assembler::xMM3;
+
+	//Comparisons
+	m_assembler.VcmpgtpsVo(gtReg, valueReg, MakeVariable128SymbolAddress(src2));
+	m_assembler.VcmpltpsVo(ltReg, valueReg, MakeVariable128SymbolAddress(src3));
+
+	//Pack
+	m_assembler.VpackssdwVo(tmpReg, gtReg, CX86Assembler::MakeXmmRegisterAddress(ltReg));
+
+	//Extract bits
+	m_assembler.VpshufbVo(gtReg, tmpReg, MakeConstant128Address(g_makeClipShufflePattern));
+	m_assembler.VpmovmskbVo(dstRegister, gtReg);
+
+	CommitSymbolRegister(dst, dstRegister);
+}
+
 void CCodeGen_x86::Emit_Md_Avx_MakeSz_VarVar(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
@@ -885,7 +913,8 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdAvxConstMatchers[] =
 	{ OP_MD_PACK_HB, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx_PackHB_VarVarVar, },
 	{ OP_MD_PACK_WH, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx_PackWH_VarVarVar, },
 
-	{ OP_MD_MAKESZ, MATCH_VARIABLE, MATCH_VARIABLE128, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx_MakeSz_VarVar },
+	{ OP_MD_MAKECLIP, MATCH_VARIABLE, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_VARIABLE128, &CCodeGen_x86::Emit_Md_Avx_MakeClip_VarVarVar },
+	{ OP_MD_MAKESZ,   MATCH_VARIABLE, MATCH_VARIABLE128, MATCH_NIL,         MATCH_NIL,         &CCodeGen_x86::Emit_Md_Avx_MakeSz_VarVar },
 
 	{ OP_MOV, MATCH_REGISTER128, MATCH_VARIABLE128, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx_Mov_RegVar, },
 	{ OP_MOV, MATCH_MEMORY128,   MATCH_REGISTER128, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx_Mov_MemReg, },

@@ -297,6 +297,7 @@ public:
 	void LdmxcsrGd(const CAddress&);
 	void StmxcsrGd(const CAddress&);
 
+	void PacksswbVo(XMMREGISTER, const CAddress&);
 	void PackssdwVo(XMMREGISTER, const CAddress&);
 	void PackuswbVo(XMMREGISTER, const CAddress&);
 

@@ -812,6 +812,67 @@ void CCodeGen_x86::Emit_Md_Not(CX86Assembler::XMMREGISTER dstRegister)
 	m_assembler.PxorVo(dstRegister, CX86Assembler::MakeXmmRegisterAddress(cstRegister));
 }
 
+void CCodeGen_x86::Emit_Md_MakeClip_VarVarVarVar(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+	auto src3 = statement.src3->GetSymbol().get();
+
+	auto clipRegister = CX86Assembler::xMM0;
+	auto gtRegister = CX86Assembler::xMM1;
+	auto ltRegister = CX86Assembler::xMM2;
+	auto dstRegister = PrepareSymbolRegisterDef(dst, CX86Assembler::rDX);
+
+	m_assembler.MovdqaVo(gtRegister, MakeVariable128SymbolAddress(src1));
+	m_assembler.MovdqaVo(ltRegister, CX86Assembler::MakeXmmRegisterAddress(gtRegister));
+
+	//Comparisons
+	m_assembler.CmpgtpsVo(gtRegister, MakeVariable128SymbolAddress(src2));
+	m_assembler.CmpltpsVo(ltRegister, MakeVariable128SymbolAddress(src3));
+
+	//Pack
+	m_assembler.MovdqaVo(clipRegister, CX86Assembler::MakeXmmRegisterAddress(gtRegister));
+	m_assembler.PunpckldqVo(clipRegister, CX86Assembler::MakeXmmRegisterAddress(ltRegister));
+	m_assembler.PunpckhdqVo(gtRegister, CX86Assembler::MakeXmmRegisterAddress(ltRegister));
+	m_assembler.PackssdwVo(clipRegister, CX86Assembler::MakeXmmRegisterAddress(gtRegister));
+	m_assembler.PacksswbVo(clipRegister, CX86Assembler::MakeXmmRegisterAddress(clipRegister));
+
+	//Extract bits
+	m_assembler.PmovmskbVo(dstRegister, clipRegister);
+	m_assembler.AndId(CX86Assembler::MakeRegisterAddress(dstRegister), 0x3F);
+
+	CommitSymbolRegister(dst, dstRegister);
+}
+
+void CCodeGen_x86::Emit_Md_MakeClip_Ssse3_VarVarVarVar(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+	auto src3 = statement.src3->GetSymbol().get();
+
+	auto clipRegister = CX86Assembler::xMM0;
+	auto ltRegister = CX86Assembler::xMM1;
+	auto dstRegister = PrepareSymbolRegisterDef(dst, CX86Assembler::rDX);
+
+	m_assembler.MovdqaVo(clipRegister, MakeVariable128SymbolAddress(src1));
+	m_assembler.MovdqaVo(ltRegister, CX86Assembler::MakeXmmRegisterAddress(clipRegister));
+
+	//Comparisons
+	m_assembler.CmpgtpsVo(clipRegister, MakeVariable128SymbolAddress(src2));
+	m_assembler.CmpltpsVo(ltRegister, MakeVariable128SymbolAddress(src3));
+
+	//Pack
+	m_assembler.PackssdwVo(clipRegister, CX86Assembler::MakeXmmRegisterAddress(ltRegister));
+
+	//Extract bits
+	m_assembler.PshufbVo(clipRegister, MakeConstant128Address(g_makeClipShufflePattern));
+	m_assembler.PmovmskbVo(dstRegister, clipRegister);
+
+	CommitSymbolRegister(dst, dstRegister);
+}
+
 void CCodeGen_x86::Emit_Md_MakeSz(CX86Assembler::XMMREGISTER dstRegister, const CX86Assembler::CAddress& srcAddress)
 {
 	auto zeroRegister = CX86Assembler::xMM1;
@@ -1204,14 +1265,16 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdSse41ConstMatchers[] =
 
 CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdNoSsse3ConstMatchers[] =
 {
-	{ OP_MD_MAKESZ,     MATCH_VARIABLE, MATCH_VARIABLE128, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Md_MakeSz_VarVar },
+	{ OP_MD_MAKECLIP,   MATCH_VARIABLE, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_VARIABLE128, &CCodeGen_x86::Emit_Md_MakeClip_VarVarVarVar },
+	{ OP_MD_MAKESZ,     MATCH_VARIABLE, MATCH_VARIABLE128, MATCH_NIL,         MATCH_NIL,         &CCodeGen_x86::Emit_Md_MakeSz_VarVar         },
 
 	{ OP_MOV, MATCH_NIL, MATCH_NIL, MATCH_NIL, MATCH_NIL, nullptr },
 };
 
 CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdSsse3ConstMatchers[] =
 {
-	{ OP_MD_MAKESZ,     MATCH_VARIABLE, MATCH_VARIABLE128, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Md_MakeSz_Ssse3_VarVar },
+	{ OP_MD_MAKECLIP,   MATCH_VARIABLE, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_VARIABLE128, &CCodeGen_x86::Emit_Md_MakeClip_Ssse3_VarVarVarVar },
+	{ OP_MD_MAKESZ,     MATCH_VARIABLE, MATCH_VARIABLE128, MATCH_NIL,         MATCH_NIL,         &CCodeGen_x86::Emit_Md_MakeSz_Ssse3_VarVar         },
 	
 	{ OP_MOV, MATCH_NIL, MATCH_NIL, MATCH_NIL, MATCH_NIL, nullptr },
 };

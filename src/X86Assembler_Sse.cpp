@@ -151,6 +151,11 @@ void CX86Assembler::StmxcsrGd(const CAddress& address)
 	WriteEdVdOp_0F(0xAE, address, static_cast<XMMREGISTER>(0x03));
 }
 
+void CX86Assembler::PacksswbVo(XMMREGISTER registerId, const CAddress& address)
+{
+	WriteEdVdOp_66_0F(0x63, address, registerId);
+}
+
 void CX86Assembler::PackssdwVo(XMMREGISTER registerId, const CAddress& address)
 {
 	WriteEdVdOp_66_0F(0x6B, address, registerId);

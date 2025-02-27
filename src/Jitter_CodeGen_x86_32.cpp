@@ -183,6 +183,12 @@ void CCodeGen_x86_32::Emit_Prolog(const StatementList& statements, unsigned int 
 				break;
 
 			//Literal Gathering
+			case OP_MD_MAKECLIP:
+				if(m_cpuFeatures.hasSsse3 || m_cpuFeatures.hasAvx)
+				{
+					m_literalOffsets.insert(std::make_pair(g_makeClipShufflePattern, -1));
+				}
+				break;
 			case OP_MD_MAKESZ:
 				if(m_cpuFeatures.hasSsse3 || m_cpuFeatures.hasAvx)
 				{

@@ -106,12 +106,12 @@ CAArch64Assembler::REGISTERMD CCodeGen_AArch64::PrepareSymbolRegisterUseMd(CSymb
 		break;
 	case SYM_TEMPORARY128:
 	case SYM_RELATIVE128:
-		{
-			auto tempRegister = GetNextTempRegisterMd();
-			LoadMemory128InRegister(tempRegister, symbol);
-			return tempRegister;
-		}
-		break;
+	{
+		auto tempRegister = GetNextTempRegisterMd();
+		LoadMemory128InRegister(tempRegister, symbol);
+		return tempRegister;
+	}
+	break;
 	default:
 		throw std::runtime_error("Invalid symbol type.");
 		break;
@@ -252,11 +252,70 @@ void CCodeGen_AArch64::Emit_Md_ClampS_VarVar(const STATEMENT& statement)
 	auto src1Reg = PrepareSymbolRegisterUseMd(src1);
 	auto cst1Reg = PrepareLiteralRegisterMd(&g_fpClampMask1);
 	auto cst2Reg = PrepareLiteralRegisterMd(&g_fpClampMask2);
-	
+
 	m_assembler.Smin_4s(dstReg, src1Reg, cst1Reg);
 	m_assembler.Umin_4s(dstReg, dstReg, cst2Reg);
 
 	CommitSymbolRegisterMd(dst, dstReg);
+}
+
+void CCodeGen_AArch64::Emit_Md_MakeClip_VarVarVar(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+	auto src3 = statement.src3->GetSymbol().get();
+
+	ResetTempRegisterMdState();
+
+	auto dstReg = PrepareSymbolRegisterDef(dst, GetNextTempRegister());
+	auto gtCmpReg = GetNextTempRegisterMd();
+	auto ltCmpReg = GetNextTempRegisterMd();
+	auto cstReg = GetNextTempRegisterMd();
+	auto workReg = GetNextTempRegisterMd();
+
+	const auto prepSymbolUse =
+	    [&](CSymbol* symbol, CAArch64Assembler::REGISTERMD preferedReg) {
+		    if(symbol->IsRegister())
+		    {
+			    return g_registersMd[symbol->m_valueLow];
+		    }
+		    else
+		    {
+			    LoadMemory128InRegister(preferedReg, symbol);
+			    return preferedReg;
+		    }
+	    };
+
+	{
+		auto valueReg = prepSymbolUse(src1, workReg);
+
+		//src1 > src2
+		{
+			auto boundReg = prepSymbolUse(src2, cstReg);
+			m_assembler.Fcmgt_4s(gtCmpReg, valueReg, boundReg);
+		}
+
+		//src1 < src3
+		{
+			auto boundReg = prepSymbolUse(src3, cstReg);
+			m_assembler.Fcmgt_4s(ltCmpReg, boundReg, valueReg);
+		}
+	}
+
+	assert(ltCmpReg == (gtCmpReg + 1));
+
+	LITERAL128 lit1(0xFF14FF04FF10FF00UL, 0xFFFFFFFFFF18FF08UL);
+	LITERAL128 lit2(0x0008000400020001UL, 0x0000000000200010UL);
+
+	m_assembler.Ldr_Pc(cstReg, lit1);
+	m_assembler.Tbl(workReg, gtCmpReg, cstReg);
+	m_assembler.Ldr_Pc(cstReg, lit2);
+	m_assembler.And_16b(workReg, workReg, cstReg);
+	m_assembler.Uaddlv_8h(workReg, workReg);
+	m_assembler.Umov_1s(dstReg, workReg, 0);
+
+	CommitSymbolRegister(dst, dstReg);
 }
 
 void CCodeGen_AArch64::Emit_Md_MakeSz_VarVar(const STATEMENT& statement)
@@ -265,7 +324,7 @@ void CCodeGen_AArch64::Emit_Md_MakeSz_VarVar(const STATEMENT& statement)
 	auto src1 = statement.src1->GetSymbol().get();
 
 	ResetTempRegisterMdState();
-	
+
 	auto dstReg = PrepareSymbolRegisterDef(dst, GetNextTempRegister());
 	auto src1Reg = PrepareSymbolRegisterUseMd(src1);
 
@@ -769,6 +828,7 @@ CCodeGen_AArch64::CONSTMATCHER CCodeGen_AArch64::g_mdConstMatchers[] =
 	{ OP_MD_SRL256,             MATCH_VARIABLE128,    MATCH_MEMORY256,      MATCH_VARIABLE,         MATCH_NIL, &CCodeGen_AArch64::Emit_Md_Srl256_VarMemVar                      },
 	{ OP_MD_SRL256,             MATCH_VARIABLE128,    MATCH_MEMORY256,      MATCH_CONSTANT,         MATCH_NIL, &CCodeGen_AArch64::Emit_Md_Srl256_VarMemCst                      },
 
+	{ OP_MD_MAKECLIP,           MATCH_VARIABLE,       MATCH_VARIABLE128,    MATCH_VARIABLE128,      MATCH_VARIABLE128, &CCodeGen_AArch64::Emit_Md_MakeClip_VarVarVar                    },
 	{ OP_MD_MAKESZ,             MATCH_VARIABLE,       MATCH_VARIABLE128,    MATCH_NIL,              MATCH_NIL, &CCodeGen_AArch64::Emit_Md_MakeSz_VarVar                         },
 	
 	{ OP_MD_TOSINGLE,           MATCH_VARIABLE128,    MATCH_VARIABLE128,    MATCH_NIL,              MATCH_NIL, &CCodeGen_AArch64::Emit_Md_VarVar<MDOP_TOSINGLE>                 },

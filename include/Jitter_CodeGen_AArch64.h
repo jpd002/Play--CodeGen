@@ -770,7 +770,7 @@ namespace Jitter
 		void Emit_Md_Shift_VarVarCst(const STATEMENT&);
 
 		void Emit_Md_ClampS_VarVar(const STATEMENT&);
-		void Emit_Md_MakeClip_VarVarVar(const STATEMENT&);
+		void Emit_Md_MakeClip_VarVarVarVar(const STATEMENT&);
 		void Emit_Md_MakeSz_VarVar(const STATEMENT&);
 
 		void Emit_Md_Mov_RegReg(const STATEMENT&);

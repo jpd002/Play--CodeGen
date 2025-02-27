@@ -259,7 +259,7 @@ void CCodeGen_AArch64::Emit_Md_ClampS_VarVar(const STATEMENT& statement)
 	CommitSymbolRegisterMd(dst, dstReg);
 }
 
-void CCodeGen_AArch64::Emit_Md_MakeClip_VarVarVar(const STATEMENT& statement)
+void CCodeGen_AArch64::Emit_Md_MakeClip_VarVarVarVar(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
@@ -828,7 +828,7 @@ CCodeGen_AArch64::CONSTMATCHER CCodeGen_AArch64::g_mdConstMatchers[] =
 	{ OP_MD_SRL256,             MATCH_VARIABLE128,    MATCH_MEMORY256,      MATCH_VARIABLE,         MATCH_NIL, &CCodeGen_AArch64::Emit_Md_Srl256_VarMemVar                      },
 	{ OP_MD_SRL256,             MATCH_VARIABLE128,    MATCH_MEMORY256,      MATCH_CONSTANT,         MATCH_NIL, &CCodeGen_AArch64::Emit_Md_Srl256_VarMemCst                      },
 
-	{ OP_MD_MAKECLIP,           MATCH_VARIABLE,       MATCH_VARIABLE128,    MATCH_VARIABLE128,      MATCH_VARIABLE128, &CCodeGen_AArch64::Emit_Md_MakeClip_VarVarVar            },
+	{ OP_MD_MAKECLIP,           MATCH_VARIABLE,       MATCH_VARIABLE128,    MATCH_VARIABLE128,      MATCH_VARIABLE128, &CCodeGen_AArch64::Emit_Md_MakeClip_VarVarVarVar         },
 	{ OP_MD_MAKESZ,             MATCH_VARIABLE,       MATCH_VARIABLE128,    MATCH_NIL,              MATCH_NIL,         &CCodeGen_AArch64::Emit_Md_MakeSz_VarVar                 },
 	
 	{ OP_MD_TOSINGLE,           MATCH_VARIABLE128,    MATCH_VARIABLE128,    MATCH_NIL,              MATCH_NIL, &CCodeGen_AArch64::Emit_Md_VarVar<MDOP_TOSINGLE>                 },

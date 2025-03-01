@@ -2,7 +2,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "type": "pwa-node",
+            "type": "node",
             "request": "launch",
             "name": "Launch Program",
             "skipFiles": [
@@ -10,7 +10,7 @@
             ],
             "program": "${workspaceFolder}/js/index.ts",
             "cwd": "${workspaceFolder}/build_cmake/build_wasm",
-            "preLaunchTask": "tsc: build - tsconfig.json",
+            "preLaunchTask": "Build",
             "internalConsoleOptions": "openOnSessionStart",
             "outputCapture": "std",
             "outFiles": [

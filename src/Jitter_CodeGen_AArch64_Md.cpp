@@ -305,8 +305,8 @@ void CCodeGen_AArch64::Emit_Md_MakeClip_VarVarVarVar(const STATEMENT& statement)
 
 	assert(ltCmpReg == (gtCmpReg + 1));
 
-	LITERAL128 lit1(0xFF14FF04FF10FF00UL, 0xFFFFFFFFFF18FF08UL);
-	LITERAL128 lit2(0x0008000400020001UL, 0x0000000000200010UL);
+	static const LITERAL128 lit1(0xFF14FF04FF10FF00UL, 0xFFFFFFFFFF18FF08UL);
+	static const LITERAL128 lit2(0x0008000400020001UL, 0x0000000000200010UL);
 
 	m_assembler.Ldr_Pc(cstReg, lit1);
 	m_assembler.Tbl(workReg, gtCmpReg, cstReg);

@@ -526,6 +526,59 @@ void CCodeGen_AArch32::Emit_Md_ClampS_MemMem(const STATEMENT& statement)
 	m_assembler.Vst1_32x4(dstReg, dstAddrReg);
 }
 
+void CCodeGen_AArch32::Emit_Md_MakeClip_VarMemMemMem(const STATEMENT& statement)
+{
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
+	auto src3 = statement.src3->GetSymbol().get();
+
+	auto valueAddrReg = CAArch32Assembler::r0;
+	auto cstAddrReg = CAArch32Assembler::r1;
+	auto src1Reg = CAArch32Assembler::q0;
+	auto boundReg = CAArch32Assembler::q1;
+	auto gtReg = CAArch32Assembler::q2;
+	auto ltReg = CAArch32Assembler::q3;
+
+	static const LITERAL128 lit1(0xFFFF180814041000UL, 0xFFFFFFFFFFFFFFFFUL);
+	static const LITERAL128 lit2(0x0000201008040201UL, 0x0000000000000000UL);
+
+	LoadMemory128AddressInRegister(valueAddrReg, src1);
+	m_assembler.Vld1_32x4(src1Reg, valueAddrReg);
+
+	//src1 > src2
+	{
+		LoadMemory128AddressInRegister(cstAddrReg, src2);
+		m_assembler.Vld1_32x4(boundReg, cstAddrReg);
+		m_assembler.Vcgt_F32(gtReg, src1Reg, boundReg);
+	}
+
+	//src1 < src3
+	{
+		LoadMemory128AddressInRegister(cstAddrReg, src3);
+		m_assembler.Vld1_32x4(boundReg, cstAddrReg);
+		m_assembler.Vcgt_F32(ltReg, boundReg, src1Reg);
+	}
+
+	auto dstReg = PrepareSymbolRegisterDef(dst, CAArch32Assembler::r0);
+
+	m_assembler.Adrl(cstAddrReg, lit1);
+	m_assembler.Vld1_32x4(boundReg, cstAddrReg);
+	m_assembler.Adrl(cstAddrReg, lit2);
+	m_assembler.Vtbl(
+	    static_cast<CAArch32Assembler::DOUBLE_REGISTER>(gtReg),
+	    static_cast<CAArch32Assembler::DOUBLE_REGISTER>(gtReg),
+	    static_cast<CAArch32Assembler::DOUBLE_REGISTER>(boundReg));
+	m_assembler.Vld1_32x4(boundReg, cstAddrReg);
+	m_assembler.Vand(gtReg, gtReg, boundReg);
+	m_assembler.Vpaddl_U8(ltReg, gtReg);
+	m_assembler.Vpaddl_U16(boundReg, ltReg);
+	m_assembler.Vpaddl_U32(gtReg, boundReg);
+	m_assembler.Vmov(dstReg, static_cast<CAArch32Assembler::DOUBLE_REGISTER>(gtReg), 0);
+
+	CommitSymbolRegister(dst, dstReg);
+}
+
 void CCodeGen_AArch32::Emit_Md_MakeSz_VarMem(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
@@ -784,7 +837,8 @@ CCodeGen_AArch32::CONSTMATCHER CCodeGen_AArch32::g_mdConstMatchers[] =
 	{ OP_MD_SRL256, MATCH_VARIABLE128, MATCH_MEMORY256, MATCH_VARIABLE, MATCH_NIL, &CCodeGen_AArch32::Emit_Md_Srl256_MemMemVar },
 	{ OP_MD_SRL256, MATCH_VARIABLE128, MATCH_MEMORY256, MATCH_CONSTANT, MATCH_NIL, &CCodeGen_AArch32::Emit_Md_Srl256_MemMemCst },
 
-	{ OP_MD_MAKESZ, MATCH_VARIABLE, MATCH_MEMORY128, MATCH_NIL, MATCH_NIL, &CCodeGen_AArch32::Emit_Md_MakeSz_VarMem },
+	{ OP_MD_MAKECLIP, MATCH_VARIABLE, MATCH_MEMORY128, MATCH_MEMORY128, MATCH_MEMORY128, &CCodeGen_AArch32::Emit_Md_MakeClip_VarMemMemMem },
+	{ OP_MD_MAKESZ,   MATCH_VARIABLE, MATCH_MEMORY128, MATCH_NIL,       MATCH_NIL,       &CCodeGen_AArch32::Emit_Md_MakeSz_VarMem         },
 
 	{ OP_MD_TOSINGLE,        MATCH_MEMORY128, MATCH_MEMORY128, MATCH_NIL, MATCH_NIL, &CCodeGen_AArch32::Emit_Md_MemMem<MDOP_TOSINGLE> },
 	{ OP_MD_TOWORD_TRUNCATE, MATCH_MEMORY128, MATCH_MEMORY128, MATCH_NIL, MATCH_NIL, &CCodeGen_AArch32::Emit_Md_MemMem<MDOP_TOWORD>   },

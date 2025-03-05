@@ -900,7 +900,7 @@ void CAArch32Assembler::Vadd_I32(QUAD_REGISTER qd, QUAD_REGISTER qn, QUAD_REGIST
 	WriteWord(opcode);
 }
 
-void CAArch32Assembler::Vpaddl_I8(QUAD_REGISTER qd, QUAD_REGISTER qm)
+void CAArch32Assembler::Vpaddl_U8(QUAD_REGISTER qd, QUAD_REGISTER qm)
 {
 	uint32 opcode = 0xF3B002C0;
 	opcode |= FPSIMD_EncodeQd(qd);
@@ -908,7 +908,7 @@ void CAArch32Assembler::Vpaddl_I8(QUAD_REGISTER qd, QUAD_REGISTER qm)
 	WriteWord(opcode);
 }
 
-void CAArch32Assembler::Vpaddl_I16(QUAD_REGISTER qd, QUAD_REGISTER qm)
+void CAArch32Assembler::Vpaddl_U16(QUAD_REGISTER qd, QUAD_REGISTER qm)
 {
 	uint32 opcode = 0xF3B402C0;
 	opcode |= FPSIMD_EncodeQd(qd);
@@ -916,7 +916,7 @@ void CAArch32Assembler::Vpaddl_I16(QUAD_REGISTER qd, QUAD_REGISTER qm)
 	WriteWord(opcode);
 }
 
-void CAArch32Assembler::Vpaddl_I32(QUAD_REGISTER qd, QUAD_REGISTER qm)
+void CAArch32Assembler::Vpaddl_U32(QUAD_REGISTER qd, QUAD_REGISTER qm)
 {
 	uint32 opcode = 0xF3B802C0;
 	opcode |= FPSIMD_EncodeQd(qd);

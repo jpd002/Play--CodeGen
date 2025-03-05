@@ -538,8 +538,8 @@ void CCodeGen_AArch32::Emit_Md_MakeSz_VarMem(const STATEMENT& statement)
 	auto zeroReg = CAArch32Assembler::q2;
 	auto cstReg = CAArch32Assembler::q3;
 
-	LITERAL128 lit1(0x0004080C1014181CUL, 0xFFFFFFFFFFFFFFFFUL);
-	LITERAL128 lit2(0x8040201008040201UL, 0x0000000000000000UL);
+	static const LITERAL128 lit1(0x0004080C1014181CUL, 0xFFFFFFFFFFFFFFFFUL);
+	static const LITERAL128 lit2(0x8040201008040201UL, 0x0000000000000000UL);
 
 	LoadMemory128AddressInRegister(src1AddrReg, src1);
 	m_assembler.Vld1_32x4(src1Reg, src1AddrReg);
@@ -558,9 +558,9 @@ void CCodeGen_AArch32::Emit_Md_MakeSz_VarMem(const STATEMENT& statement)
 	    static_cast<CAArch32Assembler::DOUBLE_REGISTER>(cstReg));
 	m_assembler.Vld1_32x4(cstReg, cstAddrReg);
 	m_assembler.Vand(signReg, signReg, cstReg);
-	m_assembler.Vpaddl_I8(zeroReg, signReg);
-	m_assembler.Vpaddl_I16(cstReg, zeroReg);
-	m_assembler.Vpaddl_I32(signReg, cstReg);
+	m_assembler.Vpaddl_U8(zeroReg, signReg);
+	m_assembler.Vpaddl_U16(cstReg, zeroReg);
+	m_assembler.Vpaddl_U32(signReg, cstReg);
 	m_assembler.Vmov(dstReg, static_cast<CAArch32Assembler::DOUBLE_REGISTER>(signReg), 0);
 
 	CommitSymbolRegister(dst, dstReg);

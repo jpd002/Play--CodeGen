@@ -38,6 +38,32 @@ void CCodeGen_x86::CommitSymbolRegisterMdAvx(CSymbol* symbol, CX86Assembler::XMM
 	}
 }
 
+bool CCodeGen_x86::TryExpandConstantInRegisterMdAvx(uint32 constant, CX86Assembler::XMMREGISTER dstRegister)
+{
+	switch(constant)
+	{
+	case 0x00000000:
+		m_assembler.VpxorVo(dstRegister, dstRegister, CX86Assembler::MakeXmmRegisterAddress(dstRegister));
+		return true;
+	case 0x3F800000:
+		m_assembler.VmovapsVo(dstRegister, MakeConstant128Address(g_fpCstOne));
+		return true;
+	case 0x7FFFFFFF:
+		m_assembler.VpcmpeqdVo(dstRegister, dstRegister, CX86Assembler::MakeXmmRegisterAddress(dstRegister));
+		m_assembler.VpsrldVo(dstRegister, dstRegister, 1);
+		return true;
+	case 0x80000000:
+		m_assembler.VpcmpeqdVo(dstRegister, dstRegister, CX86Assembler::MakeXmmRegisterAddress(dstRegister));
+		m_assembler.VpslldVo(dstRegister, dstRegister, 31);
+		return true;
+	case 0xFFFFFFFF:
+		m_assembler.VpcmpeqdVo(dstRegister, dstRegister, CX86Assembler::MakeXmmRegisterAddress(dstRegister));
+		return true;
+	default:
+		return false;
+	}
+}
+
 template <typename MDOP>
 void CCodeGen_x86::Emit_Md_Avx_VarVar(const STATEMENT& statement)
 {
@@ -572,15 +598,7 @@ void CCodeGen_x86::Emit_Md_Avx_Expand_VarCst(const STATEMENT& statement)
 
 	auto dstRegister = PrepareSymbolRegisterDefMd(dst, CX86Assembler::xMM0);
 
-	if(src1->m_valueLow == 0)
-	{
-		m_assembler.VpxorVo(dstRegister, dstRegister, CX86Assembler::MakeXmmRegisterAddress(dstRegister));
-	}
-	else if(src1->m_valueLow == 0x3F800000)
-	{
-		m_assembler.VmovapsVo(dstRegister, MakeConstant128Address(g_fpCstOne));
-	}
-	else
+	if(!TryExpandConstantInRegisterMdAvx(src1->m_valueLow, dstRegister))
 	{
 		auto cstRegister = CX86Assembler::rAX;
 		m_assembler.MovId(cstRegister, src1->m_valueLow);
@@ -638,15 +656,7 @@ void CCodeGen_x86::Emit_Md_Avx2_Expand_VarCst(const STATEMENT& statement)
 
 	auto dstRegister = PrepareSymbolRegisterDefMd(dst, CX86Assembler::xMM0);
 
-	if(src1->m_valueLow == 0)
-	{
-		m_assembler.VpxorVo(dstRegister, dstRegister, CX86Assembler::MakeXmmRegisterAddress(dstRegister));
-	}
-	else if(src1->m_valueLow == 0x3F800000)
-	{
-		m_assembler.VmovapsVo(dstRegister, MakeConstant128Address(g_fpCstOne));
-	}
-	else
+	if(!TryExpandConstantInRegisterMdAvx(src1->m_valueLow, dstRegister))
 	{
 		auto cstRegister = CX86Assembler::rAX;
 		m_assembler.MovId(cstRegister, src1->m_valueLow);

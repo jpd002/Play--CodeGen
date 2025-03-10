@@ -38,6 +38,32 @@ void CCodeGen_x86::CommitSymbolRegisterMdSse(CSymbol* symbol, CX86Assembler::XMM
 	}
 }
 
+bool CCodeGen_x86::TryExpandConstantInRegisterMdSse(uint32 constant, CX86Assembler::XMMREGISTER dstRegister)
+{
+	switch(constant)
+	{
+	case 0x00000000:
+		m_assembler.PxorVo(dstRegister, CX86Assembler::MakeXmmRegisterAddress(dstRegister));
+		return true;
+	case 0x3F800000:
+		m_assembler.MovapsVo(dstRegister, MakeConstant128Address(g_fpCstOne));
+		return true;
+	case 0x7FFFFFFF:
+		m_assembler.PcmpeqdVo(dstRegister, CX86Assembler::MakeXmmRegisterAddress(dstRegister));
+		m_assembler.PsrldVo(dstRegister, 1);
+		return true;
+	case 0x80000000:
+		m_assembler.PcmpeqdVo(dstRegister, CX86Assembler::MakeXmmRegisterAddress(dstRegister));
+		m_assembler.PslldVo(dstRegister, 31);
+		return true;
+	case 0xFFFFFFFF:
+		m_assembler.PcmpeqdVo(dstRegister, CX86Assembler::MakeXmmRegisterAddress(dstRegister));
+		return true;
+	default:
+		return false;
+	}
+}
+
 void CCodeGen_x86::MdSseBlendVariables(
     const CX86Assembler::CAddress& dstAddr,
     const CX86Assembler::CAddress& src1Addr,
@@ -963,15 +989,7 @@ void CCodeGen_x86::Emit_Md_Expand_VarCst(const STATEMENT& statement)
 	auto cstRegister = CX86Assembler::rAX;
 	auto resultRegister = PrepareSymbolRegisterDefMd(dst, CX86Assembler::xMM0);
 
-	if(src1->m_valueLow == 0)
-	{
-		m_assembler.PxorVo(resultRegister, CX86Assembler::MakeXmmRegisterAddress(resultRegister));
-	}
-	else if(src1->m_valueLow == 0x3F800000)
-	{
-		m_assembler.MovapsVo(resultRegister, MakeConstant128Address(g_fpCstOne));
-	}
-	else
+	if(!TryExpandConstantInRegisterMdSse(src1->m_valueLow, resultRegister))
 	{
 		m_assembler.MovId(cstRegister, src1->m_valueLow);
 		m_assembler.MovdVo(resultRegister, CX86Assembler::MakeRegisterAddress(cstRegister));

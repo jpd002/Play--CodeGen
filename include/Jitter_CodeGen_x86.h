@@ -898,6 +898,9 @@ namespace Jitter
 		void CommitSymbolRegisterMdSse(CSymbol*, CX86Assembler::XMMREGISTER);
 		void CommitSymbolRegisterMdAvx(CSymbol*, CX86Assembler::XMMREGISTER);
 
+		bool TryExpandConstantInRegisterMdSse(uint32, CX86Assembler::XMMREGISTER);
+		bool TryExpandConstantInRegisterMdAvx(uint32, CX86Assembler::XMMREGISTER);
+
 		virtual CX86Assembler::REGISTER PrepareRefSymbolRegisterUse(CSymbol*, CX86Assembler::REGISTER) = 0;
 
 		static const LITERAL128 g_makeClipShufflePattern;

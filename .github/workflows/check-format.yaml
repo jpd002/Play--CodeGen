@@ -1,0 +1,54 @@
+name: Check Format
+
+permissions:
+  contents: write
+
+on: [push, pull_request]
+jobs:
+  run_clangformat:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: DoozyX/clang-format-lint-action@v0.18.2
+      with:
+        source: './src ./tests ./include'
+        extensions: 'h,cpp,c,m,mm'
+        clangFormatVersion: 16
+        inplace: True
+    - name: Check for changes
+      run: |
+        set +e
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        git commit -am"Syntax Cleanup";
+        if [ $? -eq 0 ] && [ "${GITHUB_RUN_ATTEMPT}" -eq 1 ]; then
+            echo "## Lint Check" >> $GITHUB_STEP_SUMMARY
+            echo "- **Status**: Fail ❌" >> $GITHUB_STEP_SUMMARY
+            echo "- **Branch**: ${BRANCH_NAME}" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### Auto-Fix Available 🛠️" >> $GITHUB_STEP_SUMMARY
+            echo "A fix for this issue has been prepared. You can manually rerun this job to push the fix when needed." >> $GITHUB_STEP_SUMMARY
+            echo "But only apply when the branch is ready to merge." >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "#### Diff Preview" >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`diff" >> $GITHUB_STEP_SUMMARY
+            git format-patch -1 HEAD --stdout >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            exit -1;
+        fi
+        exit 0;
+      env:
+        GITHUB_RUN_ATTEMPT: ${{ github.run_attempt }}
+        BRANCH_NAME: ${{ github.head_ref || github.ref_name }} 
+    - name: Commit Changes (if applicable)
+      if: github.run_attempt == 2
+      run: |
+        git push origin ${BRANCH_NAME}
+        echo "## Lint Check" >> $GITHUB_STEP_SUMMARY
+        echo "- **Status**: Success ✅" >> $GITHUB_STEP_SUMMARY
+        echo "- **Branch**: ${BRANCH_NAME}" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### Auto-Fix Applied 🛠️" >> $GITHUB_STEP_SUMMARY
+        echo "A fix for this issue has been pushed." >> $GITHUB_STEP_SUMMARY
+      env:
+        BRANCH_NAME: ${{ github.head_ref || github.ref_name }} 

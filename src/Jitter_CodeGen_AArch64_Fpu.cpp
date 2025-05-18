@@ -64,12 +64,12 @@ CAArch64Assembler::REGISTERMD CCodeGen_AArch64::PrepareSymbolRegisterUseFp(CSymb
 		break;
 	case SYM_FP_TEMPORARY32:
 	case SYM_FP_RELATIVE32:
-		{
-			auto tempRegister = GetNextTempRegisterMd();
-			LoadMemoryFp32InRegister(tempRegister, symbol);
-			return tempRegister;
-		}
-		break;
+	{
+		auto tempRegister = GetNextTempRegisterMd();
+		LoadMemoryFp32InRegister(tempRegister, symbol);
+		return tempRegister;
+	}
+	break;
 	default:
 		throw std::exception();
 		break;
@@ -290,7 +290,7 @@ void CCodeGen_AArch64::Emit_Fp_SetRoundingMode_Cst(const STATEMENT& statement)
 		assert(false);
 		break;
 	}
-	
+
 	m_assembler.Mrs_Fpcr(static_cast<CAArch64Assembler::REGISTER64>(tmpReg));
 
 	{

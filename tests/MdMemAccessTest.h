@@ -13,7 +13,7 @@ public:
 private:
 	static constexpr size_t ITEM_COUNT = 0x20;
 	static constexpr size_t MASK_COUNT = 0x10;
-	
+
 	struct CONTEXT
 	{
 		ALIGN16

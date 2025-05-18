@@ -21,7 +21,7 @@ void CMdMemAccessTest::Run()
 	}
 
 	memset(m_context.loadMaskedResult, 0xFF, sizeof(m_context.loadMaskedResult));
-	
+
 	for(int i = 0; i < sizeof(m_memory); i++)
 	{
 		if(i < 0x100)
@@ -65,7 +65,7 @@ void CMdMemAccessTest::Run()
 	TEST_VERIFY(m_memory[STOREAT_INDEX_1].nV[1] == 0x10000);
 	TEST_VERIFY(m_memory[STOREAT_INDEX_1].nV[2] == 0x20000);
 	TEST_VERIFY(m_memory[STOREAT_INDEX_1].nV[3] == 0x30000);
-	
+
 	for(int i = 0; i < MASK_COUNT; i++)
 	{
 		if((i == 0) || (i == 0xF)) continue;

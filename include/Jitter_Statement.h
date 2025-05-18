@@ -15,7 +15,7 @@ namespace Jitter
 		OP_SUB,
 		OP_CMP,
 		OP_SELECT,
-		
+
 		OP_CMPSELECT_P1,
 		OP_CMPSELECT_P2,
 

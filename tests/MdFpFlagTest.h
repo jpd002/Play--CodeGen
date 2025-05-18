@@ -16,7 +16,7 @@ private:
 		uint32 dstSzStatus1;
 		uint32 dstSzStatus2;
 		uint32 dstSzStatus3;
-		
+
 		uint32 dstClipStatus0;
 		uint32 dstClipStatus1;
 

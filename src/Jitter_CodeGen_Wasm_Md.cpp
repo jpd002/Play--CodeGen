@@ -542,7 +542,7 @@ void CCodeGen_Wasm::Emit_Md_MakeClip_MemMemMemMem(const STATEMENT& statement)
 	m_functionStream.Write8(0x3F);
 
 	m_functionStream.Write8(Wasm::INST_I32_AND);
-	
+
 	CommitSymbol(dst);
 }
 

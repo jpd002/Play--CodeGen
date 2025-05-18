@@ -128,9 +128,9 @@ void CMdFpTest::Run()
 	TEST_VERIFY(context.dstAbs[2] == 440.f);
 	TEST_VERIFY(context.dstAbs[3] == 4994.f);
 
-	TEST_VERIFY(context.dstNeg[0] ==  5995.f);
-	TEST_VERIFY(context.dstNeg[1] ==   550.f);
-	TEST_VERIFY(context.dstNeg[2] ==  -440.f);
+	TEST_VERIFY(context.dstNeg[0] == 5995.f);
+	TEST_VERIFY(context.dstNeg[1] == 550.f);
+	TEST_VERIFY(context.dstNeg[2] == -440.f);
 	TEST_VERIFY(context.dstNeg[3] == -4994.f);
 
 	TEST_VERIFY(context.dstMin[0] == 5.f);

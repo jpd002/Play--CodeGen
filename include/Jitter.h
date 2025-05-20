@@ -7,6 +7,7 @@
 #include <unordered_map>
 #include <vector>
 #include <stack>
+#include <cstdint>
 #include "ArrayStack.h"
 #include "Stream.h"
 #include "Jitter_SymbolTable.h"

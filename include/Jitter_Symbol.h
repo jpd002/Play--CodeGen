@@ -5,6 +5,7 @@
 #include <string>
 #include <cassert>
 #include <cstdlib>
+#include <cstdint>
 
 namespace Jitter
 {

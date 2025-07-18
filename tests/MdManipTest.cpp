@@ -15,33 +15,34 @@ void CMdManipTest::Compile(Jitter::CJitter& jitter)
 		jitter.MD_PushRel(offsetof(CONTEXT, src0));
 		jitter.MD_PullRel(offsetof(CONTEXT, dstMasked1), true, true, true, false);
 
-		//Push Rel Expand
-		jitter.MD_PushRelExpand(offsetof(CONTEXT, src1[1]));
-		jitter.MD_PullRel(offsetof(CONTEXT, dstExpandRel));
+		//Expand W
+		jitter.PushRel(offsetof(CONTEXT, src1[1]));
+		jitter.MD_ExpandW();
+		jitter.MD_PullRel(offsetof(CONTEXT, dstExpandWRel));
 
 		//Push Rel Element Expand
-		jitter.MD_PushRelElementExpand(offsetof(CONTEXT, src0), 0);
+		jitter.MD_PushRelElementExpandW(offsetof(CONTEXT, src0), 0);
 		jitter.MD_PullRel(offsetof(CONTEXT, dstExpandRelElem0));
 
-		jitter.MD_PushRelElementExpand(offsetof(CONTEXT, src0), 1);
+		jitter.MD_PushRelElementExpandW(offsetof(CONTEXT, src0), 1);
 		jitter.MD_PullRel(offsetof(CONTEXT, dstExpandRelElem1));
 
-		jitter.MD_PushRelElementExpand(offsetof(CONTEXT, src0), 2);
+		jitter.MD_PushRelElementExpandW(offsetof(CONTEXT, src0), 2);
 		jitter.MD_PullRel(offsetof(CONTEXT, dstExpandRelElem2));
 
-		jitter.MD_PushRelElementExpand(offsetof(CONTEXT, src0), 3);
+		jitter.MD_PushRelElementExpandW(offsetof(CONTEXT, src0), 3);
 		jitter.MD_PullRel(offsetof(CONTEXT, dstExpandRelElem3));
 
 		//Push Cst Expand
-		jitter.MD_PushCstExpand(31415.f);
+		jitter.MD_PushCstExpandS(31415.f);
 		jitter.MD_PullRel(offsetof(CONTEXT, dstExpandCst));
 
 		//Push Cst Expand Zero
-		jitter.MD_PushCstExpand(0U);
+		jitter.MD_PushCstExpandW(0U);
 		jitter.MD_PullRel(offsetof(CONTEXT, dstExpandCstZero));
 
 		//Push Cst Expand One
-		jitter.MD_PushCstExpand(1.0f);
+		jitter.MD_PushCstExpandS(1.0f);
 		jitter.MD_PullRel(offsetof(CONTEXT, dstExpandCstOne));
 	}
 	jitter.End();
@@ -91,10 +92,10 @@ void CMdManipTest::Run()
 	TEST_VERIFY(context.dstMasked1[2] == 500.0f);
 	TEST_VERIFY(context.dstMasked1[3] == 4.0f);
 
-	TEST_VERIFY(context.dstExpandRel[0] == 600.0f);
-	TEST_VERIFY(context.dstExpandRel[1] == 600.0f);
-	TEST_VERIFY(context.dstExpandRel[2] == 600.0f);
-	TEST_VERIFY(context.dstExpandRel[3] == 600.0f);
+	TEST_VERIFY(context.dstExpandWRel[0] == 600.0f);
+	TEST_VERIFY(context.dstExpandWRel[1] == 600.0f);
+	TEST_VERIFY(context.dstExpandWRel[2] == 600.0f);
+	TEST_VERIFY(context.dstExpandWRel[3] == 600.0f);
 
 	for(int i = 0; i < 4; i++)
 	{

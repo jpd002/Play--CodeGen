@@ -200,7 +200,7 @@ void CCodeGen_x86_32::Emit_Prolog(const StatementList& statements, unsigned int 
 				m_literalOffsets.insert(std::make_pair(g_fpClampMask1, -1));
 				m_literalOffsets.insert(std::make_pair(g_fpClampMask2, -1));
 				break;
-			case OP_MD_EXPAND:
+			case OP_MD_EXPAND_W:
 			{
 				auto src1 = statement.src1->GetSymbol().get();
 				if((src1->m_type == SYM_CONSTANT) && (src1->m_valueLow == 0x3F800000))

@@ -424,7 +424,7 @@ void CCodeGen_AArch32::Emit_Md_MovMasked_MemMemMem(const STATEMENT& statement)
 	m_assembler.Vst1_32x4(dstReg, dstAddrReg);
 }
 
-void CCodeGen_AArch32::Emit_Md_Expand_MemReg(const STATEMENT& statement)
+void CCodeGen_AArch32::Emit_Md_ExpandW_MemReg(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
@@ -438,7 +438,7 @@ void CCodeGen_AArch32::Emit_Md_Expand_MemReg(const STATEMENT& statement)
 	m_assembler.Vst1_32x4(tmpReg, dstAddrReg);
 }
 
-void CCodeGen_AArch32::Emit_Md_Expand_MemMem(const STATEMENT& statement)
+void CCodeGen_AArch32::Emit_Md_ExpandW_MemMem(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
@@ -454,7 +454,7 @@ void CCodeGen_AArch32::Emit_Md_Expand_MemMem(const STATEMENT& statement)
 	m_assembler.Vst1_32x4(tmpReg, dstAddrReg);
 }
 
-void CCodeGen_AArch32::Emit_Md_Expand_MemCst(const STATEMENT& statement)
+void CCodeGen_AArch32::Emit_Md_ExpandW_MemCst(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
@@ -478,7 +478,7 @@ void CCodeGen_AArch32::Emit_Md_Expand_MemCst(const STATEMENT& statement)
 	m_assembler.Vst1_32x4(tmpReg, dstAddrReg);
 }
 
-void CCodeGen_AArch32::Emit_Md_Expand_VarVarCst(const STATEMENT& statement)
+void CCodeGen_AArch32::Emit_Md_ExpandW_VarVarCst(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
@@ -855,10 +855,10 @@ CCodeGen_AArch32::CONSTMATCHER CCodeGen_AArch32::g_mdConstMatchers[] =
 
 	{ OP_MD_MOV_MASKED, MATCH_MEMORY128, MATCH_MEMORY128, MATCH_MEMORY128, MATCH_NIL, &CCodeGen_AArch32::Emit_Md_MovMasked_MemMemMem },
 
-	{ OP_MD_EXPAND, MATCH_MEMORY128,   MATCH_REGISTER,    MATCH_NIL,      MATCH_NIL, &CCodeGen_AArch32::Emit_Md_Expand_MemReg    },
-	{ OP_MD_EXPAND, MATCH_MEMORY128,   MATCH_MEMORY,      MATCH_NIL,      MATCH_NIL, &CCodeGen_AArch32::Emit_Md_Expand_MemMem    },
-	{ OP_MD_EXPAND, MATCH_MEMORY128,   MATCH_CONSTANT,    MATCH_NIL,      MATCH_NIL, &CCodeGen_AArch32::Emit_Md_Expand_MemCst    },
-	{ OP_MD_EXPAND, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_CONSTANT, MATCH_NIL, &CCodeGen_AArch32::Emit_Md_Expand_VarVarCst },
+	{ OP_MD_EXPAND_W, MATCH_MEMORY128,   MATCH_REGISTER,    MATCH_NIL,      MATCH_NIL, &CCodeGen_AArch32::Emit_Md_ExpandW_MemReg    },
+	{ OP_MD_EXPAND_W, MATCH_MEMORY128,   MATCH_MEMORY,      MATCH_NIL,      MATCH_NIL, &CCodeGen_AArch32::Emit_Md_ExpandW_MemMem    },
+	{ OP_MD_EXPAND_W, MATCH_MEMORY128,   MATCH_CONSTANT,    MATCH_NIL,      MATCH_NIL, &CCodeGen_AArch32::Emit_Md_ExpandW_MemCst    },
+	{ OP_MD_EXPAND_W, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_CONSTANT, MATCH_NIL, &CCodeGen_AArch32::Emit_Md_ExpandW_VarVarCst },
 
 	{ OP_MD_PACK_HB, MATCH_MEMORY128, MATCH_MEMORY128, MATCH_MEMORY128, MATCH_NIL, &CCodeGen_AArch32::Emit_Md_PackHB_MemMemMem },
 	{ OP_MD_PACK_WH, MATCH_MEMORY128, MATCH_MEMORY128, MATCH_MEMORY128, MATCH_NIL, &CCodeGen_AArch32::Emit_Md_PackWH_MemMemMem },

@@ -32,8 +32,8 @@ void CMdFpFlagTest::Compile(Jitter::CJitter& jitter)
 		jitter.PullRel(offsetof(CONTEXT, dstClipStatus0));
 
 		jitter.MD_PushRel(offsetof(CONTEXT, src0));
-		jitter.MD_PushCstExpand(1.0f);
-		jitter.MD_PushCstExpand(-1.0f);
+		jitter.MD_PushCstExpandS(1.0f);
+		jitter.MD_PushCstExpandS(-1.0f);
 		jitter.MD_MakeClip();
 		jitter.PullRel(offsetof(CONTEXT, dstClipStatus1));
 	}

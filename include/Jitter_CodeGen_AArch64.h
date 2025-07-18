@@ -787,10 +787,10 @@ namespace Jitter
 		void Emit_Md_StoreAtRefMasked_VarAnyVar(const STATEMENT&);
 
 		void Emit_Md_MovMasked_VarVarVar(const STATEMENT&);
-		void Emit_Md_Expand_VarReg(const STATEMENT&);
-		void Emit_Md_Expand_VarMem(const STATEMENT&);
-		void Emit_Md_Expand_VarCst(const STATEMENT&);
-		void Emit_Md_Expand_VarVarCst(const STATEMENT&);
+		void Emit_Md_ExpandW_VarReg(const STATEMENT&);
+		void Emit_Md_ExpandW_VarMem(const STATEMENT&);
+		void Emit_Md_ExpandW_VarCst(const STATEMENT&);
+		void Emit_Md_ExpandW_VarVarCst(const STATEMENT&);
 
 		void Emit_Md_PackHB_VarVarVar(const STATEMENT&);
 		void Emit_Md_PackWH_VarVarVar(const STATEMENT&);

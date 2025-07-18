@@ -21,7 +21,7 @@ private:
 		float dstMasked0[4];
 		float dstMasked1[4];
 
-		float dstExpandRel[4];
+		float dstExpandWRel[4];
 		float dstExpandRelElem0[4];
 		float dstExpandRelElem1[4];
 		float dstExpandRelElem2[4];

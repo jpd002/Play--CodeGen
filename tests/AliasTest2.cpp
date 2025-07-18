@@ -49,13 +49,15 @@ void CAliasTest2::Compile(Jitter::CJitter& jitter)
 		jitter.PullRel(offsetof(CONTEXT, value1[3]));
 
 		jitter.MD_PushRel(offsetof(CONTEXT, value2));
-		jitter.MD_PushRelExpand(offsetof(CONTEXT, value1[2]));
+		jitter.PushRel(offsetof(CONTEXT, value1[2]));
+		jitter.MD_ExpandW();
 		jitter.MD_AddS();
 		jitter.MD_PullRel(offsetof(CONTEXT, value1), true, true, true, false);
 		//Here value1 should be (3, 3, 3, 4)
 
 		jitter.MD_PushRel(offsetof(CONTEXT, value2));
-		jitter.MD_PushRelExpand(offsetof(CONTEXT, value1[2]));
+		jitter.PushRel(offsetof(CONTEXT, value1[2]));
+		jitter.MD_ExpandW();
 		jitter.MD_AddS();
 		jitter.MD_PullRel(offsetof(CONTEXT, value3));
 		//Here value3 should be (4, 4, 4, 4)

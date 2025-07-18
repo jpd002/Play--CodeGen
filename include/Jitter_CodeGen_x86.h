@@ -776,10 +776,10 @@ namespace Jitter
 		void Emit_Md_StoreAtRefMasked_Sse41_VarAnyVar(const STATEMENT&);
 		void Emit_Md_MovMasked_VarVarVar(const STATEMENT&);
 		void Emit_Md_MovMasked_Sse41_VarVarVar(const STATEMENT&);
-		void Emit_Md_Expand_VarReg(const STATEMENT&);
-		void Emit_Md_Expand_VarMem(const STATEMENT&);
-		void Emit_Md_Expand_VarCst(const STATEMENT&);
-		void Emit_Md_Expand_VarVarCst(const STATEMENT&);
+		void Emit_Md_ExpandW_VarReg(const STATEMENT&);
+		void Emit_Md_ExpandW_VarMem(const STATEMENT&);
+		void Emit_Md_ExpandW_VarCst(const STATEMENT&);
+		void Emit_Md_ExpandW_VarVarCst(const STATEMENT&);
 
 		void Emit_MergeTo256_MemVarVar(const STATEMENT&);
 
@@ -856,15 +856,15 @@ namespace Jitter
 		void Emit_Md_Avx_MakeClip_VarVarVarVar(const STATEMENT&);
 		void Emit_Md_Avx_MakeSz_VarVar(const STATEMENT&);
 
-		void Emit_Md_Avx_Expand_VarVar(const STATEMENT&);
-		void Emit_Md_Avx_Expand_VarCst(const STATEMENT&);
-		void Emit_Md_Avx_Expand_VarVarCst(const STATEMENT&);
+		void Emit_Md_Avx_ExpandW_VarVar(const STATEMENT&);
+		void Emit_Md_Avx_ExpandW_VarCst(const STATEMENT&);
+		void Emit_Md_Avx_ExpandW_VarVarCst(const STATEMENT&);
 
-		void Emit_Md_Avx2_Expand_VarReg(const STATEMENT&);
-		void Emit_Md_Avx2_Expand_VarMem(const STATEMENT&);
-		void Emit_Md_Avx2_Expand_VarCst(const STATEMENT&);
-		void Emit_Md_Avx2_Expand_VarRegCst(const STATEMENT&);
-		void Emit_Md_Avx2_Expand_VarMemCst(const STATEMENT&);
+		void Emit_Md_Avx2_ExpandW_VarReg(const STATEMENT&);
+		void Emit_Md_Avx2_ExpandW_VarMem(const STATEMENT&);
+		void Emit_Md_Avx2_ExpandW_VarCst(const STATEMENT&);
+		void Emit_Md_Avx2_ExpandW_VarRegCst(const STATEMENT&);
+		void Emit_Md_Avx2_ExpandW_VarMemCst(const STATEMENT&);
 
 		void Emit_Avx_MergeTo256_MemVarVar(const STATEMENT&);
 

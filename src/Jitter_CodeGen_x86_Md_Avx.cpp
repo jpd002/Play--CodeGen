@@ -578,7 +578,7 @@ void CCodeGen_x86::Emit_Md_Avx_MakeSz_VarVar(const STATEMENT& statement)
 	CommitSymbolRegister(dst, dstRegister);
 }
 
-void CCodeGen_x86::Emit_Md_Avx_Expand_VarVar(const STATEMENT& statement)
+void CCodeGen_x86::Emit_Md_Avx_ExpandW_VarVar(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
@@ -591,7 +591,7 @@ void CCodeGen_x86::Emit_Md_Avx_Expand_VarVar(const STATEMENT& statement)
 	CommitSymbolRegisterMdAvx(dst, dstRegister);
 }
 
-void CCodeGen_x86::Emit_Md_Avx_Expand_VarCst(const STATEMENT& statement)
+void CCodeGen_x86::Emit_Md_Avx_ExpandW_VarCst(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
@@ -609,7 +609,7 @@ void CCodeGen_x86::Emit_Md_Avx_Expand_VarCst(const STATEMENT& statement)
 	CommitSymbolRegisterMdAvx(dst, dstRegister);
 }
 
-void CCodeGen_x86::Emit_Md_Avx_Expand_VarVarCst(const STATEMENT& statement)
+void CCodeGen_x86::Emit_Md_Avx_ExpandW_VarVarCst(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
@@ -624,7 +624,7 @@ void CCodeGen_x86::Emit_Md_Avx_Expand_VarVarCst(const STATEMENT& statement)
 	CommitSymbolRegisterMdAvx(dst, dstRegister);
 }
 
-void CCodeGen_x86::Emit_Md_Avx2_Expand_VarReg(const STATEMENT& statement)
+void CCodeGen_x86::Emit_Md_Avx2_ExpandW_VarReg(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
@@ -637,7 +637,7 @@ void CCodeGen_x86::Emit_Md_Avx2_Expand_VarReg(const STATEMENT& statement)
 	CommitSymbolRegisterMdAvx(dst, dstRegister);
 }
 
-void CCodeGen_x86::Emit_Md_Avx2_Expand_VarMem(const STATEMENT& statement)
+void CCodeGen_x86::Emit_Md_Avx2_ExpandW_VarMem(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
@@ -649,7 +649,7 @@ void CCodeGen_x86::Emit_Md_Avx2_Expand_VarMem(const STATEMENT& statement)
 	CommitSymbolRegisterMdAvx(dst, dstRegister);
 }
 
-void CCodeGen_x86::Emit_Md_Avx2_Expand_VarCst(const STATEMENT& statement)
+void CCodeGen_x86::Emit_Md_Avx2_ExpandW_VarCst(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
@@ -667,7 +667,7 @@ void CCodeGen_x86::Emit_Md_Avx2_Expand_VarCst(const STATEMENT& statement)
 	CommitSymbolRegisterMdAvx(dst, dstRegister);
 }
 
-void CCodeGen_x86::Emit_Md_Avx2_Expand_VarRegCst(const STATEMENT& statement)
+void CCodeGen_x86::Emit_Md_Avx2_ExpandW_VarRegCst(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
@@ -689,7 +689,7 @@ void CCodeGen_x86::Emit_Md_Avx2_Expand_VarRegCst(const STATEMENT& statement)
 	CommitSymbolRegisterMdAvx(dst, dstRegister);
 }
 
-void CCodeGen_x86::Emit_Md_Avx2_Expand_VarMemCst(const STATEMENT& statement)
+void CCodeGen_x86::Emit_Md_Avx2_ExpandW_VarMemCst(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
@@ -950,22 +950,22 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdAvxConstMatchers[] =
 
 CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdNoAvx2ConstMatchers[] =
 {
-	{ OP_MD_EXPAND, MATCH_VARIABLE128, MATCH_VARIABLE, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx_Expand_VarVar },
-	{ OP_MD_EXPAND, MATCH_VARIABLE128, MATCH_CONSTANT, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx_Expand_VarCst },
+	{ OP_MD_EXPAND_W, MATCH_VARIABLE128, MATCH_VARIABLE, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx_ExpandW_VarVar },
+	{ OP_MD_EXPAND_W, MATCH_VARIABLE128, MATCH_CONSTANT, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx_ExpandW_VarCst },
 
-	{ OP_MD_EXPAND, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_CONSTANT, MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx_Expand_VarVarCst },
+	{ OP_MD_EXPAND_W, MATCH_VARIABLE128, MATCH_VARIABLE128, MATCH_CONSTANT, MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx_ExpandW_VarVarCst },
 
 	{ OP_MOV, MATCH_NIL,         MATCH_NIL,         MATCH_NIL, MATCH_NIL, nullptr },
 };
 
 CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_mdAvx2ConstMatchers[] =
 {
-	{ OP_MD_EXPAND, MATCH_VARIABLE128, MATCH_REGISTER, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx2_Expand_VarReg },
-	{ OP_MD_EXPAND, MATCH_VARIABLE128, MATCH_MEMORY,   MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx2_Expand_VarMem },
-	{ OP_MD_EXPAND, MATCH_VARIABLE128, MATCH_CONSTANT, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx2_Expand_VarCst },
+	{ OP_MD_EXPAND_W, MATCH_VARIABLE128, MATCH_REGISTER, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx2_ExpandW_VarReg },
+	{ OP_MD_EXPAND_W, MATCH_VARIABLE128, MATCH_MEMORY,   MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx2_ExpandW_VarMem },
+	{ OP_MD_EXPAND_W, MATCH_VARIABLE128, MATCH_CONSTANT, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx2_ExpandW_VarCst },
 
-	{ OP_MD_EXPAND, MATCH_VARIABLE128, MATCH_REGISTER128, MATCH_CONSTANT, MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx2_Expand_VarRegCst },
-	{ OP_MD_EXPAND, MATCH_VARIABLE128, MATCH_MEMORY128,   MATCH_CONSTANT, MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx2_Expand_VarMemCst },
+	{ OP_MD_EXPAND_W, MATCH_VARIABLE128, MATCH_REGISTER128, MATCH_CONSTANT, MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx2_ExpandW_VarRegCst },
+	{ OP_MD_EXPAND_W, MATCH_VARIABLE128, MATCH_MEMORY128,   MATCH_CONSTANT, MATCH_NIL, &CCodeGen_x86::Emit_Md_Avx2_ExpandW_VarMemCst },
 
 	{ OP_MOV, MATCH_NIL, MATCH_NIL, MATCH_NIL, MATCH_NIL, nullptr },
 };

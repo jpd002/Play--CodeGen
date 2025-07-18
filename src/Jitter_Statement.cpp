@@ -373,8 +373,8 @@ void Jitter::DumpStatementList(std::ostream& outputStream, const StatementList& 
 		case OP_MD_MAKESZ:
 			outputStream << " MAKESZ";
 			break;
-		case OP_MD_EXPAND:
-			outputStream << " EXPAND";
+		case OP_MD_EXPAND_W:
+			outputStream << " EXPAND(W)";
 			break;
 		case OP_MD_TOSINGLE:
 			outputStream << " TOSINGLE";

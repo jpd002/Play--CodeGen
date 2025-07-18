@@ -1391,7 +1391,7 @@ bool CJitter::ClampingElimination(StatementList& statements)
 
 		auto dstSymbol = dynamic_symbolref_cast(SYM_TEMPORARY128, statement.dst);
 
-		if((statement.op == OP_MD_EXPAND) &&
+		if((statement.op == OP_MD_EXPAND_W) &&
 		   dstSymbol &&
 		   statement.src1->GetSymbol()->IsConstant())
 		{

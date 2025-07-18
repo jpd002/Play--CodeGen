@@ -1004,27 +1004,14 @@ void CJitter::MD_PushRel(size_t offset)
 	m_shadow.Push(MakeSymbol(SYM_RELATIVE128, static_cast<uint32>(offset)));
 }
 
-void CJitter::MD_PushRelExpand(size_t offset)
-{
-	auto tempSym = MakeSymbol(SYM_TEMPORARY128, m_nextTemporary++);
-
-	STATEMENT statement;
-	statement.op = OP_MD_EXPAND;
-	statement.src1 = MakeSymbolRef(MakeSymbol(SYM_RELATIVE, static_cast<uint32>(offset)));
-	statement.dst = MakeSymbolRef(tempSym);
-	InsertStatement(statement);
-
-	m_shadow.Push(tempSym);
-}
-
-void CJitter::MD_PushRelElementExpand(size_t offset, uint32 elementIdx)
+void CJitter::MD_PushRelElementExpandW(size_t offset, uint32 elementIdx)
 {
 	assert(elementIdx < 4);
 
 	auto tempSym = MakeSymbol(SYM_TEMPORARY128, m_nextTemporary++);
 
 	STATEMENT statement;
-	statement.op = OP_MD_EXPAND;
+	statement.op = OP_MD_EXPAND_W;
 	statement.src1 = MakeSymbolRef(MakeSymbol(SYM_RELATIVE128, static_cast<uint32>(offset)));
 	statement.src2 = MakeSymbolRef(MakeSymbol(SYM_CONSTANT, elementIdx));
 	statement.dst = MakeSymbolRef(tempSym);
@@ -1033,12 +1020,12 @@ void CJitter::MD_PushRelElementExpand(size_t offset, uint32 elementIdx)
 	m_shadow.Push(tempSym);
 }
 
-void CJitter::MD_PushCstExpand(uint32 constant)
+void CJitter::MD_PushCstExpandW(uint32 constant)
 {
 	auto tempSym = MakeSymbol(SYM_TEMPORARY128, m_nextTemporary++);
 
 	STATEMENT statement;
-	statement.op = OP_MD_EXPAND;
+	statement.op = OP_MD_EXPAND_W;
 	statement.src1 = MakeSymbolRef(MakeSymbol(SYM_CONSTANT, constant));
 	statement.dst = MakeSymbolRef(tempSym);
 	InsertStatement(statement);
@@ -1046,9 +1033,9 @@ void CJitter::MD_PushCstExpand(uint32 constant)
 	m_shadow.Push(tempSym);
 }
 
-void CJitter::MD_PushCstExpand(float value)
+void CJitter::MD_PushCstExpandS(float value)
 {
-	MD_PushCstExpand(*reinterpret_cast<uint32*>(&value));
+	MD_PushCstExpandW(*reinterpret_cast<uint32*>(&value));
 }
 
 void CJitter::MD_LoadFromRef()
@@ -1492,6 +1479,11 @@ void CJitter::MD_MulS()
 void CJitter::MD_DivS()
 {
 	InsertBinaryMdStatement(OP_MD_DIV_S);
+}
+
+void CJitter::MD_ExpandW()
+{
+	InsertUnaryMdStatement(OP_MD_EXPAND_W);
 }
 
 void CJitter::MD_AbsS()

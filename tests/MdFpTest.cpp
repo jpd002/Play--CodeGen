@@ -68,12 +68,12 @@ void CMdFpTest::Compile(Jitter::CJitter& jitter)
 
 		//ToWord Truncate
 		jitter.MD_PushRel(offsetof(CONTEXT, src2));
-		jitter.MD_ToWordTruncate();
+		jitter.MD_ToInt32TruncateS();
 		jitter.MD_PullRel(offsetof(CONTEXT, dstCvtWord));
 
 		//ToSingle
 		jitter.MD_PushRel(offsetof(CONTEXT, dstCvtWord));
-		jitter.MD_ToSingle();
+		jitter.MD_ToSingleI32();
 		jitter.MD_PullRel(offsetof(CONTEXT, dstCvtSingle));
 	}
 	jitter.End();

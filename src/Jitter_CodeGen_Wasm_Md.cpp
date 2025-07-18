@@ -980,8 +980,8 @@ CCodeGen_Wasm::CONSTMATCHER CCodeGen_Wasm::g_mdConstMatchers[] =
 	{ OP_MD_MAKECLIP,    MATCH_MEMORY,         MATCH_MEMORY128,      MATCH_MEMORY128,     MATCH_MEMORY128,&CCodeGen_Wasm::Emit_Md_MakeClip_MemMemMemMem                   },
 	{ OP_MD_MAKESZ,      MATCH_MEMORY,         MATCH_MEMORY128,      MATCH_NIL,           MATCH_NIL,      &CCodeGen_Wasm::Emit_Md_MakeSz_MemMem                           },
 
-	{ OP_MD_TOSINGLE,           MATCH_MEMORY128,    MATCH_MEMORY128,    MATCH_NIL,        MATCH_NIL,      &CCodeGen_Wasm::Emit_Md_MemMem<Wasm::INST_F32x4_CONVERT_I32x4_S>   },
-	{ OP_MD_TOWORD_TRUNCATE,    MATCH_MEMORY128,    MATCH_MEMORY128,    MATCH_NIL,        MATCH_NIL,      &CCodeGen_Wasm::Emit_Md_MemMem<Wasm::INST_I32x4_TRUNC_SAT_F32x4_S> },
+	{ OP_MD_TOSINGLE_I32,       MATCH_MEMORY128,    MATCH_MEMORY128,    MATCH_NIL,        MATCH_NIL,      &CCodeGen_Wasm::Emit_Md_MemMem<Wasm::INST_F32x4_CONVERT_I32x4_S>   },
+	{ OP_MD_TOINT32_TRUNC_S,    MATCH_MEMORY128,    MATCH_MEMORY128,    MATCH_NIL,        MATCH_NIL,      &CCodeGen_Wasm::Emit_Md_MemMem<Wasm::INST_I32x4_TRUNC_SAT_F32x4_S> },
 
 	{ OP_LOADFROMREF,    MATCH_MEMORY128,      MATCH_MEM_REF,        MATCH_NIL,           MATCH_NIL,      &CCodeGen_Wasm::Emit_Md_LoadFromRef_MemMem                    },
 	{ OP_LOADFROMREF,    MATCH_MEMORY128,      MATCH_MEM_REF,        MATCH_ANY32,         MATCH_NIL,      &CCodeGen_Wasm::Emit_Md_LoadFromRef_MemMemAny                 },

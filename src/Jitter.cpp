@@ -1534,14 +1534,14 @@ void CJitter::MD_MakeSignZero()
 	m_shadow.Push(tempSym);
 }
 
-void CJitter::MD_ToWordTruncate()
+void CJitter::MD_ToInt32TruncateS()
 {
-	InsertUnaryMdStatement(OP_MD_TOWORD_TRUNCATE);
+	InsertUnaryMdStatement(OP_MD_TOINT32_TRUNC_S);
 }
 
-void CJitter::MD_ToSingle()
+void CJitter::MD_ToSingleI32()
 {
-	InsertUnaryMdStatement(OP_MD_TOSINGLE);
+	InsertUnaryMdStatement(OP_MD_TOSINGLE_I32);
 }
 
 //Generic Statement Inserters

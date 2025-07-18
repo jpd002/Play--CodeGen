@@ -503,12 +503,12 @@ namespace Jitter
 			static OpRegType OpReg() { return &CAArch32Assembler::Vneg_F32; }
 		};
 
-		struct MDOP_TOSINGLE : public MDOP_BASE2
+		struct MDOP_TOSINGLE_I32 : public MDOP_BASE2
 		{
 			static OpRegType OpReg() { return &CAArch32Assembler::Vcvt_F32_S32; }
 		};
 
-		struct MDOP_TOWORD : public MDOP_BASE2
+		struct MDOP_TOINT32_S : public MDOP_BASE2
 		{
 			static OpRegType OpReg() { return &CAArch32Assembler::Vcvt_S32_F32; }
 		};

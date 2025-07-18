@@ -831,8 +831,8 @@ CCodeGen_AArch64::CONSTMATCHER CCodeGen_AArch64::g_mdConstMatchers[] =
 	{ OP_MD_MAKECLIP,           MATCH_VARIABLE,       MATCH_VARIABLE128,    MATCH_VARIABLE128,      MATCH_VARIABLE128, &CCodeGen_AArch64::Emit_Md_MakeClip_VarVarVarVar         },
 	{ OP_MD_MAKESZ,             MATCH_VARIABLE,       MATCH_VARIABLE128,    MATCH_NIL,              MATCH_NIL,         &CCodeGen_AArch64::Emit_Md_MakeSz_VarVar                 },
 	
-	{ OP_MD_TOSINGLE,           MATCH_VARIABLE128,    MATCH_VARIABLE128,    MATCH_NIL,              MATCH_NIL, &CCodeGen_AArch64::Emit_Md_VarVar<MDOP_TOSINGLE>                 },
-	{ OP_MD_TOWORD_TRUNCATE,    MATCH_VARIABLE128,    MATCH_VARIABLE128,    MATCH_NIL,              MATCH_NIL, &CCodeGen_AArch64::Emit_Md_VarVar<MDOP_TOWORD>                   },
+	{ OP_MD_TOSINGLE_I32,       MATCH_VARIABLE128,    MATCH_VARIABLE128,    MATCH_NIL,              MATCH_NIL, &CCodeGen_AArch64::Emit_Md_VarVar<MDOP_TOSINGLE_I32>             },
+	{ OP_MD_TOINT32_TRUNC_S,    MATCH_VARIABLE128,    MATCH_VARIABLE128,    MATCH_NIL,              MATCH_NIL, &CCodeGen_AArch64::Emit_Md_VarVar<MDOP_TOINT32_TRUNC_S>          },
 
 	{ OP_LOADFROMREF,           MATCH_VARIABLE128,    MATCH_VAR_REF,        MATCH_NIL,              MATCH_NIL,         &CCodeGen_AArch64::Emit_Md_LoadFromRef_VarVar            },
 	{ OP_LOADFROMREF,           MATCH_VARIABLE128,    MATCH_VAR_REF,        MATCH_ANY32,            MATCH_NIL,         &CCodeGen_AArch64::Emit_Md_LoadFromRef_VarVarAny         },

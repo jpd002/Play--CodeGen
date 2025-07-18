@@ -384,13 +384,13 @@ namespace Jitter
 			static OpVoAvxType OpVoAvx() { return &CX86Assembler::VmaxpsVo; }
 		};
 
-		struct MDOP_TOWORD_TRUNCATE : public MDOP_BASE
+		struct MDOP_TOINT32_TRUNC_S : public MDOP_BASE
 		{
 			static OpVoType OpVo() { return &CX86Assembler::Cvttps2dqVo; }
 			static OpVoType OpVoAvx() { return &CX86Assembler::Vcvttps2dqVo; }
 		};
 
-		struct MDOP_TOSINGLE : public MDOP_BASE
+		struct MDOP_TOSINGLE_I32 : public MDOP_BASE
 		{
 			static OpVoType OpVo() { return &CX86Assembler::Cvtdq2psVo; }
 			static OpVoType OpVoAvx() { return &CX86Assembler::Vcvtdq2psVo; }

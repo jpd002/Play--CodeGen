@@ -376,11 +376,11 @@ void Jitter::DumpStatementList(std::ostream& outputStream, const StatementList& 
 		case OP_MD_EXPAND_W:
 			outputStream << " EXPAND(W)";
 			break;
-		case OP_MD_TOSINGLE:
-			outputStream << " TOSINGLE";
+		case OP_MD_TOSINGLE_I32:
+			outputStream << " TOSINGLE_I32";
 			break;
-		case OP_MD_TOWORD_TRUNCATE:
-			outputStream << " TOWORD_TRUNCATE";
+		case OP_MD_TOINT32_TRUNC_S:
+			outputStream << " TOINT32_TRUNC_S";
 			break;
 		default:
 			outputStream << " ?? ";

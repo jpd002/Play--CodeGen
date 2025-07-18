@@ -242,8 +242,8 @@ namespace Jitter
 		void MD_SubWSS();
 		void MD_SubWUS();
 		void MD_SubS();
-		void MD_ToSingle();
-		void MD_ToWordTruncate();
+		void MD_ToInt32TruncateS();
+		void MD_ToSingleI32();
 		void MD_UnpackLowerBH();
 		void MD_UnpackLowerHW();
 		void MD_UnpackLowerWD();

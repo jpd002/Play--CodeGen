@@ -328,6 +328,11 @@ void CX86Assembler::PsubbVo(XMMREGISTER registerId, const CAddress& address)
 	WriteEdVdOp_66_0F(0xF8, address, registerId);
 }
 
+void CX86Assembler::PsubsbVo(XMMREGISTER registerId, const CAddress& address)
+{
+	WriteEdVdOp_66_0F(0xE8, address, registerId);
+}
+
 void CX86Assembler::PsubusbVo(XMMREGISTER registerId, const CAddress& address)
 {
 	WriteEdVdOp_66_0F(0xD8, address, registerId);

@@ -223,6 +223,11 @@ void CX86Assembler::VpsubdVo(XMMREGISTER dst, XMMREGISTER src1, const CAddress& 
 	WriteVexVoOp(VEX_OPCODE_MAP_66, 0xFA, dst, src1, src2);
 }
 
+void CX86Assembler::VpsubsbVo(XMMREGISTER dst, XMMREGISTER src1, const CAddress& src2)
+{
+	WriteVexVoOp(VEX_OPCODE_MAP_66, 0xE8, dst, src1, src2);
+}
+
 void CX86Assembler::VpsubswVo(XMMREGISTER dst, XMMREGISTER src1, const CAddress& src2)
 {
 	WriteVexVoOp(VEX_OPCODE_MAP_66, 0xE9, dst, src1, src2);

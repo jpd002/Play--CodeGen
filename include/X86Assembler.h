@@ -334,6 +334,7 @@ public:
 	void PsrldVo(XMMREGISTER, uint8);
 
 	void PsubbVo(XMMREGISTER, const CAddress&);
+	void PsubsbVo(XMMREGISTER, const CAddress&);
 	void PsubusbVo(XMMREGISTER, const CAddress&);
 	void PsubwVo(XMMREGISTER, const CAddress&);
 	void PsubswVo(XMMREGISTER, const CAddress&);
@@ -421,6 +422,7 @@ public:
 	void VpsubwVo(XMMREGISTER, XMMREGISTER, const CAddress&);
 	void VpsubdVo(XMMREGISTER, XMMREGISTER, const CAddress&);
 
+	void VpsubsbVo(XMMREGISTER, XMMREGISTER, const CAddress&);
 	void VpsubswVo(XMMREGISTER, XMMREGISTER, const CAddress&);
 
 	void VpsubusbVo(XMMREGISTER, XMMREGISTER, const CAddress&);

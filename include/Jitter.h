@@ -234,6 +234,7 @@ namespace Jitter
 		void MD_SrlW(uint8);
 		void MD_Srl256();
 		void MD_SubB();
+		void MD_SubBSS();
 		void MD_SubBUS();
 		void MD_SubHSS();
 		void MD_SubHUS();

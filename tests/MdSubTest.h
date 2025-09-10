@@ -22,6 +22,7 @@ private:
 		uint8 srcSat1[16];
 
 		uint8 dstSubB[16];
+		uint8 dstSubBSS[16];
 		uint8 dstSubBUS[16];
 		uint8 dstSubH[16];
 		uint8 dstSubHSS[16];

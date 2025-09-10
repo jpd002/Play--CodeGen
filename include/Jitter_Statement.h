@@ -78,6 +78,7 @@ namespace Jitter
 		OP_MD_SUB_H,
 		OP_MD_SUB_W,
 
+		OP_MD_SUBSS_B,
 		OP_MD_SUBSS_H,
 		OP_MD_SUBSS_W,
 

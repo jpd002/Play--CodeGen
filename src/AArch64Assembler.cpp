@@ -1293,6 +1293,15 @@ void CAArch64Assembler::Sqsub_8h(REGISTERMD rd, REGISTERMD rn, REGISTERMD rm)
 	WriteWord(opcode);
 }
 
+void CAArch64Assembler::Sqsub_16b(REGISTERMD rd, REGISTERMD rn, REGISTERMD rm)
+{
+	uint32 opcode = 0x4E202C00;
+	opcode |= (rd << 0);
+	opcode |= (rn << 5);
+	opcode |= (rm << 16);
+	WriteWord(opcode);
+}
+
 void CAArch64Assembler::St1_4s(REGISTERMD rt, REGISTER64 rn)
 {
 	uint32 opcode = 0x4C007800;

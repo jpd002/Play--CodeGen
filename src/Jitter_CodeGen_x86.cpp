@@ -539,9 +539,16 @@ void CCodeGen_x86::Emit_Not_MemMem(const STATEMENT& statement)
 	CSymbol* dst = statement.dst->GetSymbol().get();
 	CSymbol* src1 = statement.src1->GetSymbol().get();
 
-	m_assembler.MovEd(CX86Assembler::rAX, MakeMemorySymbolAddress(src1));
-	m_assembler.NotEd(CX86Assembler::MakeRegisterAddress(CX86Assembler::rAX));
-	m_assembler.MovGd(MakeMemorySymbolAddress(dst), CX86Assembler::rAX);
+	if(dst->Equals(src1))
+	{
+		m_assembler.NotEd(MakeMemorySymbolAddress(src1));
+	}
+	else
+	{
+		m_assembler.MovEd(CX86Assembler::rAX, MakeMemorySymbolAddress(src1));
+		m_assembler.NotEd(CX86Assembler::MakeRegisterAddress(CX86Assembler::rAX));
+		m_assembler.MovGd(MakeMemorySymbolAddress(dst), CX86Assembler::rAX);
+	}
 }
 
 void CCodeGen_x86::Emit_Lzc(CX86Assembler::REGISTER dstRegister, const CX86Assembler::CAddress& srcAddress)

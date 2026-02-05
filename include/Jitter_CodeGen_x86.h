@@ -68,24 +68,28 @@ namespace Jitter
 		{
 			typedef void (CX86Assembler::*OpCstType)(const CX86Assembler::CAddress&, uint8);
 			typedef void (CX86Assembler::*OpVarType)(const CX86Assembler::CAddress&);
+			typedef void (CX86Assembler::*OpVarBmiType)(CX86Assembler::REGISTER, const CX86Assembler::CAddress&, CX86Assembler::REGISTER);
 		};
 
 		struct SHIFTOP_SRL : public SHIFTOP_BASE
 		{
 			static OpCstType OpCst() { return &CX86Assembler::ShrEd; }
 			static OpVarType OpVar() { return &CX86Assembler::ShrEd; }
+			static OpVarBmiType OpVarBmi() { return &CX86Assembler::ShrxEd; }
 		};
 
 		struct SHIFTOP_SRA : public SHIFTOP_BASE
 		{
 			static OpCstType OpCst() { return &CX86Assembler::SarEd; }
 			static OpVarType OpVar() { return &CX86Assembler::SarEd; }
+			static OpVarBmiType OpVarBmi() { return &CX86Assembler::SarxEd; }
 		};
 
 		struct SHIFTOP_SLL : public SHIFTOP_BASE
 		{
 			static OpCstType OpCst() { return &CX86Assembler::ShlEd; }
 			static OpVarType OpVar() { return &CX86Assembler::ShlEd; }
+			static OpVarBmiType OpVarBmi() { return &CX86Assembler::ShlxEd; }
 		};
 
 		//FP32OP -----------------------------------------------------------

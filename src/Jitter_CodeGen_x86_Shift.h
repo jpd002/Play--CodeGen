@@ -4,42 +4,62 @@
 template <typename SHIFTOP>
 void CCodeGen_x86::Emit_Shift_RegRegReg(const STATEMENT& statement)
 {
-	CSymbol* dst = statement.dst->GetSymbol().get();
-	CSymbol* src1 = statement.src1->GetSymbol().get();
-	CSymbol* src2 = statement.src2->GetSymbol().get();
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
 
 	assert(dst->m_type == SYM_REGISTER);
 	assert(src1->m_type == SYM_REGISTER);
 	assert(src2->m_type == SYM_REGISTER);
 
-	m_assembler.MovEd(CX86Assembler::rCX, CX86Assembler::MakeRegisterAddress(m_registers[src2->m_valueLow]));
-
-	if(!dst->Equals(src1))
+	if(m_cpuFeatures.hasBmi2)
 	{
-		m_assembler.MovEd(m_registers[dst->m_valueLow], CX86Assembler::MakeRegisterAddress(m_registers[src1->m_valueLow]));
+		((m_assembler).*(SHIFTOP::OpVarBmi()))(
+		    m_registers[dst->m_valueLow],
+		    CX86Assembler::MakeRegisterAddress(m_registers[src1->m_valueLow]), m_registers[src2->m_valueLow]);
 	}
+	else
+	{
+		m_assembler.MovEd(CX86Assembler::rCX, CX86Assembler::MakeRegisterAddress(m_registers[src2->m_valueLow]));
 
-	((m_assembler).*(SHIFTOP::OpVar()))(CX86Assembler::MakeRegisterAddress(m_registers[dst->m_valueLow]));
+		if(!dst->Equals(src1))
+		{
+			m_assembler.MovEd(m_registers[dst->m_valueLow], CX86Assembler::MakeRegisterAddress(m_registers[src1->m_valueLow]));
+		}
+
+		((m_assembler).*(SHIFTOP::OpVar()))(CX86Assembler::MakeRegisterAddress(m_registers[dst->m_valueLow]));
+	}
 }
 
 template <typename SHIFTOP>
 void CCodeGen_x86::Emit_Shift_RegRegMem(const STATEMENT& statement)
 {
-	CSymbol* dst = statement.dst->GetSymbol().get();
-	CSymbol* src1 = statement.src1->GetSymbol().get();
-	CSymbol* src2 = statement.src2->GetSymbol().get();
+	auto dst = statement.dst->GetSymbol().get();
+	auto src1 = statement.src1->GetSymbol().get();
+	auto src2 = statement.src2->GetSymbol().get();
 
 	assert(dst->m_type == SYM_REGISTER);
 	assert(src1->m_type == SYM_REGISTER);
 
-	m_assembler.MovEd(CX86Assembler::rCX, MakeMemorySymbolAddress(src2));
+	auto shiftRegister = CX86Assembler::rCX;
 
-	if(!dst->Equals(src1))
+	m_assembler.MovEd(shiftRegister, MakeMemorySymbolAddress(src2));
+
+	if(m_cpuFeatures.hasBmi2)
 	{
-		m_assembler.MovEd(m_registers[dst->m_valueLow], CX86Assembler::MakeRegisterAddress(m_registers[src1->m_valueLow]));
+		((m_assembler).*(SHIFTOP::OpVarBmi()))(
+		    m_registers[dst->m_valueLow],
+		    CX86Assembler::MakeRegisterAddress(m_registers[src1->m_valueLow]), shiftRegister);
 	}
+	else
+	{
+		if(!dst->Equals(src1))
+		{
+			m_assembler.MovEd(m_registers[dst->m_valueLow], CX86Assembler::MakeRegisterAddress(m_registers[src1->m_valueLow]));
+		}
 
-	((m_assembler).*(SHIFTOP::OpVar()))(CX86Assembler::MakeRegisterAddress(m_registers[dst->m_valueLow]));
+		((m_assembler).*(SHIFTOP::OpVar()))(CX86Assembler::MakeRegisterAddress(m_registers[dst->m_valueLow]));
+	}
 }
 
 template <typename SHIFTOP>
@@ -70,9 +90,17 @@ void CCodeGen_x86::Emit_Shift_RegMemReg(const STATEMENT& statement)
 	assert(dst->m_type == SYM_REGISTER);
 	assert(src2->m_type == SYM_REGISTER);
 
-	m_assembler.MovEd(CX86Assembler::rCX, CX86Assembler::MakeRegisterAddress(m_registers[src2->m_valueLow]));
-	m_assembler.MovEd(m_registers[dst->m_valueLow], MakeMemorySymbolAddress(src1));
-	((m_assembler).*(SHIFTOP::OpVar()))(CX86Assembler::MakeRegisterAddress(m_registers[dst->m_valueLow]));
+	if(m_cpuFeatures.hasBmi2)
+	{
+		((m_assembler).*(SHIFTOP::OpVarBmi()))(
+		    m_registers[dst->m_valueLow], MakeMemorySymbolAddress(src1), m_registers[src2->m_valueLow]);
+	}
+	else
+	{
+		m_assembler.MovEd(CX86Assembler::rCX, CX86Assembler::MakeRegisterAddress(m_registers[src2->m_valueLow]));
+		m_assembler.MovEd(m_registers[dst->m_valueLow], MakeMemorySymbolAddress(src1));
+		((m_assembler).*(SHIFTOP::OpVar()))(CX86Assembler::MakeRegisterAddress(m_registers[dst->m_valueLow]));
+	}
 }
 
 template <typename SHIFTOP>
@@ -226,9 +254,18 @@ void CCodeGen_x86::Emit_Shift_VarCstReg(const STATEMENT& statement)
 
 	auto dstRegister = PrepareSymbolRegisterDef(dst, CX86Assembler::rAX);
 
-	m_assembler.MovEd(CX86Assembler::rCX, CX86Assembler::MakeRegisterAddress(m_registers[src2->m_valueLow]));
 	m_assembler.MovId(dstRegister, src1->m_valueLow);
-	((m_assembler).*(SHIFTOP::OpVar()))(CX86Assembler::MakeRegisterAddress(dstRegister));
+
+	if(m_cpuFeatures.hasBmi2)
+	{
+		((m_assembler).*(SHIFTOP::OpVarBmi()))(
+		    dstRegister, CX86Assembler::MakeRegisterAddress(dstRegister), m_registers[src2->m_valueLow]);
+	}
+	else
+	{
+		m_assembler.MovEd(CX86Assembler::rCX, CX86Assembler::MakeRegisterAddress(m_registers[src2->m_valueLow]));
+		((m_assembler).*(SHIFTOP::OpVar()))(CX86Assembler::MakeRegisterAddress(dstRegister));
+	}
 
 	CommitSymbolRegister(dst, dstRegister);
 }
@@ -244,8 +281,8 @@ void CCodeGen_x86::Emit_Shift_VarCstMem(const STATEMENT& statement)
 
 	auto dstRegister = PrepareSymbolRegisterDef(dst, CX86Assembler::rAX);
 
-	m_assembler.MovEd(CX86Assembler::rCX, MakeMemorySymbolAddress(src2));
 	m_assembler.MovId(dstRegister, src1->m_valueLow);
+	m_assembler.MovEd(CX86Assembler::rCX, MakeMemorySymbolAddress(src2));
 	((m_assembler).*(SHIFTOP::OpVar()))(CX86Assembler::MakeRegisterAddress(dstRegister));
 
 	CommitSymbolRegister(dst, dstRegister);

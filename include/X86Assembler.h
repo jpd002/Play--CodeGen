@@ -243,6 +243,9 @@ public:
 	void ShlEq(const CAddress&, uint8);
 	void ShldEd(const CAddress&, REGISTER);
 	void ShldEd(const CAddress&, REGISTER, uint8);
+	void SarxEd(REGISTER, const CAddress&, REGISTER);
+	void ShrxEd(REGISTER, const CAddress&, REGISTER);
+	void ShlxEd(REGISTER, const CAddress&, REGISTER);
 	void SubEd(REGISTER, const CAddress&);
 	void SubEq(REGISTER, const CAddress&);
 	void SubId(const CAddress&, uint32);
@@ -527,7 +530,9 @@ private:
 		VEX_OPCODE_MAP_66_38 = 0x12,
 		VEX_OPCODE_MAP_66_3A = 0x13,
 		VEX_OPCODE_MAP_F3 = 0x21,
-		VEX_OPCODE_MAP_F2 = 0x31
+		VEX_OPCODE_MAP_F3_38 = 0x22,
+		VEX_OPCODE_MAP_F2 = 0x31,
+		VEX_OPCODE_MAP_F2_38 = 0x32,
 	};
 
 	struct LABELREF

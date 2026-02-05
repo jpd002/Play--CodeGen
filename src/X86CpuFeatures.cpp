@@ -35,6 +35,7 @@ CX86CpuFeatures CX86CpuFeatures::AutoDetect()
 	static const uint32 CPUID_FLAG_SSE41 = 0x080000;
 	static const uint32 CPUID_FLAG_AVX = 0x10000000;
 	static const uint32 CPUID_FLAG_AVX2 = 0x20;
+	static const uint32 CPUID_FLAG_BMI2 = 0x100;
 
 #ifdef HAS_CPUID_MSVC
 	std::array<int, 4> cpuInfo1;
@@ -54,6 +55,7 @@ CX86CpuFeatures CX86CpuFeatures::AutoDetect()
 	features.hasSse41 = (cpuInfo1[2] & CPUID_FLAG_SSE41) != 0;
 	features.hasAvx = (cpuInfo1[2] & CPUID_FLAG_AVX) != 0;
 	features.hasAvx2 = (cpuInfo7[1] & CPUID_FLAG_AVX2) != 0;
+	features.hasBmi2 = (cpuInfo7[1] & CPUID_FLAG_BMI2) != 0;
 
 #endif //HAS_CPUID
 

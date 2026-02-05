@@ -7,6 +7,7 @@ public:
 	bool hasSse41 = false;
 	bool hasAvx = false;
 	bool hasAvx2 = false;
+	bool hasBmi2 = false;
 
 	static CX86CpuFeatures AutoDetect();
 };

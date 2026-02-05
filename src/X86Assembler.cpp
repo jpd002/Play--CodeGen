@@ -1022,6 +1022,21 @@ void CX86Assembler::ShrdEd(const CAddress& address, REGISTER registerId, uint8 a
 	WriteByte(amount);
 }
 
+void CX86Assembler::SarxEd(REGISTER dst, const CAddress& src1, REGISTER src2)
+{
+	WriteVexVoOp(VEX_OPCODE_MAP_F3_38, 0xF7, static_cast<XMMREGISTER>(dst), static_cast<XMMREGISTER>(src2), src1);
+}
+
+void CX86Assembler::ShrxEd(REGISTER dst, const CAddress& src1, REGISTER src2)
+{
+	WriteVexVoOp(VEX_OPCODE_MAP_F2_38, 0xF7, static_cast<XMMREGISTER>(dst), static_cast<XMMREGISTER>(src2), src1);
+}
+
+void CX86Assembler::ShlxEd(REGISTER dst, const CAddress& src1, REGISTER src2)
+{
+	WriteVexVoOp(VEX_OPCODE_MAP_66_38, 0xF7, static_cast<XMMREGISTER>(dst), static_cast<XMMREGISTER>(src2), src1);
+}
+
 void CX86Assembler::SubEd(REGISTER nRegister, const CAddress& Address)
 {
 	WriteEvGvOp(0x2B, false, Address, nRegister);

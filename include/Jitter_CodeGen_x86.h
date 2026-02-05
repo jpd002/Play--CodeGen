@@ -576,10 +576,6 @@ namespace Jitter
 		void Emit_Shift_RegMemMem(const STATEMENT&);
 		template <typename>
 		void Emit_Shift_RegMemCst(const STATEMENT&);
-		template <typename>
-		void Emit_Shift_RegCstReg(const STATEMENT&);
-		template <typename>
-		void Emit_Shift_RegCstMem(const STATEMENT&);
 
 		template <typename>
 		void Emit_Shift_MemRegReg(const STATEMENT&);
@@ -593,10 +589,11 @@ namespace Jitter
 		void Emit_Shift_MemMemMem(const STATEMENT&);
 		template <typename>
 		void Emit_Shift_MemMemCst(const STATEMENT&);
+
 		template <typename>
-		void Emit_Shift_MemCstReg(const STATEMENT&);
+		void Emit_Shift_VarCstReg(const STATEMENT&);
 		template <typename>
-		void Emit_Shift_MemCstMem(const STATEMENT&);
+		void Emit_Shift_VarCstMem(const STATEMENT&);
 
 		//NOT
 		void Emit_Not_RegReg(const STATEMENT&);

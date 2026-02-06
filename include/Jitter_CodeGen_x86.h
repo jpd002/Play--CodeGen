@@ -569,35 +569,25 @@ namespace Jitter
 
 		//SHIFT
 		template <typename>
-		void Emit_Shift_RegRegReg(const STATEMENT&);
-		template <typename>
-		void Emit_Shift_RegRegMem(const STATEMENT&);
+		void Emit_Shift_RegRegVar(const STATEMENT&);
 		template <typename>
 		void Emit_Shift_RegRegCst(const STATEMENT&);
 		template <typename>
-		void Emit_Shift_RegMemReg(const STATEMENT&);
-		template <typename>
-		void Emit_Shift_RegMemMem(const STATEMENT&);
+		void Emit_Shift_RegMemVar(const STATEMENT&);
 		template <typename>
 		void Emit_Shift_RegMemCst(const STATEMENT&);
 
 		template <typename>
-		void Emit_Shift_MemRegReg(const STATEMENT&);
-		template <typename>
-		void Emit_Shift_MemRegMem(const STATEMENT&);
+		void Emit_Shift_MemRegVar(const STATEMENT&);
 		template <typename>
 		void Emit_Shift_MemRegCst(const STATEMENT&);
 		template <typename>
-		void Emit_Shift_MemMemReg(const STATEMENT&);
-		template <typename>
-		void Emit_Shift_MemMemMem(const STATEMENT&);
+		void Emit_Shift_MemMemVar(const STATEMENT&);
 		template <typename>
 		void Emit_Shift_MemMemCst(const STATEMENT&);
 
 		template <typename>
-		void Emit_Shift_VarCstReg(const STATEMENT&);
-		template <typename>
-		void Emit_Shift_VarCstMem(const STATEMENT&);
+		void Emit_Shift_VarCstVar(const STATEMENT&);
 
 		//NOT
 		void Emit_Not_RegReg(const STATEMENT&);

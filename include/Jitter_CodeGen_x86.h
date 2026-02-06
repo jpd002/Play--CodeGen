@@ -655,13 +655,7 @@ namespace Jitter
 		void Emit_CmpSelectP2_VarAnyAny(const STATEMENT&);
 
 		//MERGETO64
-		void Emit_MergeTo64_Mem64RegReg(const STATEMENT&);
-		void Emit_MergeTo64_Mem64RegMem(const STATEMENT&);
-		void Emit_MergeTo64_Mem64RegCst(const STATEMENT&);
-		void Emit_MergeTo64_Mem64MemReg(const STATEMENT&);
-		void Emit_MergeTo64_Mem64MemMem(const STATEMENT&);
-		void Emit_MergeTo64_Mem64CstReg(const STATEMENT&);
-		void Emit_MergeTo64_Mem64CstMem(const STATEMENT&);
+		void Emit_MergeTo64_Mem64AnyAny(const STATEMENT&);
 
 		//EXTLOW64
 		void Emit_ExtLow64VarMem64(const STATEMENT&);

@@ -78,14 +78,7 @@ CCodeGen_x86::CONSTMATCHER CCodeGen_x86::g_constMatchers[] =
 	{ OP_MULS, MATCH_MEMORY64, MATCH_VARIABLE, MATCH_VARIABLE, MATCH_NIL, &CCodeGen_x86::Emit_MulMem64VarVar<true> },
 	{ OP_MULS, MATCH_MEMORY64, MATCH_VARIABLE, MATCH_CONSTANT, MATCH_NIL, &CCodeGen_x86::Emit_MulMem64VarCst<true> },
 
-	{ OP_MERGETO64, MATCH_MEMORY64, MATCH_REGISTER, MATCH_REGISTER, MATCH_NIL, &CCodeGen_x86::Emit_MergeTo64_Mem64RegReg },
-	{ OP_MERGETO64, MATCH_MEMORY64, MATCH_REGISTER, MATCH_MEMORY,   MATCH_NIL, &CCodeGen_x86::Emit_MergeTo64_Mem64RegMem },
-	{ OP_MERGETO64, MATCH_MEMORY64, MATCH_REGISTER, MATCH_CONSTANT, MATCH_NIL, &CCodeGen_x86::Emit_MergeTo64_Mem64RegCst },
-	{ OP_MERGETO64, MATCH_MEMORY64, MATCH_MEMORY,   MATCH_REGISTER, MATCH_NIL, &CCodeGen_x86::Emit_MergeTo64_Mem64MemReg },
-	{ OP_MERGETO64, MATCH_MEMORY64, MATCH_MEMORY,   MATCH_MEMORY,   MATCH_NIL, &CCodeGen_x86::Emit_MergeTo64_Mem64MemMem },
-	{ OP_MERGETO64, MATCH_MEMORY64, MATCH_CONSTANT, MATCH_REGISTER, MATCH_NIL, &CCodeGen_x86::Emit_MergeTo64_Mem64CstReg },
-	{ OP_MERGETO64, MATCH_MEMORY64, MATCH_CONSTANT, MATCH_MEMORY,   MATCH_NIL, &CCodeGen_x86::Emit_MergeTo64_Mem64CstMem },
-
+	{ OP_MERGETO64, MATCH_MEMORY64, MATCH_ANY32, MATCH_ANY32, MATCH_NIL, &CCodeGen_x86::Emit_MergeTo64_Mem64AnyAny },
 	{ OP_EXTLOW64,  MATCH_VARIABLE, MATCH_MEMORY64, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_ExtLow64VarMem64 },
 	{ OP_EXTHIGH64, MATCH_VARIABLE, MATCH_MEMORY64, MATCH_NIL, MATCH_NIL, &CCodeGen_x86::Emit_ExtHigh64VarMem64 },
 
@@ -670,102 +663,17 @@ void CCodeGen_x86::Emit_Jmp(const STATEMENT& statement)
 	m_assembler.JmpJx(GetLabel(statement.jmpBlock));
 }
 
-void CCodeGen_x86::Emit_MergeTo64_Mem64RegReg(const STATEMENT& statement)
-{
-	CSymbol* dst = statement.dst->GetSymbol().get();
-	CSymbol* src1 = statement.src1->GetSymbol().get();
-	CSymbol* src2 = statement.src2->GetSymbol().get();
-
-	assert(src1->m_type == SYM_REGISTER);
-	assert(src2->m_type == SYM_REGISTER);
-
-	m_assembler.MovGd(MakeMemory64SymbolLoAddress(dst), m_registers[src1->m_valueLow]);
-	m_assembler.MovGd(MakeMemory64SymbolHiAddress(dst), m_registers[src2->m_valueLow]);
-}
-
-void CCodeGen_x86::Emit_MergeTo64_Mem64RegMem(const STATEMENT& statement)
-{
-	CSymbol* dst = statement.dst->GetSymbol().get();
-	CSymbol* src1 = statement.src1->GetSymbol().get();
-	CSymbol* src2 = statement.src2->GetSymbol().get();
-
-	assert(src1->m_type == SYM_REGISTER);
-
-	m_assembler.MovEd(CX86Assembler::rDX, MakeMemorySymbolAddress(src2));
-
-	m_assembler.MovGd(MakeMemory64SymbolLoAddress(dst), m_registers[src1->m_valueLow]);
-	m_assembler.MovGd(MakeMemory64SymbolHiAddress(dst), CX86Assembler::rDX);
-}
-
-void CCodeGen_x86::Emit_MergeTo64_Mem64RegCst(const STATEMENT& statement)
-{
-	CSymbol* dst = statement.dst->GetSymbol().get();
-	CSymbol* src1 = statement.src1->GetSymbol().get();
-	CSymbol* src2 = statement.src2->GetSymbol().get();
-
-	assert(src1->m_type == SYM_REGISTER);
-
-	m_assembler.MovId(CX86Assembler::rDX, src2->m_valueLow);
-
-	m_assembler.MovGd(MakeMemory64SymbolLoAddress(dst), m_registers[src1->m_valueLow]);
-	m_assembler.MovGd(MakeMemory64SymbolHiAddress(dst), CX86Assembler::rDX);
-}
-
-void CCodeGen_x86::Emit_MergeTo64_Mem64MemReg(const STATEMENT& statement)
+void CCodeGen_x86::Emit_MergeTo64_Mem64AnyAny(const STATEMENT& statement)
 {
 	auto dst = statement.dst->GetSymbol().get();
 	auto src1 = statement.src1->GetSymbol().get();
 	auto src2 = statement.src2->GetSymbol().get();
 
-	assert(src2->m_type == SYM_REGISTER);
+	auto loRegister = PrepareSymbolRegisterUse(src1, CX86Assembler::rAX);
+	auto hiRegister = PrepareSymbolRegisterUse(src2, CX86Assembler::rDX);
 
-	m_assembler.MovEd(CX86Assembler::rAX, MakeMemorySymbolAddress(src1));
-
-	m_assembler.MovGd(MakeMemory64SymbolLoAddress(dst), CX86Assembler::rAX);
-	m_assembler.MovGd(MakeMemory64SymbolHiAddress(dst), m_registers[src2->m_valueLow]);
-}
-
-void CCodeGen_x86::Emit_MergeTo64_Mem64MemMem(const STATEMENT& statement)
-{
-	CSymbol* dst = statement.dst->GetSymbol().get();
-	CSymbol* src1 = statement.src1->GetSymbol().get();
-	CSymbol* src2 = statement.src2->GetSymbol().get();
-
-	m_assembler.MovEd(CX86Assembler::rAX, MakeMemorySymbolAddress(src1));
-	m_assembler.MovEd(CX86Assembler::rDX, MakeMemorySymbolAddress(src2));
-
-	m_assembler.MovGd(MakeMemory64SymbolLoAddress(dst), CX86Assembler::rAX);
-	m_assembler.MovGd(MakeMemory64SymbolHiAddress(dst), CX86Assembler::rDX);
-}
-
-void CCodeGen_x86::Emit_MergeTo64_Mem64CstReg(const STATEMENT& statement)
-{
-	CSymbol* dst = statement.dst->GetSymbol().get();
-	CSymbol* src1 = statement.src1->GetSymbol().get();
-	CSymbol* src2 = statement.src2->GetSymbol().get();
-
-	assert(src1->m_type == SYM_CONSTANT);
-	assert(src2->m_type == SYM_REGISTER);
-
-	m_assembler.MovId(CX86Assembler::rAX, src1->m_valueLow);
-
-	m_assembler.MovGd(MakeMemory64SymbolLoAddress(dst), CX86Assembler::rAX);
-	m_assembler.MovGd(MakeMemory64SymbolHiAddress(dst), m_registers[src2->m_valueLow]);
-}
-
-void CCodeGen_x86::Emit_MergeTo64_Mem64CstMem(const STATEMENT& statement)
-{
-	CSymbol* dst = statement.dst->GetSymbol().get();
-	CSymbol* src1 = statement.src1->GetSymbol().get();
-	CSymbol* src2 = statement.src2->GetSymbol().get();
-
-	assert(src1->m_type == SYM_CONSTANT);
-
-	m_assembler.MovId(CX86Assembler::rAX, src1->m_valueLow);
-	m_assembler.MovEd(CX86Assembler::rDX, MakeMemorySymbolAddress(src2));
-
-	m_assembler.MovGd(MakeMemory64SymbolLoAddress(dst), CX86Assembler::rAX);
-	m_assembler.MovGd(MakeMemory64SymbolHiAddress(dst), CX86Assembler::rDX);
+	m_assembler.MovGd(MakeMemory64SymbolLoAddress(dst), loRegister);
+	m_assembler.MovGd(MakeMemory64SymbolHiAddress(dst), hiRegister);
 }
 
 void CCodeGen_x86::Emit_ExtLow64VarMem64(const STATEMENT& statement)

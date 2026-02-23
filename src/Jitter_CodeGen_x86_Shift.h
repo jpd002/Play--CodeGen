@@ -190,7 +190,6 @@ void CCodeGen_x86::Emit_Shift_VarCstVar(const STATEMENT& statement)
 
 		((m_assembler).*(SHIFTOP::OpVarBmi()))(
 		    dstRegister, CX86Assembler::MakeRegisterAddress(src1Register), src2Register);
-
 	}
 	else
 	{
@@ -216,5 +215,5 @@ void CCodeGen_x86::Emit_Shift_VarCstVar(const STATEMENT& statement)
 	{ SHIFTOP_CST, MATCH_MEMORY, MATCH_MEMORY,   MATCH_VARIABLE, MATCH_NIL, &CCodeGen_x86::Emit_Shift_MemMemVar<SHIFTOP> }, \
 	{ SHIFTOP_CST, MATCH_MEMORY, MATCH_MEMORY,   MATCH_CONSTANT, MATCH_NIL, &CCodeGen_x86::Emit_Shift_MemMemCst<SHIFTOP> }, \
 \
-	{ SHIFTOP_CST, MATCH_VARIABLE, MATCH_CONSTANT, MATCH_VARIABLE, MATCH_NIL, &CCodeGen_x86::Emit_Shift_VarCstVar<SHIFTOP> }, 
+	{ SHIFTOP_CST, MATCH_VARIABLE, MATCH_CONSTANT, MATCH_VARIABLE, MATCH_NIL, &CCodeGen_x86::Emit_Shift_VarCstVar<SHIFTOP> },
 // clang-format on

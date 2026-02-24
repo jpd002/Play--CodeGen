@@ -1,0 +1,3 @@
+[submodule "deps/lwmem"]
+	path = deps/lwmem
+	url = https://github.com/MaJerle/lwmem.git

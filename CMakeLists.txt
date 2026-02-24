@@ -37,6 +37,24 @@ if(ANDROID)
 	list(APPEND CODEGEN_LIBS cpufeatures)
 endif()
 
+# Détection iOS
+if(APPLE)
+	if(IOS OR CMAKE_SYSTEM_NAME STREQUAL "iOS")
+		set(TARGET_PLATFORM_IOS TRUE)
+	endif()
+endif()
+
+# Configuration iOS JIT
+if(TARGET_PLATFORM_IOS)
+	message(STATUS "Configuring Play--CodeGen for iOS with JIT support")
+
+	# Ajouter lwmem
+	if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/deps/lwmem/CMakeLists.txt")
+		add_subdirectory(deps/lwmem/lwmem)
+		list(APPEND CODEGEN_LIBS lwmem)
+	endif()
+endif()
+
 add_library(CodeGen 
 	src/AArch32Assembler.cpp
 	src/AArch64Assembler.cpp
@@ -80,6 +98,11 @@ add_library(CodeGen
 	src/MemoryFunction.cpp
 	src/ObjectFile.cpp
 	src/WasmModuleBuilder.cpp
+	$<$<BOOL:${TARGET_PLATFORM_IOS}>:src/MemoryUtil_iOS.cpp>
+	$<$<BOOL:${TARGET_PLATFORM_IOS}>:src/MemoryUtil_iOS_Legacy.cpp>
+	$<$<BOOL:${TARGET_PLATFORM_IOS}>:src/MemoryUtil_iOS_LuckNoTXM.cpp>
+	$<$<BOOL:${TARGET_PLATFORM_IOS}>:src/MemoryUtil_iOS_LuckTXM.cpp>
+	$<$<BOOL:${TARGET_PLATFORM_IOS}>:src/JITMemoryTracker.cpp>
 	src/X86Assembler.cpp
 	src/X86Assembler_Avx.cpp
 	src/X86Assembler_Fpu.cpp
@@ -109,6 +132,8 @@ add_library(CodeGen
 	include/MachoDefs.h
 	include/MachoObjectFile.h
 	include/MemoryFunction.h
+	$<$<BOOL:${TARGET_PLATFORM_IOS}>:include/MemoryUtil.h>
+	$<$<BOOL:${TARGET_PLATFORM_IOS}>:include/JITMemoryTracker.h>
 	include/ObjectFile.h
 	include/WasmDefs.h
 	include/WasmModuleBuilder.h
@@ -118,6 +143,23 @@ add_library(CodeGen
 
 target_link_libraries(CodeGen PUBLIC Framework ${CODEGEN_LIBS})
 target_include_directories(CodeGen PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+
+# Configuration supplémentaire iOS
+if(TARGET_PLATFORM_IOS)
+	# Include directories pour lwmem
+	if(TARGET lwmem)
+		target_include_directories(CodeGen PRIVATE
+			${CMAKE_CURRENT_SOURCE_DIR}/deps/lwmem/lwmem/src/include
+		)
+	endif()
+
+	# Définitions du compilateur
+	target_compile_definitions(CodeGen PRIVATE
+		IPHONEOS=1
+		TARGET_OS_IOS=1
+	)
+endif()
+
 enable_testing()
 
 set(CodeGenTest_SRC

@@ -24,6 +24,7 @@ public:
 	void operator()(void*);
 
 	void* GetCode() const;
+	void* GetWritableCode() const;
 	size_t GetSize() const;
 
 	void BeginModify();
